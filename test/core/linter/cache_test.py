@@ -232,6 +232,17 @@ def test__cache_coerce_entry_canonicalises_statistics_order():
             },
             "non-integer statistic",
         ),
+        (
+            {
+                "statistics": {
+                    "source_chars": -1,
+                    "templated_chars": 2,
+                    "segments": 3,
+                    "raw_segments": 4,
+                }
+            },
+            "negative statistic",
+        ),
     ],
 )
 def test__cache_coerce_entry_rejects_malformed(mutation, reason):
@@ -261,6 +272,17 @@ class TestLoadAndPersist:
     def test_from_config_returns_none_when_disabled(self, project):
         """No cache object at all when caching is off, so there's no cost."""
         assert LintCache.from_config(make_config(project, cache=False)) is None
+
+    def test_from_config_declines_with_user_rules(self, project):
+        """Custom rules passed to `Linter` disable caching entirely.
+
+        Regression test. Every other input to a result has a stable identity --
+        a file its bytes, config its values, a plugin its version -- but a rule
+        class handed to us in-process has none: its name would not change when
+        its body did. Keying on it would let an edited rule be masked by a
+        cached clean result, so we decline instead.
+        """
+        assert LintCache.from_config(make_config(project), user_rules=[object]) is None
 
     def test_from_config_builds_when_enabled(self, project, tmp_path):
         """The configured directory is respected and made absolute."""
@@ -313,6 +335,21 @@ class TestLoadAndPersist:
         cache = LintCache(str(cache_dir), make_config(project))
         cache.persist()
         assert (cache_dir / ".gitignore").read_text(encoding="utf-8").endswith("*\n")
+
+    def test_no_gitignore_in_a_directory_we_did_not_create(self, project, tmp_path):
+        """A pre-existing `cache_dir` is not silently made git-ignored.
+
+        Regression test. `cache_dir` is user-configurable and may point at a
+        directory which already holds other things; writing a `.gitignore`
+        containing `*` there would hide the user's own untracked files.
+        """
+        cache_dir = tmp_path / "existing"
+        cache_dir.mkdir()
+        write(cache_dir / "something_of_theirs.txt", "keep me")
+        cache = LintCache(str(cache_dir), make_config(project))
+        cache.persist()
+        assert (cache_dir / CACHE_FILENAME).exists()
+        assert not (cache_dir / ".gitignore").exists()
 
     def test_persist_leaves_no_temporary_files(self, project, tmp_path):
         """The atomic write cleans up after itself."""
@@ -435,6 +472,25 @@ class TestCheckAndRecord:
         cache.record(str(target), dict(VALID_ENTRY["statistics"]))
         assert cache._entries == {}
 
+    def test_pending_keys_are_released_for_uncacheable_files(self, project):
+        """A file which will never be recorded doesn't hold its key.
+
+        Regression test. `check` retains a key for every miss so that `record`
+        can verify it. On a project where most files have violations -- the
+        projects that get no benefit from the cache in the first place --
+        holding one key per file for the whole run is wasted memory.
+        """
+        write(project / "clean.sql", CLEAN_SQL)
+        write(project / "dirty.sql", DIRTY_SQL)
+        linter = Linter(config=make_config(project))
+        linter.lint_paths((str(project),))
+        # Both files missed, but only the clean one is kept as an entry and
+        # neither is left dangling in the pending map.
+        cache = LintCache.from_config(make_config(project))
+        assert cache is not None
+        assert len(cache._entries) == 1
+        assert cache._pending_keys == {}
+
     def test_missing_file_is_not_keyable(self, project, tmp_path):
         """A file which disappeared is a miss, not an exception."""
         cache = LintCache(str(tmp_path / "cache"), make_config(project))
@@ -532,6 +588,35 @@ class UnknownTemplater(RawTemplater):
     """A stand-in for a templater SQLFluff doesn't ship."""
 
     name = "unknown"
+
+
+class DerivedJinjaTemplater(JinjaTemplater):
+    """A stand-in for a templater which renders through a project.
+
+    `DbtTemplater` and `SQLMeshTemplater` are both real examples.
+    """
+
+    name = "derived_jinja"
+
+
+def test__templater_jinja_is_cacheable(project):
+    """The Jinja templater declares the paths it reads."""
+    config = make_config(project)
+    templater = config.get("templater_obj")
+    assert isinstance(templater, JinjaTemplater)
+    assert templater.cache_fingerprint(config) is not None
+
+
+def test__templater_jinja_subclass_is_not_cacheable(project):
+    """A subclass of `JinjaTemplater` does not inherit the opt-in.
+
+    Regression test. The Jinja declaration covers what *Jinja* reads; a
+    subclass which renders through a project reads a great deal more --
+    SQLMesh loads project context, dbt a compiled manifest. Inheriting an
+    opt-in that was never made for you is exactly how a stale hit hides a
+    real violation.
+    """
+    assert DerivedJinjaTemplater().cache_fingerprint(make_config(project)) is None
 
 
 def test__templater_raw_is_cacheable():
@@ -996,24 +1081,36 @@ class TestCli:
         assert not cache_dir.exists()
 
     def test_relative_cache_dir_is_resolved_from_the_working_directory(
-        self, project, monkeypatch
+        self, tmp_path, monkeypatch
     ):
         """A relative `cache_dir` lands in the same place on every run.
 
         `cache_dir` ends in `_dir`, which the config loader would otherwise
-        resolve relative to the config file -- but only once the directory
+        resolve relative to the *config file* -- but only once the directory
         exists, because resolution goes through `glob`. That would put the
         cache in one place on the first run and another on the second.
+
+        The config therefore lives in a *parent* of the working directory, so
+        the two candidate bases genuinely differ: resolving against the config
+        file would give ``<tmp>/.sqlfluff_cache`` and against the working
+        directory ``<tmp>/work/.sqlfluff_cache``. Running from the config's own
+        directory would make both answers identical and prove nothing.
         """
-        rewrite_config(
-            project,
+        write(
+            tmp_path / ".sqlfluff",
             "[sqlfluff]\ndialect = ansi\ncache = True\ncache_dir = .sqlfluff_cache\n",
         )
-        write(project / "a.sql", CLEAN_SQL)
-        monkeypatch.chdir(project)
+        clear_config_caches()
+        work = tmp_path / "work"
+        work.mkdir()
+        write(work / "a.sql", CLEAN_SQL)
+        monkeypatch.chdir(work)
+
         for _ in range(2):
-            self._lint_cli(project)
-            assert (project / ".sqlfluff_cache" / CACHE_FILENAME).exists()
+            self._lint_cli(work)
+            assert (work / ".sqlfluff_cache" / CACHE_FILENAME).exists()
+            # Never beside the config file.
+            assert not (tmp_path / ".sqlfluff_cache").exists()
 
     def test_second_run_reports_the_same_result(self, project, tmp_path):
         """A cached run produces the same output and exit code as the first."""

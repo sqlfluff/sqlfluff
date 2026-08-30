@@ -40,9 +40,17 @@ def hash_strings(hasher: "hashlib._Hash", *values: str) -> None:
     Delimiting means that ``("ab", "c")`` and ``("a", "bc")`` produce different
     digests, so two distinct inputs cannot be made to collide simply by moving
     a boundary between them.
+
+    ``surrogatepass`` rather than ``backslashreplace``: filenames can contain
+    bytes which don't decode, and ``os.fsdecode`` represents those as lone
+    surrogates. ``backslashreplace`` would render such a surrogate as the
+    literal text of an escape sequence, which is exactly what a file whose name
+    contains that text encodes to -- so two different names could produce the
+    same digest. ``surrogatepass`` encodes the surrogate itself, which is
+    injective.
     """
     for value in values:
-        encoded = value.encode("utf-8", errors="backslashreplace")
+        encoded = value.encode("utf-8", errors="surrogatepass")
         hasher.update(str(len(encoded)).encode("ascii"))
         hasher.update(b"\0")
         hasher.update(encoded)
@@ -76,21 +84,49 @@ def hash_path_contents(paths: list[str]) -> str:
         # a template may refer to one of them by name.
         hash_strings(hasher, "path", path)
         if os.path.isfile(path):
-            hash_strings(hasher, "file", "")
-            hash_file_bytes(path, hasher)
+            hash_strings(hasher, "file", _file_digest(path))
         elif os.path.isdir(path):
-            for dirpath, dirnames, filenames in os.walk(path):
+            # NOTE: `followlinks=True`. The default is False, but a Jinja
+            # loader reads straight through a symlinked directory, so leaving
+            # it out would let an edit to a linked-in macro go unnoticed and
+            # replay a stale clean result. `seen` breaks the cycles that
+            # following links can introduce.
+            seen: set[str] = set()
+            for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
+                real = os.path.realpath(dirpath)
+                if real in seen:
+                    # Already walked via another route; don't recurse forever.
+                    dirnames[:] = []
+                    continue
+                seen.add(real)
                 # Sort in place so that os.walk descends deterministically.
                 dirnames.sort()
                 for filename in sorted(filenames):
                     full = os.path.join(dirpath, filename)
-                    hash_strings(hasher, "entry", os.path.relpath(full, path))
-                    try:
-                        hash_file_bytes(full, hasher)
-                    except OSError as err:
-                        # An unreadable file folds the error into the digest
-                        # rather than being treated as though it were absent.
-                        hash_strings(hasher, "unreadable", str(err))
+                    hash_strings(
+                        hasher,
+                        "entry",
+                        os.path.relpath(full, path),
+                        _file_digest(full),
+                    )
         else:
             hash_strings(hasher, "missing", "")
+    return hasher.hexdigest()
+
+
+def _file_digest(fname: str) -> str:
+    """Digest one file's contents, or the reason it could not be read.
+
+    Returned as a fixed-length string and fed through `hash_strings` rather
+    than streamed into the caller's hasher directly. Raw bytes carry no
+    boundary, so a file whose contents happened to look like the encoding of a
+    following entry could make an added file leave the hash input unchanged.
+    """
+    hasher = hashlib.sha256()
+    try:
+        hash_file_bytes(fname, hasher)
+    except OSError as err:
+        # An unreadable file folds the error into the digest rather than being
+        # treated as though it were absent.
+        return f"unreadable:{err}"
     return hasher.hexdigest()

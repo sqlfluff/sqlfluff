@@ -36,6 +36,7 @@ import logging
 import os
 import tempfile
 import time
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional, TypedDict
 
 from sqlfluff.core.helpers.hashing import hash_file_bytes, hash_strings
@@ -156,8 +157,11 @@ def _coerce_entry(value: Any) -> Optional[CacheEntry]:
         return None
     if set(statistics) != set(_STATISTICS_KEYS):
         return None
+    # Counts of characters and segments; a negative one could only come from a
+    # hand edited file, and would be replayed straight into `--format json`.
     if not all(
-        isinstance(v, int) and not isinstance(v, bool) for v in statistics.values()
+        isinstance(v, int) and not isinstance(v, bool) and v >= 0
+        for v in statistics.values()
     ):
         return None
     return CacheEntry(
@@ -230,13 +234,36 @@ class LintCache:
     # ### Construction
 
     @classmethod
-    def from_config(cls, config: "FluffConfig") -> Optional["LintCache"]:
+    def from_config(
+        cls, config: "FluffConfig", user_rules: Optional[Sequence[Any]] = None
+    ) -> Optional["LintCache"]:
         """Build a cache from config, or return None if caching is disabled.
 
         Returns ``None`` (rather than an inert cache) when caching is off, so
         that callers can skip the per-file key work entirely.
+
+        Args:
+            config: The root config for the run.
+            user_rules: Rule classes passed programmatically to
+                :class:`Linter`. Their presence disables caching entirely; see
+                below.
+
+        Caching is declined outright when an API caller has supplied
+        ``Linter(user_rules=...)``. Every other input to a lint result can be
+        identified by something stable -- a file by its bytes, config by its
+        values, a plugin by its version -- but a rule class handed to us
+        in-process has no such identity. Its *name* would not change when its
+        body did, so keying on it would let an edited rule be masked by a
+        cached clean result. Declining is the same trade made for templaters
+        which do not declare what they read.
         """
         if not config.get("cache", default=False):
+            return None
+        if user_rules:
+            linter_logger.warning(
+                "Lint caching is disabled because this Linter was given "
+                "custom rules, whose definitions cannot be fingerprinted."
+            )
             return None
         cache_dir = config.get("cache_dir", default=DEFAULT_CACHE_DIR)
         if not cache_dir:  # pragma: no cover
@@ -312,8 +339,14 @@ class LintCache:
             "entries": entries,
         }
         try:
-            os.makedirs(self.cache_dir, exist_ok=True)
-            self._write_gitignore()
+            # `exist_ok=False` on the first attempt tells us whether this
+            # directory is ours: see `_write_gitignore`.
+            created = False
+            if not os.path.isdir(self.cache_dir):
+                os.makedirs(self.cache_dir, exist_ok=True)
+                created = True
+            if created:
+                self._write_gitignore()
             # An explicit mkstemp plus os.replace is the portable way to get an
             # atomic swap: on Windows os.replace cannot act on an open handle,
             # so the temporary file has to be closed first.
@@ -347,9 +380,15 @@ class LintCache:
         Users should not have to remember to add the cache directory to their
         ``.gitignore``, and a cache accidentally committed to a repository is
         both noise and a source of confusing hits.
+
+        Only called for a directory this run just created. ``cache_dir`` is
+        user-configurable and may point somewhere that already exists and holds
+        other things; dropping a ``.gitignore`` containing ``*`` into a
+        directory we did not make would silently hide the user's own untracked
+        files from git.
         """
         gitignore_path = os.path.join(self.cache_dir, ".gitignore")
-        if os.path.exists(gitignore_path):
+        if os.path.exists(gitignore_path):  # pragma: no cover
             return
         try:
             with open(gitignore_path, "w", encoding="utf-8") as f:
@@ -486,3 +525,14 @@ class LintCache:
             statistics={k: int(statistics.get(k, 0)) for k in _STATISTICS_KEYS},
             last_seen=int(time.time()),
         )
+
+    def forget(self, fname: str) -> None:
+        """Drop the pending key for a file which will not be recorded.
+
+        `check` holds a key for every miss so that `record` can verify it. For
+        a file which turns out not to be cacheable that key is never claimed,
+        and on a project where most files have violations -- exactly the
+        projects which get no benefit from the cache -- holding one per file
+        for the whole run is wasted memory.
+        """
+        self._pending_keys.pop(self._normalise(fname), None)

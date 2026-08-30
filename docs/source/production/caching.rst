@@ -23,9 +23,10 @@ Caching is **off by default**. Turn it on for a single run with
 
 The cache lives in :code:`.sqlfluff_cache` in the working directory by default.
 Use :code:`--cache-dir` or the :code:`cache_dir` config value to put it
-somewhere else. A relative path is resolved from the working directory, and the
-directory is created on demand with a :code:`.gitignore` inside it so that it
-cannot be committed by accident.
+somewhere else. A relative path is resolved from the working directory. If
+*SQLFluff* creates the directory it also writes a :code:`.gitignore` into it,
+so that the cache cannot be committed by accident; a directory which already
+exists is left alone, in case it is somewhere you keep other things.
 
 Like :code:`processes`, :code:`cache` and :code:`cache_dir` are read from the
 *root* configuration for the run -- the config found from the working directory
@@ -68,6 +69,16 @@ following makes a file get linted again:
 The last two discard the entire cache rather than individual entries, because
 either can change the result for every file.
 
+Caching is declined outright, rather than keyed, when a :class:`Linter` is
+constructed with :code:`user_rules` from the Python API. Every other input has
+a stable identity -- a file has its bytes, config its values, a plugin its
+version -- but a rule class passed in-process has none: its name would not
+change when its body did, so a cached clean result could hide an edited rule.
+
+The cache also has to notice a macro reached through a symbolic link, so
+directory fingerprinting follows links (with cycle protection) rather than
+using the default non-following walk.
+
 Which templaters can be cached
 ------------------------------
 
@@ -76,7 +87,13 @@ Which templaters can be cached
 * :code:`python` -- cached. Its whole context comes from config.
 * :code:`placeholder` -- cached. Its whole context comes from config.
 * :code:`dbt` -- **not cached.**
+* :code:`sqlmesh` -- **not cached.**
 * Any third party templater -- **not cached**, unless it opts in (see below).
+
+The opt-in is per *exact* class and is never inherited. A templater which
+subclasses a cacheable one -- as both :code:`dbt` and :code:`sqlmesh` subclass
+:code:`jinja` -- reads whatever its parent reads *and more*, so inheriting the
+parent's declaration would be claiming something the subclass never verified.
 
 dbt models are excluded because their rendering depends on the compiled
 manifest -- other models, seeds, packages, the selected target, and any
