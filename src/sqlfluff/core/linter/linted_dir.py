@@ -85,13 +85,18 @@ class LintedDir:
         self.step_timings: list[dict[str, float]] = []
         self.rule_timings: list[tuple[str, str, float]] = []
 
-    def add(self, file: LintedFile) -> None:
+    def add(self, file: LintedFile) -> dict[str, int]:
         """Add a file to this path.
 
         This function _always_ updates the metadata tracking, but may
         or may not persist the `file` object itself depending on the
         `retain_files` argument given on instantiation.
+
+        Returns the file statistics it derived, so that a caller which needs
+        them too (the lint cache) can reuse them rather than walking the parse
+        tree a second time. Existing callers can ignore the return value.
         """
+        statistics = file_statistics(file)
         # Generate serialised violations.
         violation_records = sorted(
             # Keep the warnings
@@ -103,7 +108,7 @@ class LintedDir:
         record: LintingRecord = {
             "filepath": file.path,
             "violations": violation_records,
-            "statistics": file_statistics(file),
+            "statistics": statistics,
             "timings": {},
         }
 
@@ -148,14 +153,18 @@ class LintedDir:
         if self.retain_files:
             self.files.append(file)
 
+        return statistics
+
     def add_cached_clean(self, path: str, statistics: dict[str, int]) -> None:
         """Record a file which was skipped because it was cached as clean.
 
         This is the counterpart to :meth:`add` for a file we deliberately did
         not lint. It updates exactly the metadata that `add` would have for a
         file with no violations, and replays the statistics recorded when the
-        file was last linted, so that serialised output (`--format json`,
-        `--persist-timing`) is unchanged by caching.
+        file was last linted, so that the violations and statistics in
+        serialised output are unchanged by caching. Timings are the one
+        exception, and are covered below -- a `--persist-timing` row for a
+        cached file has its statistics but blank timing columns.
 
         Two things are deliberately *not* replayed:
 

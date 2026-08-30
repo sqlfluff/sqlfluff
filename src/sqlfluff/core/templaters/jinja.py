@@ -547,6 +547,14 @@ class JinjaTemplater(PythonTemplater):
         path configured as ``load_macros_from_path``, so the two cannot be
         confused for one another.
         """
+        # Only this exact class, for the same reason as `PythonTemplater` and
+        # `PlaceholderTemplater`: this declaration covers what *Jinja* reads,
+        # and a subclass which renders through a project (dbt, SQLMesh) reads
+        # far more. Inheriting an opt-in that was never made for you is how a
+        # stale hit hides a real violation -- see
+        # `RawTemplater.cache_fingerprint`.
+        if type(self) is not JinjaTemplater:
+            return None
         library_path = self._get_library_path(config)
         paths: list[str] = [
             # Order matters and is preserved: Jinja resolves a template name

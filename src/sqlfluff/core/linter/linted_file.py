@@ -166,7 +166,12 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.warning]
         # Add warnings for unneeded noqa if applicable
         if warn_unused_ignores and not filter_warning and self.ignore_mask:
-            violations += self.ignore_mask.generate_warnings_for_unused()
+            # NOTE: Rebind rather than `+=`. Every filter above builds a new
+            # list, but when none of them apply `violations` is still the
+            # *same object* as `self.violations`, and an in-place extend would
+            # append the generated warnings to the file's own violation list.
+            # That would be permanent, and would repeat on every call.
+            violations = violations + self.ignore_mask.generate_warnings_for_unused()
         return violations
 
     def num_violations(

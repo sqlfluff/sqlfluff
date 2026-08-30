@@ -166,8 +166,68 @@ class TestHashPathContents:
         target.write_text("A = 2", encoding="utf-8")
         assert hash_path_contents([str(target)]) != before
 
-    @pytest.mark.parametrize("content", ["x", ""])
-    def test_empty_file_is_hashed(self, tmp_path, content):
-        """An empty file still contributes its name."""
-        root = self._make_tree(tmp_path, {"m.sql": content})
-        assert hash_path_contents([root]) == hash_path_contents([root])
+    def test_empty_file_still_contributes_its_name(self, tmp_path):
+        """An empty file is not the same as no file.
+
+        The digest has to notice a zero-byte file being added, otherwise
+        creating an empty macro file would not invalidate anything.
+        """
+        empty_dir = str(self._make_tree(tmp_path / "a", {}))
+        os.makedirs(empty_dir, exist_ok=True)
+        with_file = self._make_tree(tmp_path / "b", {"m.sql": ""})
+        # Same directory, before and after the empty file appears.
+        root = str(tmp_path / "c")
+        os.makedirs(root)
+        before = hash_path_contents([root])
+        (tmp_path / "c" / "m.sql").write_text("", encoding="utf-8")
+        assert hash_path_contents([root]) != before
+        # And it is still distinct from a file with content.
+        assert hash_path_contents([root]) != hash_path_contents([with_file])
+
+    def test_file_contents_cannot_forge_an_entry_boundary(self, tmp_path):
+        """A file's bytes can't be mistaken for the next entry's header.
+
+        File contents used to be streamed into the digest undelimited, so a
+        file whose bytes happened to encode the next entry's record could make
+        adding a file leave the hash input unchanged. Contents are now hashed
+        separately and folded in as a fixed-length digest.
+        """
+        root = self._make_tree(tmp_path, {"a.sql": "x"})
+        before = hash_path_contents([root])
+        # Content chosen to imitate the delimiter framing used internally.
+        (tmp_path / "b.sql").write_text(
+            "5\x00entry\x007\x00b.sql\x00", encoding="utf-8"
+        )
+        assert hash_path_contents([root]) != before
+
+    def test_follows_symlinked_directories(self, tmp_path):
+        """A macro reached through a symlink is still fingerprinted.
+
+        `os.walk` does not follow directory symlinks by default, but a Jinja
+        loader reads straight through them, so an edit behind a link would
+        otherwise replay a stale clean result.
+        """
+        real = tmp_path / "real"
+        search = tmp_path / "search"
+        real.mkdir()
+        search.mkdir()
+        (real / "m.sql").write_text("{% macro f() %}1{% endmacro %}", encoding="utf-8")
+        try:
+            os.symlink(real, search / "linked", target_is_directory=True)
+        except (OSError, NotImplementedError) as err:  # pragma: no cover
+            pytest.skip(f"symlinks unavailable in this environment: {err}")
+        before = hash_path_contents([str(search)])
+        (real / "m.sql").write_text("{% macro f() %}2{% endmacro %}", encoding="utf-8")
+        assert hash_path_contents([str(search)]) != before
+
+    def test_symlink_cycle_terminates(self, tmp_path):
+        """Following links must not loop forever on a cyclic tree."""
+        root = tmp_path / "root"
+        root.mkdir()
+        (root / "m.sql").write_text("x", encoding="utf-8")
+        try:
+            os.symlink(root, root / "loop", target_is_directory=True)
+        except (OSError, NotImplementedError) as err:  # pragma: no cover
+            pytest.skip(f"symlinks unavailable in this environment: {err}")
+        # The assertion is simply that this returns at all.
+        assert hash_path_contents([str(root)])

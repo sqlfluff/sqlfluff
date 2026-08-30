@@ -30,7 +30,7 @@ from sqlfluff.core.linter.common import (
 )
 from sqlfluff.core.linter.discovery import paths_from_path
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
-from sqlfluff.core.linter.linted_dir import LintedDir, file_statistics
+from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import (
     TMP_PRS_ERROR_TYPES,
     FileTimings,
@@ -1183,7 +1183,11 @@ class Linter:
         # NOTE: Skipped entirely when there is nothing to lint. Building the
         # cache reads the cache file and enumerates installed plugins, which is
         # not worth doing for a path which turned out to contain no SQL.
-        cache = LintCache.from_config(self.config) if expanded_paths else None
+        cache = (
+            LintCache.from_config(self.config, user_rules=self.user_rules)
+            if expanded_paths
+            else None
+        )
         if cache:
             uncached_paths: list[str] = []
             for fname in expanded_paths:
@@ -1242,19 +1246,26 @@ class Linter:
         try:
             for i, linted_file in enumerate(runner_iterator, start=1):
                 linted_dir = expanded_path_to_linted_dir[linted_file.path]
-                linted_dir.add(linted_file)
-                if cache and linted_file.is_cacheable():
-                    # Record before any fixes are applied below. A cacheable
-                    # file has nothing to fix, so it is not about to be
-                    # rewritten, and the key computed from its contents before
-                    # linting still describes what is on disk.
-                    #
-                    # NOTE: There is deliberately no `else` clearing the entry
-                    # for a file which is *not* cacheable. An entry states
-                    # "content with this key linted clean", which does not stop
-                    # being true when the file changes; dropping it would only
-                    # throw away a valid answer for a later revert.
-                    cache.record(linted_file.path, file_statistics(linted_file))
+                # NOTE: `add` returns the statistics it derived, which the
+                # cache reuses rather than walking the parse tree again.
+                statistics = linted_dir.add(linted_file)
+                if cache:
+                    if linted_file.is_cacheable():
+                        # Record before any fixes are applied below. A cacheable
+                        # file has nothing to fix, so it is not about to be
+                        # rewritten, and the key computed from its contents
+                        # before linting still describes what is on disk.
+                        #
+                        # NOTE: There is deliberately no clearing of an existing
+                        # *entry* for a file which is not cacheable. An entry
+                        # states "content with this key linted clean", which
+                        # does not stop being true when the file changes;
+                        # dropping it would only throw away a valid answer for
+                        # a later revert.
+                        cache.record(linted_file.path, statistics)
+                    else:
+                        # Release the pending key, which will never be claimed.
+                        cache.forget(linted_file.path)
                 # If any fatal errors, then stop iteration.
                 if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                     linter_logger.error("Fatal linting error. Halting further linting.")
