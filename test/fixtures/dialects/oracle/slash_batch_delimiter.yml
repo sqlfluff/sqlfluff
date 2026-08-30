@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39952379cbb396da12521214e71093dfaa5817bb574a5470c18612a7fba7898a
+_hash: 55d90dd4397f7eba03cdc3aafb7b7b093d590a4da102cf110ecd70b23ce448ad
 file:
 - batch:
     statement:
@@ -55,5 +55,72 @@ file:
       - keyword: for
       - object_reference:
           naked_identifier: example
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_view_statement:
+      - keyword: create
+      - keyword: or
+      - keyword: replace
+      - keyword: view
+      - table_reference:
+          naked_identifier: example_division
+      - keyword: as
+      - select_statement:
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '100'
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: z
+          - comma: ','
+          - select_clause_element:
+              expression:
+              - function:
+                  function_name:
+                    function_name_identifier: nvl
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: bytes
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '0'
+                    - end_bracket: )
+              - binary_operator: /
+              - numeric_literal: '1024'
+              - binary_operator: /
+              - numeric_literal: '1024'
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: size_mb
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: smwhr
+          where_clause:
+            keyword: where
+            expression:
+            - column_reference:
+                naked_identifier: sample_time
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - bare_function: sysdate
+            - binary_operator: '-'
+            - numeric_literal: '1'
+            - binary_operator: /
+            - numeric_literal: '24'
     slash_buffer_executor:
       slash: /

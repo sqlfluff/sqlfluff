@@ -41,6 +41,7 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
+    preceded_on_line_by_code_lookbehind,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
@@ -1587,7 +1588,15 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            # Only a `/` that starts its own line is the SQL*Plus buffer
+            # executor. One with code before it on the line is division.
+            terminators=[
+                Ref(
+                    "BatchDelimiterGrammar",
+                    exclude=preceded_on_line_by_code_lookbehind,
+                )
+            ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
