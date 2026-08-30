@@ -1630,7 +1630,23 @@ class FrameClauseSegment(BaseSegment):
 
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
-    PostTableExpressionGrammar=Nothing()
+    PostTableExpressionGrammar=Nothing(),
+    # A nested join carrying redundant parentheses, e.g. the outer pair in
+    # `a LEFT JOIN ((b INNER JOIN c ON TRUE)) ON TRUE`. Self-referential so that
+    # any number of redundant pairs is allowed. The innermost pair must contain a
+    # join, which keeps constructs that already parse, such as `((my_table tt))`
+    # and `((a JOIN b ON TRUE) JOIN c ON TRUE)`, matching as they did before.
+    BracketedNestedJoinGrammar=Bracketed(
+        OneOf(
+            Ref("BracketedNestedJoinGrammar"),
+            Bracketed(
+                Sequence(
+                    Ref("FromExpressionElementSegment"),
+                    AnyNumberOf(Ref("JoinClauseSegment"), min_times=1),
+                )
+            ),
+        )
+    ),
 )
 
 
@@ -1667,6 +1683,7 @@ class FromExpressionElementSegment(BaseSegment):
                 AnyNumberOf(Ref("JoinClauseSegment")),
             ),
         ),
+        Ref("BracketedNestedJoinGrammar"),
     )
 
     def get_eventual_alias(self) -> Generator[AliasInfo, None, None]:

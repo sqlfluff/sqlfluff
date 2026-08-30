@@ -94,3 +94,13 @@ group by
     customers.email
 order by
     orders.order_id;
+
+-- nested join wrapped in redundant brackets
+select 1
+from a
+    left join ((b inner join c on true)) on true;
+
+-- nested join wrapped in several redundant brackets
+select 1
+from a
+    left join (((b inner join c on true))) on true;
