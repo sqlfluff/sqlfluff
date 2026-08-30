@@ -21,6 +21,7 @@ from sqlfluff.core.linter import runner
 from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
+from sqlfluff.core.parser import Lexer
 from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -1306,3 +1307,55 @@ def test__linter__large_file_skip_fail_config(
     # But if large_file_skip_fail is set, the CLI would bump this to 1.
     would_fail = bool(result.files_skipped and config.get("large_file_skip_fail"))
     assert would_fail == expected_would_fail
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # Consecutive sign indicators fuse into an inline comment marker.
+        "SELECT 1 * - - 5;\n",
+        "SELECT 1 * - - - 5;\n",
+        "SELECT 'abc' LIKE - - 5;\n",
+        # Consecutive tildes fuse into the LIKE family of operators.
+        "SELECT 8 | ~ ~ ~4;\n",
+        "SELECT 1 * ~ ~ ~ func(5);\n",
+        "SELECT 'abc' LIKE ~ ~ 5;\n",
+    ],
+)
+def test__linter__fix_does_not_fuse_adjacent_tokens(sql):
+    """Fixes which would be read back as different tokens are not applied.
+
+    Fix validation re-matches the raw segments the tree already holds, so it
+    cannot see a fix which only changes how those characters would be lexed.
+    Removing the whitespace in `1 * - - 5` leaves a parsable tree but writes
+    `--` to the file, where the lexer reads an inline comment and the rest of
+    the line is lost.
+    """
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "templater": "raw", "rules": "LT01"}
+    )
+    lntr = Linter(config=config)
+    fixed, _ = lntr.lint_string(sql, fix=True).fix_string()
+
+    # The code must survive the fix, unchanged and unmerged.
+    def code_tokens(text):
+        segments, _ = Lexer(config=config).lex(text)
+        return [seg.raw for seg in segments if seg.is_code]
+
+    assert code_tokens(fixed) == code_tokens(sql)
+    # And the result must still parse.
+    assert not list(lntr.parse_string(fixed).tree.recursive_crawl("unparsable"))
+
+
+def test__linter__fix_still_applies_safe_spacing_fixes():
+    """The guard only declines fixes which would change the tokens.
+
+    Spacing fixes which leave the token sequence intact are still applied, so
+    the check cannot be satisfied by simply declining to fix anything.
+    """
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "templater": "raw", "rules": "LT01"}
+    )
+    lntr = Linter(config=config)
+    fixed, _ = lntr.lint_string("SELECT  1  +  2\n", fix=True).fix_string()
+    assert fixed == "SELECT 1 + 2\n"
