@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d2c7ce2989b3d13f324fc71c0d0042f957442a4696b7eef728f14eacbd28526
+_hash: b98b1bdbc074735db7637ed3c37b255e9746dae6b54d8b4123e53c835bbba3a7
 file:
 - statement:
     alter_share_statement:
@@ -230,4 +230,30 @@ file:
       - naked_identifier: org
       - dot: .
       - naked_identifier: account
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'shared with partners'"
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'shared with partners'"
 - statement_terminator: ;

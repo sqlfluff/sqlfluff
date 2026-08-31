@@ -171,6 +171,7 @@ snowflake_dialect.sets("warehouse_types").update(
     [
         "STANDARD",
         "SNOWPARK-OPTIMIZED",
+        "ADAPTIVE",
     ],
 )
 
@@ -306,6 +307,12 @@ snowflake_dialect.add(
             CodeSegment,
             type="warehouse_size",
         ),
+    ),
+    # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse
+    WarehouseGeneration=MultiStringParser(
+        ["'1'", "'2'"],
+        CodeSegment,
+        type="warehouse_generation",
     ),
     WarehouseSize=OneOf(
         MultiStringParser(
@@ -3293,27 +3300,37 @@ class AlterWarehouseStatementSegment(BaseSegment):
     """
 
     type = "alter_warehouse_statement"
+
+    # These actions accept the warehouse name being omitted, in which case
+    # they apply to the warehouse in use for the session.
+    _session_actions = OneOf(
+        "SUSPEND",
+        Sequence(
+            "RESUME",
+            Sequence("IF", "SUSPENDED", optional=True),
+        ),
+        Sequence("ABORT", "ALL", "QUERIES"),
+    )
+
     match_grammar = Sequence(
         "ALTER",
         "WAREHOUSE",
         Ref("IfExistsGrammar", optional=True),
         OneOf(
+            _session_actions,
             Sequence(
-                Ref("ObjectReferenceSegment", optional=True),
+                Ref("ObjectReferenceSegment"),
                 OneOf(
-                    "SUSPEND",
+                    _session_actions,
+                    # Adaptive warehouses only:
+                    "ENABLE",
+                    "DISABLE",
+                    # Interactive warehouses only:
                     Sequence(
-                        "RESUME",
-                        Sequence("IF", "SUSPENDED", optional=True),
+                        OneOf("ADD", "DROP"),
+                        "TABLES",
+                        Bracketed(Delimited(Ref("TableReferenceSegment"))),
                     ),
-                ),
-            ),
-            Sequence(
-                Ref("ObjectReferenceSegment", optional=True),
-                Sequence(
-                    "ABORT",
-                    "ALL",
-                    "QUERIES",
                 ),
             ),
             Sequence(
@@ -3339,6 +3356,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 "UNSET",
                 OneOf(
+                    Sequence("DCM", "PROJECT"),
                     Delimited(Ref("NakedIdentifierSegment")),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
@@ -3378,14 +3396,16 @@ class AlterShareStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                "ACCOUNTS",
-                Ref("EqualsSegment"),
-                Delimited(Ref("ObjectReferenceSegment")),
-                Ref("CommentEqualsClauseSegment", optional=True),
-            ),
-            Sequence(
-                "SET",
-                Ref("TagEqualsSegment"),
+                OneOf(
+                    Sequence(
+                        "ACCOUNTS",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        Ref("CommentEqualsClauseSegment", optional=True),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    Ref("TagEqualsSegment"),
+                ),
             ),
             Sequence(
                 "UNSET",
@@ -5158,6 +5178,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             Ref("BooleanLiteralGrammar"),
         ),
         Sequence(
+            "GENERATION",
+            Ref("EqualsSegment"),
+            Ref("WarehouseGeneration"),
+        ),
+        Sequence(
             "INITIALLY_SUSPENDED",
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
@@ -6473,7 +6498,6 @@ class CreateStatementSegment(BaseSegment):
                     Sequence("NETWORK", "POLICY"),
                     Sequence("NETWORK", "RULE"),
                     Sequence("RESOURCE", "MONITOR"),
-                    "SHARE",
                     Sequence("API", "INTEGRATION"),
                     Sequence("NOTIFICATION", "INTEGRATION"),
                     Sequence("SECURITY", "INTEGRATION"),
@@ -6494,6 +6518,7 @@ class CreateStatementSegment(BaseSegment):
                     "WAREHOUSE",
                     "DATABASE",
                     "TAG",
+                    "SHARE",
                     Sequence("EXTERNAL", "FUNCTION"),
                 ),
             ),
@@ -6902,6 +6927,8 @@ class CreateStatementSegment(BaseSegment):
                 Ref("WarehouseObjectParamsSegment"),
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
+            # Object parameters can follow the TAG clause.
+            Ref("WarehouseObjectParamsSegment", optional=True),
             optional=True,
         ),
         # CREATE NETWORK RULE
@@ -6981,6 +7008,8 @@ class DefineStatementSegment(BaseSegment):
                 Ref("WarehouseObjectParamsSegment"),
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
+            # Object parameters can follow the TAG clause.
+            Ref("WarehouseObjectParamsSegment", optional=True),
             optional=True,
         ),
         Sequence(
