@@ -8,9 +8,32 @@ import logging
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
+from sqlfluff.utils.reflow.respace import process_spacing
 from sqlfluff.utils.reflow.sequence import ReflowSequence
+
+
+def test_reflow__process_spacing_duplicate_whitespace_fix_anchors():
+    """Each duplicate-whitespace fix must anchor the whitespace it removes.
+
+    The "Removing duplicate whitespace" fixes anchored the leaked loop variable
+    (the last segment of the buffer) instead of each ``ws`` being removed, so
+    for three adjacent whitespaces both deletes targeted the final segment and
+    the middle one was never fixed.
+    """
+    w1, w2, w3 = WhitespaceSegment(" "), WhitespaceSegment(" "), WhitespaceSegment(" ")
+    buffer, _, results = process_spacing([w1, w2, w3], strip_newlines=False)
+
+    # w1 is kept; w2 and w3 are pruned from the returned buffer.
+    assert len(buffer) == 1 and buffer[0] is w1
+    # Each pruned whitespace is the anchor of exactly one delete fix, and the
+    # kept one is never targeted.
+    anchors = [fix.anchor for result in results for fix in result.fixes]
+    assert sum(anchor is w2 for anchor in anchors) == 1
+    assert sum(anchor is w3 for anchor in anchors) == 1
+    assert all(anchor is not w1 for anchor in anchors)
 
 
 def parse_ansi_string(sql, config):
