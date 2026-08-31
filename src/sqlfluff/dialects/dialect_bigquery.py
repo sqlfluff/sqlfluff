@@ -2123,7 +2123,9 @@ class OptionsSegment(BaseSegment):
                     Ref("ParameterNameSegment"),
                     Ref("EqualsSegment"),
                     Ref("BaseExpressionElementGrammar"),
-                )
+                ),
+                # The brackets might be empty i.e. `OPTIONS()`.
+                optional=True,
             )
         ),
     )

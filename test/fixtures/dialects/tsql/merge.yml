@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f91f474bfec6523b98ddd6be79b122aaab65c0456c9f9534712f7e281c42d982
+_hash: 70a5b3bc59b926385cc2e033bb93535faa30e849d14e3aea00b40e8e96ae250b
 file:
 - batch:
     statement:
@@ -1515,14 +1515,15 @@ file:
           naked_identifier: t
       - keyword: USING
       - table_expression:
-          table_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: SomeFunction
-          post_table_expression:
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+          function:
+            function_name:
+              naked_identifier: dbo
+              dot: .
+              function_name_identifier: SomeFunction
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
       - alias_expression:
           naked_identifier: s
       - join_on_condition:
