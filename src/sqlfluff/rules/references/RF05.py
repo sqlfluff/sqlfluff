@@ -201,7 +201,7 @@ class Rule_RF05(BaseRule):
         # redshift allows a # at the beginning of temporary table names
         if (
             context.dialect.name == "redshift"
-            and identifier[0] == "#"
+            and identifier.startswith("#")
             and context.parent_stack
             and context.parent_stack[-1].is_type("table_reference")
         ):
@@ -218,7 +218,7 @@ class Rule_RF05(BaseRule):
 
         # Finally test if the remaining identifier is only made up of alphanumerics
         if identifiers_policy_applicable(policy, context.parent_stack) and not (
-            identifier.isalnum()
+            identifier == "" or identifier.isalnum()
         ):
             return LintResult(anchor=context.segment)
 
