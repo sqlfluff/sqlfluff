@@ -67,3 +67,8 @@ USING TEMPLATE (
 LOCATION = @mystage
 FILE_FORMAT = my_parquet_format
 AUTO_REFRESH = FALSE;
+
+CREATE EXTERNAL TABLE contact_ext
+LOCATION = @mystage
+FILE_FORMAT = my_parquet_format
+WITH CONTACT (steward = my_steward, access_approval = my_db.my_schema.my_approver);

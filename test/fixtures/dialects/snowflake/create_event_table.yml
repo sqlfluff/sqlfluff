@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: adad4aae256af7f28de0bd479b06d14126ab9caa9b02f7b2b0aefe60347a8588
+_hash: eec2659e765ca53f57d3c87194c15cd698ec4ab5c825a9e1233eca51b1bb6c6f
 file:
 - statement:
     create_event_table_statement:
@@ -164,4 +164,56 @@ file:
             raw_comparison_operator: '='
           quoted_literal: "'sales'"
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_table_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_events
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+        start_bracket: (
+        keyword: steward
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_steward
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_table_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_events
+    - keyword: WITH
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My events table'"
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: steward
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_steward
+      - comma: ','
+      - keyword: support
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_support
+      - end_bracket: )
 - statement_terminator: ;

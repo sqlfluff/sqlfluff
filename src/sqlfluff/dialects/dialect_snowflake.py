@@ -5494,6 +5494,7 @@ class CreateEventTableStatementSegment(BaseSegment):
                 Ref("CommentEqualsClauseSegment"),
             ),
             Ref("TagBracketedEqualsSegment"),
+            Ref("ContactBracketedGrammar"),
             optional=True,
         ),
     )
@@ -7737,6 +7738,7 @@ class CreateExternalTableSegment(BaseSegment):
             ),
             Ref("TagBracketedEqualsSegment"),
             Ref("CommentEqualsClauseSegment"),
+            Ref("ContactBracketedGrammar"),
         ),
     )
 
@@ -8906,6 +8908,13 @@ class ShowStatementSegment(BaseSegment):
     _object_scope_types = OneOf(
         "ACCOUNT",
         "SESSION",
+        # Unlike the scopes below, APPLICATION and APPLICATION PACKAGE always
+        # require the object name.
+        Sequence(
+            "APPLICATION",
+            Ref.keyword("PACKAGE", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
         Sequence(
             OneOf(
                 "DATABASE",
