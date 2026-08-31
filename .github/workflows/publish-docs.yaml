@@ -48,7 +48,7 @@ jobs:
     name: Publish docs
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || github.ref }}
@@ -201,14 +201,14 @@ jobs:
         run: corepack enable
 
       - name: 💾 Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
           cache-dependency-path: docsv/pnpm-lock.yaml
 
       - name: 🐍 Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           cache: pip
@@ -319,7 +319,7 @@ jobs:
           --site-dir ${{ env.DOCS_SITE_DIR }}
 
       - name: ⬆️ Upload assembled site artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: assembled-docs-site
           path: ${{ env.DOCS_SITE_DIR }}

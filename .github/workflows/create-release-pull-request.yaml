@@ -11,7 +11,7 @@ jobs:
   run:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -26,7 +26,7 @@ jobs:
             fi
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -45,7 +45,7 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ secrets.GITHUB_REPOSITORY_OWNER }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           delete-branch: true
           branch: prep-${{ github.event.inputs.newVersionNumber }}
@@ -74,12 +74,11 @@ jobs:
             skip-changelog
 
       - name: Update release title and tag
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9  # v7.7.0
         with:
           # NOTE: We should eventually actually populate the date here, but that
           # will most likely change before the new pull request actually gets
           # merged, so we just add "YYYY-MM-DD" for now as a placeholder.
           name: "[${{ github.event.inputs.newVersionNumber }}] - YYYY-MM-DD"
           tag: ${{ github.event.inputs.newVersionNumber }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
