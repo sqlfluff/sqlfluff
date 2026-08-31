@@ -563,6 +563,38 @@ snowflake_dialect.add(
         Ref("DynamicTableLagIntervalSegment"),
         "DOWNSTREAM",
     ),
+    # The TABLE( ... ) argument type of data metric functions as accepted in
+    # the signature positions (ALTER / DROP / GRANT), where columns may be
+    # given as datatypes only.
+    # https://docs.snowflake.com/en/sql-reference/sql/drop-function
+    DataMetricFunctionTableTypeGrammar=Sequence(
+        "TABLE",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    ),
+    # The TABLE( ... ) argument type as written in CREATE DATA METRIC
+    # FUNCTION, where every column must be named.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    DataMetricFunctionNamedTableTypeGrammar=Sequence(
+        "TABLE",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    ),
     StartExcludeBracketSegment=StringParser(
         "{-", SymbolSegment, type="start_exclude_bracket"
     ),
@@ -1852,6 +1884,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSchemaStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
+            Ref("CreateDataMetricFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
@@ -3879,7 +3912,7 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
                 Ref("ObjectReferenceSegment"),
                 Sequence(
                     Ref("FunctionNameSegment"),
-                    Ref("FunctionParameterListGrammar", optional=True),
+                    Ref("FunctionSignatureParameterListSegment", optional=True),
                 ),
                 terminators=["TO", "FROM"],
             ),
@@ -4610,7 +4643,8 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
         AnySetOf(
-            Sequence("NOT", "NULL", optional=True),
+            Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+            Ref.keyword("MEMOIZABLE", optional=True),
             Sequence(
                 "LANGUAGE",
                 OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA", "SCALA"),
@@ -4683,6 +4717,15 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
+            Sequence(
+                "ARTIFACT_REPOSITORY",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
             optional=True,
         ),
         Sequence(
@@ -4696,6 +4739,105 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+class FunctionSignatureParameterListSegment(ansi.FunctionParameterListGrammar):
+    """A parameter list referencing a function by its signature.
+
+    Data metric functions are addressed by their TABLE( ... ) typed
+    signature in ALTER / DROP FUNCTION and in GRANT / REVOKE, so these
+    positions accept it alongside the ordinary parameter forms.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-function
+    """
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            OneOf(
+                Ref("DataMetricFunctionTableTypeGrammar"),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("DataMetricFunctionTableTypeGrammar"),
+                ),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DataMetricFunctionParameterListSegment(ansi.FunctionParameterListGrammar):
+    """The parameter list of a data metric function.
+
+    Every argument must be named and take a TABLE( ... ) type.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("DataMetricFunctionNamedTableTypeGrammar"),
+            ),
+        ),
+    )
+
+
+class DataMetricFunctionReturnTypeSegment(BaseSegment):
+    """The return type of a data metric function.
+
+    The docs state the data type can only be NUMBER.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    type = "data_type"
+    match_grammar: Matchable = StringParser(
+        "NUMBER", CodeSegment, type="data_type_identifier"
+    )
+
+
+class CreateDataMetricFunctionStatementSegment(BaseSegment):
+    """A `CREATE DATA METRIC FUNCTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    type = "create_data_metric_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        # OR REPLACE and IF NOT EXISTS are mutually exclusive.
+        OneOf(
+            Sequence(
+                Ref("OrReplaceGrammar", optional=True),
+                Ref.keyword("SECURE", optional=True),
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+            ),
+            Sequence(
+                Ref.keyword("SECURE", optional=True),
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+                Ref("IfNotExistsGrammar"),
+            ),
+        ),
+        Ref("FunctionNameSegment"),
+        Ref("DataMetricFunctionParameterListSegment"),
+        "RETURNS",
+        Ref("DataMetricFunctionReturnTypeSegment"),
+        Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+        Sequence("LANGUAGE", "SQL", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        OneOf(
+            Ref("DoubleQuotedUDFBody"),
+            Ref("SingleQuotedUDFBody"),
+            Ref("DollarQuotedUDFBody"),
         ),
     )
 
@@ -4716,7 +4858,7 @@ class AlterFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar"),
+        Ref("FunctionSignatureParameterListSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
             Sequence(
@@ -10388,7 +10530,7 @@ class DropFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar"),
+        Ref("FunctionSignatureParameterListSegment"),
     )
 
 
