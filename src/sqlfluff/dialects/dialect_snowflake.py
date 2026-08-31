@@ -1857,6 +1857,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMcpServerStatementSegment"),
             Ref("CreateDcmProjectStatementSegment"),
             Ref("CreateTaskSegment"),
+            Ref("CreateAlertSegment"),
+            Ref("AlterAlertSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
@@ -6155,6 +6157,156 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
                 optional=True,
             ),
+        ),
+    )
+
+
+class CreateAlertSegment(BaseSegment):
+    """A snowflake `CREATE ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-alert
+    """
+
+    type = "create_alert_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ALERT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        Ref("TagBracketedEqualsSegment", optional=True),
+        AnySetOf(
+            Sequence(
+                "SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                "CONFIG",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "RUNBOOK",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "SUSPEND_ALERT_AFTER_NUM_FAILURES",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+        Dedent,
+        "IF",
+        Bracketed(Ref("AlertConditionSegment")),
+        "THEN",
+        Indent,
+        Ref("StatementSegment"),
+        Dedent,
+    )
+
+
+class AlertConditionSegment(BaseSegment):
+    """The `EXISTS ( <condition> )` condition of a snowflake alert.
+
+    Used by both `CREATE ALERT ... IF( EXISTS( ... ))` and
+    `ALTER ALERT ... MODIFY CONDITION EXISTS( ... )`.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-alert
+    """
+
+    type = "alert_condition"
+
+    match_grammar = Sequence(
+        "EXISTS",
+        # The condition must be a statement which returns rows: the docs allow
+        # SELECT, SHOW and CALL. A scalar expression such as `EXISTS (1)` is
+        # not valid.
+        Bracketed(
+            OneOf(
+                Ref("SelectableGrammar"),
+                Ref("ShowStatementSegment"),
+                Ref("CallStatementSegment"),
+            )
+        ),
+    )
+
+
+class AlterAlertSegment(BaseSegment):
+    """A snowflake `ALTER ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-alert
+    """
+
+    type = "alter_alert_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ALERT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "RESUME",
+            "SUSPEND",
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "CONFIG",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "RUNBOOK",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "SUSPEND_ALERT_AFTER_NUM_FAILURES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    # `SET` must assign at least one property; a bare
+                    # `ALTER ALERT <name> SET;` is not valid.
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                # NOTE: `SCHEDULE` is settable but not unsettable, so it is
+                # deliberately absent here.
+                Delimited(
+                    "WAREHOUSE",
+                    "COMMENT",
+                    "CONFIG",
+                    "RUNBOOK",
+                    "SUSPEND_ALERT_AFTER_NUM_FAILURES",
+                ),
+            ),
+            Sequence("MODIFY", "CONDITION", Ref("AlertConditionSegment")),
+            Sequence("MODIFY", "ACTION", Ref("StatementSegment")),
         ),
     )
 
@@ -10562,6 +10714,7 @@ class DropObjectStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf(
+                    "ALERT",
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
