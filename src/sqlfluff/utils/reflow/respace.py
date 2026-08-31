@@ -469,6 +469,21 @@ def _determine_aligned_inline_spacing(
                     loc,
                     last_code,
                 )
+                # Only siblings whose preceding code is on their own line tell us
+                # anything about alignment. When a sibling is the first code on its
+                # line, `last_code` is the trailing code of an *earlier* line, and
+                # its column is unrelated to where this sibling starts. Counting it
+                # inflates the target column and pads every other line to match.
+                # See https://github.com/sqlfluff/sqlfluff/issues/8256.
+                sibling_line = _pos_line(sibling.pos_marker, use_source_positions)
+                if loc[0] != sibling_line:
+                    reflow_logger.debug(
+                        "    Skipping %s: preceding code is on line %s, not %s.",
+                        last_code,
+                        loc[0],
+                        sibling_line,
+                    )
+                    continue
                 # When using tabs, convert to visual column position
                 if indent_unit == "tab" and last_code.pos_marker:
                     # Get visual position after the last code segment
