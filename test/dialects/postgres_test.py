@@ -208,9 +208,9 @@ def test_keyword_is_not_a_valid_datatype(raw: str) -> None:
     https://github.com/sqlfluff/sqlfluff/issues/6430
     """
     tree = _postgres_parse_tree(raw)
-    assert list(
-        tree.recursive_crawl("unparsable")
-    ), f"Expected an unparsable section for {raw!r}, but it parsed cleanly."
+    assert list(tree.recursive_crawl("unparsable")), (
+        f"Expected an unparsable section for {raw!r}, but it parsed cleanly."
+    )
 
 
 @pytest.mark.parametrize(
