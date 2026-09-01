@@ -3228,7 +3228,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                     Sequence("ALL", "PRIVILEGES"),
                 ),
                 "FOR",
-                Ref("AccessObjectSegment"),
+                Ref("ScopedAccessObjectSegment"),
                 "IN",
                 OneOf("DATABASE", "SCHEMA"),
                 Ref("ObjectReferenceSegment"),
