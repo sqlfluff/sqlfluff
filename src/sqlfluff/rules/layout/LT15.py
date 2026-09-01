@@ -216,19 +216,40 @@ class Rule_LT15(BaseRule):
         blank_lines = 0
         run = 1
         touched_templated = False
+        in_comment = False
+        # A multi-line block comment lexes as one block_comment segment per
+        # physical line, with its own newlines interleaved between them. Those
+        # newlines are the comment's internal formatting, not blank lines
+        # between statements, so once inside an unclosed comment body they must
+        # not accumulate toward run or be banked. A segment starts a comment
+        # (rather than continuing one seen further down) when its raw text
+        # itself opens with a comment marker; only `/* */` bodies span more
+        # than one segment, so `--`/`#` inline comments never trigger this.
+        in_open_block_comment_body = False
         for raw_seg in reversed(context.raw_stack):
+            if raw_seg.is_type("comment", "inline_comment", "block_comment"):
+                if not in_comment:
+                    # Bank the run that ended at this comment block. Further
+                    # segments of the same multi-line comment must not bank
+                    # again: they are one occupied line, not several.
+                    blank_lines += max(run - 1, 0)
+                    run = 0
+                    in_comment = True
+                in_open_block_comment_body = raw_seg.is_type(
+                    "block_comment"
+                ) and not raw_seg.raw.lstrip().startswith("/*")
+                continue
             if raw_seg.is_type("newline"):
                 if raw_seg.is_templated:
                     touched_templated = True
                     break
+                if in_open_block_comment_body:
+                    # Interior to the comment body just walked past: not a gap.
+                    continue
+                in_comment = False
                 run += 1
             elif raw_seg.is_type("whitespace"):
                 continue
-            elif raw_seg.is_type("comment", "inline_comment", "block_comment"):
-                # Bank the run that ended at this comment and keep walking: the
-                # blank lines on the far side of it are part of the same gap.
-                blank_lines += max(run - 1, 0)
-                run = 0
             else:
                 break
         return blank_lines + max(run - 1, 0), touched_templated

@@ -673,3 +673,55 @@ test_pass_minimum_counts_a_blank_line_before_an_intervening_comment:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_ignores_blank_lines_internal_to_a_multiline_comment:
+  # a multi-line /* */ comment lexes as one block_comment segment per physical
+  # line, with its own newlines between them. those newlines are part of the
+  # comment's own text, not a gap between statements, so a blank line inside
+  # the comment must not count toward the minimum even though the statements
+  # themselves are not separated by any real blank line
+  fail_str: |
+    SELECT a FROM tab;
+    /* line1
+
+    line2 */
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+    /* line1
+
+    line2 */
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_still_counts_a_blank_line_between_two_separate_comments:
+  # two adjacent -- comments with a real blank line between them: this must
+  # stay satisfied, since the blank line is a genuine gap, not comment-internal
+  pass_str: |
+    SELECT a FROM tab;
+    -- comment 1
+
+    -- comment 2
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_still_counts_a_blank_line_before_a_multiline_comment:
+  # a real blank line before a multi-line /* */ comment must still satisfy the
+  # minimum; only newlines inside the comment's own body are excluded
+  pass_str: |
+    SELECT a FROM tab;
+
+    /* line1
+    line2 */
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
