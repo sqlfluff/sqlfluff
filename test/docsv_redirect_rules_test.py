@@ -303,9 +303,14 @@ def test_malformed_targets_are_rejected(assemble_site, tmp_path, target):
 @pytest.mark.parametrize(
     ("key", "expected"),
     [
-        # `key.strip("/")` makes this the version root, so the rule would
-        # redirect every version's home page to whatever the target is.
+        # Normalising to nothing makes the rule's source the version root, so
+        # it would redirect every version's home page to whatever the target
+        # is. True of the empty string, and equally of a key of only slashes —
+        # which is how the first fix for this was too narrow: it guarded the raw
+        # key while the rule builder used the stripped one.
         ("", "empty permalink"),
+        ("/", "empty permalink"),
+        ("//", "empty permalink"),
         ("perma/my layout", "whitespace"),
         ("../escape", "`..` component"),
     ],
@@ -326,6 +331,35 @@ def test_a_dotdot_target_is_rejected(assemble_site, tmp_path):
 
     with pytest.raises(ValueError, match="`..` component"):
         assemble_site.load_redirect_map(path)
+
+
+@pytest.mark.parametrize("target", ["/", "//", "#section"])
+def test_targets_with_no_page_are_rejected(assemble_site, tmp_path, target):
+    """The mirror of the empty-key case, and much less damaging.
+
+    The rule stays valid, it just sends the reader to the version root — but a
+    permalink that no longer names a page is the thing this map exists to record.
+    """
+    path = tmp_path / "redirects.json"
+    path.write_text(json.dumps({"perma/layout": target}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="no page"):
+        assemble_site.load_redirect_map(path)
+
+
+def test_validation_and_rule_generation_normalise_alike(assemble_site):
+    """The guard has to look at the value the builder uses, not the raw one.
+
+    Both go through `permalink_segment`, so a form that normalises to something
+    dangerous cannot pass validation and then reach the rule.
+    """
+    assert assemble_site.permalink_segment("/perma/layout/") == "perma/layout"
+
+    rules = _rules(assemble_site, {"/perma/layout": "/configuration/layout/"})
+
+    assert rules[0] == (
+        "/en/:version/perma/layout /en/:version/configuration/layout 301"
+    )
 
 
 def test_the_reason_an_entry_was_rejected_is_reported(assemble_site, tmp_path):

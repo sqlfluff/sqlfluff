@@ -327,6 +327,17 @@ def upsert_manifest_entry(
     return manifest
 
 
+def permalink_segment(value: str) -> str:
+    """Normalise one half of a rule to the path it actually contributes.
+
+    Shared with `build_permalink_rules` deliberately. Validating the raw string
+    while the builder used the stripped one is exactly how a key of `"/"` got
+    past a guard against an empty key: the guard and the code it protects have to
+    be looking at the same value.
+    """
+    return value.strip("/")
+
+
 def redirect_entry_problem(key: str, target: Any) -> str | None:
     """Say why a permalink entry cannot become a redirect rule, or None if it can.
 
@@ -335,9 +346,10 @@ def redirect_entry_problem(key: str, target: Any) -> str | None:
     breaks either property does not fail loudly at publish time on its own — it
     emits a rule that is wrong or dead — so it is rejected here instead.
     """
-    if not key:
-        # `key.strip("/")` makes this the version root, so the rule redirects
-        # every version's home page to whatever the target happens to be.
+    if not permalink_segment(key):
+        # Normalising to nothing makes the rule's source the version root, so it
+        # redirects every version's home page to whatever the target happens to
+        # be. True of `""`, and equally of `"/"` and `"//"`.
         return "empty permalink"
 
     if not isinstance(target, str) or not target:
@@ -354,6 +366,12 @@ def redirect_entry_problem(key: str, target: Any) -> str | None:
         # such a rule is not a traversal — it is simply one that never fires,
         # leaving the permalink a 404 while the publish reports success.
         return "a `..` component, which no request path will match"
+
+    if not permalink_segment(split_fragment(target)[0]):
+        # The mirror of the empty-key case, and much less damaging — the rule is
+        # valid, it just sends the reader to the version root. Still a permalink
+        # that no longer names a page, which is what this map is for.
+        return "a target with no page, only a fragment or slashes"
 
     return None
 
@@ -488,9 +506,11 @@ def build_permalink_rules(language: str, redirects: dict[str, str]) -> list[str]
     rules = []
 
     for key in sorted(redirects):
-        source = f"/{language}/{VERSION_PLACEHOLDER}/{key.strip('/')}"
+        source = f"/{language}/{VERSION_PLACEHOLDER}/{permalink_segment(key)}"
         path, fragment = follow_chain(redirects, redirects[key])
-        destination = f"/{language}/{VERSION_PLACEHOLDER}/{path.strip('/')}{fragment}"
+        destination = (
+            f"/{language}/{VERSION_PLACEHOLDER}/{permalink_segment(path)}{fragment}"
+        )
 
         # A suffix-less destination, which Netlify resolves to whichever of
         # `x.html` and `x/index.html` the target version built. Naming the file
