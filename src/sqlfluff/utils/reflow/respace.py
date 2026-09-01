@@ -47,10 +47,13 @@ def _would_start_comment(
     if not prev_block or not next_block:  # pragma: no cover
         # A point at the very start or end of the file has nothing to fuse with.
         return False
-    return (
-        prev_block.segments[-1].raw[-1] + next_block.segments[0].raw[0]
-        == _INLINE_COMMENT_MARKER
-    )
+    prev_raw = prev_block.segments[-1].raw
+    next_raw = next_block.segments[0].raw
+    if not prev_raw or not next_raw:
+        # Zero length blocks (e.g. templated placeholders) have no characters
+        # to fuse, so they can't build a marker on their own.
+        return False
+    return prev_raw[-1] + next_raw[0] == _INLINE_COMMENT_MARKER
 
 
 def _construct_alignment_whitespace(width: int, indent_unit: str) -> str:
@@ -681,7 +684,7 @@ def handle_respace__inline_with_space(
     # Do we have either side set to "touch"?
     if "touch" in [pre_constraint, post_constraint]:
         if _would_start_comment(prev_block, next_block):
-            # Removing the whitespace would comment out the rest of the file.
+            # Removing the whitespace would comment out the rest of the line.
             # Leave it alone and don't raise a violation - there is no edit the
             # user could make here which would satisfy the constraint.
             return segment_buffer, []

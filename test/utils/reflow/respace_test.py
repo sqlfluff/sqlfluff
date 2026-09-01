@@ -119,6 +119,35 @@ def test_reflow__respace_align_ignores_predecessor_on_another_line():
     assert len(operator_columns) == 1
 
 
+def test_reflow__respace_handles_zero_length_blocks():
+    """A zero length block next to a `touch` constraint must not raise.
+
+    Regression test: placeholders render to an empty raw. Their spacing
+    defaults to `any`, but that is user configurable, so the check for a
+    would-be `--` comment marker must not assume that both sides of the
+    point have at least one character to inspect.
+    """
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "templater": "jinja"},
+        configs={
+            "layout": {
+                "type": {
+                    "placeholder": {
+                        "spacing_before": "touch",
+                        "spacing_after": "touch",
+                    }
+                }
+            }
+        },
+    )
+    sql = "SELECT 1 + {{ '' }} 2\n"
+    root = parse_ansi_string(sql, config)
+    seq = ReflowSequence.from_root(root, config=config)
+    # The placeholder has no characters of its own, so it can't build a
+    # marker either side of it and the spacing is resolved as normal.
+    assert seq.respace().get_raw() == "SELECT 1 +2\n"
+
+
 @pytest.mark.parametrize(
     "raw_sql_in,kwargs,raw_sql_out",
     [
