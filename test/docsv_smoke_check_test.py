@@ -80,3 +80,36 @@ def test_unsafe_paths_are_rejected(smoke_check, tmp_path, url_path):
     """A manifest is only as trustworthy as whatever produced it."""
     with pytest.raises(ValueError):
         smoke_check.assert_path_exists(tmp_path, url_path, "version index")
+
+
+def test_a_symlinked_directory_index_outside_the_tree_is_rejected(
+    smoke_check, tmp_path
+):
+    """A real directory whose `index.html` points outside is the same hole.
+
+    Checking containment on the path this started from is not enough: each
+    candidate substitution — the directory index, and the `.html` suffix — is its
+    own way out, so the check has to run on whichever candidate is finally used.
+    """
+    site = tmp_path / "site"
+    (site / "en" / "latest" / "configuration").mkdir(parents=True)
+
+    outside = tmp_path / "outside.html"
+    outside.write_text("<html>not published</html>", encoding="utf-8")
+    (site / "en" / "latest" / "configuration" / "index.html").symlink_to(outside)
+
+    with pytest.raises(ValueError, match="escapes the site directory"):
+        smoke_check.assert_path_exists(
+            site, "/en/latest/configuration", "permalink target"
+        )
+
+
+def test_a_directory_index_inside_the_tree_is_accepted(smoke_check, tmp_path):
+    """The containment check must not reject the ordinary case it guards."""
+    page = tmp_path / "en" / "latest" / "configuration" / "index.html"
+    page.parent.mkdir(parents=True)
+    page.write_text("<html></html>", encoding="utf-8")
+
+    smoke_check.assert_path_exists(
+        tmp_path, "/en/latest/configuration", "permalink target"
+    )

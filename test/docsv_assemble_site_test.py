@@ -545,3 +545,67 @@ def test_the_404_page_tracks_the_default_channel_when_it_is_rebuilt(
         )
 
     assert (site / "404.html").read_text(encoding="utf-8") == "<html>second</html>"
+
+
+def _publish_default_channel_without_a_404(module, tmp_path, site) -> None:
+    """Publish `latest` from a build that has no 404 page of its own."""
+    module.assemble_site(
+        dist=_dist(tmp_path, "latest-no-404"),
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+
+def _publish_prerelease_with_a_404(module, tmp_path, site) -> None:
+    """Publish a prerelease from a build that does have one."""
+    release = _dist(tmp_path, "prerelease-with-404")
+    (release / "404.html").write_text("<html>4.4.0a1 404</html>", encoding="utf-8")
+
+    module.assemble_site(
+        dist=release,
+        output_dir=site,
+        language="en",
+        channel="4.4.0a1",
+        title="4.4.0a1",
+        kind="release",
+        prerelease=True,
+        shared_dir=tmp_path / "absent",
+    )
+
+
+def test_an_existing_404_page_is_not_downgraded(assemble_site, tmp_path):
+    """A release must not claim the root 404 when the default channel lacks one.
+
+    Otherwise taking the page from the default channel would hold only until some
+    release happened to be published while that channel had no 404 page — which
+    is the situation it is there to prevent.
+    """
+    site = tmp_path / "site"
+
+    _publish_default_channel_without_a_404(assemble_site, tmp_path, site)
+    (site / "404.html").write_text("<html>existing</html>", encoding="utf-8")
+    _publish_prerelease_with_a_404(assemble_site, tmp_path, site)
+
+    assert (site / "404.html").read_text(encoding="utf-8") == "<html>existing</html>"
+
+
+def test_a_tree_with_no_404_page_is_bootstrapped_from_the_build(
+    assemble_site, tmp_path
+):
+    """With no root page to protect, this build's is better than none.
+
+    Reached when the default channel has no 404 page and the site has none
+    either, so there is nothing better available and nothing to lose.
+    """
+    site = tmp_path / "site"
+
+    _publish_default_channel_without_a_404(assemble_site, tmp_path, site)
+    assert not (site / "404.html").exists(), "premise of the test"
+
+    _publish_prerelease_with_a_404(assemble_site, tmp_path, site)
+
+    assert (site / "404.html").read_text(encoding="utf-8") == "<html>4.4.0a1 404</html>"

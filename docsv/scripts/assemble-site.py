@@ -328,7 +328,12 @@ def upsert_manifest_entry(
 
 
 def load_redirect_map(path: Path) -> dict[str, str]:
-    """Load the permalink map, dropping comment keys and empty targets."""
+    """Load the permalink map, dropping comment keys and rejecting bad entries.
+
+    A malformed entry is rejected rather than skipped. Skipping would leave that
+    URL a 404 while the publish reported success, which is the failure this whole
+    mechanism exists to remove.
+    """
     if not path.is_file():
         print(f"Warning: no permalink map at {path}; no redirect rules written")
         return {}
@@ -339,13 +344,24 @@ def load_redirect_map(path: Path) -> dict[str, str]:
         key: value for key, value in entries.items() if not key.startswith("_")
     }
 
-    # An empty target is a malformed entry, not a permalink to nowhere. Dropping
-    # it would leave that URL a 404 while the publish reported success, which is
-    # the failure this whole mechanism exists to remove.
-    empty = sorted(key for key, value in permalinks.items() if not value)
+    # Whitespace is checked as well as emptiness because `_redirects` is a
+    # space-delimited format: a target of `"   "` is not merely useless, it
+    # produces `/en/:version/perma/x /en/:version/    301`, a rule that parses as
+    # something nobody wrote. Non-strings are rejected here so the rule builder
+    # can assume it has text to work with.
+    invalid = sorted(
+        key
+        for key, value in permalinks.items()
+        if not isinstance(value, str)
+        or not value
+        or any(character.isspace() for character in f"{key}{value}")
+    )
 
-    if empty:
-        raise ValueError(f"Permalinks with no target in {path}: {', '.join(empty)}")
+    if invalid:
+        raise ValueError(
+            f"Permalinks with an empty or whitespace-bearing entry in {path}: "
+            f"{', '.join(invalid)}"
+        )
 
     return permalinks
 
@@ -717,19 +733,29 @@ def publish_not_found_page(
     `stable` for prereleases — and the site's 404 page should not become a
     prerelease's, complete with a home link into it.
 
-    Falls back to this build for the first publish into an empty tree, where
-    there is no default channel to copy from yet. Skipped entirely when neither
-    has a 404 page, which is the Sphinx case: that leaves the previous copy in
-    place rather than removing it, so archiving a version cannot take the site's
-    404 page away.
+    When that channel has no 404 page of its own, an existing root page is left
+    alone rather than replaced by this build's. Otherwise the guarantee above
+    would hold only until some release happened to be published while the
+    default channel was missing one, which is the situation this is here to
+    prevent.
+
+    This build is used only to bootstrap a tree that has no root page at all.
+    There the mismatch cannot arise: if this is the only version published, its
+    404 page names the only documentation there is. And when neither has one —
+    the Sphinx case — nothing is written, so archiving a version cannot take the
+    site's 404 page away.
     """
     channel_page = output_dir / language / default_channel(manifest) / "404.html"
-    source = channel_page if channel_page.is_file() else dist / "404.html"
+    root_page = output_dir / "404.html"
 
-    if not source.is_file():
+    if channel_page.is_file():
+        shutil.copy2(channel_page, root_page)
         return
 
-    shutil.copy2(source, output_dir / "404.html")
+    if root_page.exists() or not (dist / "404.html").is_file():
+        return
+
+    shutil.copy2(dist / "404.html", root_page)
 
 
 def publish_shared_assets(shared_dir: Path, language_dir: Path) -> None:

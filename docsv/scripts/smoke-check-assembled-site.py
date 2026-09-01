@@ -63,31 +63,24 @@ def assert_path_exists(site_dir: Path, url_path: str, description: str) -> None:
 
     path = site_dir / relative_path
 
-    # Resolve both sides so a symlink cannot point out of the tree either.
-    if not path.resolve().is_relative_to(site_dir.resolve()):
-        raise ValueError(
-            f"Path escapes the site directory for {description}: {url_path!r}"
-        )
-
     if path.is_dir():
         path = path / "index.html"
-
     # Netlify serves `foo.html` for `/foo`, and the permalink rules rely on it:
     # their destinations are suffix-less so one rule can serve versions whose
     # builds put the page in a different file. Resolving the same way here keeps
     # the check honest about what the deployed site will do.
-    #
-    # Containment is re-checked afterwards rather than only on the path above:
-    # `resolve()` follows symlinks, so a link at the `.html` name could otherwise
-    # satisfy this check with a file outside the tree — vouching for a page the
-    # deployed site does not have.
-    if not path.is_file() and not path.suffix:
+    elif not path.is_file() and not path.suffix:
         path = path.with_suffix(".html")
 
-        if not path.resolve().is_relative_to(site_dir.resolve()):
-            raise ValueError(
-                f"Path escapes the site directory for {description}: {url_path!r}"
-            )
+    # Resolved once here rather than on the path this started from, and after
+    # every substitution above rather than before them. `resolve()` follows
+    # symlinks, so each candidate is a separate way out of the tree: checking
+    # only the original path let a symlinked `index.html` under a real directory
+    # through, which would vouch for a page the deployed site does not have.
+    if not path.resolve().is_relative_to(site_dir.resolve()):
+        raise ValueError(
+            f"Path escapes the site directory for {description}: {url_path!r}"
+        )
 
     if not path.is_file():
         raise FileNotFoundError(f"Missing {description}: {path}")

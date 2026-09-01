@@ -275,14 +275,42 @@ def test_every_shipped_permalink_resolves(assemble_site):
     )
 
 
-def test_an_empty_target_is_rejected(assemble_site, tmp_path):
-    """A malformed entry, not a permalink to nowhere.
+@pytest.mark.parametrize(
+    "target",
+    [
+        "",
+        "   ",
+        None,
+        42,
+        " configuration/layout",
+        "configuration/layout ",
+        "configuration/my layout",
+    ],
+)
+def test_malformed_targets_are_rejected(assemble_site, tmp_path, target):
+    """`_redirects` is space-delimited, so whitespace is not merely useless.
 
-    Dropping it silently would leave that URL a 404 while the publish reported
-    success — the failure this whole mechanism exists to remove.
+    A target of `"   "` produced `/en/:version/perma/x /en/:version/    301` — a
+    rule that parses as something nobody wrote, pointing at the version root.
     """
     path = tmp_path / "redirects.json"
-    path.write_text(json.dumps({"perma/layout": ""}), encoding="utf-8")
+    path.write_text(json.dumps({"perma/layout": target}), encoding="utf-8")
 
-    with pytest.raises(ValueError, match="no target"):
+    with pytest.raises(ValueError, match="empty or whitespace-bearing"):
         assemble_site.load_redirect_map(path)
+
+
+def test_a_key_containing_whitespace_is_rejected(assemble_site, tmp_path):
+    """The source half of a rule has to be one whitespace-free token too."""
+    path = tmp_path / "redirects.json"
+    path.write_text(
+        json.dumps({"perma/my layout": "configuration/layout"}), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="empty or whitespace-bearing"):
+        assemble_site.load_redirect_map(path)
+
+
+def test_the_shipped_map_loads_cleanly(assemble_site):
+    """The validation above must not reject the map actually published."""
+    assert len(assemble_site.load_redirect_map(assemble_site.DEFAULT_REDIRECTS)) == 102

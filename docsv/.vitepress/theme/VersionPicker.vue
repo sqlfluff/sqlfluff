@@ -366,10 +366,11 @@ function onKeydown(event: KeyboardEvent): void {
     color: var(--vp-c-brand-1);
 }
 
-/* Outside the panel it has no surface behind it, so it needs the panel's own
-   left padding removed to line up with the static label above it. */
+/* Outside the panel it sits directly under the static version label, so it
+   takes that label's side padding rather than the panel item's, which would
+   leave the two lines misaligned. */
 .version-picker__all-static {
-    padding-left: 0;
+    padding-left: 0.6rem;
     font-size: 13px;
 }
 

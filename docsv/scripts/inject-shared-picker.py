@@ -37,8 +37,11 @@ HEAD_CLOSE = re.compile(r"</head>", re.IGNORECASE)
 # documented in `docsv/README.md`, and the docs document themselves — would
 # otherwise look already-injected and silently keep its picker. Attribute order
 # is not assumed, so the tag can gain attributes without breaking idempotency.
+# `\s` before `src` rather than `\b`: a word boundary also sits inside
+# `data-src`, which does not load anything, so a page carrying one would look
+# already-injected.
 INJECTED_SCRIPT = re.compile(
-    r"""<script\b[^>]*\bsrc=["'][^"']*version-picker\.js["']""",
+    r"""<script\b[^>]*\ssrc\s*=\s*["'][^"']*version-picker\.js["']""",
     re.IGNORECASE,
 )
 

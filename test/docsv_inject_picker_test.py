@@ -168,3 +168,24 @@ def test_a_page_mentioning_the_asset_is_still_injected(inject, tmp_path):
     assert '<script src="/en/shared/version-picker.js"' in (
         root / "index.html"
     ).read_text(encoding="utf-8")
+
+
+def test_a_non_loading_src_attribute_does_not_count_as_injected(inject, tmp_path):
+    r"""`data-src` loads nothing, and a word boundary sits inside it.
+
+    So `\bsrc` matched it, and a page carrying one would look already-injected
+    and silently keep no picker.
+    """
+    root = _tree(
+        tmp_path,
+        {
+            "index.html": PAGE.format(
+                extra='<script data-src="/en/shared/version-picker.js"></script>'
+            )
+        },
+    )
+
+    assert inject.inject(root, "/en/shared/") == 1
+    assert '<script src="/en/shared/version-picker.js"' in (
+        root / "index.html"
+    ).read_text(encoding="utf-8")
