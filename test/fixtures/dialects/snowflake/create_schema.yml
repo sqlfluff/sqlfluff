@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd831108d51379fcb21b3e63258b3d9c429d3edb8658249435912ff1fc8faaa0
+_hash: b9d704091bbf2f448247cf069e0cdb81aa4d0873e4abaf6506c1a535d3ae9a06
 file:
 - statement:
     create_clone_statement:
@@ -213,4 +213,65 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: PRIVILEGED
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: iceberg_schema
+    - schema_object_properties:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_volume'"
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_catalog'"
+      - keyword: ICEBERG_DEFAULT_DDL_COLLATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'en-ci'"
+      - keyword: ICEBERG_VERSION_DEFAULT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2'
+      - keyword: ICEBERG_MERGE_ON_READ_BEHAVIOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AUTO'"
+      - keyword: ENABLE_ICEBERG_MERGE_ON_READ
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: STORAGE_SERIALIZATION_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OPTIMIZED
+      - keyword: CLASSIFICATION_PROFILE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_profile'"
+      - keyword: CATALOG_SYNC
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_open_catalog_integration'"
+      - keyword: ENABLE_DATA_COMPACTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: OAUTH_AUTHORIZATION_SERVER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_external_oauth_integration
+      - keyword: OAUTH_SCOPES_SUPPORTED
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'read,write'"
 - statement_terminator: ;

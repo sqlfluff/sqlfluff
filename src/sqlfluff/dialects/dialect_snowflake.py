@@ -4050,27 +4050,48 @@ class CreateCloneStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        Sequence("TRANSIENT", optional=True),
         OneOf(
-            "DATABASE",
-            "SCHEMA",
-            Sequence(Sequence("DYNAMIC", optional=True), "TABLE"),
-            "SEQUENCE",
-            Sequence("FILE", "FORMAT"),
-            "STAGE",
-            "STREAM",
-            "TASK",
+            # Databases and schemas: TRANSIENT and the IGNORE clauses are
+            # only documented for these two object types.
+            # https://docs.snowflake.com/en/sql-reference/sql/create-database
+            # https://docs.snowflake.com/en/sql-reference/sql/create-schema
+            Sequence(
+                Sequence("TRANSIENT", optional=True),
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                "CLONE",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("FromAtExpressionSegment"),
+                    Ref("FromBeforeExpressionSegment"),
+                    optional=True,
+                ),
+                Ref("CloneIgnoreOptionsGrammar", optional=True),
+            ),
+            # Tables (TRANSIENT is only valid for a plain TABLE) and the
+            # other schema-level objects.
+            Sequence(
+                OneOf(
+                    Sequence(Sequence("TRANSIENT", optional=True), "TABLE"),
+                    Sequence("DYNAMIC", "TABLE"),
+                    "SEQUENCE",
+                    Sequence("FILE", "FORMAT"),
+                    "STAGE",
+                    "STREAM",
+                    "TASK",
+                ),
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                "CLONE",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("FromAtExpressionSegment"),
+                    Ref("FromBeforeExpressionSegment"),
+                    optional=True,
+                ),
+            ),
         ),
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-        "CLONE",
-        Ref("ObjectReferenceSegment"),
-        OneOf(
-            Ref("FromAtExpressionSegment"),
-            Ref("FromBeforeExpressionSegment"),
-            optional=True,
-        ),
-        Ref("CloneIgnoreOptionsGrammar", optional=True),
         Sequence("COPY", "GRANTS", optional=True),
     )
 
@@ -4144,6 +4165,27 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                         "CATALOG",
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ICEBERG_DEFAULT_DDL_COLLATION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ICEBERG_VERSION_DEFAULT",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    # The documented values ('AUTO', 'ENABLED', 'DISABLED') are quoted.
+                    Sequence(
+                        "ICEBERG_MERGE_ON_READ_BEHAVIOR",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ENABLE_ICEBERG_MERGE_ON_READ",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
                     ),
                     Sequence(
                         "REPLACE_INVALID_CHARACTERS",
@@ -5478,6 +5520,10 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "MAX_DATA_EXTENSION_TIME_IN_DAYS",
                         "EXTERNAL_VOLUME",
                         "CATALOG",
+                        "ICEBERG_DEFAULT_DDL_COLLATION",
+                        "ICEBERG_VERSION_DEFAULT",
+                        "ICEBERG_MERGE_ON_READ_BEHAVIOR",
+                        "ENABLE_ICEBERG_MERGE_ON_READ",
                         "REPLACE_INVALID_CHARACTERS",
                         "DEFAULT_DDL_COLLATION",
                         # The ALTER SCHEMA docs list these two under SET but
@@ -5540,6 +5586,27 @@ class SchemaObjectParamsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
         ),
         Sequence(
+            "ICEBERG_DEFAULT_DDL_COLLATION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ICEBERG_VERSION_DEFAULT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        # The documented values ('AUTO', 'ENABLED', 'DISABLED') are quoted.
+        Sequence(
+            "ICEBERG_MERGE_ON_READ_BEHAVIOR",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ENABLE_ICEBERG_MERGE_ON_READ",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
             "REPLACE_INVALID_CHARACTERS",
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
@@ -5589,7 +5656,7 @@ class SchemaObjectParamsSegment(BaseSegment):
         Sequence(
             "DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE",
             Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ObjectReferenceSegment")),
         ),
         Sequence(
             "OBJECT_VISIBILITY",
@@ -10845,6 +10912,27 @@ class AlterDatabaseSegment(BaseSegment):
                         Ref("QuotedLiteralSegment"),
                     ),
                     Sequence(
+                        "ICEBERG_DEFAULT_DDL_COLLATION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ICEBERG_VERSION_DEFAULT",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    # The documented values ('AUTO', 'ENABLED', 'DISABLED') are quoted.
+                    Sequence(
+                        "ICEBERG_MERGE_ON_READ_BEHAVIOR",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ENABLE_ICEBERG_MERGE_ON_READ",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
                         "REPLACE_INVALID_CHARACTERS",
                         Ref("EqualsSegment"),
                         Ref("BooleanLiteralGrammar"),
@@ -10901,7 +10989,9 @@ class AlterDatabaseSegment(BaseSegment):
                     Sequence(
                         "DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE",
                         Ref("EqualsSegment"),
-                        Ref("ObjectReferenceSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"), Ref("ObjectReferenceSegment")
+                        ),
                     ),
                     Sequence(
                         "CLASSIFICATION_PROFILE",
@@ -10928,6 +11018,16 @@ class AlterDatabaseSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Ref("DollarQuotedUDFBody"),
                     ),
+                    Sequence(
+                        "OAUTH_AUTHORIZATION_SERVER",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "OAUTH_SCOPES_SUPPORTED",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                 ),
             ),
             # ALTER DATABASE [ IF EXISTS ] <name> UNSET ...
@@ -10938,6 +11038,10 @@ class AlterDatabaseSegment(BaseSegment):
                     "MAX_DATA_EXTENSION_TIME_IN_DAYS",
                     "EXTERNAL_VOLUME",
                     "CATALOG",
+                    "ICEBERG_DEFAULT_DDL_COLLATION",
+                    "ICEBERG_VERSION_DEFAULT",
+                    "ICEBERG_MERGE_ON_READ_BEHAVIOR",
+                    "ENABLE_ICEBERG_MERGE_ON_READ",
                     "DEFAULT_DDL_COLLATION",
                     "DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU",
                     "DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU",
@@ -10956,6 +11060,9 @@ class AlterDatabaseSegment(BaseSegment):
                     "CLASSIFICATION_PROFILE",
                     Sequence("CONTACT", Ref("PurposeGrammar")),
                     "ENABLE_DATA_COMPACTION",
+                    "OAUTH_AUTHORIZATION_SERVER",
+                    "OAUTH_SCOPES_SUPPORTED",
+                    Sequence("DCM", "PROJECT"),
                 ),
             ),
             # ALTER DATABASE <name>

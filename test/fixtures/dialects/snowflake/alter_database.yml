@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3fb88a800ee27b829025ad32c99b999f2187e9fcf6d61a51f8728c8d79029b1e
+_hash: 5ac133ee50c4fc5774d46a3b80e7d6c5b85dd0ae79b30e2cba6d6cbc62e3b692
 file:
 - statement:
     alter_database_statement:
@@ -858,4 +858,85 @@ file:
     - object_reference:
         naked_identifier: db1
     - keyword: PRIMARY
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mcp_db
+    - keyword: SET
+    - keyword: OAUTH_AUTHORIZATION_SERVER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_external_oauth_integration
+    - keyword: OAUTH_SCOPES_SUPPORTED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'read,write'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mcp_db
+    - keyword: UNSET
+    - keyword: OAUTH_AUTHORIZATION_SERVER
+    - comma: ','
+    - keyword: OAUTH_SCOPES_SUPPORTED
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - keyword: ICEBERG_DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+    - keyword: ICEBERG_VERSION_DEFAULT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3'
+    - keyword: ICEBERG_MERGE_ON_READ_BEHAVIOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'AUTO'"
+    - keyword: ENABLE_ICEBERG_MERGE_ON_READ
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_wh'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: ICEBERG_DEFAULT_DDL_COLLATION
+    - comma: ','
+    - keyword: ICEBERG_VERSION_DEFAULT
+    - comma: ','
+    - keyword: ICEBERG_MERGE_ON_READ_BEHAVIOR
+    - comma: ','
+    - keyword: ENABLE_ICEBERG_MERGE_ON_READ
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: DCM
+    - keyword: PROJECT
 - statement_terminator: ;

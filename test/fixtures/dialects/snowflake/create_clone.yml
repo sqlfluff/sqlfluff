@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 149aba3a10c6fe179e39cf281b6ed59ec4e8365b1fc5661c9261978749065273
+_hash: d6e4a67dfb641ede80e311e6018d39131665d730c4708ba903429dc95c87e92b
 file:
 - statement:
     create_database_statement:
@@ -156,6 +156,65 @@ file:
     - keyword: INSUFFICIENT
     - keyword: DATA
     - keyword: RETENTION
+    - keyword: COPY
+    - keyword: GRANTS
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: TRANSIENT
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: clone_db
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRANSIENT
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: orders_clone
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: orders
+    - from_at_expression:
+        keyword: AT
+        bracketed:
+          start_bracket: (
+          keyword: OFFSET
+          parameter_assigner: =>
+          expression:
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '3600'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: clone_db
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: source_db
+    - from_before_expression:
+        keyword: BEFORE
+        bracketed:
+          start_bracket: (
+          keyword: STATEMENT
+          parameter_assigner: =>
+          expression:
+            quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+          end_bracket: )
+    - keyword: IGNORE
+    - keyword: HYBRID
+    - keyword: TABLES
     - keyword: COPY
     - keyword: GRANTS
 - statement_terminator: ;

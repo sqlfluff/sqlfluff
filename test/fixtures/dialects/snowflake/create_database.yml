@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e9fcc2ddf6446b7269f7d1b9d66deacef17ab92e0dec3ceb5cefe3341f864ef
+_hash: 98f7760d22ac4becef51cd351d2256d8b50c90d3698a5f64bdc7e36d00d0ef90
 file:
 - statement:
     create_database_statement:
@@ -633,4 +633,35 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'read,write'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: iceberg_db
+    - keyword: EXTERNAL_VOLUME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_volume'"
+    - keyword: CATALOG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog'"
+    - keyword: ICEBERG_DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+    - keyword: ICEBERG_VERSION_DEFAULT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3'
+    - keyword: ICEBERG_MERGE_ON_READ_BEHAVIOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'DISABLED'"
+    - keyword: ENABLE_ICEBERG_MERGE_ON_READ
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
 - statement_terminator: ;
