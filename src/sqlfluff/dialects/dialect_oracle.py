@@ -2566,6 +2566,49 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     )
 
 
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column constraint, e.g. for CREATE TABLE or ALTER TABLE ADD/MODIFY.
+
+    Extends ANSI to support Oracle's inline `USING INDEX` clause, which Oracle
+    allows after a column-level (unnamed-column-list) `PRIMARY KEY` or `UNIQUE`
+    constraint, in addition to the table-level constraint form already handled
+    by `TableConstraintSegment`.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/constraint.html
+    """
+
+    type = "column_constraint_segment"
+
+    match_grammar: Matchable = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
+            Sequence(
+                "DEFAULT",
+                Ref("ColumnConstraintDefaultGrammar"),
+            ),
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("UsingIndexClauseSegment", optional=True),
+            ),
+            Sequence(
+                Ref("UniqueKeyGrammar"),
+                Ref("UsingIndexClauseSegment", optional=True),
+            ),
+            Ref("AutoIncrementGrammar"),
+            Ref("ReferenceDefinitionGrammar"),
+            Ref("CommentClauseSegment"),
+            Sequence("COLLATE", Ref("CollationReferenceSegment")),
+            Ref("ColumnGeneratedGrammar"),
+        ),
+    )
+
+
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
