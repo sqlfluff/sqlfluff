@@ -3172,11 +3172,19 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
     )
 
 
-class AccessObjectSegment(ansi.AccessObjectSegment):
-    """An access object segment for Redshift."""
+class ScopedAccessObjectSegment(BaseSegment):
+    """A scoped access object segment for Redshift."""
 
-    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
-        insert=[Sequence("COPY", "JOBS")],
+    type = "access_object"
+
+    match_grammar: Matchable = OneOf(
+        "SCHEMAS",
+        "TABLES",
+        "FUNCTIONS",
+        "PROCEDURES",
+        "LANGUAGES",
+        Sequence("COPY", "JOBS"),
+        "TEMPLATES",
     )
 
 

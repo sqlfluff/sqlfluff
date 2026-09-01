@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0946131509f04ca4c9093940dcf74421f1930823c3293dd4c922ad7824c972b
+_hash: bf8be41625d86392a4a93b32ab051788045b368bb50f0d22c934a526e13b49a3
 file:
 - statement:
     access_statement:
@@ -264,8 +264,7 @@ file:
             keyword: USAGE
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: SCHEMAS
+          keyword: SCHEMAS
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
@@ -284,8 +283,7 @@ file:
             keyword: ALL
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: SCHEMAS
+          keyword: SCHEMAS
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
@@ -306,8 +304,7 @@ file:
           - keyword: PRIVILEGES
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: SCHEMAS
+          keyword: SCHEMAS
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
@@ -333,8 +330,7 @@ file:
             keyword: DROP
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: TABLES
+          keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
       - object_reference:
@@ -353,8 +349,7 @@ file:
             keyword: ALL
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: TABLES
+          keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
       - object_reference:
@@ -374,8 +369,7 @@ file:
           - keyword: PRIVILEGES
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: TABLES
+          keyword: TABLES
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
@@ -394,8 +388,7 @@ file:
             keyword: EXECUTE
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: FUNCTIONS
+          keyword: FUNCTIONS
       - keyword: IN
       - keyword: SCHEMA
       - object_reference:
@@ -415,8 +408,7 @@ file:
           - keyword: PRIVILEGES
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: FUNCTIONS
+          keyword: FUNCTIONS
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
@@ -436,8 +428,7 @@ file:
             keyword: USAGE
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: LANGUAGES
+          keyword: LANGUAGES
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
@@ -501,8 +492,7 @@ file:
             keyword: DROP
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: TEMPLATES
+          keyword: TEMPLATES
       - keyword: IN
       - keyword: SCHEMA
       - object_reference:
@@ -525,8 +515,7 @@ file:
           - keyword: PRIVILEGES
       - keyword: FOR
       - access_object:
-          object_reference:
-            naked_identifier: TEMPLATES
+          keyword: TEMPLATES
       - keyword: IN
       - keyword: DATABASE
       - object_reference:
