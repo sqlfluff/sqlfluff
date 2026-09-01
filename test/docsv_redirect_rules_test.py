@@ -296,18 +296,47 @@ def test_malformed_targets_are_rejected(assemble_site, tmp_path, target):
     path = tmp_path / "redirects.json"
     path.write_text(json.dumps({"perma/layout": target}), encoding="utf-8")
 
-    with pytest.raises(ValueError, match="empty or whitespace-bearing"):
+    with pytest.raises(ValueError, match="Unusable permalinks"):
         assemble_site.load_redirect_map(path)
 
 
-def test_a_key_containing_whitespace_is_rejected(assemble_site, tmp_path):
-    """The source half of a rule has to be one whitespace-free token too."""
+@pytest.mark.parametrize(
+    ("key", "expected"),
+    [
+        # `key.strip("/")` makes this the version root, so the rule would
+        # redirect every version's home page to whatever the target is.
+        ("", "empty permalink"),
+        ("perma/my layout", "whitespace"),
+        ("../escape", "`..` component"),
+    ],
+)
+def test_malformed_keys_are_rejected(assemble_site, tmp_path, key, expected):
+    """The source half of a rule is a request path too, not just the target."""
+    path = tmp_path / "redirects.json"
+    path.write_text(json.dumps({key: "configuration/layout"}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match=expected):
+        assemble_site.load_redirect_map(path)
+
+
+def test_a_dotdot_target_is_rejected(assemble_site, tmp_path):
+    """Netlify normalises request paths, so such a rule silently never fires."""
+    path = tmp_path / "redirects.json"
+    path.write_text(json.dumps({"perma/x": "../escape"}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="`..` component"):
+        assemble_site.load_redirect_map(path)
+
+
+def test_the_reason_an_entry_was_rejected_is_reported(assemble_site, tmp_path):
+    """Whoever hits this needs to know which entry and why, not just that."""
     path = tmp_path / "redirects.json"
     path.write_text(
-        json.dumps({"perma/my layout": "configuration/layout"}), encoding="utf-8"
+        json.dumps({"perma/good": "configuration/layout", "perma/bad": ""}),
+        encoding="utf-8",
     )
 
-    with pytest.raises(ValueError, match="empty or whitespace-bearing"):
+    with pytest.raises(ValueError, match=r"'perma/bad': no target"):
         assemble_site.load_redirect_map(path)
 
 

@@ -327,6 +327,37 @@ def upsert_manifest_entry(
     return manifest
 
 
+def redirect_entry_problem(key: str, target: Any) -> str | None:
+    """Say why a permalink entry cannot become a redirect rule, or None if it can.
+
+    Every rule this produces is three whitespace-free tokens in a
+    space-delimited file, and both halves become request paths. An entry which
+    breaks either property does not fail loudly at publish time on its own — it
+    emits a rule that is wrong or dead — so it is rejected here instead.
+    """
+    if not key:
+        # `key.strip("/")` makes this the version root, so the rule redirects
+        # every version's home page to whatever the target happens to be.
+        return "empty permalink"
+
+    if not isinstance(target, str) or not target:
+        return "no target"
+
+    if any(character.isspace() for character in f"{key}{target}"):
+        # A target of `"   "` is not merely useless: it emits
+        # `/en/:version/perma/x /en/:version/    301`, which parses as a rule
+        # nobody wrote.
+        return "whitespace in the permalink or its target"
+
+    if ".." in key.split("/") or ".." in target.split("/"):
+        # Netlify matches rules against request paths, which are normalised, so
+        # such a rule is not a traversal — it is simply one that never fires,
+        # leaving the permalink a 404 while the publish reports success.
+        return "a `..` component, which no request path will match"
+
+    return None
+
+
 def load_redirect_map(path: Path) -> dict[str, str]:
     """Load the permalink map, dropping comment keys and rejecting bad entries.
 
@@ -344,24 +375,17 @@ def load_redirect_map(path: Path) -> dict[str, str]:
         key: value for key, value in entries.items() if not key.startswith("_")
     }
 
-    # Whitespace is checked as well as emptiness because `_redirects` is a
-    # space-delimited format: a target of `"   "` is not merely useless, it
-    # produces `/en/:version/perma/x /en/:version/    301`, a rule that parses as
-    # something nobody wrote. Non-strings are rejected here so the rule builder
-    # can assume it has text to work with.
-    invalid = sorted(
-        key
+    problems = {
+        key: problem
         for key, value in permalinks.items()
-        if not isinstance(value, str)
-        or not value
-        or any(character.isspace() for character in f"{key}{value}")
-    )
+        if (problem := redirect_entry_problem(key, value))
+    }
 
-    if invalid:
-        raise ValueError(
-            f"Permalinks with an empty or whitespace-bearing entry in {path}: "
-            f"{', '.join(invalid)}"
+    if problems:
+        detail = "; ".join(
+            f"{key!r}: {problem}" for key, problem in sorted(problems.items())
         )
+        raise ValueError(f"Unusable permalinks in {path}: {detail}")
 
     return permalinks
 
