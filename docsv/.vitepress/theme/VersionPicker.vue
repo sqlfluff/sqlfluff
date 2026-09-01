@@ -144,10 +144,28 @@ function onKeydown(event: KeyboardEvent): void {
             <span class="vpi-chevron-down version-picker__chevron" aria-hidden="true" />
         </button>
 
-        <span v-else class="version-picker__static">
-            <span class="sqlfluff-visually-hidden">Documentation version:</span>
-            {{ triggerLabel }}
-        </span>
+        <template v-else>
+            <span class="version-picker__static">
+                <span class="sqlfluff-visually-hidden">Documentation version:</span>
+                {{ triggerLabel }}
+            </span>
+
+            <!--
+              With nothing to switch to there is no panel, but the archive index
+              still has to be reachable: if every other version is unlisted this
+              is the reader's only route to them. Rendered as a link rather than
+              as a one-item dropdown.
+            -->
+            <a
+                v-if="allVersionsHref"
+                class="version-picker__item version-picker__item--all version-picker__all-static"
+                :href="allVersionsHref"
+                target="_self"
+            >
+                <span>All versions</span>
+                <span aria-hidden="true">&rarr;</span>
+            </a>
+        </template>
 
         <div v-if="interactive" :id="panelId" class="version-picker__panel" :hidden="!open">
             <template v-for="(group, index) in [channels, releases]" :key="index">
@@ -346,6 +364,13 @@ function onKeydown(event: KeyboardEvent): void {
 
 .version-picker__item--all {
     color: var(--vp-c-brand-1);
+}
+
+/* Outside the panel it has no surface behind it, so it needs the panel's own
+   left padding removed to line up with the static label above it. */
+.version-picker__all-static {
+    padding-left: 0;
+    font-size: 13px;
 }
 
 .version-picker__tag {

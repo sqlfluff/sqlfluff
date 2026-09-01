@@ -465,3 +465,83 @@ def test_a_build_without_a_404_page_leaves_the_existing_one(assemble_site, tmp_p
     assert (site / "404.html").read_text(
         encoding="utf-8"
     ) == "<html>SQLFluff 404</html>"
+
+
+def test_prerelease_stages_sort_in_pep440_order(assemble_site):
+    """`a` before `b` before `rc`, rather than all three on their number alone.
+
+    Only `aN` has ever been tagged here, so this was latent — but the manifest's
+    ordering decides which release readers are warned about.
+    """
+    assert _keys_in_order(assemble_site, "4.0.0", "4.0.0a2", "4.0.0b1", "4.0.0rc1") == [
+        "4.0.0",
+        "4.0.0rc1",
+        "4.0.0b1",
+        "4.0.0a2",
+    ]
+
+
+def test_the_404_page_comes_from_the_default_channel(assemble_site, tmp_path):
+    """Not from whichever build a given run happens to assemble.
+
+    A prerelease publishes only itself — the workflow skips `stable` for
+    prereleases — so taking the page from the build in hand would make the
+    site's 404 a prerelease's, complete with a home link into it.
+    """
+    site = tmp_path / "site"
+
+    latest = _dist(tmp_path, "latest")
+    (latest / "404.html").write_text("<html>latest 404</html>", encoding="utf-8")
+
+    assemble_site.assemble_site(
+        dist=latest,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+    prerelease = _dist(tmp_path, "prerelease")
+    (prerelease / "404.html").write_text("<html>4.4.0a1 404</html>", encoding="utf-8")
+
+    assemble_site.assemble_site(
+        dist=prerelease,
+        output_dir=site,
+        language="en",
+        channel="4.4.0a1",
+        title="4.4.0a1",
+        kind="release",
+        prerelease=True,
+        shared_dir=tmp_path / "absent",
+    )
+
+    assert (site / "404.html").read_text(encoding="utf-8") == "<html>latest 404</html>"
+
+
+def test_the_404_page_tracks_the_default_channel_when_it_is_rebuilt(
+    assemble_site, tmp_path
+):
+    """Rebuilding the default channel refreshes the root copy with it.
+
+    The copy references that channel's fingerprinted assets, and the channel
+    directory is deleted and rewritten on every publish, so the two have to move
+    together.
+    """
+    site = tmp_path / "site"
+
+    for body in ("<html>first</html>", "<html>second</html>"):
+        dist = _dist(tmp_path, f"dist-{len(body)}{body[6]}")
+        (dist / "404.html").write_text(body, encoding="utf-8")
+        assemble_site.assemble_site(
+            dist=dist,
+            output_dir=site,
+            language="en",
+            channel="latest",
+            title="Development",
+            kind="channel",
+            shared_dir=tmp_path / "absent",
+        )
+
+    assert (site / "404.html").read_text(encoding="utf-8") == "<html>second</html>"

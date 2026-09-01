@@ -10,7 +10,7 @@ This POC demonstrates:
 2. **Automated Dialect Documentation** - Extracts dialect info
 3. **Automated CLI Documentation** - Extracts CLI commands and options
 4. **API Documentation** - Uses pydoc-markdown to extract Python docstrings from the API
-5. **Redirect System** - Converts Sphinx redirects to VitePress format for backward compatibility
+5. **Redirect System** - A checked-in permalink map that `assemble-site.py` turns into versioned redirect rules, preserving the `/perma/` URLs SQLFluff emits at runtime
 6. **Build Pipeline** - Automated script to generate all documentation before VitePress builds
 
 ## Directory Structure
@@ -75,7 +75,6 @@ This will:
 - Extract all rules and generate `reference/rules/*.md` files
 - Extract dialect and CLI documentation
 - Generate API documentation with pydoc-markdown
-- Extract redirects from Sphinx `conf.py`
 - Create sidebar configuration
 
 ### Development Server
@@ -149,10 +148,16 @@ pnpm run docs:preview
 
 ### Redirects
 
-- ✅ Parses Sphinx `rediraffe_redirects` from `conf.py`
-- ✅ Converts ~90 redirects to VitePress format
-- ✅ Maintains backward compatibility with permalinks
-- ✅ Outputs both JSON and TypeScript formats
+`.vitepress/redirects.json` is a checked-in map from permalink to page. It was
+seeded from the Sphinx `redirects` in `docs/source/conf.py` and is now
+maintained by hand; nothing extracts it at build time.
+
+- ✅ ~100 permalinks, covering the `/perma/` URLs SQLFluff emits from the CLI
+- ✅ `assemble-site.py` turns the map into versioned `_redirects` rules, so a
+  permalink resolves server-side on every published version
+- ✅ The theme also consults the map for in-app navigation, which VitePress
+  intercepts before a request reaches the server
+- ✅ A permalink whose target page no longer exists fails the publish
 
 ### Build System
 
@@ -171,7 +176,7 @@ To validate this POC:
 - [ ] Verify rule documentation has proper formatting and code blocks
 - [ ] Run `npm run docs:dev` - should start dev server
 - [ ] Navigate to rules section - verify layout, links, and anchors work
-- [ ] Check that redirects are loaded in `.vitepress/redirects.json`
+- [ ] Check that every permalink in `.vitepress/redirects.json` still resolves — `assemble-site.py` fails the publish if one does not
 - [ ] Test search functionality with rule codes (e.g., "LT01")
 - [ ] Verify API documentation generated (if pydoc-markdown installed)
 

@@ -273,3 +273,16 @@ def test_every_shipped_permalink_resolves(assemble_site):
     assert (
         len(assemble_site.build_permalink_rules("en", redirects)) == len(redirects) * 2
     )
+
+
+def test_an_empty_target_is_rejected(assemble_site, tmp_path):
+    """A malformed entry, not a permalink to nowhere.
+
+    Dropping it silently would leave that URL a 404 while the publish reported
+    success — the failure this whole mechanism exists to remove.
+    """
+    path = tmp_path / "redirects.json"
+    path.write_text(json.dumps({"perma/layout": ""}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="no target"):
+        assemble_site.load_redirect_map(path)

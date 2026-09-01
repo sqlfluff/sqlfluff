@@ -32,13 +32,23 @@ RTD_INJECTION = re.compile(
 
 HEAD_CLOSE = re.compile(r"</head>", re.IGNORECASE)
 
-# Matching on the filename rather than on the full tag: it is what makes the
-# pass idempotent, and it must keep matching if the tags below gain attributes.
-INJECTION_MARKER = "version-picker.js"
+# Matches the tag this script writes, rather than the filename anywhere in the
+# document: a page whose prose mentions `version-picker.js` — this file is
+# documented in `docsv/README.md`, and the docs document themselves — would
+# otherwise look already-injected and silently keep its picker. Attribute order
+# is not assumed, so the tag can gain attributes without breaking idempotency.
+INJECTED_SCRIPT = re.compile(
+    r"""<script\b[^>]*\bsrc=["'][^"']*version-picker\.js["']""",
+    re.IGNORECASE,
+)
 
 
 def build_tags(shared_base: str) -> str:
     """Build the markup added to every page's head.
+
+    The prefix is normalised to end in a slash. Without that, a `--shared-base`
+    given as `/en/shared` concatenates into `/en/sharedversion-picker.css`, and
+    the failure is silent — the pages inject cleanly and the picker never loads.
 
     `shared_base` is an absolute URL rather than a path relative to the page,
     which would vary with the page's depth. Sphinx output is otherwise
@@ -48,9 +58,11 @@ def build_tags(shared_base: str) -> str:
     it is already tied to the `/<language>/<version>/` layout. One absolute
     prefix does not give up anything the picker had.
     """
+    base = shared_base if shared_base.endswith("/") else f"{shared_base}/"
+
     return (
-        f'<link rel="stylesheet" href="{shared_base}version-picker.css">'
-        f'<script src="{shared_base}version-picker.js" defer></script>'
+        f'<link rel="stylesheet" href="{base}version-picker.css">'
+        f'<script src="{base}version-picker.js" defer></script>'
     )
 
 
@@ -61,7 +73,7 @@ def process(path: Path, tags: str, strip_rtd: bool) -> bool:
     original = path.read_text(encoding="utf-8", errors="replace")
     updated = RTD_INJECTION.sub("", original) if strip_rtd else original
 
-    if INJECTION_MARKER not in updated:
+    if not INJECTED_SCRIPT.search(updated):
         # A page with no `</head>` is not an alabaster page. Leaving it exactly
         # as built is the right answer for a search index or a raw asset that
         # happens to carry an `.html` suffix.

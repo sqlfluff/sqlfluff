@@ -196,6 +196,24 @@ RELEASE_PATTERN = re.compile(
 # `3.4` and `3.4.0` compare as the same release.
 RELEASE_DEPTH = 4
 
+# Prerelease stages in PEP 440 order, so `4.0.0a2` is older than `4.0.0b1` rather
+# than being compared on its number alone. Only `aN` has ever been tagged here,
+# which is why this went unnoticed; the ordering is cheap to get right and the
+# manifest's ordering decides which release readers are warned about.
+STAGE_ORDER = {
+    "a": 0,
+    "alpha": 0,
+    "b": 1,
+    "beta": 1,
+    "c": 2,
+    "rc": 2,
+    "pre": 2,
+    "preview": 2,
+}
+
+# One above every prerelease stage, so a final release outranks all of them.
+FINAL_STAGE = max(STAGE_ORDER.values()) + 1
+
 
 def version_sort_key(entry: dict[str, Any]) -> tuple[int, tuple[int, ...] | str]:
     """Sort channels first, then releases in descending version order.
@@ -227,11 +245,12 @@ def version_sort_key(entry: dict[str, Any]) -> tuple[int, tuple[int, ...] | str]
     parts += [0] * (RELEASE_DEPTH - len(parts))
 
     # A prerelease precedes the release it leads up to, and a post-release
-    # follows it: `4.0.0a1` < `4.0.0` < `4.0.1.post1`. Ranking the stage above
-    # the prerelease number keeps `4.0.0` ahead of every `4.0.0aN`, which a bare
-    # number could not express — there is no prerelease number that means "not a
-    # prerelease".
-    stage_rank = 0 if match["stage"] else 1
+    # follows it: `4.0.0a1` < `4.0.0b1` < `4.0.0` < `4.0.1.post1`. Ranking the
+    # stage above the prerelease number keeps `4.0.0` ahead of every `4.0.0aN`,
+    # which a bare number could not express — there is no prerelease number that
+    # means "not a prerelease".
+    stage = (match["stage"] or "").lower()
+    stage_rank = STAGE_ORDER.get(stage, FINAL_STAGE) if stage else FINAL_STAGE
     stage_num = int(match["stage_num"] or 0)
     post = int(match["post"] or 0)
 
@@ -315,12 +334,20 @@ def load_redirect_map(path: Path) -> dict[str, str]:
         return {}
 
     entries = json.loads(path.read_text(encoding="utf-8"))
-
-    return {
-        key: value
-        for key, value in entries.items()
-        if not key.startswith("_") and value
+    # `_comment` is the convention these config files use for notes.
+    permalinks = {
+        key: value for key, value in entries.items() if not key.startswith("_")
     }
+
+    # An empty target is a malformed entry, not a permalink to nowhere. Dropping
+    # it would leave that URL a 404 while the publish reported success, which is
+    # the failure this whole mechanism exists to remove.
+    empty = sorted(key for key, value in permalinks.items() if not value)
+
+    if empty:
+        raise ValueError(f"Permalinks with no target in {path}: {', '.join(empty)}")
+
+    return permalinks
 
 
 def split_fragment(target: str) -> tuple[str, str]:
@@ -435,23 +462,33 @@ def build_permalink_rules(language: str, redirects: dict[str, str]) -> list[str]
     return rules
 
 
+def default_channel(manifest: dict[str, Any]) -> str:
+    """The channel the site root serves, and so the one the site speaks as.
+
+    Shared by the root redirect and the site-wide 404 page, which must name the
+    same channel: a 404 offering to send the reader somewhere other than where
+    `/` goes would be its own small confusion.
+    """
+    versions = [
+        str(version["key"])
+        for version in manifest.get("versions", [])
+        if version.get("key")
+    ]
+    channel = str(manifest.get("default") or manifest.get("latest") or "latest")
+
+    if channel not in versions and versions:
+        channel = "latest" if "latest" in versions else versions[0]
+
+    return channel
+
+
 def build_redirects(
     language: str,
     manifest: dict[str, Any],
     redirects: dict[str, str] | None = None,
 ) -> str:
     """Build the Netlify redirects file from the assembled manifest."""
-    versions = [
-        str(version["key"])
-        for version in manifest.get("versions", [])
-        if version.get("key")
-    ]
-    default_channel = str(manifest.get("default") or manifest.get("latest") or "latest")
-
-    if default_channel not in versions and versions:
-        default_channel = "latest" if "latest" in versions else versions[0]
-
-    target = f"/{language}/{default_channel}/"
+    target = f"/{language}/{default_channel(manifest)}/"
     lines = [
         f"/ {target} 302",
         f"/{language} {target} 302",
@@ -661,24 +698,33 @@ frozen at the point they were published and are not updated.
 """
 
 
-def publish_not_found_page(dist: Path, output_dir: Path) -> None:
-    """Copy the published build's 404 page to the site root.
+def publish_not_found_page(
+    dist: Path, output_dir: Path, language: str, manifest: dict[str, Any]
+) -> None:
+    """Publish the site-wide 404 page, taken from the default channel.
 
     Netlify only serves a `404.html` from the publish root. It does not fall back
     to one inside a subdirectory, so the VitePress 404 page each version builds
     was never reached — every miss on the beta site, including inside
     `/en/latest/`, returned Netlify's own generic page.
 
-    The root copy comes from whichever build ran last rather than being written
-    from scratch, which keeps it styled like the rest of the site and keeps it in
-    step with the fingerprinted assets it references: those are published by the
-    same run that copies this.
+    Copied from a real build rather than written from scratch, which keeps it
+    styled like the rest of the site for free.
 
-    Skipped when the build has no 404 page, which is the Sphinx case. That leaves
-    the previous copy in place rather than removing it, so archiving a version
-    cannot take the site's 404 page away.
+    Taken from the default channel in the assembled tree rather than from the
+    build being published, so it does not depend on which channels a given run
+    happens to assemble. A prerelease publishes only itself — the workflow skips
+    `stable` for prereleases — and the site's 404 page should not become a
+    prerelease's, complete with a home link into it.
+
+    Falls back to this build for the first publish into an empty tree, where
+    there is no default channel to copy from yet. Skipped entirely when neither
+    has a 404 page, which is the Sphinx case: that leaves the previous copy in
+    place rather than removing it, so archiving a version cannot take the site's
+    404 page away.
     """
-    source = dist / "404.html"
+    channel_page = output_dir / language / default_channel(manifest) / "404.html"
+    source = channel_page if channel_page.is_file() else dist / "404.html"
 
     if not source.is_file():
         return
@@ -760,7 +806,7 @@ def assemble_site(
     write_text(manifest_path, json.dumps(manifest, indent=2))
     write_text(language_dir / "versions.html", build_versions_page(language, manifest))
     publish_shared_assets(shared_dir, language_dir)
-    publish_not_found_page(dist, output_dir)
+    publish_not_found_page(dist, output_dir, language, manifest)
     write_text(
         output_dir / "_redirects", build_redirects(language, manifest, permalinks)
     )

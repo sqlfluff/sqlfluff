@@ -124,6 +124,18 @@
         return chosen
     }
 
+    function buildAllVersionsLink() {
+        var link = el(
+            'a',
+            'sqlfluff-vp__item sqlfluff-vp__item--all',
+            'All versions'
+        )
+        link.href = languageRoot + VERSIONS_PAGE
+        link.appendChild(el('span', 'sqlfluff-vp__arrow', '→'))
+
+        return link
+    }
+
     function buildPanel(entries, current, builder) {
         var panel = el('div', 'sqlfluff-vp__panel')
         panel.hidden = true
@@ -162,10 +174,7 @@
         // The way to reach the versions this list leaves out. Last, and in its
         // own group, so it reads as an escape hatch rather than as a version.
         var footer = el('div', 'sqlfluff-vp__group')
-        var all = el('a', 'sqlfluff-vp__item sqlfluff-vp__item--all', 'All versions')
-        all.href = languageRoot + VERSIONS_PAGE
-        all.appendChild(el('span', 'sqlfluff-vp__arrow', '→'))
-        footer.appendChild(all)
+        footer.appendChild(buildAllVersionsLink())
         panel.appendChild(footer)
 
         return panel
@@ -335,6 +344,12 @@
 
         if (entries.length < 2) {
             root.appendChild(el('span', 'sqlfluff-vp__static', label))
+
+            // The archive index still has to be reachable. If every other
+            // version is unlisted this is the reader's only route to them, and
+            // a one-item dropdown would be a worse way to offer it than a link.
+            if (versions.length > 1) root.appendChild(buildAllVersionsLink())
+
             insertPicker(root)
             return
         }

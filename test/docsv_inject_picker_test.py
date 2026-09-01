@@ -136,3 +136,35 @@ def test_a_missing_directory_is_an_error(inject, tmp_path):
     """A typo in a backfill run should stop it, not silently archive nothing."""
     with pytest.raises(FileNotFoundError):
         inject.inject(tmp_path / "absent", "/en/shared/")
+
+
+def test_a_shared_base_without_a_trailing_slash_still_works(inject, tmp_path):
+    """Otherwise the URLs concatenate and the picker silently never loads."""
+    root = _tree(tmp_path, {"index.html": PAGE.format(extra="")})
+
+    inject.inject(root, "/en/shared")
+    content = (root / "index.html").read_text(encoding="utf-8")
+
+    assert '"/en/shared/version-picker.css"' in content
+    assert "sharedversion-picker" not in content
+
+
+def test_a_page_mentioning_the_asset_is_still_injected(inject, tmp_path):
+    """The idempotency check must match the tag, not the filename in prose.
+
+    This file is documented in `docsv/README.md`, and the docs document
+    themselves, so a page naming the asset is a realistic thing to build.
+    """
+    root = _tree(
+        tmp_path,
+        {
+            "index.html": PAGE.format(extra="").replace(
+                "<body>", "<body><p>loads version-picker.js from /en/shared/</p>"
+            )
+        },
+    )
+
+    assert inject.inject(root, "/en/shared/") == 1
+    assert '<script src="/en/shared/version-picker.js"' in (
+        root / "index.html"
+    ).read_text(encoding="utf-8")

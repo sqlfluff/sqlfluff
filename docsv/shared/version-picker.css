@@ -62,7 +62,7 @@
 
 .sqlfluff-vp__chevron {
     margin-left: 0.5em;
-    color: #777;
+    color: #666;
     font-size: 0.8em;
 }
 
@@ -100,10 +100,13 @@
     border-top: 1px solid #eee;
 }
 
+/* `#666` rather than a lighter grey: at this size the label is normal text for
+   WCAG 1.4.3, so it needs 4.5:1 against the white panel. `#888` gave 3.54:1 and
+   `#777` gives 4.48:1 — both fail. `#666` is 5.74:1. */
 .sqlfluff-vp__group-title {
     margin: 0 0 0.2em;
     padding: 0 0.5em;
-    color: #888;
+    color: #666;
     font-size: 0.7em;
     letter-spacing: 0.05em;
     text-transform: uppercase;
