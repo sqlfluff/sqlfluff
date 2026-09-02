@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c153c69f134fe0d1534d7504a1ec01a54793b92c32cffacff26a3965ff958ca4
+_hash: cde62de20e2596bcaaaf9df375810fa2b8106c8fcb597de55ac3f2f56aadf51e
 file:
   batch:
   - statement:
@@ -296,4 +296,65 @@ file:
                   raw_comparison_operator: '>'
                 numeric_literal: '0'
               end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: ADD
+          bracketed:
+            start_bracket: (
+            column_definition:
+              naked_identifier: column_name
+              data_type:
+                data_type_identifier: NUMBER
+              column_constraint_segment:
+              - keyword: CONSTRAINT
+              - object_reference:
+                  naked_identifier: pk_column_name
+              - keyword: PRIMARY
+              - keyword: KEY
+              - using_index_clause:
+                - keyword: USING
+                - keyword: INDEX
+                - oracle_index_physical_attributes:
+                    keyword: TABLESPACE
+                    object_reference:
+                      naked_identifier: idx_ts
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - alter_table_column_clauses:
+          keyword: MODIFY
+          bracketed:
+            start_bracket: (
+            column_definition:
+              naked_identifier: column_name
+              data_type:
+                data_type_identifier: VARCHAR2
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '10'
+                    end_bracket: )
+              column_constraint_segment:
+              - keyword: CONSTRAINT
+              - object_reference:
+                  naked_identifier: uq_column_name
+              - keyword: UNIQUE
+              - using_index_clause:
+                - keyword: USING
+                - keyword: INDEX
+                - oracle_index_physical_attributes:
+                    keyword: PCTFREE
+                    numeric_literal: '10'
+            end_bracket: )
   - statement_terminator: ;
