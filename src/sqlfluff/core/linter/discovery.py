@@ -197,8 +197,7 @@ def _iter_files_in_path(
         # NOTE: Slice so we can modify as we go.
         for inner_dirname, inner_file, inner_spec in inner_ignore_specs[:]:
             if not (
-                dirname == inner_dirname
-                or dirname.startswith(inner_dirname + os.sep)
+                dirname == inner_dirname or dirname.startswith(inner_dirname + os.sep)
             ):
                 inner_ignore_specs.remove((inner_dirname, inner_file, inner_spec))
 
