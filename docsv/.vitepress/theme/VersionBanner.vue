@@ -16,9 +16,9 @@
  * the current one.
  */
 import { onUnmounted, ref, watch } from 'vue'
-import { useVersions, versionHref } from './versions'
+import { useVersions } from './versions'
 
-const { notice, pagePath } = useVersions()
+const { notice, hrefFor } = useVersions()
 
 const banner = ref<HTMLElement>()
 let observer: ResizeObserver | undefined
@@ -88,7 +88,7 @@ onUnmounted(() => {
             <a
                 v-if="notice.target"
                 class="version-banner__link"
-                :href="versionHref(notice.target, pagePath)"
+                :href="hrefFor(notice.target)"
                 target="_self"
             >Switch to {{ notice.target.label }}</a>
         </p>
