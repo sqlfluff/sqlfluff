@@ -407,6 +407,30 @@ oracle_dialect.add(
             ),
         ),
     ),
+    OracleDeferrableGrammar=OneOf(
+        "DEFERRABLE",
+        Sequence("NOT", "DEFERRABLE"),
+    ),
+    OracleInitiallyGrammar=Sequence(
+        "INITIALLY",
+        OneOf("IMMEDIATE", "DEFERRED"),
+    ),
+    OracleConstraintStateGrammar=Sequence(
+        OneOf(
+            Sequence(
+                Ref("OracleDeferrableGrammar"),
+                Ref("OracleInitiallyGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("OracleInitiallyGrammar"),
+                Ref("OracleDeferrableGrammar", optional=True),
+            ),
+            optional=True,
+        ),
+        OneOf("RELY", "NORELY", optional=True),
+        OneOf("ENABLE", "DISABLE", optional=True),
+        OneOf("VALIDATE", "NOVALIDATE", optional=True),
+    ),
     ElementSpecificationGrammar=Sequence(
         AnyNumberOf(
             Sequence(
@@ -1732,12 +1756,7 @@ class ColumnDefinitionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         OneOf(
-            AnyNumberOf(
-                Sequence(
-                    Ref("ColumnConstraintSegment"),
-                    OneOf("ENABLE", "DISABLE", optional=True),
-                )
-            ),
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
             Sequence(
                 Ref("DatatypeSegment"),  # Column type
                 # For types like VARCHAR(100), VARCHAR(100 BYTE), VARCHAR (100 CHAR)
@@ -1752,12 +1771,7 @@ class ColumnDefinitionSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("ColumnConstraintSegment"),
-                        OneOf("ENABLE", "DISABLE", optional=True),
-                    )
-                ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
         ),
@@ -2541,17 +2555,20 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 "CHECK",
                 Bracketed(Ref("ExpressionSegment")),
                 Sequence("NO", "INHERIT", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
@@ -2561,6 +2578,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 Ref(
                     "ReferenceDefinitionGrammar"
                 ),  # REFERENCES reftable [ ( refcolumn) ]
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
         ),
     )
@@ -2586,8 +2604,16 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             optional=True,
         ),
         OneOf(
-            Sequence(Ref.keyword("NOT", optional=True), "NULL"),
-            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                "NULL",
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
             Sequence(
                 "DEFAULT",
                 Ref("ColumnConstraintDefaultGrammar"),
@@ -2595,13 +2621,18 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Sequence(
                 Ref("PrimaryKeyGrammar"),
                 Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(
                 Ref("UniqueKeyGrammar"),
                 Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Ref("AutoIncrementGrammar"),
-            Ref("ReferenceDefinitionGrammar"),
+            Sequence(
+                Ref("ReferenceDefinitionGrammar"),
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
             Ref("CommentClauseSegment"),
             Sequence("COLLATE", Ref("CollationReferenceSegment")),
             Ref("ColumnGeneratedGrammar"),
