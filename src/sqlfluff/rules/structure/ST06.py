@@ -143,6 +143,10 @@ class Rule_ST06(BaseRule):
                     return False
                 if seg.is_type("comment"):
                     return True
+            # Comments outside the nearest brackets belong to the enclosing
+            # expression, not to this select clause.
+            if parent.is_type("bracketed"):
+                return False
             child = parent
         return False
 

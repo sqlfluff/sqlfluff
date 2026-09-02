@@ -506,3 +506,13 @@ test_fail_no_fix_trailing_comment_inside_cte:
     FROM my_table AS t
     CROSS JOIN defaults AS d
   line_numbers: [2]
+
+test_fail_fix_comment_outside_nested_select:
+  # The outer comment is not attached to either target in the nested SELECT,
+  # so it must not prevent those targets from being reordered.
+  fail_str: |
+    SELECT (SELECT (a - b) AS calc, a) AS nested -- outer note
+    FROM tbl
+  fix_str: |
+    SELECT (SELECT a, (a - b) AS calc) AS nested -- outer note
+    FROM tbl
