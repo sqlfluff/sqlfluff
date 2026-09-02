@@ -16,8 +16,10 @@ jobs:
           fetch-depth: 1
 
       - name: Abort if branch already exists
+        env:
+          NEW_VERSION: ${{ github.event.inputs.newVersionNumber }}
         run: |
-            _check_branch=$(git ls-remote --heads origin prep-${{ github.event.inputs.newVersionNumber }})
+            _check_branch=$(git ls-remote --heads origin "prep-${NEW_VERSION}")
             if [[ -z ${_check_branch} ]]; then
                 echo "Release branch doesn't exist yet, continuing"
             else
@@ -39,8 +41,9 @@ jobs:
 
       - name: Prepare release
         run: |
-          python util.py release ${{ github.event.inputs.newVersionNumber }}
+          python util.py release "${NEW_VERSION}"
         env:
+          NEW_VERSION: ${{ github.event.inputs.newVersionNumber }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ secrets.GITHUB_REPOSITORY_OWNER }}
 
