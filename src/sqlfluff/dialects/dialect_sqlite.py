@@ -1186,17 +1186,107 @@ class CreateVirtualTableStatementSegment(BaseSegment):
     )
 
 
+class AttachStatementSegment(BaseSegment):
+    """An `ATTACH DATABASE` statement.
+
+    https://www.sqlite.org/lang_attach.html
+    """
+
+    type = "attach_statement"
+
+    match_grammar = Sequence(
+        "ATTACH",
+        Ref.keyword("DATABASE", optional=True),
+        Ref("ExpressionSegment"),
+        "AS",
+        Ref("SchemaReferenceSegment"),
+    )
+
+
+class DetachStatementSegment(BaseSegment):
+    """A `DETACH DATABASE` statement.
+
+    https://www.sqlite.org/lang_detach.html
+    """
+
+    type = "detach_statement"
+
+    match_grammar = Sequence(
+        "DETACH",
+        Ref.keyword("DATABASE", optional=True),
+        Ref("SchemaReferenceSegment"),
+    )
+
+
+class VacuumStatementSegment(BaseSegment):
+    """A `VACUUM` statement.
+
+    https://www.sqlite.org/lang_vacuum.html
+    """
+
+    type = "vacuum_statement"
+
+    match_grammar = Sequence(
+        "VACUUM",
+        Ref("SchemaReferenceSegment", optional=True),
+        Sequence(
+            "INTO",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class ReindexStatementSegment(BaseSegment):
+    """A `REINDEX` statement.
+
+    https://www.sqlite.org/lang_reindex.html
+
+    The optional argument is a collation name, or a table or index name
+    which may be schema-qualified. They are not distinguishable
+    syntactically, so both are matched as an object reference.
+    """
+
+    type = "reindex_statement"
+
+    match_grammar = Sequence(
+        "REINDEX",
+        Ref("ObjectReferenceSegment", optional=True),
+    )
+
+
+class AnalyzeStatementSegment(BaseSegment):
+    """An `ANALYZE` statement.
+
+    https://www.sqlite.org/lang_analyze.html
+
+    The optional argument is a schema name, or a table or index name which
+    may be schema-qualified. They are not distinguishable syntactically, so
+    both are matched as an object reference.
+    """
+
+    type = "analyze_statement"
+
+    match_grammar = Sequence(
+        "ANALYZE",
+        Ref("ObjectReferenceSegment", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = OneOf(
         Ref("AlterTableStatementSegment"),
+        Ref("AnalyzeStatementSegment"),
+        Ref("AttachStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateVirtualTableStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
+        Ref("DetachStatementSegment"),
         Ref("DropIndexStatementSegment"),
         Ref("DropTableStatementSegment"),
         Ref("DropTriggerStatementSegment"),
@@ -1204,9 +1294,11 @@ class StatementSegment(ansi.StatementSegment):
         Ref("ExplainStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("PragmaStatementSegment"),
+        Ref("ReindexStatementSegment"),
         Ref("SelectableGrammar"),
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
+        Ref("VacuumStatementSegment"),
         Bracketed(Ref("StatementSegment")),
     )
 
