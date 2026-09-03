@@ -303,6 +303,7 @@ sqlite_dialect.replace(
         Ref("FilterClauseGrammar", optional=True),
         Ref("OverClauseSegment", optional=True),
     ),
+    PostTableExpressionGrammar=Ref("IndexedByClauseSegment"),
     IgnoreRespectNullsGrammar=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
         Ref(
@@ -1075,6 +1076,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
         Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Ref("IndexedByClauseSegment", optional=True),
         Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
@@ -1270,6 +1272,23 @@ class AnalyzeStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ANALYZE",
         Ref("ObjectReferenceSegment", optional=True),
+    )
+
+
+class IndexedByClauseSegment(BaseSegment):
+    """An `INDEXED BY` or `NOT INDEXED` clause.
+
+    https://www.sqlite.org/lang_indexedby.html
+
+    These suffix a table name in `SELECT`, `DELETE` and `UPDATE` to force or
+    forbid the use of a particular index.
+    """
+
+    type = "indexed_by_clause"
+
+    match_grammar = OneOf(
+        Sequence("INDEXED", "BY", Ref("IndexReferenceSegment")),
+        Sequence("NOT", "INDEXED"),
     )
 
 
