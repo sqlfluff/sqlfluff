@@ -5,7 +5,11 @@ import os
 import pytest
 
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.linter.discovery import _load_specs_from_lines, paths_from_path
+from sqlfluff.core.linter.discovery import (
+    _check_ignore_specs,
+    _load_specs_from_lines,
+    paths_from_path,
+)
 
 
 def normalise_paths(paths):
@@ -115,6 +119,20 @@ def test__linter__path_from_paths__ignore(path):
     assert normalise_paths(paths_from_path(path)) == {
         "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql"
     }
+
+
+def test__linter__ignore_match_case_insensitive_filesystem(monkeypatch, tmp_path):
+    """Ignore matching follows filesystem case sensitivity."""
+    monkeypatch.setattr(os.path, "normcase", lambda value: value.casefold())
+    ignore_dir = str(tmp_path / "Project")
+    spec = _load_specs_from_lines(["database/skip.sql"], "<test>")
+
+    ignored_by = _check_ignore_specs(
+        os.path.join(ignore_dir, "DATABASE", "SKIP.SQL"),
+        [(ignore_dir, ".sqlfluffignore", spec)],
+    )
+
+    assert ignored_by == os.path.join(ignore_dir, ".sqlfluffignore")
 
 
 def test__linter__path_from_paths__specific_bad_ext():
