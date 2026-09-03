@@ -287,15 +287,16 @@ class Rule_CV12(BaseRule):
                 ],
             )
         else:
-            assert select_statement.segments[-1].is_type("where_clause")
-            assert select_statement.segments[-2].is_type("whitespace", "newline")
-            yield LintResult(
-                anchor=where_clause,
-                fixes=[
-                    LintFix.delete(select_statement.segments[-2]),
-                    LintFix.delete(select_statement.segments[-1]),
-                ],
-            )
+            # The where clause is not always the last child of the select
+            # statement. A clause such as GROUP BY, ORDER BY or LIMIT can
+            # follow it, so locate it rather than assume its position.
+            where_idx = select_statement.segments.index(where_clause)
+            fixes = [LintFix.delete(where_clause)]
+            if where_idx and select_statement.segments[where_idx - 1].is_type(
+                "whitespace", "newline"
+            ):
+                fixes.append(LintFix.delete(select_statement.segments[where_idx - 1]))
+            yield LintResult(anchor=where_clause, fixes=fixes)
 
     @staticmethod
     def _get_from_expression_element_alias(from_expr_element: BaseSegment) -> str:
