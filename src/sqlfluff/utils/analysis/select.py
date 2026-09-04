@@ -377,6 +377,16 @@ def _get_unpivot_table_aliases(
     return unpivot_aliases
 
 
+# Dialects whose grammar has a dedicated lambda function, so that a lambda always
+# parses as a "lambda_function" holding a "lambda_arrow". In these dialects a plain
+# "->" binary operator is something else - duckdb and trino also use it for JSON
+# extraction - and must not be read as a lambda.
+_LAMBDA_FUNCTION_DIALECTS = ("duckdb", "trino", "snowflake")
+
+# Dialects that parse a lambda as an ordinary expression with a "->" binary operator.
+_LAMBDA_EXPRESSION_DIALECTS = ("athena", "sparksql", "databricks")
+
+
 # Lambda arguments,
 # e.g. `x` and `y` in `x -> x is not null` and `(x, y) -> x + y`
 # are declared in-place, and are as such standalone – i.e. they do not reference
@@ -386,21 +396,24 @@ def _get_unpivot_table_aliases(
 def _get_lambda_argument_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
 ) -> list[BaseSegment]:
-    if not dialect or dialect.name not in [
-        "athena",
-        "sparksql",
-        "duckdb",
-        "trino",
-        "databricks",
-        "snowflake",
-    ]:
-        # Only athena and sparksql are known to have lambda expressions,
-        # so all other dialects will have zero lambda columns
+    if not dialect or dialect.name not in (
+        _LAMBDA_FUNCTION_DIALECTS + _LAMBDA_EXPRESSION_DIALECTS
+    ):
+        # Dialects without lambda expressions have zero lambda columns.
         return []
+
+    uses_lambda_function = dialect.name in _LAMBDA_FUNCTION_DIALECTS
 
     lambda_argument_columns: list[BaseSegment] = []
     for potential_lambda in segment.recursive_crawl("expression", "lambda_function"):
-        potential_arrow = potential_lambda.get_child("binary_operator", "lambda_arrow")
+        if uses_lambda_function:
+            # A bare expression with a "->" is not a lambda in these dialects.
+            if not potential_lambda.is_type("lambda_function"):
+                continue
+            potential_arrow = potential_lambda.get_child("lambda_arrow")
+        else:
+            potential_arrow = potential_lambda.get_child("binary_operator")
+
         if potential_arrow and potential_arrow.raw == "->":
             arrow_operator = potential_arrow
             # The arguments will be before the arrow operator, so we get anything
@@ -415,11 +428,8 @@ def _get_lambda_argument_columns(
             )
 
             if len(argument_segments) != 1:
-                # The `->` isn't really a lambda arrow. Some dialects reuse `->`
-                # as a binary operator (e.g. duckdb/trino JSON extraction, as in
-                # `1::json -> 'a'`), where the left operand isn't a single lambda
-                # parameter. Those contribute no lambda argument columns, so skip
-                # rather than crashing the whole analyzer.
+                # Not a shape we recognise as a lambda parameter list. Contribute
+                # no columns rather than crashing the whole analyzer.
                 continue
             child_segment = argument_segments[0]
 
