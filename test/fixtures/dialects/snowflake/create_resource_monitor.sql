@@ -20,3 +20,8 @@ create or replace resource monitor limiter with credit_quota=5000
            on 100 percent do suspend
            on 110 percent do suspend_immediate
 ;
+
+create resource monitor if not exists my_monitor with
+  credit_quota = 100
+  frequency = monthly
+  start_timestamp = immediately;
