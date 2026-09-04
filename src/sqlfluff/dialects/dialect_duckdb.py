@@ -57,6 +57,7 @@ duckdb_dialect.sets("reserved_keywords").update(
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
+        "SUMMARIZE",
         "UNPIVOT",
     ]
 )
@@ -74,7 +75,6 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "EXPORT",
         "PERSISTENT",
         "SECRET",
-        "SUMMARIZE",
         "OVERWRITE",
         "OVERWRITE_OR_IGNORE",
         "PARQUET_VERSION",
