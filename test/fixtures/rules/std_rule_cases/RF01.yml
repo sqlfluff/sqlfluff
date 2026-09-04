@@ -958,6 +958,70 @@ test_fail_redundantly_bracketed_join_target_unknown_table_tsql:
     SELECT z.x
     FROM a
     LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  violations:
+    - code: RF01
+      description: Reference 'z.x' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 9
+      end_file_pos: 8
   configs:
     core:
       dialect: tsql
+
+test_fail_redundantly_bracketed_join_target_unknown_table:
+  # The counterpart to the two pass cases above. They run through the new
+  # bracketed join target, and a pass case cannot catch over-extraction there:
+  # a target the walk should not have produced only suppresses violations.
+  fail_str: |
+    SELECT z.x
+    FROM tbl_a AS a
+    INNER JOIN ((tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id))
+        ON a.id = b.id;
+  violations:
+    - code: RF01
+      description: Reference 'z.x' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 9
+      end_file_pos: 8
+
+test_fail_redundantly_bracketed_join_target_unknown_table_snowflake:
+  # The same, in a dialect where even one bracket layer takes the new route.
+  fail_str: |
+    SELECT z.x
+    FROM tbl_a AS a
+    INNER JOIN (tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id)
+        ON a.id = b.id;
+  violations:
+    - code: RF01
+      description: Reference 'z.x' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 9
+      end_file_pos: 8
+  configs:
+    core:
+      dialect: snowflake
