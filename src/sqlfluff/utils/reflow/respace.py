@@ -241,6 +241,18 @@ def determine_constraints(
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
 
+    # Prohibit stripping a newline which is the only thing keeping an inline
+    # comment marker apart. Both "touch" and "any" leave a point with no
+    # whitespace alone, so once the newline goes there is nothing between the
+    # blocks and `-` `-` fuses into `--`. Keeping the line break is the only
+    # outcome here which preserves the meaning of the file.
+    if (
+        strip_newlines
+        and {"touch", "any"}.intersection((pre_constraint, post_constraint))
+        and _would_start_comment(prev_block, next_block)
+    ):
+        strip_newlines = False
+
     return pre_constraint, post_constraint, strip_newlines
 
 
