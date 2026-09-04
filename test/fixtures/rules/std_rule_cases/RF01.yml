@@ -938,3 +938,26 @@ test_pass_redundantly_bracketed_join_target_alias_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_redundantly_bracketed_join_target_alias_tsql:
+  # TSQL nests a table_expression per bracket pair rather than reaching the
+  # join target grammar, so the first table sits two layers down and one
+  # unwrap leaves it unfound.
+  pass_str: |
+    SELECT b.x
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_redundantly_bracketed_join_target_unknown_table_tsql:
+  # The same shape with a table that is not in the FROM clause, so the loop
+  # above cannot be passing by finding references that are not there.
+  fail_str: |
+    SELECT z.x
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql

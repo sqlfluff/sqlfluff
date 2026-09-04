@@ -375,11 +375,15 @@ def get_from_expression_element_alias(
                 if _inner:
                     yield from get_from_expression_element_alias(_inner, dialect_name)
                     return
-    # For TSQL nested, bracketed tables get the first table as reference
-    if tbl_expression and not tbl_expression.get_child("object_reference"):
+    # For TSQL nested, bracketed tables get the first table as reference.
+    # A loop rather than one unwrap: TSQL nests a table_expression per bracket
+    # pair, so `((b JOIN c) JOIN d)` buries the first table two layers down and
+    # a single unwrap leaves the reference unfound.
+    while tbl_expression and not tbl_expression.get_child("object_reference"):
         _bracketed = tbl_expression.get_child("bracketed")
-        if _bracketed:
-            tbl_expression = _bracketed.get_child("table_expression")
+        if not _bracketed:
+            break
+        tbl_expression = _bracketed.get_child("table_expression")
 
     # Work out the references
     ref: Optional[BaseSegment] = None
