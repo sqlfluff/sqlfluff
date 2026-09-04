@@ -1704,6 +1704,9 @@ class CreateTableStatementSegment(BaseSegment):
 class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     """A CREATE INDEX statement, Oracle-specific extension.
 
+    The `IF NOT EXISTS` clause was introduced in Oracle Database 19c Release
+    Update 19.28 onwards.
+
     https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-INDEX.html
     """
 
@@ -1713,6 +1716,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
         "CREATE",
         OneOf(Ref.keyword("UNIQUE"), Ref.keyword("BITMAP"), optional=True),
         "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),

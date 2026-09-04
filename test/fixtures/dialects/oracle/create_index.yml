@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 532b899bf0a1b5871868dec909b1d218c69e3fabfaf3f6a7a25ef4af2500ad63
+_hash: 4557544264991ac97e142e8569b5e3ab79cd14bd6569eedf7db1e72d2ecfa01e
 file:
   batch:
   - statement:
@@ -134,6 +134,28 @@ file:
           keyword: TABLESPACE
           object_reference:
             naked_identifier: idx_ts
+  - statement_terminator: ;
+  - statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - index_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_ts_idx
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+          start_bracket: (
+          index_column_definition:
+            naked_identifier: col1
+          end_bracket: )
   - statement_terminator: ;
   - statement:
       create_index_statement:
