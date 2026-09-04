@@ -235,6 +235,30 @@ snowflake_dialect.sets("initialize_types").update(
 )
 
 snowflake_dialect.add(
+    # WORKLOAD_IDENTITY property shared by CREATE USER and ALTER USER,
+    # for workload identity federation. TYPE is required.
+    # https://docs.snowflake.com/en/user-guide/workload-identity-federation
+    WorkloadIdentityPropertyGrammar=Sequence(
+        "WORKLOAD_IDENTITY",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf("AWS", "AZURE", "GCP", "OIDC"),
+            ),
+            AnySetOf(
+                Sequence("ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence("ISSUER", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence("SUBJECT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence(
+                    "OIDC_AUDIENCE_LIST",
+                    Ref("EqualsSegment"),
+                    Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                ),
+            ),
+        ),
+    ),
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
@@ -7183,6 +7207,7 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            Ref("WorkloadIdentityPropertyGrammar"),
             Sequence(
                 "DAYS_TO_EXPIRY",
                 Ref("EqualsSegment"),
@@ -9564,6 +9589,21 @@ class AlterUserStatementSegment(BaseSegment):
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
+            # ALTER USER ... SET { AUTHENTICATION | PASSWORD | SESSION } POLICY
+            # https://docs.snowflake.com/en/sql-reference/sql/alter-user
+            Sequence(
+                "SET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            Sequence("SET", Ref("WorkloadIdentityPropertyGrammar")),
             # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
             # we will just use that.
