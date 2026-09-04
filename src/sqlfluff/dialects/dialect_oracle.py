@@ -3983,6 +3983,26 @@ class ReturnStatementSegment(BaseSegment):
     )
 
 
+class CreateSequenceStatementSegment(BaseSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    Extends the ANSI grammar to support the `IF NOT EXISTS` clause,
+    available from Oracle Database 19c Release Update 19.28 onwards.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-SEQUENCE.html
+    """
+
+    type = "create_sequence_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
 class CreateUserStatementSegment(BaseSegment):
     """A `CREATE USER` statement.
 
