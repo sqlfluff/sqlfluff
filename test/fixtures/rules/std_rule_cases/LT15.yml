@@ -725,3 +725,19 @@ test_pass_minimum_still_counts_a_blank_line_before_a_multiline_comment:
     rules:
       layout.newlines:
         minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_counts_a_blank_line_after_an_intervening_comment:
+  # the third permutation cubic traced alongside the other two: the blank
+  # line sits after the comment (immediately before the next statement)
+  # rather than before it. pads_a_comment_separated_gap_once pins zero blank
+  # lines either side, and counts_a_blank_line_before_an_intervening_comment
+  # pins one before; this is the one nothing else covers.
+  pass_str: |
+    SELECT a FROM tab;
+    -- a note
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
