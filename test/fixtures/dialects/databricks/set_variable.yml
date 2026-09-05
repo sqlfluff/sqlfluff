@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f3a04fd4fa5dbf16f7e570010eb2a13cd4f1278f2eb8c34f2cc9738abf68a2e
+_hash: c2a4d6f0ee59e32f85456eab60c2b9d1fd9ee7b8f73b8a1da5cbb7ec813b0daf
 file:
 - statement:
     set_variable_statement:
@@ -127,11 +127,15 @@ file:
           quoted_identifier: '`foo`'
         comparison_operator:
           raw_comparison_operator: '='
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              quoted_literal: "'bar'"
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  quoted_literal: "'bar'"
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     set_variable_statement:

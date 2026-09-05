@@ -5460,7 +5460,12 @@ class ConflictActionSegment(BaseSegment):
                             Ref("EqualsSegment"),
                             Ref.keyword("ROW", optional=True),
                             Bracketed(
-                                Delimited(OneOf(Ref("ExpressionSegment"), "DEFAULT"))
+                                OneOf(
+                                    Ref("SelectStatementExpressionSegment"),
+                                    Delimited(
+                                        OneOf(Ref("ExpressionSegment"), "DEFAULT")
+                                    ),
+                                )
                             ),
                         ),
                         Sequence(
