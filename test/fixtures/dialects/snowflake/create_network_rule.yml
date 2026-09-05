@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f39661aa652b35700b0762e8527f5aeea1d0095e9e8d9be0af28e334a7c564e0
+_hash: 4097cdd40b6dbd64ceff9c54713a4e86cd6c471e7a1ff5cbcb85c1e28222950d
 file:
 - statement:
     create_statement:
@@ -109,5 +109,76 @@ file:
     - bracketed:
         start_bracket: (
         quoted_literal: "'externalaccessdemo.database.windows.net'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: ipv6_rule
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: IPV6
+    - keyword: VALUE_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'2001:db8::/32'"
+        end_bracket: )
+    - keyword: MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: INGRESS
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: psc_rule
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: GCPPSCID
+    - keyword: VALUE_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'projects/my-project/regions/us-central1/serviceAttachments/my-psc'"
+        end_bracket: )
+    - keyword: MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: INGRESS
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: NETWORK
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: pool_rule
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COMPUTE_POOL
+    - keyword: MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: SNOWFLAKE_MANAGED_STORAGE_VOLUME
+    - keyword: VALUE_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'my_compute_pool'"
         end_bracket: )
 - statement_terminator: ;
