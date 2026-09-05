@@ -14,6 +14,15 @@ from sqlfluff.core.rules import (
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
+def _segments_after(parent: BaseSegment, child: BaseSegment) -> Iterator[BaseSegment]:
+    """Yield ``parent``'s children that follow ``child``."""
+    segments = iter(parent.segments)
+    for seg in segments:
+        if seg is child:
+            break
+    yield from segments
+
+
 class Rule_ST06(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 
@@ -99,6 +108,46 @@ class Rule_ST06(BaseRule):
                             return True
                 # Found a CREATE VIEW but no explicit column list
                 return False
+        return False
+
+    def _has_comments(self, context: RuleContext) -> bool:
+        """Check for comments among or trailing the select targets.
+
+        Comments are siblings of the ``select_clause_element`` segments rather
+        than children of them, so reordering the elements on their own leaves
+        the comments behind and silently attaches each one to a different
+        column.
+
+        Args:
+            context: The rule context, anchored on the select clause
+
+        Returns:
+            True if a comment would be displaced by reordering the targets
+        """
+        # Comments sat between the select targets are direct children of the
+        # clause, alongside the elements themselves. A comment nested inside a
+        # target's own body is carried along when that target moves, so it
+        # cannot be re-assigned and must not withhold the fix.
+        if any(seg.is_type("comment") for seg in context.segment.segments):
+            return True
+        # A comment trailing the *final* target is outside the select clause,
+        # because it follows the clause's closing dedent. How far outside varies:
+        # in a plain select it lands in the clause's own parent, but inside a
+        # bracketed CTE it sits beside the closing bracket, one or more levels
+        # further up. Walk outwards until the line ends, whichever level that
+        # happens on.
+        child = context.segment
+        for parent in reversed(context.parent_stack):
+            for seg in _segments_after(parent, child):
+                if seg.is_type("newline"):
+                    return False
+                if seg.is_type("comment"):
+                    return True
+            # Comments outside the nearest brackets belong to the enclosing
+            # expression, not to this select clause.
+            if parent.is_type("bracketed"):
+                return False
+            child = parent
         return False
 
     def _validate(self, i: int, segment: BaseSegment) -> None:
@@ -273,6 +322,11 @@ class Rule_ST06(BaseRule):
                 # If there are implicit column references (i.e. column
                 # numbers), warn but don't fix, because it's much more
                 # complicated to autofix.
+                return LintResult(anchor=select_clause_segment)
+            if self._has_comments(context):
+                # Comments aren't bound to the select target they annotate, so
+                # reordering the targets would leave them in place and label
+                # the wrong columns. Warn but don't fix.
                 return LintResult(anchor=select_clause_segment)
             # Create a list of all the edit fixes
             # We have to do this at the end of iterating through all the

@@ -446,3 +446,73 @@ test_fail_fix_qualified_reference_with_parameterised_cast_snowflake:
       coalesce(b, 0) as b_coalesced,
       COALESCE(de.ordered, 0)::NUMBER(38, 4) AS ordered
     from tbl
+
+test_fail_no_fix_trailing_inline_comments:
+  # Reordering the select targets would leave the inline comments behind,
+  # silently attaching each one to the wrong column. Flag the ordering but
+  # do not autofix it.
+  fail_str: |
+    SELECT
+        (a - b) AS calc_alias,  -- calc_alias comment
+        a AS a_alias  -- a_alias comment
+    FROM
+        tbl
+  line_numbers: [1]
+
+test_fail_no_fix_trailing_comment_on_final_target:
+  # The final target's trailing comment sits outside the select clause, in
+  # its parent, so it needs checking separately from the ones inside.
+  fail_str: |
+    SELECT
+        (a - b) AS calc_alias,
+        a AS a_alias  -- a_alias comment
+    FROM
+        tbl
+  line_numbers: [1]
+
+test_pass_ordered_select_with_inline_comments:
+  # Already in the right order, so nothing moves and the comments are safe.
+  pass_str: |
+    SELECT
+        a AS a_alias,  -- a_alias comment
+        (a - b) AS calc_alias  -- calc_alias comment
+    FROM
+        tbl
+
+test_fail_fix_comment_nested_inside_target:
+  # A comment inside a target's own body travels with that target, so it can
+  # never be re-assigned and must not withhold the fix.
+  fail_str: |
+    SELECT
+        (SELECT max(x) /* inner note */ FROM t2) AS c,
+        a
+    FROM tbl
+  fix_str: |
+    SELECT
+        a,
+        (SELECT max(x) /* inner note */ FROM t2) AS c
+    FROM tbl
+
+test_fail_no_fix_trailing_comment_inside_cte:
+  # Inside a bracketed CTE the final target's trailing comment sits beside the
+  # closing bracket, further out than the select clause's own parent.
+  fail_str: |
+    WITH defaults AS (
+        SELECT
+            (1 + 1) AS calc_default,
+            0 AS simple_default -- fallback value used when no match is found
+    )
+    SELECT t.id, COALESCE(t.val, d.calc_default) AS val
+    FROM my_table AS t
+    CROSS JOIN defaults AS d
+  line_numbers: [2]
+
+test_fail_fix_comment_outside_nested_select:
+  # The outer comment is not attached to either target in the nested SELECT,
+  # so it must not prevent those targets from being reordered.
+  fail_str: |
+    SELECT (SELECT (a - b) AS calc, a) AS nested -- outer note
+    FROM tbl
+  fix_str: |
+    SELECT (SELECT a, (a - b) AS calc) AS nested -- outer note
+    FROM tbl
