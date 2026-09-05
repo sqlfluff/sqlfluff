@@ -41,11 +41,19 @@ from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
+    postgres_cannot_be_function_or_type_keywords,
     postgres_keywords,
     postgres_postgis_datatype_keywords,
 )
 
 ansi_dialect = load_raw_dialect("ansi")
+
+# Keywords PostgreSQL rejects where a bare function or type name is expected.
+# Sorted longest-first so the alternation in the anti-templates below prefers the
+# longest match (e.g. "SELECT" over a hypothetical "SEL").
+_CANNOT_BE_FUNCTION_OR_TYPE = sorted(
+    postgres_cannot_be_function_or_type_keywords, key=lambda kw: (-len(kw), kw)
+)
 
 postgres_dialect = ansi_dialect.copy_as(
     "postgres",
@@ -629,6 +637,21 @@ postgres_dialect.replace(
         r"[A-Z_][A-Z0-9_$]*",
         CodeSegment,
         type="function_name_identifier",
+    ),
+    # PostgreSQL will not accept a reserved keyword (or a non-reserved keyword
+    # flagged "cannot be function or type name") where a bare type name is
+    # expected. Without this, `CREATE TABLE t (x between NOT NULL)` parses
+    # happily with `between` as the type. See issue #6430.
+    DatatypeIdentifierSegment=SegmentGenerator(
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^(" + r"|".join(_CANNOT_BE_FUNCTION_OR_TYPE) + r")$",
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
+        ),
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
