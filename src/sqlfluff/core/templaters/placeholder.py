@@ -81,6 +81,18 @@ class PlaceholderTemplater(RawTemplater):
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
+    def cache_fingerprint(self, config: FluffConfig) -> Optional[str]:
+        """The placeholder templater reads nothing outside the file and config.
+
+        Both the parameter style and the substituted values come from
+        ``[sqlfluff:templater:placeholder]``, which the config digest covers.
+        """
+        # Only this exact class. A subclass may read anything, and must make
+        # its own declaration -- see `RawTemplater.cache_fingerprint`.
+        if type(self) is not PlaceholderTemplater:
+            return None
+        return ""
+
     # copy of the Python templater
     def get_context(
         self,

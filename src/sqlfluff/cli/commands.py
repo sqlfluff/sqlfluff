@@ -486,6 +486,26 @@ def lint_options(f: Callable) -> Callable:
         is_flag=True,
         help="Perform the operation regardless of .sqlfluffignore configurations",
     )(f)
+    f = click.option(
+        "--cache/--no-cache",
+        "cache",
+        default=None,
+        help=(
+            "Skip files which linted clean on a previous run and have not "
+            "changed since. Overrides the 'cache' config value. Only files "
+            "with no violations at all are cached, and an entry is discarded "
+            "if the file, its configuration, the SQLFluff version or the "
+            "installed plugins change."
+        ),
+    )(f)
+    f = click.option(
+        "--cache-dir",
+        default=None,
+        help=(
+            "Where to keep the lint cache (default: .sqlfluff_cache). Only "
+            "has an effect when caching is enabled."
+        ),
+    )(f)
     return f
 
 
