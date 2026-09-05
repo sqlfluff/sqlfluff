@@ -119,7 +119,10 @@ databricks_dialect.insert_lexer_matchers(
         RegexLexer(
             "notebook_start_bare_magic_cell",
             r"(?s)-- Databricks notebook source(?:\r?\n)"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
+            r"(?:%(?:python|scala|r|sh|md|run|fs|pip|conda|tensorboard|"
+            r"set_cell_max_output_size_in_mb|skip)\b|%%(?:profile|oprofile)\b|"
+            r"%uv[ \t]+pip\b)"
+            r"[^\r\n]*"
             r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
             r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
             CodeSegment,
@@ -144,11 +147,13 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "magic_single_line",
-            r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+            r"(-- MAGIC %)([^\r\n]{2,})( [^%]{1})([^\r\n]*)",
             CodeSegment,
         ),
-        RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
-        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer(
+            "magic_line", r"(-- MAGIC)(?! ?%)(?: [^%\r\n][^\r\n]*)?", CodeSegment
+        ),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\r\n]{2,})", CodeSegment),
         RegexLexer(
             "bare_magic_sql",
             r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
@@ -161,7 +166,10 @@ databricks_dialect.insert_lexer_matchers(
         RegexLexer(
             "bare_magic_cell",
             r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
+            r"(?:%(?:python|scala|r|sh|md|run|fs|pip|conda|tensorboard|"
+            r"set_cell_max_output_size_in_mb|skip)\b|%%(?:profile|oprofile)\b|"
+            r"%uv[ \t]+pip\b)"
+            r"[^\r\n]*"
             r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
             r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
             CodeSegment,
@@ -2142,7 +2150,10 @@ class MagicCellStatementSegment(BaseSegment):
                 Ref("MagicStartGrammar", optional=True),
                 AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
             ),
-            Ref("MagicSingleLineGrammar", optional=True),
+            Sequence(
+                Ref("MagicSingleLineGrammar"),
+                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+            ),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
                 OneOf(
