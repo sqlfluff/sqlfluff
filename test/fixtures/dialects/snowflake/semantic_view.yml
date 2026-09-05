@@ -1,0 +1,684 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fbaaff79db4366526eed180871344eebd62f1efef35b6b654a142e326644c304
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                    naked_identifier: sales_analysis
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_date
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_metrics_clause:
+                  - keyword: METRICS
+                  - semantic_view_metric:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: revenue
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: total_revenue
+                  - comma: ','
+                  - semantic_view_metric:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_count
+                      alias_expression:
+                        naked_identifier: order_total
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_facts_clause:
+                  - keyword: FACTS
+                  - semantic_view_fact:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: unit_price
+                  - comma: ','
+                  - semantic_view_fact:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: quantity
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_metrics_clause:
+                    keyword: METRICS
+                    semantic_view_metric:
+                      semantic_view_expression:
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: SUM
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                  - naked_identifier: orders
+                                  - dot: .
+                                  - naked_identifier: revenue
+                                end_bracket: )
+                          binary_operator: +
+                          column_reference:
+                          - naked_identifier: orders
+                          - dot: .
+                          - naked_identifier: tax
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: gross_revenue
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: DATE_TRUNC
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  quoted_literal: "'MONTH'"
+                              - comma: ','
+                              - expression:
+                                  column_reference:
+                                  - naked_identifier: orders
+                                  - dot: .
+                                  - naked_identifier: order_date
+                              - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: order_month
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                    quoted_identifier: '"sales analysis"'
+                  semantic_view_dimensions_clause:
+                  - keyword: DIMENSIONS
+                  - semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                          naked_identifier: orders
+                          dot: .
+                          star: '*'
+                  - comma: ','
+                  - semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - quoted_identifier: '"order facts"'
+                        - dot: .
+                        - quoted_identifier: '"order date"'
+                      alias_expression:
+                        naked_identifier: order_date
+                  semantic_view_metrics_clause:
+                    keyword: METRICS
+                    semantic_view_metric:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: revenue
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_facts_clause:
+                    keyword: FACTS
+                    semantic_view_fact:
+                      semantic_view_expression:
+                        expression:
+                        - column_reference:
+                          - naked_identifier: orders
+                          - dot: .
+                          - naked_identifier: unit_price
+                        - binary_operator: '*'
+                        - column_reference:
+                          - naked_identifier: orders
+                          - dot: .
+                          - naked_identifier: quantity
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_id
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_id
+                  semantic_view_facts_clause:
+                  - keyword: FACTS
+                  - semantic_view_fact:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: unit_price
+                  - comma: ','
+                  - semantic_view_fact:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: quantity
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_date
+                  semantic_view_metrics_clause:
+                    keyword: METRICS
+                    semantic_view_metric:
+                      semantic_view_expression:
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: COALESCE
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  column_reference:
+                                  - naked_identifier: orders
+                                  - dot: .
+                                  - naked_identifier: revenue
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '0'
+                              - end_bracket: )
+                      alias_expression:
+                        naked_identifier: revenue
+                  semantic_view_where_clause:
+                    keyword: WHERE
+                    expression:
+                    - column_reference:
+                      - naked_identifier: orders
+                      - dot: .
+                      - naked_identifier: order_date
+                    - comparison_operator:
+                      - raw_comparison_operator: '>'
+                      - raw_comparison_operator: '='
+                    - keyword: DATE
+                    - date_constructor_literal: "'2025-01-01'"
+                    - binary_operator: AND
+                    - column_reference:
+                      - naked_identifier: orders
+                      - dot: .
+                      - naked_identifier: quantity
+                    - binary_operator: '*'
+                    - column_reference:
+                      - naked_identifier: orders
+                      - dot: .
+                      - naked_identifier: unit_price
+                    - comparison_operator:
+                        raw_comparison_operator: '>'
+                    - numeric_literal: '100'
+                    - binary_operator: AND
+                    - function:
+                        function_name:
+                          function_name_identifier: UPPER
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                              - naked_identifier: orders
+                              - dot: .
+                              - naked_identifier: status
+                            end_bracket: )
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - quoted_literal: "'COMPLETE'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: semantic_view
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_dimensions_clause:
+                    keyword: dimensions
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_date
+                  semantic_view_metrics_clause:
+                    keyword: metrics
+                    semantic_view_metric:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: revenue
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: sv
+          - dot: .
+          - naked_identifier: order_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: sv
+          - dot: .
+          - naked_identifier: revenue
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_date
+                  semantic_view_metrics_clause:
+                    keyword: METRICS
+                    semantic_view_metric:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: revenue
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: sv
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: sv
+          - dot: .
+          - naked_identifier: revenue
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: sv
+        - dot: .
+        - naked_identifier: order_date
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: semantic_sales
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: order_date
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: revenue
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    semantic_view:
+                      keyword: SEMANTIC_VIEW
+                      bracketed:
+                        start_bracket: (
+                        semantic_view_object_reference:
+                        - naked_identifier: analytics
+                        - dot: .
+                        - naked_identifier: semantic
+                        - dot: .
+                        - naked_identifier: sales_analysis
+                        semantic_view_dimensions_clause:
+                          keyword: DIMENSIONS
+                          semantic_view_dimension:
+                            semantic_view_expression:
+                              semantic_view_field_reference:
+                              - naked_identifier: orders
+                              - dot: .
+                              - naked_identifier: order_date
+                        semantic_view_metrics_clause:
+                          keyword: METRICS
+                          semantic_view_metric:
+                            semantic_view_expression:
+                              semantic_view_field_reference:
+                              - naked_identifier: orders
+                              - dot: .
+                              - naked_identifier: revenue
+                        end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: semantic_sales
+            - dot: .
+            - naked_identifier: order_date
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: semantic_sales
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: sv
+          - dot: .
+          - naked_identifier: order_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: targets
+          - dot: .
+          - naked_identifier: target
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              semantic_view:
+                keyword: SEMANTIC_VIEW
+                bracketed:
+                  start_bracket: (
+                  semantic_view_object_reference:
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: semantic
+                  - dot: .
+                  - naked_identifier: sales_analysis
+                  semantic_view_dimensions_clause:
+                    keyword: DIMENSIONS
+                    semantic_view_dimension:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: order_date
+                  semantic_view_metrics_clause:
+                    keyword: METRICS
+                    semantic_view_metric:
+                      semantic_view_expression:
+                        semantic_view_field_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: revenue
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: sv
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: revenue_targets
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: targets
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: sv
+                - dot: .
+                - naked_identifier: order_date
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: targets
+                - dot: .
+                - naked_identifier: order_date
+- statement_terminator: ;

@@ -882,7 +882,7 @@ test_pass_mysql_update_alias_correlated_subquery:
 test_pass_snowflake_semantic_view_references:
   # Semantic-view identifiers belong to the semantic model, not the outer FROM.
   pass_str: |
-    SELECT order_date, revenue, gross_amount
+    SELECT order_date, revenue
     FROM SEMANTIC_VIEW(
         analytics.semantic.sales_analysis
         DIMENSIONS orders.order_date
@@ -913,6 +913,7 @@ test_fail_snowflake_semantic_view_outer_select_reference:
         analytics.semantic.sales_analysis
         DIMENSIONS orders.order_date
     ) AS sv
+  line_numbers: [1]
   configs:
     core:
       dialect: snowflake
@@ -925,6 +926,7 @@ test_fail_snowflake_semantic_view_outer_where_reference:
         DIMENSIONS orders.order_date
     ) AS sv
     WHERE missing.order_date > sv.order_date
+  line_numbers: [6]
   configs:
     core:
       dialect: snowflake
@@ -938,6 +940,7 @@ test_fail_snowflake_semantic_view_outer_join_reference:
     ) AS sv
     JOIN date_targets AS targets
         ON missing.order_date = targets.order_date
+  line_numbers: [7]
   configs:
     core:
       dialect: snowflake
@@ -946,6 +949,7 @@ test_fail_snowflake_ordinary_outer_reference:
   fail_str: |
     SELECT missing.order_date
     FROM orders
+  line_numbers: [1]
   configs:
     core:
       dialect: snowflake

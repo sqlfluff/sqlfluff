@@ -178,7 +178,9 @@ class Rule_RF01(BaseRule):
         #   clause.
         if ref_path:
             return any(
-                ps.segment.is_type("into_table_clause", "containstable_segment")
+                ps.segment.is_type(
+                    "into_table_clause", "containstable_segment", "semantic_view"
+                )
                 for ps in ref_path
             )
         else:

@@ -8227,12 +8227,172 @@ class CreateExternalTableSegment(BaseSegment):
     )
 
 
+class SemanticViewObjectReferenceSegment(BaseSegment):
+    """The one-, two-, or three-part name of a semantic view."""
+
+    type = "semantic_view_object_reference"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=False,
+            ),
+            max_times=2,
+        ),
+        allow_gaps=False,
+    )
+
+
+class SemanticViewFieldReferenceSegment(BaseSegment):
+    """An optionally logical-table-qualified semantic field or wildcard."""
+
+    type = "semantic_view_field_reference"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("StarSegment")),
+            allow_gaps=False,
+        ),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class SemanticViewExpressionSegment(BaseSegment):
+    """An expression over fields in a semantic view."""
+
+    type = "semantic_view_expression"
+    match_grammar = OneOf(
+        Ref("SemanticViewFieldReferenceSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewMetricSegment(BaseSegment):
+    """A metric expression with an optional output alias."""
+
+    type = "semantic_view_metric"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewFactSegment(BaseSegment):
+    """A fact expression in a semantic-view query."""
+
+    type = "semantic_view_fact"
+    match_grammar = Ref("SemanticViewExpressionSegment")
+
+
+class SemanticViewDimensionSegment(BaseSegment):
+    """A dimension expression with an optional output alias."""
+
+    type = "semantic_view_dimension"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewMetricsClauseSegment(BaseSegment):
+    """The METRICS clause of a semantic-view query."""
+
+    type = "semantic_view_metrics_clause"
+    match_grammar = Sequence(
+        "METRICS",
+        Delimited(Ref("SemanticViewMetricSegment")),
+    )
+
+
+class SemanticViewFactsClauseSegment(BaseSegment):
+    """The FACTS clause of a semantic-view query."""
+
+    type = "semantic_view_facts_clause"
+    match_grammar = Sequence(
+        "FACTS",
+        Delimited(Ref("SemanticViewFactSegment")),
+    )
+
+
+class SemanticViewDimensionsClauseSegment(BaseSegment):
+    """The DIMENSIONS clause of a semantic-view query."""
+
+    type = "semantic_view_dimensions_clause"
+    match_grammar = Sequence(
+        "DIMENSIONS",
+        Delimited(Ref("SemanticViewDimensionSegment")),
+    )
+
+
+class SemanticViewWhereClauseSegment(BaseSegment):
+    """The pre-aggregation predicate of a semantic-view query."""
+
+    type = "semantic_view_where_clause"
+    match_grammar = Sequence(
+        "WHERE",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewSegment(BaseSegment):
+    """A Snowflake SEMANTIC_VIEW query in a FROM clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/semantic_view
+    """
+
+    type = "semantic_view"
+    match_grammar = Sequence(
+        "SEMANTIC_VIEW",
+        Bracketed(
+            Ref("SemanticViewObjectReferenceSegment"),
+            OneOf(
+                Ref("SemanticViewMetricsClauseSegment"),
+                Ref("SemanticViewFactsClauseSegment"),
+                Ref("SemanticViewDimensionsClauseSegment"),
+                Sequence(
+                    Ref("SemanticViewMetricsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewMetricsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewFactsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewFactsClauseSegment"),
+                ),
+            ),
+            Ref("SemanticViewWhereClauseSegment", optional=True),
+        ),
+    )
+
+
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause."""
 
     match_grammar = OneOf(
+        Ref("SemanticViewSegment"),
         Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
+        Ref(
+            "FunctionSegment",
+            exclude=Sequence("SEMANTIC_VIEW", Ref("StartBracketSegment")),
+        ),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
