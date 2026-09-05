@@ -195,6 +195,16 @@ test_json_arrow_operator_is_not_a_lambda_trino:
     core:
       dialect: trino
 
+test_arrow_with_non_parameter_left_operand_is_not_a_lambda:
+  # The left operand of `->` is a function call, not a single lambda parameter,
+  # so it is not treated as a lambda (and must not crash the analyzer). All real
+  # column references are qualified, so there is nothing for RF02 to flag.
+  pass_str: |
+    select filter(t1.arr, foo() -> 1) from t1 join t2 on t1.id = t2.id
+  configs:
+    core:
+      dialect: databricks
+
 test_json_arrow_on_plain_column_is_not_a_lambda_duckdb:
   # A plain column on the left of `->` is still JSON extraction, not a lambda
   # parameter, so the column must still be reported as unqualified.
