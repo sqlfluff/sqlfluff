@@ -153,6 +153,26 @@ def test__validate_configs_removed_warning_is_source_aware(
     assert config == {"core": {"max_line_length": 800}}
 
 
+def test__validate_configs_semicolon_newline_translation():
+    """Deprecated semicolon_newline maps onto multiline_newline."""
+    new_key = ("rules", "convention.terminator", "multiline_newline")
+    for old_key in (
+        ("rules", "L052", "semicolon_newline"),
+        ("rules", "convention.terminator", "semicolon_newline"),
+    ):
+        assert any(
+            k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+        ), (
+            "This test depends on this key still being removed. Update the test to "
+            "one that is if this one isn't."
+        )
+        config = records_to_nested_dict([(old_key, True)])
+        validate_config_dict_for_removed(config, "<test>")
+        assert config == {
+            "rules": {"convention.terminator": {"multiline_newline": True}}
+        }
+
+
 @pytest.mark.parametrize(
     "old_value,expected",
     [
