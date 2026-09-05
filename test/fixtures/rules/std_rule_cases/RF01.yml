@@ -879,6 +879,77 @@ test_pass_mysql_update_alias_correlated_subquery:
     core:
       dialect: mysql
 
+test_pass_snowflake_semantic_view_references:
+  # Semantic-view identifiers belong to the semantic model, not the outer FROM.
+  pass_str: |
+    SELECT order_date, revenue, gross_amount
+    FROM SEMANTIC_VIEW(
+        analytics.semantic.sales_analysis
+        DIMENSIONS orders.order_date
+        METRICS orders.revenue
+        WHERE orders.quantity * orders.unit_price > 100
+    )
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_semantic_view_facts:
+  pass_str: |
+    SELECT order_id, unit_price
+    FROM SEMANTIC_VIEW(
+        analytics.semantic.sales_analysis
+        DIMENSIONS orders.order_id
+        FACTS orders.unit_price
+    )
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semantic_view_outer_select_reference:
+  # Outer relational references remain subject to RF01.
+  fail_str: |
+    SELECT missing.order_date
+    FROM SEMANTIC_VIEW(
+        analytics.semantic.sales_analysis
+        DIMENSIONS orders.order_date
+    ) AS sv
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semantic_view_outer_where_reference:
+  fail_str: |
+    SELECT sv.order_date
+    FROM SEMANTIC_VIEW(
+        analytics.semantic.sales_analysis
+        DIMENSIONS orders.order_date
+    ) AS sv
+    WHERE missing.order_date > sv.order_date
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semantic_view_outer_join_reference:
+  fail_str: |
+    SELECT sv.order_date
+    FROM SEMANTIC_VIEW(
+        analytics.semantic.sales_analysis
+        DIMENSIONS orders.order_date
+    ) AS sv
+    JOIN date_targets AS targets
+        ON missing.order_date = targets.order_date
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_ordinary_outer_reference:
+  fail_str: |
+    SELECT missing.order_date
+    FROM orders
+  configs:
+    core:
+      dialect: snowflake
+
 test_pass_mysql_multi_table_update_alias_correlated_subquery:
   # https://github.com/sqlfluff/sqlfluff/issues/6147
   # Aliases of every target of a multi-table UPDATE (including joined
