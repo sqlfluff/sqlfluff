@@ -2146,6 +2146,7 @@ def test__cli__command_lint_nocolor(
         "sarif",
         "github-annotation",
         "github-annotation-native",
+        "gitlab",
         "none",
     ],
 )
@@ -2223,6 +2224,10 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
+        assert len(filepaths) == 2
+    elif serialize == "gitlab":
+        result = json.loads(result_payload)
+        filepaths = {r["location"]["path"] for r in result}
         assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
@@ -2464,6 +2469,162 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     )
 
     assert result_error.stdout == result_failure.stdout
+
+
+def test__cli__command_lint_serialize_gitlab():
+    """Test format of gitlab Code Quality output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "gitlab",
+                "--annotation-level",
+                "warning",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    result = json.loads(result.stdout)
+    assert result == [
+        {
+            "check_name": "RF02",
+            "description": "RF02: Unqualified reference 'foo' found in select with more than one "
+            "referenced table/view.",
+            "severity": "major",
+            "fingerprint": "ea72c87b48f117121c9dc88494e7a28c",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 3,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 3,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "LT02",
+            "description": "LT02: Expected indent of 8 spaces.",
+            "severity": "major",
+            "fingerprint": "2ff34290e123cd2433e5c99851980992",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "AL02",
+            "description": "AL02: Implicit/explicit aliasing of columns.",
+            "severity": "major",
+            "fingerprint": "2b77945fc8b2c5d3b272ca15017e7494",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "0e3b951371f88c7eba5527dc8391ca23",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP01",
+            "description": "CP01: Keywords must be consistently lower case.",
+            "severity": "info",
+            "fingerprint": "5edaf68d9dfa280f4391b61343e4a6e8",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 5,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "f65871bbe27ff3bad777629aa7a97b24",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 12,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 16,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "a7cbc8b53f1c7ca425770b9504d6752d",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 18,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 22,
+                    },
+                },
+            },
+        },
+    ]
 
 
 def test___main___help():

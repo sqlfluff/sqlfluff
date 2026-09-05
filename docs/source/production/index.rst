@@ -16,3 +16,4 @@ be part of `CI/CD`_ pipelines.
    diff_quality
    pre_commit
    github_actions
+   gitlab_ci
