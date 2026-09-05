@@ -513,10 +513,11 @@ test_fail_databricks_plain_shorthand_preferred_cast:
       convention.casting_style:
         preferred_type_casting_style: cast
 
-test_pass_mysql_convert_is_left_alone:
+test_fail_mysql_convert_is_fixed_to_cast:
   # issue #8171: mysql spells this CONVERT(expr, type), so rewriting to CAST
-  # would swap the arguments and silently produce cast(SIGNED as b)
-  pass_str: SELECT CONVERT(b, SIGNED) FROM t
+  # must preserve the argument order: cast(expr as type).
+  fail_str: SELECT CONVERT(b, SIGNED) FROM t
+  fix_str: SELECT cast(b as SIGNED) FROM t
   configs:
     core:
       dialect: mysql
@@ -524,9 +525,10 @@ test_pass_mysql_convert_is_left_alone:
       convention.casting_style:
         preferred_type_casting_style: cast
 
-test_pass_mariadb_convert_is_left_alone:
+test_fail_mariadb_convert_is_fixed_to_cast:
   # mariadb inherits the mysql dialect, and so the argument order
-  pass_str: SELECT CONVERT(b, SIGNED) FROM t
+  fail_str: SELECT CONVERT(b, SIGNED) FROM t
+  fix_str: SELECT cast(b as SIGNED) FROM t
   configs:
     core:
       dialect: mariadb
@@ -534,14 +536,21 @@ test_pass_mariadb_convert_is_left_alone:
       convention.casting_style:
         preferred_type_casting_style: cast
 
-test_fail_mysql_convert_target_is_flagged_but_not_fixed:
-  # the reverse direction corrupts too: CAST(b AS SIGNED) would be rewritten to
-  # convert(SIGNED, b), the t-sql order, which is wrong on mysql. So the rewrite
-  # is withheld here, but the inconsistency is still reported - suppressing the
-  # fix must not silently stop linting CAST and :: on this dialect.
+test_pass_mysql_convert_using_is_left_alone:
+  # CONVERT(expr USING charset) is character set transcoding, not a type cast.
+  pass_str: SELECT CONVERT(b USING utf8mb4) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_mysql_convert_target_is_fixed:
+  # mysql spells this CONVERT(expr, type), so rewriting CAST and :: to CONVERT
+  # must produce convert(expr, type).
   fail_str: SELECT CAST(b AS SIGNED), c::SIGNED FROM t
-  # no fix_str: both violations are unfixable under this config, so the file is
-  # left exactly as written.
+  fix_str: SELECT convert(b, SIGNED), convert(c, SIGNED) FROM t
   configs:
     core:
       dialect: mysql
@@ -549,15 +558,46 @@ test_fail_mysql_convert_target_is_flagged_but_not_fixed:
       convention.casting_style:
         preferred_type_casting_style: convert
 
-test_fail_mariadb_convert_target_is_flagged_but_not_fixed:
+test_fail_mariadb_convert_target_is_fixed:
   # mariadb inherits the mysql dialect, so it must behave the same way
   fail_str: SELECT CAST(b AS SIGNED) FROM t
+  fix_str: SELECT convert(b, SIGNED) FROM t
   configs:
     core:
       dialect: mariadb
     rules:
       convention.casting_style:
         preferred_type_casting_style: convert
+
+test_fail_doris_convert_is_fixed_to_cast:
+  fail_str: SELECT CONVERT(b, INT) FROM t
+  fix_str: SELECT cast(b as INT) FROM t
+  configs:
+    core:
+      dialect: doris
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_mysql_consistent_convert_first:
+  fail_str: SELECT CONVERT(b, SIGNED), CAST(c AS SIGNED) FROM t
+  fix_str: SELECT CONVERT(b, SIGNED), convert(c, SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: consistent
+
+test_fail_mysql_consistent_cast_first:
+  fail_str: SELECT CAST(b AS SIGNED), CONVERT(c, SIGNED) FROM t
+  fix_str: SELECT CAST(b AS SIGNED), cast(c as SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: consistent
 
 test_fail_tsql_convert_target_is_still_fixed:
   # the control: t-sql takes CONVERT(type, expr), so the rewrite is safe there
