@@ -910,3 +910,118 @@ test_pass_mysql_comma_multi_table_update_alias_correlated_subquery:
   configs:
     core:
       dialect: mysql
+
+test_pass_redundantly_bracketed_join_target_alias:
+  # https://github.com/sqlfluff/sqlfluff/issues/8382
+  # Redundant brackets nest the joined table in a further
+  # from_expression_element, so the alias has to be read from there rather
+  # than from the bracket group.
+  pass_str: |
+    SELECT a.x
+    FROM tbl_a AS a
+    INNER JOIN ((tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id))
+        ON a.id = b.id;
+
+test_pass_redundantly_bracketed_join_target_alias_snowflake:
+  # The same statement in a dialect that overrides
+  # FromExpressionElementSegment, where even one bracket layer takes the new
+  # join target route.
+  pass_str: |
+    SELECT a.x
+    FROM tbl_a AS a
+    INNER JOIN (tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id)
+        ON a.id = b.id;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_redundantly_bracketed_join_target_alias_tsql:
+  # TSQL nests a table_expression per bracket pair rather than reaching the
+  # join target grammar, so the first table sits two layers down and one
+  # unwrap leaves it unfound.
+  pass_str: |
+    SELECT b.x
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_redundantly_bracketed_join_target_unknown_table_tsql:
+  # The same shape with a table that is not in the FROM clause, so the loop
+  # above cannot be passing by finding references that are not there.
+  fail_str: |
+    SELECT z.x
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  violations:
+    - code: RF01
+      description: Reference 'z.x' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 9
+      end_file_pos: 8
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_redundantly_bracketed_join_target_unknown_table:
+  # The counterpart to the two pass cases above. They run through the new
+  # bracketed join target, and a pass case cannot catch over-extraction there:
+  # a target the walk should not have produced only suppresses violations.
+  fail_str: |
+    SELECT z.x
+    FROM tbl_a AS a
+    INNER JOIN ((tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id))
+        ON a.id = b.id;
+  violations:
+    - code: RF01
+      description: Reference 'z.x' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 9
+      end_file_pos: 8
+
+test_fail_redundantly_bracketed_join_target_unknown_table_snowflake:
+  # The same, in a dialect where even one bracket layer takes the new route.
+  fail_str: |
+    SELECT z.x
+    FROM tbl_a AS a
+    INNER JOIN (tbl_b AS b
+        INNER JOIN tbl_c AS c
+            ON b.id = c.id)
+        ON a.id = b.id;
+  violations:
+    - code: RF01
+      description: Reference 'z.x' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 9
+      end_file_pos: 8
+  configs:
+    core:
+      dialect: snowflake
