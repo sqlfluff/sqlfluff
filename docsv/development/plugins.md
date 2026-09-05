@@ -34,6 +34,8 @@ Currently, only Rules and Templaters can be added through plugins. Over time we 
 
 We recommend that the name of a plugin should start with *`sqlfluff-`* to be clear on the purpose of your plugin.
 
+Templater instances are scoped to one public lint, parse, or render operation. Stateless templaters can use the default `session_key()`, which shares one instance by templater name. Stateful templaters should override `session_key()` with a deterministic key containing every configuration value that defines reusable state, and override `close()` to release that state. Templaters that cannot render safely in worker processes should also set `templates_in_worker = False`. These methods must remain safe when setup only partially completes or an operation exits early.
+
 A plugin may need to include a default configuration if its rules are configurable: use plugin default configurations **only for that reason**! We advise against overwriting core configurations by using a default plugin configuration, as there is no mechanism in place to enforce precedence between the core library configs and plugin configs, and multiple plugins could clash.
 
 A plugin Rule class name should have the structure: `Rule_PluginName_L000`. The 'L' can be any letter and is meant to categorize rules; you could use the letter 'S' to denote rules that enforce security checks for example.

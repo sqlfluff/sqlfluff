@@ -1,6 +1,6 @@
 """Defines small container classes to hold intermediate results during linting."""
 
-from typing import Any, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional, Union
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
@@ -11,6 +11,9 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.templaters import TemplatedFile
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.rules import BaseRule
 
 
 class RuleTuple(NamedTuple):
@@ -50,6 +53,15 @@ class DeferredRenderTask(NamedTuple):
     fname: str
     root_config: FluffConfig
     fix: bool
+    user_rules: tuple[type["BaseRule"], ...] = ()
+
+
+class RenderedLintTask(NamedTuple):
+    """A rendered file ready for worker-side parsing and linting."""
+
+    rendered: RenderedFile
+    fix: bool
+    user_rules: tuple[type["BaseRule"], ...] = ()
 
 
 class ParsedVariant(NamedTuple):
