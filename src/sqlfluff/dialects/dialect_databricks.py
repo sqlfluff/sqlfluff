@@ -1703,6 +1703,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                             Bracketed(
                                 OneOf(
                                     Ref("ExpressionSegment"),
+                                    Ref("SelectStatementExpressionSegment"),
                                     Ref("SelectStatementSegment"),
                                 )
                             ),
@@ -1713,6 +1714,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                         OneOf(
                             Ref("SetExpressionSegment"),
                             Ref("ExpressionSegment"),
+                            Ref("SelectStatementExpressionSegment"),
                             Ref("SelectStatementSegment"),
                             Ref("WithCompoundStatementSegment"),
                         ),

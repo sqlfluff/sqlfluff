@@ -776,6 +776,7 @@ tsql_dialect.replace(
                     # We're using the expression segment here rather than the grammar so
                     # that in the parsed structure we get nested elements.
                     Ref("ExpressionSegment"),
+                    Ref("SelectStatementExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
                         Ref(
@@ -789,8 +790,6 @@ tsql_dialect.replace(
                 ),
                 parse_mode=ParseMode.GREEDY,
             ),
-            # Allow potential select statement without brackets
-            Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("ColumnReferenceSegment"),
             Ref("TypedArrayLiteralSegment"),
@@ -4874,11 +4873,14 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
         "PARTITION",
         "BY",
         Delimited(
-            OptionallyBracketed(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("ExpressionSegment"),
-                )
+            OneOf(
+                Bracketed(Ref("SelectStatementExpressionSegment")),
+                OptionallyBracketed(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    )
+                ),
             )
         ),
     )
