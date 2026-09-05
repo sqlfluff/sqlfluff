@@ -6,6 +6,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -298,6 +299,9 @@ hive_dialect.replace(
     LikeGrammar=OneOf(
         "LIKE", "RLIKE", "ILIKE", "REGEXP", "IREGEXP"
     ),  # Impala dialect uses REGEXP and IREGEXP
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(insert=[Ref("NullSafeEqualsSegment")]),
 )
 
 
@@ -326,6 +330,21 @@ class EqualsSegment(ansi.EqualsSegment):
     match_grammar: Matchable = Sequence(
         Ref("RawEqualsSegment"),
         Ref("RawEqualsSegment", optional=True),
+    )
+
+
+class NullSafeEqualsSegment(CompositeComparisonOperatorSegment):
+    """NULL-safe equals operator.
+
+    Hive returns TRUE when both operands are NULL, rather than NULL:
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("RawLessThanSegment"),
+        Ref("RawEqualsSegment"),
+        Ref("RawGreaterThanSegment"),
+        allow_gaps=False,
     )
 
 
