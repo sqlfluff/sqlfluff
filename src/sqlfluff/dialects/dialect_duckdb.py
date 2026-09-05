@@ -69,6 +69,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "COMPRESSION",
         "COMPRESSION_LEVEL",
         "GLOB",
+        "INSTALL",
         "MACRO",
         "MAP",
         "OVERWRITE",
@@ -1026,6 +1027,38 @@ class ObjectLiteralElementSegment(ansi.ObjectLiteralElementSegment):
     )
 
 
+class InstallStatementSegment(BaseSegment):
+    """An `INSTALL` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/load_and_install
+    """
+
+    type = "install_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "INSTALL",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "FROM",
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+            optional=True,
+        ),
+    )
+
+
+class LoadStatementSegment(postgres.LoadStatementSegment):
+    """A `LOAD` statement.
+
+    DuckDB names the extension, where Postgres takes a quoted file name.
+    https://duckdb.org/docs/stable/sql/statements/load_and_install
+    """
+
+    match_grammar = Sequence(
+        "LOAD",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1033,6 +1066,7 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("InstallStatementSegment"),
         ]
     )
 
