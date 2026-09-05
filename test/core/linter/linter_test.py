@@ -1001,6 +1001,15 @@ def test__linter__deduplicates_duplicate_templater_violations_in_linted_output()
             ],
         ),
         (
+            # AM04 anchors on the wildcard, which is literal even though the
+            # table reference beside it is templated, so masking templated
+            # areas should not discard the violation.
+            "test/fixtures/linter/jinja_spacing.sql",
+            "AM04",
+            True,
+            [("AM04", 3, 8)],
+        ),
+        (
             "test/fixtures/linter/jinja_variants/simple_CP01.sql",
             "CP01",
             False,
