@@ -110,8 +110,64 @@ class PrecededByMatcher(Matchable):
         return True
 
 
+class PrecededOnLineByCodeMatcher(Matchable):
+    """Matches when code precedes the current position on the same line.
+
+    This is used as an ``exclude`` pattern on matchers for constructs that
+    are only meaningful when they start a line, so that the same character
+    used mid-line means something else.
+
+    For example, Oracle's SQL*Plus buffer executor ``/`` sits alone on its
+    own line, whereas a ``/`` with code before it on the line is division.
+    """
+
+    def is_optional(self) -> bool:  # pragma: no cover
+        """Return whether this element is optional.
+
+        A lookbehind matcher is never optional — it must always be evaluated.
+        """
+        return False
+
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
+    ) -> SimpleHintType:  # pragma: no cover
+        """This element doesn't work with simple."""
+        return None
+
+    def cache_key(self) -> str:  # pragma: no cover
+        """Get the cache key for the matcher."""
+        return "preceded-on-line-by-code"
+
+    def match(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult:
+        """Match when a code segment precedes this position on the same line.
+
+        Scans backward from ``idx``. A newline (or the start of the file)
+        found before any code segment means the position starts its line, so
+        this returns an empty result and the caller's outer match is allowed.
+        """
+        prev = idx - 1
+        while prev >= 0:
+            segment = segments[prev]
+            if segment.is_code and not segment.is_meta:
+                return MatchResult(slice(idx, idx + 1))
+            if segment.is_type("newline"):
+                break
+            prev -= 1
+
+        return MatchResult.empty_at(idx)
+
+
 # Shared exclude pattern for the FROM keyword in select clause terminators.
 # Prevents FROM in "IS [NOT] DISTINCT FROM" being treated as a FROM clause.
 is_distinct_from_lookbehind = PrecededByMatcher(
     preceding_sequences=(("IS", "DISTINCT"), ("IS", "NOT", "DISTINCT")),
 )
+
+# Shared exclude pattern for constructs that are only meaningful at the start of
+# a line, such as Oracle's SQL*Plus buffer executor `/`.
+preceded_on_line_by_code_lookbehind = PrecededOnLineByCodeMatcher()
