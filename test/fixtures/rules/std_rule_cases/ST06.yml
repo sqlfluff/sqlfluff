@@ -601,3 +601,36 @@ test_fail_fix_comment_after_from_clause:
     SELECT (a - b) AS calc, name FROM tbl -- table comment
   fix_str: |
     SELECT name, (a - b) AS calc FROM tbl -- table comment
+
+test_fail_no_fix_comment_before_final_comma:
+  fail_str: |
+    SELECT
+        (a - b) AS calc,
+        name
+        -- name comment
+        ,
+    FROM tbl
+  line_numbers: [1]
+
+test_fail_no_fix_block_comment_before_final_comma:
+  fail_str: |
+    SELECT
+        (a - b) AS calc,
+        name
+        /* name comment */ ,
+    FROM tbl
+  line_numbers: [1]
+
+test_fail_fix_comment_before_final_comma_on_unchanged_target:
+  fail_str: |
+    SELECT
+        (a - b) AS calc, name, SUM(c)
+        -- total
+        ,
+    FROM tbl
+  fix_str: |
+    SELECT
+        name, (a - b) AS calc, SUM(c)
+        -- total
+        ,
+    FROM tbl

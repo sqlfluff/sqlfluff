@@ -162,7 +162,11 @@ class Rule_ST06(BaseRule):
                             < next_target.pos_marker.working_line_no
                         ):
                             continue
-                if next_target in moved_targets:
+                # Before a trailing comma, even a standalone comment belongs
+                # to the final target when there is no following target.
+                if next_target in moved_targets or (
+                    next_target is None and previous_target in moved_targets
+                ):
                     return True
         if previous_target not in moved_targets:
             return False
