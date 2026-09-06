@@ -50,6 +50,36 @@ test_fail_cte_newline_and_spaces_after_as:
     )
     select * from a
 
+test_pass_tsql_table_alias_column_list_touching:
+  # T-SQL table-valued methods use a touching column alias list, e.g. r(c).
+  # https://github.com/sqlfluff/sqlfluff/issues/6733
+  pass_str: |
+    DECLARE @xml XML = '<rows><row><column>asdf</column></row></rows>';
+    SELECT r.c.value('column[1]', 'varchar(10)') AS 'Value'
+    FROM @xml.nodes('/rows/row') AS r(c);
+    SELECT * FROM (SELECT 1 AS a, 2 AS b) AS derived(a, b);
+    SELECT * FROM (SELECT 1 AS a, 2 AS b) implicit_alias(a, b);
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_table_alias_column_list_spaced:
+  fail_str: SELECT * FROM (SELECT 1 AS a) AS spaced_alias (a);
+  fix_str: SELECT * FROM (SELECT 1 AS a) AS spaced_alias(a);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_table_alias_column_list_spacing_override:
+  pass_str: SELECT * FROM (SELECT 1 AS a) AS spaced_alias (a);
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        alias_column_list:
+          spacing_before: any
+
 test_pass_cte_comment_after_as:
   # https://github.com/sqlfluff/sqlfluff/issues/6125
   # When handling the 'single:inline' constraint,
