@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4a2b8a051b7901394feeb2de0888ded60ff4f1e62daa2d593b7d699c5b9d31f1
+_hash: 98b4b41db14c55e7dc0841ca7a973058d8e83344023149631be03608fdcae2b9
 file:
 - statement:
     exception_block_statement:
@@ -373,4 +373,177 @@ file:
     - statement:
         scripting_raise_statement:
           keyword: RAISE
+    - statement_terminator: ;
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - statement:
+            scripting_let_statement:
+              keyword: LET
+              variable: x
+              data_type:
+                data_type_identifier: NUMBER
+              assignment_operator: :=
+              expression:
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - exception_block_statement:
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - object_reference:
+              naked_identifier: OTHER
+          - keyword: THEN
+          - statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  quoted_literal: "'handled'"
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - statement:
+            scripting_let_statement:
+              keyword: LET
+              variable: x
+              data_type:
+                data_type_identifier: NUMBER
+              assignment_operator: :=
+              expression:
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - exception_block_statement:
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - object_reference:
+              naked_identifier: MY_EXCEPTION
+          - keyword: OR
+          - object_reference:
+              naked_identifier: MY_OTHER_EXCEPTION
+          - keyword: THEN
+          - statement:
+              scripting_let_statement:
+                keyword: LET
+                variable: err_msg
+                assignment_operator: :=
+                expression:
+                  column_reference:
+                    naked_identifier: SQLERRM
+          - statement_terminator: ;
+          - statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  column_reference:
+                    naked_identifier: err_msg
+          - statement_terminator: ;
+          - keyword: WHEN
+          - object_reference:
+              naked_identifier: OTHER
+          - keyword: THEN
+          - statement:
+              transaction_statement:
+                keyword: ROLLBACK
+          - statement_terminator: ;
+          - statement:
+              scripting_raise_statement:
+                keyword: RAISE
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - statement:
+            scripting_if_statement:
+            - keyword: IF
+            - bracketed:
+                start_bracket: (
+                expression:
+                  boolean_literal: 'TRUE'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                scripting_block_statement:
+                - keyword: BEGIN
+                - statement:
+                    scripting_let_statement:
+                      keyword: LET
+                      variable: x
+                      data_type:
+                        data_type_identifier: NUMBER
+                      assignment_operator: :=
+                      expression:
+                        numeric_literal: '1'
+                - statement_terminator: ;
+                - exception_block_statement:
+                  - keyword: EXCEPTION
+                  - keyword: WHEN
+                  - object_reference:
+                      naked_identifier: OTHER
+                  - keyword: THEN
+                  - statement:
+                      return_statement:
+                        keyword: RETURN
+                        expression:
+                          quoted_literal: "'inner'"
+                - statement_terminator: ;
+                - keyword: END
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - statement:
+            return_statement:
+              keyword: RETURN
+              expression:
+                quoted_literal: "'ok'"
+        - statement_terminator: ;
+        - exception_block_statement:
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - object_reference:
+              naked_identifier: OTHER
+          - keyword: THEN
+          - statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  quoted_literal: "'outer'"
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - statement:
+            scripting_let_statement:
+              keyword: LET
+              variable: x
+              data_type:
+                data_type_identifier: NUMBER
+              assignment_operator: :=
+              expression:
+                numeric_literal: '1'
+        - statement_terminator: ;
+        - exception_block_statement:
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - object_reference:
+              naked_identifier: OTHER
+          - keyword: THEN
+          - statement:
+              scripting_block_statement:
+              - keyword: BEGIN
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                      quoted_literal: "'nested block in handler'"
+              - statement_terminator: ;
+              - keyword: END
+        - statement_terminator: ;
+        - keyword: END
 - statement_terminator: ;

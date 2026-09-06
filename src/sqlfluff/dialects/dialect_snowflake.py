@@ -4549,7 +4549,13 @@ class ScriptingBlockStatementSegment(BaseSegment):
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
+                # Exclude ExceptionBlockStatementSegment so that the EXCEPTION
+                # section is matched below as a section of this block rather
+                # than as one of the statements inside it.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
+                ),
             ),
             terminators=[
                 OneOf(
@@ -4569,6 +4575,15 @@ class ScriptingBlockStatementSegment(BaseSegment):
         ),
         Ref("DelimiterGrammar"),
         Dedent,
+        # The EXCEPTION handler is a section of the block and not a statement
+        # within it, so it comes after the statement body has been closed and
+        # lines up with `BEGIN`.
+        # https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
+        Sequence(
+            Ref("ExceptionBlockStatementSegment"),
+            Ref("DelimiterGrammar"),
+            optional=True,
+        ),
         "END",
         reset_terminators=True,
     )
@@ -11973,83 +11988,63 @@ class AlterTagStatementSegment(BaseSegment):
 
 
 class ExceptionBlockStatementSegment(BaseSegment):
-    """A snowflake `BEGIN ... END` statement for SQL scripting.
+    """A snowflake `EXCEPTION` handler section for SQL scripting.
 
-    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
     """
 
     type = "exception_block_statement"
 
-    match_grammar = Sequence(
-        Sequence(
-            "EXCEPTION",
-            Indent,
-            OneOf(
-                Sequence(
-                    "WHEN",
-                    Ref("ObjectReferenceSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            "OR",
-                            Ref("ObjectReferenceSegment"),
-                        ),
+    # A single `WHEN ... THEN` handler and the statements it runs. The handler
+    # body is a level of its own, below the `WHEN` that introduces it.
+    _when_handler = Sequence(
+        OneOf(
+            Sequence(
+                "WHEN",
+                Ref("ObjectReferenceSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        "OR",
+                        Ref("ObjectReferenceSegment"),
                     ),
-                    "THEN",
                 ),
-                Sequence(
-                    "WHEN",
-                    "OTHER",
-                    "THEN",
-                ),
+                "THEN",
             ),
-            Ref("StatementSegment"),
-            AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar"),
-                    # Exclude ExceptionBlockStatementSegment to prevent greedy
-                    # consumption of the next EXCEPTION block as a statement body.
-                    Ref(
-                        "StatementSegment",
-                        exclude=Ref("ExceptionBlockStatementSegment"),
-                    ),
-                ),
+            Sequence(
+                "WHEN",
+                "OTHER",
+                "THEN",
             ),
         ),
+        Indent,
+        Ref("StatementSegment"),
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                OneOf(
-                    Sequence(
-                        "WHEN",
-                        Ref("ObjectReferenceSegment"),
-                        AnyNumberOf(
-                            Sequence(
-                                "OR",
-                                Ref("ObjectReferenceSegment"),
-                            ),
-                        ),
-                        "THEN",
-                    ),
-                    Sequence(
-                        "WHEN",
-                        "OTHER",
-                        "THEN",
-                    ),
-                ),
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        # Exclude ExceptionBlockStatementSegment to prevent greedy
-                        # consumption of the next EXCEPTION block as a statement body.
-                        Ref(
-                            "StatementSegment",
-                            exclude=Ref("ExceptionBlockStatementSegment"),
-                        ),
-                    ),
+                # Exclude ExceptionBlockStatementSegment to prevent greedy
+                # consumption of the next EXCEPTION block as a statement body.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
                 ),
             ),
         ),
+        Dedent,
+    )
+
+    match_grammar = Sequence(
+        "EXCEPTION",
+        Indent,
+        # As in the oracle dialect, `AnyNumberOf(min_times=1)` isn't greedy
+        # enough to pick up every handler, so match one and then any more.
+        _when_handler,
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                _when_handler,
+            ),
+        ),
+        Dedent,
     )
 
 
