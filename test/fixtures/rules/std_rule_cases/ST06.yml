@@ -516,3 +516,88 @@ test_fail_fix_comment_outside_nested_select:
   fix_str: |
     SELECT (SELECT a, (a - b) AS calc) AS nested -- outer note
     FROM tbl
+
+test_fail_fix_comment_on_unchanged_first_target:
+  fail_str: |
+    SELECT
+        id,  -- primary key, always first regardless of ordering
+        (a - b) AS calc,
+        name
+    FROM tbl
+  fix_str: |
+    SELECT
+        id,  -- primary key, always first regardless of ordering
+        name,
+        (a - b) AS calc
+    FROM tbl
+
+test_fail_fix_leading_comment_on_unchanged_target:
+  fail_str: |
+    SELECT
+        -- primary key
+        id,
+        (a - b) AS calc,
+        name
+    FROM tbl
+  fix_str: |
+    SELECT
+        -- primary key
+        id,
+        name,
+        (a - b) AS calc
+    FROM tbl
+
+test_fail_fix_comment_on_unchanged_final_target:
+  fail_str: |
+    SELECT (a - b) AS calc, name, SUM(c) -- total
+    FROM tbl
+  fix_str: |
+    SELECT name, (a - b) AS calc, SUM(c) -- total
+    FROM tbl
+
+test_fail_fix_comment_on_unchanged_final_target_in_cte:
+  fail_str: |
+    WITH totals AS (
+        SELECT (a - b) AS calc, name, SUM(c) -- total
+    )
+    SELECT * FROM totals
+  fix_str: |
+    WITH totals AS (
+        SELECT name, (a - b) AS calc, SUM(c) -- total
+    )
+    SELECT * FROM totals
+
+test_fail_no_fix_leading_comment_on_moved_target:
+  fail_str: |
+    SELECT
+        id,
+        -- calculation
+        (a - b) AS calc,
+        name
+    FROM tbl
+  line_numbers: [1]
+
+test_fail_fix_trailing_block_comment_on_unchanged_target:
+  fail_str: |
+    SELECT
+        id, /* primary key */
+        (a - b) AS calc,
+        name
+    FROM tbl
+  fix_str: |
+    SELECT
+        id, /* primary key */
+        name,
+        (a - b) AS calc
+    FROM tbl
+
+test_fail_no_fix_block_comment_between_unchanged_and_moved_targets:
+  # A block comment on the same line as both targets could annotate either.
+  fail_str: SELECT id, /* calculation */ (a - b) AS calc, name FROM tbl
+  line_numbers: [1]
+
+test_fail_fix_comment_after_from_clause:
+  fail_str: |
+    SELECT (a - b) AS calc, name FROM tbl -- table comment
+  fix_str: |
+    SELECT name, (a - b) AS calc FROM tbl -- table comment

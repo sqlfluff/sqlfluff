@@ -110,8 +110,10 @@ class Rule_ST06(BaseRule):
                 return False
         return False
 
-    def _has_comments(self, context: RuleContext) -> bool:
-        """Check for comments among or trailing the select targets.
+    def _has_comments(
+        self, context: RuleContext, moved_targets: set[BaseSegment]
+    ) -> bool:
+        """Check for comments attached to select targets that would move.
 
         Comments are siblings of the ``select_clause_element`` segments rather
         than children of them, so reordering the elements on their own leaves
@@ -120,16 +122,50 @@ class Rule_ST06(BaseRule):
 
         Args:
             context: The rule context, anchored on the select clause
+            moved_targets: The select targets whose positions would change
 
         Returns:
             True if a comment would be displaced by reordering the targets
         """
-        # Comments sat between the select targets are direct children of the
-        # clause, alongside the elements themselves. A comment nested inside a
-        # target's own body is carried along when that target moves, so it
-        # cannot be re-assigned and must not withhold the fix.
-        if any(seg.is_type("comment") for seg in context.segment.segments):
-            return True
+        # Nested comments move with their target. Only inspect direct siblings.
+        previous_target = None
+        segments = context.segment.segments
+        for index, seg in enumerate(segments):
+            if seg.is_type("select_clause_element"):
+                previous_target = seg
+            elif seg.is_type("comment"):
+                next_target = next(
+                    (
+                        target
+                        for target in segments[index + 1 :]
+                        if target.is_type("select_clause_element")
+                    ),
+                    None,
+                )
+                assert seg.pos_marker
+                if previous_target:
+                    assert previous_target.pos_marker
+                    previous_end_line = previous_target.pos_marker.working_loc_after(
+                        previous_target.raw
+                    )[0]
+                    if previous_end_line == seg.pos_marker.working_line_no:
+                        if previous_target in moved_targets:
+                            return True
+                        # A trailing line comment belongs to the previous target.
+                        # A block comment can also annotate the next target if
+                        # both are on the same line, so check that case below.
+                        if seg.is_type("inline_comment") or next_target is None:
+                            continue
+                        assert next_target.pos_marker
+                        if (
+                            seg.pos_marker.working_loc_after(seg.raw)[0]
+                            < next_target.pos_marker.working_line_no
+                        ):
+                            continue
+                if next_target in moved_targets:
+                    return True
+        if previous_target not in moved_targets:
+            return False
         # A comment trailing the *final* target is outside the select clause,
         # because it follows the clause's closing dedent. How far outside varies:
         # in a plain select it lands in the clause's own parent, but inside a
@@ -139,7 +175,7 @@ class Rule_ST06(BaseRule):
         child = context.segment
         for parent in reversed(context.parent_stack):
             for seg in _segments_after(parent, child):
-                if seg.is_type("newline"):
+                if seg.is_type("newline") or seg.is_code:
                     return False
                 if seg.is_type("comment"):
                     return True
@@ -323,11 +359,6 @@ class Rule_ST06(BaseRule):
                 # numbers), warn but don't fix, because it's much more
                 # complicated to autofix.
                 return LintResult(anchor=select_clause_segment)
-            if self._has_comments(context):
-                # Comments aren't bound to the select target they annotate, so
-                # reordering the targets would leave them in place and label
-                # the wrong columns. Warn but don't fix.
-                return LintResult(anchor=select_clause_segment)
             # Create a list of all the edit fixes
             # We have to do this at the end of iterating through all the
             # select_target_elements to get the order correct. This means we can't
@@ -335,6 +366,16 @@ class Rule_ST06(BaseRule):
             ordered_select_target_elements = [
                 segment for band in self.seen_band_elements for segment in band
             ]
+            moved_targets = {
+                original
+                for original, replacement in zip(
+                    select_target_elements, ordered_select_target_elements
+                )
+                if original is not replacement
+            }
+            if self._has_comments(context, moved_targets):
+                # Warn but don't detach comments from targets that would move.
+                return LintResult(anchor=select_clause_segment)
             # TODO: The "if" in the loop below compares corresponding items
             # to avoid creating "do-nothing" edits. A potentially better
             # approach would leverage difflib.SequenceMatcher.get_opcodes(),
