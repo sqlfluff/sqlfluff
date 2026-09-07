@@ -820,16 +820,60 @@ test_fail_tsql_bracketed_nested_join_target_unqualified_column:
     SELECT b.x, zzz
     FROM a
     LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  violations:
+    - code: RF02
+      description: Unqualified reference 'zzz' found in select with more than one
+        referenced table/view.
+      name: references.qualification
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 13
+      start_file_pos: 12
+      end_line_no: 1
+      end_line_pos: 16
+      end_file_pos: 15
   configs:
     core:
       dialect: tsql
 
 test_pass_tsql_bracketed_nested_join_target_three_deep:
-  # The nesting is recursive, so the exclusion must not stop at one level.
+  # A deeper tree than the case above. The crawl that finds these is already
+  # recursive, so this does not reach new lines in select.py; it pins that a
+  # depth-limited rewrite of the exclusion would be caught.
   pass_str: |
     SELECT b.x
     FROM a
     LEFT JOIN (((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) LEFT JOIN e ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_containstable_argument_is_not_an_unqualified_column:
+  # CONTAINSTABLE is another table_expression whose table arrives under a
+  # non-table_reference child, so the same exclusion applies and the first
+  # argument stops being reported as an unqualified column. RF01.yml already
+  # takes the position that these arguments are function inputs rather than
+  # FROM-clause references. `col` is a genuine column and is still reported,
+  # which is what keeps this from passing for the wrong reason.
+  fail_str: |
+    SELECT ft_tbl.name
+    FROM production.product AS ft_tbl
+    INNER JOIN CONTAINSTABLE(tbl, col, 'x') AS key_tbl
+        ON ft_tbl.id = key_tbl.[key];
+  violations:
+    - code: RF02
+      description: Unqualified reference 'col' found in select with more than one
+        referenced table/view.
+      name: references.qualification
+      warning: false
+      fixes: []
+      start_line_no: 3
+      start_line_pos: 31
+      start_file_pos: 83
+      end_line_no: 3
+      end_line_pos: 34
+      end_file_pos: 86
   configs:
     core:
       dialect: tsql
