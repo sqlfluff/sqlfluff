@@ -849,13 +849,13 @@ test_pass_tsql_bracketed_nested_join_target_three_deep:
     core:
       dialect: tsql
 
-test_fail_tsql_containstable_argument_is_not_an_unqualified_column:
+test_fail_tsql_containstable_reports_only_the_column_argument:
   # CONTAINSTABLE is another table_expression whose table arrives under a
-  # non-table_reference child, so the same exclusion applies and the first
-  # argument stops being reported as an unqualified column. RF01.yml already
-  # takes the position that these arguments are function inputs rather than
-  # FROM-clause references. `col` is a genuine column and is still reported,
-  # which is what keeps this from passing for the wrong reason.
+  # non-table_reference child, so the same exclusion applies. The violation
+  # list below is the whole expected set: `col` is a genuine column and is
+  # still reported, and the absence of `tbl` is the assertion that the table
+  # argument stopped being reported. RF01.yml already takes the position that
+  # these arguments are function inputs rather than FROM-clause references.
   fail_str: |
     SELECT ft_tbl.name
     FROM production.product AS ft_tbl
