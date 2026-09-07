@@ -195,6 +195,7 @@ def get_select_statement_info(
         for table_expression in fc.recursive_crawl(
             "table_expression", no_recursive_seg_type="select_statement"
         ):
+            _dialect_name = dialect.name if dialect else None
             for seg in table_expression.iter_segments():
                 # table references can get tricky with what is a schema, table,
                 # project, or column. It may be best for now to use the redshift
@@ -202,8 +203,22 @@ def get_select_statement_info(
                 # in AL05. However, this solves finding other types of references
                 # in functions such as LATERAL FLATTEN.
                 if not seg.is_type("table_reference"):
-                    reference_buffer += _get_object_references(seg)
-                elif is_qualified(seg, dialect.name if dialect else None):
+                    for reference in _get_object_references(seg):
+                        if reference.is_type("table_reference"):
+                            # A table declared inside this expression rather
+                            # than beside it: dialects that allow a bracketed
+                            # join as a join target (T-SQL's
+                            # ``((b JOIN c) JOIN d)``) nest the whole join
+                            # under one table_expression, so its tables arrive
+                            # here. They are declarations, not columns, and
+                            # RF02 reads this buffer as column references.
+                            # Route them exactly as a table_reference sitting
+                            # directly under the expression is routed below.
+                            if is_qualified(reference, _dialect_name):
+                                table_reference_buffer.append(reference)
+                        else:
+                            reference_buffer.append(reference)
+                elif is_qualified(seg, _dialect_name):
                     table_reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"

@@ -799,3 +799,37 @@ test_fail_unqualified_reference_with_hint:
   configs:
     core:
       dialect: sparksql
+
+test_pass_tsql_bracketed_nested_join_target:
+  # T-SQL allows a bracketed join as a join target, which nests the whole
+  # join under a single table_expression. The tables it declares reached
+  # RF02's column-reference buffer and were reported as unqualified columns.
+  pass_str: |
+    SELECT b.x
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_bracketed_nested_join_target_unqualified_column:
+  # The counterpart: excluding the nested declarations must not stop a real
+  # unqualified column in the same statement from failing. Without this a
+  # rule that returned nothing at all would satisfy the pass case above.
+  fail_str: |
+    SELECT b.x, zzz
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_bracketed_nested_join_target_three_deep:
+  # The nesting is recursive, so the exclusion must not stop at one level.
+  pass_str: |
+    SELECT b.x
+    FROM a
+    LEFT JOIN (((b INNER JOIN c ON 1 = 1) LEFT JOIN d ON 1 = 1) LEFT JOIN e ON 1 = 1) ON 1 = 1;
+  configs:
+    core:
+      dialect: tsql
