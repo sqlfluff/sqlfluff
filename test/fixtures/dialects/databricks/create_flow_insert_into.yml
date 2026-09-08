@@ -1,0 +1,227 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0b34e4670321b5d2dec653183e7938dad511a9a1f7d8035d1a8058dce1d980e8
+file:
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: users_flow
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: users
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: raw_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: backfill_users
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: users
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: user_backfill_table
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: registration_events_raw_backfill_2024
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: ONCE
+    - table_reference:
+        naked_identifier: registration_events_raw
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: registration_events_raw_backfill
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: payments_replace_flow
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: payments_latest
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: payment_id
+        end_bracket: )
+    - keyword: SEQUENCE
+    - keyword: BY
+    - column_reference:
+        naked_identifier: payment_date
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: payment_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: booking_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: status
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: payment_date
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: samples
+                  - dot: .
+                  - naked_identifier: wanderbricks
+                  - dot: .
+                  - naked_identifier: payments
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: commented_flow
+    - keyword: COMMENT
+    - quoted_literal: "'an append flow'"
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: users
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: raw_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: once_flow
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: once
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: raw_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+- statement_terminator: ;
