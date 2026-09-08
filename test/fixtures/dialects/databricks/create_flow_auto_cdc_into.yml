@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d5e3e7e446bb59f7fe974bc5c247cb4f1061e02d3d63f1a186c6af6014d67e3
+_hash: 5bd5e749327afda1c63cba3a4cd868ba923e08ad415328143bcbd799e7d45af5
 file:
 - statement:
     create_flow_statement:
@@ -281,4 +281,91 @@ file:
           column_reference:
             naked_identifier: city
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: customers_history_seed
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customers_history
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userId
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequenceNum
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: commented_cdc_flow
+    - keyword: COMMENT
+    - quoted_literal: "'a cdc flow'"
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userId
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequenceNum
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '1'
 - statement_terminator: ;

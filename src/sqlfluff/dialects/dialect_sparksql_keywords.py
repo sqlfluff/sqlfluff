@@ -318,6 +318,7 @@ UNRESERVED_KEYWORDS = [
     "EXPECT",
     "FAIL",
     "LIVE",
+    "PRIVATE",
     "SCD",
     "STREAMING",
     "UPDATES",

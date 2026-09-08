@@ -2329,9 +2329,10 @@ class FlowReferenceSegment(ObjectReferenceSegment):
 
 
 class CreateFlowStatementSegment(BaseSegment):
-    """A statement for creating a flow to ingest CDC data into a target table.
+    """A statement for creating a flow that writes into a target table.
 
     https://docs.databricks.com/aws/en/ldp/flows
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-flow
     https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
     """
 
@@ -2343,14 +2344,57 @@ class CreateFlowStatementSegment(BaseSegment):
             "FLOW",
         ),
         Ref("FlowReferenceSegment"),
-        Sequence(
-            "AS",
-            "AUTO",
-            "CDC",
-            "INTO",
+        Ref("CommentGrammar", optional=True),
+        "AS",
+        OneOf(
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref.keyword("ONCE", optional=True),
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                Ref("CDCSpecificationSegment"),
+            ),
+            Sequence(
+                # The reference page writes INSERT ONCE INTO and the flow
+                # examples write INSERT INTO ONCE. Both spellings are in the
+                # Databricks documentation. Each branch carries BY NAME so that
+                # a target table named "once" still resolves, because OneOf
+                # takes the longest match and does not backtrack.
+                OneOf(
+                    Sequence(
+                        "INSERT",
+                        Ref.keyword("ONCE", optional=True),
+                        "INTO",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                    Sequence(
+                        "INSERT",
+                        "INTO",
+                        "ONCE",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                ),
+                Sequence(
+                    "REPLACE",
+                    "USING",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    "SEQUENCE",
+                    "BY",
+                    Ref("ColumnReferenceSegment"),
+                    optional=True,
+                ),
+                Ref("SelectableGrammar"),
+            ),
         ),
-        Indent,
-        Ref("TableReferenceSegment"),
-        Dedent,
-        Ref("CDCSpecificationSegment"),
     )
