@@ -2432,7 +2432,9 @@ def test__cli__command_lint_serialize_github_annotation_native(
     assert result.stdout == expected_output.format(filename=fpath_normalised)
 
 
-@pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])
+@pytest.mark.parametrize(
+    "serialize", ["github-annotation", "github-annotation-native", "gitlab"]
+)
 def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     serialize,
 ):
@@ -2620,6 +2622,47 @@ def test__cli__command_lint_serialize_gitlab():
                     "end": {
                         "line": 5,
                         "column": 22,
+                    },
+                },
+            },
+        },
+    ]
+
+
+def test__cli__command_lint_serialize_gitlab_parse_error():
+    """Test gitlab Code Quality output for a failed parse."""
+    fpath = "test/fixtures/linter/parse_error.sql"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "gitlab",
+                "--annotation-level",
+                "warning",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    result = json.loads(result.stdout)
+    assert result == [
+        {
+            "check_name": "PRS",
+            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'",
+            "severity": "major",
+            "fingerprint": "9319cfff6469f2165074d8033911e5b7",
+            "location": {
+                "path": "test/fixtures/linter/parse_error.sql",
+                "positions": {
+                    "begin": {
+                        "line": 1,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 7,
                     },
                 },
             },
