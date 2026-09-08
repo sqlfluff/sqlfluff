@@ -1611,7 +1611,16 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            terminators=[
+                Ref(
+                    "BatchDelimiterGrammar",
+                    exclude=Sequence(
+                        Ref("SlashSegment"),
+                        Ref("Tail_Recurse_Expression_A_Grammar"),
+                    ),
+                )
+            ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
