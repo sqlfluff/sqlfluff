@@ -1916,13 +1916,22 @@ class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
     type = "join_clause"
+
+    # A bracketed nested join can carry more than one pair of brackets.
+    # FromExpressionSegment already recurses through its own bracketed branch,
+    # so refer to it for the extra pairs.
+    _join_target = OneOf(
+        Ref("FromExpressionElementSegment"),
+        Bracketed(Ref("FromExpressionSegment")),
+    )
+
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
             Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            _join_target,
             AnyNumberOf(Ref("NestedJoinGrammar")),
             Dedent,
             Sequence(
@@ -1948,7 +1957,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("UnconditionalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            _join_target,
             Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
@@ -1956,7 +1965,7 @@ class JoinClauseSegment(BaseSegment):
         Sequence(
             Ref("ExtendedNaturalJoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            _join_target,
             Dedent,
         ),
     )

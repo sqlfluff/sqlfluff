@@ -431,6 +431,16 @@ def get_join_clause_aliases(
     buff = []
 
     from_expression = segment.get_child("from_expression_element")
+    if not from_expression:
+        # A bracketed nested join holds its first element under the brackets
+        # rather than beside them. Stop at the first join clause, because the
+        # loop below reads those.
+        for element in segment.recursive_crawl(
+            "from_expression_element",
+            no_recursive_seg_type=["select_statement", "join_clause"],
+        ):
+            from_expression = element
+            break
     # As per grammar, there will always be a FromExpressionElementSegment
     assert from_expression
     from_aliases = get_from_expression_element_alias(from_expression, dialect_name)

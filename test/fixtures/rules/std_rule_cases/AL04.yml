@@ -75,3 +75,11 @@ test_fail_subquery_join_matches_base_table:
     SELECT tbl.val
     FROM tbl
     LEFT JOIN (SELECT tbl.val FROM tbl2 AS tbl);
+
+test_pass_bracketed_nested_join_target:
+  # A join target can carry more than one pair of brackets. The rule used to
+  # raise an AssertionError on the second pair. See #8382.
+  pass_str: |
+    SELECT 1
+    FROM a
+    LEFT JOIN ((b INNER JOIN c ON TRUE)) ON TRUE
