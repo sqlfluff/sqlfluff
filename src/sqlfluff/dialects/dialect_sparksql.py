@@ -911,8 +911,13 @@ sparksql_dialect.add(
         OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
         Ref("TemporaryGrammar", optional=True),
         Ref.keyword("EXTERNAL", optional=True),
-        Ref.keyword("PRIVATE", optional=True),
-        Ref.keyword("STREAMING", optional=True),
+        # Databricks only puts PRIVATE on a streaming table, so bind the two
+        # rather than adding another free-standing modifier.
+        Sequence(
+            Ref.keyword("PRIVATE", optional=True),
+            "STREAMING",
+            optional=True,
+        ),
         Ref.keyword("LIVE", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
