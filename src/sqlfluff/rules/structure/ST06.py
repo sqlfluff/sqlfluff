@@ -162,11 +162,8 @@ class Rule_ST06(BaseRule):
                             < next_target.pos_marker.working_line_no
                         ):
                             continue
-                # Before a trailing comma, even a standalone comment belongs
-                # to the final target when there is no following target.
-                if next_target in moved_targets or (
-                    next_target is None and previous_target in moved_targets
-                ):
+                # A standalone comment may describe either adjacent target.
+                if previous_target in moved_targets or next_target in moved_targets:
                     return True
         if previous_target not in moved_targets:
             return False
@@ -180,13 +177,11 @@ class Rule_ST06(BaseRule):
         for parent in reversed(context.parent_stack):
             for seg in _segments_after(parent, child):
                 if seg.is_type("newline") or seg.is_code:
+                    # This includes closing brackets, so comments on the
+                    # enclosing expression cannot affect a nested SELECT.
                     return False
                 if seg.is_type("comment"):
                     return True
-            # Comments outside the nearest brackets belong to the enclosing
-            # expression, not to this select clause.
-            if parent.is_type("bracketed"):
-                return False
             child = parent
         return False
 

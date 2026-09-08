@@ -634,3 +634,45 @@ test_fail_fix_comment_before_final_comma_on_unchanged_target:
         -- total
         ,
     FROM tbl
+
+test_fail_no_fix_standalone_comment_after_moved_target:
+  fail_str: |
+    SELECT
+        (a - b) AS calc1,
+        x,
+        -- one line comment
+        SUM(c) AS total
+    FROM tbl
+  line_numbers: [1]
+
+test_fail_no_fix_standalone_block_comment_after_moved_target:
+  fail_str: |
+    SELECT
+        (a - b) AS calc1,
+        x,
+        /* x comment */
+        SUM(c) AS total
+    FROM tbl
+  line_numbers: [1]
+
+test_fail_fix_standalone_comment_between_unchanged_targets:
+  fail_str: |
+    SELECT
+        id,
+        -- name
+        name,
+        (a - b) AS calc,
+        other
+    FROM tbl
+  fix_str: |
+    SELECT
+        id,
+        -- name
+        name,
+        other,
+        (a - b) AS calc
+    FROM tbl
+
+test_fail_fix_at_end_of_file:
+  fail_str: SELECT (a - b) AS calc, name
+  fix_str: SELECT name, (a - b) AS calc
