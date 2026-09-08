@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     ImplicitIndent,
     Indent,
     Matchable,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -31,6 +32,7 @@ from sqlfluff.core.parser import (
     Sequence,
     StringParser,
     TypedParser,
+    WhitespaceSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -190,6 +192,20 @@ teradata_dialect.add(
     # works where a boolean is expected (e.g. inside CASE WHEN).
     # https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
     OverlapsOperatorSegment=StringParser("OVERLAPS", ComparisonOperatorSegment),
+    # A bare newline, used to terminate single-line BTEQ dot-commands so their
+    # opaque arguments are not consumed across the end of the line.
+    BteqNewlineGrammar=TypedParser("newline", NewlineSegment, type="newline"),
+    # Same-line whitespace (explicitly not a newline). Used to anchor a BTEQ
+    # command's arguments to its own line so a command with no arguments does
+    # not reach across the end-of-line newline into the next statement.
+    BteqInlineWhitespaceGrammar=TypedParser(
+        "whitespace", WhitespaceSegment, type="whitespace"
+    ),
+    # The command word of a BTEQ dot-command that we don't model explicitly
+    # (e.g. `.SET`, `.OS`, `.REMARK`, `.SHOW`). Matches any bare word.
+    BteqCommandNameSegment=TypedParser(
+        "word", CodeSegment, type="bteq_key_word_segment"
+    ),
 )
 
 
@@ -255,32 +271,62 @@ class BteqFilePathSegment(BaseSegment):
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
-    Non exhaustive and maybe catching too many statements?
+    BTEQ has a large set of dot-prefixed control commands (``.LOGON``,
+    ``.SET``, ``.EXPORT``, ``.IMPORT``, ``.OS``, ``.REMARK`` ...), each
+    confined to a single line. Rather than modelling every command and its
+    arguments, we recognise the leading keyword(s) for the common control-flow
+    forms and then consume the remainder of the line as opaque arguments so the
+    command is accepted without producing an unparsable section.
+
+    https://docs.teradata.com/r/jmAxXLdiDu6NiyjT6hhk7g/TvACxJd5BGW6uUDX_l2O4g
 
     # BTEQ commands
     .if errorcode > 0 then .quit 2
     .IF ACTIVITYCOUNT = 0 THEN .QUIT
     .RUN FILE=POSTING
+    .LOGON tdpid/username,password
+    .EXPORT DATA FILE=out.dat
     """
 
     type = "bteq_statement"
     match_grammar = Sequence(
         Ref("DotSegment"),
-        Ref("BteqKeyWordSegment"),
-        AnyNumberOf(
-            Ref("BteqKeyWordSegment"),
-            # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
-            Sequence(
-                "FILE",
-                Ref("EqualsSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+        # The command keyword. Known control-flow keywords keep a structured
+        # parse; any other command word (e.g. `.SET`, `.OS`, `.REMARK`) is
+        # accepted generically so the full BTEQ command set is supported.
+        OneOf(Ref("BteqKeyWordSegment"), Ref("BteqCommandNameSegment")),
+        # Optional arguments, anchored to the command's own line by the leading
+        # same-line whitespace. Because the outer sequence disallows gaps, a
+        # command with no arguments (e.g. `.LOGOFF`) stops here rather than
+        # skipping the end-of-line newline and absorbing the next statement.
+        Sequence(
+            Ref("BteqInlineWhitespaceGrammar"),
+            # Structured arguments for the commands we model in detail.
+            AnyNumberOf(
+                Ref("BteqKeyWordSegment"),
+                # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
+                Sequence(
+                    "FILE",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+                ),
+                # if ... then: the ...
+                Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
+                optional=True,
             ),
-            # if ... then: the ...
-            Sequence(
-                Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
+            # Any remaining tokens on the line are treated as opaque command
+            # arguments, bounded by the newline (or a semicolon) so they never
+            # bleed into the following statement.
+            Anything(
+                terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
+                optional=True,
             ),
+            # No gaps: the leading whitespace above must be matched explicitly
+            # (rather than skipped) to anchor the arguments to the command line.
+            allow_gaps=False,
             optional=True,
         ),
+        allow_gaps=False,
     )
 
 
@@ -857,6 +903,30 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetSessionStatementSegment"),
             Ref("SetQueryBandStatementSegment"),
         ],
+    )
+
+
+class FileSegment(ansi.FileSegment):
+    """A Teradata file/script.
+
+    BTEQ dot-commands are terminated by the end of their line rather than a
+    semicolon, so a statement's terminator is optional here. This lets a
+    newline-terminated dot-command be separated from the following statement
+    without a semicolon (a BTEQ script rarely puts semicolons on dot-commands),
+    while ordinary SQL statements continue to be semicolon-terminated. This
+    mirrors the optional-delimiter approach already used by the T-SQL dialect.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            OneOf(
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterGrammar", optional=True),
+                ),
+                Ref("DelimiterGrammar"),
+            ),
+        ),
     )
 
 
