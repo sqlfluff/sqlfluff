@@ -267,3 +267,44 @@ test_pass_sqlite_left_join_with_on_and_where:
   configs:
     core:
       dialect: sqlite
+
+test_fail_where_followed_by_order_by:
+  # The whole WHERE clause moves to the join, and a clause after it means the
+  # WHERE clause is not the last child of the select statement.
+  fail_str: |
+    SELECT foo.a
+    FROM foo
+    INNER JOIN bar
+    WHERE foo.x = bar.y
+    ORDER BY foo.a
+  fix_str: |
+    SELECT foo.a
+    FROM foo
+    INNER JOIN bar ON foo.x = bar.y
+    ORDER BY foo.a
+
+test_fail_where_followed_by_group_by:
+  fail_str: |
+    SELECT foo.a
+    FROM foo
+    INNER JOIN bar
+    WHERE foo.x = bar.y
+    GROUP BY foo.a
+  fix_str: |
+    SELECT foo.a
+    FROM foo
+    INNER JOIN bar ON foo.x = bar.y
+    GROUP BY foo.a
+
+test_fail_where_followed_by_limit:
+  fail_str: |
+    SELECT foo.a
+    FROM foo
+    INNER JOIN bar
+    WHERE foo.x = bar.y
+    LIMIT 1
+  fix_str: |
+    SELECT foo.a
+    FROM foo
+    INNER JOIN bar ON foo.x = bar.y
+    LIMIT 1
