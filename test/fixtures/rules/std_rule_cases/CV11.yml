@@ -599,6 +599,36 @@ test_fail_mysql_consistent_cast_first:
       convention.casting_style:
         preferred_type_casting_style: consistent
 
+test_fail_mysql_chained_shorthand_target_convert:
+  fail_str: SELECT 1::int::text FROM t
+  fix_str: SELECT convert(convert(1, int), text) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_mysql_convert_is_fixed_to_shorthand:
+  fail_str: SELECT CONVERT(b, SIGNED) FROM t
+  fix_str: SELECT b::SIGNED FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
+test_fail_mysql_consistent_shorthand_first:
+  fail_str: SELECT a::SIGNED, CONVERT(b, SIGNED) FROM t
+  fix_str: SELECT a::SIGNED, b::SIGNED FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: consistent
+
 test_fail_tsql_convert_target_is_still_fixed:
   # the control: t-sql takes CONVERT(type, expr), so the rewrite is safe there
   # and withholding it on mysql must not affect this dialect
