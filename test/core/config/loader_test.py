@@ -38,7 +38,9 @@ config_a = {
 @pytest.fixture
 def mock_xdg_home(monkeypatch):
     """Sets the XDG_CONFIG_HOME variable."""
-    monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
+    monkeypatch.setenv(
+        "XDG_CONFIG_HOME", os.path.expanduser("~/.config/my/special/path")
+    )
 
 
 def test__config__load_file_dir():
