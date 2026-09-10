@@ -69,6 +69,14 @@ class FormatterInterface(ABC):
         """Dispatch the header displayed before linting."""
         ...
 
+    def dispatch_cache_summary(self, cached: int, linted: int) -> None:
+        """Report how many files were served from the lint cache.
+
+        NOTE: Deliberately concrete rather than abstract. A formatter written
+        against an earlier version of this interface inherits a no-op and keeps
+        working; only formatters which want to surface the number override it.
+        """
+
     @abstractmethod
     def dispatch_path(self, path: str) -> None:
         """Dispatch paths for display."""

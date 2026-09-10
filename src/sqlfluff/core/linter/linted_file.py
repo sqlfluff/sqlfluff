@@ -166,7 +166,12 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.warning]
         # Add warnings for unneeded noqa if applicable
         if warn_unused_ignores and not filter_warning and self.ignore_mask:
-            violations += self.ignore_mask.generate_warnings_for_unused()
+            # NOTE: Rebind rather than `+=`. Every filter above builds a new
+            # list, but when none of them apply `violations` is still the
+            # *same object* as `self.violations`, and an in-place extend would
+            # append the generated warnings to the file's own violation list.
+            # That would be permanent, and would repeat on every call.
+            violations = violations + self.ignore_mask.generate_warnings_for_unused()
         return violations
 
     def num_violations(
@@ -191,6 +196,28 @@ class LintedFile(NamedTuple):
     def is_clean(self) -> bool:
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))
+
+    def is_cacheable(self) -> bool:
+        """Return True if this result can safely be replayed from a cache.
+
+        This is a stricter test than :meth:`is_clean`, because a cached file is
+        not linted at all on the next run: whatever this file would have
+        produced under *any* combination of filters has to be nothing.
+
+        Passing ``filter_ignore=False`` matters because an ignored templating
+        or parsing error still contributes to ``num_unfiltered_tmp_prs_errors``,
+        which in turn drives the exit code of ``sqlfluff fix``. Passing
+        ``warn_unused_ignores=True`` matters because those warnings are
+        generated from the ignore mask on demand rather than living in
+        ``self.violations``, so a file whose only finding is an unused
+        ``-- noqa`` would otherwise look empty here and lose its warning on the
+        next run.
+        """
+        return not self.get_violations(
+            filter_ignore=False,
+            filter_warning=False,
+            warn_unused_ignores=True,
+        )
 
     def fix_string(self) -> tuple[str, bool]:
         """Obtain the changes to a path as a string.

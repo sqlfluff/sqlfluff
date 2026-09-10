@@ -21,6 +21,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.linter.cache import LintCache
 from sqlfluff.core.linter.common import (
     ParsedString,
     ParsedVariant,
@@ -1173,13 +1174,50 @@ class Linter:
                 expanded_paths.append(fname)
                 expanded_path_to_linted_dir[fname] = linted_dir
 
+        # Consult the cache, if one is configured, before doing any work.
+        # Files which linted clean under an identical key on a previous run are
+        # recorded straight into their `LintedDir` and never reach the runner.
+        # NOTE: This happens before the process count and progress bar are
+        # sized, so that a run which is mostly cache hits doesn't pay for a
+        # process pool it has no work for.
+        # NOTE: Skipped entirely when there is nothing to lint. Building the
+        # cache reads the cache file and enumerates installed plugins, which is
+        # not worth doing for a path which turned out to contain no SQL.
+        cache = (
+            LintCache.from_config(self.config, user_rules=self.user_rules)
+            if expanded_paths
+            else None
+        )
+        if cache:
+            uncached_paths: list[str] = []
+            for fname in expanded_paths:
+                statistics = cache.check(fname)
+                if statistics is None:
+                    uncached_paths.append(fname)
+                else:
+                    expanded_path_to_linted_dir[fname].add_cached_clean(
+                        fname, statistics
+                    )
+            result.files_cached = len(expanded_paths) - len(uncached_paths)
+            if result.files_cached:
+                linter_logger.info(
+                    "Skipped %s file(s) already cached as clean.", result.files_cached
+                )
+                if self.formatter:
+                    self.formatter.dispatch_cache_summary(
+                        result.files_cached, len(uncached_paths)
+                    )
+            expanded_paths = uncached_paths
+
         files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
         assert processes is not None
-        # Hard set processes to 1 if only 1 file is queued.
-        # The overhead will never be worth it with one file.
-        if files_count == 1:
+        # Hard set processes to 1 if at most 1 file is queued.
+        # The overhead will never be worth it with one file, and with none at
+        # all (every file served from the cache, or a path with no SQL in it)
+        # a pool would be built and torn down for no work whatsoever.
+        if files_count <= 1:
             processes = 1
 
         # to avoid circular import
@@ -1208,7 +1246,26 @@ class Linter:
         try:
             for i, linted_file in enumerate(runner_iterator, start=1):
                 linted_dir = expanded_path_to_linted_dir[linted_file.path]
-                linted_dir.add(linted_file)
+                # NOTE: `add` returns the statistics it derived, which the
+                # cache reuses rather than walking the parse tree again.
+                statistics = linted_dir.add(linted_file)
+                if cache:
+                    if linted_file.is_cacheable():
+                        # Record before any fixes are applied below. A cacheable
+                        # file has nothing to fix, so it is not about to be
+                        # rewritten, and the key computed from its contents
+                        # before linting still describes what is on disk.
+                        #
+                        # NOTE: There is deliberately no clearing of an existing
+                        # *entry* for a file which is not cacheable. An entry
+                        # states "content with this key linted clean", which
+                        # does not stop being true when the file changes;
+                        # dropping it would only throw away a valid answer for
+                        # a later revert.
+                        cache.record(linted_file.path, statistics)
+                    else:
+                        # Release the pending key, which will never be claimed.
+                        cache.forget(linted_file.path)
                 # If any fatal errors, then stop iteration.
                 if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                     linter_logger.error("Fatal linting error. Halting further linting.")
@@ -1242,6 +1299,11 @@ class Linter:
 
         # Transfer skipped file count from the runner to the result.
         result.files_skipped = runner.skipped_file_count
+        if cache:
+            # Write once, at the end, from the main process. Doing it here
+            # rather than incrementally means an interrupted run leaves the
+            # previous cache intact rather than a partially updated one.
+            cache.persist()
         result.stop_timer()
         return result
 

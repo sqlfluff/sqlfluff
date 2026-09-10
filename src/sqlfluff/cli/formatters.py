@@ -254,6 +254,15 @@ class OutputStreamFormatter(FormatterInterface):
             minimum_verbosity=1,
         )
 
+    def dispatch_cache_summary(self, cached: int, linted: int) -> None:
+        """Report how many files were served from the lint cache."""
+        self.dispatch_message(
+            f"{self.colorize('cached (skipped): ', Color.light)} "
+            f"{cached} of {cached + linted}",
+            OutputKind.VERBOSE,
+            minimum_verbosity=1,
+        )
+
     def dispatch_dialect_warning(self, dialect: str) -> None:
         """Dispatch a warning for dialects."""
         self.dispatch_message(  # pragma: no cover

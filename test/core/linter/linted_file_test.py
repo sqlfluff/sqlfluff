@@ -321,3 +321,97 @@ def test__linted_file__fix_string_generates_patches_when_not_precomputed():
 
     assert changed
     assert fixed_sql == "SELECT\n    1\n"
+
+
+class TestIsCacheable:
+    """`is_cacheable` gates whether a result may be replayed from the cache.
+
+    It is deliberately stricter than `is_clean`: a cached file is not linted at
+    all on the next run, so it has to produce nothing under *any* combination
+    of filters, not just the default one.
+    """
+
+    @staticmethod
+    def _lint(sql, **overrides):
+        config = FluffConfig(overrides={"dialect": "ansi", **overrides})
+        return Linter(config=config).lint_string(sql)
+
+    def test_clean_file_is_cacheable(self):
+        """A file with nothing to report can be replayed."""
+        assert self._lint("SELECT\n    a,\n    b\nFROM tbl\n").is_cacheable()
+
+    def test_file_with_violations_is_not_cacheable(self):
+        """A file with something to report must be linted again."""
+        assert not self._lint("select  a,b from tbl\n").is_cacheable()
+
+    def test_fully_suppressed_file_is_cacheable(self):
+        """A file whose violations are all masked by `noqa` reports nothing.
+
+        The `noqa` comment is part of the file's contents, so removing it
+        changes the cache key and the file is linted again.
+        """
+        linted = self._lint("select  a,b from tbl  -- noqa\n")
+        assert linted.violations == []
+        assert linted.is_cacheable()
+
+    def test_unused_noqa_is_not_cacheable(self):
+        """An unused `noqa` blocks caching even though `violations` is empty.
+
+        Those warnings are generated from the ignore mask on demand rather than
+        being stored on the file, so testing `violations` alone would call this
+        file clean and silently lose the warning on the next run.
+        """
+        linted = self._lint("SELECT\n    a,\n    b\nFROM tbl  -- noqa: LT02\n")
+        assert linted.violations == []
+        assert linted.is_clean()
+        assert not linted.is_cacheable()
+
+    def test_does_not_mutate_the_file(self):
+        """Asking whether a file is cacheable must not change it.
+
+        Regression test. `get_violations()` builds a new list in every filter
+        branch, but with `filter_ignore=False` and `filter_warning=False` none
+        of them apply, so `violations` was still the same object as
+        `self.violations` when the generated unused-`noqa` warnings were
+        appended with `+=`. That appended them to the file's own violation
+        list, permanently, once per call: repeated calls went 0 -> 1 -> 2 and
+        every consumer of `LintedFile.violations` afterwards saw warnings which
+        were never really found there.
+        """
+        linted = self._lint("SELECT\n    a,\n    b\nFROM tbl  -- noqa: LT02\n")
+        assert linted.violations == []
+        results = [linted.is_cacheable() for _ in range(3)]
+        # The answer is stable...
+        assert results == [False, False, False]
+        # ...and the file is untouched.
+        assert linted.violations == []
+
+    def test_get_violations_does_not_mutate_the_file(self):
+        """The same guarantee at the level where the bug actually lived.
+
+        Covers every caller, not just `is_cacheable()`.
+        """
+        linted = self._lint("SELECT\n    a,\n    b\nFROM tbl  -- noqa: LT02\n")
+        first = linted.get_violations(
+            filter_ignore=False, filter_warning=False, warn_unused_ignores=True
+        )
+        second = linted.get_violations(
+            filter_ignore=False, filter_warning=False, warn_unused_ignores=True
+        )
+        # One generated warning each time, not one more each time.
+        assert len(first) == 1
+        assert len(second) == 1
+        assert linted.violations == []
+
+    def test_ignored_parse_error_is_not_cacheable(self):
+        """`ignore = parsing` hides a parse error from output but not from counts.
+
+        The violation stays on the file with `ignore` set, and still counts
+        towards `num_unfiltered_tmp_prs_errors`, which drives the exit code of
+        `sqlfluff fix`. Replaying an empty result would change that exit code,
+        which is why `is_cacheable` passes `filter_ignore=False`.
+        """
+        linted = self._lint("SELECT FROM FROM;\n", ignore="parsing,linting")
+        assert linted.is_clean()
+        assert all(v.ignore for v in linted.violations)
+        assert not linted.is_cacheable()
