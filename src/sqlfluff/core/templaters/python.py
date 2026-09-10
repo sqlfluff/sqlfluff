@@ -248,7 +248,9 @@ class PythonTemplater(RawTemplater):
             """
             # Hack to allow template variables with dot notation (e.g. foo.bar)
             raw_str_with_dot_notation_hack = re.sub(
-                r"{([^:}]*\.[^:}]*)(:\S*)?}", r"{sqlfluff[\1]\2}", raw_str
+                r"{([^:!}]*\.[^:!}]*)(![ars])?(:\S*)?}",
+                r"{sqlfluff[\1]\2\3}",
+                raw_str,
             )
             templater_logger.debug(
                 "    Raw String with Dot Notation Hack: %r",
