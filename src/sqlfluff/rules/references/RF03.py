@@ -196,8 +196,19 @@ def _check_references(
     """Iterate through references and check consistency."""
     # A buffer to keep any violations.
     col_alias_names: list[str] = [c.alias_identifier_name for c in col_aliases]
-    table_ref_str: str = table_aliases[0].ref_str
-    table_ref_str_source = table_aliases[0].segment
+    table_alias = table_aliases[0]
+    table_ref_str: str = table_alias.ref_str
+    if table_alias.aliased:
+        table_ref_str_sources = [table_alias.segment] if table_alias.segment else []
+    elif table_alias.object_reference:
+        raw_references = list(
+            iter_raw_references(table_alias.object_reference, dialect_name)
+        )
+        table_ref_str_sources = (
+            list(raw_references[-1].segments) if raw_references else []
+        )
+    else:  # pragma: no cover
+        table_ref_str_sources = []
     # Check all the references that we have.
     seen_ref_types: set[str] = set()
     for ref in references:
@@ -219,7 +230,19 @@ def _check_references(
             continue
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.
-            if next(iter_raw_references(ref, dialect_name)).part != table_ref_str:
+            leading_ref = next(iter_raw_references(ref, dialect_name))
+            leading_ref_part = leading_ref.part
+            if (
+                leading_ref_part != table_ref_str
+                and len(leading_ref.segments) == 1
+                and leading_ref.segments[0].is_type("quoted_identifier")
+            ):
+                whole_quoted_identifier = leading_ref.segments[0].raw_normalized(
+                    casefold=False
+                )
+                if whole_quoted_identifier == table_ref_str:
+                    leading_ref_part = whole_quoted_identifier
+            if leading_ref_part != table_ref_str:
                 this_ref_type = "unqualified"
 
         lint_res = _validate_one_reference(
@@ -228,7 +251,7 @@ def _check_references(
             this_ref_type,
             standalone_aliases,
             table_ref_str,
-            table_ref_str_source,
+            table_ref_str_sources,
             col_alias_names,
             seen_ref_types,
             fixable,
@@ -267,7 +290,7 @@ def _validate_one_reference(
     this_ref_type: str,
     standalone_aliases: list[BaseSegment],
     table_ref_str: str,
-    table_ref_str_source: Optional[BaseSegment],
+    table_ref_str_sources: list[BaseSegment],
     col_alias_names: list[str],
     seen_ref_types: set[str],
     fixable: bool,
@@ -344,15 +367,33 @@ def _validate_one_reference(
 
     fixes = None
     if fixable:
+        if len(table_ref_str_sources) == 1:
+            qualifier = [table_ref_str_sources[0].copy()]
+            qualifier_source = table_ref_str_sources
+        elif table_ref_str_sources and dialect_name == "bigquery":
+            # BigQuery permits dashes in an unquoted table name in FROM, but
+            # the same logical identifier must be quoted when used as a
+            # qualifier so it parses as one reference part.
+            qualifier = [
+                IdentifierSegment(
+                    raw=f"`{table_ref_str}`",
+                    instance_types=("quoted_identifier", "identifier", "back_quote"),
+                    trim_chars=("`",),
+                    quoted_value=(r"`((?:[^`\\]|\\.)*)`", 1),
+                    escape_replacements=[(r"\\`", "`")],
+                    casefold=str.upper,
+                )
+            ]
+            qualifier_source = table_ref_str_sources
+        else:
+            qualifier = [IdentifierSegment(raw=table_ref_str, type="naked_identifier")]
+            qualifier_source = None
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,
-                source=[table_ref_str_source] if table_ref_str_source else None,
+                source=qualifier_source,
                 edit_segments=[
-                    IdentifierSegment(
-                        raw=table_ref_str,
-                        type="naked_identifier",
-                    ),
+                    *qualifier,
                     SymbolSegment(raw=".", type="symbol"),
                 ],
             )
