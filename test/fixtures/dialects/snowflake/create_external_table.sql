@@ -41,3 +41,34 @@ PARTITION_TYPE = user_specified
 LOCATION = @public.test_stage
 FILE_FORMAT = public.parquet_format_convert_binary
 AUTO_REFRESH = false;
+
+CREATE EXTERNAL TABLE delta_ext
+PARTITION BY (date_part)
+LOCATION = @stage.delta_stage
+PARTITION_TYPE = USER_SPECIFIED
+FILE_FORMAT = (TYPE = PARQUET)
+TABLE_FORMAT = DELTA;
+
+CREATE OR REPLACE EXTERNAL TABLE protected_ext
+WITH ROW ACCESS POLICY external_table_policy ON (VALUE)
+LOCATION = @mystage
+FILE_FORMAT = my_parquet_format;
+
+CREATE EXTERNAL TABLE inferred_ext
+USING TEMPLATE (
+    SELECT array_agg(object_construct(*))
+    FROM TABLE(
+        INFER_SCHEMA(
+            LOCATION => '@mystage',
+            FILE_FORMAT => 'my_parquet_format'
+        )
+    )
+)
+LOCATION = @mystage
+FILE_FORMAT = my_parquet_format
+AUTO_REFRESH = FALSE;
+
+CREATE EXTERNAL TABLE contact_ext
+LOCATION = @mystage
+FILE_FORMAT = my_parquet_format
+WITH CONTACT (steward = my_steward, access_approval = my_db.my_schema.my_approver);

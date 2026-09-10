@@ -2443,6 +2443,27 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
+class IfStatementListSegment(BaseSegment):
+    """Statements within an IF...END IF statement."""
+
+    type = "if_statement_list"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            Ref(
+                "StatementSegment",
+                exclude=OneOf(
+                    "ELSEIF",
+                    "ELSE",
+                    Sequence("END", "IF"),
+                ),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+        min_times=1,
+    )
+
+
 class IfExpressionStatement(BaseSegment):
     """IF-THEN-ELSE-ELSEIF-END IF statement.
 
@@ -2451,21 +2472,32 @@ class IfExpressionStatement(BaseSegment):
 
     type = "if_then_statement"
 
-    match_grammar = AnyNumberOf(
-        Sequence(
-            "IF",
-            Ref("ExpressionSegment"),
-            "THEN",
-            Ref("StatementSegment"),
+    match_grammar = Sequence(
+        "IF",
+        Ref("ExpressionSegment"),
+        "THEN",
+        Indent,
+        Ref("IfStatementListSegment"),
+        Dedent,
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Indent,
+                Ref("IfStatementListSegment"),
+                Dedent,
+            ),
         ),
         Sequence(
-            "ELSEIF",
-            Ref("ExpressionSegment"),
-            "THEN",
-            Ref("StatementSegment"),
+            "ELSE",
+            Indent,
+            Ref("IfStatementListSegment"),
+            Dedent,
+            optional=True,
         ),
-        Sequence("ELSE", Ref("StatementSegment"), optional=True),
-        Sequence("END", "IF"),
+        "END",
+        "IF",
     )
 
 

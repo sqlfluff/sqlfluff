@@ -1,0 +1,481 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d64258b000b6728bd0812b29a4e4a602778b2904090c9c4995c70b78a3ea36c7
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_custom_incremental
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: amount
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '13'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Amount'"
+      - comma: ','
+      - column_definition:
+          naked_identifier: updated_at
+          data_type:
+            data_type_identifier: TIMESTAMP_LTZ
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '9'
+                end_bracket: )
+      - end_bracket: )
+    - dynamic_table_options:
+      - keyword: SCHEDULER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DISABLE
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM_INCREMENTAL
+      - keyword: INITIALIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - initialize_type: ON_SCHEDULE
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'custom incremental dynamic table'"
+    - keyword: REFRESH
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        merge_statement:
+        - keyword: MERGE
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: SELF
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: target
+        - keyword: USING
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: amount
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: updated_at
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: src_table
+                  changes_clause:
+                    keyword: CHANGES
+                    bracketed:
+                    - start_bracket: (
+                    - keyword: INFORMATION
+                    - parameter_assigner: =>
+                    - keyword: DEFAULT
+                    - end_bracket: )
+              qualify_clause:
+                keyword: QUALIFY
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: ROW_NUMBER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                    over_clause:
+                      keyword: OVER
+                      bracketed:
+                        start_bracket: (
+                        window_specification:
+                          partitionby_clause:
+                          - keyword: PARTITION
+                          - keyword: BY
+                          - expression:
+                              column_reference:
+                                naked_identifier: id
+                          orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                              naked_identifier: updated_at
+                          - keyword: DESC
+                        end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+            end_bracket: )
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: origin
+        - join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - naked_identifier: target
+              - dot: .
+              - naked_identifier: id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: origin
+              - dot: .
+              - naked_identifier: id
+        - merge_match:
+            merge_when_matched_clause:
+            - keyword: WHEN
+            - keyword: MATCHED
+            - keyword: AND
+            - expression:
+              - column_reference:
+                - naked_identifier: origin
+                - dot: .
+                - naked_identifier: updated_at
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: target
+                - dot: .
+                - naked_identifier: updated_at
+            - keyword: THEN
+            - merge_update_clause:
+                keyword: UPDATE
+                set_clause_list:
+                - keyword: SET
+                - set_clause:
+                  - column_reference:
+                    - naked_identifier: target
+                    - dot: .
+                    - naked_identifier: amount
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: origin
+                    - dot: .
+                    - naked_identifier: amount
+                - comma: ','
+                - set_clause:
+                  - column_reference:
+                    - naked_identifier: target
+                    - dot: .
+                    - naked_identifier: updated_at
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: origin
+                    - dot: .
+                    - naked_identifier: updated_at
+            merge_when_not_matched_clause:
+            - keyword: WHEN
+            - keyword: NOT
+            - keyword: MATCHED
+            - keyword: THEN
+            - merge_insert_clause:
+                keyword: INSERT
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: id
+                - comma: ','
+                - column_reference:
+                    naked_identifier: amount
+                - comma: ','
+                - column_reference:
+                    naked_identifier: updated_at
+                - end_bracket: )
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                      - naked_identifier: origin
+                      - dot: .
+                      - naked_identifier: id
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: origin
+                      - dot: .
+                      - naked_identifier: amount
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: origin
+                      - dot: .
+                      - naked_identifier: updated_at
+                  - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_custom_incremental_backfill
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: amount
+          data_type:
+            data_type_identifier: NUMBER
+      - end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DOWNSTREAM
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM_INCREMENTAL
+      - keyword: BACKFILL
+      - keyword: FROM
+      - object_reference:
+          naked_identifier: legacy_table
+      - keyword: START
+      - keyword: AT
+      - bracketed:
+          start_bracket: (
+          keyword: STREAM
+          parameter_assigner: =>
+          expression:
+            quoted_literal: "'my_stream'"
+          end_bracket: )
+    - keyword: REFRESH
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: SELF
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: amount
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: src_table
+                changes_clause:
+                  keyword: CHANGES
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: INFORMATION
+                  - parameter_assigner: =>
+                  - keyword: APPEND_ONLY
+                  - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_custom_incremental_start_at_timestamp
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM_INCREMENTAL
+      - keyword: START
+      - keyword: AT
+      - bracketed:
+          start_bracket: (
+          keyword: TIMESTAMP
+          parameter_assigner: =>
+          expression:
+            cast_expression:
+              quoted_literal: "'2026-08-01 00:00:00'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TIMESTAMP_LTZ
+          end_bracket: )
+    - keyword: REFRESH
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: SELF
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: src_table
+                changes_clause:
+                  keyword: CHANGES
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_custom_incremental_start_at_offset
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM_INCREMENTAL
+      - keyword: START
+      - keyword: AT
+      - bracketed:
+          start_bracket: (
+          keyword: OFFSET
+          parameter_assigner: =>
+          expression:
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '3600'
+          end_bracket: )
+    - keyword: REFRESH
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: SELF
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: src_table
+                changes_clause:
+                  keyword: CHANGES
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: INFORMATION
+                  - parameter_assigner: =>
+                  - keyword: DEFAULT
+                  - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;

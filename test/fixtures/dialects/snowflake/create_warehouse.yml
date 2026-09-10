@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8aa1c8d1703ac6362bfed86ee6cd05d33f7847f043864f4996a21f146439cee
+_hash: 8701a9694a7f004142ffecb2188f67421e74f897b3d171ccde6255d5ca741a51
 file:
 - statement:
     create_statement:
@@ -156,4 +156,64 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         numeric_literal: '60'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: my_adaptive_wh
+    - warehouse_object_properties:
+        keyword: warehouse_type
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: adaptive
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: gen2_wh
+    - keyword: with
+    - warehouse_object_properties:
+      - keyword: warehouse_size
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - warehouse_size: "'MEDIUM'"
+      - keyword: generation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - warehouse_generation: "'2'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: tagged_wh
+    - keyword: with
+    - warehouse_object_properties:
+        keyword: warehouse_size
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: "'XSMALL'"
+    - tag_bracketed_equals:
+      - keyword: with
+      - keyword: tag
+      - bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: cost_center
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'sales'"
+          end_bracket: )
+    - warehouse_object_properties:
+        keyword: max_concurrency_level
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '8'
 - statement_terminator: ;

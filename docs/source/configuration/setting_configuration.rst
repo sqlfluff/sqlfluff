@@ -51,6 +51,13 @@ supported cfg file types):
 
     [sqlfluff:templater:jinja]
     apply_dbt_builtins = True
+    # Custom Jinja delimiters (optional, defaults shown)
+    # variable_start_string = {{
+    # variable_end_string = }}
+    # block_start_string = {%
+    # block_end_string = %}
+    # comment_start_string = {#
+    # comment_end_string = #}
 
 For the `pyproject.toml file`_, all valid sections start with
 :code:`tool.sqlfluff` and subsections are delimited by a dot. For example the
@@ -75,6 +82,13 @@ For example, a snippet from a :code:`pyproject.toml` file:
 
     [tool.sqlfluff.templater.jinja]
     apply_dbt_builtins = true
+    # Custom Jinja delimiters (optional, defaults shown)
+    # variable_start_string = "{{"
+    # variable_end_string = "}}"
+    # block_start_string = "{%"
+    # block_end_string = "%}"
+    # comment_start_string = "{#"
+    # comment_end_string = "#}"
 
     # For rule specific configuration, use dots between the names exactly
     # as you would in .sqlfluff. In the background, SQLFluff will unpack the

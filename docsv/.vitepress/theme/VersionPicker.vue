@@ -19,7 +19,6 @@ import { computed, onUnmounted, ref, useId, watch } from 'vue'
 import {
     isChannel,
     useVersions,
-    versionHref,
     versionTitle,
     type VersionEntry,
 } from './versions'
@@ -39,7 +38,8 @@ const props = withDefaults(
     }
 )
 
-const { entries, current, channels, releases, pagePath } = useVersions()
+const { entries, current, channels, releases, hrefFor, allVersionsHref } =
+    useVersions()
 
 const open = ref(false)
 const root = ref<HTMLElement>()
@@ -144,10 +144,28 @@ function onKeydown(event: KeyboardEvent): void {
             <span class="vpi-chevron-down version-picker__chevron" aria-hidden="true" />
         </button>
 
-        <span v-else class="version-picker__static">
-            <span class="sqlfluff-visually-hidden">Documentation version:</span>
-            {{ triggerLabel }}
-        </span>
+        <template v-else>
+            <span class="version-picker__static">
+                <span class="sqlfluff-visually-hidden">Documentation version:</span>
+                {{ triggerLabel }}
+            </span>
+
+            <!--
+              With nothing to switch to there is no panel, but the archive index
+              still has to be reachable: if every other version is unlisted this
+              is the reader's only route to them. Rendered as a link rather than
+              as a one-item dropdown.
+            -->
+            <a
+                v-if="allVersionsHref"
+                class="version-picker__item version-picker__item--all version-picker__all-static"
+                :href="allVersionsHref"
+                target="_self"
+            >
+                <span>All versions</span>
+                <span aria-hidden="true">&rarr;</span>
+            </a>
+        </template>
 
         <div v-if="interactive" :id="panelId" class="version-picker__panel" :hidden="!open">
             <template v-for="(group, index) in [channels, releases]" :key="index">
@@ -167,7 +185,7 @@ function onKeydown(event: KeyboardEvent): void {
                         :key="entry.key"
                         class="version-picker__item"
                         :class="{ 'is-current': entry.key === current.key }"
-                        :href="versionHref(entry, pagePath)"
+                        :href="hrefFor(entry)"
                         :aria-current="entry.key === current.key ? 'page' : undefined"
                         target="_self"
                         @click="close"
@@ -185,6 +203,23 @@ function onKeydown(event: KeyboardEvent): void {
                     </a>
                 </div>
             </template>
+
+            <!--
+              The way to reach the versions this list leaves out. In its own
+              group at the end, so it reads as an escape hatch rather than as
+              another version to switch to.
+            -->
+            <div v-if="allVersionsHref" class="version-picker__group">
+                <a
+                    class="version-picker__item version-picker__item--all"
+                    :href="allVersionsHref"
+                    target="_self"
+                    @click="close"
+                >
+                    <span>All versions</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </a>
+            </div>
         </div>
     </div>
 </template>
@@ -325,6 +360,18 @@ function onKeydown(event: KeyboardEvent): void {
     color: var(--vp-c-text-2);
     font-size: 12px;
     font-weight: 400;
+}
+
+.version-picker__item--all {
+    color: var(--vp-c-brand-1);
+}
+
+/* Outside the panel it sits directly under the static version label, so it
+   takes that label's side padding rather than the panel item's, which would
+   leave the two lines misaligned. */
+.version-picker__all-static {
+    padding-left: 0.6rem;
+    font-size: 13px;
 }
 
 .version-picker__tag {

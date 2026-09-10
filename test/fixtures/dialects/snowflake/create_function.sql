@@ -175,3 +175,27 @@ RETURNS INT
 LANGUAGE SQL
 AS $$ SELECT x $$
 ;
+
+-- MEMOIZABLE and a nullable return type
+CREATE FUNCTION memoized_udf()
+    RETURNS NUMBER
+    MEMOIZABLE
+    AS 'SELECT SUM(x) FROM big_table';
+
+CREATE OR REPLACE FUNCTION nullable_udf(x NUMBER)
+    RETURNS NUMBER NULL
+    LANGUAGE SQL
+    AS 'x + 1';
+
+-- Python UDF pulling packages from an artifact repository
+CREATE OR REPLACE FUNCTION artifact_udf()
+    RETURNS VARIANT
+    LANGUAGE PYTHON
+    RUNTIME_VERSION = '3.11'
+    ARTIFACT_REPOSITORY = snowflake.snowpark.pypi_shared_repository
+    PACKAGES = ('urllib3', 'requests')
+    HANDLER = 'main'
+    AS $$
+def main():
+    return 1
+$$;

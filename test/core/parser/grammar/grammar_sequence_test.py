@@ -335,6 +335,40 @@ def test__parser__grammar_sequence_modes(
             {"allow_gaps": False},
             (),
         ),
+        # Empty brackets shouldn't match if the content grammar contains
+        # required elements.
+        # https://github.com/sqlfluff/sqlfluff/issues/8368
+        (
+            ["(", ")"],
+            ParseMode.STRICT,
+            ["a"],
+            {},
+            (),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.STRICT,
+            ["a"],
+            {},
+            (),
+        ),
+        # The same applies in GREEDY mode: by not matching, we allow any
+        # other grammars which *can* match empty brackets to be tried, or
+        # the surrounding grammar to mark the section as unparsable.
+        (
+            ["(", ")"],
+            ParseMode.GREEDY,
+            ["a"],
+            {},
+            (),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.GREEDY,
+            ["a"],
+            {},
+            (),
+        ),
         # Happy path content match.
         (
             ["(", "a", ")"],

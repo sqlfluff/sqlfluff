@@ -1,0 +1,158 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 041eeac86f85c8e5077e8724d5904c692abe85c48e0e5e4b4d314506f0a7f7d1
+file:
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SET
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_warehouse
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'5 MINUTE'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'updated comment'"
+    - keyword: CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'{\"key\": \"value\"}'"
+    - keyword: RUNBOOK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://example.com/runbook'"
+    - keyword: SUSPEND_ALERT_AFTER_NUM_FAILURES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: UNSET
+    - keyword: WAREHOUSE
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: UNSET
+    - keyword: CONFIG
+    - comma: ','
+    - keyword: RUNBOOK
+    - comma: ','
+    - keyword: SUSPEND_ALERT_AFTER_NUM_FAILURES
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: cost_center
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'finance'"
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: cost_center
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: MODIFY
+    - keyword: CONDITION
+    - alert_condition:
+        keyword: EXISTS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: gauge_value
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: gauge
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_alert_statement:
+    - keyword: ALTER
+    - keyword: ALERT
+    - object_reference:
+        naked_identifier: my_alert
+    - keyword: MODIFY
+    - keyword: ACTION
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: gauge_history
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+- statement_terminator: ;

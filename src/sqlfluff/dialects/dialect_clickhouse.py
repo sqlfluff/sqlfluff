@@ -629,6 +629,8 @@ class MergeTreesOrderByClauseSegment(BaseSegment):
                 Delimited(
                     Ref("ColumnReferenceSegment"),
                     Ref("ExpressionSegment"),
+                    # The brackets might be empty i.e. `ORDER BY ()`.
+                    optional=True,
                 ),
             ),
             Ref("ColumnReferenceSegment"),
@@ -937,6 +939,8 @@ class DateTime64ArgumentsSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),  # timezone
                 optional=True,
             ),
+            # The brackets might be empty i.e. `DateTime64()`.
+            optional=True,
         )
     )
 
@@ -1556,6 +1560,25 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("ColumnTTLSegment"),
             ),
         )
+    )
+
+
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for CREATE TABLE.
+
+    ClickHouse's CONSTRAINT clause only supports CHECK and ASSUME
+    https://clickhouse.com/docs/en/sql-reference/statements/create/table#constraints
+    """
+
+    type = "table_constraint"
+    match_grammar: Matchable = Sequence(
+        "CONSTRAINT",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "CHECK",
+            "ASSUME",
+        ),
+        Ref("ExpressionSegment"),
     )
 
 
@@ -3054,10 +3077,12 @@ class FunctionContentsSegment(BaseSegment):
         # Double parentheses pattern: func(params)(args)
         Sequence(
             Bracketed(
-                Ref("FunctionContentsGrammar"),
+                # The parameter brackets might be empty
+                # i.e. `studentTTestOneSample()(...)`.
+                Ref("FunctionContentsGrammar", optional=True),
             ),
             Bracketed(
-                Ref("FunctionContentsGrammar"),
+                Ref("FunctionContentsGrammar", optional=True),
             ),
         ),
         # Standard ANSI single parentheses

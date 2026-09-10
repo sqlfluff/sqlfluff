@@ -33,6 +33,13 @@ unwrap_wrapped_queries = True
 
 [sqlfluff:templater:jinja]
 apply_dbt_builtins = True
+# Custom Jinja delimiters (optional, defaults shown)
+# variable_start_string = {{
+# variable_end_string = }}
+# block_start_string = {%
+# block_end_string = %}
+# comment_start_string = {#
+# comment_end_string = #}
 ```
 
 For the [pyproject.toml file](https://www.python.org/dev/peps/pep-0518/), all valid sections start with `tool.sqlfluff` and subsections are delimited by a dot. For example the *jinjacontext* section will be indicated in the section started with `[tool.sqlfluff.jinjacontext]`.
@@ -54,6 +61,13 @@ unwrap_wrapped_queries = true
 
 [tool.sqlfluff.templater.jinja]
 apply_dbt_builtins = true
+# Custom Jinja delimiters (optional, defaults shown)
+# variable_start_string = "{{"
+# variable_end_string = "}}"
+# block_start_string = "{%"
+# block_end_string = "%}"
+# comment_start_string = "{#"
+# comment_end_string = "#}"
 
 # For rule specific configuration, use dots between the names exactly
 # as you would in .sqlfluff. In the background, SQLFluff will unpack the

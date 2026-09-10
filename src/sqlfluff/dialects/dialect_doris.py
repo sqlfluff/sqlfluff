@@ -243,7 +243,10 @@ class PartitionSegment(BaseSegment):
                             OneOf(
                                 Ref("RangePartitionDefinitionSegment"),
                                 Ref("RangePartitionIntervalSegment"),
-                            )
+                            ),
+                            # The partition list might be empty for
+                            # dynamic partitioning.
+                            optional=True,
                         )
                     ),
                 ),
@@ -251,7 +254,14 @@ class PartitionSegment(BaseSegment):
                 Sequence(
                     "LIST",
                     Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    Bracketed(Delimited(Ref("ListPartitionDefinitionSegment"))),
+                    Bracketed(
+                        Delimited(
+                            Ref("ListPartitionDefinitionSegment"),
+                            # The partition list might be empty for
+                            # dynamic partitioning.
+                            optional=True,
+                        )
+                    ),
                 ),
             ),
         ),

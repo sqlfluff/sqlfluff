@@ -21,6 +21,13 @@ export interface VersionEntry {
     title?: string | null
     path: string
     kind?: 'channel' | 'release'
+    /** Which toolchain built it. Archived pre-cutover versions are Sphinx. */
+    builder?: 'vitepress' | 'sphinx'
+    /**
+     * Whether the picker offers it. Unlisted versions stay published and
+     * reachable by URL; they are listed on the archive index page instead.
+     */
+    listed?: boolean
     prerelease?: boolean
     published_at?: string
 }
@@ -69,6 +76,16 @@ export function isChannel(entry: VersionEntry): boolean {
     return entry.kind === 'channel' || CHANNEL_KEYS.has(entry.key)
 }
 
+/**
+ * True when the picker should offer this version.
+ *
+ * Absent means listed, so a manifest written before the flag existed still
+ * renders in full rather than emptying the picker.
+ */
+export function isListed(entry: VersionEntry): boolean {
+    return entry.listed !== false
+}
+
 /** The line a reader identifies a version by. */
 export function versionTitle(entry: VersionEntry): string {
     return entry.title || entry.label || entry.key
@@ -81,12 +98,26 @@ export function versionTitle(entry: VersionEntry): string {
  * own 404 handling takes over. That is a better trade than always landing on
  * the target's home page, which is a certain loss of place rather than a
  * possible one.
+ *
+ * Across the Sphinx and VitePress boundary the trade reverses, so the path is
+ * dropped and the link goes to the target version's root. The two builders lay
+ * out URLs differently — `configuration/index.html` against `configuration/` —
+ * and the docs were restructured in the rewrite, with the rules reference going
+ * from one page to many. Carrying the path across is not a near miss but a
+ * certain 404, which makes losing your place the cheaper of the two.
  */
 export function versionHref(
     entry: VersionEntry,
-    pagePath: string
+    pagePath: string,
+    currentBuilder?: VersionEntry['builder']
 ): string {
-    return normalizeBase(entry.path, '/') + pagePath
+    const base = normalizeBase(entry.path, '/')
+
+    if (entry.builder && currentBuilder && entry.builder !== currentBuilder) {
+        return base
+    }
+
+    return base + pagePath
 }
 
 export type NoticeKind = 'development' | 'outdated'
@@ -100,7 +131,7 @@ export interface VersionNotice {
 }
 
 export interface UseVersions {
-    /** Every published version, channels before releases. */
+    /** The versions the picker offers: the listed ones, plus the current one. */
     entries: Ref<VersionEntry[]>
     /** The version this build was published as, if it is versioned at all. */
     current: Ref<VersionEntry | null>
@@ -109,6 +140,10 @@ export interface UseVersions {
     /** The current page's path within its version, for cross-version links. */
     pagePath: ComputedRef<string>
     notice: Ref<VersionNotice | null>
+    /** A link to the same page in another version, from this one. */
+    hrefFor: (entry: VersionEntry) => string
+    /** The archive index page, or null when there is no manifest to index. */
+    allVersionsHref: Ref<string | null>
 }
 
 export function useVersions(): UseVersions {
@@ -152,37 +187,68 @@ export function useVersions(): UseVersions {
         }]
     })
 
-    const entries = computed<VersionEntry[]>(() => {
-        const published = manifest.value?.versions
+    /** Every published version, channels before releases. */
+    const published = computed<VersionEntry[]>(() => {
+        const versions = manifest.value?.versions
 
-        if (!published?.length) return fallback.value
+        if (!versions?.length) return fallback.value
 
         // `version_sort_key` in assemble-site.py already orders channels first
         // and then releases newest-first. Partitioning preserves that order
         // within each group, which the "newest release" checks below rely on.
         return [
-            ...published.filter(isChannel),
-            ...published.filter((entry) => !isChannel(entry)),
+            ...versions.filter(isChannel),
+            ...versions.filter((entry) => !isChannel(entry)),
         ]
     })
+
+    const current = computed(
+        () => published.value.find((entry) => entry.key === currentKey.value) ?? null
+    )
+
+    /**
+     * The versions the picker offers.
+     *
+     * Only one release per series is listed. That is what every comparable
+     * project does — Node.js hosts every patch and lists none of them — and a
+     * scrolling list of a hundred patch releases is the failure mode this
+     * replaces.
+     *
+     * The current version is added back whenever it was left out. Most readers
+     * arrive on an old version from a search engine, and a control which does
+     * not name the version they are reading looks broken rather than curated.
+     */
+    const entries = computed<VersionEntry[]>(() =>
+        published.value.filter(
+            (entry) => isListed(entry) || entry.key === currentKey.value
+        )
+    )
 
     const channels = computed(() => entries.value.filter(isChannel))
     const releases = computed(() => entries.value.filter((e) => !isChannel(e)))
 
-    const current = computed(
-        () => entries.value.find((entry) => entry.key === currentKey.value) ?? null
+    /**
+     * Every published release, listed or not.
+     *
+     * The notice below asks whether the reader is on the newest release, which
+     * is a question about what exists rather than about what the picker shows.
+     * Asking it of the listed set would leave a reader on an unlisted patch
+     * unwarned whenever nothing newer happened to be listed.
+     */
+    const allReleases = computed(() =>
+        published.value.filter((entry) => !isChannel(entry))
     )
 
     /** The release the `stable` channel points at, when it is published. */
     const stableRelease = computed(() => {
         const key = manifest.value?.stable
-        return releases.value.find((entry) => entry.key === key) ?? null
+        return allReleases.value.find((entry) => entry.key === key) ?? null
     })
 
     /** Where a reader on an unsuitable version should be sent instead. */
     const recommended = computed<VersionEntry | null>(() => {
-        const stableChannel = channels.value.find((entry) => entry.key === 'stable')
-        return stableRelease.value ?? stableChannel ?? releases.value[0] ?? null
+        const stableChannel = published.value.find((entry) => entry.key === 'stable')
+        return stableRelease.value ?? stableChannel ?? allReleases.value[0] ?? null
     })
 
     const notice = computed<VersionNotice | null>(() => {
@@ -191,7 +257,7 @@ export function useVersions(): UseVersions {
         // Nothing to warn about when there is nowhere else to go. This also
         // keeps the banner off a single-channel deployment such as the beta
         // site, where every build is `latest`.
-        if (!entry || entries.value.length < 2) return null
+        if (!entry || published.value.length < 2) return null
 
         const target = recommended.value
         const alternative = target && target.key !== entry.key ? target : null
@@ -205,16 +271,47 @@ export function useVersions(): UseVersions {
         if (isChannel(entry)) return null
 
         // Releases are ordered newest-first, so anything but the first is old.
-        if (releases.value.indexOf(entry) > 0) {
+        if (allReleases.value.indexOf(entry) > 0) {
             return { kind: 'outdated', current: entry, target: alternative }
         }
 
         return null
     })
 
+    /**
+     * A cross-version link from this page, which is always the same two
+     * arguments at every call site: the page the reader is on, and the builder
+     * they are on it in.
+     */
+    function hrefFor(entry: VersionEntry): string {
+        return versionHref(entry, pagePath.value, current.value?.builder)
+    }
+
+    /**
+     * Where the versions the picker leaves out stay discoverable.
+     *
+     * `assemble-site.py` writes this page at the language root on every publish,
+     * so it exists whenever a manifest does. Without one there is nothing to
+     * index, which is also the local-development case.
+     */
+    const allVersionsHref = computed(() =>
+        manifest.value?.versions?.length
+            ? `${languageRoot(docsBase.value)}versions.html`
+            : null
+    )
+
     onMounted(() => {
         if (currentKey.value) void loadManifest(docsBase.value)
     })
 
-    return { entries, current, channels, releases, pagePath, notice }
+    return {
+        entries,
+        current,
+        channels,
+        releases,
+        pagePath,
+        notice,
+        hrefFor,
+        allVersionsHref,
+    }
 }

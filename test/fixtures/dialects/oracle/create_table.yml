@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84cc4dde7589635c20b9a60ec28137cbb9fe8393f2571db92bb12cefd93706be
+_hash: 2e519c7474e6211fd45c8df369db72e01f9706298e4b7cc439d0be20a8e8910f
 file:
   batch:
   - statement:
@@ -227,7 +227,7 @@ file:
             column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
-            keyword: ENABLE
+            - keyword: ENABLE
         - comma: ','
         - column_definition:
             naked_identifier: department_name
@@ -244,7 +244,7 @@ file:
                 naked_identifier: dept_name_nn
             - keyword: NOT
             - keyword: 'NULL'
-            keyword: DISABLE
+            - keyword: DISABLE
         - comma: ','
         - column_definition:
             naked_identifier: manager_id

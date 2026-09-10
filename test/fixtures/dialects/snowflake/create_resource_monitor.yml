@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6af381138c77c33c9a0d66b5cba1c4f3677e9f8bc00efce29a1c90d48d7e4284
+_hash: 802cc0ab82a3c79a39cae1ecef1d708a69e921edeed328732c05579088f4a72c
 file:
 - statement:
     create_statement:
@@ -163,4 +163,29 @@ file:
       - keyword: percent
       - keyword: do
       - keyword: suspend_immediate
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: resource
+    - keyword: monitor
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+        naked_identifier: my_monitor
+    - keyword: with
+    - resource_monitor_options:
+      - keyword: credit_quota
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '100'
+      - keyword: frequency
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: monthly
+      - keyword: start_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: immediately
 - statement_terminator: ;

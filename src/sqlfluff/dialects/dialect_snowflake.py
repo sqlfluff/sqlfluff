@@ -171,6 +171,7 @@ snowflake_dialect.sets("warehouse_types").update(
     [
         "STANDARD",
         "SNOWPARK-OPTIMIZED",
+        "ADAPTIVE",
     ],
 )
 
@@ -225,7 +226,7 @@ snowflake_dialect.sets("warehouse_scaling_policies").update(
 
 snowflake_dialect.sets("refreshmode_types").clear()
 snowflake_dialect.sets("refreshmode_types").update(
-    ["ADAPTIVE", "AUTO", "FULL", "INCREMENTAL"],
+    ["ADAPTIVE", "AUTO", "CUSTOM_INCREMENTAL", "FULL", "INCREMENTAL"],
 )
 
 snowflake_dialect.sets("initialize_types").clear()
@@ -306,6 +307,12 @@ snowflake_dialect.add(
             CodeSegment,
             type="warehouse_size",
         ),
+    ),
+    # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse
+    WarehouseGeneration=MultiStringParser(
+        ["'1'", "'2'"],
+        CodeSegment,
+        type="warehouse_generation",
     ),
     WarehouseSize=OneOf(
         MultiStringParser(
@@ -563,6 +570,38 @@ snowflake_dialect.add(
         Ref("DynamicTableLagIntervalSegment"),
         "DOWNSTREAM",
     ),
+    # The TABLE( ... ) argument type of data metric functions as accepted in
+    # the signature positions (ALTER / DROP / GRANT), where columns may be
+    # given as datatypes only.
+    # https://docs.snowflake.com/en/sql-reference/sql/drop-function
+    DataMetricFunctionTableTypeGrammar=Sequence(
+        "TABLE",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    ),
+    # The TABLE( ... ) argument type as written in CREATE DATA METRIC
+    # FUNCTION, where every column must be named.
+    # https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    DataMetricFunctionNamedTableTypeGrammar=Sequence(
+        "TABLE",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    ),
     StartExcludeBracketSegment=StringParser(
         "{-", SymbolSegment, type="start_exclude_bracket"
     ),
@@ -722,6 +761,10 @@ snowflake_dialect.add(
         ),
     ),
     PurposeGrammar=OneOf("STEWARD", "SUPPORT", "ACCESS_APPROVAL"),
+    # The optional label a Snowflake Scripting loop can be closed with, and
+    # which BREAK and CONTINUE can target.
+    # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops
+    ScriptingLoopLabelGrammar=Ref("NakedIdentifierSegment"),
     # The option list shared by CREATE PROCEDURE and the anonymous
     # procedures introduced by WITH ... AS PROCEDURE ... CALL.
     ProcedureDefinitionOptionsGrammar=AnySetOf(
@@ -1821,6 +1864,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMcpServerStatementSegment"),
             Ref("CreateDcmProjectStatementSegment"),
             Ref("CreateTaskSegment"),
+            Ref("CreateAlertSegment"),
+            Ref("AlterAlertSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
@@ -1848,6 +1893,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSchemaStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
+            Ref("CreateDataMetricFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
@@ -1893,6 +1939,11 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
             Ref("ForInLoopSegment"),
+            Ref("ScriptingWhileLoopSegment"),
+            Ref("ScriptingLoopSegment"),
+            Ref("ScriptingRepeatLoopSegment"),
+            Ref("ScriptingBreakStatementSegment"),
+            Ref("ScriptingCaseStatementSegment"),
             Ref("CreateEventTableStatementSegment"),
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
@@ -2148,47 +2199,72 @@ class MatchRecognizeClauseSegment(BaseSegment):
 class ChangesClauseSegment(BaseSegment):
     """A `CHANGES` clause.
 
+    Two alternatives: the bounded form, where `INFORMATION` and the
+    `AT`/`BEFORE` time bounds are required, and the unbounded form
+    (`CHANGES()` or `CHANGES(INFORMATION => ...)` with no time bounds),
+    which the grammar accepts everywhere as a syntactic superset —
+    Snowflake only allows it inside custom incremental dynamic tables,
+    where the change interval is bound automatically, and enforces that
+    restriction itself.
+
     https://docs.snowflake.com/en/sql-reference/constructs/changes.html
+    https://docs.snowflake.com/en/user-guide/dynamic-tables/custom-incrementalization
     """
 
     type = "changes_clause"
-    match_grammar = Sequence(
-        "CHANGES",
-        Bracketed(
-            "INFORMATION",
-            Ref("ParameterAssignerSegment"),
-            OneOf("DEFAULT", "APPEND_ONLY"),
-            parse_mode=ParseMode.GREEDY,
-        ),
-        OneOf(
+    match_grammar = OneOf(
+        # Bounded form: the standard CHANGES clause.
+        Sequence(
+            "CHANGES",
+            Bracketed(
+                "INFORMATION",
+                Ref("ParameterAssignerSegment"),
+                OneOf("DEFAULT", "APPEND_ONLY"),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            OneOf(
+                Sequence(
+                    "AT",
+                    Bracketed(
+                        OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
+                        Ref("ParameterAssignerSegment"),
+                        Ref("ExpressionSegment"),
+                        parse_mode=ParseMode.GREEDY,
+                    ),
+                ),
+                Sequence(
+                    "BEFORE",
+                    Bracketed(
+                        "STATEMENT",
+                        Ref("ParameterAssignerSegment"),
+                        Ref("ExpressionSegment"),
+                        parse_mode=ParseMode.GREEDY,
+                    ),
+                ),
+            ),
             Sequence(
-                "AT",
+                "END",
                 Bracketed(
                     OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
                     parse_mode=ParseMode.GREEDY,
                 ),
-            ),
-            Sequence(
-                "BEFORE",
-                Bracketed(
-                    "STATEMENT",
-                    Ref("ParameterAssignerSegment"),
-                    Ref("ExpressionSegment"),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                optional=True,
             ),
         ),
+        # Unbounded form: no time bounds.
         Sequence(
-            "END",
+            "CHANGES",
             Bracketed(
-                OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
-                Ref("ParameterAssignerSegment"),
-                Ref("ExpressionSegment"),
+                Sequence(
+                    "INFORMATION",
+                    Ref("ParameterAssignerSegment"),
+                    OneOf("DEFAULT", "APPEND_ONLY"),
+                    optional=True,
+                ),
                 parse_mode=ParseMode.GREEDY,
             ),
-            optional=True,
         ),
     )
 
@@ -3224,27 +3300,37 @@ class AlterWarehouseStatementSegment(BaseSegment):
     """
 
     type = "alter_warehouse_statement"
+
+    # These actions accept the warehouse name being omitted, in which case
+    # they apply to the warehouse in use for the session.
+    _session_actions = OneOf(
+        "SUSPEND",
+        Sequence(
+            "RESUME",
+            Sequence("IF", "SUSPENDED", optional=True),
+        ),
+        Sequence("ABORT", "ALL", "QUERIES"),
+    )
+
     match_grammar = Sequence(
         "ALTER",
         "WAREHOUSE",
         Ref("IfExistsGrammar", optional=True),
         OneOf(
+            _session_actions,
             Sequence(
-                Ref("ObjectReferenceSegment", optional=True),
+                Ref("ObjectReferenceSegment"),
                 OneOf(
-                    "SUSPEND",
+                    _session_actions,
+                    # Adaptive warehouses only:
+                    "ENABLE",
+                    "DISABLE",
+                    # Interactive warehouses only:
                     Sequence(
-                        "RESUME",
-                        Sequence("IF", "SUSPENDED", optional=True),
+                        OneOf("ADD", "DROP"),
+                        "TABLES",
+                        Bracketed(Delimited(Ref("TableReferenceSegment"))),
                     ),
-                ),
-            ),
-            Sequence(
-                Ref("ObjectReferenceSegment", optional=True),
-                Sequence(
-                    "ABORT",
-                    "ALL",
-                    "QUERIES",
                 ),
             ),
             Sequence(
@@ -3270,6 +3356,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 "UNSET",
                 OneOf(
+                    Sequence("DCM", "PROJECT"),
                     Delimited(Ref("NakedIdentifierSegment")),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
@@ -3309,14 +3396,16 @@ class AlterShareStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                "ACCOUNTS",
-                Ref("EqualsSegment"),
-                Delimited(Ref("ObjectReferenceSegment")),
-                Ref("CommentEqualsClauseSegment", optional=True),
-            ),
-            Sequence(
-                "SET",
-                Ref("TagEqualsSegment"),
+                OneOf(
+                    Sequence(
+                        "ACCOUNTS",
+                        Ref("EqualsSegment"),
+                        Delimited(Ref("ObjectReferenceSegment")),
+                        Ref("CommentEqualsClauseSegment", optional=True),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    Ref("TagEqualsSegment"),
+                ),
             ),
             Sequence(
                 "UNSET",
@@ -3845,7 +3934,7 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
                 Ref("ObjectReferenceSegment"),
                 Sequence(
                     Ref("FunctionNameSegment"),
-                    Ref("FunctionParameterListGrammar", optional=True),
+                    Ref("FunctionSignatureParameterListSegment", optional=True),
                 ),
                 terminators=["TO", "FROM"],
             ),
@@ -4460,14 +4549,24 @@ class ScriptingBlockStatementSegment(BaseSegment):
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
+                # Exclude ExceptionBlockStatementSegment so that the EXCEPTION
+                # section is matched below as a section of this block rather
+                # than as one of the statements inside it.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
+                ),
             ),
             terminators=[
                 OneOf(
                     Sequence(Ref("DelimiterGrammar"), "END"),
-                    # Don't terminate on an "END FOR", because that's a different
-                    # expression.
-                    exclude=Sequence(Ref("DelimiterGrammar"), "END", "FOR"),
+                    # Don't terminate on the "END" of a nested loop or CASE
+                    # statement, because those are different expressions.
+                    exclude=Sequence(
+                        Ref("DelimiterGrammar"),
+                        "END",
+                        OneOf("FOR", "WHILE", "LOOP", "REPEAT", "CASE"),
+                    ),
                 ),
             ],
             # NOTE: We can't be greedy because there may be nested loops. This
@@ -4476,6 +4575,15 @@ class ScriptingBlockStatementSegment(BaseSegment):
         ),
         Ref("DelimiterGrammar"),
         Dedent,
+        # The EXCEPTION handler is a section of the block and not a statement
+        # within it, so it comes after the statement body has been closed and
+        # lines up with `BEGIN`.
+        # https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
+        Sequence(
+            Ref("ExceptionBlockStatementSegment"),
+            Ref("DelimiterGrammar"),
+            optional=True,
+        ),
         "END",
         reset_terminators=True,
     )
@@ -4572,7 +4680,8 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
         AnySetOf(
-            Sequence("NOT", "NULL", optional=True),
+            Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+            Ref.keyword("MEMOIZABLE", optional=True),
             Sequence(
                 "LANGUAGE",
                 OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA", "SCALA"),
@@ -4645,6 +4754,15 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
+            Sequence(
+                "ARTIFACT_REPOSITORY",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
             optional=True,
         ),
         Sequence(
@@ -4658,6 +4776,105 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+class FunctionSignatureParameterListSegment(ansi.FunctionParameterListGrammar):
+    """A parameter list referencing a function by its signature.
+
+    Data metric functions are addressed by their TABLE( ... ) typed
+    signature in ALTER / DROP FUNCTION and in GRANT / REVOKE, so these
+    positions accept it alongside the ordinary parameter forms.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-function
+    """
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            OneOf(
+                Ref("DataMetricFunctionTableTypeGrammar"),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("DataMetricFunctionTableTypeGrammar"),
+                ),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DataMetricFunctionParameterListSegment(ansi.FunctionParameterListGrammar):
+    """The parameter list of a data metric function.
+
+    Every argument must be named and take a TABLE( ... ) type.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("DataMetricFunctionNamedTableTypeGrammar"),
+            ),
+        ),
+    )
+
+
+class DataMetricFunctionReturnTypeSegment(BaseSegment):
+    """The return type of a data metric function.
+
+    The docs state the data type can only be NUMBER.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    type = "data_type"
+    match_grammar: Matchable = StringParser(
+        "NUMBER", CodeSegment, type="data_type_identifier"
+    )
+
+
+class CreateDataMetricFunctionStatementSegment(BaseSegment):
+    """A `CREATE DATA METRIC FUNCTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+    """
+
+    type = "create_data_metric_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        # OR REPLACE and IF NOT EXISTS are mutually exclusive.
+        OneOf(
+            Sequence(
+                Ref("OrReplaceGrammar", optional=True),
+                Ref.keyword("SECURE", optional=True),
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+            ),
+            Sequence(
+                Ref.keyword("SECURE", optional=True),
+                "DATA",
+                "METRIC",
+                "FUNCTION",
+                Ref("IfNotExistsGrammar"),
+            ),
+        ),
+        Ref("FunctionNameSegment"),
+        Ref("DataMetricFunctionParameterListSegment"),
+        "RETURNS",
+        Ref("DataMetricFunctionReturnTypeSegment"),
+        Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
+        Sequence("LANGUAGE", "SQL", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        OneOf(
+            Ref("DoubleQuotedUDFBody"),
+            Ref("SingleQuotedUDFBody"),
+            Ref("DollarQuotedUDFBody"),
         ),
     )
 
@@ -4678,7 +4895,7 @@ class AlterFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar"),
+        Ref("FunctionSignatureParameterListSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
             Sequence(
@@ -4976,6 +5193,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             Ref("BooleanLiteralGrammar"),
         ),
         Sequence(
+            "GENERATION",
+            Ref("EqualsSegment"),
+            Ref("WarehouseGeneration"),
+        ),
+        Sequence(
             "INITIALLY_SUSPENDED",
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
@@ -4983,7 +5205,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
         Sequence(
             "RESOURCE_MONITOR",
             Ref("EqualsSegment"),
-            Ref("NakedIdentifierSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         Sequence(
             "ENABLE_QUERY_ACCELERATION",
@@ -5541,7 +5767,7 @@ class CreateEventTableStatementSegment(BaseSegment):
                 "GRANTS",
             ),
             Sequence(
-                "WITH",
+                Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
                 "POLICY",
@@ -5550,10 +5776,11 @@ class CreateEventTableStatementSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Sequence(
-                "WITH",
+                Ref.keyword("WITH", optional=True),
                 Ref("CommentEqualsClauseSegment"),
             ),
             Ref("TagBracketedEqualsSegment"),
+            Ref("ContactBracketedGrammar"),
             optional=True,
         ),
     )
@@ -5671,6 +5898,23 @@ class DynamicTableOptionsSegment(BaseSegment):
                 "ROW_TIMESTAMP",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "BACKFILL",
+                "FROM",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "START",
+                "AT",
+                Bracketed(
+                    OneOf("STREAM", "TIMESTAMP", "STATEMENT", "OFFSET"),
+                    Ref("ParameterAssignerSegment"),
+                    Ref("ExpressionSegment"),
+                    parse_mode=ParseMode.GREEDY,
+                ),
                 optional=True,
             ),
         ),
@@ -5962,6 +6206,156 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     )
 
 
+class CreateAlertSegment(BaseSegment):
+    """A snowflake `CREATE ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-alert
+    """
+
+    type = "create_alert_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ALERT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        Ref("TagBracketedEqualsSegment", optional=True),
+        AnySetOf(
+            Sequence(
+                "SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                "CONFIG",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "RUNBOOK",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "SUSPEND_ALERT_AFTER_NUM_FAILURES",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+        Dedent,
+        "IF",
+        Bracketed(Ref("AlertConditionSegment")),
+        "THEN",
+        Indent,
+        Ref("StatementSegment"),
+        Dedent,
+    )
+
+
+class AlertConditionSegment(BaseSegment):
+    """The `EXISTS ( <condition> )` condition of a snowflake alert.
+
+    Used by both `CREATE ALERT ... IF( EXISTS( ... ))` and
+    `ALTER ALERT ... MODIFY CONDITION EXISTS( ... )`.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-alert
+    """
+
+    type = "alert_condition"
+
+    match_grammar = Sequence(
+        "EXISTS",
+        # The condition must be a statement which returns rows: the docs allow
+        # SELECT, SHOW and CALL. A scalar expression such as `EXISTS (1)` is
+        # not valid.
+        Bracketed(
+            OneOf(
+                Ref("SelectableGrammar"),
+                Ref("ShowStatementSegment"),
+                Ref("CallStatementSegment"),
+            )
+        ),
+    )
+
+
+class AlterAlertSegment(BaseSegment):
+    """A snowflake `ALTER ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-alert
+    """
+
+    type = "alter_alert_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ALERT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "RESUME",
+            "SUSPEND",
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "CONFIG",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "RUNBOOK",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "SUSPEND_ALERT_AFTER_NUM_FAILURES",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    # `SET` must assign at least one property; a bare
+                    # `ALTER ALERT <name> SET;` is not valid.
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                # NOTE: `SCHEDULE` is settable but not unsettable, so it is
+                # deliberately absent here.
+                Delimited(
+                    "WAREHOUSE",
+                    "COMMENT",
+                    "CONFIG",
+                    "RUNBOOK",
+                    "SUSPEND_ALERT_AFTER_NUM_FAILURES",
+                ),
+            ),
+            Sequence("MODIFY", "CONDITION", Ref("AlertConditionSegment")),
+            Sequence("MODIFY", "ACTION", Ref("StatementSegment")),
+        ),
+    )
+
+
 class CreateTaskSegment(BaseSegment):
     """A snowflake `CREATE TASK` statement.
 
@@ -6124,7 +6518,6 @@ class CreateStatementSegment(BaseSegment):
                     Sequence("NETWORK", "POLICY"),
                     Sequence("NETWORK", "RULE"),
                     Sequence("RESOURCE", "MONITOR"),
-                    "SHARE",
                     Sequence("API", "INTEGRATION"),
                     Sequence("NOTIFICATION", "INTEGRATION"),
                     Sequence("SECURITY", "INTEGRATION"),
@@ -6145,6 +6538,7 @@ class CreateStatementSegment(BaseSegment):
                     "WAREHOUSE",
                     "DATABASE",
                     "TAG",
+                    "SHARE",
                     Sequence("EXTERNAL", "FUNCTION"),
                 ),
             ),
@@ -6553,6 +6947,8 @@ class CreateStatementSegment(BaseSegment):
                 Ref("WarehouseObjectParamsSegment"),
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
+            # Object parameters can follow the TAG clause.
+            Ref("WarehouseObjectParamsSegment", optional=True),
             optional=True,
         ),
         # CREATE NETWORK RULE
@@ -6632,6 +7028,8 @@ class DefineStatementSegment(BaseSegment):
                 Ref("WarehouseObjectParamsSegment"),
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
+            # Object parameters can follow the TAG clause.
+            Ref("WarehouseObjectParamsSegment", optional=True),
             optional=True,
         ),
         Sequence(
@@ -7748,24 +8146,29 @@ class CreateExternalTableSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Columns:
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DatatypeSegment"),
-                    "AS",
-                    OptionallyBracketed(
-                        Sequence(
-                            Ref("ExpressionSegment"),
-                            Ref("InlineConstraintPropertiesSegment", optional=True),
+        OneOf(
+            # Columns:
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment"),
+                        "AS",
+                        OptionallyBracketed(
                             Sequence(
-                                Ref.keyword("NOT", optional=True), "NULL", optional=True
-                            ),
-                        )
-                    ),
-                )
+                                Ref("ExpressionSegment"),
+                                Ref("InlineConstraintPropertiesSegment", optional=True),
+                                Sequence(
+                                    Ref.keyword("NOT", optional=True),
+                                    "NULL",
+                                    optional=True,
+                                ),
+                            )
+                        ),
+                    )
+                ),
             ),
+            Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
             optional=True,
         ),
         # The use of AnySetOf is not strictly correct here, because LOCATION and
@@ -7819,14 +8222,178 @@ class CreateExternalTableSegment(BaseSegment):
                 "USER_SPECIFIED",
             ),
             Sequence(
-                Sequence("WITH", optional=True),
+                "TABLE_FORMAT",
+                Ref("EqualsSegment"),
+                "DELTA",
+            ),
+            Sequence(
+                Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
                 "POLICY",
                 Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Ref("TagBracketedEqualsSegment"),
             Ref("CommentEqualsClauseSegment"),
+            Ref("ContactBracketedGrammar"),
+        ),
+    )
+
+
+class SemanticViewObjectReferenceSegment(BaseSegment):
+    """The one-, two-, or three-part name of a semantic view."""
+
+    type = "semantic_view_object_reference"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=False,
+            ),
+            max_times=2,
+        ),
+        allow_gaps=False,
+    )
+
+
+class SemanticViewFieldReferenceSegment(BaseSegment):
+    """An optionally logical-table-qualified semantic field or wildcard."""
+
+    type = "semantic_view_field_reference"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("StarSegment")),
+            allow_gaps=False,
+        ),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class SemanticViewExpressionSegment(BaseSegment):
+    """An expression over fields in a semantic view."""
+
+    type = "semantic_view_expression"
+    match_grammar = OneOf(
+        Ref("SemanticViewFieldReferenceSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewMetricSegment(BaseSegment):
+    """A metric expression with an optional output alias."""
+
+    type = "semantic_view_metric"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewFactSegment(BaseSegment):
+    """A fact expression in a semantic-view query."""
+
+    type = "semantic_view_fact"
+    match_grammar = Ref("SemanticViewExpressionSegment")
+
+
+class SemanticViewDimensionSegment(BaseSegment):
+    """A dimension expression with an optional output alias."""
+
+    type = "semantic_view_dimension"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewMetricsClauseSegment(BaseSegment):
+    """The METRICS clause of a semantic-view query."""
+
+    type = "semantic_view_metrics_clause"
+    match_grammar = Sequence(
+        "METRICS",
+        Delimited(Ref("SemanticViewMetricSegment")),
+    )
+
+
+class SemanticViewFactsClauseSegment(BaseSegment):
+    """The FACTS clause of a semantic-view query."""
+
+    type = "semantic_view_facts_clause"
+    match_grammar = Sequence(
+        "FACTS",
+        Delimited(Ref("SemanticViewFactSegment")),
+    )
+
+
+class SemanticViewDimensionsClauseSegment(BaseSegment):
+    """The DIMENSIONS clause of a semantic-view query."""
+
+    type = "semantic_view_dimensions_clause"
+    match_grammar = Sequence(
+        "DIMENSIONS",
+        Delimited(Ref("SemanticViewDimensionSegment")),
+    )
+
+
+class SemanticViewWhereClauseSegment(BaseSegment):
+    """The pre-aggregation predicate of a semantic-view query."""
+
+    type = "semantic_view_where_clause"
+    match_grammar = Sequence(
+        "WHERE",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewSegment(BaseSegment):
+    """A Snowflake SEMANTIC_VIEW query in a FROM clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/semantic_view
+    """
+
+    type = "semantic_view"
+    match_grammar = Sequence(
+        "SEMANTIC_VIEW",
+        Bracketed(
+            Ref("SemanticViewObjectReferenceSegment"),
+            OneOf(
+                Ref("SemanticViewMetricsClauseSegment"),
+                Ref("SemanticViewFactsClauseSegment"),
+                Ref("SemanticViewDimensionsClauseSegment"),
+                Sequence(
+                    Ref("SemanticViewMetricsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewMetricsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewFactsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewFactsClauseSegment"),
+                ),
+            ),
+            Ref("SemanticViewWhereClauseSegment", optional=True),
         ),
     )
 
@@ -7835,8 +8402,12 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause."""
 
     match_grammar = OneOf(
+        Ref("SemanticViewSegment"),
         Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
+        Ref(
+            "FunctionSegment",
+            exclude=Sequence("SEMANTIC_VIEW", Ref("StartBracketSegment")),
+        ),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
@@ -8964,8 +9535,10 @@ class ShowStatementSegment(BaseSegment):
         ),
         "SCHEMAS",
         "OBJECTS",
-        "TABLES",
-        Sequence("EXTERNAL", "TABLES"),
+        Sequence(
+            OneOf("EXTERNAL", "ICEBERG", "HYBRID", "EVENT", optional=True),
+            "TABLES",
+        ),
         "VIEWS",
         Sequence("MATERIALIZED", "VIEWS"),
         Sequence("MASKING", "POLICIES"),
@@ -8995,6 +9568,13 @@ class ShowStatementSegment(BaseSegment):
     _object_scope_types = OneOf(
         "ACCOUNT",
         "SESSION",
+        # Unlike the scopes below, APPLICATION and APPLICATION PACKAGE always
+        # require the object name.
+        Sequence(
+            "APPLICATION",
+            Ref.keyword("PACKAGE", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
         Sequence(
             OneOf(
                 "DATABASE",
@@ -9073,7 +9653,11 @@ class AlterAccountStatementSegment(BaseSegment):
                 "SET",
                 "RESOURCE_MONITOR",
                 Ref("EqualsSegment"),
-                Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "SET",
@@ -9301,8 +9885,8 @@ class CreateResourceMonitorStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        Ref("IfNotExistsGrammar", optional=True),
         Sequence("RESOURCE", "MONITOR"),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "WITH",
         Ref("ResourceMonitorOptionsSegment"),
@@ -9821,6 +10405,13 @@ class DescribeStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-event-table
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-iceberg-table
+            Sequence(
+                OneOf("EVENT", "ICEBERG"),
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-external-table.html
             Sequence(
                 "EXTERNAL",
@@ -10333,7 +10924,7 @@ class DropFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar"),
+        Ref("FunctionSignatureParameterListSegment"),
     )
 
 
@@ -10365,6 +10956,7 @@ class DropObjectStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf(
+                    "ALERT",
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
@@ -10834,8 +11426,31 @@ class AlterMaskingPolicySegment(BaseSegment):
     )
 
 
+def _scripting_loop_body(terminator) -> tuple:
+    """The statement list shared by the Snowflake Scripting loop segments.
+
+    The loop segments differ only in their opening and closing keywords, so
+    they share the body: one or more delimited statements, terminated by the
+    closing keywords of the given loop type.
+    """
+    return (
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                Ref("StatementSegment"),
+            ),
+            terminators=[terminator],
+        ),
+        # There must be a trailing semicolon
+        Ref("DelimiterGrammar"),
+        Dedent,
+    )
+
+
 class ForInLoopSegment(BaseSegment):
     """FOR...IN...DO...END FOR statement.
+
+    Covers both the cursor/RESULTSET loop and the counter loop.
 
     https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops#for-loop
     """
@@ -10848,23 +11463,183 @@ class ForInLoopSegment(BaseSegment):
                 "FOR",
                 Ref("LocalVariableNameSegment"),
                 "IN",
-                Ref("LocalVariableNameSegment"),
-                "DO",
-                Indent,
+                OneOf(
+                    # Counter loop: FOR <var> IN [REVERSE] <start> TO <end>
+                    Sequence(
+                        Ref.keyword("REVERSE", optional=True),
+                        Ref("ExpressionSegment"),
+                        "TO",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Cursor or RESULTSET loop
+                    Ref("LocalVariableNameSegment"),
+                ),
+                OneOf("DO", "LOOP"),
             ),
-            Delimited(
-                Ref("StatementSegment"),
-                delimiter=Ref("DelimiterGrammar"),
-            ),
-            parse_mode=ParseMode.GREEDY_ONCE_STARTED,
-            reset_terminators=True,
-            terminators=[Sequence(Ref("DelimiterGrammar"), "END", "FOR")],
+            Indent,
+            Ref("StatementSegment"),
         ),
-        # There must be a trailing semicolon
-        Ref("DelimiterGrammar"),
-        Dedent,
+        *_scripting_loop_body(
+            Sequence(Ref("DelimiterGrammar"), "END", OneOf("FOR", "LOOP"))
+        ),
         "END",
-        "FOR",
+        OneOf("FOR", "LOOP"),
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingWhileLoopSegment(BaseSegment):
+    """WHILE...DO...END WHILE statement.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/while
+    """
+
+    type = "while_loop_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            Sequence(
+                "WHILE",
+                # The documented syntax requires the parenthesised condition.
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("DO", "LOOP"),
+            ),
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        *_scripting_loop_body(
+            Sequence(Ref("DelimiterGrammar"), "END", OneOf("WHILE", "LOOP"))
+        ),
+        "END",
+        OneOf("WHILE", "LOOP"),
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingLoopSegment(BaseSegment):
+    """LOOP...END LOOP statement.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/loop
+    """
+
+    type = "loop_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "LOOP",
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        *_scripting_loop_body(Sequence(Ref("DelimiterGrammar"), "END", "LOOP")),
+        "END",
+        "LOOP",
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingRepeatLoopSegment(BaseSegment):
+    """REPEAT...UNTIL...END REPEAT statement.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/repeat
+    """
+
+    type = "repeat_loop_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "REPEAT",
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        *_scripting_loop_body(Sequence(Ref("DelimiterGrammar"), "UNTIL")),
+        "UNTIL",
+        # The documented syntax requires the parenthesised condition.
+        Bracketed(Ref("ExpressionSegment")),
+        "END",
+        "REPEAT",
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+        reset_terminators=True,
+    )
+
+
+class ScriptingBreakStatementSegment(BaseSegment):
+    """BREAK / CONTINUE statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/break
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/continue
+    """
+
+    type = "scripting_break_statement"
+
+    match_grammar = Sequence(
+        OneOf("BREAK", "CONTINUE", "ITERATE"),
+        Ref("ScriptingLoopLabelGrammar", optional=True),
+    )
+
+
+class ScriptingCaseStatementSegment(BaseSegment):
+    """A `CASE` statement for SQL scripting.
+
+    Unlike the CASE expression, the branches of a CASE statement hold
+    statements rather than expressions.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/case
+    """
+
+    type = "scripting_case_statement"
+
+    match_grammar = Sequence(
+        "CASE",
+        OptionallyBracketed(Ref("ExpressionSegment"), optional=True),
+        AnyNumberOf(
+            Sequence(
+                "WHEN",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Indent,
+                Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        Ref("StatementSegment"),
+                    ),
+                    terminators=[
+                        Sequence(
+                            Ref("DelimiterGrammar"),
+                            OneOf("WHEN", "ELSE", "END"),
+                        ),
+                    ],
+                ),
+                Ref("DelimiterGrammar"),
+                Dedent,
+            ),
+            min_times=1,
+            reset_terminators=True,
+            terminators=[OneOf("ELSE", "END")],
+        ),
+        Sequence(
+            "ELSE",
+            Indent,
+            Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    Ref("StatementSegment"),
+                ),
+                terminators=[
+                    Sequence(Ref("DelimiterGrammar"), "END"),
+                ],
+            ),
+            Ref("DelimiterGrammar"),
+            Dedent,
+            optional=True,
+        ),
+        "END",
+        Ref.keyword("CASE", optional=True),
+        reset_terminators=True,
     )
 
 
@@ -11082,7 +11857,12 @@ class ScriptingRaiseStatementSegment(BaseSegment):
     """
 
     type = "scripting_raise_statement"
-    match_grammar = Ref.keyword("RAISE")
+    match_grammar = Sequence(
+        "RAISE",
+        # The exception name is omitted only when re-raising the exception
+        # currently being handled from inside an exception handler.
+        Ref("NakedIdentifierSegment", optional=True),
+    )
 
 
 class LambdaExpressionSegment(BaseSegment):
@@ -11368,83 +12148,63 @@ class AlterTagStatementSegment(BaseSegment):
 
 
 class ExceptionBlockStatementSegment(BaseSegment):
-    """A snowflake `BEGIN ... END` statement for SQL scripting.
+    """A snowflake `EXCEPTION` handler section for SQL scripting.
 
-    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
     """
 
     type = "exception_block_statement"
 
-    match_grammar = Sequence(
-        Sequence(
-            "EXCEPTION",
-            Indent,
-            OneOf(
-                Sequence(
-                    "WHEN",
-                    Ref("ObjectReferenceSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            "OR",
-                            Ref("ObjectReferenceSegment"),
-                        ),
+    # A single `WHEN ... THEN` handler and the statements it runs. The handler
+    # body is a level of its own, below the `WHEN` that introduces it.
+    _when_handler = Sequence(
+        OneOf(
+            Sequence(
+                "WHEN",
+                Ref("ObjectReferenceSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        "OR",
+                        Ref("ObjectReferenceSegment"),
                     ),
-                    "THEN",
                 ),
-                Sequence(
-                    "WHEN",
-                    "OTHER",
-                    "THEN",
-                ),
+                "THEN",
             ),
-            Ref("StatementSegment"),
-            AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar"),
-                    # Exclude ExceptionBlockStatementSegment to prevent greedy
-                    # consumption of the next EXCEPTION block as a statement body.
-                    Ref(
-                        "StatementSegment",
-                        exclude=Ref("ExceptionBlockStatementSegment"),
-                    ),
-                ),
+            Sequence(
+                "WHEN",
+                "OTHER",
+                "THEN",
             ),
         ),
+        Indent,
+        Ref("StatementSegment"),
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                OneOf(
-                    Sequence(
-                        "WHEN",
-                        Ref("ObjectReferenceSegment"),
-                        AnyNumberOf(
-                            Sequence(
-                                "OR",
-                                Ref("ObjectReferenceSegment"),
-                            ),
-                        ),
-                        "THEN",
-                    ),
-                    Sequence(
-                        "WHEN",
-                        "OTHER",
-                        "THEN",
-                    ),
-                ),
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        # Exclude ExceptionBlockStatementSegment to prevent greedy
-                        # consumption of the next EXCEPTION block as a statement body.
-                        Ref(
-                            "StatementSegment",
-                            exclude=Ref("ExceptionBlockStatementSegment"),
-                        ),
-                    ),
+                # Exclude ExceptionBlockStatementSegment to prevent greedy
+                # consumption of the next EXCEPTION block as a statement body.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
                 ),
             ),
         ),
+        Dedent,
+    )
+
+    match_grammar = Sequence(
+        "EXCEPTION",
+        Indent,
+        # As in the oracle dialect, `AnyNumberOf(min_times=1)` isn't greedy
+        # enough to pick up every handler, so match one and then any more.
+        _when_handler,
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                _when_handler,
+            ),
+        ),
+        Dedent,
     )
 
 

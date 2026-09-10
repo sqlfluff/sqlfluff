@@ -1,8 +1,8 @@
 {
-  "_comment": "Local development fixture for the version picker and version notice. Served only by the dev server; the deployed manifest is written by scripts/assemble-site.py. Edit freely to try other states, or delete to see how the picker degrades when no manifest is reachable.",
+  "_comment": "Local development fixture for the version picker and version notice. Served only by the dev server; the deployed manifest is written by scripts/assemble-site.py. Deliberately a mixed state: VitePress channels and releases, plus archived Sphinx versions, and both listed and unlisted entries. Set SQLFLUFF_DOCS_BASE=/en/4.0.4/ to see how an unlisted version the reader landed on is added back to the picker. Edit freely to try other states, or delete to see how the picker degrades when no manifest is reachable.",
   "default": "latest",
   "latest": "latest",
-  "stable": "3.4.2",
+  "stable": "4.2.1",
   "versions": [
     {
       "key": "latest",
@@ -11,16 +11,62 @@
       "path": "/en/latest/",
       "kind": "channel",
       "builder": "vitepress",
-      "prerelease": false
+      "prerelease": false,
+      "listed": true
     },
     {
       "key": "stable",
       "label": "stable",
-      "title": "Stable (3.4.2)",
+      "title": "Stable (4.2.1)",
       "path": "/en/stable/",
       "kind": "channel",
       "builder": "vitepress",
-      "prerelease": false
+      "prerelease": false,
+      "listed": true
+    },
+    {
+      "key": "4.2.1",
+      "label": "4.2.1",
+      "title": "4.2.1",
+      "path": "/en/4.2.1/",
+      "kind": "release",
+      "builder": "vitepress",
+      "prerelease": false,
+      "listed": true,
+      "published_at": "2026-08-11"
+    },
+    {
+      "key": "4.2.0",
+      "label": "4.2.0",
+      "title": "4.2.0",
+      "path": "/en/4.2.0/",
+      "kind": "release",
+      "builder": "vitepress",
+      "prerelease": false,
+      "listed": false,
+      "published_at": "2026-07-28"
+    },
+    {
+      "key": "4.1.0",
+      "label": "4.1.0",
+      "title": "4.1.0",
+      "path": "/en/4.1.0/",
+      "kind": "release",
+      "builder": "sphinx",
+      "prerelease": false,
+      "listed": true,
+      "published_at": "2026-05-20"
+    },
+    {
+      "key": "4.0.4",
+      "label": "4.0.4",
+      "title": "4.0.4",
+      "path": "/en/4.0.4/",
+      "kind": "release",
+      "builder": "sphinx",
+      "prerelease": false,
+      "listed": false,
+      "published_at": "2026-04-02"
     },
     {
       "key": "3.4.2",
@@ -28,29 +74,10 @@
       "title": "3.4.2",
       "path": "/en/3.4.2/",
       "kind": "release",
-      "builder": "vitepress",
+      "builder": "sphinx",
       "prerelease": false,
-      "published_at": "2026-07-14"
-    },
-    {
-      "key": "3.4.1",
-      "label": "3.4.1",
-      "title": "3.4.1",
-      "path": "/en/3.4.1/",
-      "kind": "release",
-      "builder": "vitepress",
-      "prerelease": false,
-      "published_at": "2026-06-02"
-    },
-    {
-      "key": "3.4.0",
-      "label": "3.4.0",
-      "title": "3.4.0",
-      "path": "/en/3.4.0/",
-      "kind": "release",
-      "builder": "vitepress",
-      "prerelease": false,
-      "published_at": "2026-05-11"
+      "listed": true,
+      "published_at": "2026-02-14"
     },
     {
       "key": "3.3.1",
@@ -58,9 +85,21 @@
       "title": "3.3.1",
       "path": "/en/3.3.1/",
       "kind": "release",
-      "builder": "vitepress",
+      "builder": "sphinx",
       "prerelease": false,
-      "published_at": "2026-03-20"
+      "listed": false,
+      "published_at": "2025-11-03"
+    },
+    {
+      "key": "2.3.5",
+      "label": "2.3.5",
+      "title": "2.3.5",
+      "path": "/en/2.3.5/",
+      "kind": "release",
+      "builder": "sphinx",
+      "prerelease": false,
+      "listed": true,
+      "published_at": "2024-09-16"
     }
   ]
 }
