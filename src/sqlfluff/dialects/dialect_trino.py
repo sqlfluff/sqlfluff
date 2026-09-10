@@ -590,11 +590,65 @@ class StatementSegment(ansi.StatementSegment):
         Ref("MergeStatementSegment"),
         Ref("SelectableGrammar"),
         Ref("SetSchemaStatementSegment"),
+        Ref("ShowStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("UseStatementSegment"),
         Ref("SetSessionStatementSegment"),
         terminators=[Ref("DelimiterGrammar")],
+    )
+
+
+class ShowStatementSegment(BaseSegment):
+    """A `SHOW FUNCTIONS` or `SHOW STATS` statement.
+
+    https://trino.io/docs/current/sql/show-functions.html
+    https://trino.io/docs/current/sql/show-stats.html
+    """
+
+    type = "show_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            Sequence(
+                "FUNCTIONS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("SchemaReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("ESCAPE", Ref("QuotedLiteralSegment"), optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "STATS",
+                "FOR",
+                OneOf(
+                    Ref("TableReferenceSegment"),
+                    Bracketed(Ref("SelectableGrammar")),
+                ),
+            ),
+        ),
+    )
+
+
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """A `DESCRIBE` statement, also abbreviated to `DESC`.
+
+    https://trino.io/docs/current/sql/describe.html
+    """
+
+    match_grammar = OneOf(
+        Sequence(OneOf("DESCRIBE", "DESC"), Ref("TableReferenceSegment")),
+        Sequence(
+            "DESCRIBE",
+            OneOf("INPUT", "OUTPUT"),
+            Ref("SingleIdentifierGrammar"),
+        ),
     )
 
 
