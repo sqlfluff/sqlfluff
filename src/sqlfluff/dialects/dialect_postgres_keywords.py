@@ -5,8 +5,9 @@ https://www.postgresql.org/docs/13/sql-keywords-appendix.html
 Here, "not-keyword" refers to a word not being a keyword, and will be removed from any
 default keyword definition, these keywords are, or have been, an ANSI keyword.
 
-There are also some keywords that are(n't) supported as types and function, but there
-isn't support for that distinction at present.
+The appendix also distinguishes keywords which cannot be used as a function or
+type name. That distinction is preserved in the keyword types below and is
+surfaced through the ``postgres_cannot_be_function_or_type_keywords`` set.
 """
 
 
@@ -42,10 +43,27 @@ def get_keywords(keyword_list: list[tuple[str, str]], keyword_type: str) -> list
     """Get a list of keywords of the required type.
 
     keyword_type should be one of "not-keyword", "reserved", "non-reserved"
+
+    Note that this matches on a prefix, so "reserved" also returns the
+    "reserved-(can-be-function-or-type)" keywords, and "non-reserved" also
+    returns the "non-reserved-(cannot-be-function-or-type)" keywords. Use
+    :func:`get_keywords_exact` where that distinction matters.
     """
     keywords = [x[0] for x in keyword_list if x[1].startswith(keyword_type)]
 
     return keywords
+
+
+def get_keywords_exact(
+    keyword_list: list[tuple[str, str]], keyword_type: str
+) -> list[str]:
+    """Get a list of keywords whose type matches exactly.
+
+    Unlike :func:`get_keywords` this does not match on a prefix, so
+    "reserved" returns only the strictly reserved keywords and not the
+    "reserved-(can-be-function-or-type)" ones.
+    """
+    return [x[0] for x in keyword_list if x[1] == keyword_type]
 
 
 postgres_docs_keywords = [
@@ -1056,4 +1074,20 @@ postgres_keywords = priority_keyword_merge(
     postgres_postgis_datatype_keywords,
     postgres_postgis_other_keywords,
     postgres_pgvector_keywords,
+)
+
+# Keywords which PostgreSQL will not accept as a bare function or type name.
+# https://www.postgresql.org/docs/current/sql-keywords-appendix.html
+#
+# This is the union of the strictly reserved keywords and the non-reserved
+# keywords which the appendix marks as "cannot be function or type name".
+# The "reserved-(can-be-function-or-type)" keywords are deliberately excluded:
+# those are reserved in general but *are* valid as a function or type name.
+postgres_cannot_be_function_or_type_keywords = sorted(
+    set(get_keywords_exact(postgres_keywords, "reserved"))
+    | set(
+        get_keywords_exact(
+            postgres_keywords, "non-reserved-(cannot-be-function-or-type)"
+        )
+    )
 )
