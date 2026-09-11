@@ -1,0 +1,193 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f7f748b70d28764c8dfba04dd85f2621e367d2b62921c80f4471ac35006b62ff
+file:
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+            - keyword: SEMANTIC
+            - keyword: VIEW
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+            - keyword: SEMANTIC
+            - keyword: VIEW
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+        - keyword: DATABASE
+        - keyword: ROLE
+        - database_role_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: write_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: CREATE
+          - keyword: DATABASE
+          - keyword: ROLE
+      - keyword: 'ON'
+      - access_object:
+          keyword: DATABASE
+          object_reference:
+            naked_identifier: my_db
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+          - keyword: SEMANTIC
+          - keyword: VIEW
+          object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+          - dot: .
+          - naked_identifier: my_semantic_view
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+          - keyword: SEMANTIC
+          - keyword: VIEWS
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+        - keyword: FUTURE
+        - access_schema_plural_object:
+          - keyword: SEMANTIC
+          - keyword: VIEWS
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+          - keyword: CREATE
+          - keyword: DATABASE
+          - keyword: ROLE
+      - keyword: 'ON'
+      - access_object:
+          keyword: DATABASE
+          object_reference:
+            naked_identifier: my_db
+      - keyword: FROM
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+            - keyword: SEMANTIC
+            - keyword: VIEW
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: FROM
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
