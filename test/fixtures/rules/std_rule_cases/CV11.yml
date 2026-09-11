@@ -579,6 +579,26 @@ test_fail_doris_convert_is_fixed_to_cast:
       convention.casting_style:
         preferred_type_casting_style: cast
 
+test_fail_starrocks_convert_is_fixed_to_cast:
+  fail_str: SELECT CONVERT(b, INT) FROM t
+  fix_str: SELECT cast(b as INT) FROM t
+  configs:
+    core:
+      dialect: starrocks
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_starrocks_convert_target_is_fixed:
+  fail_str: SELECT CAST(b AS INT) FROM t
+  fix_str: SELECT convert(b, INT) FROM t
+  configs:
+    core:
+      dialect: starrocks
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
 test_fail_mysql_consistent_convert_first:
   fail_str: SELECT CONVERT(b, SIGNED), CAST(c AS SIGNED) FROM t
   fix_str: SELECT CONVERT(b, SIGNED), convert(c, SIGNED) FROM t
