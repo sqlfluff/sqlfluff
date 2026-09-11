@@ -9230,17 +9230,17 @@ class CreateStreamStatementSegment(BaseSegment):
                     Ref("FromBeforeExpressionSegment"),
                     optional=True,
                 ),
-                Sequence(
-                    "APPEND_ONLY",
-                    Ref("EqualsSegment"),
-                    Ref("BooleanLiteralGrammar"),
-                    optional=True,
-                ),
-                Sequence(
-                    "SHOW_INITIAL_ROWS",
-                    Ref("EqualsSegment"),
-                    Ref("BooleanLiteralGrammar"),
-                    optional=True,
+                AnySetOf(
+                    Sequence(
+                        "APPEND_ONLY",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "SHOW_INITIAL_ROWS",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
                 ),
             ),
             Sequence(
