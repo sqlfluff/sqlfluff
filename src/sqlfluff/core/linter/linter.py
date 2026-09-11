@@ -392,6 +392,52 @@ class Linter:
             f"One fix for {code} not applied, it would re-cause the same error."
         )
 
+    @staticmethod
+    def _touching_pairs(tree: BaseSegment) -> set[tuple[str, str]]:
+        """The raw pairs which sit directly against each other in the file."""
+        segments = [seg for seg in tree.raw_segments if not seg.is_meta and seg.raw]
+        return {
+            (first.raw, second.raw)
+            for first, second in zip(segments, segments[1:])
+            if not first.is_type("whitespace", "newline")
+            and not second.is_type("whitespace", "newline")
+        }
+
+    @classmethod
+    def _fix_preserves_lexing(
+        cls, tree: BaseSegment, new_tree: BaseSegment, config: FluffConfig
+    ) -> bool:
+        """Would the fixed file still be read back as the tokens we fixed?
+
+        Fix validation re-matches the *existing* raw segments, so it only ever
+        sees the token sequence the tree already holds. It cannot see a fix
+        which changes how those characters would be tokenised if they were read
+        back. Removing the whitespace in ``1 * - - 5`` is such a fix: the tree
+        keeps two ``-`` segments and stays parsable, but the file written from
+        it says ``--``, which the lexer reads as an inline comment, so the rest
+        of the line is silently lost.
+
+        Only pairs which the fix has newly pushed together can do this, and any
+        pair which the file already contained is by definition read back the way
+        it already was. So we lex just the newly touching pairs, and require the
+        lexer to stop at the boundary we expect it to.
+        """
+        new_pairs = cls._touching_pairs(new_tree) - cls._touching_pairs(tree)
+        if not new_pairs:
+            return True
+        lexer = Lexer(config=config)
+        for first, second in new_pairs:
+            # Only the boundary needs checking. Everything before it is
+            # untouched, and if the lexer stops exactly at the end of `first`
+            # then what follows is byte for byte what followed before, so it
+            # is read back the same way it already was. Checking further would
+            # mean lexing `second` out of context, which splits a block
+            # comment whose closing delimiter lives in a later segment.
+            segments, _ = lexer.lex(first + second)
+            if not segments or segments[0].raw != first:
+                return False
+        return True
+
     # ### Class Methods
     # These compose the base static methods into useful recipes.
 
@@ -642,6 +688,17 @@ class Linter:
                                     "would result in an unparsable file. Please "
                                     "report this as a bug with a minimal query "
                                     "which demonstrates this warning."
+                                )
+                            elif not cls._fix_preserves_lexing(tree, new_tree, config):
+                                # The file would still parse, but it would be read
+                                # back as different tokens to the ones we fixed.
+                                # Applying this would silently change the SQL, so
+                                # don't apply it and skip onward with a warning.
+                                linter_logger.warning(
+                                    f"Fixes for {crawler.code} not applied, as the "
+                                    "result would be read back as different tokens. "
+                                    "Please report this as a bug with a minimal "
+                                    "query which demonstrates this warning."
                                 )
                             elif loop_check_tuple not in previous_versions:
                                 # We've not seen this version of the file so
