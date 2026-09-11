@@ -3,6 +3,10 @@
 This inherits from the ansi dialect.
 """
 
+# Aliased: `Sequence` in this module is the grammar class.
+from collections.abc import Sequence as SequenceABC
+from typing import Optional
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -38,10 +42,13 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1502,6 +1509,55 @@ class SlashBufferExecutorSegment(BaseSegment):
     match_grammar = Ref("SlashSegment")
 
 
+class SharesLineWithCodeMatcher(Matchable):
+    """Matches a segment that has other code on the same line.
+
+    SQL*Plus only runs the buffer for a `/` that is alone on its line. Used as
+    an ``exclude`` on the batch delimiter, this stops the division operator in
+    ``1 / 100`` from being taken for one.
+    """
+
+    def is_optional(self) -> bool:  # pragma: no cover
+        """A lookaround matcher is never optional."""
+        return False
+
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
+    ) -> SimpleHintType:  # pragma: no cover
+        """This element doesn't work with simple."""
+        return None
+
+    def cache_key(self) -> str:  # pragma: no cover
+        """Get the cache key for the matcher."""
+        return "shares-line-with-code"
+
+    @staticmethod
+    def _code_before_newline(
+        segments: SequenceABC[BaseSegment], idx: int, step: int
+    ) -> bool:
+        """Walk from ``idx`` in ``step`` direction until a newline or code."""
+        while 0 <= idx < len(segments):
+            if segments[idx].is_type("newline"):
+                return False
+            if segments[idx].is_code and not segments[idx].is_meta:
+                return True
+            idx += step
+        return False
+
+    def match(
+        self,
+        segments: SequenceABC[BaseSegment],
+        idx: int,
+        parse_context: ParseContext,
+    ) -> MatchResult:
+        """Match if there is code before or after ``idx`` on its line."""
+        if self._code_before_newline(
+            segments, idx - 1, -1
+        ) or self._code_before_newline(segments, idx + 1, 1):
+            return MatchResult(slice(idx, idx + 1))
+        return MatchResult.empty_at(idx)
+
+
 class SqlplusSetStatementSegment(BaseSegment):
     """A SQL*Plus `SET` command."""
 
@@ -1611,7 +1667,12 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            # A `/` only ends the view when it is alone on its line; anywhere
+            # else it is division (`sysdate - 1/24`).
+            terminators=[
+                Ref("BatchDelimiterGrammar", exclude=SharesLineWithCodeMatcher())
+            ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
