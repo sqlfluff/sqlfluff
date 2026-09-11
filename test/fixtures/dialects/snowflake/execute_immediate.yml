@@ -3,19 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8617b4deee749e41987f262451ed93214ad7dc49f8eb3a96c19efeb08024066a
+_hash: ba547ecc0b47f1f1c49e00e3270e3c70184b271d5a495890e43cead5eb2240a9
 file:
 - statement:
     execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - quoted_literal: "'select 1'"
+    - expression:
+        quoted_literal: "'select 1'"
 - statement_terminator: ;
 - statement:
     execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - quoted_literal: "$$\n  SELECT PI();\n$$"
+    - expression:
+        quoted_literal: "$$\n  SELECT PI();\n$$"
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -48,13 +50,15 @@ file:
     execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - variable: $pie
+    - expression:
+        variable: $pie
 - statement_terminator: ;
 - statement:
     execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - variable: $pie
+    - expression:
+        variable: $pie
     - keyword: USING
     - bracketed:
       - start_bracket: (
@@ -76,15 +80,19 @@ file:
     execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - colon_prefix: ':'
-    - variable: three
+    - expression:
+        bind_variable:
+          colon_prefix: ':'
+          variable: three
 - statement_terminator: ;
 - statement:
     execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - colon_prefix: ':'
-    - variable: three
+    - expression:
+        bind_variable:
+          colon_prefix: ':'
+          variable: three
     - keyword: USING
     - bracketed:
       - start_bracket: (
@@ -107,4 +115,21 @@ file:
     - keyword: FROM
     - storage_location:
         stage_path: '@my_stage/scripts/create-inventory.sql'
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - expression:
+      - quoted_literal: "'CREATE OR REPLACE TABLE '"
+      - binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+      - bind_variable:
+          colon_prefix: ':'
+          variable: backup_table_name
+      - binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+      - quoted_literal: "' AS SELECT * FROM t'"
 - statement_terminator: ;

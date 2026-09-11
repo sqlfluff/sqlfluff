@@ -10202,15 +10202,18 @@ class ExecuteImmediateClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "IMMEDIATE",
-        Ref.keyword("FROM", optional=True),
         OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("ReferencedVariableNameSegment"),
-            Ref("StorageLocation"),
             Sequence(
-                Ref("ColonPrefixSegment"),
-                Ref("LocalVariableNameSegment"),
+                "FROM",
+                OneOf(
+                    Ref("StorageLocation"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
+            # A string literal, session/local variable, or any expression
+            # that evaluates to a SQL statement string (e.g. built up via
+            # concatenation with `||`).
+            Ref("ExpressionSegment"),
         ),
         Sequence(
             "USING",
