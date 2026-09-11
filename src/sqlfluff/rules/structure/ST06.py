@@ -14,6 +14,15 @@ from sqlfluff.core.rules import (
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
+def _segments_after(parent: BaseSegment, child: BaseSegment) -> Iterator[BaseSegment]:
+    """Yield ``parent``'s children that follow ``child``."""
+    segments = iter(parent.segments)
+    for seg in segments:
+        if seg is child:
+            break
+    yield from segments
+
+
 class Rule_ST06(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 
@@ -99,6 +108,81 @@ class Rule_ST06(BaseRule):
                             return True
                 # Found a CREATE VIEW but no explicit column list
                 return False
+        return False
+
+    def _has_comments(
+        self, context: RuleContext, moved_targets: set[BaseSegment]
+    ) -> bool:
+        """Check for comments attached to select targets that would move.
+
+        Comments are siblings of the ``select_clause_element`` segments rather
+        than children of them, so reordering the elements on their own leaves
+        the comments behind and silently attaches each one to a different
+        column.
+
+        Args:
+            context: The rule context, anchored on the select clause
+            moved_targets: The select targets whose positions would change
+
+        Returns:
+            True if a comment would be displaced by reordering the targets
+        """
+        # Nested comments move with their target. Only inspect direct siblings.
+        previous_target = None
+        segments = context.segment.segments
+        for index, seg in enumerate(segments):
+            if seg.is_type("select_clause_element"):
+                previous_target = seg
+            elif seg.is_type("comment"):
+                next_target = next(
+                    (
+                        target
+                        for target in segments[index + 1 :]
+                        if target.is_type("select_clause_element")
+                    ),
+                    None,
+                )
+                assert seg.pos_marker
+                if previous_target:
+                    assert previous_target.pos_marker
+                    previous_end_line = previous_target.pos_marker.working_loc_after(
+                        previous_target.raw
+                    )[0]
+                    if previous_end_line == seg.pos_marker.working_line_no:
+                        if previous_target in moved_targets:
+                            return True
+                        # A trailing line comment belongs to the previous target.
+                        # A block comment can also annotate the next target if
+                        # both are on the same line, so check that case below.
+                        if seg.is_type("inline_comment") or next_target is None:
+                            continue
+                        assert next_target.pos_marker
+                        if (
+                            seg.pos_marker.working_loc_after(seg.raw)[0]
+                            < next_target.pos_marker.working_line_no
+                        ):
+                            continue
+                # A standalone comment may describe either adjacent target.
+                if previous_target in moved_targets or next_target in moved_targets:
+                    return True
+        if previous_target not in moved_targets:
+            return False
+        # A comment trailing the *final* target is outside the select clause,
+        # because it follows the clause's closing dedent. How far outside varies:
+        # in a plain select it lands in the clause's own parent, but inside a
+        # bracketed CTE it sits beside the closing bracket, one or more levels
+        # further up. Walk outwards until the line ends, whichever level that
+        # happens on.
+        child = context.segment
+        for parent in reversed(context.parent_stack):
+            for seg in _segments_after(parent, child):
+                if seg.is_type("newline") or seg.is_code:
+                    # This includes closing brackets, so comments on the
+                    # enclosing expression cannot affect a nested SELECT.
+                    return False
+                if seg.is_type("comment"):
+                    return True
+            child = parent
         return False
 
     def _validate(self, i: int, segment: BaseSegment) -> None:
@@ -281,6 +365,16 @@ class Rule_ST06(BaseRule):
             ordered_select_target_elements = [
                 segment for band in self.seen_band_elements for segment in band
             ]
+            moved_targets = {
+                original
+                for original, replacement in zip(
+                    select_target_elements, ordered_select_target_elements
+                )
+                if original is not replacement
+            }
+            if self._has_comments(context, moved_targets):
+                # Warn but don't detach comments from targets that would move.
+                return LintResult(anchor=select_clause_segment)
             # TODO: The "if" in the loop below compares corresponding items
             # to avoid creating "do-nothing" edits. A potentially better
             # approach would leverage difflib.SequenceMatcher.get_opcodes(),

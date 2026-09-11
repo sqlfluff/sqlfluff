@@ -7526,3 +7526,35 @@ class FileSegment(BaseFileSegment):
             allow_trailing=True,
         ),
     )
+
+
+class MergeStatementSegment(ansi.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    https://www.postgresql.org/docs/17/sql-merge.html
+
+    PostgreSQL 17 added a `RETURNING` clause to `MERGE`, matching the one
+    already supported on `INSERT`, `UPDATE` and `DELETE`. Output expressions
+    may use the `merge_action()` function to report which action produced a
+    given row.
+    """
+
+    match_grammar = ansi.MergeStatementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "RETURNING",
+                Indent,
+                OneOf(
+                    Ref("StarSegment"),
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
+                ),
+                Dedent,
+                optional=True,
+            ),
+        ],
+    )

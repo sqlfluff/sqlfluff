@@ -4549,7 +4549,13 @@ class ScriptingBlockStatementSegment(BaseSegment):
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
+                # Exclude ExceptionBlockStatementSegment so that the EXCEPTION
+                # section is matched below as a section of this block rather
+                # than as one of the statements inside it.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
+                ),
             ),
             terminators=[
                 OneOf(
@@ -4569,6 +4575,15 @@ class ScriptingBlockStatementSegment(BaseSegment):
         ),
         Ref("DelimiterGrammar"),
         Dedent,
+        # The EXCEPTION handler is a section of the block and not a statement
+        # within it, so it comes after the statement body has been closed and
+        # lines up with `BEGIN`.
+        # https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
+        Sequence(
+            Ref("ExceptionBlockStatementSegment"),
+            Ref("DelimiterGrammar"),
+            optional=True,
+        ),
         "END",
         reset_terminators=True,
     )
@@ -8227,12 +8242,172 @@ class CreateExternalTableSegment(BaseSegment):
     )
 
 
+class SemanticViewObjectReferenceSegment(BaseSegment):
+    """The one-, two-, or three-part name of a semantic view."""
+
+    type = "semantic_view_object_reference"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=False,
+            ),
+            max_times=2,
+        ),
+        allow_gaps=False,
+    )
+
+
+class SemanticViewFieldReferenceSegment(BaseSegment):
+    """An optionally logical-table-qualified semantic field or wildcard."""
+
+    type = "semantic_view_field_reference"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("StarSegment")),
+            allow_gaps=False,
+        ),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class SemanticViewExpressionSegment(BaseSegment):
+    """An expression over fields in a semantic view."""
+
+    type = "semantic_view_expression"
+    match_grammar = OneOf(
+        Ref("SemanticViewFieldReferenceSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewMetricSegment(BaseSegment):
+    """A metric expression with an optional output alias."""
+
+    type = "semantic_view_metric"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewFactSegment(BaseSegment):
+    """A fact expression in a semantic-view query."""
+
+    type = "semantic_view_fact"
+    match_grammar = Ref("SemanticViewExpressionSegment")
+
+
+class SemanticViewDimensionSegment(BaseSegment):
+    """A dimension expression with an optional output alias."""
+
+    type = "semantic_view_dimension"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewMetricsClauseSegment(BaseSegment):
+    """The METRICS clause of a semantic-view query."""
+
+    type = "semantic_view_metrics_clause"
+    match_grammar = Sequence(
+        "METRICS",
+        Delimited(Ref("SemanticViewMetricSegment")),
+    )
+
+
+class SemanticViewFactsClauseSegment(BaseSegment):
+    """The FACTS clause of a semantic-view query."""
+
+    type = "semantic_view_facts_clause"
+    match_grammar = Sequence(
+        "FACTS",
+        Delimited(Ref("SemanticViewFactSegment")),
+    )
+
+
+class SemanticViewDimensionsClauseSegment(BaseSegment):
+    """The DIMENSIONS clause of a semantic-view query."""
+
+    type = "semantic_view_dimensions_clause"
+    match_grammar = Sequence(
+        "DIMENSIONS",
+        Delimited(Ref("SemanticViewDimensionSegment")),
+    )
+
+
+class SemanticViewWhereClauseSegment(BaseSegment):
+    """The pre-aggregation predicate of a semantic-view query."""
+
+    type = "semantic_view_where_clause"
+    match_grammar = Sequence(
+        "WHERE",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewSegment(BaseSegment):
+    """A Snowflake SEMANTIC_VIEW query in a FROM clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/semantic_view
+    """
+
+    type = "semantic_view"
+    match_grammar = Sequence(
+        "SEMANTIC_VIEW",
+        Bracketed(
+            Ref("SemanticViewObjectReferenceSegment"),
+            OneOf(
+                Ref("SemanticViewMetricsClauseSegment"),
+                Ref("SemanticViewFactsClauseSegment"),
+                Ref("SemanticViewDimensionsClauseSegment"),
+                Sequence(
+                    Ref("SemanticViewMetricsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewMetricsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewFactsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewFactsClauseSegment"),
+                ),
+            ),
+            Ref("SemanticViewWhereClauseSegment", optional=True),
+        ),
+    )
+
+
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause."""
 
     match_grammar = OneOf(
+        Ref("SemanticViewSegment"),
         Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
+        Ref(
+            "FunctionSegment",
+            exclude=Sequence("SEMANTIC_VIEW", Ref("StartBracketSegment")),
+        ),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
@@ -11973,83 +12148,63 @@ class AlterTagStatementSegment(BaseSegment):
 
 
 class ExceptionBlockStatementSegment(BaseSegment):
-    """A snowflake `BEGIN ... END` statement for SQL scripting.
+    """A snowflake `EXCEPTION` handler section for SQL scripting.
 
-    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
     """
 
     type = "exception_block_statement"
 
-    match_grammar = Sequence(
-        Sequence(
-            "EXCEPTION",
-            Indent,
-            OneOf(
-                Sequence(
-                    "WHEN",
-                    Ref("ObjectReferenceSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            "OR",
-                            Ref("ObjectReferenceSegment"),
-                        ),
+    # A single `WHEN ... THEN` handler and the statements it runs. The handler
+    # body is a level of its own, below the `WHEN` that introduces it.
+    _when_handler = Sequence(
+        OneOf(
+            Sequence(
+                "WHEN",
+                Ref("ObjectReferenceSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        "OR",
+                        Ref("ObjectReferenceSegment"),
                     ),
-                    "THEN",
                 ),
-                Sequence(
-                    "WHEN",
-                    "OTHER",
-                    "THEN",
-                ),
+                "THEN",
             ),
-            Ref("StatementSegment"),
-            AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar"),
-                    # Exclude ExceptionBlockStatementSegment to prevent greedy
-                    # consumption of the next EXCEPTION block as a statement body.
-                    Ref(
-                        "StatementSegment",
-                        exclude=Ref("ExceptionBlockStatementSegment"),
-                    ),
-                ),
+            Sequence(
+                "WHEN",
+                "OTHER",
+                "THEN",
             ),
         ),
+        Indent,
+        Ref("StatementSegment"),
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                OneOf(
-                    Sequence(
-                        "WHEN",
-                        Ref("ObjectReferenceSegment"),
-                        AnyNumberOf(
-                            Sequence(
-                                "OR",
-                                Ref("ObjectReferenceSegment"),
-                            ),
-                        ),
-                        "THEN",
-                    ),
-                    Sequence(
-                        "WHEN",
-                        "OTHER",
-                        "THEN",
-                    ),
-                ),
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        # Exclude ExceptionBlockStatementSegment to prevent greedy
-                        # consumption of the next EXCEPTION block as a statement body.
-                        Ref(
-                            "StatementSegment",
-                            exclude=Ref("ExceptionBlockStatementSegment"),
-                        ),
-                    ),
+                # Exclude ExceptionBlockStatementSegment to prevent greedy
+                # consumption of the next EXCEPTION block as a statement body.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
                 ),
             ),
         ),
+        Dedent,
+    )
+
+    match_grammar = Sequence(
+        "EXCEPTION",
+        Indent,
+        # As in the oracle dialect, `AnyNumberOf(min_times=1)` isn't greedy
+        # enough to pick up every handler, so match one and then any more.
+        _when_handler,
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                _when_handler,
+            ),
+        ),
+        Dedent,
     )
 
 

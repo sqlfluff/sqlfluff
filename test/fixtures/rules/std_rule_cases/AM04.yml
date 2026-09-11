@@ -686,3 +686,90 @@ test_pass_resolvable_wildcard_in_non_first_union_branch:
     SELECT a, b FROM t
     UNION
     SELECT * FROM (SELECT c, d FROM tbl2)
+
+test_fail_jinja_templated_table_reference:
+  # The wildcard is literal, only the table reference is templated,
+  # so the violation must still be reported.
+  fail_str: |
+    SELECT foo.*
+    FROM {{ "my_dataset.FOO" }} AS foo
+  configs:
+    core:
+      templater: jinja
+
+test_fail_jinja_templated_table_reference_unqualified_wildcard:
+  # As above, but for an unqualified wildcard.
+  fail_str: |
+    SELECT *
+    FROM {{ "my_dataset.FOO" }}
+  configs:
+    core:
+      templater: jinja
+
+test_pass_jinja_templated_table_reference_explicit_columns:
+  # Explicit columns should still pass with a templated table reference.
+  pass_str: |
+    SELECT a, b
+    FROM {{ "my_dataset.FOO" }}
+  configs:
+    core:
+      templater: jinja
+
+test_pass_wholly_templated_query:
+  # Violations anchored at a templated position are still suppressed: the
+  # user cannot act on SQL they did not write.
+  pass_str: |
+    {{ my_macro() }}
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        macros:
+          my_macro: "{% macro my_macro() %}SELECT * FROM my_dataset.tbl{% endmacro %}"
+
+test_fail_jinja_templated_wildcard_qualifier:
+  # Mixed templated/literal wildcard: the qualifier comes from the template,
+  # the star does not. The star is the user's own SQL and is actionable, so
+  # the violation must be reported. Anchoring on the whole select target
+  # (`{{ alias }}.*`) would hand the templated-section filter a span which is
+  # not literal, and the violation would be discarded.
+  fail_str: |
+    SELECT {{ alias }}.*
+    FROM my_table AS foo
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          alias: foo
+
+test_pass_jinja_templated_star_with_literal_qualifier:
+  # The complement of the case above: here the star itself is templated, so
+  # there is nothing in the user's own SQL to act on and the violation stays
+  # suppressed.
+  pass_str: |
+    SELECT foo.{{ star }}
+    FROM my_table AS foo
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          star: "*"
+
+test_pass_templated_wildcard:
+  # The wildcard itself comes from the template, so the user's own SQL
+  # contains nothing to act on and the violation stays suppressed.
+  pass_str: |
+    SELECT {{ cols }}
+    FROM my_dataset.tbl
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          cols: "*"

@@ -1,6 +1,7 @@
 """Contains the CLI."""
 
 # Standard library imports
+import hashlib
 import json
 import logging
 import os
@@ -1014,6 +1015,60 @@ def lint(
         }
 
         file_output = json.dumps(sarif_output, indent=2)
+    elif format == FormatType.gitlab.value:
+        # GitLab Code Quality report format (Code Climate compatible):
+        # https://docs.gitlab.com/ci/testing/code_quality/#code-quality-report-format
+        gitlab_result = []
+        severity = {
+            "notice": "info",
+            "warning": "major",
+            "failure": "critical",
+            "error": "critical",
+        }[annotation_level]
+        for record in result.as_records():
+            filepath = record["filepath"].replace("\\", "/")
+            for violation in record["violations"]:
+                gitlab_result.append(
+                    {
+                        "check_name": str(violation["code"]),
+                        "description": f"{violation['code']}: {violation['description']}",
+                        # The annotation_level is configurable, but will only apply
+                        # to any SQLFluff rules which have not been downgraded
+                        # to warnings using the `warnings` config value. Any which have
+                        # been set to warn rather than fail will always be given the
+                        # `info` annotation level in the serialised result.
+                        "severity": severity if not violation["warning"] else "info",
+                        "fingerprint": hashlib.md5(
+                            ":".join(
+                                [
+                                    filepath,
+                                    str(violation["code"]),
+                                    str(violation["start_line_no"]),
+                                    str(violation["start_line_pos"]),
+                                ]
+                            ).encode("utf-8"),
+                            usedforsecurity=False,
+                        ).hexdigest(),
+                        "location": {
+                            "path": filepath,
+                            "positions": {
+                                "begin": {
+                                    "line": violation["start_line_no"],
+                                    "column": violation["start_line_pos"],
+                                },
+                                "end": {
+                                    "line": violation.get(
+                                        "end_line_no", violation["start_line_no"]
+                                    ),
+                                    "column": violation.get(
+                                        "end_line_pos", violation["start_line_pos"]
+                                    ),
+                                },
+                            },
+                        },
+                    }
+                )
+        file_output = json.dumps(gitlab_result, indent=2)
 
     if file_output:
         dump_file_payload(write_output, file_output)
