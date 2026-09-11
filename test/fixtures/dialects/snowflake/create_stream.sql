@@ -43,3 +43,10 @@ CREATE STREAM IF NOT EXISTS dynamic_table_stream
 ON DYNAMIC TABLE dynamic_table_name
 APPEND_ONLY = FALSE
 COMMENT = 'amazing comment';
+
+-- APPEND_ONLY and SHOW_INITIAL_ROWS are independent optional parameters and
+-- may appear in either order.
+CREATE STREAM IF NOT EXISTS new_stream
+ON TABLE table_name
+SHOW_INITIAL_ROWS = TRUE
+APPEND_ONLY = TRUE;
