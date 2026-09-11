@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d38f628e77a9f29ccba7540b81d66009370aad2e2340a2464af144eb34eee57e
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytopic
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`metadata1`'
+          data_type:
+            row_data_type:
+            - keyword: ROW
+            - start_angle_bracket: <
+            - quoted_identifier: '`key`'
+            - data_type:
+                data_type_identifier: STRING
+            - comma: ','
+            - quoted_identifier: '`value`'
+            - data_type:
+                data_type_identifier: STRING
+            - comma: ','
+            - quoted_identifier: '`unit`'
+            - data_type:
+                data_type_identifier: STRING
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`metadata2`'
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              row_data_type:
+              - keyword: ROW
+              - start_angle_bracket: <
+              - quoted_identifier: '`key`'
+              - data_type:
+                  data_type_identifier: STRING
+              - comma: ','
+              - quoted_identifier: '`value`'
+              - data_type:
+                  data_type_identifier: STRING
+              - comma: ','
+              - quoted_identifier: '`unit`'
+              - data_type:
+                  data_type_identifier: STRING
+              - end_angle_bracket: '>'
+            end_angle_bracket: '>'
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'mytopic'"
+      - end_bracket: )
+  statement_terminator: ;

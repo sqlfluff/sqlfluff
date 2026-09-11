@@ -15,8 +15,10 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -579,7 +581,9 @@ class StatementSegment(ansi.StatementSegment):
             # FlinkSQL-specific statements
             Ref("CreateCatalogStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
+            Ref("CreateFunctionStatementSegment"),
             Ref("DescribeStatementSegment"),
+            Ref("ExecuteStatementSetSegment"),
             Ref("ShowStatementsSegment"),
             Ref("SetStatementSegment"),
         ],
@@ -603,6 +607,52 @@ class UseStatementSegment(ansi.UseStatementSegment):
             "USE",
             Ref("ObjectReferenceSegment"),
         ),
+    )
+
+
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement for FlinkSQL."""
+
+    type = "create_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        "AS",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "LANGUAGE",
+            OneOf("JAVA", "SCALA", "PYTHON"),
+            optional=True,
+        ),
+    )
+
+
+class ExecuteStatementSetSegment(BaseSegment):
+    """An `EXECUTE STATEMENT SET` block for FlinkSQL."""
+
+    type = "execute_statement_set"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "STATEMENT",
+        "SET",
+        "BEGIN",
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                Ref("InsertStatementSegment"),
+                Ref("DelimiterGrammar"),
+            ),
+            min_times=1,
+        ),
+        Dedent,
+        "END",
     )
 
 
