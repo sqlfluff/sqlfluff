@@ -1,0 +1,450 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eefb79de715314fdf9c3c2af345ae5fc32f2bfa6df296f947f1bae73b04d2070
+file:
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_enable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: ck_state_enable
+          - keyword: CHECK
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+          - keyword: ENABLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_disable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: ck_state_disable
+            - keyword: CHECK
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '0'
+                end_bracket: )
+            - keyword: DISABLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_validate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: ck_state_validate
+          - keyword: CHECK
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+          - keyword: VALIDATE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_novalidate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: ck_state_novalidate
+            - keyword: CHECK
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '0'
+                end_bracket: )
+            - keyword: NOVALIDATE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_rely
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: uq_state_rely
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: code
+              end_bracket: )
+          - keyword: RELY
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_norely
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: uq_state_norely
+            - keyword: UNIQUE
+            - keyword: NORELY
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_deferrable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_state_deferrable
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - keyword: DEFERRABLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_not_deferrable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: pk_state_not_deferrable
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: NOT
+            - keyword: DEFERRABLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_not_null_novalidate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: nn_state_novalidate
+            - keyword: NOT
+            - keyword: 'NULL'
+            - keyword: NOVALIDATE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_not_null_rely
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: nn_state_rely
+            - keyword: NOT
+            - keyword: 'NULL'
+            - keyword: RELY
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_not_null_deferrable
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: nn_state_deferrable
+            - keyword: NOT
+            - keyword: 'NULL'
+            - keyword: DEFERRABLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_initially_immediate
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_state_initially_immediate
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: IMMEDIATE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_initially_deferred
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: pk_state_initially_deferred
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: DEFERRABLE
+            - keyword: INITIALLY
+            - keyword: DEFERRED
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_initially_first
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_state_initially_first
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - keyword: INITIALLY
+          - keyword: DEFERRED
+          - keyword: DEFERRABLE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_table_composed
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: NUMBER
+          comma: ','
+          table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_state_table_composed
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - using_index_clause:
+            - keyword: USING
+            - keyword: INDEX
+            - oracle_index_physical_attributes:
+                keyword: TABLESPACE
+                object_reference:
+                  naked_identifier: idx_ts
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: DEFERRED
+          - keyword: RELY
+          - keyword: ENABLE
+          - keyword: NOVALIDATE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t_state_inline_composed
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: code
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: uq_state_inline_composed
+            - keyword: UNIQUE
+            - using_index_clause:
+              - keyword: USING
+              - keyword: INDEX
+              - oracle_index_physical_attributes:
+                  keyword: TABLESPACE
+                  object_reference:
+                    naked_identifier: idx_ts
+            - keyword: NOT
+            - keyword: DEFERRABLE
+            - keyword: NORELY
+            - keyword: DISABLE
+            - keyword: NOVALIDATE
+          end_bracket: )
+  - statement_terminator: ;

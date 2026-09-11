@@ -1,0 +1,391 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4e0cf68e6e9d65d31d48d60cd260cffeed929065b1820b37910e9a208a2881ef
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_explicit
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - naked_identifier: p_hist
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: p_cur
+        - keyword: CURRENT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_limit
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: LIMIT
+      - numeric_literal: '100000'
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - naked_identifier: p0
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: p1
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: pcur
+        - keyword: CURRENT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_interval
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: INTERVAL
+      - numeric_literal: '1'
+      - date_part: WEEK
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - naked_identifier: p0
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: p1
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: p2
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: pcur
+        - keyword: CURRENT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_starts
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: INTERVAL
+      - numeric_literal: '1'
+      - date_part: MONTH
+      - keyword: STARTS
+      - expression:
+          quoted_literal: "'2021-01-01 00:00:00'"
+      - keyword: AUTO
+      - keyword: PARTITIONS
+      - numeric_literal: '12'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_auto_interval
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: INTERVAL
+      - numeric_literal: '1'
+      - date_part: HOUR
+      - keyword: AUTO
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_auto_limit
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: LIMIT
+      - numeric_literal: '1000'
+      - keyword: AUTO
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_auto_explicit
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: INTERVAL
+      - numeric_literal: '1'
+      - date_part: HOUR
+      - keyword: AUTO
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - naked_identifier: p0
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: pn
+        - keyword: CURRENT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_count
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: INTERVAL
+      - numeric_literal: '1'
+      - date_part: MONTH
+      - keyword: PARTITIONS
+      - numeric_literal: '12'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_sub
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - system_time_partition:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: SYSTEM_TIME
+      - keyword: SUBPARTITION
+      - keyword: BY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: x
+          end_bracket: )
+      - keyword: SUBPARTITIONS
+      - numeric_literal: '4'
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - naked_identifier: ph
+        - keyword: HISTORY
+        - comma: ','
+        - keyword: PARTITION
+        - naked_identifier: pc
+        - keyword: CURRENT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_hash
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: HASH
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+          end_bracket: )
+    - keyword: PARTITIONS
+    - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_range
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+          end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p0
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '10'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p1
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - keyword: MAXVALUE
+      - end_bracket: )
+- statement_terminator: ;

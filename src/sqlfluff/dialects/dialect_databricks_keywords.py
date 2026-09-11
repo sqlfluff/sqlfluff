@@ -55,6 +55,8 @@ UNRESERVED_KEYWORDS = [
     "REFRESH",
     "RELY",
     "ROW",
+    "SECOND",
+    "SECONDS",
     "SCHEDULE",
     "SHALLOW",
     "SOURCE",

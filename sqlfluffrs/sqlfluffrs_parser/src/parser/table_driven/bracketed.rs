@@ -444,13 +444,14 @@ impl Parser<'_> {
             // This check should only happen AFTER all content elements have been processed.
             let check_pos = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
 
-            // A required element failing after some content already matched
-            // is a genuine partial match: STRICT must fail here rather than
-            // let the gap check below match the closing bracket over it.
-            // Gated on `last_matched_end > content_start` so a required
-            // element failing with nothing consumed - an empty bracket `()` -
-            // still succeeds. Content starts at the end of the opening
-            // bracket, always the first recorded child match.
+            // A required element failing must fail the match in STRICT mode:
+            // after a partial match it's a genuine partial match (we must not
+            // let the gap check below match the closing bracket over it), and
+            // with nothing consumed it's an empty bracket `()` whose content
+            // grammar requires content, which must not match either
+            // (https://github.com/sqlfluff/sqlfluff/issues/8368). Content
+            // starts at the end of the opening bracket, always the first
+            // recorded child match.
             let content_start = child_matches
                 .first()
                 .map(|m| m.matched_slice.end)
@@ -460,12 +461,31 @@ impl Parser<'_> {
                 .map(|m| m.matched_slice.end)
                 .max()
                 .unwrap_or(content_start);
+            if current_required_failed && parse_mode == ParseMode::Strict {
+                vdebug!(
+                    "Bracketed[table] STRICT mode: required content element failed, returning Empty. frame_id={}, frame.pos={}",
+                    frame.frame_id, frame.pos
+                );
+                self.pos = frame.pos;
+                frame.end_pos = Some(frame.pos);
+                frame.state = FrameState::Combining;
+                stack.push(frame);
+                return Ok(TableFrameResult::Done);
+            }
+
+            // The empty-body case must fail in GREEDY mode too (Python
+            // parity: Bracketed.match returns no match in *any* parse mode
+            // when the content grammar requires content and the body is
+            // empty), while non-empty invalid content is still claimed and
+            // wrapped as unparsable below. The body is empty when the
+            // required element failed with nothing consumed and the next
+            // code token is already the closing bracket.
             if current_required_failed
-                && parse_mode == ParseMode::Strict
-                && last_matched_end > content_start
+                && last_matched_end <= content_start
+                && *bracket_max_idx == Some(check_pos)
             {
                 vdebug!(
-                    "Bracketed[table] STRICT mode: required content element failed after a partial match, returning Empty. frame_id={}, frame.pos={}",
+                    "Bracketed[table]: required content element failed on an empty bracket body, returning Empty. frame_id={}, frame.pos={}",
                     frame.frame_id, frame.pos
                 );
                 self.pos = frame.pos;

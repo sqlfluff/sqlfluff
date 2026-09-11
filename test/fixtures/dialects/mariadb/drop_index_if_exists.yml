@@ -1,0 +1,87 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eed337b4a334b5e07537f21a7ba09f5c4e4aa6172130288c117cdd46cc091d07
+file:
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`t`'
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: idx_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: LOCK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`t`'
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`idx`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COPY
+- statement_terminator: ;

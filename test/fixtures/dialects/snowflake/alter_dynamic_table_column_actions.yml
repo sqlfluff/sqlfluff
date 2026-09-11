@@ -1,0 +1,211 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 58c55dfaab56b81a04cde930885d9b357e9e1ab76b34fa18df4af4265bc93903
+file:
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: mp
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - function_name_identifier: mp
+      - keyword: USING
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: c1
+        - comma: ','
+        - column_reference:
+            naked_identifier: c2
+        - end_bracket: )
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: MASKING
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: mp
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pp
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: PROJECTION
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - tag_equals:
+          keyword: TAG
+          tag_reference:
+            naked_identifier: tg
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'v'"
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: SET
+      - tag_equals:
+        - keyword: TAG
+        - tag_reference:
+            naked_identifier: tag1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'v1'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag2
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'v2'"
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: tg
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: tag1
+      - comma: ','
+      - tag_reference:
+          naked_identifier: tag2
+- statement_terminator: ;

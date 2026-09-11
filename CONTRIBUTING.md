@@ -347,7 +347,7 @@ for more information on how to build and test this.
 ### Building Package
 
 New versions of SQLFluff will be published to PyPI automatically via
-[GitHub Actions](.github/workflows/publish-release-to-pypi.yaml)
+[GitHub Actions](.github/workflows/publish-sqlfluff-release-to-pypi.yaml)
 whenever a new release is published to GitHub.
 
 #### Release checklist:

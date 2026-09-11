@@ -1,0 +1,107 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1edbf0259b8b5246ac80397cc37c19d563ccded9eb0e67ba224b8e2e6e7aa5f5
+file:
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        quoted_identifier: '`s1`'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: s2
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - numeric_literal: '100'
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - sequence_reference:
+        quoted_identifier: '`s1`'
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - sequence_reference:
+        quoted_identifier: '`s1`'
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: s1
+    - comma: ','
+    - sequence_reference:
+        naked_identifier: s2
+    - comma: ','
+    - sequence_reference:
+        naked_identifier: s3
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        quoted_identifier: '`s1`'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        quoted_identifier: '`s1`'
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - sequence_reference:
+        quoted_identifier: '`s1`'
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: s1
+    - comma: ','
+    - sequence_reference:
+        naked_identifier: s2
+- statement_terminator: ;

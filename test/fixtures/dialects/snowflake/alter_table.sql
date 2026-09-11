@@ -40,7 +40,9 @@ ALTER TABLE table1 ADD CONSTRAINT "constraint1" FOREIGN KEY ( col1 ) REFERENCES 
 
 ALTER TABLE table1 ADD CONSTRAINT "constraint1" FOREIGN KEY ( col1 ) REFERENCES "schema1"."table1" ( col1, col2 );
 
-ALTER TABLE table1 DROP CONSTRAINT constraint1 UNIQUE pk_col, pk_col2;
+ALTER TABLE table1 DROP CONSTRAINT constraint1;
+
+ALTER TABLE table1 DROP UNIQUE (pk_col, pk_col2);
 
 ALTER TABLE table1 RENAME CONSTRAINT constraint1 TO constraint2;
 

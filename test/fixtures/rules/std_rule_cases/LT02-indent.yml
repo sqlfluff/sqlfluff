@@ -2845,9 +2845,9 @@ test_indent_leading_segment_align_following_window_function:
         binary_operator:
           line_position: "leading:align-following"
     indentation:
-      indented_joins: True
-      allow_implicit_indents: False
-      indented_on_contents: True
+      indented_joins: true
+      allow_implicit_indents: false
+      indented_on_contents: true
 
 # Issue 6675: FROM VALUES on the same line should be acceptable
 # when implicit_indents is set to "allow".
@@ -3017,3 +3017,81 @@ test_pass_bigquery_pipe_extend_multiline:
   configs:
     core:
       dialect: bigquery
+
+test_pass_snowflake_exception_block_in_scripting_block:
+  # Issue 8452: EXCEPTION is a section of the enclosing Snowflake Scripting
+  # block, so it aligns with its BEGIN rather than with the statements
+  # inside the block.
+  pass_str: |
+    BEGIN
+        LET x NUMBER := 1;
+    EXCEPTION
+        WHEN OTHER THEN
+            RETURN 'handled';
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_exception_block_multiple_when:
+  # Each WHEN branch sits one level below EXCEPTION and its body one
+  # level below that, however many branches and statements there are.
+  pass_str: |
+    BEGIN
+        LET x NUMBER := 1;
+    EXCEPTION
+        WHEN MY_EXCEPTION THEN
+            LET err_msg := SQLERRM;
+            RETURN err_msg;
+        WHEN OTHER THEN
+            ROLLBACK;
+            RAISE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_exception_block_standalone:
+  # An EXCEPTION section on its own still indents its WHEN branches and
+  # their bodies as separate levels.
+  pass_str: |
+    EXCEPTION
+        WHEN OTHER THEN
+            ROLLBACK;
+            RAISE;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_exception_block_nested:
+  # Issue 8452: an EXCEPTION section in a nested block must not push the
+  # indentation of the code that follows it.
+  fail_str: |
+    BEGIN
+        IF (TRUE) THEN
+            BEGIN
+                LET x NUMBER := 1;
+              EXCEPTION
+              WHEN OTHER THEN
+                RETURN 'handled';
+              END;
+        END IF;
+
+        RETURN 'ok';
+    END;
+  fix_str: |
+    BEGIN
+        IF (TRUE) THEN
+            BEGIN
+                LET x NUMBER := 1;
+            EXCEPTION
+                WHEN OTHER THEN
+                    RETURN 'handled';
+            END;
+        END IF;
+
+        RETURN 'ok';
+    END;
+  configs:
+    core:
+      dialect: snowflake

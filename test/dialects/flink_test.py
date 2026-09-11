@@ -105,6 +105,45 @@ class TestFlinkSQLDialect:
         result = linter.lint_string(sql)
         assert result is not None
 
+    def test_flink_temporary_create_table(self):
+        """Test FlinkSQL temporary CREATE TABLE statements."""
+        config = FluffConfig(overrides={"dialect": "flink"})
+        linter = Linter(config=config)
+
+        statements = [
+            """
+            CREATE TEMPORARY TABLE market_hours_source (
+                `timestamp_utc` TIMESTAMP(3),
+                `market` STRING,
+                `market_open_flag` BOOLEAN
+            ) WITH (
+                'connector' = 'kafka',
+                'topic' = 'data-ops-market-hours'
+            )
+            """,
+            """
+            CREATE TEMPORARY TABLE market_hours_source (
+                `timestamp_utc` TIMESTAMP(3),
+                `market` STRING,
+                `market_open_flag` BOOLEAN,
+                proc_time AS PROCTIME()
+            ) WITH (
+                'connector' = 'kafka',
+                'topic' = 'data-ops-market-hours'
+            )
+            """,
+        ]
+
+        for sql in statements:
+            result = linter.lint_string(sql)
+            assert result is not None
+            parsing_errors = [
+                violation
+                for violation in result.violations
+                if violation.rule.code.startswith("PRS")
+            ]
+            assert parsing_errors == []
+
     def test_flink_metadata_column(self):
         """Test FlinkSQL metadata column."""
         config = FluffConfig(overrides={"dialect": "flink"})
@@ -186,11 +225,14 @@ class TestFlinkSQLDialect:
             "SET 'execution.checkpointing.mode' = 'EXACTLY_ONCE'",
             "SET 'execution.checkpointing.unaligned.enabled' = 'true'",
             "SET 'execution.checkpointing.timeout' = '600000'",
+            "SET execution.runtime-mode = streaming",
+            "SET pipeline.name = 'foo'",
+            "SET execution.checkpointing.mode = EXACTLY_ONCE",
         ]
 
         for sql in statements:
-            result = linter.lint_string(sql)
-            assert result is not None
+            result = linter.parse_string(sql)
+            assert result.violations == []
 
     def test_flink_create_catalog(self):
         """Test FlinkSQL CREATE CATALOG statement."""

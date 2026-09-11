@@ -474,9 +474,14 @@ class Bracketed(Sequence):
 
         How the grammar behaves on different content depends on the `parse_mode`:
 
-        - If the parse mode is `GREEDY`, this always returns a match if
-          the opening and closing brackets are found. Anything unexpected
-          within the brackets is marked as `unparsable`.
+        - If the parse mode is `GREEDY`, this returns a match if the
+          opening and closing brackets are found, with anything unexpected
+          within the brackets marked as `unparsable`. The exception is an
+          empty bracket body when the content grammar contains required
+          elements: that returns no match (in *any* parse mode), so that
+          any other grammars which *can* match empty brackets may be
+          tried, or so the surrounding grammar can mark the section as
+          unparsable.
         - If the parse mode is `STRICT`, then this only returns a match if
           the content of the brackets matches (and matches *completely*)
           one of the elements of the grammar. Otherwise no match.
@@ -511,6 +516,24 @@ class Bracketed(Sequence):
             push_terminators=[end_bracket],
         ) as ctx:
             content_match = super().match(segments, content_start_idx, ctx)
+
+        # If the content grammar contains required (i.e. non-optional)
+        # elements, then it cannot validly match an empty bracket body.
+        # In that case a zero length content match means the content
+        # didn't match, and we shouldn't continue on to match the end
+        # bracket (which would otherwise allow empty brackets `()` to
+        # match regardless of the content grammar). By returning no
+        # match (in any parse mode), we allow any other grammars which
+        # *can* match empty brackets to be tried, or the surrounding
+        # grammar to mark the section as unparsable.
+        # https://github.com/sqlfluff/sqlfluff/issues/8368
+        if is_zero_slice(content_match.matched_slice) and any(
+            not elem.is_optional()
+            for elem in self._elements
+            if not isinstance(elem, Conditional)
+            and not (isinstance(elem, type) and issubclass(elem, Indent))
+        ):
+            return MatchResult.empty_at(idx)
 
         # Get position after content for end bracket check
         gap_start = end_bracket_idx = content_match.matched_slice.stop

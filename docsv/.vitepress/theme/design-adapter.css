@@ -1,0 +1,137 @@
+/**
+ * VitePress adapter for the shared SQLFluff design package.
+ *
+ * This maps VitePress's own theme variables onto the shared tokens so the docs
+ * inherit SQLFluff typography, colour, and surfaces without maintaining a
+ * parallel palette. It must stay narrow: it should only translate between the
+ * two variable systems and cover VitePress-specific layout. Anything which
+ * represents the same component on more than one SQLFluff site belongs in the
+ * design package instead.
+ *
+ * The shared tokens themselves are loaded from `public/sqlfluff-design/` and
+ * respond to both `data-theme="dark"` and the `dark` class which VitePress
+ * styling keys off, so a single mapping serves both themes.
+ */
+
+:root {
+  --vp-font-family-base: var(--sqlfluff-font-sans);
+  --vp-font-family-mono: var(--sqlfluff-font-mono);
+
+  /* VitePress expects the reading surface to sit above a recessed chrome
+     surface. `surface` over `canvas` preserves that relationship in both
+     themes, where mapping both onto one token would flatten it. */
+  --vp-c-bg: var(--sqlfluff-color-surface);
+  --vp-c-bg-alt: var(--sqlfluff-color-canvas);
+  --vp-c-bg-elv: var(--sqlfluff-color-surface);
+  --vp-c-bg-soft: var(--sqlfluff-color-surface-muted);
+
+  /* The shared system has two text levels, so VitePress's third collapses onto
+     the muted one. That is deliberate. Only six rules consume `text-3`, all of
+     them chrome rather than prose: input placeholders, the external-link icon,
+     the sidebar collapse caret, and home sponsors. Flattening raises their
+     contrast from about 3.1:1 to 5.5:1 on light and 3.2:1 to 7.1:1 on dark, so
+     the placeholders in particular stop failing AA. Introducing a lighter third
+     value here would undo that and amount to a parallel palette, which belongs
+     in the design package if it is ever wanted. */
+  --vp-c-text-1: var(--sqlfluff-color-text);
+  --vp-c-text-2: var(--sqlfluff-color-text-muted);
+  --vp-c-text-3: var(--sqlfluff-color-text-muted);
+
+  --vp-c-border: var(--sqlfluff-color-border-strong);
+  --vp-c-divider: var(--sqlfluff-color-border);
+  --vp-c-gutter: var(--sqlfluff-color-border);
+
+  --vp-c-brand-1: var(--sqlfluff-color-accent);
+  --vp-c-brand-2: var(--sqlfluff-color-accent-hover);
+  --vp-c-brand-3: var(--sqlfluff-color-accent);
+  --vp-c-brand-soft: var(--sqlfluff-color-accent-soft);
+
+  /* VitePress hardcodes white button text, which fails against the light
+     accent used in dark mode. The shared token already carries the correct
+     contrast colour for each theme. */
+  --vp-button-brand-text: var(--sqlfluff-color-accent-contrast);
+  --vp-button-brand-hover-text: var(--sqlfluff-color-accent-contrast);
+  --vp-button-brand-active-text: var(--sqlfluff-color-accent-contrast);
+
+  /* Renders the shared wordmark at the same 132px width sqlfluff.com uses,
+     given its aspect ratio and the matching 64px header height. */
+  --vp-nav-logo-height: 27px;
+}
+
+/* The shared theme control is placed in the nav bar and nav screen slots in
+   place of VitePress's own two-state toggle. Only spacing is set here; the
+   control's appearance comes from the shared components stylesheet. */
+
+/* The version picker and the theme control are one group: both describe how the
+   reader is viewing the docs rather than where they are in it. The separator
+   therefore belongs before the picker, and the theme control drops the one it
+   carries by default so the pair are not split from each other. */
+.VPNavBar .version-picker {
+  margin-left: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--vp-c-divider);
+}
+
+.VPNavBar .sqlfluff-theme-control {
+  margin-left: 0.5rem;
+  padding-left: 0;
+  border-left: 0;
+}
+
+/*
+ * Below the hamburger breakpoint the nav screen renders its own copies of both
+ * controls, so the nav bar copies would be duplicates. They also overflowed:
+ * at 420px the theme control ended at 433px and pushed the wordmark out of the
+ * viewport. The default theme hides its own nav-bar extras the same way.
+ *
+ * The threshold is 768px rather than the 1280px the default theme uses for
+ * social links and its appearance toggle. Those two stay reachable between the
+ * breakpoints through the `...` menu, but that menu is VitePress's own and
+ * cannot be extended, so hiding these at 1280px would put the version picker
+ * out of reach on every window between 768px and 1280px. The block below
+ * carves out the one band where that budget does not stretch to both controls.
+ */
+@media (max-width: 767px) {
+  .VPNavBar .version-picker,
+  .VPNavBar .sqlfluff-theme-control {
+    display: none;
+  }
+}
+
+/*
+ * Between the hamburger breakpoint and 880px the nav bar cannot hold the
+ * default theme's inline menu, its search field at minimum width, and both of
+ * these controls: at 768px they overflow the viewport by 112px, which is why
+ * the wordmark used to be clipped there.
+ *
+ * The nav screen is not an escape hatch in this band — `useNav` hard-codes the
+ * 768px threshold in JavaScript, so moving the collapse point in CSS alone would
+ * leave a hamburger which closes itself on resize.
+ *
+ * So the band gives up two things. The theme control yields because it sets a
+ * preference rather than a destination, the preference survives in a cookie
+ * across SQLFluff sites, and it is still reachable on either side of this band.
+ * The default theme's `...` menu yields because with `appearance: false` and a
+ * single locale it holds nothing but the social links, which the footer also
+ * carries. The version picker keeps its place because it is navigation.
+ */
+@media (min-width: 768px) and (max-width: 879px) {
+  .VPNavBar .sqlfluff-theme-control,
+  .VPNavBar .VPNavBarExtra {
+    display: none;
+  }
+}
+
+.VPNavScreen .sqlfluff-theme-control {
+  /* Full width so the separator above it spans the screen, rather than only the
+     three buttons, which `inline-flex` would limit it to. The shared stylesheet
+     right-aligns the control at this width for its own header layout, which
+     full width makes visible; the nav screen stacks everything else from the
+     left, including the version picker directly above. */
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}

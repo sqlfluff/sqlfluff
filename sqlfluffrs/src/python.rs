@@ -1,6 +1,8 @@
 use pyo3::prelude::*;
 use sqlfluffrs_lexer::{PyLexer, PySQLLexError};
-use sqlfluffrs_parser::{PyHandle, PyMatchResult, PyNode, PyParser, PyTree, RsParseError};
+use sqlfluffrs_parser::{
+    PyHandle, PyMatchResult, PyNode, PyParser, PyTree, RsParseError, MISSING_REF_PREFIX,
+};
 use sqlfluffrs_python::marker::PyPositionMarker;
 use sqlfluffrs_python::templater::{
     fileslice::{PyRawFileSlice, PyTemplatedFileSlice},
@@ -34,6 +36,9 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     sqlfluffrs_rules::python::register(m)?;
     // Add custom exception
     m.add("RsParseError", m.py().get_type::<RsParseError>())?;
+    // Sentinel prefix for missing-ref errors, shared with rust_parser.py so
+    // the two sides of the pyo3 boundary can't drift on the literal.
+    m.add("MISSING_REF_PREFIX", MISSING_REF_PREFIX)?;
     // TemplatedFile conversion-cache internals (weakref eviction + test
     // introspection).
     m.add_function(wrap_pyfunction!(

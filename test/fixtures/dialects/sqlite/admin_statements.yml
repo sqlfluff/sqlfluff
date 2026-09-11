@@ -1,0 +1,124 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2885ea5e1eb4245a4d07858b17b3ce1db574203b63557178909c74960b1dbcde
+file:
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: DATABASE
+    - expression:
+        quoted_literal: "'aux.db'"
+    - keyword: AS
+    - schema_reference:
+        naked_identifier: aux
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        quoted_literal: "'aux.db'"
+    - keyword: AS
+    - schema_reference:
+        naked_identifier: aux
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: DATABASE
+    - expression:
+        parameterized_expression:
+          colon_literal: :path
+    - keyword: AS
+    - schema_reference:
+        naked_identifier: aux
+- statement_terminator: ;
+- statement:
+    detach_statement:
+    - keyword: DETACH
+    - keyword: DATABASE
+    - schema_reference:
+        naked_identifier: aux
+- statement_terminator: ;
+- statement:
+    detach_statement:
+      keyword: DETACH
+      schema_reference:
+        naked_identifier: aux
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      schema_reference:
+        naked_identifier: main
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: INTO
+    - expression:
+        quoted_literal: "'backup.db'"
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - schema_reference:
+        naked_identifier: main
+    - keyword: INTO
+    - expression:
+        quoted_literal: "'backup.db'"
+- statement_terminator: ;
+- statement:
+    reindex_statement:
+      keyword: REINDEX
+- statement_terminator: ;
+- statement:
+    reindex_statement:
+      keyword: REINDEX
+      object_reference:
+        naked_identifier: nocase
+- statement_terminator: ;
+- statement:
+    reindex_statement:
+      keyword: REINDEX
+      object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    reindex_statement:
+      keyword: REINDEX
+      object_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: my_index
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      object_reference:
+        naked_identifier: main
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      object_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: my_index
+- statement_terminator: ;

@@ -196,3 +196,79 @@ CREATE TABLE t_anon_uq_attrs (
     code VARCHAR2(10),
     UNIQUE (code) USING INDEX PCTFREE 10 TABLESPACE idx_ts
 );
+
+-- Column-level (inline) constraints: PRIMARY KEY / UNIQUE with USING INDEX
+
+CREATE TABLE t_col_pk_not_null (
+    id NUMBER NOT NULL
+        CONSTRAINT pk_t_col_pk_not_null PRIMARY KEY
+        USING INDEX TABLESPACE idx_ts
+);
+
+CREATE TABLE t_col_pk_bare (
+    id NUMBER
+        CONSTRAINT pk_t_col_pk_bare PRIMARY KEY
+        USING INDEX
+);
+
+CREATE TABLE t_col_pk_named_idx (
+    id NUMBER
+        CONSTRAINT pk_t_col_pk_named_idx PRIMARY KEY
+        USING INDEX pk_t_col_pk_named_idx_idx
+);
+
+CREATE TABLE t_col_pk_tablespace (
+    id NUMBER
+        CONSTRAINT pk_t_col_pk_tablespace PRIMARY KEY
+        USING INDEX TABLESPACE idx_ts
+);
+
+CREATE TABLE t_col_pk_multi_attrs (
+    id NUMBER
+        CONSTRAINT pk_t_col_pk_multi_attrs PRIMARY KEY
+        USING INDEX
+            PCTFREE 10
+            INITRANS 2
+            TABLESPACE idx_ts
+            NOLOGGING
+);
+
+CREATE TABLE t_col_pk_inline_idx (
+    id NUMBER
+        CONSTRAINT pk_t_col_pk_inline_idx PRIMARY KEY
+        USING INDEX (CREATE INDEX pk_t_col_pk_inline_idx_i ON t_col_pk_inline_idx (id))
+);
+
+CREATE TABLE t_col_uq_tablespace (
+    code VARCHAR2(10)
+        CONSTRAINT uq_t_col_uq_tablespace UNIQUE
+        USING INDEX TABLESPACE idx_ts
+);
+
+CREATE TABLE t_col_anon_pk (
+    id NUMBER
+        PRIMARY KEY
+        USING INDEX TABLESPACE idx_ts
+);
+
+CREATE TABLE t_col_anon_uq (
+    code VARCHAR2(10)
+        UNIQUE
+        USING INDEX PCTFREE 10
+);
+
+CREATE TABLE t_col_multi_constraints (
+    id NUMBER
+        CONSTRAINT pk_t_col_multi_constraints PRIMARY KEY
+        USING INDEX pk_t_col_multi_constraints_idx,
+    code VARCHAR2(10)
+        CONSTRAINT uq_t_col_multi_constraints_code UNIQUE
+        USING INDEX TABLESPACE idx_ts NOLOGGING,
+    status NUMBER
+        CONSTRAINT uq_t_col_multi_constraints_status UNIQUE
+        USING INDEX (
+            CREATE INDEX uq_t_col_multi_constraints_status_i
+                ON t_col_multi_constraints (status)
+            TABLESPACE idx_ts
+        )
+);

@@ -4030,7 +4030,13 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
             Sequence(
                 "GENERATED",
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
@@ -4115,8 +4121,14 @@ class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            # GENERATED ALWAYS AS ( generation_expr ) STORED
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            # GENERATED ALWAYS AS ( generation_expr ) [ STORED | VIRTUAL ]
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
         ),
     )
 
@@ -7513,4 +7525,36 @@ class FileSegment(BaseFileSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
+    )
+
+
+class MergeStatementSegment(ansi.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    https://www.postgresql.org/docs/17/sql-merge.html
+
+    PostgreSQL 17 added a `RETURNING` clause to `MERGE`, matching the one
+    already supported on `INSERT`, `UPDATE` and `DELETE`. Output expressions
+    may use the `merge_action()` function to report which action produced a
+    given row.
+    """
+
+    match_grammar = ansi.MergeStatementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "RETURNING",
+                Indent,
+                OneOf(
+                    Ref("StarSegment"),
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
+                ),
+                Dedent,
+                optional=True,
+            ),
+        ],
     )

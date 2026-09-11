@@ -8,6 +8,7 @@ LEFT JOIN other_table
 SELECT
     DATE_ADD(MICROSECOND, 5, start_dt) AS date_add_micro,
     DATE_DIFF(MILLISECOND, start_dt, end_dt) AS datediff_milli,
+    DATE_DIFF(SECOND, start_dt, end_dt) AS datediff_sec,
     DATEADD(MINUTE, 5, start_dt) AS dateadd_min,
     DATEDIFF(HOUR, start_dt, end_dt) AS datediff_hr,
     TIMEDIFF(DAY, start_dt, end_dt) AS timediff_day,

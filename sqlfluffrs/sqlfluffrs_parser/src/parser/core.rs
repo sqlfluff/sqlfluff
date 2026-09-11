@@ -1224,7 +1224,16 @@ impl<'a> Parser<'a> {
 
         match self.peek() {
             Some(tok) => {
-                let raw = tok.raw();
+                // PYTHON PARITY: match against the full-unicode uppercase form
+                // when case-insensitive, like Python's str.upper() (e.g.
+                // 'straße' -> 'STRASSE') - the regex crate only does simple
+                // folding, which misses that. Uses the token's precomputed
+                // raw_upper(), so this stays cheap under backtracking.
+                let raw = if case_insensitive {
+                    tok.raw_upper()
+                } else {
+                    tok.raw()
+                };
 
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {

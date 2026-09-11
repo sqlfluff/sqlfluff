@@ -1,0 +1,206 @@
+/*
+ * Styling for the archived-Sphinx version picker and stale-version notice.
+ *
+ * Published at `/en/shared/version-picker.css` and loaded by every archived
+ * page, so this has to sit inside alabaster output produced by any Sphinx
+ * release SQLFluff has used. Two consequences shape it:
+ *
+ * - Every rule is scoped to a `sqlfluff-vp`/`sqlfluff-vb` class. Nothing here
+ *   selects an element, and nothing resets anything, so it cannot disturb the
+ *   layout of a page it was never tested against.
+ * - Sizes are in `em` and colours are literal. Archived builds have no design
+ *   tokens to inherit from and no dark mode, and a custom property added later
+ *   would resolve to nothing on the pages that need this most.
+ *
+ * The palette is alabaster's own greys with SQLFluff's link blue, so the control
+ * reads as part of the page it is injected into rather than as a graft from a
+ * newer site.
+ */
+
+.sqlfluff-vp {
+    position: relative;
+    margin: 0 0 1.5em;
+    font-family: Georgia, serif;
+    line-height: 1.4;
+}
+
+.sqlfluff-vp__label {
+    display: block;
+    margin-bottom: 0.35em;
+    color: #555;
+    font-size: 0.8em;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.sqlfluff-vp__trigger {
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4em 0.7em;
+    color: #333;
+    font: inherit;
+    font-size: 0.95em;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.sqlfluff-vp__trigger:hover {
+    border-color: #999;
+}
+
+.sqlfluff-vp__trigger:focus-visible {
+    outline: 2px solid #0969da;
+    outline-offset: 1px;
+}
+
+.sqlfluff-vp__chevron {
+    margin-left: 0.5em;
+    color: #666;
+    font-size: 0.8em;
+}
+
+/* A statement of fact rather than something to press: no border, no chevron.
+   Keeps the trigger's padding so gaining the control barely moves the page. */
+.sqlfluff-vp__static {
+    display: block;
+    padding: 0.4em 0.7em;
+    color: #555;
+    font-size: 0.95em;
+}
+
+.sqlfluff-vp__panel {
+    position: absolute;
+    z-index: 50;
+    right: 0;
+    left: 0;
+    max-height: 60vh;
+    margin-top: 0.3em;
+    padding: 0.4em;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.sqlfluff-vp__panel[hidden] {
+    display: none;
+}
+
+.sqlfluff-vp__group + .sqlfluff-vp__group {
+    margin-top: 0.4em;
+    padding-top: 0.4em;
+    border-top: 1px solid #eee;
+}
+
+/* `#666` rather than a lighter grey: at this size the label is normal text for
+   WCAG 1.4.3, so it needs 4.5:1 against the white panel. `#888` gave 3.54:1 and
+   `#777` gives 4.48:1 — both fail. `#666` is 5.74:1. */
+.sqlfluff-vp__group-title {
+    margin: 0 0 0.2em;
+    padding: 0 0.5em;
+    color: #666;
+    font-size: 0.7em;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.sqlfluff-vp__item {
+    display: block;
+    padding: 0.25em 0.5em;
+    color: #333;
+    font-size: 0.9em;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.sqlfluff-vp__item:hover {
+    color: #333;
+    background: #f0f0f0;
+    text-decoration: none;
+}
+
+.sqlfluff-vp__item:focus-visible {
+    outline: 2px solid #0969da;
+    outline-offset: -1px;
+}
+
+.sqlfluff-vp__item.is-current {
+    color: #0969da;
+}
+
+/* Weight as well as colour, so the current version stays distinguishable
+   without relying on hue. */
+.sqlfluff-vp__item.is-current .sqlfluff-vp__item-title {
+    font-weight: bold;
+}
+
+.sqlfluff-vp__item-title {
+    font-variant-numeric: tabular-nums;
+}
+
+.sqlfluff-vp__item--all {
+    color: #0969da;
+}
+
+.sqlfluff-vp__arrow {
+    margin-left: 0.35em;
+}
+
+.sqlfluff-vp__tag {
+    margin-left: 0.4em;
+    padding: 0 0.3em;
+    color: #666;
+    font-size: 0.75em;
+    background: #eee;
+    border-radius: 3px;
+}
+
+/* Fallback for a page without alabaster's sidebar wrapper. Fixed to a corner so
+   it cannot land in the middle of a layout this file has never seen. */
+.sqlfluff-vp--floating {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 100;
+    box-sizing: border-box;
+    width: 12rem;
+    margin: 0;
+    padding: 0.6rem;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.sqlfluff-vp--floating .sqlfluff-vp__panel {
+    bottom: 100%;
+    margin-bottom: 0.3em;
+}
+
+/* In flow above the content rather than fixed: an archived page is a document,
+   and a notice which follows the reader down 4,000 words of rule reference is
+   more intrusive than one they scroll past. The VitePress theme pins its own
+   because that layout reserves a slot for it. */
+.sqlfluff-vb {
+    margin: 0 0 1.5em;
+    padding: 0.7em 1em;
+    color: #6a4b00;
+    font-size: 0.95em;
+    background: #fff8e1;
+    border: 1px solid #f0d68a;
+    border-radius: 4px;
+}
+
+.sqlfluff-vb a {
+    color: #6a4b00;
+    font-weight: bold;
+    text-decoration: underline;
+}

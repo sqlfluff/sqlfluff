@@ -10,10 +10,22 @@ use crate::parser::{
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
 
+/// Sentinel prefix for an unresolvable Ref's [`ParseError`] message. The
+/// Python side (`rust_parser.py`) recognises this prefix and re-raises
+/// through the dialect's own `ref()`, so the resulting RuntimeError matches
+/// the pure-Python parser. Exported to Python via the `sqlfluffrs` module so
+/// both sides read the same constant instead of duplicating the literal.
+pub const MISSING_REF_PREFIX: &str = "__MISSING_REF__:";
+
 impl Parser<'_> {
     // ========================================================================
     // Table-Driven Ref Handlers
     // ========================================================================
+
+    /// Build the sentinel [`ParseError`] for an unresolvable Ref.
+    fn missing_ref_error(rule_name: &str, pos: usize) -> ParseError {
+        ParseError::with_context(format!("{MISSING_REF_PREFIX}{rule_name}"), Some(pos), None)
+    }
 
     /// Handle Ref Initial state using table-driven approach
     pub(crate) fn handle_ref_initial(
@@ -55,17 +67,16 @@ impl Parser<'_> {
         let exclude_id_opt = self.grammar_ctx.exclude(grammar_id);
         if let Some(exclude_id) = exclude_id_opt {
             self.pos = start_pos;
-            if let Ok(exclude_mr) =
-                self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)
-            {
-                self.pos = start_pos;
-                if !exclude_mr.is_empty() {
-                    vdebug!(
-                        "Ref[table]: exclude grammar matched at pos {}, returning Empty",
-                        frame.pos
-                    );
-                    return Ok(stack.complete_frame_empty(&frame));
-                }
+            // Try matching exclude grammar, otherwise raise RuntimeError
+            let exclude_mr =
+                self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)?;
+            self.pos = start_pos;
+            if !exclude_mr.is_empty() {
+                vdebug!(
+                    "Ref[table]: exclude grammar matched at pos {}, returning Empty",
+                    frame.pos
+                );
+                return Ok(stack.complete_frame_empty(&frame));
             }
             vdebug!("Ref[table]: exclude grammar did not match, continuing");
         }
@@ -78,7 +89,7 @@ impl Parser<'_> {
         // `get_*_segment_grammar` match is otherwise ~20% of parse self-time.
         let child_grammar_id = match self.ref_child_cache.get(&grammar_id.0) {
             Some(&Some(id)) => GrammarId(id),
-            Some(&None) => return Ok(stack.complete_frame_empty(&frame)),
+            Some(&None) => return Err(Self::missing_ref_error(rule_name, start_pos)),
             None => {
                 // First element child if present, otherwise resolve by name.
                 // CRITICAL: For Ref grammars with an exclude, `children` contains ONLY
@@ -97,11 +108,18 @@ impl Parser<'_> {
                 match resolved {
                     Some(id) => id,
                     None => {
+                        // PYTHON PARITY: an unresolvable Ref - a keyword or
+                        // segment name the grammar references but the dialect
+                        // never registered - is a hard error in Python:
+                        // dialect.ref() raises RuntimeError the moment the branch
+                        // is matched, rather than failing the branch. Mirror that
+                        // instead of silently returning Empty (which diverged,
+                        // producing an unparsable tree where Python raised).
                         vdebug!(
-                            "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
+                            "Ref[table]: No element children and no dialect mapping for '{}', raising missing-ref error",
                             rule_name
                         );
-                        return Ok(stack.complete_frame_empty(&frame));
+                        return Err(Self::missing_ref_error(rule_name, start_pos));
                     }
                 }
             }
@@ -328,14 +346,15 @@ impl Parser<'_> {
     /// terminal parser.
     ///
     /// Mirrors the frame-based Ref handlers step for step: the
-    /// parent-max-idx guard and failed-resolution behaviour of
-    /// `handle_ref_initial` (empty result at the pre-skip position), the
-    /// leading-gap skip when the target allows gaps, the failed-child
-    /// position semantics of `handle_ref_waiting_for_child` (position and
-    /// reported extent at the post-skip position), and the result wrapping
-    /// of `handle_ref_combining` (via `build_ref_wrap`). Refs with an
-    /// exclude grammar or a non-terminal target return `Ok(None)` and take
-    /// the frame path.
+    /// parent-max-idx guard, the leading-gap skip when the target allows
+    /// gaps, the failed-child position semantics of
+    /// `handle_ref_waiting_for_child` (position and reported extent at the
+    /// post-skip position), and the result wrapping of
+    /// `handle_ref_combining` (via `build_ref_wrap`). Refs with an exclude
+    /// grammar, an unresolvable target, or a non-terminal target return
+    /// `Ok(None)` and take the frame path - for an unresolvable target that
+    /// lets `handle_ref_initial` raise its hard missing-ref error instead of
+    /// this fast path silently yielding Empty.
     pub(crate) fn try_ref_terminal_inline(
         &mut self,
         grammar_id: GrammarId,
@@ -347,8 +366,13 @@ impl Parser<'_> {
         }
         let start_pos = self.pos;
         let Some(child_id) = self.resolve_ref_target(grammar_id) else {
-            // No element child and no dialect mapping: Ref yields Empty.
-            return Ok(Some(MatchResult::empty_at(start_pos)));
+            // No element child and no dialect mapping: this is the same
+            // missing-ref condition handle_ref_initial treats as a hard
+            // error. Fall back to the frame path instead of yielding a soft
+            // Empty here, so its Err(missing_ref_error(...)) actually
+            // propagates instead of being absorbed as an ordinary
+            // non-match by the calling combinator.
+            return Ok(None);
         };
         let child_variant = self.grammar_ctx.variant(child_id);
         if !Self::is_terminal_variant(child_variant) {

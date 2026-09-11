@@ -1,15 +1,17 @@
 rule: AL05,CV12
 
 test_rule_fix_conflict_deleted_where_reference:
+  # Use an inner join here so this still exercises the AL05/CV12 fix
+  # interaction; CV12 intentionally does not auto-fix outer joins.
   fail_str: |
     select a.a
     from table_a as a
-    left join table_b as b
+    join table_b as b
     where a.id = b.id
   fix_str: |
     select a.a
     from table_a as a
-    left join table_b as b ON a.id = b.id
+    join table_b as b ON a.id = b.id
 
 test_rule_fix_conflict_modified_where_reference:
   fail_str: |

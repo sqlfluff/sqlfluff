@@ -152,6 +152,21 @@ class Rule_CV12(BaseRule):
                 yield LintResult(anchor=join_clause)
                 continue
 
+            # Moving a WHERE predicate into ON changes which null-extended
+            # rows survive an outer join, so retain the diagnostic but
+            # suppress the fix for all outer joins. SEMI and ANTI joins are
+            # filtering joins, not null-extending outer joins.
+            is_outer_join = any(
+                kw.raw_upper in ("LEFT", "RIGHT", "FULL", "OUTER")
+                for kw in join_clause_keywords
+            )
+            is_semi_or_anti_join = any(
+                kw.raw_upper in ("SEMI", "ANTI") for kw in join_clause_keywords
+            )
+            if is_outer_join and not is_semi_or_anti_join:
+                yield LintResult(anchor=join_clause)
+                continue
+
             if not where_clause_simplifable:
                 yield LintResult(anchor=join_clause)
             else:
@@ -272,15 +287,16 @@ class Rule_CV12(BaseRule):
                 ],
             )
         else:
-            assert select_statement.segments[-1].is_type("where_clause")
-            assert select_statement.segments[-2].is_type("whitespace", "newline")
-            yield LintResult(
-                anchor=where_clause,
-                fixes=[
-                    LintFix.delete(select_statement.segments[-2]),
-                    LintFix.delete(select_statement.segments[-1]),
-                ],
-            )
+            # The where clause is not always the last child of the select
+            # statement. A clause such as GROUP BY, ORDER BY or LIMIT can
+            # follow it, so locate it rather than assume its position.
+            where_idx = select_statement.segments.index(where_clause)
+            fixes = [LintFix.delete(where_clause)]
+            if where_idx and select_statement.segments[where_idx - 1].is_type(
+                "whitespace", "newline"
+            ):
+                fixes.append(LintFix.delete(select_statement.segments[where_idx - 1]))
+            yield LintResult(anchor=where_clause, fixes=fixes)
 
     @staticmethod
     def _get_from_expression_element_alias(from_expr_element: BaseSegment) -> str:

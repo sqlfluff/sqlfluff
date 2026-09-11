@@ -31,6 +31,7 @@ pub mod python;
 pub use core::Parser;
 pub use match_result::{MatchResult, MatchedClass, MetaSegment};
 pub use sqlfluffrs_types::ParseMode;
+pub use table_driven::ref_grammar::MISSING_REF_PREFIX;
 pub use types::{MetaType, Node, ParseError, ParseErrorType, RawSegmentKwargs};
 
 // Internal re-exports for submodules

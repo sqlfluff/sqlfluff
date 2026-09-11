@@ -4,3 +4,19 @@ EXCEPTION
     WHEN OTHER THEN
         RAISE;
 END;
+
+DECLARE
+    MY_EXCEPTION EXCEPTION (-20002, 'Raised MY_EXCEPTION.');
+BEGIN
+    RAISE MY_EXCEPTION;
+END;
+
+BEGIN
+    LET v INTEGER := (SELECT 1);
+    DECLARE
+        e_bad EXCEPTION (-20980, 'nope');
+    BEGIN
+        RAISE e_bad;
+    END;
+    RETURN v;
+END;

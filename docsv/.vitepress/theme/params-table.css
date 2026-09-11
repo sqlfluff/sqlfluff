@@ -1,0 +1,83 @@
+/*
+ * Responsive parameter tables for auto-generated API/internals docs.
+ *
+ * Tables are wrapped in <div class="params-table"> by the generator scripts.
+ * On wide viewports: 4 columns with minimum widths so they stay readable.
+ * On narrow viewports: thead hidden, each row becomes a labelled block list.
+ */
+
+/* ── desktop: prevent the first three columns from collapsing ────────────── */
+
+.params-table table th:nth-child(1),
+.params-table table td:nth-child(1) {
+  min-width: 120px;
+}
+
+.params-table table th:nth-child(2),
+.params-table table td:nth-child(2) {
+  min-width: 100px;
+}
+
+.params-table table th:nth-child(3),
+.params-table table td:nth-child(3) {
+  min-width: 70px;
+}
+
+/* ── desktop: show a placeholder in cells that have no value ─────────────── */
+
+.params-table table td:empty::after {
+  content: "—";
+  color: var(--vp-c-text-3);
+}
+
+/* ── mobile: stack each row as a labelled definition block ───────────────── */
+
+@media (max-width: 640px) {
+  .params-table table thead {
+    display: none;
+  }
+
+  .params-table table,
+  .params-table table tbody,
+  .params-table table tr,
+  .params-table table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .params-table table tr {
+    padding: 10px 0;
+    border-top: 1px solid var(--vp-c-divider);
+  }
+
+  .params-table table tr:last-child {
+    border-bottom: 1px solid var(--vp-c-divider);
+  }
+
+  .params-table table td {
+    padding: 2px 0;
+    border: none;
+  }
+
+  /* Hide cells with no value entirely (suppresses both label and content) */
+  .params-table table td:empty {
+    display: none;
+  }
+
+  /* Column label shown above each non-empty cell's value */
+  .params-table table td:not(:empty)::before {
+    display: block;
+    font-size: 0.72em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--vp-c-text-2);
+    margin-bottom: 2px;
+  }
+
+  .params-table table td:nth-child(1):not(:empty)::before { content: "Parameter"; }
+  .params-table table td:nth-child(2):not(:empty)::before { content: "Type"; }
+  .params-table table td:nth-child(3):not(:empty)::before { content: "Default"; }
+  .params-table table td:nth-child(4):not(:empty)::before { content: "Description"; }
+}

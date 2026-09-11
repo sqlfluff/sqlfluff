@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94347a05eb243cc8d8a5f0d63370bfef9540bff3b295e340ab836ebb758361f8
+_hash: 8816175f06a923e11be16329cd2600215edb58b604a8083fe57fea0bbf2ec36c
 file:
 - statement:
     show_statement:
@@ -28,4 +28,90 @@ file:
     show_statement:
     - keyword: SHOW
     - keyword: WORKSPACES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EVENT
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EVENT
+    - keyword: TABLES
+    - keyword: LIKE
+    - quoted_literal: "'%sales%'"
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: HYBRID
+    - keyword: TABLES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ICEBERG
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TERSE
+    - keyword: EXTERNAL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_app_package
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TERSE
+    - keyword: VIEWS
+    - keyword: LIKE
+    - quoted_literal: "'%sales%'"
+    - keyword: IN
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_app_package
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: IN
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
 - statement_terminator: ;

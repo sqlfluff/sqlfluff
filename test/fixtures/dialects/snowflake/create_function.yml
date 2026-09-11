@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebe60cb758dfd6883f2d2c0af5aac33847a1a7ed62f432cf81dcce4c0f3ce2c6
+_hash: ed00dbc1ca531a1988b0bfd61404ddbabd7e1cc74c4cebe83796d6b813cfbd36
 file:
 - statement:
     create_function_statement:
@@ -560,4 +560,91 @@ file:
     - keyword: SQL
     - keyword: AS
     - udf_body: $$ SELECT x $$
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: memoized_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: MEMOIZABLE
+    - keyword: AS
+    - udf_body: "'SELECT SUM(x) FROM big_table'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: nullable_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: 'NULL'
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "'x + 1'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: artifact_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARIANT
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: ARTIFACT_REPOSITORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: snowflake
+      - dot: .
+      - naked_identifier: snowpark
+      - dot: .
+      - naked_identifier: pypi_shared_repository
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'urllib3'"
+      - comma: ','
+      - quoted_literal: "'requests'"
+      - end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main'"
+    - keyword: AS
+    - udf_body: "$$\ndef main():\n    return 1\n$$"
 - statement_terminator: ;

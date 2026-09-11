@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e29aea27c8f69eaf0019d88861f60a0204978037b4d672f5d74daa3054b5db49
+_hash: 2cbec091810d462ef1cba38f90d18f65b684be371bb6c991211d471877f66fa8
 file:
-- statement:
+  statement:
     if_then_statement:
     - keyword: if
     - expression:
@@ -46,23 +46,22 @@ file:
           - numeric_literal: '1'
           end_bracket: )
     - keyword: then
-    - statement:
-        set_statement:
-          keyword: set
-          variable: '@errmsg'
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "''"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    if_then_statement:
+    - if_statement_list:
+      - statement:
+          set_statement:
+            keyword: set
+            variable: '@errmsg'
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "''"
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '1'
+      - statement_terminator: ;
     - keyword: end
     - keyword: if
-- statement_terminator: ;
+  statement_terminator: ;

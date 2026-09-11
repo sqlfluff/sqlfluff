@@ -512,3 +512,132 @@ test_fail_databricks_plain_shorthand_preferred_cast:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+test_pass_mysql_convert_is_left_alone:
+  # issue #8171: mysql spells this CONVERT(expr, type), so rewriting to CAST
+  # would swap the arguments and silently produce cast(SIGNED as b)
+  pass_str: SELECT CONVERT(b, SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_pass_mariadb_convert_is_left_alone:
+  # mariadb inherits the mysql dialect, and so the argument order
+  pass_str: SELECT CONVERT(b, SIGNED) FROM t
+  configs:
+    core:
+      dialect: mariadb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_mysql_convert_target_is_flagged_but_not_fixed:
+  # the reverse direction corrupts too: CAST(b AS SIGNED) would be rewritten to
+  # convert(SIGNED, b), the t-sql order, which is wrong on mysql. So the rewrite
+  # is withheld here, but the inconsistency is still reported - suppressing the
+  # fix must not silently stop linting CAST and :: on this dialect.
+  fail_str: SELECT CAST(b AS SIGNED), c::SIGNED FROM t
+  # no fix_str: both violations are unfixable under this config, so the file is
+  # left exactly as written.
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_mariadb_convert_target_is_flagged_but_not_fixed:
+  # mariadb inherits the mysql dialect, so it must behave the same way
+  fail_str: SELECT CAST(b AS SIGNED) FROM t
+  configs:
+    core:
+      dialect: mariadb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_tsql_convert_target_is_still_fixed:
+  # the control: t-sql takes CONVERT(type, expr), so the rewrite is safe there
+  # and withholding it on mysql must not affect this dialect
+  fail_str: SELECT CAST(b AS SIGNED) FROM t
+  fix_str: SELECT convert(SIGNED, b) FROM t
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_mysql_shorthand_still_linted:
+  # only CONVERT is affected on mysql; :: and CAST are linted as usual
+  fail_str: SELECT b::SIGNED FROM t
+  fix_str: SELECT cast(b as SIGNED) FROM t
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_tsql_convert_still_rewritten:
+  # t-sql takes CONVERT(type, expr), so the existing rewrite stays correct there
+  fail_str: SELECT CONVERT(SIGNED, b) FROM t
+  fix_str: SELECT cast(b as SIGNED) FROM t
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+# https://github.com/sqlfluff/sqlfluff - a `::` shorthand cast whose left
+# operand parses into more than one segment (e.g. an array subscript, which
+# is a column_reference plus one or more array_accessor children) must keep
+# the whole operand. The rewrite used to grab the operand and the target type
+# by fixed positional index, so it treated the subscript as the type.
+test_fail_shorthand_array_subscript_to_cast_consistent:
+  # consistent mode: the leading CAST makes it pick the 'cast' style
+  fail_str: SELECT CAST(z AS INT) AS zz, a[1]::INT AS y FROM t
+  fix_str: SELECT CAST(z AS INT) AS zz, cast(a[1] as INT) AS y FROM t
+
+test_fail_shorthand_array_subscript_to_convert_consistent:
+  # consistent mode: the leading CONVERT makes it pick the 'convert' style
+  fail_str: SELECT convert(INT, z) AS zz, a[1]::INT AS y FROM t
+  fix_str: SELECT convert(INT, z) AS zz, convert(INT, a[1]) AS y FROM t
+
+test_fail_shorthand_array_subscript_to_cast:
+  fail_str: SELECT a[1]::int AS y FROM t
+  fix_str: SELECT cast(a[1] as int) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_shorthand_array_subscript_to_convert:
+  fail_str: SELECT a[1]::int AS y FROM t
+  fix_str: SELECT convert(int, a[1]) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_shorthand_nested_array_subscript_to_convert:
+  # more than one array_accessor: the whole a[1][2] operand must survive
+  fail_str: SELECT a[1][2]::int AS y FROM t
+  fix_str: SELECT convert(int, a[1][2]) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_shorthand_multi_cast_operand_unaffected:
+  # a plain chained shorthand cast (single-segment operand) is unchanged
+  fail_str: SELECT 1::int::text AS y FROM t
+  fix_str: SELECT cast(cast(1 as int) as text) AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast

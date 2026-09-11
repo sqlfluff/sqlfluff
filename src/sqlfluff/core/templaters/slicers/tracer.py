@@ -274,13 +274,32 @@ class JinjaTagConfiguration:
 class JinjaAnalyzer:
     """Analyzes a Jinja template to prepare for tracing."""
 
-    re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
-    re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
-
     def __init__(self, raw_str: str, env: Environment) -> None:
         # Input
         self.raw_str: str = raw_str
         self.env = env
+        open_alts = sorted(
+            {
+                env.variable_start_string,
+                env.block_start_string,
+                env.comment_start_string,
+            },
+            key=len,
+            reverse=True,
+        )
+        close_alts = sorted(
+            {
+                env.variable_end_string,
+                env.block_end_string,
+                env.comment_end_string,
+            },
+            key=len,
+            reverse=True,
+        )
+        open_pat = "|".join(regex.escape(s) for s in open_alts)
+        close_pat = "|".join(regex.escape(s) for s in close_alts)
+        self.re_open_tag = regex.compile(rf"^\s*({open_pat})[\+\-]?\s*")
+        self.re_close_tag = regex.compile(rf"\s*[\+\-]?({close_pat})\s*$")
 
         # Output
         self.raw_sliced: list[RawFileSlice] = []

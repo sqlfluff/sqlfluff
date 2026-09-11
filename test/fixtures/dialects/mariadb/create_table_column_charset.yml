@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d383e37b65631c852af5deffd0bdde1132fbaef0e98b247fd01bbc2cece2e8c
+_hash: b19bacf50376d28a073039f3e6bf3de2267fc8dd758648579425addf890c39a1
 file:
 - statement:
     create_table_statement:
@@ -25,7 +25,7 @@ file:
         - column_constraint_segment:
           - keyword: CHARACTER
           - keyword: SET
-          - naked_identifier: latin1
+          - character_set: latin1
         - column_constraint_segment:
             keyword: COLLATE
             collation_reference:
@@ -112,4 +112,53 @@ file:
             collation_reference:
               quoted_literal: '"latin1_german1_ci"'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: col1
+        - data_type:
+            data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: CHARACTER
+          - keyword: SET
+          - character_set: ascii
+        - column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              naked_identifier: ascii_bin
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+          - keyword: CHARACTER
+          - keyword: SET
+          - keyword: binary
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              keyword: binary
+      - end_bracket: )
 - statement_terminator: ;

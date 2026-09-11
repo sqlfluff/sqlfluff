@@ -1,0 +1,292 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 79adb18d3a25d4a8817488f09a7d0bb5fc5f3bc81f4c148f307d1556d1f1cda8
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: "'return 1;'"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: "'return 1;'"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - keyword: IN
+        - data_type:
+            data_type_identifier: INT
+        - comma: ','
+        - parameter: b
+        - keyword: OUT
+        - data_type:
+            data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - keyword: INPUT
+        - data_type:
+            data_type_identifier: INT
+        - comma: ','
+        - parameter: b
+        - keyword: OUTPUT
+        - data_type:
+            data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: RESTRICTED
+    - keyword: CALLER
+    - keyword: AS
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: 'NULL'
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'snowflake-snowpark-python'"
+        end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'run'"
+    - keyword: AS
+    - udf_body: "'def run(session): return 1'"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: ARTIFACT_REPOSITORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: snowflake
+      - dot: .
+      - naked_identifier: snowpark
+      - dot: .
+      - naked_identifier: pypi_shared_repository
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'urllib3'"
+        end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'run'"
+    - keyword: AS
+    - udf_body: "'def run(session): return 1'"
+- statement_terminator: ;
+- statement:
+    call_with_anonymous_procedure:
+    - keyword: WITH
+    - function_name:
+        function_name_identifier: myproc
+    - keyword: AS
+    - keyword: PROCEDURE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN x;\nEND;\n$$"
+    - call_statement:
+        keyword: CALL
+        function_name:
+          function_name_identifier: myproc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '1'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_with_anonymous_procedure:
+    - keyword: WITH
+    - function_name:
+        function_name_identifier: myproc
+    - keyword: AS
+    - keyword: PROCEDURE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: CALLER
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN x;\nEND;\n$$"
+    - call_statement:
+        keyword: CALL
+        function_name:
+          function_name_identifier: myproc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '1'
+            end_bracket: )
+- statement_terminator: ;

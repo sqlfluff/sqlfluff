@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
@@ -70,7 +71,42 @@ mariadb_dialect.replace(
             ),
         ),
     ),
+    # Allow the MariaDB sequence value expressions `NEXT VALUE FOR seq` and
+    # `PREVIOUS VALUE FOR seq` anywhere an expression is valid (SELECT, VALUES).
+    # The dedicated segment is tried first so a leading NEXT/PREVIOUS is not
+    # consumed as a column reference.
+    Expression_C_Grammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        mysql_dialect.get_grammar("Expression_C_Grammar"),
+    ),
+    # A column DEFAULT may use a sequence value expression, either bare
+    # (`DEFAULT NEXT VALUE FOR seq`) or bracketed (`DEFAULT (NEXT VALUE FOR
+    # seq)`) -- both are accepted by MariaDB. The base column-default grammar
+    # only allows literals/functions, so it does not cover this.
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("SequenceValueForSegment"),
+        Bracketed(Ref("SequenceValueForSegment")),
+        mysql_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
 )
+
+
+class SequenceValueForSegment(BaseSegment):
+    """A MariaDB ``NEXT VALUE FOR`` / ``PREVIOUS VALUE FOR`` sequence expression.
+
+    ``NEXT VALUE FOR seq`` is equivalent to ``NEXTVAL(seq)`` and
+    ``PREVIOUS VALUE FOR seq`` to ``LASTVAL(seq)``.
+
+    https://mariadb.com/kb/en/sequence-overview/
+    """
+
+    type = "sequence_value_for_expression"
+    match_grammar: Matchable = Sequence(
+        OneOf("NEXT", "PREVIOUS"),
+        "VALUE",
+        "FOR",
+        Ref("SequenceReferenceSegment"),
+    )
 
 
 class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
@@ -186,6 +222,91 @@ class TableConstraintSegment(mysql.TableConstraintSegment):
     )
 
 
+class SystemTimePartitionSegment(BaseSegment):
+    """A ``PARTITION BY SYSTEM_TIME`` clause for system-versioned tables.
+
+    Rotates history rows into separate partitions, either by time
+    (``INTERVAL n unit``) or by size (``LIMIT n``), optionally automatically
+    (``AUTO``). MariaDB-only.
+
+    https://mariadb.com/kb/en/partitioning-and-system-versioning/
+    """
+
+    type = "system_time_partition"
+    match_grammar: Matchable = Sequence(
+        "PARTITION",
+        "BY",
+        "SYSTEM_TIME",
+        OneOf(
+            Sequence(
+                "INTERVAL",
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+                Sequence("STARTS", Ref("ExpressionSegment"), optional=True),
+            ),
+            Sequence("LIMIT", Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
+        Ref.keyword("AUTO", optional=True),
+        Sequence("PARTITIONS", Ref("NumericLiteralSegment"), optional=True),
+        # Optional subpartitioning of the history partitions.
+        Sequence(
+            "SUBPARTITION",
+            "BY",
+            Ref.keyword("LINEAR", optional=True),
+            OneOf(
+                Sequence("HASH", Bracketed(Ref("ExpressionSegment"))),
+                Sequence("KEY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
+            ),
+            Sequence("SUBPARTITIONS", Ref("NumericLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        # Optional explicit partition list:
+        # (PARTITION p0 HISTORY, ..., PARTITION pn CURRENT)
+        Bracketed(
+            Delimited(
+                Sequence(
+                    "PARTITION",
+                    Ref("SingleIdentifierGrammar"),
+                    OneOf("HISTORY", "CURRENT"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+def _create_table_grammar_with_system_time() -> Sequence:
+    """Build the MariaDB `CREATE TABLE` grammar.
+
+    MySQL's `CREATE TABLE` gathers table options (``ENGINE=``,
+    ``WITH SYSTEM VERSIONING``, ``PARTITION BY HASH/KEY/RANGE/LIST``, ...) in a
+    single trailing ``AnyNumberOf``. ``PARTITION BY SYSTEM_TIME`` must be a
+    sibling alternative *inside* that block: appending it after the block does
+    not work, because the generic ``option = value`` alternative would greedily
+    consume ``PARTITION``/``BY``/``SYSTEM_TIME`` as bare option tokens first.
+    Inserting it as the first alternative lets the longest-match pick it up.
+    """
+    grammar = mysql.CreateTableStatementSegment.match_grammar.copy()
+    table_options = grammar._elements[-1].copy(
+        insert=[Ref("SystemTimePartitionSegment", optional=True)], at=0
+    )
+    grammar._elements = [*grammar._elements[:-1], table_options]
+    return grammar
+
+
+class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
+    """`CREATE TABLE`, extended with MariaDB ``PARTITION BY SYSTEM_TIME``.
+
+    MySQL's own ``PARTITION BY`` (HASH/KEY/RANGE/LIST) is left unchanged; the
+    system-time partition clause is added as an additional alternative.
+
+    https://mariadb.com/kb/en/partitioning-and-system-versioning/
+    """
+
+    match_grammar = _create_table_grammar_with_system_time()
+
+
 class CreateUserStatementSegment(mysql.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
@@ -207,36 +328,62 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     match_grammar = Sequence(
         "DELETE",
-        Ref.keyword("LOW_PRIORITY", optional=True),
-        Ref.keyword("QUICK", optional=True),
-        Ref.keyword("IGNORE", optional=True),
         OneOf(
+            # System-versioned tables: purge history rows. Per the MariaDB docs
+            # this is a distinct form that does NOT take LOW_PRIORITY/QUICK/
+            # IGNORE, so it sits ahead of the standard branch (which owns those
+            # modifiers) rather than sharing them.
+            # DELETE HISTORY FROM tbl [PARTITION (...)]
+            #   [BEFORE SYSTEM_TIME [TIMESTAMP|TRANSACTION] expression]
+            # https://mariadb.com/kb/en/delete/
             Sequence(
+                "HISTORY",
                 "FROM",
-                Delimited(
-                    Ref("DeleteTargetTableSegment"),
-                    terminators=["USING"],
-                ),
-                Ref("DeleteUsingClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("DeleteTargetTableSegment"),
-                    terminators=["FROM"],
-                ),
-                Ref("FromClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-            ),
-            Sequence(
-                Ref("FromClauseSegment"),
-                # Application-time: DELETE ... FOR PORTION OF period FROM x TO y
-                Ref("ForPortionOfSegment", optional=True),
+                Ref("TableReferenceSegment"),
                 Ref("SelectPartitionClauseSegment", optional=True),
-                Ref("WhereClauseSegment", optional=True),
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("LimitClauseSegment", optional=True),
-                Ref("ReturningClauseSegment", optional=True),
+                Sequence(
+                    "BEFORE",
+                    "SYSTEM_TIME",
+                    OneOf("TIMESTAMP", "TRANSACTION", optional=True),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+            # Standard DELETE, which alone carries the optional modifiers.
+            Sequence(
+                Ref.keyword("LOW_PRIORITY", optional=True),
+                Ref.keyword("QUICK", optional=True),
+                Ref.keyword("IGNORE", optional=True),
+                OneOf(
+                    Sequence(
+                        "FROM",
+                        Delimited(
+                            Ref("DeleteTargetTableSegment"),
+                            terminators=["USING"],
+                        ),
+                        Ref("DeleteUsingClauseSegment"),
+                        Ref("WhereClauseSegment", optional=True),
+                    ),
+                    Sequence(
+                        Delimited(
+                            Ref("DeleteTargetTableSegment"),
+                            terminators=["FROM"],
+                        ),
+                        Ref("FromClauseSegment"),
+                        Ref("WhereClauseSegment", optional=True),
+                    ),
+                    Sequence(
+                        Ref("FromClauseSegment"),
+                        # Application-time:
+                        # DELETE ... FOR PORTION OF period FROM x TO y
+                        Ref("ForPortionOfSegment", optional=True),
+                        Ref("SelectPartitionClauseSegment", optional=True),
+                        Ref("WhereClauseSegment", optional=True),
+                        Ref("OrderByClauseSegment", optional=True),
+                        Ref("LimitClauseSegment", optional=True),
+                        Ref("ReturningClauseSegment", optional=True),
+                    ),
+                ),
             ),
         ),
     )
@@ -1030,7 +1177,8 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("NakedIdentifierSegment"),
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     "DEFAULT",
                 ),
             ),
@@ -1229,6 +1377,20 @@ class TableOptionsSegment(mysql.TableOptionsSegment):
     )
 
 
+class DropIndexStatementSegment(mysql.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause between ``INDEX`` and the index name.
+    MySQL does not support it, so the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/drop-index/
+    """
+
+    match_grammar = mysql.DropIndexStatementSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("IndexReferenceSegment"),
+    )
+
+
 class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
@@ -1240,4 +1402,53 @@ class CreateViewStatementSegment(mysql.CreateViewStatementSegment):
     match_grammar = mysql.CreateViewStatementSegment.match_grammar.copy(
         insert=[Ref("IfNotExistsGrammar", optional=True)],
         before=Ref("TableReferenceSegment"),
+    )
+
+
+class CreateSequenceStatementSegment(ansi.CreateSequenceStatementSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    Adds MariaDB's ``IF NOT EXISTS`` clause. MySQL/ANSI do not support it, so
+    the change is confined to the MariaDB dialect.
+    https://mariadb.com/kb/en/create-sequence/
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
+class AlterSequenceStatementSegment(ansi.AlterSequenceStatementSegment):
+    """An `ALTER SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause. MariaDB only.
+    https://mariadb.com/kb/en/alter-sequence/
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment")),
+    )
+
+
+class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
+    """A `DROP SEQUENCE` statement.
+
+    Adds MariaDB's ``IF EXISTS`` clause and comma-separated name list.
+    MariaDB only.
+    https://mariadb.com/kb/en/drop-sequence/
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SequenceReferenceSegment")),
     )

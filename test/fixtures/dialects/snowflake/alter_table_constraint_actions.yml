@@ -1,0 +1,409 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 39baeccc3d86e61326499a01aa93acf835cdfa06aebbd4c82f5fa13a7136d9b7
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - naked_identifier: uq1
+      - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - naked_identifier: uq1
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: UNIQUE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: a
+        - comma: ','
+        - column_reference:
+            naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: MODIFY
+      - keyword: CONSTRAINT
+      - naked_identifier: c1
+      - keyword: NOT
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - naked_identifier: c1
+      - keyword: ENFORCED
+      - keyword: VALIDATE
+      - keyword: RELY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: MODIFY
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - keyword: NOVALIDATE
+      - keyword: NORELY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: MODIFY
+      - keyword: UNIQUE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: a
+        - comma: ','
+        - column_reference:
+            naked_identifier: b
+        - end_bracket: )
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: RENAME
+      - keyword: CONSTRAINT
+      - naked_identifier: c1
+      - keyword: TO
+      - naked_identifier: c2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - parameter: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+    - comma: ','
+    - parameter: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - parameter: ENABLE_SCHEMA_EVOLUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comma: ','
+    - parameter: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'multiple parameters'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_contact
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_contact
+    - comma: ','
+    - keyword: SUPPORT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: support_contact
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - search_optimization_action:
+      - keyword: ADD
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+      - keyword: 'ON'
+      - keyword: EQUALITY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: c1
+        - comma: ','
+        - column_reference:
+            naked_identifier: c2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - search_optimization_action:
+      - keyword: ADD
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+      - keyword: 'ON'
+      - keyword: EQUALITY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: c1
+          end_bracket: )
+      - comma: ','
+      - keyword: SUBSTRING
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: c2
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - search_optimization_action:
+      - keyword: DROP
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+      - keyword: 'ON'
+      - keyword: EQUALITY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: c1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - search_optimization_action:
+      - keyword: DROP
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+      - keyword: 'ON'
+      - column_reference:
+          naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - search_optimization_action:
+      - keyword: ADD
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - search_optimization_action:
+      - keyword: DROP
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c1
+      - keyword: UNSET
+      - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: MODIFY
+      - keyword: CONSTRAINT
+      - naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"quoted constraint"'
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"quoted constraint"'
+      - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_constraint_action:
+      - keyword: RENAME
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"old name"'
+      - keyword: TO
+      - quoted_identifier: '"new name"'
+- statement_terminator: ;
