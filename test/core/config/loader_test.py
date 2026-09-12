@@ -417,6 +417,32 @@ def test__config__toml_nested_template_context(tmp_path, templater):
     assert merged_context["bundle"] == {**context["bundle"], "extra": "kept"}
 
 
+@pytest.mark.parametrize("templater", ["jinja", "python"])
+@pytest.mark.parametrize(
+    "literal,expected",
+    [
+        ("2026-09-12", "2026-09-12"),
+        ("12:34:56", "12:34:56"),
+        ("2026-09-12T12:34:56", "2026-09-12 12:34:56"),
+        ("2026-09-12T12:34:56Z", "2026-09-12 12:34:56+00:00"),
+    ],
+)
+def test__config__toml_context_temporal_values(tmp_path, templater, literal, expected):
+    """Temporal values normalize identically inside and outside context arrays."""
+    (tmp_path / "pyproject.toml").write_text(
+        f"[tool.sqlfluff.templater.{templater}.context]\n"
+        f"scalar = {literal}\n"
+        f"values = [{literal}, [{literal}], {{value = {literal}}}]\n"
+        f"bundle = {{values = [{literal}]}}\n",
+        encoding="utf-8",
+    )
+    loaded = load_config_file(str(tmp_path), "pyproject.toml")
+    context = loaded["templater"][templater]["context"]
+    assert context["scalar"] == expected
+    assert context["values"] == [expected, [expected], {"value": expected}]
+    assert context["bundle"] == {"values": [expected]}
+
+
 def test__config__load_toml_invalid_syntax(tmp_path):
     """Invalid TOML should raise a SQLFluff user error with location info."""
     pyproject_path = tmp_path / "pyproject.toml"

@@ -15,7 +15,7 @@ from sqlfluff.core.helpers.dict import (
     iter_records_from_nested_dict,
     records_to_nested_dict,
 )
-from sqlfluff.core.types import ConfigMappingType
+from sqlfluff.core.types import ConfigMappingType, ConfigValueOrListType
 
 T = TypeVar("T")
 
@@ -42,29 +42,32 @@ def _validate_structure(
 
     This is a recursive function on any dict keys found.
     """
-    validated_config: ConfigMappingType = {}
-    for key, value in raw_config.items():
-        if isinstance(value, dict):
-            validated_config[key] = _validate_structure(value, (*path, key))
-        elif isinstance(value, list):
-            if path[:3] in (
-                ("templater", "jinja", "context"),
-                ("templater", "python", "context"),
-            ):
-                # Context arrays may contain nested objects, unlike ordinary
-                # config lists. Preserve them for the templater.
-                validated_config[key] = value
-                continue
-            # Coerce all list items to strings, to be in line
-            # with the behaviour of ini configs.
-            validated_config[key] = [str(item) for item in value]
-        elif isinstance(value, (str, int, float, bool)) or value is None:
-            validated_config[key] = value
-        else:  # pragma: no cover
-            # Whatever we found, make it into a string.
-            # This is very unlikely to happen and is more for completeness.
-            validated_config[key] = str(value)
-    return validated_config
+    return {
+        key: _validate_value(value, (*path, key)) for key, value in raw_config.items()
+    }
+
+
+def _validate_value(
+    value: Any, path: tuple[str, ...]
+) -> ConfigValueOrListType | ConfigMappingType:
+    """Normalize a config value, including scalars nested inside context arrays."""
+    if isinstance(value, dict):
+        return _validate_structure(value, path)
+    if isinstance(value, list):
+        # Deliberately scoped to the built-in Jinja/Python context sections.
+        # Other templater selectors retain ordinary config-list coercion;
+        # discovering plugins here would couple config loading to templater loading.
+        if path[:3] in (
+            ("templater", "jinja", "context"),
+            ("templater", "python", "context"),
+        ):
+            return [_validate_value(item, path) for item in value]
+        # Coerce ordinary list items to strings, as with ini configs.
+        return [str(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    # TOML date/time values are outside the supported config scalar types.
+    return str(value)
 
 
 def _format_toml_parse_error(
