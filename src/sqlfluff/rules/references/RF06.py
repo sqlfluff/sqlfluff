@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
-from sqlfluff.core.parser import CodeSegment
+from sqlfluff.core.parser import CodeSegment, WordSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -235,9 +235,6 @@ class Rule_RF06(BaseRule):
             "RegexParser", context.dialect._library["NakedIdentifierSegment"]
         )
         anti_template = cast(str, naked_identifier_parser.anti_template)
-        NakedIdentifierSegment = cast(
-            type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
-        )
 
         # For this to be a candidate for unquoting, it must:
         # - Casefold to it's current exact case. i.e. already be in the default
@@ -275,12 +272,7 @@ class Rule_RF06(BaseRule):
             fixes=[
                 LintFix.replace(
                     context.segment,
-                    [
-                        NakedIdentifierSegment(
-                            raw=identifier_contents,
-                            **naked_identifier_parser.segment_kwargs(),
-                        )
-                    ],
+                    [WordSegment(raw=identifier_contents)],
                 )
             ],
             description=f"Unnecessary quoted identifier {context.segment.raw}.",
