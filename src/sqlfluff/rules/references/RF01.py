@@ -42,7 +42,7 @@ class Rule_RF01(BaseRule):
     .. note::
 
        This rule is disabled by default for Athena, BigQuery, Databricks, DuckDB, Hive,
-       Redshift, SOQL and SparkSQL due to the support of things like
+       Redshift, SOQL, SparkSQL and Trino due to the support of things like
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
 
@@ -381,4 +381,5 @@ class Rule_RF01(BaseRule):
             "redshift",
             "soql",
             "sparksql",
+            "trino",
         )
