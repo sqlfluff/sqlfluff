@@ -79,14 +79,20 @@ class SQLFluffViolationReporter(QualityReporter):
         return self.violations_dict
 
     def _run_sqlfluff(self, src_paths) -> list[str]:
+        src_paths = [
+            path for path in src_paths if path.endswith(".sql") and os.path.exists(path)
+        ]
+        if not src_paths:
+            logger.warning("Not running SQLFluff: No existing SQL files to check")
+            return []
+
         # Prepare the SQLFluff command to run.
         command = copy.deepcopy(self.driver.command)
         if self.options:
             for arg in self.options.split():
                 command.append(arg)
         for src_path in src_paths:
-            if src_path.endswith(".sql") and os.path.exists(src_path):
-                command.append(src_path.encode(sys.getfilesystemencoding()))
+            command.append(src_path.encode(sys.getfilesystemencoding()))
 
         with tempfile.NamedTemporaryFile(
             prefix="sqlfluff-", suffix=".json", delete=False
