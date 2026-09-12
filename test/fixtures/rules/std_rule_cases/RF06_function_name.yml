@@ -1,0 +1,10 @@
+rule: RF06
+
+test_fail_function_name_mariadb:
+  fail_str: |
+    CALL `somefunction`('a');
+  fix_str: |
+    CALL somefunction('a');
+  configs:
+    core:
+      dialect: mariadb
