@@ -1,0 +1,22 @@
+rule: RF06
+
+test_pass_oracle_case_sensitive_aliases:
+  pass_str: |
+    SELECT
+      col AS "renamed_col",
+      col AS "renamedCol"
+    FROM my_table;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_default_case_alias:
+  fail_str: |
+    SELECT col AS "RENAMED_COL"
+    FROM my_table;
+  fix_str: |
+    SELECT col AS RENAMED_COL
+    FROM my_table;
+  configs:
+    core:
+      dialect: oracle
