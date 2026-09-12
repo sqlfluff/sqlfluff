@@ -37,3 +37,25 @@ def _violations(sql: str) -> list:
 def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
     """Materialized view constraints must follow columns and expectations."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE PRIVATE TABLE t (a INT);",
+            id="private_without_streaming",
+        ),
+        pytest.param(
+            "CREATE OR REFRESH PRIVATE TABLE t (a INT);",
+            id="private_or_refresh_without_streaming",
+        ),
+        pytest.param(
+            "CREATE PRIVATE LIVE TABLE t (a INT);",
+            id="private_live_without_streaming",
+        ),
+    ],
+)
+def test_private_requires_streaming_table(sql: str) -> None:
+    """The PRIVATE modifier only applies to a streaming table."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
