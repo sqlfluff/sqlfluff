@@ -364,6 +364,34 @@ test_pass_trino_lambda_expression:
     core:
       dialect: trino
 
+test_trino_row_fields_from_single_table:
+  pass_str: |
+    SELECT metadata.sub_column, metadata.nested.value
+    FROM source_table;
+  configs:
+    core:
+      dialect: trino
+
+test_trino_row_fields_force_enable:
+  fail_str: |
+    SELECT metadata.sub_column
+    FROM source_table;
+  configs:
+    core:
+      dialect: trino
+    rules:
+      references.from:
+        force_enable: true
+
+test_trino_unknown_reference_with_multiple_tables:
+  fail_str: |
+    SELECT missing.value
+    FROM first_table AS a
+    JOIN second_table AS b ON a.id = b.id;
+  configs:
+    core:
+      dialect: trino
+
 test_pass_vertica_lambda_expression:
   pass_str: |
     select
