@@ -375,6 +375,74 @@ def test__config__toml_list_config():
     assert cfg.get("rules") == ["LT03", "LT09"]
 
 
+@pytest.mark.parametrize("templater", ["jinja", "python"])
+def test__config__toml_nested_template_context(tmp_path, templater):
+    """TOML context arrays retain their nested objects and scalar types."""
+    from sqlfluff.core.helpers.dict import nested_combine
+    from sqlfluff.core.templaters.python import PythonTemplater
+
+    (tmp_path / "pyproject.toml").write_text(
+        '[tool.sqlfluff.core]\ndialect = "ansi"\nrules = [1, 2]\n'
+        f"[tool.sqlfluff.templater.{templater}.context]\n"
+        'bundle = {metrics = [{name = "count", enabled = true, weight = 2}]}\n'
+        'values = [1, "123", true, [2, 3], {name = "nested"}]\n',
+        encoding="utf-8",
+    )
+    loaded = load_config_file(str(tmp_path), "pyproject.toml")
+    cfg = FluffConfig(loaded)
+    if templater == "jinja":
+        from sqlfluff.core.templaters.jinja import JinjaTemplater
+
+        renderer = JinjaTemplater()
+        rendered, violations = renderer.process(
+            in_str="SELECT {% for m in bundle.metrics %}{{ m.weight }} AS {{ m.name }}{% endfor %}",
+            fname="test.sql",
+            config=cfg,
+        )
+        assert rendered.templated_str == "SELECT 2 AS count"
+        assert not violations
+    else:
+        renderer = PythonTemplater()
+    context = renderer.get_context("test.sql", cfg)
+    assert context["bundle"] == {
+        "metrics": [{"name": "count", "enabled": True, "weight": 2}]
+    }
+    assert context["values"] == [1, "123", True, [2, 3], {"name": "nested"}]
+    assert loaded["core"]["rules"] == ["1", "2"]
+    # Context dictionaries must remain mergeable across config files.
+    merged = nested_combine(
+        loaded, {"templater": {templater: {"context": {"bundle": {"extra": "kept"}}}}}
+    )
+    merged_context = renderer.get_context("test.sql", FluffConfig(merged))
+    assert merged_context["bundle"] == {**context["bundle"], "extra": "kept"}
+
+
+@pytest.mark.parametrize("templater", ["jinja", "python"])
+@pytest.mark.parametrize(
+    "literal,expected",
+    [
+        ("2026-09-12", "2026-09-12"),
+        ("12:34:56", "12:34:56"),
+        ("2026-09-12T12:34:56", "2026-09-12 12:34:56"),
+        ("2026-09-12T12:34:56Z", "2026-09-12 12:34:56+00:00"),
+    ],
+)
+def test__config__toml_context_temporal_values(tmp_path, templater, literal, expected):
+    """Temporal values normalize identically inside and outside context arrays."""
+    (tmp_path / "pyproject.toml").write_text(
+        f"[tool.sqlfluff.templater.{templater}.context]\n"
+        f"scalar = {literal}\n"
+        f"values = [{literal}, [{literal}], {{value = {literal}}}]\n"
+        f"bundle = {{values = [{literal}]}}\n",
+        encoding="utf-8",
+    )
+    loaded = load_config_file(str(tmp_path), "pyproject.toml")
+    context = loaded["templater"][templater]["context"]
+    assert context["scalar"] == expected
+    assert context["values"] == [expected, [expected], {"value": expected}]
+    assert context["bundle"] == {"values": [expected]}
+
+
 def test__config__load_toml_invalid_syntax(tmp_path):
     """Invalid TOML should raise a SQLFluff user error with location info."""
     pyproject_path = tmp_path / "pyproject.toml"
