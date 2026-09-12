@@ -2084,6 +2084,32 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     )
 
 
+class AliasColumnListSegment(BaseSegment):
+    """A bracketed column list belonging to a T-SQL table alias."""
+
+    type = "alias_column_list"
+    match_grammar: Matchable = Bracketed(Ref("SingleIdentifierListSegment"))
+
+
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A T-SQL alias, optionally followed by a column alias list."""
+
+    # Mirrors ANSI's alias grammar except for the typed column-list segment.
+    # Keep this override synchronized with ansi.AliasExpressionSegment.
+    match_grammar: Matchable = Sequence(
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("AliasColumnListSegment", optional=True),
+            ),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Dedent,
+    )
+
+
 class AltAliasExpressionSegment(BaseSegment):
     """An alternative alias clause as used by tsql using `=`."""
 
