@@ -248,6 +248,21 @@ class Rule_AL05(BaseRule):
         * In the case of a nested SELECT, all dialect checked (MySQL, Postgres,
           T-SQL) require an alias.
         """
+        if dialect_name in ("postgres", "greenplum"):
+            alias_expressions = from_expression_element.get_children(
+                "alias_expression", "bracketed"
+            )
+            for alias_expression in alias_expressions:
+                if alias_expression.is_type("bracketed"):
+                    alias_expression = alias_expression.get_child("alias_expression")
+                if alias_expression and any(
+                    alias_expression.recursive_crawl("data_type")
+                ):
+                    # PostgreSQL record-returning table functions require the
+                    # typed column-definition list in an alias expression even
+                    # when the alias name itself is not referenced.
+                    return True
+
         # Look for a table_expression (i.e. VALUES clause) as a descendant of
         # the FROM expression, potentially nested inside brackets. The reason we
         # allow nesting in brackets is that in some dialects (e.g. TSQL), this
@@ -280,7 +295,7 @@ class Rule_AL05(BaseRule):
                     return (
                         dialect_name in self._dialects_requiring_alias_for_values_clause
                     )
-                elif any(
+                if any(
                     seg.is_type(
                         "select_statement", "set_expression", "with_compound_statement"
                     )
