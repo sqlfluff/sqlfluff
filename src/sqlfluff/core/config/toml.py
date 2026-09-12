@@ -35,7 +35,9 @@ def _condense_rule_record(record: NestedDictRecord[T]) -> NestedDictRecord[T]:
     return key, value
 
 
-def _validate_structure(raw_config: dict[str, Any]) -> ConfigMappingType:
+def _validate_structure(
+    raw_config: dict[str, Any], path: tuple[str, ...] = ()
+) -> ConfigMappingType:
     """Helper function to narrow types for use by SQLFluff.
 
     This is a recursive function on any dict keys found.
@@ -43,8 +45,16 @@ def _validate_structure(raw_config: dict[str, Any]) -> ConfigMappingType:
     validated_config: ConfigMappingType = {}
     for key, value in raw_config.items():
         if isinstance(value, dict):
-            validated_config[key] = _validate_structure(value)
+            validated_config[key] = _validate_structure(value, (*path, key))
         elif isinstance(value, list):
+            if path[:3] in (
+                ("templater", "jinja", "context"),
+                ("templater", "python", "context"),
+            ):
+                # Context arrays may contain nested objects, unlike ordinary
+                # config lists. Preserve them for the templater.
+                validated_config[key] = value
+                continue
             # Coerce all list items to strings, to be in line
             # with the behaviour of ini configs.
             validated_config[key] = [str(item) for item in value]
