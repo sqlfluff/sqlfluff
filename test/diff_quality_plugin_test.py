@@ -19,6 +19,8 @@ from sqlfluff.utils.testing.cli import invoke_assert_code
         # to ignore parsing errors.
         (("linter/diffquality/parse_error.sql",), []),
         (tuple(), []),
+        (("linter/deleted.sql",), []),
+        (("linter/indentation_errors.sql", "linter/deleted.sql"), list(range(2, 7))),
     ],
 )
 def test_diff_quality_plugin(sql_paths, expected_violations_lines, monkeypatch):
@@ -47,7 +49,6 @@ def test_diff_quality_plugin(sql_paths, expected_violations_lines, monkeypatch):
     violation_reporter = diff_quality_plugin.diff_cover_report_quality(
         options="--processes=1"
     )
-    assert len(sql_paths) in (0, 1)
     sql_paths = [str(Path(sql_path)) for sql_path in sql_paths]
 
     violations_dict = violation_reporter.violations_batch(sql_paths)
@@ -63,3 +64,17 @@ def test_diff_quality_plugin(sql_paths, expected_violations_lines, monkeypatch):
             if sql_paths
             else len(violations_dict) == 0
         )
+
+
+@pytest.mark.parametrize("src_paths", [["deleted.sql"], ["README.md"], []])
+def test_diff_quality_skips_missing_or_non_sql_files(src_paths, monkeypatch, tmp_path):
+    """Do not accidentally lint the working directory when no SQL files remain."""
+    monkeypatch.chdir(tmp_path)
+
+    def unexpected_execute(*args, **kwargs):
+        pytest.fail("SQLFluff must not run without an eligible SQL path")
+
+    monkeypatch.setattr(diff_quality_plugin, "execute", unexpected_execute)
+    reporter = diff_quality_plugin.diff_cover_report_quality()
+    reporter.driver_tool_installed = True
+    assert not reporter.violations_batch(src_paths)
