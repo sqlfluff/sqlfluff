@@ -2094,7 +2094,9 @@ class AliasColumnListSegment(BaseSegment):
 class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """A T-SQL alias, optionally followed by a column alias list."""
 
-    match_grammar = Sequence(
+    # Mirrors ANSI's alias grammar except for the typed column-list segment.
+    # Keep this override synchronized with ansi.AliasExpressionSegment.
+    match_grammar: Matchable = Sequence(
         Indent,
         Ref("AsAliasOperatorSegment", optional=True),
         OneOf(

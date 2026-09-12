@@ -1,5 +1,26 @@
 rule: LT01
 
+test_pass_tsql_values_alias_columns:
+  pass_str: SELECT * FROM (VALUES (1, 2)) AS t(a, b);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alias_columns_preserve_newline:
+  pass_str: |
+    SELECT * FROM (VALUES (1, 2)) AS t
+    (a, b);
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_values_alias_columns_excess_space:
+  fail_str: SELECT * FROM (VALUES (1, 2)) AS t  (a, b);
+  fix_str: SELECT * FROM (VALUES (1, 2)) AS t(a, b);
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_no_space_after_using_clause:
   fail_str: select * from a JOIN b USING(x)
   fix_str: select * from a JOIN b USING (x)
