@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 90f523a9a8314055dc0fbcd07d953e2ecf3ae1f2257eacc1d9b0986a2bd04e57
+_hash: 6e503c0127b379617513e37b1f729a38cad0d08b7cef8fd845dbcaa79b2f5f52
 file:
 - statement:
     access_statement:
@@ -57,7 +57,7 @@ file:
             naked_identifier: prj_table
       - keyword: TO
       - role_reference:
-          quoted_identifier: "'prj_svc'"
+          quoted_literal: "'prj_svc'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -138,9 +138,9 @@ file:
             naked_identifier: prj_table
       - keyword: TO
       - role_reference:
-        - quoted_identifier: "'prj_svc'"
+        - quoted_literal: "'prj_svc'"
         - at_sign_literal: '@'
-        - quoted_identifier: "'%'"
+        - quoted_literal: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -244,9 +244,9 @@ file:
             star: '*'
       - keyword: TO
       - role_reference:
-        - quoted_identifier: "'prj_svc'"
+        - quoted_literal: "'prj_svc'"
         - at_sign_literal: '@'
-        - quoted_identifier: "'%'"
+        - quoted_literal: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -264,9 +264,9 @@ file:
             star: '*'
       - keyword: TO
       - role_reference:
-        - quoted_identifier: "'prj_svc'"
+        - quoted_literal: "'prj_svc'"
         - at_sign_literal: '@'
-        - quoted_identifier: "'localhost'"
+        - quoted_literal: "'localhost'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -284,7 +284,7 @@ file:
           - star: '*'
       - keyword: TO
       - role_reference:
-        - quoted_identifier: "'prj_svc'"
+        - quoted_literal: "'prj_svc'"
         - at_sign_literal: '@'
-        - quoted_identifier: "'%'"
+        - quoted_literal: "'%'"
 - statement_terminator: ;
