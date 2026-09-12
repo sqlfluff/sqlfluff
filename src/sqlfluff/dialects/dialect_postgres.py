@@ -2937,6 +2937,15 @@ class AlterTableActionSegment(BaseSegment):
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", OneOf("CLUSTER", "OIDS")),
         Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
+        # `SET ACCESS METHOD` was added in PostgreSQL 15, and accepting
+        # `DEFAULT` (meaning `default_table_access_method`) in PostgreSQL 17.
+        # https://www.postgresql.org/docs/current/sql-altertable.html
+        Sequence(
+            "SET",
+            "ACCESS",
+            "METHOD",
+            OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+        ),
         Sequence("SET", OneOf("LOGGED", "UNLOGGED")),
         Sequence("SET", Ref("RelationOptionsSegment")),
         # Documentation says you can only provide keys in RESET options, but the
@@ -3429,6 +3438,14 @@ class AlterMaterializedViewActionSegment(BaseSegment):
         ),
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", "CLUSTER"),
+        # `SET ACCESS METHOD` was added in PostgreSQL 15.
+        # https://www.postgresql.org/docs/current/sql-altermaterializedview.html
+        Sequence(
+            "SET",
+            "ACCESS",
+            "METHOD",
+            OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+        ),
         Sequence(
             "SET",
             Bracketed(
