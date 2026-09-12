@@ -2031,15 +2031,18 @@ class ExecuteImmediateSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "IMMEDIATE",
-        OptionallyBracketed(
-            OneOf(
-                Ref("QuotedLiteralSegment"),  # String
-                Ref("SingleIdentifierFullGrammar"),  # Variable
-                Ref("FunctionSegment"),  # Function
-                Ref("CaseExpressionSegment"),  # Conditional Expression
-                Ref("ExpressionSegment"),  # Expression
-                Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
-            )
+        OneOf(
+            Bracketed(Ref("SelectStatementExpressionSegment")),
+            OptionallyBracketed(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),  # String
+                    Ref("SingleIdentifierFullGrammar"),  # Variable
+                    Ref("FunctionSegment"),  # Function
+                    Ref("CaseExpressionSegment"),  # Conditional Expression
+                    Ref("ExpressionSegment"),  # Expression
+                    Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
+                )
+            ),
         ),
         Sequence("INTO", Delimited(Ref("SingleIdentifierFullGrammar")), optional=True),
         Sequence(
