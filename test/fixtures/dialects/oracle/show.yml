@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 12e5efff5357e0f25e74eea914ba97cd22a3be5f0c01c1a769cb1238d456a6fb
+file:
+  batch:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHO
+    - keyword: ERR
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: my_func
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: PACKAGE
+    - keyword: BODY
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_pkg
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: JAVA
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: my_source
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARAMETER
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARAMETERS
+    - parameter: sga_target
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: SHOW
+    - keyword: USER
+  - statement_terminator: ;
+  - show_statement:
+      keyword: SHOW
+      naked_identifier: SGA
+  - statement_terminator: ;
+  - show_statement:
+      keyword: SHOW
+      naked_identifier: LINESIZE
+  - statement_terminator: ;
+  - show_statement:
+      keyword: SHOW
+      naked_identifier: CON_NAME
+  - statement_terminator: ;
+  - show_statement:
+    - keyword: show
+    - keyword: errors

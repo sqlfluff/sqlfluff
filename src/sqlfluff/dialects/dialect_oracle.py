@@ -1483,6 +1483,7 @@ class BatchSegment(BaseSegment):
             Delimited(
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
+                    Ref("ShowStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1509,6 +1510,48 @@ class SqlplusSetStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
+
+
+class ShowStatementSegment(BaseSegment):
+    """A SQL*Plus `SHOW` command.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        OneOf("SHOW", StringParser("SHO", WordSegment, type="keyword")),
+        OneOf(
+            # SHOW ERRORS [object_type [schema.]name]
+            Sequence(
+                OneOf("ERRORS", StringParser("ERR", WordSegment, type="keyword")),
+                Sequence(
+                    OneOf(
+                        "FUNCTION",
+                        "PROCEDURE",
+                        "TRIGGER",
+                        "VIEW",
+                        "DIMENSION",
+                        Sequence("PACKAGE", Ref.keyword("BODY", optional=True)),
+                        Sequence("TYPE", Ref.keyword("BODY", optional=True)),
+                        Sequence("JAVA", OneOf("SOURCE", "CLASS")),
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW ALL, SHOW USER, SHOW SGA, SHOW <system variable>, ...
+            Ref("SingleIdentifierGrammar"),
+            "ALL",
+            "USER",
+        ),
     )
 
 
