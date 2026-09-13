@@ -235,6 +235,8 @@ def run(
         else:
             sql_paths = sorted((FIXTURES_DIR / dialect).glob("*.sql"))
         for sql_path in sql_paths:
+            if not sql_path.is_file():
+                continue
             for line_no, sql in iter_statements(dialect, sql_path):
                 error = checker(sql)
                 if error is not None:
