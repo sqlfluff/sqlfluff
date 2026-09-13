@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
-from sqlfluff.core.parser import CodeSegment, WordSegment
+from sqlfluff.core.parser import WordSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
