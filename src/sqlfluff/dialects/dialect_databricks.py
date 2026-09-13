@@ -227,6 +227,15 @@ databricks_dialect.replace(
         ]
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    # `PRIVATE` marks a streaming table as internal to the pipeline. It is
+    # specific to Lakeflow Declarative Pipelines, so it is added here rather
+    # than in the shared SparkSQL `TableDefinitionSegment`.
+    # CREATE [OR REFRESH] [PRIVATE] STREAMING TABLE table_name ...
+    # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
+        insert=[Ref.keyword("PRIVATE", optional=True)],
+        before=Ref.keyword("STREAMING", optional=True),
+    ),
 )
 
 databricks_dialect.add(
@@ -2328,10 +2337,36 @@ class FlowReferenceSegment(ObjectReferenceSegment):
     type = "flow_reference"
 
 
+class FlowReplaceUsingSpecSegment(BaseSegment):
+    """The `REPLACE USING ... SEQUENCE BY ...` spec of an append flow.
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-flow
+    """
+
+    type = "flow_replace_using_spec"
+
+    match_grammar = Sequence(
+        "REPLACE",
+        "USING",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar"),
+        Dedent,
+        Sequence(
+            "SEQUENCE",
+            "BY",
+            Ref("ColumnReferenceSegment"),
+        ),
+    )
+
+
 class CreateFlowStatementSegment(BaseSegment):
-    """A statement for creating a flow to ingest CDC data into a target table.
+    """A statement for creating a flow which writes into a target table.
+
+    A flow is either an `AUTO CDC` flow, which ingests a CDC source, or an
+    append flow, which inserts the rows of a query into the target.
 
     https://docs.databricks.com/aws/en/ldp/flows
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-flow
     https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
     """
 
@@ -2343,14 +2378,37 @@ class CreateFlowStatementSegment(BaseSegment):
             "FLOW",
         ),
         Ref("FlowReferenceSegment"),
-        Sequence(
-            "AS",
-            "AUTO",
-            "CDC",
-            "INTO",
+        Ref("CommentGrammar", optional=True),
+        "AS",
+        OneOf(
+            # AUTO CDC [ONCE] INTO target_table create_auto_cdc_flow_spec
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref.keyword("ONCE", optional=True),
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                Ref("CDCSpecificationSegment"),
+            ),
+            # INSERT [ONCE] INTO target_table BY NAME [replace_using_spec] query
+            Sequence(
+                "INSERT",
+                # The reference grammar spells this `INSERT [ONCE] INTO`, while
+                # the pipeline examples in the same documentation set write
+                # `INSERT INTO ONCE`. Accept either position, but not both.
+                OneOf(
+                    Sequence("ONCE", "INTO"),
+                    Sequence("INTO", Ref.keyword("ONCE", optional=True)),
+                ),
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                "BY",
+                "NAME",
+                Ref("FlowReplaceUsingSpecSegment", optional=True),
+                Ref("SelectableGrammar"),
+            ),
         ),
-        Indent,
-        Ref("TableReferenceSegment"),
-        Dedent,
-        Ref("CDCSpecificationSegment"),
     )

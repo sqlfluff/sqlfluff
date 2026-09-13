@@ -68,3 +68,15 @@ FROM stream(cdc_data.users)
   COLUMNS * EXCEPT (operation, sequenceNum)
   STORED AS SCD TYPE 2
   TRACK HISTORY ON * EXCEPT (city);
+
+-- `AUTO CDC ONCE` performs a one-off CDC load, see
+-- https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-flow
+
+CREATE FLOW backfill_flow
+COMMENT 'one-off historical load'
+AS AUTO CDC ONCE INTO
+  target
+FROM stream(cdc_data.users)
+  KEYS (userId)
+  SEQUENCE BY sequenceNum
+  STORED AS SCD TYPE 2;

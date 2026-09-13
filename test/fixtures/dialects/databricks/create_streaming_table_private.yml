@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e77fe76348c93b61f3bf1cbfa1bcb9b13af599a682ecf36e89bfda3b2b0ab6a6
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: raw_customers
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: customer_id
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: staged_customers
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: customer_id
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: region
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: filtered_customers
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: raw_customers
+                end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: region
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+- statement_terminator: ;

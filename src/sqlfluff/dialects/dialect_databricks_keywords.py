@@ -45,6 +45,7 @@ UNRESERVED_KEYWORDS = [
     "METRICS",
     "MOST",
     "NORELY",
+    "ONCE",
     "OPTIMIZATION",
     "OPTIMIZE",
     "PREDICTIVE",

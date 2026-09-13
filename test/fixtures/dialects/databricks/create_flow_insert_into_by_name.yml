@@ -1,0 +1,178 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 01b77ad325c4eaf745c3a78da0aefd1a55ad7151ac422b49ffb4b057befd54d5
+file:
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: customers_west
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customers
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: customers_west_raw
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: customers_east
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customers
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: customers_east_raw
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: customers_backfill
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: ONCE
+    - table_reference:
+        naked_identifier: customers
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_historical
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: customers_backfill_alt
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customers
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers_historical
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: customers_replace
+    - keyword: COMMENT
+    - quoted_literal: "'replace matching rows'"
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customers
+    - keyword: BY
+    - keyword: NAME
+    - flow_replace_using_spec:
+      - keyword: REPLACE
+      - keyword: USING
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: customer_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: region
+        - end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: customers_updates
+                end_bracket: )
+- statement_terminator: ;
