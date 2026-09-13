@@ -101,6 +101,12 @@ rs = ["sqlfluffrs==4.3.0"]
 # Testing utilities for plugin developers
 testutils = ["pytest"]
 
+[dependency-groups]
+fixture-validation = [
+    "duckdb",
+    "pglast",
+]
+
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
 Documentation = "https://docs.sqlfluff.com"

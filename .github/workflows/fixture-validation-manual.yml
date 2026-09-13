@@ -1,0 +1,69 @@
+###########################
+## Manual SQL Validation ##
+###########################
+#
+# Lets a maintainer manually validate an arbitrary SQL query against a real
+# database engine's own parser, without needing a fixture file or a PR.
+#
+# Only covers the dialects that need no external service or account:
+# postgres, duckdb, and sqlite.
+#
+# Workflow is only runnable by maintainers given workflow_dispatch already
+# requires write access.
+name: Manual Dialect SQL Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      sql:
+        description: 'SQL query to validate'
+        required: true
+        type: string
+      dialect:
+        description: 'Dialect to validate against'
+        required: true
+        type: choice
+        options:
+          - duckdb
+          - postgres
+          - sqlite
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78  # v7.6.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            pyproject.toml
+
+      - name: Write input SQL to file
+        # The SQL comes from an untrusted workflow_dispatch input, so it's
+        # passed through as an env var and written out with printf rather
+        # than interpolated directly.
+        env:
+          SQL_INPUT: ${{ github.event.inputs.sql }}
+        run: printf '%s' "$SQL_INPUT" > input.sql
+
+      - name: Validate SQL against real engine
+        env:
+          DIALECT: ${{ github.event.inputs.dialect }}
+        run: |
+          uv run --group fixture-validation \
+            python utils/validate_fixtures.py --dialects "$DIALECT" \
+            --sql input.sql >> "$GITHUB_STEP_SUMMARY"
