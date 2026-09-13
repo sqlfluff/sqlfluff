@@ -165,6 +165,26 @@ REMOVED_CONFIGS = [
         (lambda x: "trailing" if x == "before" else "leading"),
     ),
     _RemovedConfig(
+        ("rules", "L007", "operator_new_lines"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":binary_operator)."
+        ),
+        ("layout", "type", "binary_operator", "line_position"),
+        (lambda x: "trailing" if x == "before" else "leading"),
+    ),
+    _RemovedConfig(
+        ("rules", "layout.operators", "operator_new_lines"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":binary_operator)."
+        ),
+        ("layout", "type", "binary_operator", "line_position"),
+        (lambda x: "trailing" if x == "before" else "leading"),
+    ),
+    _RemovedConfig(
         ("rules", "comma_style"),
         (
             "Use the line_position config in the appropriate "
@@ -177,6 +197,26 @@ REMOVED_CONFIGS = [
     # LT04 used to have a more specific version of the same /config itself.
     _RemovedConfig(
         ("rules", "LT04", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L019", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "layout.commas", "comma_style"),
         (
             "Use the line_position config in the appropriate "
             "sqlfluff:layout section (e.g. sqlfluff:layout:type"

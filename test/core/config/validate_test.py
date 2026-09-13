@@ -174,6 +174,49 @@ def test__validate_configs_semicolon_newline_translation():
 
 
 @pytest.mark.parametrize(
+    "old_key,value,new_key,new_value",
+    [
+        (
+            ("rules", "L007", "operator_new_lines"),
+            "before",
+            ("layout", "type", "binary_operator", "line_position"),
+            "trailing",
+        ),
+        (
+            ("rules", "layout.operators", "operator_new_lines"),
+            "after",
+            ("layout", "type", "binary_operator", "line_position"),
+            "leading",
+        ),
+        (
+            ("rules", "L019", "comma_style"),
+            "leading",
+            ("layout", "type", "comma", "line_position"),
+            "leading",
+        ),
+        (
+            ("rules", "layout.commas", "comma_style"),
+            "trailing",
+            ("layout", "type", "comma", "line_position"),
+            "trailing",
+        ),
+    ],
+)
+def test__validate_configs_layout_translation_by_rule_reference(
+    old_key, value, new_key, new_value
+):
+    """Removed LT03/LT04 configs migrate whichever rule reference is used.
+
+    Rule sections can be keyed by code, legacy code or name, so a removed
+    value set under any of them should be migrated rather than silently
+    ignored.
+    """
+    config = records_to_nested_dict([(old_key, value)])
+    validate_config_dict_for_removed(config, "<test>")
+    assert config == records_to_nested_dict([(new_key, new_value)])
+
+
+@pytest.mark.parametrize(
     "old_value,expected",
     [
         # Booleans, as produced by ini configs and native toml booleans.
