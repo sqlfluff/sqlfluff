@@ -333,6 +333,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.changed_files == "-" and args.sql == "-":
+        parser.error("--changed-files - and --sql - cannot both read from stdin.")
+
     fixture_paths = None
     if args.changed_files:
         text = (
