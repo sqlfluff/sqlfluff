@@ -42,6 +42,7 @@ from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1502,6 +1503,44 @@ class SlashBufferExecutorSegment(BaseSegment):
     match_grammar = Ref("SlashSegment")
 
 
+class _StandaloneSlashTerminator(Matchable):
+    """Terminator that matches ``/`` only when it stands on its own line.
+
+    A bare ``/`` in Oracle is ambiguous: it may be the arithmetic division
+    operator inside an expression, or the SQL*Plus slash-buffer-executor
+    when it appears as a batch delimiter on its own line. This matcher
+    matches only the second case, so it can be safely used as a terminator
+    for inner grammars (e.g. the SELECT body of ``CREATE VIEW``) without
+    also terminating parsing on an in-expression ``1 / 100``.
+    """
+
+    def is_optional(self) -> bool:
+        return False
+
+    def simple(self, parse_context, crumbs=None):
+        return frozenset({"/"}), frozenset()
+
+    def cache_key(self) -> str:
+        return "oracle-standalone-slash-terminator"
+
+    def match(self, segments, idx, parse_context):
+        if idx >= len(segments) or segments[idx].raw != "/":
+            return MatchResult.empty_at(idx)
+        # Walk backward, skipping meta and inline whitespace, and require
+        # that the previous code-relevant segment is a newline (or that we
+        # reach the start of the segment stream).
+        prev = idx - 1
+        while prev >= 0:
+            seg = segments[prev]
+            if seg.is_meta or seg.is_type("whitespace"):
+                prev -= 1
+                continue
+            if seg.is_type("newline"):
+                return MatchResult(slice(idx, idx + 1))
+            return MatchResult.empty_at(idx)
+        return MatchResult(slice(idx, idx + 1))
+
+
 class SqlplusSetStatementSegment(BaseSegment):
     """A SQL*Plus `SET` command."""
 
@@ -1611,7 +1650,8 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            terminators=[_StandaloneSlashTerminator()],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
