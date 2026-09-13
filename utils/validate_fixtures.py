@@ -338,7 +338,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         text = (
             sys.stdin.read()
             if args.changed_files == "-"
-            else Path(args.changed_files).read_text()
+            else Path(args.changed_files).read_text(encoding="utf-8")
         )
         fixture_paths = fixture_paths_from_changed_files(text.splitlines())
         dialects = set(fixture_paths)
@@ -349,7 +349,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         fixture_paths = {d: p for d, p in fixture_paths.items() if d in dialects}
 
     if args.sql:
-        raw = sys.stdin.read() if args.sql == "-" else Path(args.sql).read_text()
+        raw = (
+            sys.stdin.read()
+            if args.sql == "-"
+            else Path(args.sql).read_text(encoding="utf-8")
+        )
         checked, skipped, findings = run_sql(dialects, raw)
     else:
         checked, skipped, findings = run(dialects, fixture_paths=fixture_paths)
