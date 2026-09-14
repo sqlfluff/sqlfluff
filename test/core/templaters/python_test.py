@@ -629,6 +629,20 @@ def test__templater_python_dot_notation_fail(context, error_string):
             "SELECT * FROM foo_bar",
             None,
         ),
+        (
+            "SELECT * FROM {foo.bar!r}",
+            "templating",
+            None,
+            "SELECT * FROM foo_bar",
+            None,
+        ),
+        (
+            "SELECT * FROM {foo.bar!a}",
+            "templating",
+            None,
+            "SELECT * FROM foo_bar",
+            None,
+        ),
         # With ignore=templating and a partial sqlfluff context, a missing nested
         # dot-notation key should still fall back rather than raising KeyError.
         (
@@ -636,6 +650,34 @@ def test__templater_python_dot_notation_fail(context, error_string):
             "templating",
             {"sqlfluff": {"existing.key": "val"}},
             "SELECT * FROM foo_bar",
+            None,
+        ),
+        (
+            "SELECT * FROM {foo.bar!r}",
+            "templating",
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM foo_bar",
+            None,
+        ),
+        (
+            "SELECT * FROM {foo.bar!a}",
+            "templating",
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM foo_bar",
+            None,
+        ),
+        (
+            "SELECT * FROM {foo.bar!r:>10}",
+            "templating",
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM    foo_bar",
+            None,
+        ),
+        (
+            "SELECT * FROM {foo.bar!a:>10}",
+            "templating",
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM    foo_bar",
             None,
         ),
     ],
