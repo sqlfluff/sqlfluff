@@ -443,6 +443,34 @@ def test__config__load_toml_utf8_bom_hint(tmp_path):
     assert "column 1" in message
 
 
+def test__config__load_toml_non_table_rules(tmp_path):
+    """A `rules` value that isn't a table should raise a SQLFluffUserError.
+
+    Regression test: a `pyproject.toml` with `rules` set directly under
+    `[tool.sqlfluff]` (mirroring the `.sqlfluff` ini `rules = all` syntax,
+    rather than the required `[tool.sqlfluff.rules.<rule_name>]` tables)
+    used to raise a bare, uncaught ``AssertionError`` instead of the
+    ``SQLFluffUserError`` every other malformed config case produces.
+    """
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text(
+        '[tool.sqlfluff]\ndialect = "ansi"\nrules = "all"\n',
+        encoding="utf-8",
+    )
+
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), "pyproject.toml")
+    finally:
+        clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
+
+    message = str(exc_info.value)
+    assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
+    assert "invalid `rules` value" in message
+    assert "'all'" in message
+
+
 def test__config__format_toml_parse_error_regex_location() -> None:
     """Regex fallback should extract location from the raw decode message."""
 

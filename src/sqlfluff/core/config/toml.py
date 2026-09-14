@@ -116,10 +116,14 @@ def load_toml_file_config(filepath: str) -> ConfigMappingType:
         return config_dict
 
     rules_section = config_dict["rules"]
-    assert isinstance(rules_section, dict), (
-        "Expected to find section in `rules` section of config, "
-        f"but instead found {rules_section}"
-    )
+    if not isinstance(rules_section, dict):
+        raise SQLFluffUserError(
+            f"Config file {filepath!r} set an invalid `rules` value: "
+            f"{rules_section!r}. In `pyproject.toml`, per-rule config must be "
+            "set with a table per rule, e.g. "
+            "`[tool.sqlfluff.rules.<rule_name>]`, rather than as a plain value "
+            "under `[tool.sqlfluff]`."
+        )
     # Condense the rules section.
     config_dict["rules"] = records_to_nested_dict(
         _condense_rule_record(record)
