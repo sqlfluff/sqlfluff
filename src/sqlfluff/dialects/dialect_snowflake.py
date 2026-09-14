@@ -8531,12 +8531,6 @@ class DefineStageSegment(BaseSegment):
         Sequence(
             "FILE_FORMAT", Ref("EqualsSegment"), Ref("FileFormatSegment"), optional=True
         ),
-        Sequence(
-            "COPY_OPTIONS",
-            Ref("EqualsSegment"),
-            Bracketed(Ref("CopyOptionsSegment")),
-            optional=True,
-        ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
         Dedent,
