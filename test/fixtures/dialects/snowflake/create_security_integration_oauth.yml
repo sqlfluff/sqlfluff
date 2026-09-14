@@ -1,0 +1,171 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7612353dcdf0e77cbfb1c903115a762d556e0ccdc23adc9d9fee94e1737e8c9e
+file:
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - security_integration_snowflake_oauth_options:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OAUTH
+      - keyword: OAUTH_CLIENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM
+      - keyword: OAUTH_CLIENT_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CONFIDENTIAL'"
+      - keyword: OAUTH_REDIRECT_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://example.com/oauth/callback'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - security_integration_snowflake_oauth_options:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OAUTH
+      - keyword: OAUTH_CLIENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM
+      - keyword: OAUTH_CLIENT_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'PUBLIC'"
+      - keyword: OAUTH_REDIRECT_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://example.com/oauth/callback'"
+      - keyword: ENABLED
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: OAUTH_ALLOW_NON_TLS_REDIRECT_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: OAUTH_ENFORCE_PKCE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: OAUTH_ENABLE_ROLE_SELECTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: OAUTH_USE_SECONDARY_ROLES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - keyword: PRE_AUTHORIZED_ROLES_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'my_role_1'"
+        - comma: ','
+        - quoted_literal: "'my_role_2'"
+        - end_bracket: )
+      - keyword: ALLOWED_ROLES_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'my_analyst_role'"
+          end_bracket: )
+      - keyword: BLOCKED_ROLES_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'ACCOUNTADMIN'"
+        - comma: ','
+        - quoted_literal: "'SECURITYADMIN'"
+        - end_bracket: )
+      - keyword: OAUTH_ISSUE_REFRESH_TOKENS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: OAUTH_ACCESS_TOKEN_VALIDITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '600'
+      - keyword: OAUTH_REFRESH_TOKEN_VALIDITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '86400'
+      - keyword: NETWORK_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_network_policy'"
+      - keyword: OAUTH_CLIENT_RSA_PUBLIC_KEY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'MIIBIjANBgkqh...'"
+      - keyword: OAUTH_CLIENT_RSA_PUBLIC_KEY_2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'MIIBIjANBgkqh...'"
+      - comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'custom oauth client'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - security_integration_snowflake_oauth_options:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OAUTH
+      - keyword: OAUTH_CLIENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CUSTOM
+      - keyword: OAUTH_CLIENT_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CONFIDENTIAL'"
+      - keyword: OAUTH_REDIRECT_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://example.com/oauth/callback'"
+      - keyword: OAUTH_USE_SECONDARY_ROLES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: IMPLICIT
+      - keyword: BLOCKED_ROLES_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
