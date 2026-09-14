@@ -1077,7 +1077,11 @@ def lint(
         result.persist_timing_records(persist_timing)
 
     output_stream.close()
-    if bench:
+    # NB: When a machine-readable format (json, yaml, sarif, ...) is being
+    # written to stdout (i.e. no --write-output file was given), that stdout
+    # payload must remain parseable on its own. Printing the bench summary
+    # in that case would append plain text after it, corrupting the payload.
+    if bench and (format == FormatType.human.value or write_output is not None):
         click.echo("==== overall timings ====")
         click.echo(formatter.cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()

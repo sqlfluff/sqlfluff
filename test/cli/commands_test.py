@@ -875,6 +875,26 @@ def test__cli__verbose_machine_output_stays_serialized():
     assert result.stderr
 
 
+def test__cli__bench_machine_output_stays_serialized():
+    """--bench timings should not contaminate machine-readable stdout."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=json",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    # The whole of stdout must be valid JSON: if --bench appended its
+    # "==== overall timings ====" table after the payload, this parse
+    # would fail with "Extra data".
+    json.loads(result.stdout)
+    assert "==== overall timings ====" not in result.stdout
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""
