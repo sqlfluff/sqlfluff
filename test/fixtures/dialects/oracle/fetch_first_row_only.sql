@@ -13,3 +13,16 @@ fetch  first 2 row only;
 select column_name
 from   table_name
 fetch  first 2 rows only;
+
+select column_name
+from   table_name
+fetch  first 10 percent rows only;
+
+select column_name
+from   table_name
+fetch  next 2.5 percent rows with ties;
+
+select column_name
+from   table_name
+order by column_name
+fetch  next 5 rows with ties;

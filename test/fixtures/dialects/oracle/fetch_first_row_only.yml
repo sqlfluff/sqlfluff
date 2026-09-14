@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e4e6df3016fa742fa5d8a57a16ebff5617dae934ad5cdc87181320e78ccc16f
+_hash: feae9b80027f08559d2c1e08fb6fc5a08423ab0d5bc1378a70632cec4c3a4836
 file:
   batch:
   - statement:
@@ -87,4 +87,76 @@ file:
         - numeric_literal: '2'
         - keyword: rows
         - keyword: only
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - numeric_literal: '10'
+        - keyword: percent
+        - keyword: rows
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: next
+        - numeric_literal: '2.5'
+        - keyword: percent
+        - keyword: rows
+        - keyword: with
+        - keyword: ties
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: column_name
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+        orderby_clause:
+        - keyword: order
+        - keyword: by
+        - column_reference:
+            naked_identifier: column_name
+        fetch_clause:
+        - keyword: fetch
+        - keyword: next
+        - numeric_literal: '5'
+        - keyword: rows
+        - keyword: with
+        - keyword: ties
   - statement_terminator: ;
