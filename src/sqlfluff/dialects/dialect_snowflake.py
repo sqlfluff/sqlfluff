@@ -1950,6 +1950,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("CreateSessionPolicyStatementSegment"),
+            Ref("AlterSessionPolicyStatementSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
             Ref("AlterDynamicTableStatementSegment"),
@@ -12031,6 +12033,114 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("PasswordPolicyReferenceSegment"),
+    )
+
+
+class SessionPolicyOptionsSegment(BaseSegment):
+    """Session Policy Options.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-session-policy
+    """
+
+    type = "session_policy_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "SESSION_IDLE_TIMEOUT_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SESSION_UI_IDLE_TIMEOUT_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SESSION_MAX_LIFESPAN_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SESSION_UI_MAX_LIFESPAN_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        # Both role lists accept `('ALL')`, a list of role names, or an
+        # empty list `()`.
+        Sequence(
+            "ALLOWED_SECONDARY_ROLES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Sequence(
+            "BLOCKED_SECONDARY_ROLES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class CreateSessionPolicyStatementSegment(BaseSegment):
+    """Create Session Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-session-policy
+    """
+
+    type = "create_session_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SESSION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("SessionPolicyOptionsSegment", optional=True),
+    )
+
+
+class AlterSessionPolicyStatementSegment(BaseSegment):
+    """Alter Session Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-session-policy
+    """
+
+    type = "alter_session_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SESSION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence(
+                "SET",
+                Ref("SessionPolicyOptionsSegment"),
+            ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "SESSION_IDLE_TIMEOUT_MINS",
+                        "SESSION_UI_IDLE_TIMEOUT_MINS",
+                        "SESSION_MAX_LIFESPAN_MINS",
+                        "SESSION_UI_MAX_LIFESPAN_MINS",
+                        "ALLOWED_SECONDARY_ROLES",
+                        "BLOCKED_SECONDARY_ROLES",
+                        "COMMENT",
+                    ),
+                ),
+            ),
+        ),
     )
 
 
