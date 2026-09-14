@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4cc13177075def8167e22f61e648e494eb172160ffbbf14aad4a270ff327c7b1
+_hash: e5e6675fe7128bb22dc4c7213dcaeed3cd83c9d1b509b699694fd7b20472fcdf
 file:
 - statement:
     copy_statement:
@@ -1657,5 +1657,42 @@ file:
       - comma: ','
       - keyword: LOG_VERBOSITY
       - keyword: silent
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: LOG_VERBOSITY
+      - keyword: default
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ON_ERROR
+      - keyword: stop
+      - comma: ','
+      - keyword: LOG_VERBOSITY
+      - keyword: verbose
       - end_bracket: )
 - statement_terminator: ;
