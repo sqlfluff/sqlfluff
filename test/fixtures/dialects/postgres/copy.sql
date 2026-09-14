@@ -84,3 +84,12 @@ COPY my_table FROM :'fname';
 COPY my_table TO :"out";
 COPY my_table FROM PROGRAM :'gen_cmd';
 COPY my_table TO PROGRAM :dest_cmd;
+
+-- COPY options added in PostgreSQL 15-18
+COPY my_table FROM STDIN WITH (FORMAT csv, HEADER MATCH);
+COPY my_table FROM STDIN WITH (FORMAT csv, DEFAULT 'default');
+COPY my_table FROM STDIN WITH (FORMAT csv, FORCE_NOT_NULL *, FORCE_NULL *);
+COPY my_table FROM STDIN WITH (FORMAT csv, ON_ERROR stop);
+COPY my_table FROM STDIN WITH (FORMAT csv, ON_ERROR ignore, REJECT_LIMIT 10);
+COPY my_table FROM STDIN WITH (FORMAT csv, ON_ERROR ignore, LOG_VERBOSITY verbose);
+COPY my_table FROM STDIN WITH (FORMAT csv, ON_ERROR ignore, LOG_VERBOSITY silent);
