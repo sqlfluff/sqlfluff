@@ -1603,10 +1603,7 @@ class FetchClauseSegment(ansi.FetchClauseSegment):
         Sequence(
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Ref(
-                    "ExpressionSegment",
-                    exclude=OneOf(Ref.keyword("ROW"), Ref.keyword("PERCENT")),
-                ),
+                Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
             ),
             Ref.keyword("PERCENT", optional=True),
             optional=True,
