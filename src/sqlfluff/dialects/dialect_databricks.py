@@ -232,9 +232,19 @@ databricks_dialect.replace(
     # than in the shared SparkSQL `TableDefinitionSegment`.
     # CREATE [OR REFRESH] [PRIVATE] STREAMING TABLE table_name ...
     # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    # `PRIVATE` only qualifies a streaming table, so it is bound to the
+    # `STREAMING` keyword rather than inserted as an independently optional
+    # one, which would also have admitted `CREATE PRIVATE TABLE`.
     TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
-        insert=[Ref.keyword("PRIVATE", optional=True)],
+        insert=[
+            Sequence(
+                Ref.keyword("PRIVATE", optional=True),
+                "STREAMING",
+                optional=True,
+            )
+        ],
         before=Ref.keyword("STREAMING", optional=True),
+        remove=[Ref.keyword("STREAMING", optional=True)],
     ),
 )
 
