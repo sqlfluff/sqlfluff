@@ -1,0 +1,58 @@
+ALTER API INTEGRATION my_api SET ENABLED = FALSE;
+
+ALTER API INTEGRATION IF EXISTS my_api SET
+    API_AWS_ROLE_ARN = 'arn:aws:iam::123456789012:role/my_role'
+    API_ALLOWED_PREFIXES = ('https://xyz.execute-api.us-west-2.amazonaws.com/prod/')
+    API_BLOCKED_PREFIXES = ('https://xyz.execute-api.us-west-2.amazonaws.com/prod/private/')
+    COMMENT = 'my api integration';
+
+ALTER API INTEGRATION my_api SET ALLOWED_AUTHENTICATION_SECRETS = ALL;
+
+ALTER API INTEGRATION my_api UNSET API_KEY;
+
+ALTER API INTEGRATION my_api UNSET API_BLOCKED_PREFIXES;
+
+ALTER API INTEGRATION my_api UNSET COMMENT;
+
+ALTER API INTEGRATION my_api SET TAG cost_center = 'sales', team = 'data';
+
+ALTER API INTEGRATION my_api UNSET TAG cost_center, team;
+
+ALTER NOTIFICATION INTEGRATION my_email_int SET
+    ALLOWED_RECIPIENTS = ('first.last@example.com', 'second.last@example.com')
+    DEFAULT_RECIPIENTS = ('first.last@example.com')
+    DEFAULT_SUBJECT = 'Snowflake alert';
+
+ALTER NOTIFICATION INTEGRATION IF EXISTS my_sns_int SET
+    ENABLED = TRUE
+    AWS_SNS_TOPIC_ARN = 'arn:aws:sns:us-west-2:001234567890:mytopic'
+    AWS_SNS_ROLE_ARN = 'arn:aws:iam::001234567890:role/myrole';
+
+ALTER NOTIFICATION INTEGRATION my_email_int UNSET DEFAULT_RECIPIENTS;
+
+ALTER NOTIFICATION INTEGRATION my_email_int UNSET DEFAULT_SUBJECT;
+
+ALTER NOTIFICATION INTEGRATION my_email_int SET TAG cost_center = 'sales';
+
+ALTER EXTERNAL ACCESS INTEGRATION my_eai SET ENABLED = FALSE;
+
+ALTER EXTERNAL ACCESS INTEGRATION IF EXISTS my_eai SET
+    ALLOWED_NETWORK_RULES = (rule_1, rule_2)
+    ALLOWED_API_AUTHENTICATION_INTEGRATIONS = (my_oauth_integration)
+    ALLOWED_AUTHENTICATION_SECRETS = NONE
+    COMMENT = 'restricted egress';
+
+ALTER EXTERNAL ACCESS INTEGRATION my_eai UNSET ALLOWED_API_AUTHENTICATION_INTEGRATIONS, COMMENT;
+
+ALTER SECURITY INTEGRATION my_oauth_int SET ENABLED = TRUE COMMENT = 'custom oauth client';
+
+ALTER SECURITY INTEGRATION IF EXISTS my_oauth_int UNSET COMMENT;
+
+ALTER SECURITY INTEGRATION my_oauth_int SET TAG cost_center = 'sales';
+
+ALTER NOTIFICATION INTEGRATION my_azure_int SET
+    ENABLED = TRUE
+    AZURE_EVENT_GRID_TOPIC_ENDPOINT = 'https://myaccount.westus2-1.eventgrid.azure.net/api/events'
+    AZURE_TENANT_ID = 'a123b4c5-1234-123a-a12b-1a23b45678c9';
+
+ALTER NOTIFICATION INTEGRATION my_gcp_int SET GCP_PUBSUB_TOPIC_NAME = 'projects/my-project/topics/my-topic';
