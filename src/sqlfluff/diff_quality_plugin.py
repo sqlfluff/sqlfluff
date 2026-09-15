@@ -80,7 +80,10 @@ class SQLFluffViolationReporter(QualityReporter):
 
     def _run_sqlfluff(self, src_paths) -> list[str]:
         src_paths = [
-            path for path in src_paths if path.endswith(".sql") and os.path.exists(path)
+            path
+            for path in src_paths
+            if path.endswith(tuple(self.driver.supported_extensions))
+            and os.path.isfile(path)
         ]
         if not src_paths:
             logger.warning("Not running SQLFluff: No existing SQL files to check")

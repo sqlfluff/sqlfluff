@@ -19,7 +19,6 @@ from sqlfluff.utils.testing.cli import invoke_assert_code
         # to ignore parsing errors.
         (("linter/diffquality/parse_error.sql",), []),
         (tuple(), []),
-        (("linter/deleted.sql",), []),
         (("linter/indentation_errors.sql", "linter/deleted.sql"), list(range(2, 7))),
     ],
 )
@@ -66,10 +65,15 @@ def test_diff_quality_plugin(sql_paths, expected_violations_lines, monkeypatch):
         )
 
 
-@pytest.mark.parametrize("src_paths", [["deleted.sql"], ["README.md"], []])
+@pytest.mark.parametrize(
+    "src_paths",
+    [["deleted.sql"], ["README.md"], ["deleted.sql", "README.md"], ["directory.sql"]],
+)
 def test_diff_quality_skips_missing_or_non_sql_files(src_paths, monkeypatch, tmp_path):
     """Do not accidentally lint the working directory when no SQL files remain."""
     monkeypatch.chdir(tmp_path)
+    (tmp_path / "README.md").write_text("Modified non-SQL file")
+    (tmp_path / "directory.sql").mkdir()
 
     def unexpected_execute(*args, **kwargs):
         pytest.fail("SQLFluff must not run without an eligible SQL path")
