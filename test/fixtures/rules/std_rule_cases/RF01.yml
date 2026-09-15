@@ -372,6 +372,33 @@ test_trino_row_fields_from_single_table:
     core:
       dialect: trino
 
+test_trino_row_fields_from_single_aliased_table:
+  pass_str: |
+    SELECT ci.metadata.sub_column, ci.metadata.nested.value
+    FROM source_table AS ci;
+  configs:
+    core:
+      dialect: trino
+
+test_trino_row_fields_from_single_quoted_aliased_table:
+  pass_str: |
+    SELECT "ci".metadata.sub_column
+    FROM catalog.schema.source_table AS "ci";
+  configs:
+    core:
+      dialect: trino
+
+test_trino_aliased_row_fields_force_enable:
+  fail_str: |
+    SELECT ci.metadata.sub_column
+    FROM source_table AS ci;
+  configs:
+    core:
+      dialect: trino
+    rules:
+      references.from:
+        force_enable: true
+
 test_trino_row_fields_force_enable:
   fail_str: |
     SELECT metadata.sub_column
