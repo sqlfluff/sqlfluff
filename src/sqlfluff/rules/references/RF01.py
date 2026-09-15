@@ -383,6 +383,8 @@ class Rule_RF01(BaseRule):
         # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
         # Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+        # Trino:
+        # https://trino.io/docs/current/language/types.html#row
         # TODO: all doc links to all referenced dialects
         return dialect.name in (
             "athena",
