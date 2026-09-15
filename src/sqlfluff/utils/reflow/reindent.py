@@ -1186,9 +1186,22 @@ def _map_line_buffers(
                 # NOTE: We can safely "look ahead" here because we know all files
                 # end with an IndentBlock, and we know here that `loc` refers to
                 # an IndentPoint.
-                if "start_bracket" in elements[loc + 1].class_types:
-                    continue
 
+                bracket_loc = loc + 1
+
+                # LATERAL can prefix a bracketed table expression.
+                # Apply the bracket exception to that expression too.
+                if (
+                    "keyword" in elements[bracket_loc].class_types
+                    and elements[bracket_loc].segments[0].raw_upper == "LATERAL"
+                ):
+                    bracket_loc += 2
+
+                if (
+                    bracket_loc < len(elements)
+                    and "start_bracket" in elements[bracket_loc].class_types
+                ):
+                    continue
                 # If the location was in the line we're just closing. That's
                 # not a problem because it's an untaken indent which is closed
                 # on the same line.

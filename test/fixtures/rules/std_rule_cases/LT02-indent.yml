@@ -3095,3 +3095,21 @@ test_fail_snowflake_exception_block_nested:
   configs:
     core:
       dialect: snowflake
+
+test_pass_issue_8345_multiple_lateral_joins:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS id
+    ) t
+        CROSS JOIN LATERAL (
+            SELECT 1 AS x
+        ) a
+        CROSS JOIN LATERAL (
+            SELECT 1 AS y
+        ) b
+  configs:
+    core:
+      dialect: postgres
+    indentation:
+      indented_joins: true
