@@ -127,7 +127,7 @@ jobs:
 
       # Add artifact attestation for GHCR image.
       - name: Generate artifact attestation (${{ matrix.name }})
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6  # v2
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6  # v4
         with:
           subject-name: ghcr.io/${{ github.repository }}
           subject-digest: ${{ steps.docker_build_push.outputs.digest }}
