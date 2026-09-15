@@ -1206,6 +1206,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
             Ref("SingleIdentifierGrammar"),
             Ref("CTEColumnList", optional=True),
             "AS",
+            Ref.keyword("MATERIALIZED", optional=True),
             Bracketed(
                 # Ephemeral here to subdivide the query.
                 Ref("SelectableGrammar"),
