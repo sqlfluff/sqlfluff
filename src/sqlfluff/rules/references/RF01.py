@@ -42,9 +42,14 @@ class Rule_RF01(BaseRule):
     .. note::
 
        This rule is disabled by default for Athena, BigQuery, Databricks, DuckDB, Hive,
-       Redshift, SOQL, SparkSQL and Trino due to the support of things like
+       Redshift, SOQL and SparkSQL due to the support of things like
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
+
+       For Trino, single-source SELECTs are exempt by default because dotted
+       references may access ROW fields. SELECTs with multiple sources are
+       still checked. Use ``force_enable = True`` for strict checking of
+       single-source SELECTs too.
 
     **Anti-pattern**
 

@@ -399,6 +399,48 @@ test_trino_aliased_row_fields_force_enable:
       references.from:
         force_enable: true
 
+test_trino_row_fields_in_union:
+  pass_str: |
+    SELECT a.metadata.value FROM first_table AS a
+    UNION ALL
+    SELECT b.metadata.value FROM second_table AS b;
+  configs:
+    core:
+      dialect: trino
+
+test_trino_row_fields_in_bracketed_union:
+  pass_str: |
+    (SELECT a.metadata.value FROM first_table AS a)
+    UNION ALL
+    (SELECT b.metadata.value FROM second_table AS b);
+  configs:
+    core:
+      dialect: trino
+
+test_trino_unknown_reference_in_union_force_enable:
+  fail_str: |
+    SELECT missing.value FROM first_table AS a
+    UNION ALL
+    SELECT b.id FROM second_table AS b;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: trino
+    rules:
+      references.from:
+        force_enable: true
+
+test_trino_unknown_reference_in_union_join:
+  fail_str: |
+    (SELECT missing.value FROM first_table AS a
+    JOIN second_table AS b ON a.id = b.id)
+    UNION ALL
+    (SELECT c.id FROM third_table AS c);
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: trino
+
 test_trino_row_fields_force_enable:
   fail_str: |
     SELECT metadata.sub_column
