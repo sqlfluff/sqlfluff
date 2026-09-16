@@ -3113,3 +3113,21 @@ test_pass_issue_8345_multiple_lateral_joins:
       dialect: postgres
     indentation:
       indented_joins: true
+
+test_pass_issue_8345_lateral_joins_with_comments:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS id
+    ) t
+        CROSS JOIN LATERAL /* first comment */ /* second comment */ (
+            SELECT 1 AS x
+        ) a
+        CROSS JOIN LATERAL (
+            SELECT 1 AS y
+        ) b
+  configs:
+    core:
+      dialect: postgres
+    indentation:
+      indented_joins: true

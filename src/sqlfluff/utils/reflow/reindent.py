@@ -1196,12 +1196,20 @@ def _map_line_buffers(
                     and elements[bracket_loc].segments[0].raw_upper == "LATERAL"
                 ):
                     bracket_loc += 2
-
+                    while (
+                        bracket_loc < len(elements)
+                        and (
+                            isinstance(elements[bracket_loc], ReflowPoint)
+                            or "comment" in elements[bracket_loc].class_types
+                        )
+                    ):
+                        bracket_loc += 1
                 if (
                     bracket_loc < len(elements)
                     and "start_bracket" in elements[bracket_loc].class_types
                 ):
                     continue
+
                 # If the location was in the line we're just closing. That's
                 # not a problem because it's an untaken indent which is closed
                 # on the same line.
