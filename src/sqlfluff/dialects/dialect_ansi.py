@@ -1075,6 +1075,34 @@ class DatatypeSegment(BaseSegment):
 
 
 # hookpoint
+ansi_dialect.add(
+    # A bracketed joined table used as a join target, under any number of
+    # redundant bracket layers: `(b JOIN c ON TRUE)`, `((b JOIN c ON TRUE))`,
+    # and so on. Recursive because a fixed depth only moves the failure one
+    # layer out (#8382).
+    BracketedJoinTargetGrammar=Bracketed(
+        OneOf(
+            Sequence(
+                Ref("FromExpressionElementSegment"),
+                AnyNumberOf(Ref("JoinClauseSegment"), min_times=1),
+            ),
+            Sequence(
+                Ref("BracketedJoinTargetGrammar"),
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
+    ),
+    # Only join targets get the bracketed forms. Offering them from
+    # FromExpressionElementSegment instead would also reach the FROM clause,
+    # where Bracketed(FromExpressionSegment) already parses the same text into
+    # a different tree.
+    JoinTargetGrammar=OneOf(
+        Ref("FromExpressionElementSegment"),
+        Ref("BracketedJoinTargetSegment"),
+    ),
+)
+
+
 ansi_dialect.add(CharCharacterSetGrammar=Nothing())
 
 
@@ -1688,6 +1716,17 @@ class FromExpressionElementSegment(BaseSegment):
         yield from dialect_common.get_from_expression_element_alias(self, None)
 
 
+class BracketedJoinTargetSegment(FromExpressionElementSegment):
+    """A join target wrapped in brackets it does not need.
+
+    Typed as a from_expression_element so the rules that walk join targets for
+    aliases and references see the same node they always have.
+    """
+
+    type = "from_expression_element"
+    match_grammar: Matchable = Ref("BracketedJoinTargetGrammar")
+
+
 class FromExpressionSegment(BaseSegment):
     """A from expression segment."""
 
@@ -1922,7 +1961,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             AnyNumberOf(Ref("NestedJoinGrammar")),
             Dedent,
             Sequence(
@@ -1948,7 +1987,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("UnconditionalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
@@ -1956,7 +1995,7 @@ class JoinClauseSegment(BaseSegment):
         Sequence(
             Ref("ExtendedNaturalJoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Dedent,
         ),
     )
