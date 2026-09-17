@@ -38,3 +38,10 @@ COMMENT 'replace matching rows'
 AS INSERT INTO customers BY NAME
 REPLACE USING (customer_id, region) SEQUENCE BY sequence_num
 SELECT * FROM stream(customers_updates);
+
+-- A target table named `once` is not mistaken for the modifier.
+
+CREATE FLOW once_target_flow
+AS INSERT INTO
+  once BY NAME
+SELECT * FROM stream(customers_raw);

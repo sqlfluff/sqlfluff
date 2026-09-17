@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01b77ad325c4eaf745c3a78da0aefd1a55ad7151ac422b49ffb4b057befd54d5
+_hash: f4270a0eefdb838058e6483de65527627fba3ee0f4f90e653bafaecd22ba7fbb
 file:
 - statement:
     create_flow_statement:
@@ -174,5 +174,37 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: customers_updates
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: once_target_flow
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: once
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: customers_raw
                 end_bracket: )
 - statement_terminator: ;

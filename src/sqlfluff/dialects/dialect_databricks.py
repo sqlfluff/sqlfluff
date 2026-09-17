@@ -2404,19 +2404,34 @@ class CreateFlowStatementSegment(BaseSegment):
             ),
             # INSERT [ONCE] INTO target_table BY NAME [replace_using_spec] query
             Sequence(
-                "INSERT",
                 # The reference grammar spells this `INSERT [ONCE] INTO`, while
                 # the pipeline examples in the same documentation set write
                 # `INSERT INTO ONCE`. Accept either position, but not both.
+                # Each alternative carries the target and `BY NAME`, so that a
+                # target table named `once` is not consumed as the modifier:
+                # `OneOf` does not backtrack into a shorter alternative.
                 OneOf(
-                    Sequence("ONCE", "INTO"),
-                    Sequence("INTO", Ref.keyword("ONCE", optional=True)),
+                    Sequence(
+                        "INSERT",
+                        Ref.keyword("ONCE", optional=True),
+                        "INTO",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                    Sequence(
+                        "INSERT",
+                        "INTO",
+                        "ONCE",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
                 ),
-                Indent,
-                Ref("TableReferenceSegment"),
-                Dedent,
-                "BY",
-                "NAME",
                 Ref("FlowReplaceUsingSpecSegment", optional=True),
                 Ref("SelectableGrammar"),
             ),

@@ -102,3 +102,19 @@ def test_databricks_set_config_values_parse(sql: str, expected_value: str) -> No
         f"Expected clean parse for:\n{sql}"
     )
     assert _set_value_raw(sql, dialect="databricks") == expected_value
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "CREATE PRIVATE STREAMING TABLE t (a BIGINT);",
+        "CREATE OR REFRESH PRIVATE STREAMING TABLE t (a BIGINT);",
+    ],
+)
+def test_private_streaming_table_is_databricks_only(sql: str) -> None:
+    """`PRIVATE` is Lakeflow Declarative Pipelines syntax, not Spark SQL.
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+    assert _parses_cleanly(sql, dialect="databricks")
+    assert not _parses_cleanly(sql, dialect="sparksql")
