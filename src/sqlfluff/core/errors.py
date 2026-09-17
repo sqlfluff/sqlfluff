@@ -11,7 +11,7 @@ tracking.
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
 
-from typing import TYPE_CHECKING, Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
@@ -28,12 +28,11 @@ SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
 
 def _extract_position(segment: Optional["BaseSegment"]) -> dict[str, int]:
-    """If a segment is present and is a literal, return it's source length."""
+    """Return the source position for a segment when one is available."""
     if segment:
         position = segment.pos_marker
         assert position
-        if position.is_literal():
-            return position.to_source_dict()
+        return position.to_source_dict()
     # An empty location is an indicator of not being able to accurately
     # represent the location.
     return {}  # pragma: no cover
@@ -352,26 +351,6 @@ class SQLLintError(SQLBaseError):
             fixes=[fix.to_dict() for fix in self.fixes],
             **_extract_position(self.segment),
         )
-        # Edge case: If the base error doesn't have an end position
-        # but we only have one fix and it _does_. Then use use that in the
-        # overall fix.
-        _fixes = cast(list[SerializedObject], _base_dict.get("fixes", []))
-        if "end_line_pos" not in _base_dict and len(_fixes) == 1:
-            _fix = _fixes[0]
-            # If the mandatory keys match...
-            if (
-                _fix["start_line_no"] == _base_dict["start_line_no"]
-                and _fix["start_line_pos"] == _base_dict["start_line_pos"]
-            ):
-                # ...then hoist all the optional ones from the fix.
-                for key in [
-                    "start_file_pos",
-                    "end_line_no",
-                    "end_line_pos",
-                    "end_file_pos",
-                ]:
-                    _base_dict[key] = _fix[key]
-
         return _base_dict
 
     @property

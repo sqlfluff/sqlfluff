@@ -7,6 +7,7 @@ import pytest
 
 import sqlfluff
 from sqlfluff.api import APIParsingError
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -368,6 +369,124 @@ def test__api__lint_string():
     assert all(isinstance(elem, dict) for elem in result)
     # Check actual result
     assert result == lint_result
+
+
+@pytest.mark.parametrize(
+    ("sql", "max_line_length", "expected"),
+    [
+        (
+            """WITH test AS (
+    SELECT
+        {{ my_very_long_macro_call_goes_here('my_very_long_column_name_goes_here') }} AS my_column,
+        'test' AS my_column2
+    FROM {{ ref('my_table') }}
+)
+
+SELECT
+    *
+FROM test
+""",
+            50,
+            {
+                "start_line_no": 3,
+                "start_line_pos": 9,
+                "start_file_pos": 34,
+                "end_line_no": 3,
+                "end_line_pos": 86,
+                "end_file_pos": 111,
+            },
+        ),
+        (
+            """SELECT
+    {{ 'a_very_long_templated_column_name' }} AS col_a,
+    'foo' AS col_b
+FROM tbl
+""",
+            30,
+            {
+                "start_line_no": 2,
+                "start_line_pos": 5,
+                "start_file_pos": 11,
+                "end_line_no": 2,
+                "end_line_pos": 46,
+                "end_file_pos": 52,
+            },
+        ),
+    ],
+)
+def test__api__lint_string_templated_positions(sql, max_line_length, expected):
+    """Serialize source positions for violations in templated sections."""
+    config = FluffConfig(
+        overrides={
+            "dialect": "snowflake",
+            "templater": "jinja",
+            "ignore": "templating",
+            "rules": "LT05",
+            "max_line_length": max_line_length,
+        }
+    )
+    result = sqlfluff.lint(sql, config=config)
+    assert [violation["code"] for violation in result] == ["LT05"]
+    violation = result[0]
+    assert {key: violation[key] for key in expected} == expected
+
+
+def test__api__lint_string_jj01_fix_and_positions():
+    """Keep complete source and fix positions for a templated JJ01 violation."""
+    config = FluffConfig(
+        overrides={
+            "dialect": "snowflake",
+            "templater": "jinja",
+            "ignore": "templating",
+            "rules": "JJ01",
+        }
+    )
+    result = sqlfluff.lint(
+        """WITH test AS (
+    SELECT
+        {{ my_macro('my_column')}} AS my_column,
+        'test' AS my_column2
+    FROM {{ ref('my_table') }}
+)
+
+SELECT
+    *
+FROM test
+""",
+        config=config,
+    )
+    assert len(result) == 1
+    violation = result[0]
+    assert {
+        key: violation[key]
+        for key in (
+            "start_line_no",
+            "start_line_pos",
+            "start_file_pos",
+            "end_line_no",
+            "end_line_pos",
+            "end_file_pos",
+        )
+    } == {
+        "start_line_no": 3,
+        "start_line_pos": 9,
+        "start_file_pos": 34,
+        "end_line_no": 3,
+        "end_line_pos": 35,
+        "end_file_pos": 60,
+    }
+    assert violation["fixes"] == [
+        {
+            "type": "replace",
+            "edit": "{{ my_macro('my_column') }}",
+            "start_line_no": 3,
+            "start_line_pos": 9,
+            "start_file_pos": 34,
+            "end_line_no": 3,
+            "end_line_pos": 35,
+            "end_file_pos": 60,
+        }
+    ]
 
 
 def test__api__lint_string_specific():
