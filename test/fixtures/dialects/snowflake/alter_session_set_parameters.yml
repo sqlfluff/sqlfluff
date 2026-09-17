@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 35892fa888d1a772d7afd5f5a61447a74780f8bfb2389b49034e432e66632cd7
+file:
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - alter_session_set_statement:
+      - keyword: SET
+      - parameter: TIMEZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'UTC'"
+      - comma: ','
+      - parameter: QUERY_TAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'nightly job'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - alter_session_set_statement:
+      - keyword: SET
+      - parameter: ABORT_DETACHED_QUERY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - parameter: JSON_INDENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - alter_session_set_statement:
+      - keyword: SET
+      - parameter: TIMEZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'UTC'"
+      - parameter: ABORT_DETACHED_QUERY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - parameter: STATEMENT_TIMEOUT_IN_SECONDS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '60'
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - alter_session_set_statement:
+      - keyword: SET
+      - parameter: QUERY_TAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'nightly job'"
+      - comma: ','
+      - parameter: JSON_INDENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+      - parameter: ABORT_DETACHED_QUERY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;

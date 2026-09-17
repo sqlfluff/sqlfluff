@@ -9948,7 +9948,8 @@ class AlterSessionStatementSegment(BaseSegment):
     """Snowflake's ALTER SESSION statement.
 
     ```
-    ALTER SESSION SET <param_name> = <param_value>;
+    ALTER SESSION SET
+        <param_name> = <param_value> [ [,] <param_name> = <param_value> ... ];
     ALTER SESSION UNSET <param_name>, [ , <param_name> , ... ];
     ```
 
@@ -9971,7 +9972,8 @@ class AlterSessionSetClauseSegment(BaseSegment):
     """Snowflake's ALTER SESSION SET clause.
 
     ```
-    [ALTER SESSION] SET <param_name> = <param_value>;
+    [ALTER SESSION] SET
+        <param_name> = <param_value> [ [,] <param_name> = <param_value> ... ];
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
@@ -9979,14 +9981,21 @@ class AlterSessionSetClauseSegment(BaseSegment):
 
     type = "alter_session_set_statement"
 
-    match_grammar = Sequence(
-        "SET",
+    _parameter_assignment = Sequence(
         Ref("ParameterNameSegment"),
         Ref("EqualsSegment"),
         OneOf(
             Ref("BooleanLiteralGrammar"),
             Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
+        ),
+    )
+
+    match_grammar = Sequence(
+        "SET",
+        _parameter_assignment,
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment", optional=True), _parameter_assignment),
         ),
     )
 
