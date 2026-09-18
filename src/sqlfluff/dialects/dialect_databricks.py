@@ -373,6 +373,17 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
+    # visible inside the pipeline but not published to the catalog. The
+    # keyword sits between OR REFRESH and STREAMING. Materialized views
+    # already accept it; streaming tables are defined by the shared SparkSQL
+    # TableDefinitionSegment, so Databricks widens it here rather than adding
+    # Databricks-only syntax to SparkSQL.
+    # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
+        insert=[Ref.keyword("PRIVATE", optional=True)],
+        before=Ref.keyword("STREAMING", optional=True),
+    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
     DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
         insert=[
@@ -2343,14 +2354,45 @@ class CreateFlowStatementSegment(BaseSegment):
             "FLOW",
         ),
         Ref("FlowReferenceSegment"),
-        Sequence(
-            "AS",
-            "AUTO",
-            "CDC",
-            "INTO",
+        Ref("CommentGrammar", optional=True),
+        "AS",
+        OneOf(
+            # AUTO CDC [ONCE] INTO target <cdc spec>
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref.keyword("ONCE", optional=True),
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                Ref("CDCSpecificationSegment"),
+            ),
+            # INSERT [ONCE] INTO [ONCE] target BY NAME [REPLACE USING (...)]
+            # query -- an append flow, which is how a pipeline points several
+            # sources at one streaming table.
+            #
+            # The reference page writes `INSERT [ONCE] INTO`, while the flow
+            # examples and backfill pages write `INSERT INTO ONCE`. Both
+            # spellings are in the Databricks documentation, so both parse.
+            Sequence(
+                "INSERT",
+                OneOf(
+                    Sequence("ONCE", "INTO"),
+                    Sequence("INTO", Ref.keyword("ONCE", optional=True)),
+                ),
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                "BY",
+                "NAME",
+                Sequence(
+                    "REPLACE",
+                    "USING",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    optional=True,
+                ),
+                Ref("SelectableGrammar"),
+            ),
         ),
-        Indent,
-        Ref("TableReferenceSegment"),
-        Dedent,
-        Ref("CDCSpecificationSegment"),
     )

@@ -1,0 +1,375 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9e4e400fd15f982d17749323431f8299332998c1fdf1dc0fcf5e433f4c6c96c1
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: st_private
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: st_private_2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: st_private_3
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: read_files
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'/Volumes/main/landing/events'"
+                      end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: st_public
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: mv_private
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: cdc_flow
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: source
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: cdc_flow_once
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: source
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: cdc_flow_comment
+    - keyword: COMMENT
+    - quoted_literal: "'Backfill the target once from the archive.'"
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: source
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequence_num
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: append_flow
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: source_a
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: append_flow_once
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: archive
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: append_flow_into_once
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: ONCE
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: archive
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: append_flow_comment
+    - keyword: COMMENT
+    - quoted_literal: "'Backfill historical data.'"
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: archive_2024
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: append_flow_replace_using
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - keyword: REPLACE
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: event_date
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: source_b
+- statement_terminator: ;
