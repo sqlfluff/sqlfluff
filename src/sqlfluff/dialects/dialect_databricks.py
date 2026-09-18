@@ -1045,24 +1045,47 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            Sequence(
-                Ref("ColumnFieldDefinitionSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("ColumnFieldDefinitionSegment"),
+            OneOf(
+                Sequence(
+                    Ref("ColumnFieldDefinitionSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("ColumnFieldDefinitionSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("MaterializedViewExpectationConstraintSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableConstraintSegment"),
+                        ),
                     ),
                 ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("MaterializedViewExpectationConstraintSegment"),
+                # A DLT materialized view may declare no columns at all,
+                # letting their types come from the query, and list only
+                # expectations. The documented syntax writes the column group
+                # as required, but Databricks' own published pipelines use
+                # this form, so the column group is optional here. The order
+                # of the three groups is otherwise unchanged.
+                Sequence(
+                    Ref("MaterializedViewExpectationConstraintSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("MaterializedViewExpectationConstraintSegment"),
+                        ),
                     ),
-                ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("TableConstraintSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableConstraintSegment"),
+                        ),
                     ),
                 ),
             ),
