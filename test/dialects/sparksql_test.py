@@ -114,7 +114,9 @@ def test_databricks_set_config_values_parse(sql: str, expected_value: str) -> No
         ),
         pytest.param("EXECUTE IMMEDIATE;\n", id="no_sql_string"),
         pytest.param("EXECUTE IMMEDIATE s USING;\n", id="using_no_arguments"),
+        pytest.param("EXECUTE IMMEDIATE s USING ();\n", id="using_empty_brackets"),
         pytest.param("EXECUTE IMMEDIATE s INTO;\n", id="into_no_variables"),
+        pytest.param("EXECUTE IMMEDIATE s INTO ();\n", id="into_empty_brackets"),
     ],
 )
 def test_execute_immediate_rejections(sql: str) -> None:
