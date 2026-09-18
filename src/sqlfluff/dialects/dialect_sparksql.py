@@ -3506,7 +3506,7 @@ class DescribeHistoryStatementSegment(BaseSegment):
     type = "describe_history_statement"
 
     match_grammar: Matchable = Sequence(
-        "DESCRIBE",
+        OneOf("DESCRIBE", "DESC"),
         "HISTORY",
         OneOf(
             Ref("QuotedLiteralSegment"),
@@ -3526,7 +3526,7 @@ class DescribeDetailStatementSegment(BaseSegment):
     type = "describe_detail_statement"
 
     match_grammar: Matchable = Sequence(
-        "DESCRIBE",
+        OneOf("DESCRIBE", "DESC"),
         "DETAIL",
         OneOf(
             Ref("QuotedLiteralSegment"),
