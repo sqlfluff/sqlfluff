@@ -118,7 +118,7 @@ def load_toml_file_config(filepath: str) -> ConfigMappingType:
     rules_section = config_dict["rules"]
     if not isinstance(rules_section, dict):
         raise SQLFluffUserError(
-            f"Config file {filepath!r} set an invalid `rules` value: "
+            f"Config file {filepath} set an invalid `rules` value: "
             f"{rules_section!r}. In `pyproject.toml`, per-rule config must be "
             "set with a table per rule, e.g. "
             "`[tool.sqlfluff.rules.<rule_name>]`, rather than as a plain value "
