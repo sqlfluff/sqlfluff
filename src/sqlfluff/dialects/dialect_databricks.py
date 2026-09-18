@@ -373,6 +373,28 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
+    # visible inside the pipeline but not published to the catalog:
+    #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
+    # Materialized views already accept it; streaming tables are defined by
+    # the shared SparkSQL TableDefinitionSegment, so Databricks widens it here
+    # rather than adding Databricks-only syntax to SparkSQL.
+    #
+    # PRIVATE is bound to STREAMING rather than inserted as a separate
+    # optional keyword: STREAMING is itself optional, so an independent
+    # PRIVATE would also accept `CREATE PRIVATE TABLE`, which is not valid.
+    # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
+        insert=[
+            OneOf(
+                Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                Ref.keyword("STREAMING"),
+                optional=True,
+            )
+        ],
+        before=Ref.keyword("STREAMING", optional=True),
+        remove=[Ref.keyword("STREAMING", optional=True)],
+    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
     DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
         insert=[
@@ -2343,14 +2365,74 @@ class CreateFlowStatementSegment(BaseSegment):
             "FLOW",
         ),
         Ref("FlowReferenceSegment"),
-        Sequence(
-            "AS",
-            "AUTO",
-            "CDC",
-            "INTO",
+        Ref("CommentGrammar", optional=True),
+        "AS",
+        OneOf(
+            # AUTO CDC [ONCE] INTO target <cdc spec>
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref.keyword("ONCE", optional=True),
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                Ref("CDCSpecificationSegment"),
+            ),
+            # INSERT [ONCE] INTO [ONCE] target BY NAME [REPLACE USING (...)]
+            # query -- an append flow, which is how a pipeline points several
+            # sources at one streaming table.
+            #
+            # The reference page writes `INSERT [ONCE] INTO`, while the flow
+            # examples and backfill pages write `INSERT INTO ONCE`. Both
+            # spellings are in the Databricks documentation, so both parse.
+            Sequence(
+                "INSERT",
+                # The target is spelled out in each alternative rather than
+                # factored out after an optional ONCE. A table may itself be
+                # named `once`, and a trailing optional keyword would consume
+                # it before the target was tried, making a valid append flow
+                # unparsable.
+                # BY NAME is repeated inside each alternative rather than
+                # factored out after the OneOf. OneOf takes the longest local
+                # match, so for a target named `once` the INTO ONCE branch
+                # would otherwise win by consuming one token more and then
+                # strand the rest of the statement.
+                OneOf(
+                    Sequence(
+                        "ONCE",
+                        "INTO",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                    Sequence(
+                        "INTO",
+                        "ONCE",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                    Sequence(
+                        "INTO",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                ),
+                Sequence(
+                    "REPLACE",
+                    "USING",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    optional=True,
+                ),
+                Ref("SelectableGrammar"),
+            ),
         ),
-        Indent,
-        Ref("TableReferenceSegment"),
-        Dedent,
-        Ref("CDCSpecificationSegment"),
     )
