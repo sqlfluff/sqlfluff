@@ -1,0 +1,12 @@
+CREATE TABLE t3
+(
+  id INT,
+  v1 BIGINT SUM DEFAULT "0" COMMENT "running total",
+  v2 INT MAX NOT NULL,
+  v3 STRING REPLACE DEFAULT "n/a"
+)
+AGGREGATE KEY (id)
+DISTRIBUTED BY HASH (id)
+PROPERTIES (
+  'replication_num' = '1'
+);
