@@ -1067,24 +1067,52 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            Sequence(
-                Ref("ColumnFieldDefinitionSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("ColumnFieldDefinitionSegment"),
+            # The two branches differ only in what may come first, and their
+            # trailing expectation and table-constraint loops must stay in
+            # step. They are written out rather than shared: referencing one
+            # grammar instance from both branches, or building one per branch
+            # from a factory, both stop the column list parsing at all.
+            OneOf(
+                Sequence(
+                    Ref("ColumnFieldDefinitionSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("ColumnFieldDefinitionSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("MaterializedViewExpectationConstraintSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableConstraintSegment"),
+                        ),
                     ),
                 ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("MaterializedViewExpectationConstraintSegment"),
+                # A DLT materialized view may declare no columns at all,
+                # letting their types come from the query, and list only
+                # expectations. The documented syntax writes the column group
+                # as required, but Databricks' own published pipelines use
+                # this form, so the column group is optional here. The order
+                # of the three groups is otherwise unchanged.
+                Sequence(
+                    Ref("MaterializedViewExpectationConstraintSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("MaterializedViewExpectationConstraintSegment"),
+                        ),
                     ),
-                ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("TableConstraintSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableConstraintSegment"),
+                        ),
                     ),
                 ),
             ),
