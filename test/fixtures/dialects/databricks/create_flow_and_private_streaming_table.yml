@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e4e400fd15f982d17749323431f8299332998c1fdf1dc0fcf5e433f4c6c96c1
+_hash: 826a873b27a9f9eb3fdede9e2c8605ca254e30376d9eedec93c9217637eb726c
 file:
 - statement:
     create_table_statement:
@@ -372,4 +372,127 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: source_b
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: once
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: once
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: once
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: flow_target_named_once
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: once
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: source
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: flow_once_target_named_once
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: ONCE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: once
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: archive
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: flow_into_once_target_named_once
+    - keyword: AS
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: ONCE
+    - table_reference:
+        naked_identifier: once
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              table_expression:
+                table_reference:
+                  naked_identifier: archive
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: private
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
 - statement_terminator: ;

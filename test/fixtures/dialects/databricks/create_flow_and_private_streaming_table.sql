@@ -51,3 +51,20 @@ SELECT * FROM archive_2024;
 CREATE FLOW append_flow_replace_using AS INSERT INTO target BY NAME
 REPLACE USING (event_date)
 SELECT * FROM STREAM source_b;
+
+-- ONCE is unreserved, so it stays usable as an identifier: as a column, an
+-- alias, a table, and as an append-flow target, where it directly follows the
+-- position the new optional keyword occupies.
+SELECT once AS once FROM once;
+
+CREATE FLOW flow_target_named_once AS INSERT INTO once BY NAME
+SELECT * FROM STREAM source;
+
+CREATE FLOW flow_once_target_named_once AS INSERT ONCE INTO once BY NAME
+SELECT * FROM STREAM archive;
+
+CREATE FLOW flow_into_once_target_named_once AS INSERT INTO ONCE once BY NAME
+SELECT * FROM STREAM archive;
+
+-- PRIVATE likewise remains usable as an identifier.
+SELECT private FROM t;
