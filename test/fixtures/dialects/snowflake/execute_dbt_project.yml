@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03db03f3c21a5fcc497be32aaf891dd22ffa03f1cd5c2f386475c48568be8f43
+_hash: 9a724e96927fa77b70061c3ea8d6eb4e3ac2ae522aee6c03e2d68272b9f65fe7
 file:
 - statement:
     execute_dbt_project_statement:
@@ -129,4 +129,31 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'analytics'"
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_project
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        function:
+          function_name:
+            system_function_name: SYSTEM$DBT_GET_LAST_SUCCESSFUL_RUN_TARGET
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        keyword: AS
+        quoted_literal: "'state'"
+        end_bracket: )
 - statement_terminator: ;

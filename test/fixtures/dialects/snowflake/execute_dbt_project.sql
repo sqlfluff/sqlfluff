@@ -23,3 +23,7 @@ EXECUTE DBT PROJECT IF EXISTS FROM WORKSPACE "My dbt Project Workspace"
 EXECUTE DBT PROJECT FROM WORKSPACE my_workspace
     IMPORTS = ('@my_stage/target' AS 'state')
     PROJECT_ROOT = 'analytics';
+
+-- System functions are documented inside the IMPORTS list.
+EXECUTE DBT PROJECT my_db.my_schema.my_project
+    IMPORTS = (SYSTEM$DBT_GET_LAST_SUCCESSFUL_RUN_TARGET() AS 'state');
