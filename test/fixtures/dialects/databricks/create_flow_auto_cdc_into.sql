@@ -68,3 +68,22 @@ FROM stream(cdc_data.users)
   COLUMNS * EXCEPT (operation, sequenceNum)
   STORED AS SCD TYPE 2
   TRACK HISTORY ON * EXCEPT (city);
+
+-- https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-flow
+-- CREATE FLOW flow_name [ COMMENT comment ] AS AUTO CDC [ ONCE ] INTO ...
+
+CREATE FLOW customers_history_seed
+AS AUTO CDC ONCE INTO
+  customers_history
+FROM stream(cdc_data.users)
+  KEYS (userId)
+  SEQUENCE BY sequenceNum
+  STORED AS SCD TYPE 2;
+
+CREATE FLOW commented_cdc_flow COMMENT 'a cdc flow'
+AS AUTO CDC INTO
+  target
+FROM stream(cdc_data.users)
+  KEYS (userId)
+  SEQUENCE BY sequenceNum
+  STORED AS SCD TYPE 1;
