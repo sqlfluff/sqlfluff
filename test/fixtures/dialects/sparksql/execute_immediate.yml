@@ -1,0 +1,158 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3cab8883626fe0e45438a5f6381f96ef2ba45a7c182b232976424f433c6c4a4f
+file:
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: "'SELECT SUM(c1) FROM VALUES(?), (?) AS t(c1)'"
+    - keyword: USING
+    - numeric_literal: '5'
+    - comma: ','
+    - numeric_literal: '6'
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - naked_identifier: sqlStr
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - naked_identifier: sqlStr
+    - keyword: USING
+    - column_reference:
+        naked_identifier: arg1
+    - comma: ','
+    - column_reference:
+        naked_identifier: arg2
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - naked_identifier: sqlStr
+    - keyword: INTO
+    - naked_identifier: sum
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - naked_identifier: sqlStr
+    - keyword: INTO
+    - naked_identifier: sum
+    - keyword: USING
+    - column_reference:
+        naked_identifier: arg1
+    - comma: ','
+    - column_reference:
+        naked_identifier: arg2
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: "'SELECT id, name FROM tbl WHERE id = ?'"
+    - keyword: INTO
+    - naked_identifier: b
+    - comma: ','
+    - naked_identifier: a
+    - keyword: USING
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: "'CREATE TEMPORARY VIEW IDENTIFIER(:tblName) AS SELECT 1'"
+    - keyword: USING
+    - quoted_literal: "'tbl_view_tmp'"
+    - keyword: AS
+    - naked_identifier: tblName
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: "'REFRESH TABLE IDENTIFIER(:tblName)'"
+    - keyword: USING
+    - quoted_literal: "'x'"
+    - keyword: as
+    - naked_identifier: tblName
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - naked_identifier: sqlStr
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: limitA
+        keyword: AS
+        naked_identifier: limitA
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - naked_identifier: sqlStr
+    - keyword: INTO
+    - naked_identifier: sum
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - numeric_literal: '5'
+      - keyword: AS
+      - naked_identifier: first
+      - comma: ','
+      - column_reference:
+          naked_identifier: arg2
+      - keyword: AS
+      - naked_identifier: second
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_immediate_statement:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - expression:
+      - quoted_literal: "'SELECT '"
+      - binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+      - column_reference:
+          naked_identifier: func
+      - binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+      - quoted_literal: "'(c1) FROM VALUES(:first) AS t(c1)'"
+    - keyword: USING
+    - expression:
+      - numeric_literal: '5'
+      - binary_operator: +
+      - numeric_literal: '7'
+    - keyword: AS
+    - naked_identifier: first
+    - comma: ','
+    - function:
+        function_name:
+          function_name_identifier: length
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'hello'"
+            end_bracket: )
+    - keyword: AS
+    - naked_identifier: second
+- statement_terminator: ;
