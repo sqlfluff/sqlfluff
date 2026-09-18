@@ -54,12 +54,13 @@ def _validate_value(
     if isinstance(value, dict):
         return _validate_structure(value, path)
     if isinstance(value, list):
-        # Deliberately scoped to the built-in Jinja/Python context sections.
+        # Deliberately scoped to the Jinja/Python/dbt context sections.
         # Other templater selectors retain ordinary config-list coercion;
         # discovering plugins here would couple config loading to templater loading.
         if path[:3] in (
             ("templater", "jinja", "context"),
             ("templater", "python", "context"),
+            ("templater", "dbt", "context"),
         ):
             return [_validate_value(item, path) for item in value]
         # Coerce ordinary list items to strings, as with ini configs.

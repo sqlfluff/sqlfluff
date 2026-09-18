@@ -10,7 +10,7 @@ import logging
 import os
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import Callable, Optional, Protocol, cast
+from typing import Callable, Optional, Protocol
 
 import pathspec
 
@@ -99,8 +99,7 @@ def _load_configfile(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     elif not patterns or not isinstance(patterns, list):
         return None
     else:
-        # Ordinary config lists (outside templater context) contain strings.
-        pattern_lines = cast(list[str], patterns)
+        pattern_lines = [str(p) for p in patterns]
     # By reaching here, we think there is a valid set of ignore patterns
     # to process.
     spec = _load_specs_from_lines(pattern_lines, filepath)
