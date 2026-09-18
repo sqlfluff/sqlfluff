@@ -383,6 +383,22 @@ databricks_dialect.replace(
         ],
         at=0,
     ),
+    # PRIVATE is Lakeflow Declarative Pipelines syntax, not Apache Spark SQL, so
+    # it belongs here and not in the shared SparkSQL grammar. Databricks only
+    # puts PRIVATE on a streaming table, so replace the STREAMING keyword with a
+    # sequence that binds the two.
+    # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
+        insert=[
+            Sequence(
+                Ref.keyword("PRIVATE", optional=True),
+                "STREAMING",
+                optional=True,
+            ),
+        ],
+        before=Ref.keyword("LIVE", optional=True),
+        remove=[Ref.keyword("STREAMING", optional=True)],
+    ),
     # Add ParameterizedSegment to the LiteralGrammar to support named parameters
     LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
