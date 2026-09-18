@@ -1,0 +1,130 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fe4ccf4ea5a9b1003a56e3afe1a9571518b179d7a31fec9ccfdd6e3cc564f5ac
+file:
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: SET
+    - security_integration_snowflake_oauth_options:
+        keyword: ENABLED
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: SET
+    - security_integration_snowflake_oauth_options:
+      - keyword: ENABLED
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: OAUTH_REDIRECT_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://example.com/oauth/callback'"
+      - keyword: OAUTH_ISSUE_REFRESH_TOKENS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: OAUTH_REFRESH_TOKEN_VALIDITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '86400'
+      - keyword: OAUTH_USE_SECONDARY_ROLES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - keyword: ALLOWED_ROLES_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'my_analyst_role'"
+          end_bracket: )
+      - keyword: BLOCKED_ROLES_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'ACCOUNTADMIN'"
+        - comma: ','
+        - quoted_literal: "'SECURITYADMIN'"
+        - end_bracket: )
+      - keyword: NETWORK_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_network_policy'"
+      - comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'custom oauth client'"
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: my_tag
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'tag_value'"
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: my_tag
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: UNSET
+    - keyword: ENABLED
+    - comma: ','
+    - keyword: NETWORK_POLICY
+- statement_terminator: ;
+- statement:
+    alter_security_integration_statement:
+    - keyword: ALTER
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_oauth_int
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;

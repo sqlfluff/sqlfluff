@@ -2042,6 +2042,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseRoleStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("AlterSecurityIntegrationStatementSegment"),
             Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
             Ref("CreateResourceMonitorStatementSegment"),
@@ -3631,6 +3632,141 @@ class AlterStorageIntegrationSegment(BaseSegment):
                     "COMMENT",
                     "ENABLED",
                     "STORAGE_BLOCKED_LOCATIONS",
+                ),
+            ),
+        ),
+    )
+
+
+class SecurityIntegrationSnowflakeOauthOptionsSegment(BaseSegment):
+    """Options for a Snowflake OAuth (custom client) security integration.
+
+    As per
+    https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake
+    """
+
+    type = "security_integration_snowflake_oauth_options"
+
+    match_grammar = AnySetOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "OAUTH"),
+        Sequence("OAUTH_CLIENT", Ref("EqualsSegment"), "CUSTOM"),
+        Sequence(
+            "OAUTH_CLIENT_TYPE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "OAUTH_REDIRECT_URI",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "OAUTH_ALLOW_NON_TLS_REDIRECT_URI",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "OAUTH_ENFORCE_PKCE",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "OAUTH_ENABLE_ROLE_SELECTION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "OAUTH_USE_SECONDARY_ROLES",
+            Ref("EqualsSegment"),
+            OneOf("IMPLICIT", "NONE"),
+        ),
+        # The role lists accept a list of role names, or an empty list `()`.
+        Sequence(
+            "PRE_AUTHORIZED_ROLES_LIST",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Sequence(
+            "ALLOWED_ROLES_LIST",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Sequence(
+            "BLOCKED_ROLES_LIST",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Sequence(
+            "OAUTH_ISSUE_REFRESH_TOKENS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "OAUTH_ACCESS_TOKEN_VALIDITY",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "OAUTH_REFRESH_TOKEN_VALIDITY",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "NETWORK_POLICY",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "OAUTH_CLIENT_RSA_PUBLIC_KEY",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "OAUTH_CLIENT_RSA_PUBLIC_KEY_2",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class AlterSecurityIntegrationStatementSegment(BaseSegment):
+    """An `ALTER SECURITY INTEGRATION` statement for Snowflake OAuth.
+
+    As per
+    https://docs.snowflake.com/en/sql-reference/sql/alter-security-integration-oauth-snowflake
+    """
+
+    type = "alter_security_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SECURITY",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence(
+                "SET",
+                Ref("SecurityIntegrationSnowflakeOauthOptionsSegment"),
+            ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "ENABLED",
+                        "NETWORK_POLICY",
+                        "OAUTH_CLIENT_RSA_PUBLIC_KEY",
+                        "OAUTH_CLIENT_RSA_PUBLIC_KEY_2",
+                        "OAUTH_USE_SECONDARY_ROLES",
+                        "COMMENT",
+                    ),
                 ),
             ),
         ),
@@ -7021,6 +7157,10 @@ class CreateStatementSegment(BaseSegment):
                 ),
             ),
         ),
+        # Next set are Security Integration (Snowflake OAuth custom client)
+        # statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake
+        Ref("SecurityIntegrationSnowflakeOauthOptionsSegment", optional=True),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Ref("PipePropertiesGrammar", optional=True),
