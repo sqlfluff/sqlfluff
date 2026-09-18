@@ -6004,7 +6004,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
 class CopyStatementSegment(BaseSegment):
     """A `COPY` statement.
 
-    As Specified in https://www.postgresql.org/docs/14/sql-copy.html
+    As Specified in https://www.postgresql.org/docs/current/sql-copy.html
     """
 
     type = "copy_statement"
@@ -6032,7 +6032,12 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
                     Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
                     Sequence("NULL", Ref("QuotedLiteralSegment")),
-                    Sequence("HEADER", Ref("BooleanLiteralGrammar", optional=True)),
+                    # PostgreSQL 16+
+                    Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
+                    Sequence(
+                        "HEADER",
+                        OneOf(Ref("BooleanLiteralGrammar"), "MATCH", optional=True),
+                    ),
                     Sequence("QUOTE", Ref("QuotedLiteralSegment")),
                     Sequence("ESCAPE", Ref("QuotedLiteralSegment")),
                     Sequence(
@@ -6044,13 +6049,25 @@ class CopyStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "FORCE_NOT_NULL",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
                     ),
                     Sequence(
                         "FORCE_NULL",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
                     ),
+                    # PostgreSQL 17+
+                    Sequence("ON_ERROR", OneOf("STOP", "IGNORE")),
+                    # PostgreSQL 18+
+                    Sequence("REJECT_LIMIT", Ref("NumericLiteralSegment")),
                     Sequence("ENCODING", Ref("QuotedLiteralSegment")),
+                    # PostgreSQL 17+ (SILENT added in 18)
+                    Sequence("LOG_VERBOSITY", OneOf("DEFAULT", "VERBOSE", "SILENT")),
                 )
             )
         ),
