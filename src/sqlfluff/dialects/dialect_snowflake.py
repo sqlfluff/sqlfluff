@@ -1976,6 +1976,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStatementSegment"),
             Ref("DefineStatementSegment"),
             Ref("CreateDbtProjectStatementSegment"),
+            Ref("ExecuteDbtProjectStatementSegment"),
             Ref("CreateMcpServerStatementSegment"),
             Ref("CreateDcmProjectStatementSegment"),
             Ref("CreateTaskSegment"),
@@ -7185,6 +7186,91 @@ class CreateDbtProjectStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("ExternalAccessIntegrationsEqualsSegment", optional=True),
+    )
+
+
+class ExecuteDbtProjectStatementSegment(BaseSegment):
+    """A Snowflake `EXECUTE DBT PROJECT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-dbt-project
+    """
+
+    type = "execute_dbt_project_statement"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        "DBT",
+        "PROJECT",
+        Ref("IfExistsGrammar", optional=True),
+        OneOf(
+            Sequence("FROM", "WORKSPACE", Ref("ObjectReferenceSegment")),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "ARGS",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "DBT_VERSION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("ExternalAccessIntegrationsEqualsSegment", optional=True),
+        Sequence(
+            "ENVIRONMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ENV_VARS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "IMPORTS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("FunctionSegment"),
+                        ),
+                        Sequence(
+                            "AS",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WRITEBACK",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "PROJECT_ROOT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
 
 
