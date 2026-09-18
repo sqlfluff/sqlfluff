@@ -7,3 +7,5 @@ REVOKE READ ON METASTORE FROM 'principal';
 REVOKE SELECT ON VIEW schema.view FROM `the_view_accessors`;
 REVOKE READ VOLUME ON VOLUME main.default.my_volume FROM `data-engineers`;
 REVOKE CREATE VOLUME ON SCHEMA main.default FROM `finance-team`;
+REVOKE WRITE VOLUME ON VOLUME main.default.my_volume FROM `data-engineers`;
+REVOKE READ VOLUME, WRITE VOLUME ON VOLUME main.default.my_volume FROM `data-engineers`;

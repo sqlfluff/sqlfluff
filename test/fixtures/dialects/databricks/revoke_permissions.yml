@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59922e0543a26280208d556cd2f64631d011afd0706f3308fd0f75c6c6beeee2
+_hash: de02e3e72f7ef9d1fc5482b65b2161192b8ead1697ca1cd8e0a26f9483fdd36a
 file:
 - statement:
     access_statement:
@@ -165,4 +165,54 @@ file:
       - access_target:
           role_reference:
             quoted_identifier: '`finance-team`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+          - keyword: WRITE
+          - keyword: VOLUME
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: VOLUME
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: my_volume
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`data-engineers`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: READ
+          - keyword: VOLUME
+        - comma: ','
+        - access_permission:
+          - keyword: WRITE
+          - keyword: VOLUME
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: VOLUME
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: my_volume
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            quoted_identifier: '`data-engineers`'
 - statement_terminator: ;
