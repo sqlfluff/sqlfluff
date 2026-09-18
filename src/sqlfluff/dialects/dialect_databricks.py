@@ -2189,10 +2189,18 @@ class MagicCellStatementSegment(BaseSegment):
         Ref("NotebookStart", optional=True),
         OneOf(
             Sequence(
-                Ref("MagicStartGrammar", optional=True),
+                # A cell opens with the magic directive either alone on its
+                # line (`-- MAGIC %md`) or with content after it
+                # (`-- MAGIC %md # Title`). Both may be followed by further
+                # `-- MAGIC` lines: the directive only names the language, it
+                # does not say how many lines the cell has.
+                OneOf(
+                    Ref("MagicStartGrammar"),
+                    Ref("MagicSingleLineGrammar"),
+                    optional=True,
+                ),
                 AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
             ),
-            Ref("MagicSingleLineGrammar", optional=True),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
                 OneOf(
