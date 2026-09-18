@@ -3251,6 +3251,14 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         ),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
+        # The Delta introspection statements double as relations, e.g.
+        # SELECT location FROM (DESCRIBE DETAIL my_table);
+        Bracketed(
+            OneOf(
+                Ref("DescribeHistoryStatementSegment"),
+                Ref("DescribeDetailStatementSegment"),
+            ),
+        ),
     )
 
 
