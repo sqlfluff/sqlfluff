@@ -7326,7 +7326,9 @@ class CreateUserSegment(BaseSegment):
             Sequence(
                 "DEFAULT_SECONDARY_ROLES",
                 Ref("EqualsSegment"),
-                Bracketed(Ref("QuotedLiteralSegment")),
+                # An empty list (i.e. `()`) is valid and disables
+                # secondary roles for the user.
+                Bracketed(Ref("QuotedLiteralSegment", optional=True)),
             ),
             Sequence(
                 "MINS_TO_BYPASS_MFA",
@@ -9753,10 +9755,20 @@ class AlterUserStatementSegment(BaseSegment):
             Sequence(
                 "SET",
                 OptionallyDelimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+                    OneOf(
+                        # DEFAULT_SECONDARY_ROLES takes a bracketed list rather
+                        # than a plain literal, e.g. `('ALL')` or `()` (an
+                        # empty list disables secondary roles for the user).
+                        Sequence(
+                            "DEFAULT_SECONDARY_ROLES",
+                            Ref("EqualsSegment"),
+                            Bracketed(Ref("QuotedLiteralSegment", optional=True)),
+                        ),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+                        ),
                     ),
                 ),
             ),
