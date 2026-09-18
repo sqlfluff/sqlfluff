@@ -1045,6 +1045,11 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
+            # The two branches differ only in what may come first, and their
+            # trailing expectation and table-constraint loops must stay in
+            # step. They are written out rather than shared: referencing one
+            # grammar instance from both branches, or building one per branch
+            # from a factory, both stop the column list parsing at all.
             OneOf(
                 Sequence(
                     Ref("ColumnFieldDefinitionSegment"),
