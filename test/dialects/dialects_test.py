@@ -10,6 +10,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.linter import ParsedString, RenderedFile
+from sqlfluff.core.parser.lexer import PyLexer
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -55,6 +56,40 @@ def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[Parsed
     # Check we don't have lexing or parsing issues
     assert not parsed_file.violations
     return parsed_file
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected_segments"),
+    [
+        (
+            "-- MAGIC %python\r\n-- MAGIC print('x')\r\n",
+            [
+                ("magic_start", "-- MAGIC %python"),
+                ("newline", "\r\n"),
+                ("magic_line", "-- MAGIC print('x')"),
+                ("newline", "\r\n"),
+            ],
+        ),
+        (
+            "-- MAGIC %run ./Notebook\r\n",
+            [
+                ("magic_single_line", "-- MAGIC %run ./Notebook"),
+                ("newline", "\r\n"),
+            ],
+        ),
+    ],
+)
+def test_databricks_magic_lexes_crlf_as_newline(
+    raw: str, expected_segments: list[tuple[str, str]]
+) -> None:
+    """Databricks magic lexers must preserve CRLF as newline segments."""
+    segments, errors = PyLexer(dialect="databricks").lex(raw)
+
+    assert not errors
+    assert [
+        (segment.get_type(), segment.raw) for segment in segments[:-1]
+    ] == expected_segments
+    assert segments[-1].is_type("end_of_file")
 
 
 @pytest.mark.parametrize("dialect", ["ansi", "hive"])

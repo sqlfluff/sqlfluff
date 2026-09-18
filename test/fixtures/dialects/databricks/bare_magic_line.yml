@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 34c6338b801568c732471174a32deec031cacac060661616288225e9eb3f263a
+_hash: d8921ad7d39f9a7a614bfda73fd847e9b23889fb578cab3f9f23839e05aac1b9
 file:
 - command_cell: -- COMMAND ----------
 - statement:
@@ -30,3 +30,27 @@ file:
 - statement:
     magic_cell_segment:
       bare_magic_cell: '%run ./Notebook'
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      bare_magic_cell: '%tensorboard --logdir /logs'
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      bare_magic_cell: '%set_cell_max_output_size_in_mb 10'
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      bare_magic_cell: "%skip print(\"This won't run\")"
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      bare_magic_cell: '%%profile my_function()'
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      bare_magic_cell: '%%oprofile my_function()'
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      bare_magic_cell: '%uv pip install simplejson'
