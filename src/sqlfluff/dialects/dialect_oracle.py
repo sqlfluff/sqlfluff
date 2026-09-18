@@ -1588,6 +1588,31 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
     )
 
 
+class FetchClauseSegment(ansi.FetchClauseSegment):
+    """A `FETCH` clause, which in Oracle can limit by a percentage of rows.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/SELECT.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            ),
+            Ref.keyword("PERCENT", optional=True),
+            optional=True,
+        ),
+        OneOf("ROW", "ROWS"),
+        OneOf("ONLY", Sequence("WITH", "TIES")),
+    )
+
+
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement."""
 
