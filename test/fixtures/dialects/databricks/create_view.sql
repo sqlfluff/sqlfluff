@@ -91,9 +91,6 @@ AS SELECT a, b FROM live.taxi_raw;
 CREATE TEMPORARY STREAMING LIVE VIEW customers_silver
 AS SELECT a, b FROM stream(live.customers_bronze);
 
-CREATE OR REFRESH LIVE VIEW refreshed_data
-AS SELECT a, b FROM live.taxi_raw;
-
 CREATE TEMPORARY LIVE VIEW validated_data (
     a COMMENT 'a',
     b COMMENT 'b',

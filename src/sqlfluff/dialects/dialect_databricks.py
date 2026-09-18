@@ -944,8 +944,7 @@ class CreateViewStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        # OR REPLACE for standard SQL, OR REFRESH for pipelines.
-        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         # A pipeline view declared against the legacy LIVE schema. STREAMING is
         # bound to LIVE rather than being independently optional, because there
