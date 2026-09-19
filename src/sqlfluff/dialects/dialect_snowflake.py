@@ -11890,7 +11890,7 @@ class ScriptingIfStatementSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("DelimiterGrammar"),
-                    Ref("StatementSegment"),
+                    Ref("StatementSegment", reset_terminators=True),
                 ),
                 terminators=[
                     "ELSEIF",
@@ -11911,7 +11911,7 @@ class ScriptingIfStatementSegment(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         Ref("DelimiterGrammar"),
-                        Ref("StatementSegment"),
+                        Ref("StatementSegment", reset_terminators=True),
                     ),
                     terminators=[
                         "ELSEIF",
@@ -11935,7 +11935,7 @@ class ScriptingIfStatementSegment(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         Ref("DelimiterGrammar"),
-                        Ref("StatementSegment"),
+                        Ref("StatementSegment", reset_terminators=True),
                     ),
                     terminators=[
                         Sequence("END", "IF"),
