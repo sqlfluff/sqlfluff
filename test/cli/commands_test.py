@@ -895,6 +895,48 @@ def test__cli__bench_machine_output_stays_serialized():
     assert "==== overall timings ====" not in result.stdout
 
 
+def test__cli__bench_machine_output_stays_serialized_empty_write_output():
+    """An empty --write-output value must be treated like no file at all."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=json",
+                "--write-output=",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    # dump_file_payload() treats an empty --write-output as "write to
+    # stdout" (it checks truthiness, not `is not None`), so the bench
+    # guard must use the same check or the payload goes to stdout right
+    # alongside the bench table.
+    json.loads(result.stdout)
+    assert "==== overall timings ====" not in result.stdout
+
+
+def test__cli__bench_prints_for_format_none():
+    """--bench timings should still show for --format=none.
+
+    format=none writes nothing to stdout, so there is nothing for the
+    bench table to corrupt - it should not be suppressed.
+    """
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=none",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" in result.stdout
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""
