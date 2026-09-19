@@ -139,6 +139,12 @@ def test__dialect__bracketed_subquery_expression(dialect, sql):
             "WITH (SELECT (1, 2, 3)) AS arr SELECT * FROM tbl WHERE x IN arr;",
             2,
         ),
+        (
+            "postgres",
+            "INSERT INTO t VALUES (1) ON CONFLICT (id) "
+            "DO UPDATE SET (a, b) = ROW (SELECT 1, 2);",
+            1,
+        ),
     ],
 )
 def test__dialect__select_in_query_context(dialect, sql, select_count):
