@@ -18,6 +18,12 @@ class Rule_CV03(BaseRule):
        as a syntax error, and as such the `SQLFluff` default is to
        forbid trailing commas in the select clause.
 
+       Set ``select_clause_trailing_comma`` to
+       ``require_multiline_forbid_single_line`` to require trailing commas
+       only for multiline SELECT clauses. This uses the rendered SQL from
+       the SELECT keyword through the last target, ignoring trailing comments,
+       whitespace and commas when determining whether a clause is multiline.
+
     **Anti-pattern**
 
     .. code-block:: sql
@@ -54,8 +60,20 @@ class Rule_CV03(BaseRule):
         # Iterate content to find last element
         last_content: BaseSegment = children.last(sp.is_code())[0]
 
-        # What mode are we in?
-        if self.select_clause_trailing_comma == "forbid":
+        # Resolve the policy per clause without changing the configured mode.
+        comma_policy = self.select_clause_trailing_comma
+        if comma_policy == "require_multiline_forbid_single_line":
+            code_segments = segment.raw_segments.select(
+                sp.and_(sp.is_code(), sp.not_(sp.is_type("comma")))
+            )
+            first_code, last_code = code_segments[0], code_segments[-1]
+            assert first_code.pos_marker
+            assert last_code.pos_marker
+            start_line = first_code.pos_marker.working_line_no
+            end_line = last_code.pos_marker.working_loc_after(last_code.raw)[0]
+            comma_policy = "require" if start_line != end_line else "forbid"
+
+        if comma_policy == "forbid":
             # Is it a comma?
             if last_content.is_type("comma"):
                 # The last content is a comma. Before we try and remove it, we
@@ -97,7 +115,7 @@ class Rule_CV03(BaseRule):
                     fixes=fixes,
                     description="Trailing comma in select statement forbidden",
                 )
-        elif self.select_clause_trailing_comma == "require":
+        elif comma_policy == "require":
             if not last_content.is_type("comma"):
                 new_comma = SymbolSegment(",", type="comma")
                 return LintResult(
