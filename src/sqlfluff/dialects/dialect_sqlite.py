@@ -883,9 +883,22 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
 
     type = "transaction_statement"
     match_grammar: Matchable = Sequence(
-        OneOf("BEGIN", "COMMIT", "ROLLBACK", "END"),
-        OneOf("TRANSACTION", optional=True),
-        Sequence("TO", "SAVEPOINT", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            Sequence(
+                "BEGIN",
+                OneOf("DEFERRED", "IMMEDIATE", "EXCLUSIVE", optional=True),
+            ),
+            "COMMIT",
+            "ROLLBACK",
+            "END",
+        ),
+        Ref.keyword("TRANSACTION", optional=True),
+        Sequence(
+            "TO",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -1273,6 +1286,37 @@ class AnalyzeStatementSegment(BaseSegment):
     )
 
 
+class SavepointStatementSegment(BaseSegment):
+    """A `SAVEPOINT` statement.
+
+    https://www.sqlite.org/lang_savepoint.html
+    """
+
+    type = "savepoint_statement"
+
+    match_grammar = Sequence(
+        "SAVEPOINT",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class ReleaseSavepointStatementSegment(BaseSegment):
+    """A `RELEASE` statement.
+
+    https://www.sqlite.org/lang_savepoint.html
+
+    The `SAVEPOINT` keyword is optional.
+    """
+
+    type = "release_savepoint_statement"
+
+    match_grammar = Sequence(
+        "RELEASE",
+        Ref.keyword("SAVEPOINT", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1295,6 +1339,8 @@ class StatementSegment(ansi.StatementSegment):
         Ref("InsertStatementSegment"),
         Ref("PragmaStatementSegment"),
         Ref("ReindexStatementSegment"),
+        Ref("ReleaseSavepointStatementSegment"),
+        Ref("SavepointStatementSegment"),
         Ref("SelectableGrammar"),
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
