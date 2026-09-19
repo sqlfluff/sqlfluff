@@ -909,22 +909,24 @@ class CreateTableStatementSegment(sparksql.CreateTableStatementSegment):
     https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
     """
 
-    match_grammar = OneOf(
-        # Inline FLOW is only valid on a streaming table, so this alternative
-        # requires STREAMING and a flow clause. An optional FLOW clause on the
-        # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
-        # which Databricks rejects.
-        Sequence(
-            "CREATE",
-            Ref("OrRefreshGrammar", optional=True),
-            OneOf(
-                Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
-                Ref.keyword("STREAMING"),
+    match_grammar = Sequence(
+        OneOf(
+            # Inline FLOW is only valid on a streaming table, so this alternative
+            # requires STREAMING and a flow clause. An optional FLOW clause on the
+            # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
+            # which Databricks rejects.
+            Sequence(
+                "CREATE",
+                Ref("OrRefreshGrammar", optional=True),
+                OneOf(
+                    Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                    Ref.keyword("STREAMING"),
+                ),
+                Ref("TableDefinitionSegment"),
+                Ref("FlowClauseSegment"),
             ),
-            Ref("TableDefinitionSegment"),
-            Ref("FlowClauseSegment"),
-        ),
-        sparksql.CreateTableStatementSegment.match_grammar,
+            sparksql.CreateTableStatementSegment.match_grammar,
+        )
     )
 
 
