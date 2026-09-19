@@ -14,6 +14,8 @@ SHOW GRANTS ON METASTORE;
 
 SHOW GRANTS `alf@melmak.et` ON SCHEMA my_schema;
 
+SHOW GRANTS alf ON TABLE my_table;
+
 -- "You can also use GRANT as an alternative for GRANTS."
 SHOW GRANT ON TABLE my_table;
 
