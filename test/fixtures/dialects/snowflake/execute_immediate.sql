@@ -27,3 +27,7 @@ EXECUTE IMMEDIATE FROM @my_stage/scripts/create-inventory.sql;
 -- The statement string can also be an arbitrary expression that evaluates
 -- to a string, e.g. built up via concatenation.
 EXECUTE IMMEDIATE 'CREATE OR REPLACE TABLE ' || :backup_table_name || ' AS SELECT * FROM t';
+
+-- The FROM form's USING clause takes `key => value` template parameters,
+-- not bind variables.
+EXECUTE IMMEDIATE FROM '/scripts/foo.sql' USING (env => 'prod', region => 'us');

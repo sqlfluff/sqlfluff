@@ -10289,6 +10289,7 @@ class ExecuteImmediateClauseSegment(BaseSegment):
 
     EXECUTE IMMEDIATE
         FROM { absoluteFilePath | relativeFilePath }
+        [ USING ( <key> => <value> [ , <key> => <value> ... ] ) ]
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
@@ -10315,7 +10316,17 @@ class ExecuteImmediateClauseSegment(BaseSegment):
         ),
         Sequence(
             "USING",
-            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        # The `EXECUTE IMMEDIATE FROM ...` form takes
+                        # `key => value` template parameters rather than
+                        # bind variables.
+                        Ref("NamedParameterExpressionSegment"),
+                        Ref("LocalVariableNameSegment"),
+                    )
+                )
+            ),
             optional=True,
         ),
     )
