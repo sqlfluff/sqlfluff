@@ -1512,6 +1512,13 @@ class _StandaloneSlashTerminator(Matchable):
     matches only the second case, so it can be safely used as a terminator
     for inner grammars (e.g. the SELECT body of ``CREATE VIEW``) without
     also terminating parsing on an in-expression ``1 / 100``.
+
+    ``/`` is treated as a batch delimiter only when it stands on its own
+    line, i.e. the previous code-relevant segment is a newline (or start
+    of input) *and* the next code-relevant segment is a newline (or end
+    of input, whether that is the raw end of the buffer or an
+    ``end_of_file`` meta). This mirrors SQL*Plus, which documents the
+    slash-buffer-executor as a command that must appear on its own line.
     """
 
     def is_optional(self) -> bool:
@@ -1535,9 +1542,28 @@ class _StandaloneSlashTerminator(Matchable):
             if seg.is_meta or seg.is_type("whitespace"):
                 prev -= 1
                 continue
-            if seg.is_type("newline"):
-                return MatchResult(slice(idx, idx + 1))
-            return MatchResult.empty_at(idx)
+            if not seg.is_type("newline"):
+                return MatchResult.empty_at(idx)
+            break
+        # Walk forward past inline whitespace and meta segments; require the
+        # next code-relevant segment to be a newline, an ``end_of_file``
+        # meta, or that we reach the end of the segment stream. A division
+        # operator always has an operand on the same line, so it will hit
+        # a code segment before a newline.
+        nxt = idx + 1
+        while nxt < len(segments):
+            seg = segments[nxt]
+            if seg.is_type("whitespace"):
+                nxt += 1
+                continue
+            if seg.is_meta:
+                if seg.is_type("end_of_file"):
+                    break
+                nxt += 1
+                continue
+            if not seg.is_type("newline"):
+                return MatchResult.empty_at(idx)
+            break
         return MatchResult(slice(idx, idx + 1))
 
 
