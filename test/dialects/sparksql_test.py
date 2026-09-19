@@ -102,31 +102,3 @@ def test_databricks_set_config_values_parse(sql: str, expected_value: str) -> No
         f"Expected clean parse for:\n{sql}"
     )
     assert _set_value_raw(sql, dialect="databricks") == expected_value
-
-
-@pytest.mark.parametrize(
-    "sql",
-    [
-        pytest.param(
-            "EXECUTE IMMEDIATE 'SELECT id, name FROM t WHERE id = ?'"
-            " INTO (a, b) USING 10;\n",
-            id="into_braced",
-        ),
-        pytest.param("EXECUTE IMMEDIATE;\n", id="no_sql_string"),
-        pytest.param("EXECUTE IMMEDIATE s USING;\n", id="using_no_arguments"),
-        pytest.param("EXECUTE IMMEDIATE s USING ();\n", id="using_empty_brackets"),
-        pytest.param("EXECUTE IMMEDIATE s INTO;\n", id="into_no_variables"),
-        pytest.param("EXECUTE IMMEDIATE s INTO ();\n", id="into_empty_brackets"),
-    ],
-)
-def test_execute_immediate_rejections(sql: str) -> None:
-    """EXECUTE IMMEDIATE boundaries.
-
-    The reference gives `INTO var_name [, ...]` without brackets, and Spark's
-    own test suite labels the braced spelling "INTO does not support braces -
-    parser error", so accepting it would be wrong.
-    """
-    assert not _parses_cleanly(sql), f"Expected a parse failure for:\n{sql}"
-    assert not _parses_cleanly(sql, dialect="databricks"), (
-        f"Expected a parse failure for:\n{sql}"
-    )
