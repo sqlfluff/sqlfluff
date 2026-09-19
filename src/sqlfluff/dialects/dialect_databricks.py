@@ -705,6 +705,42 @@ class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
     type = "volume_reference"
 
 
+class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
+    """A securable object that lives inside a schema.
+
+    Unity Catalog lists VOLUME among the securable objects a privilege can be
+    granted on, and `CREATE VOLUME` among the privileges grantable on a schema.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessSchemaObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("VOLUME"),
+        ],
+    )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A Unity Catalog privilege.
+
+    READ VOLUME and WRITE VOLUME are the two privileges governing volume
+    contents. Neither is a bare READ or WRITE, so they are matched as
+    sequences rather than as the single keywords ANSI already carries.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                OneOf("READ", "WRITE"),
+                "VOLUME",
+            ),
+        ],
+    )
+
+
 class AlterCatalogStatementSegment(BaseSegment):
     """An `ALTER CATALOG` statement.
 
