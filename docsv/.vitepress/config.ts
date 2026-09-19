@@ -13,6 +13,18 @@ import sidebarInternals from './sidebar-internals.json'
 import { manifestPath, normalizeBase, withDocsBase } from './path-utils'
 import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 
+const configDir = dirname(fileURLToPath(import.meta.url))
+const repoRoot = join(configDir, '../../')
+
+/** Stable release version from pyproject.toml — mirrors Sphinx's `|release|` substitution. */
+function readStableVersion(): string {
+    const pyproject = readFileSync(join(repoRoot, 'pyproject.toml'), 'utf-8')
+    const match = pyproject.match(/stable_version\s*=\s*"([^"]+)"/)
+    return match?.[1] ?? '0.0.0'
+}
+
+const stableVersion = readStableVersion()
+
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Introduction', link: '/guide/' },
     { text: 'Installation', link: '/guide/install' },
@@ -248,7 +260,13 @@ export default defineConfig({
             light: 'github-light',
             dark: 'github-dark'
         },
-        lineNumbers: false
+        lineNumbers: false,
+        config(md) {
+            // Sphinx RST substitution variables (e.g. |release|) carried over in Markdown sources.
+            md.core.ruler.before('normalize', 'sqlfluff-rst-substitutions', (state) => {
+                state.src = state.src.replace(/\|release\|/g, stableVersion)
+            })
+        },
     },
 
     vite: {

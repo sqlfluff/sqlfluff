@@ -3089,14 +3089,11 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
 
     match_grammar = OneOf(
         # NB These qualifiers are optional
-        # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
-        # tab1.col1 = tab2.col1
         Sequence(
             Ref("JoinTypeKeywords", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Dedent,
             Conditional(Indent, indented_using_on=True),
             # NB: this is optional
@@ -3130,7 +3127,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("NaturalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Dedent,
         ),
     )
@@ -3509,7 +3506,7 @@ class DescribeHistoryStatementSegment(BaseSegment):
     type = "describe_history_statement"
 
     match_grammar: Matchable = Sequence(
-        "DESCRIBE",
+        OneOf("DESCRIBE", "DESC"),
         "HISTORY",
         OneOf(
             Ref("QuotedLiteralSegment"),
@@ -3529,7 +3526,7 @@ class DescribeDetailStatementSegment(BaseSegment):
     type = "describe_detail_statement"
 
     match_grammar: Matchable = Sequence(
-        "DESCRIBE",
+        OneOf("DESCRIBE", "DESC"),
         "DETAIL",
         OneOf(
             Ref("QuotedLiteralSegment"),

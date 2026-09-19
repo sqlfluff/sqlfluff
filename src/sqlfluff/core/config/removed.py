@@ -206,6 +206,21 @@ REMOVED_CONFIGS = [
         ("indentation", "implicit_indents"),
         _translate_allow_implicit_indents,
     ),
+    _RemovedConfig(
+        ("rules", "L052", "semicolon_newline"),
+        (
+            "The semicolon_newline config has been renamed to multiline_newline "
+            "under sqlfluff:rules:convention.terminator."
+        ),
+        ("rules", "convention.terminator", "multiline_newline"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "convention.terminator", "semicolon_newline"),
+        "The semicolon_newline config has been renamed to multiline_newline.",
+        ("rules", "convention.terminator", "multiline_newline"),
+        (lambda x: x),
+    ),
 ]
 
 # Actually make a dict which matches the structure.

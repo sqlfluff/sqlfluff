@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cde62de20e2596bcaaaf9df375810fa2b8106c8fcb597de55ac3f2f56aadf51e
+_hash: ba12a69d8c0734412f27932ca95a017075773111b65415cc7fa5055a1712aa67
 file:
   batch:
   - statement:
@@ -233,7 +233,7 @@ file:
               column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
-              keyword: ENABLE
+              - keyword: ENABLE
             end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -271,7 +271,7 @@ file:
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
-            - keyword: ENABLE
+              - keyword: ENABLE
             end_bracket: )
   - statement_terminator: ;
   - statement:

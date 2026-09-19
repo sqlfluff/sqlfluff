@@ -28,6 +28,33 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 # Small helper functions
 # ---------------------------
 
+# The inline comment marker. Every dialect SQLFluff ships lexes "--" this way,
+# so no dialect lookup is needed to know that building one changes meaning.
+_INLINE_COMMENT_MARKER = "--"
+
+
+def _would_start_comment(
+    prev_block: Optional["ReflowBlock"], next_block: Optional["ReflowBlock"]
+) -> bool:
+    """Would removing the whitespace between these blocks start a comment?
+
+    Spacing configs such as ``touch`` are resolved against segments, but the
+    fix they produce is applied to the raw file. Deleting the whitespace in
+    ``1 * - - 5`` glues the two sign indicators into ``--``, which the lexer
+    then reads as an inline comment - so the rest of the line disappears
+    without the file ever becoming unparsable.
+    """
+    if not prev_block or not next_block:  # pragma: no cover
+        # A point at the very start or end of the file has nothing to fuse with.
+        return False
+    prev_raw = prev_block.segments[-1].raw
+    next_raw = next_block.segments[0].raw
+    if not prev_raw or not next_raw:
+        # Zero length blocks (e.g. templated placeholders) have no characters
+        # to fuse, so they can't build a marker on their own.
+        return False
+    return prev_raw[-1] + next_raw[0] == _INLINE_COMMENT_MARKER
+
 
 def _construct_alignment_whitespace(width: int, indent_unit: str) -> str:
     """Construct alignment whitespace using tabs or spaces.
@@ -213,6 +240,18 @@ def determine_constraints(
             f"Unexpected within constraint: {within_constraint!r} for "
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
+
+    # Prohibit stripping a newline which is the only thing keeping an inline
+    # comment marker apart. Both "touch" and "any" leave a point with no
+    # whitespace alone, so once the newline goes there is nothing between the
+    # blocks and `-` `-` fuses into `--`. Keeping the line break is the only
+    # outcome here which preserves the meaning of the file.
+    if (
+        strip_newlines
+        and {"touch", "any"}.intersection((pre_constraint, post_constraint))
+        and _would_start_comment(prev_block, next_block)
+    ):
+        strip_newlines = False
 
     return pre_constraint, post_constraint, strip_newlines
 
@@ -656,6 +695,11 @@ def handle_respace__inline_with_space(
 
     # Do we have either side set to "touch"?
     if "touch" in [pre_constraint, post_constraint]:
+        if _would_start_comment(prev_block, next_block):
+            # Removing the whitespace would comment out the rest of the line.
+            # Leave it alone and don't raise a violation - there is no edit the
+            # user could make here which would satisfy the constraint.
+            return segment_buffer, []
         # In this instance - no whitespace is correct, This
         # means we should delete it.
         segment_buffer.pop(ws_idx)

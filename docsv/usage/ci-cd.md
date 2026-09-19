@@ -1,4 +1,6 @@
-# Using [GitHub Actions](https://github.com/features/actions) to Annotate PRs
+# CI/CD Integration
+
+## Using [GitHub Actions](https://github.com/features/actions) to Annotate PRs
 
 There are two way to utilize SQLFluff to annotate Github PRs.
 
@@ -21,3 +23,23 @@ for updates on this limitation.
 
 For more information and examples on using SQLFluff in GitHub Actions, see the
 [sqlfluff-github-actions repository](https://github.com/sqlfluff/sqlfluff-github-actions).
+
+## Using GitLab CI Code Quality reports
+
+When `sqlfluff lint` is run with the `--format gitlab` option, it produces a
+[GitLab Code Quality report](https://docs.gitlab.com/ci/testing/code_quality/#code-quality-report-format)
+(the Code Climate issue format). GitLab can ingest that file and show findings
+in merge requests.
+
+A typical job writes the report with `--write-output` and publishes it as a
+`codequality` artifact:
+
+```yaml
+lint-sql:
+  image: sqlfluff/sqlfluff
+  script:
+    - sqlfluff lint --format gitlab --write-output gl-code-quality-report.json
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+```

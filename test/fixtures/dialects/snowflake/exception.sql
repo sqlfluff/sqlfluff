@@ -58,3 +58,46 @@ EXCEPTION
     WHEN OTHER THEN
         ROLLBACK;
         RAISE;
+
+BEGIN
+    LET x NUMBER := 1;
+EXCEPTION
+    WHEN OTHER THEN
+        RETURN 'handled';
+END;
+
+BEGIN
+    LET x NUMBER := 1;
+EXCEPTION
+    WHEN MY_EXCEPTION OR MY_OTHER_EXCEPTION THEN
+        LET err_msg := SQLERRM;
+        RETURN err_msg;
+    WHEN OTHER THEN
+        ROLLBACK;
+        RAISE;
+END;
+
+BEGIN
+    IF (TRUE) THEN
+        BEGIN
+            LET x NUMBER := 1;
+        EXCEPTION
+            WHEN OTHER THEN
+                RETURN 'inner';
+        END;
+    END IF;
+
+    RETURN 'ok';
+EXCEPTION
+    WHEN OTHER THEN
+        RETURN 'outer';
+END;
+
+BEGIN
+    LET x NUMBER := 1;
+EXCEPTION
+    WHEN OTHER THEN
+        BEGIN
+            RETURN 'nested block in handler';
+        END;
+END;

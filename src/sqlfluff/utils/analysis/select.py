@@ -195,6 +195,7 @@ def get_select_statement_info(
         for table_expression in fc.recursive_crawl(
             "table_expression", no_recursive_seg_type="select_statement"
         ):
+            _dialect_name = dialect.name if dialect else None
             for seg in table_expression.iter_segments():
                 # table references can get tricky with what is a schema, table,
                 # project, or column. It may be best for now to use the redshift
@@ -202,8 +203,22 @@ def get_select_statement_info(
                 # in AL05. However, this solves finding other types of references
                 # in functions such as LATERAL FLATTEN.
                 if not seg.is_type("table_reference"):
-                    reference_buffer += _get_object_references(seg)
-                elif is_qualified(seg, dialect.name if dialect else None):
+                    for reference in _get_object_references(seg):
+                        if reference.is_type("table_reference"):
+                            # A table declared inside this expression rather
+                            # than beside it: dialects that allow a bracketed
+                            # join as a join target (T-SQL's
+                            # ``((b JOIN c) JOIN d)``) nest the whole join
+                            # under one table_expression, so its tables arrive
+                            # here. They are declarations, not columns, and
+                            # RF02 reads this buffer as column references.
+                            # Route them exactly as a table_reference sitting
+                            # directly under the expression is routed below.
+                            if is_qualified(reference, _dialect_name):
+                                table_reference_buffer.append(reference)
+                        else:
+                            reference_buffer.append(reference)
+                elif is_qualified(seg, _dialect_name):
                     table_reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"
@@ -377,6 +392,16 @@ def _get_unpivot_table_aliases(
     return unpivot_aliases
 
 
+# Dialects whose grammar has a dedicated lambda function, so that a lambda always
+# parses as a "lambda_function" holding a "lambda_arrow". In these dialects a plain
+# "->" binary operator is something else - duckdb and trino also use it for JSON
+# extraction - and must not be read as a lambda.
+_LAMBDA_FUNCTION_DIALECTS = ("duckdb", "trino", "snowflake")
+
+# Dialects that parse a lambda as an ordinary expression with a "->" binary operator.
+_LAMBDA_EXPRESSION_DIALECTS = ("athena", "sparksql", "databricks")
+
+
 # Lambda arguments,
 # e.g. `x` and `y` in `x -> x is not null` and `(x, y) -> x + y`
 # are declared in-place, and are as such standalone – i.e. they do not reference
@@ -386,21 +411,24 @@ def _get_unpivot_table_aliases(
 def _get_lambda_argument_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
 ) -> list[BaseSegment]:
-    if not dialect or dialect.name not in [
-        "athena",
-        "sparksql",
-        "duckdb",
-        "trino",
-        "databricks",
-        "snowflake",
-    ]:
-        # Only athena and sparksql are known to have lambda expressions,
-        # so all other dialects will have zero lambda columns
+    if not dialect or dialect.name not in (
+        _LAMBDA_FUNCTION_DIALECTS + _LAMBDA_EXPRESSION_DIALECTS
+    ):
+        # Dialects without lambda expressions have zero lambda columns.
         return []
+
+    uses_lambda_function = dialect.name in _LAMBDA_FUNCTION_DIALECTS
 
     lambda_argument_columns: list[BaseSegment] = []
     for potential_lambda in segment.recursive_crawl("expression", "lambda_function"):
-        potential_arrow = potential_lambda.get_child("binary_operator", "lambda_arrow")
+        if uses_lambda_function:
+            # A bare expression with a "->" is not a lambda in these dialects.
+            if not potential_lambda.is_type("lambda_function"):
+                continue
+            potential_arrow = potential_lambda.get_child("lambda_arrow")
+        else:
+            potential_arrow = potential_lambda.get_child("binary_operator")
+
         if potential_arrow and potential_arrow.raw == "->":
             arrow_operator = potential_arrow
             # The arguments will be before the arrow operator, so we get anything
@@ -414,7 +442,10 @@ def _get_lambda_argument_columns(
                 ),
             )
 
-            assert len(argument_segments) == 1
+            if len(argument_segments) != 1:
+                # Not a shape we recognise as a lambda parameter list. Contribute
+                # no columns rather than crashing the whole analyzer.
+                continue
             child_segment = argument_segments[0]
 
             if child_segment.is_type("bracketed"):

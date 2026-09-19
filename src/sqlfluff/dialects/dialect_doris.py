@@ -69,6 +69,10 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
 
     match_grammar = mysql.ColumnDefinitionSegment.match_grammar.copy(
         insert=[
+            # The aggregate type comes straight after the column type and
+            # before any NULL/DEFAULT/COMMENT clauses, e.g.
+            # `v1 BIGINT SUM DEFAULT "0"`.
+            # https://doris.apache.org/docs/table-design/data-model/aggregate
             OneOf(
                 "MAX",
                 "MIN",
@@ -79,7 +83,8 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
                 "QUANTILE_UNION",
                 optional=True,
             ),
-        ]
+        ],
+        at=3,
     )
 
 

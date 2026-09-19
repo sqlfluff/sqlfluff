@@ -105,6 +105,10 @@ Located in `src/sqlfluff/core/parser/grammar/`:
 | `Ref()` | Reference to another segment | `Ref("TableReferenceSegment")` |
 | `Optional()` | Optional element (or use `optional=True`) | `Optional(Ref("WhereClause"))` |
 
+When a dialect needs dedicated spacing for `alias(columns)`, give its bracketed
+column alias list a segment type such as `alias_column_list`. This avoids relaxing
+spacing throughout every `alias_expression`.
+
 ### Grammar Organization Patterns
 
 #### Internal Grammar (Private Attributes with `_` prefix)

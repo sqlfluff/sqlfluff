@@ -1,0 +1,299 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 56d871e0f2b46cbb112619b5bfd72b23fa721cf8a2dd6d4e300252f42a2456f5
+file:
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customer_account
+    - alias_expression:
+        naked_identifier: ca
+    - keyword: USING
+    - table_reference:
+        naked_identifier: recent_transactions
+    - alias_expression:
+        naked_identifier: t
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: customer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: ca
+          - dot: .
+          - naked_identifier: customer_id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: balance
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                - column_reference:
+                    naked_identifier: balance
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: transaction_value
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+        - naked_identifier: ca
+        - dot: .
+        - naked_identifier: customer_id
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: ca
+        - dot: .
+        - naked_identifier: balance
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: wines
+    - alias_expression:
+        naked_identifier: w
+    - keyword: USING
+    - table_reference:
+        naked_identifier: wine_stock_changes
+    - alias_expression:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: winename
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: w
+          - dot: .
+          - naked_identifier: winename
+    - merge_match:
+      - merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+            column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: stock_delta
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '0'
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: winename
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: stock_delta
+              - end_bracket: )
+      - merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+          - column_reference:
+            - naked_identifier: w
+            - dot: .
+            - naked_identifier: stock
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: stock_delta
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - numeric_literal: '0'
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: stock
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                - column_reference:
+                  - naked_identifier: w
+                  - dot: .
+                  - naked_identifier: stock
+                - binary_operator: +
+                - column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: stock_delta
+      - merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE
+    - keyword: RETURNING
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: merge_action
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - comma: ','
+    - expression:
+        wildcard_identifier:
+          naked_identifier: w
+          dot: .
+          star: '*'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  naked_identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: a
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  naked_identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: a
+    - keyword: RETURNING
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: merge_action
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: action
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: id
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: ident
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: a
+        binary_operator: '*'
+        numeric_literal: '2'
+- statement_terminator: ;

@@ -181,18 +181,18 @@ Upgrading to 2.0 brings several important breaking changes:
 
 To upgrade smoothly between versions, we recommend the following sequence:
 
-#. The upgrade path will be simpler if you have a slimmer configuration file.
+1. The upgrade path will be simpler if you have a slimmer configuration file.
    Before upgrading, consider removing any sections from your configuration
    file (often `.sqlfluff`, see [Conf](../configuration/index)) which match the current
    [Default Configuration](../configuration/defaults). There is no need to respecify defaults in your local
    config if they are not different to the stock config.
 
-#. In a local (or other *non-production*) environment, upgrade to SQLFluff
+2. In a local (or other *non-production*) environment, upgrade to SQLFluff
    2.0.x. We recommend using a [compatible release](https://peps.python.org/pep-0440/#compatible-release) specifier such
    as `~=2.0.0`, to ensure any minor bugfix releases are automatically
    included.
 
-#. Examine your configuration file (as mentioned above), and evaluate how
+3. Examine your configuration file (as mentioned above), and evaluate how
    rules are currently specified. We recommend primarily using *either*
    `rules` *or* `exclude_rules` rather than both, as detailed
    in [Enabling and Disabling Rules](../configuration/rules#enabling-and-disabling-rules). Using either the `sqlfluff rules` CLI
@@ -225,10 +225,10 @@ To upgrade smoothly between versions, we recommend the following sequence:
    * Review the [Configuring Layout](../configuration/layout#configuring-layout) documentation, and check whether any
      indentation or layout configuration should be revised.
 
-#. Check your project for [In-File Configuration Directives](../configuration/index#in-file-configuration-directives) which refer to rule codes.
+4. Check your project for [In-File Configuration Directives](../configuration/index#in-file-configuration-directives) which refer to rule codes.
    Alter these in the same manner as described above for configuration files.
 
-#. Test linting your project for unexpected linting issues. Where found,
+5. Test linting your project for unexpected linting issues. Where found,
    consider whether to use `sqlfluff fix` to repair them in bulk,
    or (if you disagree with the changes) consider changing which rules
    you enable or their configuration accordingly. In particular you may notice:

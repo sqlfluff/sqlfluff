@@ -235,6 +235,121 @@ snowflake_dialect.sets("initialize_types").update(
 )
 
 snowflake_dialect.add(
+    # Pipe properties shared by CREATE PIPE and DEFINE PIPE
+    # https://docs.snowflake.com/en/sql-reference/sql/create-pipe
+    PipePropertiesGrammar=Sequence(
+        Sequence(
+            "AUTO_INGEST",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "ERROR_INTEGRATION",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "AWS_SNS_TOPIC",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "INTEGRATION",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    ),
+    # Per-cloud external stage parameter blocks (cloud parameters plus the
+    # matching directory-table options), shared by CREATE STAGE and
+    # DEFINE STAGE so the two grammars cannot drift.
+    S3ExternalStageOptionsGrammar=Sequence(
+        Ref("S3ExternalStageParameters", optional=True),
+        Sequence(
+            "DIRECTORY",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "ENABLE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+    ),
+    GCSExternalStageOptionsGrammar=Sequence(
+        Ref("GCSExternalStageParameters", optional=True),
+        Sequence(
+            "DIRECTORY",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "ENABLE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Sequence(
+                    "NOTIFICATION_INTEGRATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+    ),
+    AzureBlobStorageExternalStageOptionsGrammar=Sequence(
+        Ref("AzureBlobStorageExternalStageParameters", optional=True),
+        Sequence(
+            "DIRECTORY",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "ENABLE",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Sequence(
+                    "NOTIFICATION_INTEGRATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+    ),
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
@@ -1861,6 +1976,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStatementSegment"),
             Ref("DefineStatementSegment"),
             Ref("CreateDbtProjectStatementSegment"),
+            Ref("ExecuteDbtProjectStatementSegment"),
             Ref("CreateMcpServerStatementSegment"),
             Ref("CreateDcmProjectStatementSegment"),
             Ref("CreateTaskSegment"),
@@ -1898,6 +2014,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("DefineStageSegment"),
+            Ref("DefinePipeSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
             Ref("CreateStreamlitStatementSegment"),
@@ -4549,7 +4666,13 @@ class ScriptingBlockStatementSegment(BaseSegment):
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                Ref("StatementSegment"),
+                # Exclude ExceptionBlockStatementSegment so that the EXCEPTION
+                # section is matched below as a section of this block rather
+                # than as one of the statements inside it.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
+                ),
             ),
             terminators=[
                 OneOf(
@@ -4569,6 +4692,15 @@ class ScriptingBlockStatementSegment(BaseSegment):
         ),
         Ref("DelimiterGrammar"),
         Dedent,
+        # The EXCEPTION handler is a section of the block and not a statement
+        # within it, so it comes after the statement body has been closed and
+        # lines up with `BEGIN`.
+        # https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
+        Sequence(
+            Ref("ExceptionBlockStatementSegment"),
+            Ref("DelimiterGrammar"),
+            optional=True,
+        ),
         "END",
         reset_terminators=True,
     )
@@ -6892,36 +7024,7 @@ class CreateStatementSegment(BaseSegment):
         ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
-        Sequence(
-            Sequence(
-                "AUTO_INGEST",
-                Ref("EqualsSegment"),
-                Ref("BooleanLiteralGrammar"),
-                optional=True,
-            ),
-            Sequence(
-                "ERROR_INTEGRATION",
-                Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "AWS_SNS_TOPIC",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "INTEGRATION",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ObjectReferenceSegment"),
-                ),
-                optional=True,
-            ),
-            optional=True,
-        ),
+        Ref("PipePropertiesGrammar", optional=True),
         # Next are WAREHOUSE options
         # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
         Sequence(
@@ -7086,6 +7189,91 @@ class CreateDbtProjectStatementSegment(BaseSegment):
     )
 
 
+class ExecuteDbtProjectStatementSegment(BaseSegment):
+    """A Snowflake `EXECUTE DBT PROJECT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-dbt-project
+    """
+
+    type = "execute_dbt_project_statement"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        "DBT",
+        "PROJECT",
+        Ref("IfExistsGrammar", optional=True),
+        OneOf(
+            Sequence("FROM", "WORKSPACE", Ref("ObjectReferenceSegment")),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "ARGS",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "DBT_VERSION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("ExternalAccessIntegrationsEqualsSegment", optional=True),
+        Sequence(
+            "ENVIRONMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ENV_VARS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "IMPORTS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("FunctionSegment"),
+                        ),
+                        Sequence(
+                            "AS",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WRITEBACK",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "PROJECT_ROOT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
 class CreateDcmProjectStatementSegment(BaseSegment):
     """A Snowflake `CREATE DCM PROJECT` statement.
 
@@ -7224,7 +7412,9 @@ class CreateUserSegment(BaseSegment):
             Sequence(
                 "DEFAULT_SECONDARY_ROLES",
                 Ref("EqualsSegment"),
-                Bracketed(Ref("QuotedLiteralSegment")),
+                # An empty list (i.e. `()`) is valid and disables
+                # secondary roles for the user.
+                Bracketed(Ref("QuotedLiteralSegment", optional=True)),
             ),
             Sequence(
                 "MINS_TO_BYPASS_MFA",
@@ -7548,10 +7738,17 @@ class CreateFileFormatSegment(BaseSegment):
 
     type = "create_file_format_segment"
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        Sequence("FILE", "FORMAT"),
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                Sequence("FILE", "FORMAT"),
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            # DCM projects support DEFINE FILE FORMAT:
+            # https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+            Sequence("DEFINE", "FILE", "FORMAT"),
+        ),
         Ref("ObjectReferenceSegment"),
         # TYPE = <FILE_FORMAT> is included in below parameter segments.
         # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
@@ -7928,6 +8125,29 @@ class XmlFileFormatTypeParameters(BaseSegment):
     )
 
 
+class DefinePipeSegment(BaseSegment):
+    """A Snowflake DEFINE PIPE statement (specific to DCM projects).
+
+    All pipe properties supported by CREATE PIPE are available in DEFINE PIPE:
+    https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+    https://docs.snowflake.com/en/sql-reference/sql/create-pipe
+    """
+
+    type = "define_pipe_statement"
+
+    match_grammar = Sequence(
+        "DEFINE",
+        "PIPE",
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        Ref("PipePropertiesGrammar", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        Ref("CopyIntoTableStatementSegment"),
+        Dedent,
+    )
+
+
 class AlterPipeSegment(BaseSegment):
     """A snowflake `Alter PIPE` statement.
 
@@ -8227,12 +8447,172 @@ class CreateExternalTableSegment(BaseSegment):
     )
 
 
+class SemanticViewObjectReferenceSegment(BaseSegment):
+    """The one-, two-, or three-part name of a semantic view."""
+
+    type = "semantic_view_object_reference"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=False,
+            ),
+            max_times=2,
+        ),
+        allow_gaps=False,
+    )
+
+
+class SemanticViewFieldReferenceSegment(BaseSegment):
+    """An optionally logical-table-qualified semantic field or wildcard."""
+
+    type = "semantic_view_field_reference"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("StarSegment")),
+            allow_gaps=False,
+        ),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class SemanticViewExpressionSegment(BaseSegment):
+    """An expression over fields in a semantic view."""
+
+    type = "semantic_view_expression"
+    match_grammar = OneOf(
+        Ref("SemanticViewFieldReferenceSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewMetricSegment(BaseSegment):
+    """A metric expression with an optional output alias."""
+
+    type = "semantic_view_metric"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewFactSegment(BaseSegment):
+    """A fact expression in a semantic-view query."""
+
+    type = "semantic_view_fact"
+    match_grammar = Ref("SemanticViewExpressionSegment")
+
+
+class SemanticViewDimensionSegment(BaseSegment):
+    """A dimension expression with an optional output alias."""
+
+    type = "semantic_view_dimension"
+    match_grammar = Sequence(
+        Ref("SemanticViewExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf("METRICS", "FACTS", "DIMENSIONS", "WHERE"),
+            optional=True,
+        ),
+    )
+
+
+class SemanticViewMetricsClauseSegment(BaseSegment):
+    """The METRICS clause of a semantic-view query."""
+
+    type = "semantic_view_metrics_clause"
+    match_grammar = Sequence(
+        "METRICS",
+        Delimited(Ref("SemanticViewMetricSegment")),
+    )
+
+
+class SemanticViewFactsClauseSegment(BaseSegment):
+    """The FACTS clause of a semantic-view query."""
+
+    type = "semantic_view_facts_clause"
+    match_grammar = Sequence(
+        "FACTS",
+        Delimited(Ref("SemanticViewFactSegment")),
+    )
+
+
+class SemanticViewDimensionsClauseSegment(BaseSegment):
+    """The DIMENSIONS clause of a semantic-view query."""
+
+    type = "semantic_view_dimensions_clause"
+    match_grammar = Sequence(
+        "DIMENSIONS",
+        Delimited(Ref("SemanticViewDimensionSegment")),
+    )
+
+
+class SemanticViewWhereClauseSegment(BaseSegment):
+    """The pre-aggregation predicate of a semantic-view query."""
+
+    type = "semantic_view_where_clause"
+    match_grammar = Sequence(
+        "WHERE",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+    )
+
+
+class SemanticViewSegment(BaseSegment):
+    """A Snowflake SEMANTIC_VIEW query in a FROM clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/semantic_view
+    """
+
+    type = "semantic_view"
+    match_grammar = Sequence(
+        "SEMANTIC_VIEW",
+        Bracketed(
+            Ref("SemanticViewObjectReferenceSegment"),
+            OneOf(
+                Ref("SemanticViewMetricsClauseSegment"),
+                Ref("SemanticViewFactsClauseSegment"),
+                Ref("SemanticViewDimensionsClauseSegment"),
+                Sequence(
+                    Ref("SemanticViewMetricsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewMetricsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewFactsClauseSegment"),
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SemanticViewDimensionsClauseSegment"),
+                    Ref("SemanticViewFactsClauseSegment"),
+                ),
+            ),
+            Ref("SemanticViewWhereClauseSegment", optional=True),
+        ),
+    )
+
+
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause."""
 
     match_grammar = OneOf(
+        Ref("SemanticViewSegment"),
         Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
+        Ref(
+            "FunctionSegment",
+            exclude=Sequence("SEMANTIC_VIEW", Ref("StartBracketSegment")),
+        ),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
@@ -8692,182 +9072,22 @@ class CreateStageSegment(BaseSegment):
                     ),
                     OneOf(
                         # External S3 stage
-                        Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("S3ExternalStageOptionsGrammar"),
                         # External GCS stage
-                        Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("GCSExternalStageOptionsGrammar"),
                         # External Azure Blob Storage stage
-                        Sequence(
-                            Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("AzureBlobStorageExternalStageOptionsGrammar"),
                         optional=True,
                     ),
                 ),
                 Sequence(
                     OneOf(
                         # External S3 stage
-                        Sequence(
-                            Ref("S3ExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("S3ExternalStageOptionsGrammar"),
                         # External GCS stage
-                        Sequence(
-                            Ref("GCSExternalStageParameters", optional=True),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("GCSExternalStageOptionsGrammar"),
                         # External Azure Blob Storage stage
-                        Sequence(
-                            Ref(
-                                "AzureBlobStorageExternalStageParameters", optional=True
-                            ),
-                            Sequence(
-                                "DIRECTORY",
-                                Ref("EqualsSegment"),
-                                Bracketed(
-                                    Sequence(
-                                        "ENABLE",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                    ),
-                                    Sequence(
-                                        "AUTO_REFRESH",
-                                        Ref("EqualsSegment"),
-                                        Ref("BooleanLiteralGrammar"),
-                                        optional=True,
-                                    ),
-                                    Sequence(
-                                        "NOTIFICATION_INTEGRATION",
-                                        Ref("EqualsSegment"),
-                                        OneOf(
-                                            Ref("NakedIdentifierSegment"),
-                                            Ref("QuotedLiteralSegment"),
-                                        ),
-                                        optional=True,
-                                    ),
-                                ),
-                                optional=True,
-                            ),
-                        ),
+                        Ref("AzureBlobStorageExternalStageOptionsGrammar"),
                         optional=True,
                     ),
                     "URL",
@@ -8898,7 +9118,11 @@ class CreateStageSegment(BaseSegment):
 
 
 class DefineStageSegment(BaseSegment):
-    """A Snowflake DEFINE STAGE statement (specific to DCM projects)."""
+    """A Snowflake DEFINE STAGE statement (specific to DCM projects).
+
+    DCM projects support both internal and external stages:
+    https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+    """
 
     type = "define_stage_statement"
 
@@ -8907,20 +9131,59 @@ class DefineStageSegment(BaseSegment):
         "STAGE",
         Ref("ObjectReferenceSegment"),
         Indent,
-        # Only internal stages supported in DCM projects currently
-        Sequence(
-            Ref("InternalStageParameters", optional=True),
+        OneOf(
+            # Internal stages
             Sequence(
-                "DIRECTORY",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence(
-                        "ENABLE",
-                        Ref("EqualsSegment"),
-                        Ref("BooleanLiteralGrammar"),
-                    )
+                Ref("InternalStageParameters", optional=True),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        )
+                    ),
+                    optional=True,
                 ),
                 optional=True,
+            ),
+            # External stages, with each cloud's parameters bound to its
+            # URL scheme (mirroring CreateStageSegment)
+            Sequence(
+                "URL",
+                Ref("EqualsSegment"),
+                OneOf(
+                    # External S3 stage
+                    Sequence(
+                        Ref("S3Path"),
+                        Ref("S3ExternalStageOptionsGrammar", optional=True),
+                    ),
+                    # External GCS stage
+                    Sequence(
+                        Ref("GCSPath"),
+                        Ref("GCSExternalStageOptionsGrammar", optional=True),
+                    ),
+                    # External Azure Blob Storage stage
+                    Sequence(
+                        Ref("AzureBlobStoragePath"),
+                        Ref(
+                            "AzureBlobStorageExternalStageOptionsGrammar", optional=True
+                        ),
+                    ),
+                    # Variable URLs: the cloud is unknown, so accept any
+                    # cloud's parameter set
+                    Sequence(
+                        Ref("ReferencedVariableNameSegment"),
+                        OneOf(
+                            Ref("S3ExternalStageOptionsGrammar"),
+                            Ref("GCSExternalStageOptionsGrammar"),
+                            Ref("AzureBlobStorageExternalStageOptionsGrammar"),
+                            optional=True,
+                        ),
+                    ),
+                ),
             ),
             optional=True,
         ),
@@ -9055,17 +9318,17 @@ class CreateStreamStatementSegment(BaseSegment):
                     Ref("FromBeforeExpressionSegment"),
                     optional=True,
                 ),
-                Sequence(
-                    "APPEND_ONLY",
-                    Ref("EqualsSegment"),
-                    Ref("BooleanLiteralGrammar"),
-                    optional=True,
-                ),
-                Sequence(
-                    "SHOW_INITIAL_ROWS",
-                    Ref("EqualsSegment"),
-                    Ref("BooleanLiteralGrammar"),
-                    optional=True,
+                AnySetOf(
+                    Sequence(
+                        "APPEND_ONLY",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "SHOW_INITIAL_ROWS",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
                 ),
             ),
             Sequence(
@@ -9578,10 +9841,20 @@ class AlterUserStatementSegment(BaseSegment):
             Sequence(
                 "SET",
                 OptionallyDelimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+                    OneOf(
+                        # DEFAULT_SECONDARY_ROLES takes a bracketed list rather
+                        # than a plain literal, e.g. `('ALL')` or `()` (an
+                        # empty list disables secondary roles for the user).
+                        Sequence(
+                            "DEFAULT_SECONDARY_ROLES",
+                            Ref("EqualsSegment"),
+                            Bracketed(Ref("QuotedLiteralSegment", optional=True)),
+                        ),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+                        ),
                     ),
                 ),
             ),
@@ -10027,15 +10300,18 @@ class ExecuteImmediateClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "IMMEDIATE",
-        Ref.keyword("FROM", optional=True),
         OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("ReferencedVariableNameSegment"),
-            Ref("StorageLocation"),
             Sequence(
-                Ref("ColonPrefixSegment"),
-                Ref("LocalVariableNameSegment"),
+                "FROM",
+                OneOf(
+                    Ref("StorageLocation"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
+            # A string literal, session/local variable, or any expression
+            # that evaluates to a SQL statement string (e.g. built up via
+            # concatenation with `||`).
+            Ref("ExpressionSegment"),
         ),
         Sequence(
             "USING",
@@ -11973,83 +12249,63 @@ class AlterTagStatementSegment(BaseSegment):
 
 
 class ExceptionBlockStatementSegment(BaseSegment):
-    """A snowflake `BEGIN ... END` statement for SQL scripting.
+    """A snowflake `EXCEPTION` handler section for SQL scripting.
 
-    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
     """
 
     type = "exception_block_statement"
 
-    match_grammar = Sequence(
-        Sequence(
-            "EXCEPTION",
-            Indent,
-            OneOf(
-                Sequence(
-                    "WHEN",
-                    Ref("ObjectReferenceSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            "OR",
-                            Ref("ObjectReferenceSegment"),
-                        ),
+    # A single `WHEN ... THEN` handler and the statements it runs. The handler
+    # body is a level of its own, below the `WHEN` that introduces it.
+    _when_handler = Sequence(
+        OneOf(
+            Sequence(
+                "WHEN",
+                Ref("ObjectReferenceSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        "OR",
+                        Ref("ObjectReferenceSegment"),
                     ),
-                    "THEN",
                 ),
-                Sequence(
-                    "WHEN",
-                    "OTHER",
-                    "THEN",
-                ),
+                "THEN",
             ),
-            Ref("StatementSegment"),
-            AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar"),
-                    # Exclude ExceptionBlockStatementSegment to prevent greedy
-                    # consumption of the next EXCEPTION block as a statement body.
-                    Ref(
-                        "StatementSegment",
-                        exclude=Ref("ExceptionBlockStatementSegment"),
-                    ),
-                ),
+            Sequence(
+                "WHEN",
+                "OTHER",
+                "THEN",
             ),
         ),
+        Indent,
+        Ref("StatementSegment"),
         AnyNumberOf(
             Sequence(
                 Ref("DelimiterGrammar"),
-                OneOf(
-                    Sequence(
-                        "WHEN",
-                        Ref("ObjectReferenceSegment"),
-                        AnyNumberOf(
-                            Sequence(
-                                "OR",
-                                Ref("ObjectReferenceSegment"),
-                            ),
-                        ),
-                        "THEN",
-                    ),
-                    Sequence(
-                        "WHEN",
-                        "OTHER",
-                        "THEN",
-                    ),
-                ),
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        # Exclude ExceptionBlockStatementSegment to prevent greedy
-                        # consumption of the next EXCEPTION block as a statement body.
-                        Ref(
-                            "StatementSegment",
-                            exclude=Ref("ExceptionBlockStatementSegment"),
-                        ),
-                    ),
+                # Exclude ExceptionBlockStatementSegment to prevent greedy
+                # consumption of the next EXCEPTION block as a statement body.
+                Ref(
+                    "StatementSegment",
+                    exclude=Ref("ExceptionBlockStatementSegment"),
                 ),
             ),
         ),
+        Dedent,
+    )
+
+    match_grammar = Sequence(
+        "EXCEPTION",
+        Indent,
+        # As in the oracle dialect, `AnyNumberOf(min_times=1)` isn't greedy
+        # enough to pick up every handler, so match one and then any more.
+        _when_handler,
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                _when_handler,
+            ),
+        ),
+        Dedent,
     )
 
 

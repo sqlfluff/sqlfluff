@@ -61,6 +61,37 @@ test_fail_snowflake_match_condition:
     core:
       dialect: snowflake
 
+test_pass_snowflake_semantic_view_touching_bracket:
+  pass_str: |
+    select *
+    from semantic_view(
+        sales_analysis
+        dimensions orders.order_date
+        metrics orders.revenue
+    );
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semantic_view_spaced_bracket:
+  fail_str: |
+    select *
+    from semantic_view (
+        sales_analysis
+        dimensions orders.order_date
+        metrics orders.revenue
+    );
+  fix_str: |
+    select *
+    from semantic_view(
+        sales_analysis
+        dimensions orders.order_date
+        metrics orders.revenue
+    );
+  configs:
+    core:
+      dialect: snowflake
+
 test_pass_ansi_bracketed_data_types:
   pass_str: |
     CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
