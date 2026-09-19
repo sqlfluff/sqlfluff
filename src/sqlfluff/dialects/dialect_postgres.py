@@ -5459,14 +5459,16 @@ class ConflictActionSegment(BaseSegment):
                             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                             Ref("EqualsSegment"),
                             Ref.keyword("ROW", optional=True),
-                            Bracketed(
-                                Delimited(OneOf(Ref("ExpressionSegment"), "DEFAULT"))
+                            OneOf(
+                                # "ROW (SELECT a, b)" consumes a whole
+                                # multi-column subselect.
+                                Bracketed(Ref("SelectableGrammar")),
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(Ref("ExpressionSegment"), "DEFAULT")
+                                    )
+                                ),
                             ),
-                        ),
-                        Sequence(
-                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                            Ref("EqualsSegment"),
-                            Bracketed(Ref("SelectableGrammar")),
                         ),
                     )
                 ),
