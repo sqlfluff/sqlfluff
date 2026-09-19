@@ -3062,6 +3062,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
+            Ref("ExecuteImmediateStatementSegment"),
             Ref("RestoreTableStatementSegment"),
             # Databricks - Delta Live Tables
             Ref("ConstraintStatementSegment"),
@@ -3565,6 +3566,49 @@ class GenerateManifestFileStatementSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class ExecuteImmediateStatementSegment(BaseSegment):
+    """An `EXECUTE IMMEDIATE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-exec-imm.html
+    """
+
+    type = "execute_immediate_statement"
+
+    # arg_expr [ AS ] [ alias ] -- the reference makes AS optional, and the
+    # alias only matters when the SQL string uses named parameter markers.
+    _argument = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("SingleIdentifierGrammar"),
+            Ref("ExpressionSegment"),
+            terminators=["INTO", "USING"],
+        ),
+        Sequence(
+            "INTO",
+            Delimited(Ref("SingleIdentifierGrammar"), terminators=["USING"]),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            # The bracketed form is offered "for compatibility with other SQL
+            # dialects" and appears in published Databricks notebooks.
+            OptionallyBracketed(Delimited(_argument)),
+            optional=True,
         ),
     )
 
