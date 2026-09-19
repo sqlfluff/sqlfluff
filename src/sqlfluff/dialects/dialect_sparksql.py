@@ -1225,6 +1225,9 @@ class StructTypeSchemaSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColonSegment", optional=True),
                 Ref("DatatypeSegment"),
+                # complexColType allows NOT NULL before the comment, the same
+                # way colType does for a top-level column.
+                Sequence("NOT", "NULL", optional=True),
                 Ref("CommentGrammar", optional=True),
             ),
             bracket_pairs_set="angle_bracket_pairs",
