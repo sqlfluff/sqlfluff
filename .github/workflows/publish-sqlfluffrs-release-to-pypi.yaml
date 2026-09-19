@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
         with:
           python-version: "3.14"
 
@@ -60,7 +60,7 @@ jobs:
           - {runner: macos-15, target: aarch64, manylinux: "", artifact: macos-aarch64}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           fetch-depth: 1
 
@@ -71,14 +71,14 @@ jobs:
           path: sqlfluffrs/sqlfluffrs_dialects/src/
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
         with:
           python-version: "3.14"
           architecture: ${{ matrix.platform.arch || null }}
 
       - name: Build wheels
         if: matrix.platform.runner == 'ubuntu-22.04'
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b  # v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release -i python3.10 --out dist --manifest-path sqlfluffrs/Cargo.toml
@@ -86,7 +86,7 @@ jobs:
 
       - name: Build wheels
         if: matrix.platform.runner != 'ubuntu-22.04'
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b  # v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
@@ -102,7 +102,7 @@ jobs:
     needs: [generate-rust-dialects]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           fetch-depth: 1
 
@@ -113,7 +113,7 @@ jobs:
           path: sqlfluffrs/sqlfluffrs_dialects/src/
 
       - name: Build sdist
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b  # v1
         with:
           command: sdist
           args: --out dist --manifest-path sqlfluffrs/Cargo.toml
@@ -140,12 +140,12 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
 
       - name: Generate artifact attestation
-        uses: actions/attest@v4
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6  # v4
         with:
           subject-path: 'wheels-*/*'
 
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b  # v1
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_SQLFLUFFRS_TOKEN }}
         with:

@@ -7,11 +7,15 @@ on:
         description: 'New version number'
         required: true
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   run:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           fetch-depth: 1
 
@@ -28,7 +32,7 @@ jobs:
             fi
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
         with:
           python-version: '3.14'
 
@@ -37,7 +41,7 @@ jobs:
           pip install requests click pyyaml ghapi
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.96
+        uses: dtolnay/rust-toolchain@e1648915a4fdfbb5afab579a8afeb8eba8f6528c  # 1.96
 
       - name: Prepare release
         run: |
@@ -48,7 +52,7 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ secrets.GITHUB_REPOSITORY_OWNER }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8
         with:
           delete-branch: true
           branch: prep-${{ github.event.inputs.newVersionNumber }}
