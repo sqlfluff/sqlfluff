@@ -433,6 +433,10 @@ impl Parser<'_> {
                 let res = self.handle_preceded_by(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
+            GrammarVariant::StandaloneSlashTerminator => {
+                let res = self.handle_standalone_slash_terminator();
+                self.store_sync(stack, &frame, res)
+            }
             GrammarVariant::Meta => {
                 let res = self.handle_meta(grammar_id);
                 let parent_frame = stack.last_mut().unwrap();

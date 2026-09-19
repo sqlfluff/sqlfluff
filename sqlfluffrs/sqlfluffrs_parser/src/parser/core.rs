@@ -1341,6 +1341,72 @@ impl<'a> Parser<'a> {
         idx
     }
 
+    /// Handle Oracle's `_StandaloneSlashTerminator`.
+    ///
+    /// Matches a single `/` token at the current position only when it
+    /// stands alone on its own line: the previous code-relevant token
+    /// (skipping meta and inline whitespace) must be a newline or the
+    /// start of input, AND the next code-relevant token (skipping meta
+    /// and inline whitespace) must be a newline, an `end_of_file` meta,
+    /// or the end of input. Otherwise returns an empty match so the
+    /// parent grammar (e.g. `CREATE VIEW ... AS SELECT`) does not
+    /// terminate on a bare `/` used as the arithmetic division
+    /// operator.
+    ///
+    /// PYTHON PARITY: mirrors `_StandaloneSlashTerminator.match` in
+    /// `src/sqlfluff/dialects/dialect_oracle.py`.
+    pub(crate) fn handle_standalone_slash_terminator(&mut self) -> Result<MatchResult, ParseError> {
+        let pos = self.pos;
+        if pos >= self.tokens.len() || self.tokens[pos].raw() != "/" {
+            return Ok(MatchResult::empty_at(pos));
+        }
+        // Walk backward past inline whitespace and meta; require the
+        // previous code-relevant token to be a newline, or the start
+        // of the token stream.
+        let mut prev: isize = pos as isize - 1;
+        while prev >= 0 {
+            let tok = &self.tokens[prev as usize];
+            if tok.is_meta || tok.get_type() == "whitespace" {
+                prev -= 1;
+                continue;
+            }
+            if tok.get_type() != "newline" {
+                return Ok(MatchResult::empty_at(pos));
+            }
+            break;
+        }
+        // Walk forward past inline whitespace and meta; require the next
+        // code-relevant token to be a newline, an `end_of_file` meta, or
+        // the end of the token stream. A division operator always has an
+        // operand on the same line, so it will hit a code token before a
+        // newline.
+        let mut nxt = pos + 1;
+        while nxt < self.tokens.len() {
+            let tok = &self.tokens[nxt];
+            if tok.get_type() == "whitespace" {
+                nxt += 1;
+                continue;
+            }
+            if tok.is_meta {
+                if tok.get_type() == "end_of_file" {
+                    break;
+                }
+                nxt += 1;
+                continue;
+            }
+            if tok.get_type() != "newline" {
+                return Ok(MatchResult::empty_at(pos));
+            }
+            break;
+        }
+        vdebug!("StandaloneSlashTerminator[table]: MATCHED at pos={}", pos);
+        self.bump();
+        Ok(MatchResult {
+            matched_slice: pos..pos + 1,
+            ..Default::default()
+        })
+    }
+
     pub(crate) fn handle_preceded_by(
         &mut self,
         grammar_id: GrammarId,
