@@ -4873,15 +4873,13 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
         "PARTITION",
         "BY",
         Delimited(
-            OneOf(
-                Bracketed(Ref("SelectStatementExpressionSegment")),
-                OptionallyBracketed(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("ExpressionSegment"),
-                    )
-                ),
-            )
+            Bracketed(Ref("SelectStatementExpressionSegment")),
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                )
+            ),
         ),
     )
 
