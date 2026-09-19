@@ -59,3 +59,25 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 def test_private_requires_streaming_table(sql: str) -> None:
     """PRIVATE is only valid on a streaming table, not on a table."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param("CREATE OR REFRESH VIEW v AS SELECT 1;\n", id="plain_view"),
+        pytest.param("CREATE OR REFRESH LIVE VIEW v AS SELECT 1;\n", id="live_view"),
+        pytest.param(
+            "CREATE OR REFRESH TEMPORARY STREAMING LIVE VIEW v AS SELECT 1;\n",
+            id="streaming_live_view",
+        ),
+    ],
+)
+def test_or_refresh_is_not_a_view_clause(sql: str) -> None:
+    """OR REFRESH belongs to streaming tables and materialized views.
+
+    The corpus of published Databricks SQL uses it with MATERIALIZED VIEW,
+    STREAMING TABLE and LIVE TABLE, and with no VIEW form at all. Both of
+    those statements have their own segments here, so CREATE VIEW does not
+    need it.
+    """
+    assert _violations(sql), f"Expected a parse failure for:\n{sql}"

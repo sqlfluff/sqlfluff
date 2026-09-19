@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 758894eb16eba25316e25a274e8e2196d72a92bd4be287ee1e295ef191569d7e
+_hash: 4df6f26e0863c8bf62179a47fab6e55d3522ac386fd2df054e5ea7377ad921a4
 file:
 - statement:
     create_view_statement:
@@ -565,4 +565,172 @@ file:
         - keyword: BY
         - column_reference:
             naked_identifier: category
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: live
+                  - dot: .
+                  - naked_identifier: customers_bronze
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: validated_data
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'b'"
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_a
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: a
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+            end_bracket: )
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_b
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: b
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: VIOLATION
+        - keyword: DROP
+        - keyword: ROW
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
 - statement_terminator: ;
