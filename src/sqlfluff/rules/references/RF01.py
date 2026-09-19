@@ -46,6 +46,11 @@ class Rule_RF01(BaseRule):
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
 
+       For Trino, single-source SELECTs are exempt by default because dotted
+       references may access ROW fields. SELECTs with multiple sources are
+       still checked. Use ``force_enable = True`` for strict checking of
+       single-source SELECTs too.
+
     **Anti-pattern**
 
     In this example, the reference ``vee`` has not been declared.
@@ -288,10 +293,17 @@ class Rule_RF01(BaseRule):
         if self._dialect_supports_dot_access(query.dialect):
             # BigQuery supports having multiple aliases in the FROM statement
             # SparkSQL supports directly accessing values in nested array columns
-            if len(distinct_targets) == 1 or query.dialect.name in [
-                "bigquery",
-                "sparksql",
-            ]:
+            if (
+                len(distinct_targets) == 1
+                # An aliased Trino table contributes both its name and alias
+                # to targets, but is still one source for ROW field access.
+                or (
+                    query.dialect.name == "trino"
+                    and len(query.aliases) == 1
+                    and not query.standalone_aliases
+                )
+                or query.dialect.name in ["bigquery", "sparksql"]
+            ):
                 self.force_enable: bool
                 if self.force_enable:
                     # Backwards compatibility.
@@ -371,6 +383,8 @@ class Rule_RF01(BaseRule):
         # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
         # Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+        # Trino:
+        # https://trino.io/docs/current/language/types.html#row
         # TODO: all doc links to all referenced dialects
         return dialect.name in (
             "athena",
@@ -381,4 +395,5 @@ class Rule_RF01(BaseRule):
             "redshift",
             "soql",
             "sparksql",
+            "trino",
         )
