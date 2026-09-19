@@ -1,0 +1,76 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fb76d97ce56c02069a48201f6b773794debec5f04d7a025cbdf0849469279899
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: ACCESS
+      - keyword: METHOD
+      - parameter: heap
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: ACCESS
+      - keyword: METHOD
+      - parameter: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: ONLY
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: ACCESS
+      - keyword: METHOD
+      - parameter: my_access_method
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - alter_materialized_view_action_segment:
+      - keyword: SET
+      - keyword: ACCESS
+      - keyword: METHOD
+      - parameter: heap
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_view
+    - alter_materialized_view_action_segment:
+      - keyword: SET
+      - keyword: ACCESS
+      - keyword: METHOD
+      - parameter: DEFAULT
+- statement_terminator: ;
