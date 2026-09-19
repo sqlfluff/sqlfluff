@@ -1,0 +1,167 @@
+rule: AM10
+
+test_invalid_projection_reported:
+  fail_str: |
+    SELECT a, b, COUNT(*) AS c
+    FROM foo
+    GROUP BY b;
+
+test_having_ungrouped_column_reported:
+  fail_str: |
+    SELECT b, COUNT(*) AS c FROM foo GROUP BY b HAVING a > 1;
+
+test_group_by_without_aggregate_reported:
+  fail_str: |
+    SELECT a FROM foo GROUP BY b;
+
+test_implicit_group_having_ungrouped_column_reported:
+  fail_str: |
+    SELECT COUNT(*) FROM foo HAVING a > 0;
+
+test_nested_aggregate_reported:
+  fail_str: |
+    SELECT SUM(COUNT(x)) AS c FROM foo;
+
+test_different_nested_aggregate_reported:
+  fail_str: |
+    SELECT AVG(SUM(x)) AS c FROM foo;
+
+test_nested_aggregate_in_having_reported:
+  fail_str: |
+    SELECT b FROM foo GROUP BY b HAVING SUM(COUNT(x)) > 1;
+
+test_implicit_group_bare_column_reported:
+  fail_str: |
+    SELECT a, COUNT(*) AS c FROM foo;
+
+test_implicit_group_stddev_reported:
+  fail_str: |
+    SELECT a, STDDEV_POP(b) FROM foo;
+
+test_implicit_group_min_reported:
+  fail_str: |
+    SELECT a, MIN(b) FROM foo;
+
+test_array_aggregate_implicit_group_reported:
+  fail_str: |
+    SELECT a, ARRAY_AGG(b) FROM foo;
+
+test_group_expression_components_reported:
+  fail_str: |
+    SELECT a, COUNT(*) AS c FROM foo GROUP BY (a + b);
+
+test_compound_projection_reported:
+  fail_str: |
+    SELECT (a + 1) AS c, COUNT(*) FROM foo GROUP BY b;
+
+test_nested_scalar_projection_reported:
+  fail_str: |
+    SELECT LOWER(a), COUNT(*) FROM foo GROUP BY b;
+
+test_computed_group_key_reused_no_violation:
+  pass_str: |
+    SELECT a + b AS key, COUNT(*) FROM foo GROUP BY a + b;
+
+test_computed_group_key_plus_column_reported:
+  fail_str: |
+    SELECT a + b + c, COUNT(*) FROM foo GROUP BY a + b;
+
+test_computed_key_case_and_whitespace_no_violation:
+  pass_str: |
+    SELECT A+B, COUNT(*) FROM foo GROUP BY a + b;
+
+test_parenthesized_computed_key_no_violation:
+  pass_str: |
+    SELECT (a + b), COUNT(*) FROM foo GROUP BY a + b;
+
+test_non_select_statement_no_violation:
+  pass_str: |
+    CREATE TABLE foo (id INT, name TEXT);
+
+test_grouped_column_projected_no_violation:
+  pass_str: |
+    SELECT b, COUNT(*) AS c FROM foo GROUP BY b;
+
+test_qualified_grouped_column_no_violation:
+  pass_str: |
+    SELECT t.a, COUNT(*) FROM foo AS t GROUP BY t.a;
+
+test_function_of_grouped_column_no_violation:
+  pass_str: |
+    SELECT LOWER(a), COUNT(*) FROM foo GROUP BY a;
+
+test_computed_function_key_reused_no_violation:
+  pass_str: |
+    SELECT LOWER(a), COUNT(*) FROM foo GROUP BY LOWER(a);
+
+test_aggregate_over_group_key_no_violation:
+  pass_str: |
+    SELECT b, SUM(x) AS t FROM foo GROUP BY b;
+
+test_no_aggregation_at_all_no_violation:
+  pass_str: |
+    SELECT a, b FROM foo;
+
+test_implicit_group_aggregate_only_no_violation:
+  pass_str: |
+    SELECT COUNT(*) AS c FROM foo;
+
+test_having_over_aggregate_no_violation:
+  pass_str: |
+    SELECT b, COUNT(*) AS c FROM foo GROUP BY b HAVING COUNT(*) > 1;
+
+test_implicit_group_having_column_reported:
+  fail_str: |
+    SELECT a FROM foo HAVING COUNT(*) > 1;
+
+test_window_function_no_group_by_no_violation:
+  pass_str: |
+    SELECT a, SUM(x) OVER (PARTITION BY a) AS running FROM foo;
+
+test_aggregate_inside_window_no_violation:
+  pass_str: |
+    SELECT SUM(COUNT(*)) OVER () FROM foo;
+
+test_expression_of_two_group_keys_no_violation:
+  pass_str: |
+    SELECT (a + b) AS s, COUNT(*) AS c FROM foo GROUP BY a, b;
+
+test_aggregate_argument_not_grouped_no_violation:
+  pass_str: |
+    SELECT b, COUNT(a) AS c FROM foo GROUP BY b;
+
+test_subselect_has_own_scope_no_violation:
+  pass_str: |
+    SELECT x FROM (SELECT a AS x, COUNT(*) FROM foo GROUP BY a) t;
+
+test_scalar_aggregate_subquery_no_outer_violation:
+  pass_str: |
+    SELECT a, (SELECT COUNT(*) FROM bar) AS n FROM foo;
+
+test_scalar_subquery_does_not_leak_into_grouped_outer:
+  pass_str: |
+    SELECT a, (SELECT COUNT(*) FROM bar) AS n, COUNT(*) FROM foo GROUP BY a;
+
+test_invalid_scalar_subquery_is_reported_at_its_level:
+  fail_str: |
+    SELECT a, (SELECT b, COUNT(*) FROM bar) AS n FROM foo;
+
+test_invalid_subselect_is_reported:
+  fail_str: |
+    SELECT b FROM (SELECT a, b, COUNT(*) FROM foo GROUP BY b) AS s;
+
+test_case_insensitive_group_by_key_no_violation:
+  pass_str: |
+    SELECT b, COUNT(*) AS c FROM foo GROUP BY B;
+
+test_quoted_group_by_key_is_case_sensitive:
+  fail_str: |
+    SELECT "A", COUNT(*) AS c FROM foo GROUP BY "a";
+
+test_multiple_group_keys_projected_no_violation:
+  pass_str: |
+    SELECT a, b, COUNT(*) AS c FROM foo GROUP BY a, b;
+
+test_having_references_group_key_no_violation:
+  pass_str: |
+    SELECT b, COUNT(*) AS c FROM foo GROUP BY b HAVING b > 1;

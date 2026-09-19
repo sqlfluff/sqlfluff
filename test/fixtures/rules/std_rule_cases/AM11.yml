@@ -1,0 +1,125 @@
+rule: AM11
+
+test_invalid_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE SUM(x) OVER (PARTITION BY a) > 1;
+
+test_window_function_in_group_by_reported:
+  fail_str: |
+    SELECT a FROM foo GROUP BY SUM(x) OVER (PARTITION BY a);
+
+test_window_function_in_having_reported:
+  fail_str: |
+    SELECT a FROM foo GROUP BY a HAVING SUM(x) OVER (PARTITION BY a) > 1;
+
+test_non_aggregate_window_function_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE ROW_NUMBER() OVER (ORDER BY a) = 1;
+
+test_window_nested_in_scalar_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE COALESCE(ROW_NUMBER() OVER (ORDER BY a), 0) = 1;
+
+test_count_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE COUNT(*) > 1;
+
+test_sum_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE SUM(x) > 10;
+
+test_max_nested_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE COALESCE(MAX(x), 0) > 10;
+
+test_array_aggregate_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE ARRAY_AGG(x) IS NOT NULL;
+
+test_avg_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE AVG(x) > 10;
+
+test_max_in_where_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE MAX(x) > 10;
+
+test_window_inside_aggregate_in_select_reported:
+  fail_str: |
+    SELECT SUM(ROW_NUMBER() OVER (ORDER BY a)) FROM foo;
+
+test_nested_window_inside_aggregate_in_select_reported:
+  fail_str: |
+    SELECT SUM(COALESCE(ROW_NUMBER() OVER (ORDER BY a), 0)) FROM foo;
+
+test_aggregate_inside_window_in_select_no_violation:
+  pass_str: |
+    SELECT SUM(COUNT(*)) OVER () FROM foo;
+
+test_window_function_in_join_on_reported:
+  fail_str: |
+    SELECT t.a FROM t JOIN u ON ROW_NUMBER() OVER (ORDER BY t.a) = u.a;
+
+test_aggregate_in_join_on_reported:
+  fail_str: |
+    SELECT t.a FROM t JOIN u ON COUNT(*) = u.a;
+
+test_aggregate_nested_in_join_on_reported:
+  fail_str: |
+    SELECT t.a FROM t JOIN u ON COALESCE(SUM(t.x), 0) = u.a;
+
+test_plain_join_on_no_violation:
+  pass_str: |
+    SELECT t.a FROM t JOIN u ON COALESCE(t.a, 0) = u.a;
+
+test_window_function_in_select_no_violation:
+  pass_str: |
+    SELECT a, SUM(x) OVER (PARTITION BY a) AS r FROM foo;
+
+test_window_function_in_order_by_no_violation:
+  pass_str: |
+    SELECT a FROM foo ORDER BY SUM(x) OVER (PARTITION BY a);
+
+test_aggregate_legally_in_having_no_violation:
+  pass_str: |
+    SELECT a, COUNT(*) AS c FROM foo GROUP BY a HAVING COUNT(*) > 1;
+
+test_aggregate_legally_in_select_no_violation:
+  pass_str: |
+    SELECT COUNT(*) FROM foo;
+
+test_aggregate_in_subquery_select_list_no_violation:
+  pass_str: |
+    SELECT a FROM foo WHERE a IN (SELECT COUNT(*) FROM bar GROUP BY c);
+
+test_invalid_subquery_where_is_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE a IN (SELECT b FROM bar WHERE COUNT(*) > 1);
+
+test_window_in_subquery_where_is_reported:
+  fail_str: |
+    SELECT a FROM foo WHERE a IN (SELECT b FROM bar WHERE ROW_NUMBER() OVER (ORDER BY b) = 1);
+
+test_window_in_nested_select_is_not_outer_join_on:
+  pass_str: |
+    SELECT t.a FROM t JOIN u ON t.a = (SELECT ROW_NUMBER() OVER (ORDER BY v.a) FROM v);
+
+test_plain_where_no_violation:
+  pass_str: |
+    SELECT a FROM foo WHERE a > 1;
+
+test_plain_group_by_having_no_violation:
+  pass_str: |
+    SELECT a, COUNT(*) FROM foo GROUP BY a HAVING COUNT(*) > 1;
+
+test_aggregate_in_group_by_no_extra_diagnostic:
+  pass_str: |
+    SELECT a FROM foo GROUP BY COUNT(*);
+
+test_no_clauses_at_all_no_violation:
+  pass_str: |
+    SELECT a, b FROM foo;
+
+test_non_select_statement_no_violation:
+  pass_str: |
+    CREATE TABLE foo (id INT, name TEXT);

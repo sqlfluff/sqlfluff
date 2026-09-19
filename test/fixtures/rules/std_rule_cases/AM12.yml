@@ -1,0 +1,121 @@
+rule: AM12
+
+test_forward_reference_reported:
+  fail_str: |
+    WITH first AS (SELECT * FROM later), later AS (SELECT 1 AS x) SELECT * FROM first;
+
+test_self_reference_without_recursive_reported:
+  fail_str: |
+    WITH cte AS (SELECT * FROM cte) SELECT * FROM cte;
+
+test_valid_recursive_self_reference_no_violation:
+  pass_str: |
+    WITH RECURSIVE cte AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM cte WHERE n < 5) SELECT * FROM cte;
+
+test_mutual_recursion_reported:
+  fail_str: |
+    WITH RECURSIVE a AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM b WHERE n < 5), b AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM a WHERE n < 5) SELECT * FROM a;
+
+test_earlier_sibling_reference_no_violation:
+  pass_str: |
+    WITH cte1 AS (SELECT 1 AS x), cte2 AS (SELECT * FROM cte1) SELECT * FROM cte2;
+
+test_nested_with_shadows_outer_name_no_violation:
+  pass_str: |
+    WITH cte1 AS (SELECT 1 AS x) SELECT * FROM (WITH cte1 AS (SELECT 2 AS x) SELECT * FROM cte1) t;
+
+test_three_way_cycle_reported:
+  fail_str: |
+    WITH cte1 AS (SELECT * FROM cte3), cte2 AS (SELECT * FROM cte1), cte3 AS (SELECT * FROM cte2) SELECT * FROM cte3;
+
+test_forward_reference_inside_subquery_reported:
+  fail_str: |
+    WITH cte1 AS (SELECT * FROM (SELECT * FROM cte2) inner_sq), cte2 AS (SELECT 1 AS x) SELECT * FROM cte1;
+
+test_final_query_reference_via_subquery_no_violation:
+  pass_str: |
+    WITH cte1 AS (SELECT 1 AS x) SELECT * FROM (SELECT * FROM cte1) t;
+
+test_two_independent_recursive_ctes_no_violation:
+  pass_str: |
+    WITH RECURSIVE a AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM a WHERE n < 3), b AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM b WHERE n < 3) SELECT * FROM a, b;
+
+test_case_insensitive_name_forward_reference_reported:
+  fail_str: |
+    WITH first AS (SELECT * FROM LATER), later AS (SELECT 1 AS x) SELECT * FROM first;
+
+test_quoted_name_case_sensitivity_no_violation:
+  pass_str: |
+    WITH "Later" AS (SELECT 1 AS x), first AS (SELECT * FROM "later") SELECT * FROM first;
+
+test_qualified_reference_not_treated_as_cte:
+  pass_str: |
+    WITH cte1 AS (SELECT * FROM other_schema.cte2), cte2 AS (SELECT 1 AS x) SELECT * FROM cte1;
+
+test_reference_to_real_table_no_violation:
+  pass_str: |
+    WITH cte1 AS (SELECT * FROM some_real_table) SELECT * FROM cte1;
+
+test_single_cte_no_self_reference_no_violation:
+  pass_str: |
+    WITH cte1 AS (SELECT * FROM foo) SELECT * FROM cte1;
+
+test_no_with_clause_no_violation:
+  pass_str: |
+    SELECT * FROM foo;
+
+test_non_select_statement_no_violation:
+  pass_str: |
+    CREATE TABLE foo (id INT);
+
+test_self_reference_in_join_reported:
+  fail_str: |
+    WITH cte AS (SELECT a.x FROM foo a JOIN cte b ON a.x = b.x) SELECT * FROM cte;
+
+test_recursive_keyword_present_but_only_linear_refs_no_violation:
+  pass_str: |
+    WITH RECURSIVE cte1 AS (SELECT 1 AS x), cte2 AS (SELECT * FROM cte1) SELECT * FROM cte2;
+
+test_recursive_keyword_does_not_permit_forward_reference:
+  fail_str: |
+    WITH RECURSIVE first AS (SELECT * FROM later), later AS (SELECT 1 AS x) SELECT * FROM first;
+
+test_deeply_nested_with_still_isolates_scope:
+  pass_str: |
+    WITH outer_cte AS (SELECT 1 AS x) SELECT * FROM (  SELECT * FROM (    WITH outer_cte AS (SELECT 2 AS x) SELECT * FROM outer_cte  ) inner_t) outer_t;
+
+test_cte_with_column_list_forward_reference_reported:
+  fail_str: |
+    WITH first (a) AS (SELECT * FROM later), later (a) AS (SELECT 1 AS x) SELECT * FROM first;
+
+test_multiple_legal_siblings_no_violation:
+  pass_str: |
+    WITH a AS (SELECT 1 AS x), b AS (SELECT * FROM a), c AS (SELECT * FROM a JOIN b ON TRUE) SELECT * FROM c;
+
+test_recursive_step_can_still_reference_earlier_sibling:
+  pass_str: |
+    WITH RECURSIVE bound AS (SELECT 5 AS n), counter AS (SELECT 1 AS n UNION ALL SELECT counter.n + 1 FROM counter, bound WHERE counter.n < bound.n) SELECT * FROM counter;
+
+test_earlier_sibling_reference_alphabetically_later_name_no_violation:
+  pass_str: |
+    WITH zzz_first AS (SELECT 1 AS x), aaa_second AS (SELECT * FROM zzz_first) SELECT * FROM aaa_second;
+
+test_forward_reference_alphabetically_earlier_name_reported:
+  fail_str: |
+    WITH zzz_first AS (SELECT * FROM aaa_second), aaa_second AS (SELECT 1 AS x) SELECT * FROM zzz_first;
+
+test_quoted_name_genuine_forward_reference_reported:
+  fail_str: |
+    WITH "first" AS (SELECT * FROM "later"), "later" AS (SELECT 1 AS x) SELECT * FROM "first";
+
+test_self_reference_via_subquery_without_recursive_reported:
+  fail_str: |
+    WITH cte AS (SELECT * FROM (SELECT * FROM cte) inner_sq) SELECT * FROM cte;
+
+test_later_positioned_cte_self_reference_without_recursive_reported:
+  fail_str: |
+    WITH cte1 AS (SELECT 1 AS x), cte2 AS (SELECT * FROM cte2) SELECT * FROM cte2;
+
+test_valid_self_reference_does_not_mask_sibling_forward_reference:
+  fail_str: |
+    WITH RECURSIVE a AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM a WHERE n < 3), b AS (SELECT * FROM c), c AS (SELECT 1 AS x) SELECT * FROM a, b;
