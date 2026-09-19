@@ -78,3 +78,19 @@ test_fail_leading_whitespace_and_comment:
   # Yes, the formatting looks bad, but that's because we're only running CV07
   # here. In the real world, other rules will tidy up the formatting.
   fix_str: " -- This\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n\n"
+
+test_fail_leading_whitespace_only_no_trailing:
+  # Previously crashed: liftable whitespace on the leading side only (no
+  # newline/whitespace/comment directly before the closing bracket) made
+  # create_after() receive an empty edit list and raise
+  # `AssertionError: A create fix must have an edit.`
+  fail_str: "( SELECT foo FROM bar)\n"
+  fix_str: " SELECT foo FROM bar\n"
+
+test_fail_trailing_whitespace_only_no_leading:
+  # Mirror of the above: liftable whitespace on the trailing side only (no
+  # whitespace/comment directly after the opening bracket) made
+  # create_before() receive an empty edit list and raise the same
+  # AssertionError.
+  fail_str: "(SELECT foo FROM bar )\n"
+  fix_str: "SELECT foo FROM bar \n"
