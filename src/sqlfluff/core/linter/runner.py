@@ -8,7 +8,6 @@ Implements various runner types for SQLFluff:
 """
 
 import bdb
-import functools
 import logging
 import multiprocessing
 import multiprocessing.dummy
@@ -17,19 +16,32 @@ import signal
 import sys
 import traceback
 from abc import ABC, abstractmethod
+from collections import defaultdict, deque
 from collections.abc import Iterable, Iterator
 from types import TracebackType
-from typing import Callable, Optional, Union
+from typing import TYPE_CHECKING, Callable, NamedTuple, Optional, Union
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile, RenderedFile
-from sqlfluff.core.linter.common import DeferredRenderTask
+from sqlfluff.core.linter.common import DeferredRenderTask, RenderedLintTask
 from sqlfluff.core.plugin.host import is_main_process
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
-PartialLintCallable = Callable[[], LintedFile]
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.formatter import FormatterInterface
+    from sqlfluff.core.templaters import RawTemplater
+
+LintTask = Union[RenderedLintTask, DeferredRenderTask]
+
+
+class PreparedFile(NamedTuple):
+    """A file paired with its effective configuration."""
+
+    discovery_index: int
+    fname: str
+    config: FluffConfig
 
 
 class BaseRunner(ABC):
@@ -44,43 +56,129 @@ class BaseRunner(ABC):
         self.config = config
         self.skipped_file_count: int = 0
 
-    pass_formatter = True
+    def _file_groups(
+        self, fnames: list[str], start_index: int = 0
+    ) -> list[tuple["RawTemplater", FluffConfig, list[PreparedFile]]]:
+        """Group files by invocation-scoped templater in discovery order."""
+        groups: list[tuple["RawTemplater", FluffConfig, list[PreparedFile]]] = []
+        group_indexes: dict[int, int] = {}
+        for index, fname in enumerate(fnames, start=start_index):
+            file_config = self.config.make_child_from_path(fname)
+            prepared = PreparedFile(index, fname, file_config)
+            templater = self.linter.templater_for_config(file_config)
+            templater_id = id(templater)
+            if templater_id not in group_indexes:
+                group_indexes[templater_id] = len(groups)
+                groups.append((templater, file_config, []))
+            group_index = group_indexes[templater_id]
+            groups[group_index][2].append(prepared)
+        return groups
+
+    def _render_group(
+        self,
+        templater: "RawTemplater",
+        file_config: FluffConfig,
+        group_files: list[PreparedFile],
+        formatter: Optional["FormatterInterface"],
+    ) -> Iterator[tuple[PreparedFile, RenderedFile]]:
+        """Render one templater group in its required file order."""
+        files_by_name: dict[str, deque[PreparedFile]] = defaultdict(deque)
+        for prepared in group_files:
+            files_by_name[prepared.fname].append(prepared)
+        for fname in templater.sequence_files(
+            [prepared.fname for prepared in group_files],
+            config=file_config,
+            formatter=formatter,
+        ):
+            prepared = files_by_name[fname].popleft()
+            try:
+                source_str, encoding = self.linter.load_raw_file(
+                    prepared.fname, prepared.config
+                )
+                yield (
+                    prepared,
+                    self.linter._render_string(
+                        source_str,
+                        prepared.fname,
+                        prepared.config,
+                        encoding,
+                    ),
+                )
+            except SQLFluffSkipFile as error:
+                linter_logger.warning(str(error))
+                self.skipped_file_count += 1
 
     def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
-        for fname in self.linter.templater.sequence_files(
-            fnames, config=self.config, formatter=self.linter.formatter
-        ):
-            try:
-                yield fname, self.linter.render_file(fname, self.config)
-            except SQLFluffSkipFile as s:
-                linter_logger.warning(str(s))
-                self.skipped_file_count += 1
+        from sqlfluff.core.templaters import RawTemplater
 
-    def iter_partials(
+        for index, fname in enumerate(fnames):
+            file_config = self.config.make_child_from_path(fname)
+            templater = self.linter.templater_for_config(file_config)
+            prepared = PreparedFile(index, fname, file_config)
+            if type(templater).sequence_files is RawTemplater.sequence_files:
+                yield from (
+                    (rendered.fname, rendered)
+                    for _, rendered in self._render_group(
+                        templater,
+                        file_config,
+                        [prepared],
+                        self.linter.formatter,
+                    )
+                )
+                continue
+
+            groups = [(templater, file_config, [prepared])]
+            group_indexes = {id(templater): 0}
+            for remaining_group in self._file_groups(
+                fnames[index + 1 :], start_index=index + 1
+            ):
+                remaining_templater, remaining_config, remaining_files = remaining_group
+                group_index = group_indexes.get(id(remaining_templater))
+                if group_index is None:
+                    group_indexes[id(remaining_templater)] = len(groups)
+                    groups.append(remaining_group)
+                else:
+                    groups[group_index][2].extend(remaining_files)
+            yield from self._iter_rendered_groups(groups)
+            return
+
+    def _iter_rendered_groups(
         self,
-        fnames: list[str],
-        fix: bool = False,
-    ) -> Iterator[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]]:
-        """Iterate through partials for linted files.
-
-        Generates filenames and objects which return LintedFiles.
-        """
-        for fname, rendered in self.iter_rendered(fnames):
-            # Generate a fresh ruleset
-            rule_pack = self.linter.get_rulepack(config=rendered.config)
-            yield (
-                fname,
-                functools.partial(
-                    self.linter.lint_rendered,
-                    rendered,
-                    rule_pack,
-                    fix,
-                    # Formatters may or may not be passed. They don't pickle
-                    # nicely so aren't appropriate in a multiprocessing world.
-                    self.linter.formatter if self.pass_formatter else None,
-                ),
+        groups: list[tuple["RawTemplater", FluffConfig, list[PreparedFile]]],
+    ) -> Iterator[tuple[str, RenderedFile]]:
+        """Iterate through already grouped files ready for linting."""
+        rendered_files: dict[int, RenderedFile] = {}
+        completed_indexes: set[int] = set()
+        next_index = min(
+            prepared.discovery_index
+            for _, _, group_files in groups
+            for prepared in group_files
+        )
+        for templater, file_config, group_files in groups:
+            try:
+                for prepared, rendered in self._render_group(
+                    templater,
+                    file_config,
+                    group_files,
+                    self.linter.formatter,
+                ):
+                    rendered_files[prepared.discovery_index] = rendered
+                    completed_indexes.add(prepared.discovery_index)
+                    while next_index in rendered_files:
+                        next_rendered = rendered_files.pop(next_index)
+                        yield next_rendered.fname, next_rendered
+                        next_index += 1
+            finally:
+                self.linter.release_templater(templater)
+            completed_indexes.update(
+                prepared.discovery_index for prepared in group_files
             )
+            while next_index in completed_indexes:
+                if next_index in rendered_files:
+                    rendered = rendered_files.pop(next_index)
+                    yield rendered.fname, rendered
+                next_index += 1
 
     @abstractmethod
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
@@ -114,34 +212,23 @@ class SequentialRunner(BaseRunner):
 
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Sequential implementation."""
-        for fname, partial in self.iter_partials(fnames, fix=fix):
-            try:
-                if isinstance(partial, DeferredRenderTask):  # pragma: no cover
-                    # DeferredRenderTask is normally only emitted by
-                    # ParallelRunner.iter_partials.  Handle it here as a
-                    # safety net: render + lint in one step in the main process.
-                    rendered = self.linter.render_file(
-                        partial.fname, partial.root_config
-                    )
+        with self.linter.templater_session():
+            for fname, rendered in self.iter_rendered(fnames):
+                try:
                     rule_pack = self.linter.get_rulepack(config=rendered.config)
                     yield self.linter.lint_rendered(
-                        rendered, rule_pack, partial.fix, self.linter.formatter
+                        rendered, rule_pack, fix, self.linter.formatter
                     )
-                else:
-                    yield partial()
-            except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
-                raise
-            except Exception as e:
-                self._handle_lint_path_exception(fname, e)
+                except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+                    raise
+                except Exception as e:
+                    self._handle_lint_path_exception(fname, e)
 
 
 class ParallelRunner(BaseRunner):
     """Base class for parallel runner implementations (process or thread)."""
 
     POOL_TYPE: Callable[..., multiprocessing.pool.Pool]
-    # Don't pass the formatter in a parallel world, they
-    # don't pickle well.
-    pass_formatter = False
 
     def __init__(self, linter: Linter, config: FluffConfig, processes: int) -> None:
         super().__init__(linter, config)
@@ -151,7 +238,7 @@ class ParallelRunner(BaseRunner):
         self,
         fnames: list[str],
         fix: bool = False,
-    ) -> Iterator[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]]:
+    ) -> Iterator[tuple[str, LintTask]]:
         """Iterate through partials or deferred tasks for parallel linting.
 
         When the active templater supports worker-side rendering
@@ -163,13 +250,41 @@ class ParallelRunner(BaseRunner):
         For templaters that require main-process state (e.g. dbt), we fall
         back to the base-class behaviour and template in the main process.
         """
-        if self.linter.templater.templates_in_worker:
-            for fname in self.linter.templater.sequence_files(
-                fnames, config=self.config, formatter=None
-            ):
-                yield fname, DeferredRenderTask(fname, self.config, fix)
-        else:
-            yield from super().iter_partials(fnames, fix=fix)
+        with self.linter.templater_session():
+            for templater, file_config, group_files in self._file_groups(fnames):
+                try:
+                    files_by_name: dict[str, deque[PreparedFile]] = defaultdict(deque)
+                    for prepared in group_files:
+                        files_by_name[prepared.fname].append(prepared)
+                    if templater.templates_in_worker:
+                        sequenced_files = templater.sequence_files(
+                            [prepared.fname for prepared in group_files],
+                            config=file_config,
+                            formatter=None,
+                        )
+                        for fname in sequenced_files:
+                            prepared = files_by_name[fname].popleft()
+                            yield (
+                                prepared.fname,
+                                DeferredRenderTask(
+                                    prepared.fname,
+                                    self.config,
+                                    fix,
+                                    tuple(self.linter.user_rules),
+                                ),
+                            )
+                    else:
+                        for prepared, rendered in self._render_group(
+                            templater, file_config, group_files, None
+                        ):
+                            yield (
+                                prepared.fname,
+                                RenderedLintTask(
+                                    rendered, fix, tuple(self.linter.user_rules)
+                                ),
+                            )
+                finally:
+                    self.linter.release_templater(templater)
 
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
@@ -184,10 +299,7 @@ class ParallelRunner(BaseRunner):
         # processes may still be alive when Python's resource_tracker runs at
         # shutdown, causing "leaked semaphore objects" warnings from the named
         # POSIX semaphores used by the pool's internal SimpleQueue locks.
-        pool = self._create_pool(
-            self.processes,
-            self._init_global,
-        )
+        pool = self._create_pool(self.processes, self._init_global)
         try:
             for lint_result in self._map(
                 pool,
@@ -231,7 +343,7 @@ class ParallelRunner(BaseRunner):
 
     @staticmethod
     def _apply(
-        partial_tuple: tuple[str, Union[PartialLintCallable, DeferredRenderTask]],
+        partial_tuple: tuple[str, LintTask],
     ) -> Union["DelayedException", LintedFile]:
         """Shim function used in parallel mode."""
         fname, task = partial_tuple
@@ -240,16 +352,17 @@ class ParallelRunner(BaseRunner):
                 # Worker-side rendering: reconstruct a Linter from the root
                 # config and do render + lint in one step, keeping the full
                 # RenderedFile off the IPC boundary.
-                linter = Linter(config=task.root_config)
-                # FluffConfig.__getstate__ strips templater_obj to None before
-                # pickling (it's designed for main-process use only). Since we
-                # are deliberately rendering here in the worker, re-instantiate
-                # the templater from the config's templater name.
-                linter.templater = task.root_config.get_templater()
+                linter = Linter(
+                    config=task.root_config, user_rules=list(task.user_rules)
+                )
                 rendered = linter.render_file(task.fname, task.root_config)
                 rule_pack = linter.get_rulepack(config=rendered.config)
                 return Linter.lint_rendered(rendered, rule_pack, task.fix, None)
-            return task()
+            linter = Linter(
+                config=task.rendered.config, user_rules=list(task.user_rules)
+            )
+            rule_pack = linter.get_rulepack(config=task.rendered.config)
+            return Linter.lint_rendered(task.rendered, rule_pack, task.fix, None)
         # Capture any exceptions and return as delayed exception to handle
         # in the main thread.
         except Exception as e:
@@ -273,10 +386,10 @@ class ParallelRunner(BaseRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
+            [tuple[str, LintTask]],
             Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
+        iterable: Iterable[tuple[str, LintTask]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:  # pragma: no cover
         """Class-specific map method.
 
@@ -313,15 +426,14 @@ class MultiProcessRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
+            [tuple[str, LintTask]],
             Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
+        iterable: Iterable[tuple[str, LintTask]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap unordered.
 
-        We use this so we can iterate through results as they arrive, and while other
-        files are still being processed.
+        Yield files as workers finish processing them.
         """
         return pool.imap_unordered(func=func, iterable=iterable)
 
@@ -339,10 +451,10 @@ class MultiThreadRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
+            [tuple[str, LintTask]],
             Union["DelayedException", LintedFile],
         ],
-        iterable: Iterable[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]],
+        iterable: Iterable[tuple[str, LintTask]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap.
 

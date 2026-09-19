@@ -156,6 +156,8 @@ See below configuration and its equivalent dbt command:
 Known Caveats
 """""""""""""
 
-- To use the dbt templater, you must set `templater = dbt` in the `.sqlfluff`
-  config file in the directory where sqlfluff is run. The templater cannot
-  be changed in `.sqlfluff` files in subdirectories.
+- The dbt templater may be selected in nested ``.sqlfluff`` files. A single
+  SQLFluff invocation may include multiple dbt projects and other templaters.
+  Each effective dbt configuration is compiled and rendered independently in
+  the main process before parsing and linting are distributed to any configured
+  workers.

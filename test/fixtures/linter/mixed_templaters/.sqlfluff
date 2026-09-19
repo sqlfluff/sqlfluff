@@ -1,0 +1,6 @@
+[sqlfluff]
+dialect = ansi
+templater = jinja
+
+[sqlfluff:templater:jinja:context]
+table_name = my_table
