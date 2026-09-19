@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e5fa22b19a2c159e9b6edf38539c487897abed84b0ea4801891eae1857375499
+file:
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: LOGON
+    - word: tdpid
+    - divide: /
+    - word: username
+    - comma: ','
+    - word: password
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment: SET
+      word: WIDTH
+      numeric_literal: '254'
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment: SET
+      word: SEPARATOR
+      single_quote: "'|'"
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: EXPORT
+    - word: DATA
+    - word: FILE
+    - equals: '='
+    - word: out
+    - dot: .
+    - word: dat
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: EXPORT
+      word: RESET
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: IMPORT
+    - word: DATA
+    - word: FILE
+    - equals: '='
+    - word: in
+    - dot: .
+    - word: dat
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: RUN
+      keyword: FILE
+      comparison_operator:
+        raw_comparison_operator: '='
+      bteq_file_path:
+        naked_identifier: POSTING
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: LABEL
+      word: start
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: GOTO
+      word: start
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment: REMARK
+      single_quote: "'load complete'"
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment: OS
+    - word: ls
+    - minus: '-'
+    - word: l
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment: SHOW
+      word: CONTROLS
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+        keyword: IF
+    - bteq_key_word_segment:
+        keyword: ACTIVITYCOUNT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '0'
+    - bteq_key_word_segment:
+        keyword: THEN
+    - bteq_key_word_segment:
+        dot: .
+        keyword: QUIT
+        numeric_literal: '8'
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: LOGOFF
+- statement_terminator: ;
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: QUIT
+- statement_terminator: ;
