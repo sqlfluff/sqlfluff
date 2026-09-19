@@ -45,3 +45,7 @@ CREATE TABLE table_identifier
 --Create Table with NOT NULL on a nested struct field
 CREATE TABLE table_identifier
 ( a STRUCT<b: STRUCT<c: STRING NOT NULL> NOT NULL>);
+
+--Create Table with NOT NULL on more than one struct field
+CREATE TABLE table_identifier
+( a STRUCT<b: STRING NOT NULL, c: BOOLEAN NOT NULL, d: INT>);
