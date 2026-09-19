@@ -737,3 +737,25 @@ test_snowflake_default_keyword:
   configs:
     core:
       dialect: snowflake
+
+test_pass_mysql_create_user_account_specification:
+  # Issue 8462: MySQL user and host account specifications should remain quoted.
+  pass_str: |
+    CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'password';
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
+    core:
+      dialect: mysql
+
+test_pass_mariadb_create_user_account_specification:
+  # Issue 8462: MariaDB user and host account specifications should remain quoted.
+  pass_str: |
+    CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'password';
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
+    core:
+      dialect: mariadb
