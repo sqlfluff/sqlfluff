@@ -2202,13 +2202,23 @@ class MagicCellStatementSegment(BaseSegment):
                 # line (`-- MAGIC %md`) or with content after it
                 # (`-- MAGIC %md # Title`). Both may be followed by further
                 # `-- MAGIC` lines: the directive only names the language, it
-                # does not say how many lines the cell has.
+                # does not say how many lines the cell has. A later line may
+                # itself start with `%` (an `%md` cell quoting `%pip`, for
+                # example) without opening another cell, so directive-shaped
+                # lines are body text too.
                 OneOf(
                     Ref("MagicStartGrammar"),
                     Ref("MagicSingleLineGrammar"),
                     optional=True,
                 ),
-                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+                AnyNumberOf(
+                    OneOf(
+                        Ref("MagicLineGrammar"),
+                        Ref("MagicSingleLineGrammar"),
+                        Ref("MagicStartGrammar"),
+                    ),
+                    optional=True,
+                ),
             ),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(

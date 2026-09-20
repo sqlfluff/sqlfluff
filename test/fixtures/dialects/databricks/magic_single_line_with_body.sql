@@ -19,4 +19,10 @@ SELECT x FROM y
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC Some prose quoting a magic command:
+-- MAGIC %pip within a Python notebook.
+
+-- COMMAND ----------
+
 SELECT a FROM b;
