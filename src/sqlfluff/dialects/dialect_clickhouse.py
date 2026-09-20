@@ -69,6 +69,12 @@ clickhouse_dialect.insert_lexer_matchers(
     before="equals",
 )
 
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/reference/operators#is-not-distinct-from
+    [StringLexer("is_not_distinct_from", "<=>", CodeSegment)],
+    before="less_than",
+)
+
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
@@ -103,6 +109,9 @@ clickhouse_dialect.add(
     RawDoubleEqualsSegment=StringParser(
         "==", SymbolSegment, type="raw_comparison_operator"
     ),
+    RawIsNotDistinctFromSegment=StringParser(
+        "<=>", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -117,6 +126,10 @@ clickhouse_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
+    ),
+    IsDistinctFromGrammar=OneOf(
+        Sequence("IS", Ref.keyword("NOT", optional=True), "DISTINCT", "FROM"),
+        Ref("IsNotDistinctFromSegment"),
     ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
@@ -427,6 +440,12 @@ class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
     """Double equals operator."""
 
     match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
+
+
+class IsNotDistinctFromSegment(CompositeComparisonOperatorSegment):
+    """IS NOT DISTINCT FROM operator (<=>)."""
+
+    match_grammar: Matchable = Ref("RawIsNotDistinctFromSegment")
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
