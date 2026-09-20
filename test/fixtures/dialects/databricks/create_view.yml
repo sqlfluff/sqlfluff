@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4df6f26e0863c8bf62179a47fab6e55d3522ac386fd2df054e5ea7377ad921a4
+_hash: 0a76e89020730a36ba427254a77320ae5c42f07811d00b843915c39d66148b13
 file:
 - statement:
     create_view_statement:
@@ -733,4 +733,86 @@ file:
                 - naked_identifier: live
                 - dot: .
                 - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: csv_view
+    - keyword: USING
+    - data_source_format:
+        keyword: csv
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: path
+      - quoted_literal: "'/data'"
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: header
+      - quoted_literal: "'true'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: csv_view_equals
+    - keyword: USING
+    - data_source_format:
+        keyword: csv
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          properties_naked_identifier: path
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'/data'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: csv_view_replaced
+    - keyword: USING
+    - data_source_format:
+        keyword: csv
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: parenthesised_binding_view
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: SCHEMA
+      - keyword: BINDING
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
 - statement_terminator: ;

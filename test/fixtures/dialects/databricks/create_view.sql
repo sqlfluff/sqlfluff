@@ -98,3 +98,20 @@ CREATE TEMPORARY LIVE VIEW validated_data (
     CONSTRAINT valid_b EXPECT (b > 0) ON VIOLATION DROP ROW
 )
 AS SELECT a, b FROM live.taxi_raw;
+
+-- The temporary view backed by a data source.
+CREATE TEMPORARY VIEW csv_view
+USING csv
+OPTIONS (path '/data', header 'true');
+
+CREATE TEMPORARY VIEW csv_view_equals
+USING csv
+OPTIONS (path = '/data');
+
+CREATE OR REPLACE TEMPORARY VIEW csv_view_replaced
+USING csv;
+
+-- The with_clause also takes the parenthesised list form.
+CREATE VIEW parenthesised_binding_view
+WITH (SCHEMA BINDING)
+AS SELECT id FROM source_table;
