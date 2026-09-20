@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6202885f33bcd0a346d2436056aa723837e6127704fddff948205986aad344dc
+_hash: bed1eeb7481338feaff057bed5fba6f655287e1456530ddfecbfb9310fd538ec
 file:
-- statement:
+  statement:
     repeat_statement:
-      naked_identifier: iteration
-      colon: ':'
-      keyword: repeat
-      statement:
+    - naked_identifier: iteration
+    - colon: ':'
+    - keyword: repeat
+    - statement:
         set_statement:
           keyword: set
           variable: '@a'
@@ -20,9 +20,7 @@ file:
             variable: '@a'
             binary_operator: +
             numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    repeat_statement:
+    - statement_terminator: ;
     - keyword: until
     - expression:
         variable: '@a'
@@ -32,4 +30,4 @@ file:
     - keyword: end
     - keyword: repeat
     - naked_identifier: iteration
-- statement_terminator: ;
+  statement_terminator: ;

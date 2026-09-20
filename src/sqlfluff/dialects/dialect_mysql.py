@@ -1722,6 +1722,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("WhileStatementSegment"),
+            Ref("LeaveStatementSegment"),
             Ref("IterateStatementSegment"),
             Ref("RepeatStatementSegment"),
             Ref("LoopStatementSegment"),
@@ -2436,7 +2437,7 @@ class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
     Transaction control only. `BEGIN ... END` blocks are handled by
-    `CompoundStatementSegment`.
+    `CompoundStatementSegment`, and `LEAVE` by `LeaveStatementSegment`.
 
     https://dev.mysql.com/doc/refman/8.0/en/commit.html
     """
@@ -2448,10 +2449,6 @@ class TransactionStatementSegment(BaseSegment):
         Sequence(
             "BEGIN",
             Ref.keyword("WORK", optional=True),
-        ),
-        Sequence(
-            "LEAVE",
-            Ref("SingleIdentifierGrammar", optional=True),
         ),
         Sequence(
             "COMMIT",
@@ -2758,25 +2755,20 @@ class WhileStatementSegment(BaseSegment):
 
     type = "while_statement"
 
-    match_grammar = OneOf(
-        Sequence(
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "WHILE",
+        Ref("ExpressionSegment"),
+        "DO",
+        AnyNumberOf(
             Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            Sequence(
-                "WHILE",
-                Ref("ExpressionSegment"),
-                "DO",
-                AnyNumberOf(
-                    Ref("StatementSegment"),
-                ),
+                Ref("StatementSegment", exclude=OneOf("END")),
+                Ref("DelimiterGrammar"),
             ),
         ),
-        Sequence(
-            "END",
-            "WHILE",
-            Ref("SingleIdentifierGrammar", optional=True),
-        ),
+        "END",
+        "WHILE",
+        Ref("SingleIdentifierGrammar", optional=True),
     )
 
 
@@ -2863,21 +2855,18 @@ class LoopStatementSegment(BaseSegment):
 
     type = "loop_statement"
 
-    match_grammar = OneOf(
-        Sequence(
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "LOOP",
+        AnyNumberOf(
             Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            "LOOP",
-            Delimited(
-                Ref("StatementSegment"),
+                Ref("StatementSegment", exclude=OneOf("END")),
+                Ref("DelimiterGrammar"),
             ),
         ),
-        Sequence(
-            "END",
-            "LOOP",
-            Ref("SingleIdentifierGrammar", optional=True),
-        ),
+        "END",
+        "LOOP",
+        Ref("SingleIdentifierGrammar", optional=True),
     )
 
 
@@ -2896,6 +2885,20 @@ class CursorOpenCloseSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
             Ref("QuotedIdentifierSegment"),
         ),
+    )
+
+
+class LeaveStatementSegment(BaseSegment):
+    """A `LEAVE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/leave.html
+    """
+
+    type = "leave_statement"
+
+    match_grammar = Sequence(
+        "LEAVE",
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -2936,25 +2939,20 @@ class RepeatStatementSegment(BaseSegment):
 
     type = "repeat_statement"
 
-    match_grammar = OneOf(
-        Sequence(
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "REPEAT",
+        AnyNumberOf(
             Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            "REPEAT",
-            AnyNumberOf(
-                Ref("StatementSegment"),
+                Ref("StatementSegment", exclude=OneOf("UNTIL", "END")),
+                Ref("DelimiterGrammar"),
             ),
         ),
-        Sequence(
-            "UNTIL",
-            Ref("ExpressionSegment"),
-            Sequence(
-                "END",
-                "REPEAT",
-                Ref("SingleIdentifierGrammar", optional=True),
-            ),
-        ),
+        "UNTIL",
+        Ref("ExpressionSegment"),
+        "END",
+        "REPEAT",
+        Ref("SingleIdentifierGrammar", optional=True),
     )
 
 
