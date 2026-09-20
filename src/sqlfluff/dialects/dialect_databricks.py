@@ -144,11 +144,11 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "magic_single_line",
-            r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+            r"(-- MAGIC %)([^\n]{2,})( [^\n%]{1})([^\n]*)",
             CodeSegment,
         ),
-        RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
-        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer("magic_line", r"(-- MAGIC)( [^\n%]{1})([^\n]*)", CodeSegment),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})", CodeSegment),
         RegexLexer(
             "bare_magic_sql",
             r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
