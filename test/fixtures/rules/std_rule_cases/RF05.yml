@@ -457,6 +457,27 @@ test_fail_table_aliases:
       references.special_chars:
         quoted_identifiers_policy: table_aliases
 
+test_fail_column_alias_in_derived_table_column_aliases_config:
+  # A column alias belonging to a derived table's own SELECT is still a
+  # column alias, even though it sits underneath the outer FROM clause.
+  fail_str: |
+    SELECT * FROM (SELECT 1 AS "a b") x
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: column_aliases
+
+test_pass_column_alias_in_derived_table_table_aliases_config:
+  # Under table_aliases the column alias above must NOT be flagged - it is
+  # not a table alias. The derived table's own alias "x" has no special
+  # characters, so the whole statement should pass.
+  pass_str: |
+    SELECT * FROM (SELECT 1 AS "a b") x
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: table_aliases
+
 test_pass_special_chars_snowflake_stage_metadata:
   # https://docs.snowflake.com/en/user-guide/querying-metadata
   pass_str: |
