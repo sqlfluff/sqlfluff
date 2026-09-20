@@ -81,3 +81,38 @@ def test_or_refresh_is_not_a_view_clause(sql: str) -> None:
     need it.
     """
     assert _violations(sql), f"Expected a parse failure for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE TEMPORARY VIEW v USING;\n",
+            id="using_without_data_source",
+        ),
+        pytest.param(
+            "CREATE VIEW v USING csv OPTIONS (path '/data');\n",
+            id="using_without_temporary",
+        ),
+        pytest.param(
+            "CREATE TEMPORARY VIEW v USING csv OPTIONS ();\n",
+            id="empty_options",
+        ),
+        pytest.param(
+            "CREATE TEMPORARY VIEW v USING csv OPTIONS (path);\n",
+            id="options_without_value",
+        ),
+        pytest.param(
+            "CREATE VIEW v WITH AS SELECT a FROM t;\n",
+            id="with_without_clause",
+        ),
+    ],
+)
+def test_view_requires_bound_clauses(sql: str) -> None:
+    """The data-source production and the with_clause bind their tokens.
+
+    `USING` needs a data source, the data-source production is only for a
+    TEMPORARY view, `OPTIONS` needs at least one name-value pair, and `WITH`
+    needs a clause.
+    """
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
