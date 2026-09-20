@@ -819,6 +819,13 @@ class GroupByClauseSegment(BaseSegment):
 class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
+    ClickHouse documents the DISTINCT qualifier on INTERSECT and EXCEPT as well
+    as on UNION. Unlike standard SQL, the default for INTERSECT and EXCEPT is to
+    keep duplicates, so DISTINCT changes the result rather than restating it.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/except
+    https://clickhouse.com/docs/sql-reference/statements/select/intersect
+
     Excludes ClickHouse `SELECT * EXCEPT (...)` wildcard exclusions from being
     consumed as set operators.
     """
@@ -830,7 +837,7 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
                 "INTERSECT",
                 "EXCEPT",
             ),
-            Ref.keyword("ALL", optional=True),
+            OneOf("DISTINCT", "ALL", optional=True),
         ),
         "MINUS",
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
