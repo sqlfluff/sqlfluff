@@ -664,10 +664,6 @@ sparksql_dialect.add(
                 Ref("StatementSegment"),
             ),
         ),
-        exclude=OneOf(
-            Ref.keyword("HISTORY"),
-            Ref.keyword("DETAIL"),
-        ),
     ),
     FileFormatGrammar=OneOf(
         Ref("DataSourcesV2FileTypeGrammar"),
@@ -1252,22 +1248,31 @@ class SemiStructuredAccessorSegment(BaseSegment):
         OneOf(
             Ref("NakedSemiStructuredElementSegment"),
             Bracketed(Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"),
+            # A delimited identifier and the `[ * ]` wildcard.
+            Ref("BackQuotedIdentifierSegment"),
+            Bracketed(Ref("StarSegment"), bracket_type="square"),
         ),
         Ref("ArrayAccessorSegment", optional=True),
         AnyNumberOf(
-            Sequence(
-                OneOf(
-                    # Can be delimited by dots or colons
-                    Ref("DotSegment"),
-                    Ref("ColonSegment"),
-                ),
-                OneOf(
-                    Ref("NakedSemiStructuredElementSegment"),
-                    Bracketed(
-                        Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"
+            OneOf(
+                Sequence(
+                    OneOf(
+                        # Can be delimited by dots or colons
+                        Ref("DotSegment"),
+                        Ref("ColonSegment"),
                     ),
+                    OneOf(
+                        Ref("NakedSemiStructuredElementSegment"),
+                        Bracketed(
+                            Ref("QuotedSemiStructuredElementSegment"),
+                            bracket_type="square",
+                        ),
+                        Ref("BackQuotedIdentifierSegment"),
+                    ),
+                    allow_gaps=True,
                 ),
-                allow_gaps=True,
+                # `[ * ]` may follow an element directly, with no delimiter.
+                Bracketed(Ref("StarSegment"), bracket_type="square"),
             ),
             Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
@@ -2258,7 +2263,13 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
             OneOf("UNION", "INTERSECT"),
             OneOf("DISTINCT", "ALL", optional=True),
         ),
-        exclude=Sequence("EXCEPT", Bracketed(Anything())),
+        # Do not take the EXCEPT of a wildcard exclusion
+        # (`SELECT * EXCEPT (col)`) for a set operator. The exclusion's
+        # bracketed column list is the only ambiguous shape; a parenthesised
+        # subquery is a set operand.
+        exclude=Sequence(
+            "EXCEPT", Bracketed(Delimited(Ref("ColumnReferenceSegment")))
+        ),
     )
 
 
@@ -3058,8 +3069,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DistributeByClauseSegment"),
             # Delta Lake
             Ref("VacuumStatementSegment"),
-            Ref("DescribeHistoryStatementSegment"),
-            Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
             Ref("RestoreTableStatementSegment"),
@@ -3078,6 +3087,18 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
         ],
+    ).copy(
+        # `DESCRIBE HISTORY tbl` and a plain `DESCRIBE history.tbl` are
+        # ambiguous as far as their prefix goes, so the Delta statements are
+        # tried before the general DESCRIBE: both match `DESCRIBE HISTORY
+        # tbl` in full, and the first of equal-length matches wins. A
+        # qualified `history.tbl` fails the history statement and falls
+        # through to the general one.
+        insert=[
+            Ref("DescribeHistoryStatementSegment"),
+            Ref("DescribeDetailStatementSegment"),
+        ],
+        before=Ref("DescribeStatementSegment"),
     )
 
 
@@ -3153,22 +3174,44 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar = Sequence(
         Indent,
-        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
-            # maybe table alias and column aliases
+            # An explicit alias may be any identifier except the words the
+            # reference reserves as table aliases, even when it shares its
+            # name with a following clause (`AS PIVOT`, `AS KEYS`).
             Sequence(
-                Ref("SingleIdentifierGrammar", optional=True),
-                Bracketed(Ref("SingleIdentifierListSegment")),
+                Ref("AsAliasOperatorSegment"),
+                OneOf(
+                    # maybe table alias and column aliases
+                    Sequence(
+                        Ref("SingleIdentifierGrammar", optional=True),
+                        Bracketed(Ref("SingleIdentifierListSegment")),
+                    ),
+                    # just a table alias
+                    Ref("SingleIdentifierGrammar"),
+                    exclude=OneOf(
+                        "LATERAL",
+                        Ref("JoinTypeKeywords"),
+                        "FROM",
+                    ),
+                ),
             ),
-            # just a table alias
-            Ref("SingleIdentifierGrammar"),
-            exclude=OneOf(
-                "LATERAL",
-                Ref("JoinTypeKeywords"),
-                "WINDOW",
-                "PIVOT",
-                "KEYS",
-                "FROM",
+            # An implicit alias must not consume a following clause keyword.
+            OneOf(
+                # maybe table alias and column aliases
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True),
+                    Bracketed(Ref("SingleIdentifierListSegment")),
+                ),
+                # just a table alias
+                Ref("SingleIdentifierGrammar"),
+                exclude=OneOf(
+                    "LATERAL",
+                    Ref("JoinTypeKeywords"),
+                    "WINDOW",
+                    "PIVOT",
+                    "KEYS",
+                    "FROM",
+                ),
             ),
         ),
         Dedent,

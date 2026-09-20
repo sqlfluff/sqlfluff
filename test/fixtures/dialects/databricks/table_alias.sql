@@ -1,12 +1,3 @@
-select * from u as t ( a, b );
-select * from u as t (a, b);
-select * from u as t(a,b);
-select * from u as (a,b);
-select * from u t ( a, b );
-select * from u t (a, b);
-select * from u t(a,b);
-select * from u (a,b);
-
 -- KEYS, PIVOT and WINDOW are not reserved as aliases, so they are legal
 -- unquoted column and table aliases with an explicit AS.
 select a as keys from t;

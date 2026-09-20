@@ -42,6 +42,18 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
+        pytest.param("SELECT * FROM t AS left;", id="left_table_alias"),
+        pytest.param("SELECT * FROM t AS right;", id="right_table_alias"),
+    ],
+)
+def test_left_right_reserved_as_table_aliases(sql: str) -> None:
+    """LEFT/RIGHT are unreserved except as unquoted table aliases."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
         pytest.param(
             "CREATE PRIVATE TABLE t (a INT);",
             id="private_without_streaming",
