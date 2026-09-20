@@ -1,0 +1,98 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 590cec0746f6edfbd948020e814d23882088b738aa3e428bb25f5bccf6a8ab1f
+file:
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: DROP
+    - keyword: SCHEDULE
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: ADD
+    - keyword: TRIGGER
+    - keyword: 'ON'
+    - keyword: UPDATE
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: ALTER
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - numeric_literal: '2'
+    - keyword: HOURS
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: ALTER
+    - keyword: SCHEDULE
+    - keyword: CRON
+    - quoted_literal: "'0 0 * * *'"
+    - keyword: AT
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: "'UTC'"
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: ADD
+    - keyword: SCHEDULE
+    - keyword: REFRESH
+    - keyword: EVERY
+    - numeric_literal: '1'
+    - keyword: DAY
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: c
+    - keyword: COMMENT
+    - quoted_literal: "'x'"
+- statement_terminator: ;

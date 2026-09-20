@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4bd715e4e734bf4969378de3398d7a34160dfda870decaf7d4fd8a28b0837d16
+_hash: dd67227b4eed4431b88abf26495f9917c01d6e1e42c40fee273166373341772b
 file:
 - statement:
     alter_catalog_statement:
@@ -147,4 +147,64 @@ file:
     - keyword: DISABLE
     - keyword: PREDICTIVE
     - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+    - keyword: SET
+    - keyword: MANAGED
+    - keyword: LOCATION
+    - quoted_literal: "'s3://b/'"
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: TO
+    - numeric_literal: '1'
+    - keyword: DAY
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+    - keyword: SET
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: TO
+    - numeric_literal: '2'
+    - keyword: HOURS
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+    - keyword: DEFAULT
+    - keyword: COLLATION
+    - quoted_identifier: "'UTF8_LCASE'"
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: host
+        quoted_literal: "'h'"
+        end_bracket: )
 - statement_terminator: ;

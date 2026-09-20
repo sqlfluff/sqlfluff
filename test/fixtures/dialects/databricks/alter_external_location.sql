@@ -1,0 +1,8 @@
+-- ALTER EXTERNAL LOCATION. https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-alter-location
+ALTER EXTERNAL LOCATION l RENAME TO m;
+
+ALTER EXTERNAL LOCATION l SET URL 's3://b/' FORCE;
+
+ALTER EXTERNAL LOCATION l SET STORAGE CREDENTIAL c;
+
+ALTER EXTERNAL LOCATION l OWNER TO `u`;
