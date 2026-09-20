@@ -59,3 +59,18 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 def test_private_requires_streaming_table(sql: str) -> None:
     """PRIVATE is only valid on a streaming table, not on a table."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE FLOW f AS INSERT INTO t BY NAME "
+            "REPLACE USING (a) SELECT * FROM STREAM s;",
+            id="replace_using_without_sequence_by",
+        ),
+    ],
+)
+def test_replace_using_requires_sequence_by(sql: str) -> None:
+    """replace_using_spec is REPLACE USING (...) SEQUENCE BY col, as documented."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
