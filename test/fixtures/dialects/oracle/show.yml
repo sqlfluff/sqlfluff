@@ -3,25 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c931a68478e3c6fb59f65b02e6908055ecd26c412f0cee8a53b0994327cb0206
+_hash: 2b22b996f298caf04b1215ef3789526c3bf6edb72e12f96e280995cfd0e34bdc
 file:
   batch:
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHO
     - keyword: ERR
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: FUNCTION
     - object_reference:
         naked_identifier: my_func
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: PACKAGE
@@ -31,15 +31,7 @@ file:
       - dot: .
       - naked_identifier: my_pkg
   - statement_terminator: ;
-  - show_statement:
-    - keyword: SHOW
-    - keyword: ERRORS
-    - keyword: JAVA
-    - keyword: SOURCE
-    - object_reference:
-        naked_identifier: my_source
-  - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: JAVA
@@ -47,42 +39,42 @@ file:
     - object_reference:
         naked_identifier: my_class
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHO
     - keyword: ERRORS
     - keyword: PROCEDURE
     - object_reference:
         naked_identifier: my_proc
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERR
     - keyword: TRIGGER
     - object_reference:
         naked_identifier: my_trigger
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: VIEW
     - object_reference:
         naked_identifier: my_view
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: DIMENSION
     - object_reference:
         naked_identifier: my_dimension
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: TYPE
     - object_reference:
         naked_identifier: my_type
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: TYPE
@@ -90,42 +82,134 @@ file:
     - object_reference:
         naked_identifier: my_type
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ERRORS
     - keyword: PACKAGE
     - object_reference:
         naked_identifier: my_pkg
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: ANALYTIC
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: my_av
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: ATTRIBUTE
+    - keyword: DIMENSION
+    - object_reference:
+        naked_identifier: my_ad
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - keyword: HIERARCHY
+    - object_reference:
+        naked_identifier: my_hier
+  - statement_terminator: ;
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: PARAMETER
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: PARAMETERS
     - parameter: sga_target
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: SPPARAMETER
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: SPPARAMETERS
+    - parameter: open_cursors
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: RECYCLEBIN
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: RECYCLEBIN
+    - object_reference:
+        naked_identifier: my_table
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: CONNECTION
+    - keyword: NETSERVICENAMES
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: CONN
+    - keyword: NETS
+    - object_reference:
+        naked_identifier: orcl1
+    - object_reference:
+        naked_identifier: orcl2
+  - statement_terminator: ;
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: ALL
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: SHOW
     - keyword: USER
   - statement_terminator: ;
-  - show_statement:
-      keyword: SHOW
-      naked_identifier: SGA
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: SGA
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: PDBS
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: EDITION
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: RELEASE
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: REL
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: BTITLE
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: TTITLE
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: SPOOL
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: STATEMENTCACHE
+  - statement_terminator: ;
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: SQLCODE
+  - statement_terminator: ;
+  - sqlplus_show_statement:
       keyword: SHOW
       naked_identifier: LINESIZE
   - statement_terminator: ;
-  - show_statement:
-      keyword: SHOW
-      naked_identifier: CON_NAME
+  - sqlplus_show_statement:
+    - keyword: SHOW
+    - keyword: CON_NAME
   - statement_terminator: ;
-  - show_statement:
+  - sqlplus_show_statement:
     - keyword: show
     - keyword: errors
