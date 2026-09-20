@@ -737,7 +737,16 @@ class CreateCatalogStatementSegment(BaseSegment):
         "CATALOG",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("CatalogReferenceSegment"),
-        Ref("CommentGrammar", optional=True),
+        # The reference gives these as a bracketed alternation followed by
+        # `[...]`, so they may appear in either order.
+        AnySetOf(
+            Sequence(
+                "MANAGED",
+                "LOCATION",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("CommentGrammar"),
+        ),
     )
 
 
