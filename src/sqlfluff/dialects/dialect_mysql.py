@@ -1715,6 +1715,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
+            Ref("CompoundStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
             Ref("SetTransactionStatementSegment"),
@@ -1798,7 +1799,36 @@ class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
     type = "function_definition"
-    match_grammar = Ref("TransactionStatementSegment")
+    match_grammar = OneOf(
+        Ref("CompoundStatementSegment"),
+        Ref("StatementSegment"),
+    )
+
+
+class CompoundStatementSegment(BaseSegment):
+    """A `BEGIN ... END` compound statement.
+
+    Distinct from the `BEGIN` which starts a transaction, which is handled by
+    `TransactionStatementSegment`. Within a stored program `BEGIN` always
+    opens a block.
+
+    https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
+    """
+
+    type = "compound_statement"
+
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "BEGIN",
+        AnyNumberOf(
+            Sequence(
+                Ref("StatementSegment", exclude=OneOf("END")),
+                Ref("DelimiterGrammar"),
+            ),
+        ),
+        "END",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
 
 
 class CharacteristicStatement(BaseSegment):
@@ -2405,8 +2435,10 @@ class SetAssignmentStatementSegment(BaseSegment):
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
+    Transaction control only. `BEGIN ... END` blocks are handled by
+    `CompoundStatementSegment`.
+
     https://dev.mysql.com/doc/refman/8.0/en/commit.html
-    https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
     """
 
     type = "transaction_statement"
@@ -2414,14 +2446,8 @@ class TransactionStatementSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence("START", "TRANSACTION"),
         Sequence(
-            Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            Sequence(
-                "BEGIN",
-                Ref.keyword("WORK", optional=True),
-                Ref("StatementSegment"),
-            ),
+            "BEGIN",
+            Ref.keyword("WORK", optional=True),
         ),
         Sequence(
             "LEAVE",
@@ -2435,10 +2461,6 @@ class TransactionStatementSegment(BaseSegment):
         Sequence(
             "ROLLBACK",
             Ref.keyword("WORK", optional=True),
-        ),
-        Sequence(
-            "END",
-            Ref("SingleIdentifierGrammar", optional=True),
         ),
     )
 
@@ -3568,8 +3590,8 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
             OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
         ),
         OneOf(
+            Ref("CompoundStatementSegment"),
             Ref("StatementSegment"),
-            Sequence("BEGIN", Ref("StatementSegment"), "END"),
         ),
     )
 

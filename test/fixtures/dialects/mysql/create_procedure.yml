@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eadec52c86a1924f31db92b9eebbd2d8675bd39e51a51dcfb2979cea1ffbf036
+_hash: aeec9b911b1d21afe38e7488ad3f6c8a56168b578c4aea0313b95c00adc62ab0
 file:
-- statement:
+  statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -19,16 +19,14 @@ file:
           start_bracket: (
           end_bracket: )
     - function_definition:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
+        compound_statement:
+        - keyword: BEGIN
+        - statement:
             select_statement:
               select_clause:
                 keyword: SELECT
                 select_clause_element:
                   numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: END
-- statement_terminator: ;
+        - statement_terminator: ;
+        - keyword: END
+  statement_terminator: ;
