@@ -127,10 +127,6 @@ clickhouse_dialect.replace(
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
     ),
-    IsDistinctFromGrammar=OneOf(
-        Sequence("IS", Ref.keyword("NOT", optional=True), "DISTINCT", "FROM"),
-        Ref("IsNotDistinctFromSegment"),
-    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("DoubleEqualsSegment"),
@@ -141,6 +137,7 @@ clickhouse_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
         Ref("IsDistinctFromGrammar"),
+        Ref("IsNotDistinctFromSegment"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
