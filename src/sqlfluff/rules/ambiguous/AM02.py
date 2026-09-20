@@ -69,38 +69,24 @@ class Rule_AM02(BaseRule):
             return LintResult()
 
         assert context.segment.is_type("set_operator")
-        if "union" in context.segment.raw and not (
-            "ALL" in context.segment.raw.upper()
-            or "DISTINCT" in context.segment.raw.upper()
-        ):
-            return LintResult(
-                anchor=context.segment,
-                fixes=[
-                    LintFix.replace(
-                        context.segment.segments[0],
-                        [
-                            KeywordSegment("union"),
-                            WhitespaceSegment(),
-                            KeywordSegment("distinct"),
-                        ],
-                    )
-                ],
-            )
-        elif "UNION" in context.segment.raw.upper() and not (
-            "ALL" in context.segment.raw.upper()
-            or "DISTINCT" in context.segment.raw.upper()
-        ):
-            return LintResult(
-                anchor=context.segment,
-                fixes=[
-                    LintFix.replace(
-                        context.segment.segments[0],
-                        [
-                            KeywordSegment("UNION"),
-                            WhitespaceSegment(),
-                            KeywordSegment("DISTINCT"),
-                        ],
-                    )
-                ],
-            )
-        return LintResult()
+        raw_upper = context.segment.raw.upper()
+        if "UNION" not in raw_upper or "ALL" in raw_upper or "DISTINCT" in raw_upper:
+            return LintResult()
+
+        # Insert DISTINCT after the existing UNION keyword rather than
+        # replacing it. Replacing it with a hardcoded "UNION"/"union" forced
+        # any other casing (e.g. "Union") to one of those two, silently
+        # fighting a project's chosen capitalisation style - that's CP01's
+        # job, not this rule's. Match the case of the new keyword to the
+        # existing one so an all-caps UNION still gets an all-caps DISTINCT.
+        union_keyword = context.segment.segments[0]
+        distinct_kw = "DISTINCT" if union_keyword.raw.isupper() else "distinct"
+        return LintResult(
+            anchor=context.segment,
+            fixes=[
+                LintFix.create_after(
+                    union_keyword,
+                    [WhitespaceSegment(), KeywordSegment(distinct_kw)],
+                )
+            ],
+        )
