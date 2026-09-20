@@ -68,7 +68,8 @@ def test__dialect__rejects_trailing_comma_after_final_cte(dialect):
 
 
 @pytest.mark.parametrize(
-    "dialect", ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "tsql"]
+    "dialect",
+    ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "tsql", "sqlite"],
 )
 @pytest.mark.parametrize(
     "sql",
@@ -94,7 +95,8 @@ def test__dialect__scalar_subquery_assignment_requires_parentheses():
 
 
 @pytest.mark.parametrize(
-    "dialect", ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "tsql"]
+    "dialect",
+    ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "tsql", "sqlite"],
 )
 @pytest.mark.parametrize(
     "sql",
