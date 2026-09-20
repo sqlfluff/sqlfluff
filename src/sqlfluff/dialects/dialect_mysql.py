@@ -2713,7 +2713,10 @@ class CallStoredProcedureSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CALL",
-        Ref("FunctionSegment"),
+        OneOf(
+            Ref("FunctionSegment"),
+            Ref("FunctionNameSegment"),
+        ),
     )
 
 
