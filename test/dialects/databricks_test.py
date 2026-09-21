@@ -64,20 +64,56 @@ def test_private_requires_streaming_table(sql: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
-        pytest.param("CREATE CONNECTION TYPE POSTGRESQL OPTIONS (host 'h');", id="connection_without_name"),
-        pytest.param("CREATE CONNECTION c OPTIONS (host 'h');", id="connection_without_type"),
-        pytest.param("CREATE CONNECTION c TYPE OPTIONS (host 'h');", id="connection_without_type_value"),
-        pytest.param("CREATE CONNECTION c TYPE POSTGRESQL;", id="connection_without_options"),
-        pytest.param("CREATE CONNECTION c TYPE POSTGRESQL OPTIONS ();", id="connection_empty_options"),
-        pytest.param("CREATE CONNECTION c TYPE POSTGRESQL OPTIONS (host);", id="connection_without_option_value"),
-        pytest.param("CREATE CONNECTION c TYPE POSTGRESQL OPTIONS (host 'h', );", id="connection_options_trailing_comma"),
-        pytest.param("CREATE EXTERNAL LOCATION URL 'u' WITH (STORAGE CREDENTIAL c);", id="location_without_name"),
-        pytest.param("CREATE EXTERNAL LOCATION l 'u' WITH (STORAGE CREDENTIAL c);", id="location_without_url_keyword"),
-        pytest.param("CREATE EXTERNAL LOCATION l URL WITH (STORAGE CREDENTIAL c);", id="location_without_url_value"),
+        pytest.param(
+            "CREATE CONNECTION TYPE POSTGRESQL OPTIONS (host 'h');",
+            id="connection_without_name",
+        ),
+        pytest.param(
+            "CREATE CONNECTION c OPTIONS (host 'h');", id="connection_without_type"
+        ),
+        pytest.param(
+            "CREATE CONNECTION c TYPE OPTIONS (host 'h');",
+            id="connection_without_type_value",
+        ),
+        pytest.param(
+            "CREATE CONNECTION c TYPE POSTGRESQL;", id="connection_without_options"
+        ),
+        pytest.param(
+            "CREATE CONNECTION c TYPE POSTGRESQL OPTIONS ();",
+            id="connection_empty_options",
+        ),
+        pytest.param(
+            "CREATE CONNECTION c TYPE POSTGRESQL OPTIONS (host);",
+            id="connection_without_option_value",
+        ),
+        pytest.param(
+            "CREATE CONNECTION c TYPE POSTGRESQL OPTIONS (host 'h', );",
+            id="connection_options_trailing_comma",
+        ),
+        pytest.param(
+            "CREATE EXTERNAL LOCATION URL 'u' WITH (STORAGE CREDENTIAL c);",
+            id="location_without_name",
+        ),
+        pytest.param(
+            "CREATE EXTERNAL LOCATION l 'u' WITH (STORAGE CREDENTIAL c);",
+            id="location_without_url_keyword",
+        ),
+        pytest.param(
+            "CREATE EXTERNAL LOCATION l URL WITH (STORAGE CREDENTIAL c);",
+            id="location_without_url_value",
+        ),
         pytest.param("CREATE EXTERNAL LOCATION l URL 'u';", id="location_without_with"),
-        pytest.param("CREATE EXTERNAL LOCATION l URL 'u' WITH ();", id="location_empty_with"),
-        pytest.param("CREATE EXTERNAL LOCATION l URL 'u' WITH (STORAGE CREDENTIAL);", id="location_without_credential_name"),
-        pytest.param("CREATE EXTERNAL LOCATION l URL 'u' WITH (STORAGE CREDENTIAL c) COMMENT;", id="location_without_comment_value"),
+        pytest.param(
+            "CREATE EXTERNAL LOCATION l URL 'u' WITH ();", id="location_empty_with"
+        ),
+        pytest.param(
+            "CREATE EXTERNAL LOCATION l URL 'u' WITH (STORAGE CREDENTIAL);",
+            id="location_without_credential_name",
+        ),
+        pytest.param(
+            "CREATE EXTERNAL LOCATION l URL 'u' WITH (STORAGE CREDENTIAL c) COMMENT;",
+            id="location_without_comment_value",
+        ),
     ],
 )
 def test_create_connection_location_rejections(sql: str) -> None:
@@ -129,13 +165,24 @@ def test_create_function_characteristic_rejections(sql: str) -> None:
         pytest.param("CREATE SCHEMA IF NOT s;", id="if_not_without_exists"),
         pytest.param("CREATE SCHEMA IF EXISTS s;", id="if_exists_without_not"),
         pytest.param("CREATE SCHEMA s COMMENT;", id="comment_without_text"),
-        pytest.param("CREATE SCHEMA s DEFAULT COLLATION;", id="default_collation_without_name"),
+        pytest.param(
+            "CREATE SCHEMA s DEFAULT COLLATION;", id="default_collation_without_name"
+        ),
         pytest.param("CREATE SCHEMA s LOCATION;", id="location_without_path"),
-        pytest.param("CREATE SCHEMA s MANAGED LOCATION;", id="managed_location_without_path"),
-        pytest.param("CREATE SCHEMA s RETAIN DROPPED FOR 14;", id="retain_dropped_without_unit"),
-        pytest.param("CREATE SCHEMA s RETAIN DROPPED FOR DAYS;", id="retain_dropped_without_number"),
+        pytest.param(
+            "CREATE SCHEMA s MANAGED LOCATION;", id="managed_location_without_path"
+        ),
+        pytest.param(
+            "CREATE SCHEMA s RETAIN DROPPED FOR 14;", id="retain_dropped_without_unit"
+        ),
+        pytest.param(
+            "CREATE SCHEMA s RETAIN DROPPED FOR DAYS;",
+            id="retain_dropped_without_number",
+        ),
         pytest.param("CREATE SCHEMA s WITH DBPROPERTIES ();", id="empty_dbproperties"),
-        pytest.param("CREATE SCHEMA s WITH DBPROPERTIES (k =);", id="dbproperties_without_value"),
+        pytest.param(
+            "CREATE SCHEMA s WITH DBPROPERTIES (k =);", id="dbproperties_without_value"
+        ),
     ],
 )
 def test_create_schema_rejections(sql: str) -> None:
@@ -151,9 +198,16 @@ def test_create_schema_rejections(sql: str) -> None:
         pytest.param("CREATE SHARE s COMMENT;", id="share_without_comment_value"),
         pytest.param("CREATE RECIPIENT USING ID 'x';", id="recipient_without_name"),
         pytest.param("CREATE RECIPIENT r USING ID;", id="recipient_without_sharing_id"),
-        pytest.param("CREATE RECIPIENT r PROPERTIES ();", id="recipient_empty_properties"),
-        pytest.param("CREATE RECIPIENT r PROPERTIES (k =);", id="recipient_without_property_value"),
-        pytest.param("CREATE RECIPIENT r COMMENT;", id="recipient_without_comment_value"),
+        pytest.param(
+            "CREATE RECIPIENT r PROPERTIES ();", id="recipient_empty_properties"
+        ),
+        pytest.param(
+            "CREATE RECIPIENT r PROPERTIES (k =);",
+            id="recipient_without_property_value",
+        ),
+        pytest.param(
+            "CREATE RECIPIENT r COMMENT;", id="recipient_without_comment_value"
+        ),
     ],
 )
 def test_create_share_recipient_rejections(sql: str) -> None:
