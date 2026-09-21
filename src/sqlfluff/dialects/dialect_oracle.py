@@ -3680,7 +3680,24 @@ class MergeUpdateClauseSegment(BaseSegment):
         Ref("SetClauseListSegment"),
         Dedent,
         Ref("WhereClauseSegment", optional=True),
+        Sequence("DELETE", Ref("WhereClauseSegment"), optional=True),
         Ref("ReturningClauseSegment", optional=True),
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Ref("ValuesClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
