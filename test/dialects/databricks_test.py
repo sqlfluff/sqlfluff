@@ -59,3 +59,23 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 def test_private_requires_streaming_table(sql: str) -> None:
     """PRIVATE is only valid on a streaming table, not on a table."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param("DROP CONNECTION;", id="drop_connection_without_name"),
+        pytest.param("DROP CREDENTIAL;", id="drop_credential_without_name"),
+        pytest.param("DROP EXTERNAL LOCATION;", id="drop_location_without_name"),
+        pytest.param("DROP POLICY p;", id="drop_policy_without_target"),
+        pytest.param("DROP PROCEDURE;", id="drop_procedure_without_name"),
+        pytest.param("DROP PROVIDER;", id="drop_provider_without_name"),
+        pytest.param("DROP RECIPIENT;", id="drop_recipient_without_name"),
+        pytest.param("DROP SHARE;", id="drop_share_without_name"),
+        pytest.param("DROP TEMPORARY VARIABLE;", id="drop_variable_without_name"),
+        pytest.param("DROP TABLE;", id="drop_table_without_name"),
+    ],
+)
+def test_drop_uc_rejections(sql: str) -> None:
+    """Unity Catalog DROP statement boundaries."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
