@@ -1357,6 +1357,19 @@ def test__cli__command_rules_output_line_length(tmp_path, monkeypatch, line_leng
     assert (description in lines) == (line_length >= len(description))
 
 
+@pytest.mark.parametrize("line_length", [-1, 0, 1, 6, 7])
+def test__cli__command_rules_small_output_line_length(
+    tmp_path, monkeypatch, line_length
+):
+    """A width smaller than the rule label must not crash the listing."""
+    config_path = tmp_path / ".sqlfluff"
+    config_path.write_text(f"[sqlfluff]\noutput_line_length = {line_length}\n")
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(rules, ["--nocolor"])
+    assert result.exit_code == 0
+    assert "CV01:" in result.stdout
+
+
 def test__cli__command_dialects():
     """Check dialects command for exceptions."""
     invoke_assert_code(args=[dialects])
