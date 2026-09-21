@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 044ceb415c03af02b4a55903cab890dbadc739f7c381de57284232a5d2488c5d
+_hash: a68cf569cd1f7847ddd69627233ff9057f873a4b2d2996498032da1a13098094
 file:
 - statement:
     merge_statement:
@@ -613,4 +613,41 @@ file:
                   column_reference:
                     naked_identifier: last_updated
                   end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: k
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: k
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+          - keyword: UPDATE
+          - keyword: SET
+          - wildcard_expression:
+              wildcard_identifier:
+                star: '*'
 - statement_terminator: ;
