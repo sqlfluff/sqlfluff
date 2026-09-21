@@ -64,12 +64,24 @@ def test_private_requires_streaming_table(sql: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
-        pytest.param("ALTER CATALOG c DEFAULT COLLATION;", id="catalog_collation_without_value"),
+        pytest.param(
+            "ALTER CATALOG c DEFAULT COLLATION;", id="catalog_collation_without_value"
+        ),
         pytest.param("ALTER CATALOG c SET TAGS ();", id="catalog_empty_tags"),
-        pytest.param("ALTER CATALOG c SET MANAGED LOCATION;", id="catalog_managed_location_without_path"),
-        pytest.param("ALTER CATALOG c RETAIN DROPPED TO 1;", id="catalog_retain_dropped_without_unit"),
-        pytest.param("ALTER SCHEMA s SET DBPROPERTIES ();", id="schema_empty_dbproperties"),
-        pytest.param("ALTER SCHEMA s DEFAULT COLLATION;", id="schema_collation_without_value"),
+        pytest.param(
+            "ALTER CATALOG c SET MANAGED LOCATION;",
+            id="catalog_managed_location_without_path",
+        ),
+        pytest.param(
+            "ALTER CATALOG c RETAIN DROPPED TO 1;",
+            id="catalog_retain_dropped_without_unit",
+        ),
+        pytest.param(
+            "ALTER SCHEMA s SET DBPROPERTIES ();", id="schema_empty_dbproperties"
+        ),
+        pytest.param(
+            "ALTER SCHEMA s DEFAULT COLLATION;", id="schema_collation_without_value"
+        ),
     ],
 )
 def test_alter_catalog_schema_rejections(sql: str) -> None:
@@ -80,10 +92,16 @@ def test_alter_catalog_schema_rejections(sql: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
-        pytest.param("ALTER CONNECTION c RENAME TO;", id="connection_rename_without_value"),
+        pytest.param(
+            "ALTER CONNECTION c RENAME TO;", id="connection_rename_without_value"
+        ),
         pytest.param("ALTER CONNECTION c OPTIONS ();", id="connection_empty_options"),
-        pytest.param("ALTER EXTERNAL LOCATION l SET URL;", id="location_set_url_without_value"),
-        pytest.param("ALTER CREDENTIAL c RENAME TO;", id="credential_rename_without_value"),
+        pytest.param(
+            "ALTER EXTERNAL LOCATION l SET URL;", id="location_set_url_without_value"
+        ),
+        pytest.param(
+            "ALTER CREDENTIAL c RENAME TO;", id="credential_rename_without_value"
+        ),
     ],
 )
 def test_alter_connection_location_credential_rejections(sql: str) -> None:
@@ -106,9 +124,18 @@ def test_alter_group_rejections(sql: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
-        pytest.param("ALTER MATERIALIZED VIEW v ALTER COLUMN c COMMENT;", id="mv_column_comment_without_value"),
-        pytest.param("ALTER MATERIALIZED VIEW v ADD SCHEDULE;", id="mv_add_schedule_without_clause"),
-        pytest.param("ALTER STREAMING TABLE t SET OWNER TO;", id="streaming_table_owner_without_value"),
+        pytest.param(
+            "ALTER MATERIALIZED VIEW v ALTER COLUMN c COMMENT;",
+            id="mv_column_comment_without_value",
+        ),
+        pytest.param(
+            "ALTER MATERIALIZED VIEW v ADD SCHEDULE;",
+            id="mv_add_schedule_without_clause",
+        ),
+        pytest.param(
+            "ALTER STREAMING TABLE t SET OWNER TO;",
+            id="streaming_table_owner_without_value",
+        ),
     ],
 )
 def test_alter_materialized_view_streaming_table_rejections(sql: str) -> None:
@@ -119,8 +146,13 @@ def test_alter_materialized_view_streaming_table_rejections(sql: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
-        pytest.param("ALTER RECIPIENT r SET PROPERTIES ();", id="recipient_empty_properties"),
-        pytest.param("ALTER RECIPIENT r UNSET PROPERTIES ();", id="recipient_empty_unset_properties"),
+        pytest.param(
+            "ALTER RECIPIENT r SET PROPERTIES ();", id="recipient_empty_properties"
+        ),
+        pytest.param(
+            "ALTER RECIPIENT r UNSET PROPERTIES ();",
+            id="recipient_empty_unset_properties",
+        ),
         pytest.param("ALTER PROVIDER p RENAME TO;", id="provider_rename_without_value"),
     ],
 )

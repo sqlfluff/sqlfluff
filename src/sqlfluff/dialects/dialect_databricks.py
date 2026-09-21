@@ -1877,9 +1877,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         Sequence(
             "CRON",
             Ref("QuotedLiteralSegment"),
-            Sequence(
-                "AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True
-            ),
+            Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True),
         ),
     )
     _schedule = OneOf(
