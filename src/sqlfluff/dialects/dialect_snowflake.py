@@ -11899,19 +11899,18 @@ class ScriptingIfStatementSegment(BaseSegment):
             Bracketed(Ref("ExpressionSegment")),
             "THEN",
             Indent,
-            Ref("StatementSegment"),
             AnyNumberOf(
                 Sequence(
-                    Ref("DelimiterGrammar"),
                     Ref("StatementSegment", reset_terminators=True),
+                    Ref("DelimiterGrammar"),
                 ),
+                min_times=1,
                 terminators=[
                     "ELSEIF",
                     "ELSE",
                     Sequence("END", "IF"),
                 ],
             ),
-            Ref("DelimiterGrammar"),
             Dedent,
         ),
         AnyNumberOf(
@@ -11920,19 +11919,18 @@ class ScriptingIfStatementSegment(BaseSegment):
                 Bracketed(Ref("ExpressionSegment")),
                 "THEN",
                 Indent,
-                Ref("StatementSegment"),
                 AnyNumberOf(
                     Sequence(
-                        Ref("DelimiterGrammar"),
                         Ref("StatementSegment", reset_terminators=True),
+                        Ref("DelimiterGrammar"),
                     ),
+                    min_times=1,
                     terminators=[
                         "ELSEIF",
                         "ELSE",
                         Sequence("END", "IF"),
                     ],
                 ),
-                Ref("DelimiterGrammar"),
                 Dedent,
             ),
             terminators=[
@@ -11944,17 +11942,16 @@ class ScriptingIfStatementSegment(BaseSegment):
             Sequence(
                 "ELSE",
                 Indent,
-                Ref("StatementSegment"),
                 AnyNumberOf(
                     Sequence(
-                        Ref("DelimiterGrammar"),
                         Ref("StatementSegment", reset_terminators=True),
+                        Ref("DelimiterGrammar"),
                     ),
+                    min_times=1,
                     terminators=[
                         Sequence("END", "IF"),
                     ],
                 ),
-                Ref("DelimiterGrammar"),
                 Dedent,
             ),
             optional=True,

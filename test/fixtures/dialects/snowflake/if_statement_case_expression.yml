@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 32cb4d3d3af9e579f50a5b5ce2f305f36f089b8de9d96bd5224bf651f8c15dac
+_hash: c33999fec86aa2939473070c914df9b1cd497de459bfaf8058c3f9a8aa63300a
 file:
-  statement:
+- statement:
     scripting_block_statement:
     - keyword: BEGIN
     - statement:
@@ -128,4 +128,620 @@ file:
         - keyword: IF
     - statement_terminator: ;
     - keyword: END
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '1'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '1'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'a'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'b'"
+                    - keyword: END
+        - statement_terminator: ;
+        - keyword: ELSEIF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '2'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '2'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '2'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '2'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'c'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'d'"
+                    - keyword: END
+        - statement_terminator: ;
+        - keyword: ELSEIF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '3'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '3'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '3'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '3'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'e'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'f'"
+                    - keyword: END
+        - statement_terminator: ;
+        - keyword: ELSE
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '4'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '4'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'g'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'h'"
+                    - keyword: END
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+        - statement_terminator: ;
+        - keyword: ELSEIF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '2'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '2'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            scripting_if_statement:
+            - keyword: IF
+            - bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '3'
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '3'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                            - numeric_literal: '3'
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - numeric_literal: '3'
+                          - keyword: THEN
+                          - expression:
+                              quoted_literal: "'a'"
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              quoted_literal: "'b'"
+                        - keyword: END
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '1'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '1'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'a'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'b'"
+                    - keyword: END
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '1'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '1'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'a'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'b'"
+                    - keyword: END
+        - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+        - statement_terminator: ;
+        - keyword: ELSE
+        - statement:
+            scripting_if_statement:
+            - keyword: IF
+            - bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '2'
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '2'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                            - numeric_literal: '1'
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - numeric_literal: '1'
+                          - keyword: THEN
+                          - expression:
+                              quoted_literal: "'a'"
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              quoted_literal: "'b'"
+                        - keyword: END
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+        - statement_terminator: ;
+        - keyword: ELSEIF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '2'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '2'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            scripting_if_statement:
+            - keyword: IF
+            - bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '3'
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '3'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '2'
+            - statement_terminator: ;
+            - keyword: ELSEIF
+            - bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '4'
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '4'
+                end_bracket: )
+            - keyword: THEN
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                            - numeric_literal: '5'
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - numeric_literal: '5'
+                          - keyword: THEN
+                          - expression:
+                              quoted_literal: "'a'"
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              quoted_literal: "'b'"
+                        - keyword: END
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_if_statement:
+        - keyword: IF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '1'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '1'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'a'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'b'"
+                    - keyword: END
+        - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '2'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '2'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'c'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'d'"
+                    - keyword: END
+        - statement_terminator: ;
+        - keyword: ELSEIF
+        - bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '3'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '3'
+            end_bracket: )
+        - keyword: THEN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+        - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '3'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '3'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'e'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'f'"
+                    - keyword: END
+        - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+        - statement_terminator: ;
+        - keyword: ELSE
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - numeric_literal: '4'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - numeric_literal: '4'
+                      - keyword: THEN
+                      - expression:
+                          quoted_literal: "'g'"
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          quoted_literal: "'h'"
+                    - keyword: END
+        - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '3'
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
