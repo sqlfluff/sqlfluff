@@ -1,0 +1,264 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c83f021a78235dc12d27e49f59f0fcb7bbad4e35fb5743556fc90b0ebe4d6977
+file:
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: sum
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          scripting_for_statement:
+          - keyword: FOR
+          - naked_identifier: row
+          - keyword: AS
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: num
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      function:
+                        function_name:
+                          function_name_identifier: range
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              numeric_literal: '1'
+                          - comma: ','
+                          - expression:
+                              numeric_literal: '20'
+                          - end_bracket: )
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: t
+                      bracketed:
+                        start_bracket: (
+                        identifier_list:
+                          naked_identifier: num
+                        end_bracket: )
+          - keyword: DO
+          - scripting_body:
+              statement:
+                set_statement:
+                  keyword: SET
+                  property_name_identifier:
+                    properties_naked_identifier: sum
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  set_config_value:
+                  - word: sum
+                  - plus: +
+                  - word: row
+                  - dot: .
+                  - word: num
+              statement_terminator: ;
+          - keyword: END
+          - keyword: FOR
+      - statement_terminator: ;
+      - statement:
+          values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: sum
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: num
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          scripting_loop_statement:
+          - scripting_label:
+              naked_identifier: sumNumbers
+              colon: ':'
+          - keyword: LOOP
+          - scripting_body:
+            - statement:
+                set_statement:
+                  keyword: SET
+                  property_name_identifier:
+                    properties_naked_identifier: num
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  set_config_value:
+                    word: num
+                    plus: +
+                    numeric_literal: '1'
+            - statement_terminator: ;
+            - statement:
+                scripting_if_statement:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: num
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '10'
+                - keyword: THEN
+                - scripting_body:
+                    statement:
+                      scripting_leave_statement:
+                        keyword: LEAVE
+                        naked_identifier: sumNumbers
+                    statement_terminator: ;
+                - keyword: END
+                - keyword: IF
+            - statement_terminator: ;
+            - statement:
+                scripting_if_statement:
+                - keyword: IF
+                - expression:
+                  - column_reference:
+                      naked_identifier: num
+                  - binary_operator: '%'
+                  - numeric_literal: '2'
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - numeric_literal: '0'
+                - keyword: THEN
+                - scripting_body:
+                    statement:
+                      scripting_iterate_statement:
+                        keyword: ITERATE
+                        naked_identifier: sumNumbers
+                    statement_terminator: ;
+                - keyword: END
+                - keyword: IF
+            - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - naked_identifier: sumNumbers
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: num
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          scripting_while_statement:
+          - scripting_label:
+              naked_identifier: sumNumbers
+              colon: ':'
+          - keyword: WHILE
+          - expression:
+              column_reference:
+                naked_identifier: num
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '10'
+          - keyword: DO
+          - scripting_body:
+              statement:
+                set_statement:
+                  keyword: SET
+                  property_name_identifier:
+                    properties_naked_identifier: num
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  set_config_value:
+                    word: num
+                    plus: +
+                    numeric_literal: '1'
+              statement_terminator: ;
+          - keyword: END
+          - keyword: WHILE
+          - naked_identifier: sumNumbers
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: num
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          scripting_repeat_statement:
+          - scripting_label:
+              naked_identifier: sumNumbers
+              colon: ':'
+          - keyword: REPEAT
+          - scripting_body:
+              statement:
+                set_statement:
+                  keyword: SET
+                  property_name_identifier:
+                    properties_naked_identifier: num
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  set_config_value:
+                    word: num
+                    plus: +
+                    numeric_literal: '1'
+              statement_terminator: ;
+          - keyword: UNTIL
+          - expression:
+              column_reference:
+                naked_identifier: num
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '10'
+          - keyword: END
+          - keyword: REPEAT
+          - naked_identifier: sumNumbers
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

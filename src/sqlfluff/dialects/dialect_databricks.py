@@ -1675,12 +1675,438 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     )
 
 
+class ScriptingLabelGrammar(BaseSegment):
+    """An optional `label :` prefix for a scripting statement."""
+
+    type = "scripting_label"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("ColonSegment"),
+    )
+
+
+class ScriptingBodyGrammar(BaseSegment):
+    """A `{ statement ; } [...]` body of a scripting statement."""
+
+    type = "scripting_body"
+    match_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+        min_times=1,
+    )
+
+
+class ScriptingConditionValuesGrammar(BaseSegment):
+    """`condition_values` of a handler declaration."""
+
+    type = "scripting_condition_values"
+    match_grammar = OneOf(
+        "SQLEXCEPTION",
+        Sequence("NOT", "FOUND"),
+        Delimited(
+            OneOf(
+                Sequence(
+                    "SQLSTATE",
+                    Ref.keyword("VALUE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Ref("SingleIdentifierGrammar"),
+            )
+        ),
+    )
+
+
+class ScriptingDeclareStatementSegment(BaseSegment):
+    """A `DECLARE` statement inside a scripting block.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/compound-stmt
+    """
+
+    type = "scripting_declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        OneOf(
+            # DECLARE handler_type HANDLER FOR condition_values handler_action
+            Sequence(
+                OneOf("EXIT", "CONTINUE"),
+                "HANDLER",
+                "FOR",
+                Ref("ScriptingConditionValuesGrammar"),
+                Ref("StatementSegment"),
+            ),
+            # DECLARE condition_name CONDITION [ FOR SQLSTATE [ VALUE ] sqlstate ]
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                "CONDITION",
+                Sequence(
+                    "FOR",
+                    "SQLSTATE",
+                    Ref.keyword("VALUE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # DECLARE cursor_name [ ASENSITIVE | INSENSITIVE ] CURSOR FOR query
+            # [ FOR READ ONLY ]
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                OneOf("ASENSITIVE", "INSENSITIVE", optional=True),
+                "CURSOR",
+                "FOR",
+                Ref("SelectableGrammar"),
+                Sequence("FOR", "READ", "ONLY", optional=True),
+            ),
+            # DECLARE variable_name [, ...] data_type
+            # [ { DEFAULT | = } default_expression ]
+            Sequence(
+                Delimited(Ref("SingleIdentifierGrammar")),
+                Ref("DatatypeSegment", optional=True),
+                Sequence(
+                    OneOf("DEFAULT", Ref("EqualsSegment")),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class ScriptingIfStatementSegment(BaseSegment):
+    """An `IF ... THEN ... END IF` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/if-stmt
+    """
+
+    type = "scripting_if_statement"
+    match_grammar = Sequence(
+        "IF",
+        Ref("ExpressionSegment"),
+        "THEN",
+        Ref("ScriptingBodyGrammar"),
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Ref("ScriptingBodyGrammar"),
+            )
+        ),
+        Sequence("ELSE", Ref("ScriptingBodyGrammar"), optional=True),
+        "END",
+        "IF",
+    )
+
+
+class ScriptingCaseStatementSegment(BaseSegment):
+    """A `CASE ... END CASE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/case-stmt
+    """
+
+    type = "scripting_case_statement"
+    match_grammar = Sequence(
+        "CASE",
+        OneOf(
+            # Simple CASE: an operand followed by the WHEN branches.
+            Sequence(
+                Ref("ExpressionSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        "WHEN",
+                        Ref("ExpressionSegment"),
+                        "THEN",
+                        Ref("ScriptingBodyGrammar"),
+                    ),
+                    min_times=1,
+                ),
+            ),
+            # Searched CASE: no operand, only the WHEN branches.
+            AnyNumberOf(
+                Sequence(
+                    "WHEN",
+                    Ref("ExpressionSegment"),
+                    "THEN",
+                    Ref("ScriptingBodyGrammar"),
+                ),
+                min_times=1,
+            ),
+        ),
+        Sequence("ELSE", Ref("ScriptingBodyGrammar"), optional=True),
+        "END",
+        "CASE",
+    )
+
+
+class ScriptingWhileStatementSegment(BaseSegment):
+    """A `WHILE ... DO ... END WHILE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/while-stmt
+    """
+
+    type = "scripting_while_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "WHILE",
+        Ref("ExpressionSegment"),
+        "DO",
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        "WHILE",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingLoopStatementSegment(BaseSegment):
+    """A `LOOP ... END LOOP` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/loop-stmt
+    """
+
+    type = "scripting_loop_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "LOOP",
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        "LOOP",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingRepeatStatementSegment(BaseSegment):
+    """A `REPEAT ... UNTIL ... END REPEAT` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/repeat-stmt
+    """
+
+    type = "scripting_repeat_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "REPEAT",
+        Ref("ScriptingBodyGrammar"),
+        "UNTIL",
+        Ref("ExpressionSegment"),
+        "END",
+        "REPEAT",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingForStatementSegment(BaseSegment):
+    """A `FOR ... DO ... END FOR` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/for-stmt
+    """
+
+    type = "scripting_for_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "FOR",
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "AS",
+            optional=True,
+        ),
+        Ref("SelectableGrammar", terminators=[Ref.keyword("DO")]),
+        "DO",
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        "FOR",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingLeaveStatementSegment(BaseSegment):
+    """A `LEAVE label` statement."""
+
+    type = "scripting_leave_statement"
+    match_grammar = Sequence("LEAVE", Ref("SingleIdentifierGrammar"))
+
+
+class ScriptingIterateStatementSegment(BaseSegment):
+    """An `ITERATE label` statement."""
+
+    type = "scripting_iterate_statement"
+    match_grammar = Sequence("ITERATE", Ref("SingleIdentifierGrammar"))
+
+
+class ScriptingResignalStatementSegment(BaseSegment):
+    """A `RESIGNAL` statement."""
+
+    type = "scripting_resignal_statement"
+    match_grammar = Sequence("RESIGNAL")
+
+
+class ScriptingSignalStatementSegment(BaseSegment):
+    """A `SIGNAL` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/signal-stmt
+    """
+
+    type = "scripting_signal_statement"
+    match_grammar = Sequence(
+        "SIGNAL",
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "SET",
+                    OneOf(
+                        Sequence(
+                            "MESSAGE_ARGUMENTS",
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                        Sequence(
+                            "MESSAGE_TEXT",
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SQLSTATE",
+                Ref.keyword("VALUE", optional=True),
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "SET",
+                    "MESSAGE_TEXT",
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class ScriptingGetDiagnosticsStatementSegment(BaseSegment):
+    """A `GET DIAGNOSTICS` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/get-diagnostics-stmt
+    """
+
+    type = "scripting_get_diagnostics_statement"
+    match_grammar = Sequence(
+        "GET",
+        "DIAGNOSTICS",
+        Sequence(
+            "CONDITION",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    "MESSAGE_TEXT",
+                    "RETURNED_SQLSTATE",
+                    "MESSAGE_ARGUMENTS",
+                    "CONDITION_IDENTIFIER",
+                    "LINE_NUMBER",
+                    "TRANSACTION_ACTIVE",
+                    "ROW_COUNT",
+                ),
+            )
+        ),
+    )
+
+
+class ScriptingBlockStatementSegment(BaseSegment):
+    """A `BEGIN [ATOMIC] ... END` compound statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/compound-stmt
+    """
+
+    type = "scripting_block_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "BEGIN",
+        Ref.keyword("ATOMIC", optional=True),
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ProcedureParameterGrammar(BaseSegment):
+    """A parameter of a `CREATE PROCEDURE` statement."""
+
+    type = "procedure_parameter"
+    match_grammar = Sequence(
+        Ref.keyword("INOUT", optional=True),
+        Ref.keyword("OUT", optional=True),
+        Ref.keyword("IN", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        Ref("CommentGrammar", optional=True),
+    )
+
+
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    """
+
+    type = "create_procedure_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(Ref("ProcedureParameterGrammar")),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence("LANGUAGE", OneOf("SQL", "PYTHON", "SCALA", "JAVA")),
+            Sequence("SQL", "SECURITY", OneOf("INVOKER", "DEFINER")),
+            Sequence("NOT", "DETERMINISTIC"),
+            Ref("CommentGrammar"),
+            Sequence(
+                "DEFAULT",
+                "COLLATION",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence("MODIFIES", "SQL", "DATA"),
+        ),
+        "AS",
+        Ref("StatementSegment"),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = sparksql.StatementSegment.match_grammar.copy(
         # Segments defined in Databricks SQL dialect
         insert=[
+            Ref("ScriptingBlockStatementSegment"),
+            Ref("ScriptingDeclareStatementSegment"),
+            Ref("ScriptingIfStatementSegment"),
+            Ref("ScriptingCaseStatementSegment"),
+            Ref("ScriptingWhileStatementSegment"),
+            Ref("ScriptingLoopStatementSegment"),
+            Ref("ScriptingRepeatStatementSegment"),
+            Ref("ScriptingForStatementSegment"),
+            Ref("ScriptingLeaveStatementSegment"),
+            Ref("ScriptingIterateStatementSegment"),
+            Ref("ScriptingResignalStatementSegment"),
+            Ref("ScriptingSignalStatementSegment"),
+            Ref("ScriptingGetDiagnosticsStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
             # Unity Catalog
             Ref("AlterCatalogStatementSegment"),
             Ref("CreateCatalogStatementSegment"),

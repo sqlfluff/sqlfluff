@@ -1,0 +1,139 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f1b9d9bba5fa82d9e2d5115cb04a330edd4ec986dcd422dce4b88369f1d4781a
+file:
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - keyword: ATOMIC
+    - scripting_body:
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: accounts
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Alice'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '1000'
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          update_statement:
+            keyword: UPDATE
+            table_reference:
+              naked_identifier: accounts
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: balance
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: balance
+                  binary_operator: +
+                  numeric_literal: '100'
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1'
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: a
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '1'
+      - statement_terminator: ;
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: b
+          - comma: ','
+          - naked_identifier: c
+          - data_type:
+              primitive_type:
+                keyword: STRING
+      - statement_terminator: ;
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: my_error
+          - keyword: CONDITION
+          - keyword: FOR
+          - keyword: SQLSTATE
+          - quoted_literal: "'45000'"
+      - statement_terminator: ;
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - keyword: EXIT
+          - keyword: HANDLER
+          - keyword: FOR
+          - scripting_condition_values:
+              naked_identifier: DIVIDE_BY_ZERO
+          - statement:
+              scripting_block_statement:
+              - keyword: BEGIN
+              - scripting_body:
+                  statement:
+                    values_clause:
+                      keyword: VALUES
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '0'
+                        end_bracket: )
+                  statement_terminator: ;
+              - keyword: END
+      - statement_terminator: ;
+      - statement:
+          set_statement:
+            keyword: SET
+            property_name_identifier:
+              properties_naked_identifier: a
+            comparison_operator:
+              raw_comparison_operator: '='
+            set_config_value:
+              numeric_literal: '10'
+      - statement_terminator: ;
+      - statement:
+          values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

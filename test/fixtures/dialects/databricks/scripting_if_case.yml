@@ -1,0 +1,189 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f96562f7349a27edecb11d2a2ecbc60b019e0643b0b90a1fe137d9a59a9573e
+file:
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+      - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - naked_identifier: choice
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '3'
+      - statement_terminator: ;
+      - statement:
+          scripting_if_statement:
+          - keyword: IF
+          - expression:
+              column_reference:
+                naked_identifier: choice
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '2'
+          - keyword: THEN
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: ELSEIF
+          - expression:
+              column_reference:
+                naked_identifier: choice
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '4'
+          - keyword: THEN
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '2'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: ELSE
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+        statement:
+          scripting_case_statement:
+          - keyword: CASE
+          - expression:
+              column_reference:
+                naked_identifier: choice
+          - keyword: WHEN
+          - expression:
+              numeric_literal: '1'
+          - keyword: THEN
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: WHEN
+          - expression:
+              numeric_literal: '2'
+          - keyword: THEN
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '2'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: ELSE
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: END
+          - keyword: CASE
+        statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - scripting_body:
+        statement:
+          scripting_case_statement:
+          - keyword: CASE
+          - keyword: WHEN
+          - expression:
+              column_reference:
+                naked_identifier: choice
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '2'
+          - keyword: THEN
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: WHEN
+          - expression:
+              column_reference:
+                naked_identifier: choice
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '4'
+          - keyword: THEN
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '2'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: ELSE
+          - scripting_body:
+              statement:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+              statement_terminator: ;
+          - keyword: END
+          - keyword: CASE
+        statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

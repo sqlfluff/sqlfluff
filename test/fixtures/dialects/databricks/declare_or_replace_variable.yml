@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a909a5d34c442da8af91bc06cc01ebc5cb8eee405f364a38d3f0ccb1831337a
+_hash: 55ef15b53f6a0b3f97a4bf4564acd89b1f87dea6cfb18b08b9e614521136b653
 file:
 - statement:
-    declare_or_replace_variable_statement:
+    scripting_declare_statement:
       keyword: DECLARE
       naked_identifier: var
 - statement_terminator: ;
@@ -26,7 +26,7 @@ file:
     - naked_identifier: var
 - statement_terminator: ;
 - statement:
-    declare_or_replace_variable_statement:
+    scripting_declare_statement:
     - keyword: DECLARE
     - naked_identifier: var
     - data_type:
@@ -37,7 +37,7 @@ file:
         numeric_literal: '5'
 - statement_terminator: ;
 - statement:
-    declare_or_replace_variable_statement:
+    scripting_declare_statement:
       keyword: DECLARE
       naked_identifier: var
       data_type:
@@ -49,7 +49,7 @@ file:
         numeric_literal: '5'
 - statement_terminator: ;
 - statement:
-    declare_or_replace_variable_statement:
+    scripting_declare_statement:
       keyword: DECLARE
       naked_identifier: var
       comparison_operator:
@@ -58,7 +58,7 @@ file:
         numeric_literal: '5'
 - statement_terminator: ;
 - statement:
-    declare_or_replace_variable_statement:
+    scripting_declare_statement:
     - keyword: DECLARE
     - naked_identifier: var
     - keyword: DEFAULT
