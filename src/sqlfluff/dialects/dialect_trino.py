@@ -590,6 +590,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("MergeStatementSegment"),
         Ref("SelectableGrammar"),
         Ref("SetSchemaStatementSegment"),
+        Ref("ShowStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("UseStatementSegment"),
@@ -620,6 +621,165 @@ class AnalyzeStatementSegment(BaseSegment):
                 ),
             ),
             optional=True,
+        ),
+    )
+
+
+class DescribeStatementSegment(BaseSegment):
+    """A `DESCRIBE` statement.
+
+    `DESCRIBE <table>` is an alias for `SHOW COLUMNS FROM <table>`, while
+    `DESCRIBE INPUT|OUTPUT` describes a prepared statement.
+
+    https://trino.io/docs/current/sql/describe.html
+    https://trino.io/docs/current/sql/describe-input.html
+    https://trino.io/docs/current/sql/describe-output.html
+    """
+
+    type = "describe_statement"
+    match_grammar = OneOf(
+        Sequence(
+            "DESCRIBE",
+            OneOf("INPUT", "OUTPUT"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence(
+            OneOf("DESCRIBE", "DESC"),
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
+    """An `EXPLAIN` statement.
+
+    https://trino.io/docs/current/sql/explain.html
+    https://trino.io/docs/current/sql/explain-analyze.html
+    """
+
+    match_grammar = Sequence(
+        "EXPLAIN",
+        OneOf(
+            Sequence("ANALYZE", Ref.keyword("VERBOSE", optional=True)),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Sequence("FORMAT", OneOf("TEXT", "GRAPHVIZ", "JSON")),
+                        Sequence(
+                            "TYPE",
+                            OneOf("LOGICAL", "DISTRIBUTED", "VALIDATE", "IO"),
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        ansi.ExplainStatementSegment.explainable_stmt,
+    )
+
+
+class ShowStatementSegment(BaseSegment):
+    """A `SHOW` statement.
+
+    https://trino.io/docs/current/sql/show-catalogs.html
+    https://trino.io/docs/current/sql/show-columns.html
+    https://trino.io/docs/current/sql/show-create-table.html
+    https://trino.io/docs/current/sql/show-functions.html
+    https://trino.io/docs/current/sql/show-grants.html
+    https://trino.io/docs/current/sql/show-roles.html
+    https://trino.io/docs/current/sql/show-schemas.html
+    https://trino.io/docs/current/sql/show-session.html
+    https://trino.io/docs/current/sql/show-stats.html
+    https://trino.io/docs/current/sql/show-tables.html
+    """
+
+    type = "show_statement"
+
+    _like_clause = Sequence(
+        "LIKE",
+        Ref("QuotedLiteralSegment"),
+        Sequence("ESCAPE", Ref("QuotedLiteralSegment"), optional=True),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            Sequence("CATALOGS", _like_clause),
+            Sequence("SESSION", _like_clause),
+            Sequence(
+                "COLUMNS",
+                OneOf("FROM", "IN"),
+                Ref("TableReferenceSegment"),
+                _like_clause,
+            ),
+            Sequence(
+                "CREATE",
+                OneOf(
+                    Sequence(
+                        OneOf("TABLE", "VIEW", Sequence("MATERIALIZED", "VIEW")),
+                        Ref("TableReferenceSegment"),
+                    ),
+                    Sequence("SCHEMA", Ref("SchemaReferenceSegment")),
+                    Sequence("FUNCTION", Ref("FunctionNameSegment")),
+                ),
+            ),
+            Sequence(
+                "FUNCTIONS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("SchemaReferenceSegment"),
+                    optional=True,
+                ),
+                _like_clause,
+            ),
+            Sequence(
+                "GRANTS",
+                Sequence(
+                    "ON",
+                    Ref.keyword("TABLE", optional=True),
+                    Ref("TableReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                OneOf(
+                    "ROLES",
+                    Sequence("CURRENT", "ROLES"),
+                    Sequence("ROLE", "GRANTS"),
+                ),
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SCHEMAS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_clause,
+            ),
+            Sequence(
+                "STATS",
+                "FOR",
+                OneOf(
+                    Ref("TableReferenceSegment"),
+                    Bracketed(Ref("SelectableGrammar")),
+                ),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("SchemaReferenceSegment"),
+                    optional=True,
+                ),
+                _like_clause,
+            ),
         ),
     )
 
