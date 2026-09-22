@@ -1,0 +1,147 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 74d22fea5380ae97a5a2ffca0a48df9031fb9c7fa93d3270f685c295fc099948
+file:
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: CATALOG
+    - keyword: EXTENDED
+    - catalog_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CREDENTIAL
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: STORAGE
+    - keyword: CREDENTIAL
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - object_reference:
+        naked_identifier: l
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: FUNCTION
+    - keyword: EXTENDED
+    - function_name:
+        function_name_identifier: f
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: p
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: p
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: PROCEDURE
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: PROCEDURE
+    - keyword: EXTENDED
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: PROVIDER
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: RECIPIENT
+    - object_reference:
+        naked_identifier: r
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SCHEMA
+    - keyword: EXTENDED
+    - database_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: v
+- statement_terminator: ;

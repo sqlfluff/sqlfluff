@@ -1,0 +1,196 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2d5096dfcd54203bdc99b1236321728e7bac5f82408105da4cf0a5f90520e4d0
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CATALOGS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CATALOGS
+    - keyword: LIKE
+    - quoted_literal: "'pay*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CONNECTIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREDENTIALS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: CREDENTIALS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SERVICE
+    - keyword: CREDENTIALS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EXTERNAL
+    - keyword: LOCATIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GROUPS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GROUPS
+    - keyword: WITH
+    - keyword: USER
+    - object_reference:
+        quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GROUPS
+    - keyword: WITH
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: g
+    - keyword: LIKE
+    - quoted_literal: "'a*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: POLICIES
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EFFECTIVE
+    - keyword: POLICIES
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROCEDURES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROCEDURES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROVIDERS
+    - keyword: LIKE
+    - quoted_literal: "'other_org'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: RECIPIENTS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SHARES
+    - keyword: LIKE
+    - quoted_literal: "'a*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SHARES
+    - keyword: IN
+    - keyword: PROVIDER
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: DROPPED
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: DROPPED
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: c
+      - dot: .
+      - naked_identifier: s
+    - keyword: LIMIT
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USERS
+    - keyword: LIKE
+    - quoted_literal: "'*SEr*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: shared_date
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: TO
+    - keyword: RECIPIENT
+    - object_reference:
+        naked_identifier: a_corp
+- statement_terminator: ;
