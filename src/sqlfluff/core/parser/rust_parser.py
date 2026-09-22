@@ -326,6 +326,15 @@ try:
 
                 # PYTHON PARITY: If there are unmatched code segments, wrap them in
                 # UnparsableSegment. This matches the logic in FileSegment.root_parse()
+                # Anchor the failure at the furthest token the Rust parser reached,
+                # if it recorded one (token indices are relative to code_segments).
+                _rust_failure_idx = self._rs_parser.furthest_failure
+                _failure_segment = (
+                    code_segments[_rust_failure_idx]
+                    if _rust_failure_idx is not None
+                    and 0 <= _rust_failure_idx < len(code_segments)
+                    else None
+                )
                 content: tuple[BaseSegment, ...]
                 if not _match_truthy:
                     parse_context.increment_parse_nodes()
@@ -333,6 +342,7 @@ try:
                         UnparsableSegment(
                             segments[_start_idx:_end_idx],
                             expected=str(self.RootSegment.match_grammar),
+                            failure_segment=_failure_segment,
                         ),
                     )
                 elif _unmatched:
@@ -351,6 +361,7 @@ try:
                             UnparsableSegment(
                                 _unmatched[_idx:],
                                 expected="Nothing else in FileSegment.",
+                                failure_segment=_failure_segment,
                             ),
                         )
                     )

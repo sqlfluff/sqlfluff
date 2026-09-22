@@ -1315,3 +1315,40 @@ def test__linter__large_file_skip_fail_config(
     # But if large_file_skip_fail is set, the CLI would bump this to 1.
     would_fail = bool(result.files_skipped and config.get("large_file_skip_fail"))
     assert would_fail == expected_would_fail
+
+
+@pytest.mark.parametrize("use_rust", [False, True])
+def test__linter__furthest_failure_anchor(use_rust):
+    """Parse failures can optionally be anchored at the furthest failure.
+
+    A root-shape parse failure is normally anchored at the start of the
+    enclosing unparsable section (here line 1, position 1). With
+    `core.furthest_failure_anchor` enabled the violation is anchored where
+    the parser actually got to instead. Both engines must agree.
+    """
+    sql = "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte"
+    overrides = {"dialect": "ansi", "use_rust_parser": use_rust}
+
+    default = Linter(config=FluffConfig(overrides=overrides)).parse_string(sql)
+    assert [(v.line_no, v.line_pos) for v in default.violations] == [(1, 1)]
+
+    anchored_config = FluffConfig(
+        overrides={**overrides, "furthest_failure_anchor": True}
+    )
+    anchored = Linter(config=anchored_config).parse_string(sql)
+    assert [(v.line_no, v.line_pos) for v in anchored.violations] == [(2, 1)]
+
+
+def test__linter__furthest_failure_anchor_cache_stable():
+    """The recorded furthest failure does not depend on parse cache warmth.
+
+    The recorder is a monotonic high-water mark, so a repeated parse (and a
+    cache hit that doesn't re-enter the handler) must not move the anchor.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi", "furthest_failure_anchor": True})
+    linter = Linter(config=config)
+    sql = "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte"
+    first = linter.parse_string(sql)
+    second = linter.parse_string(sql)
+    assert [v.desc() for v in first.violations] == [v.desc() for v in second.violations]
+    assert [(v.line_no, v.line_pos) for v in second.violations] == [(2, 1)]

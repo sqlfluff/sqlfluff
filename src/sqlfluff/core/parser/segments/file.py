@@ -92,12 +92,24 @@ class BaseFileSegment(BaseSegment):
         _matched = match.apply(segments, parse_context=parse_context)
         _unmatched = segments[match.matched_slice.stop : _end_idx]
 
+        # If the parser recorded where it got to before failing, keep a
+        # reference to that segment so a parse failure can be anchored there
+        # rather than at the (much less useful) start of the file.
+        _failure_idx = parse_context.furthest_failure
+        _failure_segment = (
+            segments[_failure_idx]
+            if _failure_idx is not None and 0 <= _failure_idx < len(segments)
+            else None
+        )
+
         content: tuple[BaseSegment, ...]
         if not match:
             parse_context.increment_parse_nodes()
             content = (
                 UnparsableSegment(
-                    segments[_start_idx:_end_idx], expected=str(cls.match_grammar)
+                    segments[_start_idx:_end_idx],
+                    expected=str(cls.match_grammar),
+                    failure_segment=_failure_segment,
                 ),
             )
         elif _unmatched:
@@ -111,7 +123,9 @@ class BaseFileSegment(BaseSegment):
                 + _unmatched[:_idx]
                 + (
                     UnparsableSegment(
-                        _unmatched[_idx:], expected="Nothing else in FileSegment."
+                        _unmatched[_idx:],
+                        expected="Nothing else in FileSegment.",
+                        failure_segment=_failure_segment,
                     ),
                 )
             )
