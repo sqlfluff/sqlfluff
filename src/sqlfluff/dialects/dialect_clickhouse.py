@@ -105,6 +105,12 @@ clickhouse_dialect.insert_lexer_matchers(
     before="numeric_literal",
 )
 
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/reference/operators#is-not-distinct-from
+    [StringLexer("is_not_distinct_from", "<=>", CodeSegment)],
+    before="less_than",
+)
+
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
@@ -170,6 +176,9 @@ clickhouse_dialect.add(
     RawDoubleEqualsSegment=StringParser(
         "==", SymbolSegment, type="raw_comparison_operator"
     ),
+    RawIsNotDistinctFromSegment=StringParser(
+        "<=>", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -195,6 +204,7 @@ clickhouse_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
         Ref("IsDistinctFromGrammar"),
+        Ref("IsNotDistinctFromSegment"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
@@ -494,6 +504,12 @@ class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
     """Double equals operator."""
 
     match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
+
+
+class IsNotDistinctFromSegment(CompositeComparisonOperatorSegment):
+    """IS NOT DISTINCT FROM operator (<=>)."""
+
+    match_grammar: Matchable = Ref("RawIsNotDistinctFromSegment")
 
 
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
