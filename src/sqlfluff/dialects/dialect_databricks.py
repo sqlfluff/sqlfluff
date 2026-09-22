@@ -2424,7 +2424,8 @@ class CreateFlowStatementSegment(BaseSegment):
                 Dedent,
                 Ref("CDCSpecificationSegment"),
             ),
-            # INSERT [ONCE] INTO [ONCE] target BY NAME [REPLACE USING (...)]
+            # INSERT [ONCE] INTO [ONCE] target BY NAME
+            # [REPLACE USING (...) SEQUENCE BY col]
             # query -- an append flow, which is how a pipeline points several
             # sources at one streaming table.
             #
@@ -2475,6 +2476,9 @@ class CreateFlowStatementSegment(BaseSegment):
                     "REPLACE",
                     "USING",
                     Ref("BracketedColumnReferenceListGrammar"),
+                    "SEQUENCE",
+                    "BY",
+                    Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),
                 Ref("SelectableGrammar"),

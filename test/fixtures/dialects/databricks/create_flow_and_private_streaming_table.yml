@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 826a873b27a9f9eb3fdede9e2c8605ca254e30376d9eedec93c9217637eb726c
+_hash: 824e85992ef8a768b360901f456e7e83bb0b422ba66e3114f68a5915e22b2152
 file:
 - statement:
     create_table_statement:
@@ -357,6 +357,10 @@ file:
         column_reference:
           naked_identifier: event_date
         end_bracket: )
+    - keyword: SEQUENCE
+    - keyword: BY
+    - column_reference:
+        naked_identifier: event_time
     - select_statement:
         select_clause:
           keyword: SELECT
