@@ -1,0 +1,86 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ab3c2da261a1688d135dd47c3a21d42b8c95133297531f18122aeecf0bd7f1e9
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      offset_clause:
+        keyword: OFFSET
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      limit_clause:
+      - keyword: LIMIT
+      - keyword: ALL
+      - offset_clause:
+          keyword: OFFSET
+          numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      offset_clause:
+        keyword: OFFSET
+        expression:
+          function:
+            function_name:
+              function_name_identifier: length
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'SPARK'"
+                end_bracket: )
+- statement_terminator: ;

@@ -59,3 +59,30 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 def test_private_requires_streaming_table(sql: str) -> None:
     """PRIVATE is only valid on a streaming table, not on a table."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param("SELECT * FROM t OFFSET;", id="offset_without_expression"),
+        pytest.param(
+            "SELECT * FROM test TABLESAMPLE ();", id="tablesample_without_sample"
+        ),
+        pytest.param(
+            "SELECT * FROM test TABLESAMPLE (30 PERCENT) REPEATABLE ();",
+            id="repeatable_without_seed",
+        ),
+        pytest.param(
+            "SELECT * FROM t MATCH_RECOGNIZE (DEFINE a AS TRUE);",
+            id="match_recognize_without_pattern",
+        ),
+        pytest.param("SELECT * FROM t WITH();", id="table_options_empty"),
+        pytest.param(
+            "WITH RECURSIVE r(n) MAX RECURSION LEVEL AS (VALUES (1)) SELECT * FROM r;",
+            id="cte_recursion_without_level",
+        ),
+    ],
+)
+def test_query_surface_rejections(sql: str) -> None:
+    """Query-surface boundaries: OFFSET, sampling, MATCH_RECOGNIZE, and WITH."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
