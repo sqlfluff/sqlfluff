@@ -59,3 +59,46 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 def test_private_requires_streaming_table(sql: str) -> None:
     """PRIVATE is only valid on a streaming table, not on a table."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE OR REFRESH STREAMING TABLE t FLOW INSERT SELECT * FROM STREAM s;",
+            id="flow_insert_without_by_name",
+        ),
+        pytest.param(
+            "CREATE OR REFRESH STREAMING TABLE t "
+            "FLOW REPLACE USING (c) BY NAME SELECT * FROM STREAM s;",
+            id="flow_replace_using_without_sequence_by",
+        ),
+        pytest.param(
+            "CREATE OR REFRESH STREAMING TABLE t "
+            "FLOW REPLACE USING (c) SEQUENCE BY d SELECT * FROM STREAM s;",
+            id="flow_replace_using_without_by_name",
+        ),
+        pytest.param(
+            "CREATE OR REFRESH STREAMING TABLE t "
+            "FLOW SEQUENCE BY d BY NAME SELECT * FROM STREAM s;",
+            id="flow_sequence_by_without_replace_using",
+        ),
+        pytest.param(
+            "CREATE TABLE t FLOW INSERT BY NAME SELECT * FROM STREAM s;",
+            id="flow_without_streaming",
+        ),
+        pytest.param(
+            "CREATE PRIVATE TABLE t FLOW INSERT BY NAME SELECT * FROM STREAM s;",
+            id="flow_with_private_without_streaming",
+        ),
+    ],
+)
+def test_inline_flow_requires_streaming_and_a_bound_spec(sql: str) -> None:
+    """An inline FLOW is only valid on a streaming table, and its spec binds.
+
+    `REPLACE USING (...)` and `SEQUENCE BY` are required together, and the
+    append form takes `BY NAME`. These are the boundaries #8509 missed for the
+    standalone statement, so they are asserted here rather than left to the
+    fixture, which cannot express a rejection.
+    """
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
