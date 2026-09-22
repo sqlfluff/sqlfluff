@@ -787,10 +787,29 @@ class UseDatabaseStatementSegment(sparksql.UseDatabaseStatementSegment):
     """
 
     type = "use_database_statement"
+    _name = Delimited(
+        OneOf(
+            Ref("BackQuotedIdentifierSegment"),
+            Ref("IdentifierClauseSegment"),
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                IdentifierSegment,
+                type="naked_identifier",
+                anti_template=r"(?:SCHEMA|DATABASE)$",
+            ),
+        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+    )
+
     match_grammar = Sequence(
         "USE",
-        OneOf("DATABASE", "SCHEMA", optional=True),
-        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence(
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            _name,
+        ),
     )
 
 
@@ -1646,6 +1665,8 @@ class LimitClauseSegment(sparksql.LimitClauseSegment):
             Ref("ParameterizedSegment"),  # Add support for parameters
         ),
         Dedent,
+        # Databricks orders `LIMIT ... OFFSET ...`.
+        Ref("OffsetClauseSegment", optional=True),
     )
 
 
@@ -1675,12 +1696,344 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     )
 
 
+databricks_dialect.replace(
+    # OFFSET is a legal column name, so it is not a FROM terminator; the
+    # alias grammar excludes it explicitly instead.
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        Ref("LimitClauseSegment"),
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Sequence("CLUSTER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        Sequence("SORT", "BY"),
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+        "FETCH",
+    ),
+)
+
+databricks_dialect.replace(
+    PostTableExpressionGrammar=OneOf(
+        Ref("TableOptionsSegment"),
+        Ref("MatchRecognizeSegment"),
+    ),
+)
+
+
+class FromExpressionElementSegment(sparksql.FromExpressionElementSegment):
+    """A table expression, extended so an alias may follow `MATCH_RECOGNIZE`.
+
+    `PostTableExpressionGrammar` is where the clause is matched, which is after
+    the table's own alias; a trailing alias therefore needs a second slot. The
+    alias excludes the clause keywords Databricks keeps unreserved, so they are
+    not consumed as implicit aliases.
+    """
+
+    _alias_exclude = OneOf(
+        Ref("FromClauseTerminatorGrammar"),
+        Ref("JoinLikeClauseGrammar"),
+        Ref.keyword("OFFSET"),
+        Ref.keyword("LIMIT"),
+        Ref.keyword("CLUSTER"),
+        Ref.keyword("DISTRIBUTE"),
+        Ref.keyword("SORT"),
+    )
+
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=_alias_exclude,
+            optional=True,
+        ),
+        Ref("PostTableExpressionGrammar", optional=True),
+        # A table alias may follow a MATCH_RECOGNIZE clause.
+        Ref(
+            "AliasExpressionSegment",
+            exclude=_alias_exclude,
+            optional=True,
+        ),
+    )
+
+
+class OffsetClauseSegment(ansi.OffsetClauseSegment):
+    """An `OFFSET` clause.
+
+    Databricks does not require the ANSI `ROW`/`ROWS` keyword after the count.
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-offset
+    """
+
+    match_grammar = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+        ),
+        OneOf("ROW", "ROWS", optional=True),
+    )
+
+
+class SamplingExpressionSegment(sparksql.SamplingExpressionSegment):
+    """A `TABLESAMPLE` clause, with the optional `REPEATABLE` seed."""
+
+    match_grammar = sparksql.SamplingExpressionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "REPEATABLE",
+                Bracketed(Ref("NumericLiteralSegment")),
+                optional=True,
+            )
+        ],
+    )
+
+
+class MatchRecognizeSegment(BaseSegment):
+    """A `MATCH_RECOGNIZE` clause.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-match-recognize
+    """
+
+    type = "match_recognize"
+    match_grammar = Sequence(
+        "MATCH_RECOGNIZE",
+        Bracketed(
+            Sequence(
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    Delimited(Ref("ExpressionSegment")),
+                    optional=True,
+                ),
+                Sequence(
+                    "ORDER",
+                    "BY",
+                    Delimited(Ref("ExpressionSegment")),
+                    optional=True,
+                ),
+                Sequence(
+                    "MEASURES",
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            "AS",
+                            Ref("SingleIdentifierGrammar"),
+                        )
+                    ),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence("ONE", "ROW", "PER", "MATCH"),
+                    Sequence(
+                        "ALL",
+                        "ROWS",
+                        "PER",
+                        "MATCH",
+                        Sequence("SHOW", "EMPTY", "MATCHES", optional=True),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "AFTER",
+                    "MATCH",
+                    "SKIP",
+                    "PAST",
+                    "LAST",
+                    "ROW",
+                    optional=True,
+                ),
+                "PATTERN",
+                Bracketed(Anything()),
+                "DEFINE",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "AS",
+                        Ref("ExpressionSegment"),
+                    )
+                ),
+            )
+        ),
+    )
+
+
+class TableOptionsSegment(BaseSegment):
+    """A `WITH ( ... )` options specification on a table reference.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-table-reference
+    """
+
+    type = "table_options"
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Sequence(
+                        Ref("EqualsSegment", optional=True),
+                        Ref("ExpressionSegment"),
+                        optional=True,
+                    ),
+                )
+            )
+        ),
+    )
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause, with the `ORDER BY ALL` form.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-orderby
+    """
+
+    match_grammar = Sequence(
+        "ORDER",
+        "BY",
+        OneOf(
+            Sequence(
+                "ALL",
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            Delimited(
+                Sequence(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    OneOf("ASC", "DESC", optional=True),
+                    Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                    Ref("WithFillSegment", optional=True),
+                ),
+                terminators=[
+                    Ref("LimitClauseSegment"),
+                    Ref("FrameClauseUnitGrammar"),
+                ],
+            ),
+        ),
+    )
+
+
+class UseStatementSegment(ansi.UseStatementSegment):
+    """A `USE` statement, guarded so a bare `USE SCHEMA` is rejected."""
+
+    _name = Delimited(
+        OneOf(
+            Ref("BackQuotedIdentifierSegment"),
+            Ref("IdentifierClauseSegment"),
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                IdentifierSegment,
+                type="naked_identifier",
+                anti_template=r"(?:SCHEMA|DATABASE)$",
+            ),
+        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+    )
+
+    match_grammar = Sequence("USE", _name)
+
+
+class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
+    """A CTE definition, with the optional `MAX RECURSION LEVEL`.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-cte
+    """
+
+    match_grammar = ansi.CTEDefinitionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "MAX",
+                "RECURSION",
+                "LEVEL",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            )
+        ],
+        at=2,
+    )
+
+
+class PipeOperatorSegment(BaseSegment):
+    """The SQL pipeline `|>` operator."""
+
+    type = "pipe_operator"
+    match_grammar = Sequence(
+        Ref("PipeSegment"),
+        Ref("RawGreaterThanSegment"),
+        allow_gaps=False,
+    )
+
+
+class PipedOperationSegment(BaseSegment):
+    """A piped operation in a SQL pipeline.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-pipeline
+    """
+
+    type = "piped_operation"
+    match_grammar = OneOf(
+        Ref("SelectStatementSegment"),
+        Ref("WhereClauseSegment"),
+    )
+
+
+class TableRelationStatementSegment(BaseSegment):
+    """A `TABLE relation_name` query, optionally piped.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-query
+    """
+
+    type = "table_relation_statement"
+    match_grammar = Sequence(
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                Ref("PipeOperatorSegment"),
+                Ref("PipedOperationSegment"),
+            ),
+        ),
+    )
+
+
+class FromStatementSegment(BaseSegment):
+    """A `FROM relation_name |> operation` SQL pipeline.
+
+    A pipeline may have zero operations, so a bare `FROM t` is a valid query.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-pipeline
+    """
+
+    type = "from_statement"
+    match_grammar = Sequence(
+        "FROM",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                Ref("PipeOperatorSegment"),
+                Ref("PipedOperationSegment"),
+            ),
+        ),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = sparksql.StatementSegment.match_grammar.copy(
         # Segments defined in Databricks SQL dialect
         insert=[
+            Ref("FromStatementSegment"),
+            Ref("TableRelationStatementSegment"),
             # Unity Catalog
             Ref("AlterCatalogStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
