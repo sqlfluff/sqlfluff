@@ -23,6 +23,7 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "SEQUENCE",
     "AUTO",
     "CATALOG",
     "CDC",

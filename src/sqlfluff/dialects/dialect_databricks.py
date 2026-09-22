@@ -1675,6 +1675,220 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     )
 
 
+databricks_dialect.replace(
+    # Timestamp time travel accepts an arithmetic timestamp expression.
+    TimestampAsOfGrammar=Sequence(
+        "TIMESTAMP",
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    ),
+)
+
+
+databricks_dialect.add(
+    # The RESTORE target, guarded so the optional `TO` keyword is not read
+    # as a table name.
+    RestoreTableReferenceSegment=Delimited(
+        OneOf(
+            Ref("BackQuotedIdentifierSegment"),
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                IdentifierSegment,
+                type="naked_identifier",
+                anti_template=r"(?:TO|VERSION|TIMESTAMP)$",
+            ),
+        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+    ),
+)
+
+
+class RestoreTableStatementSegment(sparksql.RestoreTableStatementSegment):
+    """A `RESTORE` statement with optional `TABLE` and `TO`.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-restore
+    """
+
+    match_grammar = Sequence(
+        "RESTORE",
+        Ref.keyword("TABLE", optional=True),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("RestoreTableReferenceSegment"),
+        ),
+        Ref.keyword("TO", optional=True),
+        OneOf(
+            Ref("TimestampAsOfGrammar"),
+            Ref("VersionAsOfGrammar"),
+        ),
+    )
+
+
+class InsertStatementSegment(sparksql.InsertStatementSegment):
+    """An `INSERT` statement.
+
+    Adds `WITH SCHEMA EVOLUTION` and the `REPLACE ON` alternative.
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        Sequence("WITH", "SCHEMA", "EVOLUTION", optional=True),
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("PartitionSpecGrammar", optional=True),
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Sequence("BY", "NAME"),
+                    optional=True,
+                ),
+                Ref("InsertSourceGrammar"),
+            ),
+            Sequence(
+                "REPLACE",
+                Ref("WhereClauseSegment"),
+                Ref("InsertSourceGrammar"),
+            ),
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("InsertSourceGrammar"),
+            ),
+            # A parenthesised query source. It comes before the general
+            # `REPLACE ON` alternative because an expression greedily reads
+            # `s.a (SELECT ...)` as a function call, so the boolean here is
+            # bound tightly enough to leave the query for this grammar.
+            Sequence(
+                Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+                "REPLACE",
+                "ON",
+                Ref("ColumnReferenceSegment"),
+                Ref("ComparisonOperatorGrammar"),
+                Ref("ColumnReferenceSegment"),
+                Bracketed(Ref("SelectableGrammar")),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
+                Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+                "REPLACE",
+                "ON",
+                Ref("ExpressionSegment"),
+                OneOf(
+                    Sequence(
+                        Bracketed(Ref("SelectableGrammar")),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                    Ref("InsertSourceGrammar"),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateTableStatementSegment(sparksql.CreateTableStatementSegment):
+    """A `CREATE TABLE` statement, including an inline pipeline flow.
+
+    A streaming table may declare one flow inline instead of an AS query:
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    match_grammar = Sequence(
+        OneOf(
+            # Inline FLOW is only valid on a streaming table, so this alternative
+            # requires STREAMING and a flow clause. An optional FLOW clause on the
+            # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
+            # which Databricks rejects.
+            Sequence(
+                "CREATE",
+                Ref("OrRefreshGrammar", optional=True),
+                OneOf(
+                    Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                    Ref.keyword("STREAMING"),
+                ),
+                Ref("TableDefinitionSegment"),
+                Ref("FlowClauseSegment"),
+            ),
+            sparksql.CreateTableStatementSegment.match_grammar,
+            # The pipeline statement also allows a plain `CREATE TABLE ...
+            # FLOW ...`; only the non-pipeline form disallows it.
+            # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-table-flow
+            Sequence(
+                "CREATE",
+                Ref("OrRefreshGrammar", optional=True),
+                Ref("TableDefinitionSegment"),
+                Ref("FlowClauseSegment"),
+            ),
+        )
+    )
+
+
+class FlowClauseSegment(BaseSegment):
+    """A flow declared inline on a pipeline streaming table.
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    type = "flow_clause"
+
+    match_grammar = Sequence(
+        "FLOW",
+        Indent,
+        OneOf(
+            # FLOW INSERT [ONCE] BY NAME query
+            Sequence(
+                "INSERT",
+                Ref.keyword("ONCE", optional=True),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW AUTO CDC <cdc spec>. The target is the table itself, so
+            # there is no INTO here, unlike the standalone CREATE FLOW form.
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref("CDCSpecificationSegment"),
+            ),
+            # FLOW REPLACE WHERE predicate BY NAME query
+            Sequence(
+                "REPLACE",
+                "WHERE",
+                Ref("ExpressionSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW REPLACE USING ( column_name [, ...] )
+            #   SEQUENCE BY sequence_column BY NAME query
+            #
+            # The list and its SEQUENCE BY column are bound as a pair: the
+            # reference defines replace_using_spec with both, and accepting
+            # them independently is the defect #8509 shipped for the
+            # standalone statement.
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                "SEQUENCE",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -2475,6 +2689,9 @@ class CreateFlowStatementSegment(BaseSegment):
                     "REPLACE",
                     "USING",
                     Ref("BracketedColumnReferenceListGrammar"),
+                    "SEQUENCE",
+                    "BY",
+                    Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),
                 Ref("SelectableGrammar"),
