@@ -206,7 +206,15 @@ class AnyNumberOf(BaseGrammar):
                 # If we haven't already met the hurdle rate, act as though
                 # not match at all.
                 if n_matches < self.min_times:
-                    parse_context.record_failure(working_idx)
+                    # NOTE: We deliberately do *not* record a failure here, even
+                    # though we know `working_idx`. An AnyNumberOf/OneOf is
+                    # speculative: the alternatives it tries are frequently
+                    # discarded, and the position it gets to can be well past the
+                    # point the enclosing statement actually failed (e.g. it may
+                    # reach into the *next* statement). Recording only genuine
+                    # required-element failures in `Sequence` keeps the
+                    # "furthest failure" meaningful and, crucially, identical
+                    # between the Python and Rust parsers.
                     matched = MatchResult.empty_at(idx)
 
                 return _parse_mode_match_result(
