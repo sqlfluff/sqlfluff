@@ -452,6 +452,42 @@ test_trino_row_fields_force_enable:
       references.from:
         force_enable: true
 
+test_trino_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT a.x
+    FROM outer_tbl AS a
+    WHERE a.id IN (
+        SELECT bogus.id FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+    )
+  line_numbers: [4]
+  configs:
+    core:
+      dialect: trino
+
+test_trino_unknown_reference_in_joined_subquery_unaliased_parent:
+  fail_str: |
+    SELECT outer_tbl.x
+    FROM outer_tbl
+    WHERE outer_tbl.id IN (
+        SELECT bogus.id FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+    )
+  line_numbers: [4]
+  configs:
+    core:
+      dialect: trino
+
+test_trino_correlated_reference_in_joined_subquery:
+  pass_str: |
+    SELECT a.x
+    FROM outer_tbl AS a
+    WHERE a.id IN (
+        SELECT b.id FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE c.id = a.id
+    )
+  configs:
+    core:
+      dialect: trino
+
 test_trino_unknown_reference_with_multiple_tables:
   fail_str: |
     SELECT missing.value

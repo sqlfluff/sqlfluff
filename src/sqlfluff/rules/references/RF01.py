@@ -279,6 +279,8 @@ class Rule_RF01(BaseRule):
         tbl_refs: list[tuple[ObjectReferencePart, tuple[str, ...]]],
         dml_target_table: Optional[list[tuple[str, ...]]],
         query: RF01Query,
+        *,
+        is_parent_lookup: bool = False,
     ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
@@ -290,7 +292,11 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
 
-        if self._dialect_supports_dot_access(query.dialect):
+        # Trino's single-source exemption belongs to the reference's own scope,
+        # not a parent visited while resolving a correlated reference.
+        if self._dialect_supports_dot_access(query.dialect) and not (
+            query.dialect.name == "trino" and is_parent_lookup
+        ):
             # BigQuery supports having multiple aliases in the FROM statement
             # SparkSQL supports directly accessing values in nested array columns
             if (
@@ -319,7 +325,11 @@ class Rule_RF01(BaseRule):
             # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
-                    r, tbl_refs, dml_target_table, cast(RF01Query, query.parent)
+                    r,
+                    tbl_refs,
+                    dml_target_table,
+                    cast(RF01Query, query.parent),
+                    is_parent_lookup=True,
                 )
             # No parent query. If there's a DML statement at the root, check its
             # target table or alias.
