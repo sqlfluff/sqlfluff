@@ -1694,15 +1694,11 @@ class DeclareStatement(BaseSegment):
         ),
         Sequence(
             "DECLARE",
-            Ref("LocalVariableNameSegment"),
+            Delimited(Ref("LocalVariableNameSegment")),
             Ref("DatatypeSegment"),
             Sequence(
                 Ref.keyword("DEFAULT"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("FunctionSegment"),
-                ),
+                Ref("ExpressionSegment"),
                 optional=True,
             ),
         ),
