@@ -560,6 +560,54 @@ test_fail_repeated_unaliased_cte_wildcard_reference:
     union
     select c, d, e
     from t2
+  violations:
+    - code: AM07
+      description: Queries within set query produce different numbers of columns.
+      name: ambiguous.set_columns
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 1
+      start_file_pos: 39
+      end_line_no: 9
+      end_line_pos: 8
+      end_file_pos: 109
+
+test_pass_repeated_unaliased_cte_wildcard_reference_matching:
+  desc: >
+    The same CTE referenced by an unaliased wildcard in more than one branch of
+    a set expression, where every branch genuinely agrees on the column
+    count, must not be flagged.
+  pass_str: |
+    with cte as (
+        select a, b from t
+    )
+    select * from cte
+    union
+    select * from cte
+    union
+    select c, d
+    from t2
+
+test_fail_repeated_unaliased_cte_wildcard_reference_nested_scope:
+  desc: >
+    The repeated-reference resolution must also work for a CTE defined and
+    referenced inside another CTE's own body, restoring into the correct
+    (nested) owning scope rather than the outermost query.
+  fail_str: |
+    with outer_cte as (
+        with inner_cte as (
+            select a, b from t
+        )
+        select * from inner_cte
+        union
+        select * from inner_cte
+        union
+        select p, q, r from z
+    )
+    select * from outer_cte
+    union
+    select 1, 2
 
 test_pass_self_referencing_cte_wildcard:
   desc: >
