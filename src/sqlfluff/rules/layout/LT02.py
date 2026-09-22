@@ -57,8 +57,64 @@ class Rule_LT02(BaseRule):
         use the `indent_unit` value set to `tab`.
 
         """
-        return (
+        results = (
             ReflowSequence.from_root(context.segment, context.config)
             .reindent()
             .get_results()
         )
+
+        # LT07 owns whether an otherwise correctly indented multi-line CTE
+        # closing bracket should move onto its own line. Reflow sees the dedent
+        # immediately before the bracket and can independently propose the same
+        # line break as LT02, so excluding LT07 would not disable that behavior.
+        #
+        # Keep the line break when LT02 is also repairing indentation inside the
+        # same CTE, because that is part of making the whole indentation block
+        # coherent rather than duplicating LT07.
+        cte_segments_by_line_break_anchor = {}
+        for cte in context.segment.recursive_crawl("common_table_expression"):
+            bracketed_segments = [
+                segment for segment in cte.segments if segment.is_type("bracketed")
+            ]
+            if bracketed_segments:
+                end_bracket = bracketed_segments[-1].get_child("end_bracket")
+                if end_bracket:
+                    cte_raw_segments = list(cte.raw_segments)
+                    cte_segment_uuids = {segment.uuid for segment in cte_raw_segments}
+                    end_bracket_idx = next(
+                        idx
+                        for idx, segment in enumerate(cte_raw_segments)
+                        if segment.uuid == end_bracket.uuid
+                    )
+                    cte_segments_by_line_break_anchor[end_bracket.uuid] = (
+                        cte_segment_uuids
+                    )
+                    for segment in reversed(cte_raw_segments[:end_bracket_idx]):
+                        if segment.is_meta:
+                            continue
+                        if not segment.is_type("whitespace"):
+                            break
+                        cte_segments_by_line_break_anchor[segment.uuid] = (
+                            cte_segment_uuids
+                        )
+
+        filtered_results = []
+        for result in results:
+            cte_segments = None
+            for fix in result.fixes:
+                if not any(edit.is_type("newline") for edit in (fix.edit or [])):
+                    continue
+                cte_segments = cte_segments_by_line_break_anchor.get(fix.anchor.uuid)
+                if cte_segments is not None:
+                    break
+
+            is_standalone_cte_line_break = cte_segments is not None and not any(
+                other is not result
+                and other.anchor is not None
+                and other.anchor.uuid in cte_segments
+                for other in results
+            )
+            if not is_standalone_cte_line_break:
+                filtered_results.append(result)
+
+        return filtered_results

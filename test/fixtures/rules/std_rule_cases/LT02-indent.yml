@@ -724,6 +724,48 @@ test_pass_cte:
     core:
       dialect: bigquery
 
+# LT07 owns whether a multi-line CTE closing bracket is on its own line.
+# Excluding LT07 should therefore allow the bracket to remain on the final
+# query line without LT02 independently introducing a line break (#5893).
+test_pass_cte_closing_bracket_same_line:
+  pass_str: |
+    WITH zoo AS (
+        SELECT a FROM foo)
+
+    SELECT * FROM zoo
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_cte_closing_bracket_same_line_with_space:
+  pass_str: |
+    WITH zoo AS (
+        SELECT a FROM foo )
+
+    SELECT * FROM zoo
+  configs:
+    core:
+      dialect: bigquery
+
+# LT02 should still fix indentation once the CTE closing bracket already has
+# its own line.
+test_fail_cte_closing_bracket_indent:
+  fail_str: |
+    WITH zoo AS (
+        SELECT a FROM foo
+        )
+
+    SELECT * FROM zoo
+  fix_str: |
+    WITH zoo AS (
+        SELECT a FROM foo
+    )
+
+    SELECT * FROM zoo
+  configs:
+    core:
+      dialect: bigquery
+
 # CTEs can be configured to be indented
 test_fail_indented_cte:
   fail_str: |
