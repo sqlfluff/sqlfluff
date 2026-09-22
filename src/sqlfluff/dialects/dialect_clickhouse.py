@@ -64,9 +64,45 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+
 clickhouse_dialect.insert_lexer_matchers(
     [StringLexer("double_equals", "==", CodeSegment)],
     before="equals",
+)
+
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/reference/syntax#numeric
+    [
+        # Regex for binary must start with 0b (uppercase B is not allowed),
+        # only 0, 1 and _ are allowed, binary can't start with an underscore
+        # or end with it, e.g. 0b_100 or 0b100_ are not allowed.
+        # Decimal point is also not allowed.
+        # Negative lookahead assertion to ensure we don't match decimal points
+        # or words, e.g. 0b1.1 or 0b100foo or 0b1. are not allowed.
+        RegexLexer(
+            "binary_literal",
+            r"0b[01]+(?:_[01]+)*(?![.\w])",  # e.g. 0b1_00
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+        # Regex for hex can start with either 0x or 0X, underscore is allowed
+        # if it is not at the start or at the end., e.g. 0x1_ or 0x_1 are not allowed.
+        # Optional exponential part is expressed with [pP], e.g 0xap1 (equals to 10 * 2^1).
+        # Negative lookahead assertion to ensure we don't match decimal points
+        # or words, e.g. 0x1.1.1 or 0x1.1foo are not allowed.
+        RegexLexer(
+            "hexadecimal_literal",
+            r"0[xX][a-fA-F\d]+(?:_[a-fA-F\d]+)*"  # hex int e.g. 0xab34_cd
+            r"(?:"  # hex decimal (either ends in . or has a decimal part)
+            r"\.(?:[a-fA-F\d]+(?:_[a-fA-F\d]+)*)?"
+            r")?"
+            r"(?:[pP][+-]?\d+(?:_\d+)*)?"  # optional exponential e.g. 0XAB34_CDp-10
+            r"(?![.\w])",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+    ],
+    before="numeric_literal",
 )
 
 clickhouse_dialect.insert_lexer_matchers(
@@ -94,6 +130,37 @@ clickhouse_dialect.patch_lexer_matchers(
                 "quoted_value": (r"`((?:[^`\\]|``|\\.)*)`", 1),
                 "escape_replacements": [(r"(``|\\`)", "`")],
             },
+        ),
+        # Numeric literal matches integers, decimals, and exponential formats,
+        # Patch to support single underscores.
+        # Pattern breakdown:
+        # (?>                      Atomic grouping
+        #                          (https://www.regular-expressions.info/atomic.html).
+        #  \d+(_\d+)*\.\d+(_\d+)*  e.g. 123.456 or 123_000.456_000
+        #  |\d+(_\d+)*\.(?![\.\w]) e.g. 123. or 1_23.
+        #                          (N.B. negative lookahead assertion to ensure we
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
+        #     |\.\d+(_\d+)*        e.g. .456 or .456_000
+        #     |\d+(_\d+)*          e.g. 123 or 123_000
+        # )
+        # (\.?[eE][+-]?\d+(_\d+)*)?  Optional exponential.
+        # (
+        #     (?<=\.)              If matched character ends with . (e.g. 123.) then
+        #                          don't worry about word boundary check.
+        #     |(?=\b)              Check that we are at word boundary to avoid matching
+        #                          valid naked identifiers (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*"  # Decimal numbers with underscores
+            r"|\d+(_\d+)*\.(?![.\w])"  # Integer with trailing dot
+            r"|\.\d+(_\d+)*"  # Decimal starting with dot
+            r"|\d+(_\d+)*)"  # Integer with underscores
+            r"(\.?[eE][+-]?\d+(_\d+)*)?"  # Optional exponential
+            r"((?<=\.)|(?=\b))",  # Word boundary check
+            LiteralSegment,
         ),
     ]
 )
