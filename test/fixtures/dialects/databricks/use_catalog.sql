@@ -9,3 +9,11 @@ USE CATALOG 'hive_metastore';
 USE CATALOG `some_catalog`;
 
 USE CATALOG some_cat;
+
+SET CATALOG c;
+
+USE CATALOG 'c';
+
+USE CATALOG IDENTIFIER(mycat);
+
+USE CATALOG;

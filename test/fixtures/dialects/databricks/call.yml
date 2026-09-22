@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ece012c17bfb66201aca10defe5906969c064aaef6a6f343810f266a406091b5
+file:
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: area_of_rectangle
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '5'
+          - comma: ','
+          - expression:
+              numeric_literal: '10'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: area
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: acc
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: area_of_rectangle
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - named_argument:
+              naked_identifier: y
+              right_arrow: =>
+              expression:
+                numeric_literal: '10'
+          - comma: ','
+          - named_argument:
+              naked_identifier: x
+              right_arrow: =>
+              expression:
+                numeric_literal: '5'
+          - comma: ','
+          - named_argument:
+              naked_identifier: area
+              right_arrow: =>
+              expression:
+                column_reference:
+                  naked_identifier: area
+          - comma: ','
+          - named_argument:
+              naked_identifier: acc
+              right_arrow: =>
+              expression:
+                column_reference:
+                  naked_identifier: acc
+          - end_bracket: )
+- statement_terminator: ;

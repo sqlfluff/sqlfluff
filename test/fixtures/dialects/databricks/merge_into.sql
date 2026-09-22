@@ -88,3 +88,6 @@ update set * except (last_updated)
 when not matched then
 insert * except (last_updated)
 ;
+
+-- MERGE with schema evolution.
+MERGE WITH SCHEMA EVOLUTION INTO t USING s ON t.k = s.k WHEN MATCHED THEN UPDATE SET *;
