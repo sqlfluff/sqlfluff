@@ -1675,6 +1675,144 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     )
 
 
+class DropTableStatementSegment(ansi.DropTableStatementSegment):
+    """A `DROP TABLE` statement, extended with Databricks `FORCE`.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-table
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class DropConnectionStatementSegment(BaseSegment):
+    """A `DROP CONNECTION` statement."""
+
+    type = "drop_connection_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropCredentialStatementSegment(BaseSegment):
+    """A `DROP [STORAGE | SERVICE] CREDENTIAL` statement."""
+
+    type = "drop_credential_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            Sequence("STORAGE", "CREDENTIAL"),
+            Sequence("SERVICE", "CREDENTIAL"),
+            "CREDENTIAL",
+        ),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class DropExternalLocationStatementSegment(BaseSegment):
+    """A `DROP EXTERNAL LOCATION` statement."""
+
+    type = "drop_external_location_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "LOCATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropPolicyStatementSegment(BaseSegment):
+    """A `DROP POLICY` statement."""
+
+    type = "drop_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf(
+            "METASTORE",
+            Sequence("CATALOG", Ref("CatalogReferenceSegment")),
+            Sequence("SCHEMA", Ref("DatabaseReferenceSegment")),
+            Sequence("TABLE", Ref("TableReferenceSegment")),
+        ),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement."""
+
+    type = "drop_procedure_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropProviderStatementSegment(BaseSegment):
+    """A `DROP PROVIDER` statement."""
+
+    type = "drop_provider_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROVIDER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropRecipientStatementSegment(BaseSegment):
+    """A `DROP RECIPIENT` statement."""
+
+    type = "drop_recipient_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "RECIPIENT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropShareStatementSegment(BaseSegment):
+    """A `DROP SHARE` statement."""
+
+    type = "drop_share_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "SHARE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropVariableStatementSegment(BaseSegment):
+    """A `DROP TEMPORARY VARIABLE` statement."""
+
+    type = "drop_variable_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TEMPORARY",
+        "VARIABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("VariableNameIdentifierSegment"),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1685,6 +1823,15 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("AlterCatalogStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
             Ref("DropCatalogStatementSegment"),
+            Ref("DropConnectionStatementSegment"),
+            Ref("DropCredentialStatementSegment"),
+            Ref("DropExternalLocationStatementSegment"),
+            Ref("DropPolicyStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("DropProviderStatementSegment"),
+            Ref("DropRecipientStatementSegment"),
+            Ref("DropShareStatementSegment"),
+            Ref("DropVariableStatementSegment"),
             Ref("UseCatalogStatementSegment"),
             Ref("AlterVolumeStatementSegment"),
             Ref("CreateVolumeStatementSegment"),

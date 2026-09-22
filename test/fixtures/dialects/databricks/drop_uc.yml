@@ -1,0 +1,141 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 831ce9228270722e73beeaedae5355c4c208a1cfd04696adfc49dfd765b2b770
+file:
+- statement:
+    drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    drop_credential_statement:
+    - keyword: DROP
+    - keyword: CREDENTIAL
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    drop_credential_statement:
+    - keyword: DROP
+    - keyword: STORAGE
+    - keyword: CREDENTIAL
+    - object_reference:
+        naked_identifier: c
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    drop_credential_statement:
+    - keyword: DROP
+    - keyword: SERVICE
+    - keyword: CREDENTIAL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    drop_external_location_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - object_reference:
+        naked_identifier: l
+- statement_terminator: ;
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: p
+    - keyword: 'ON'
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: p
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    drop_provider_statement:
+    - keyword: DROP
+    - keyword: PROVIDER
+    - object_reference:
+        naked_identifier: p
+- statement_terminator: ;
+- statement:
+    drop_recipient_statement:
+    - keyword: DROP
+    - keyword: RECIPIENT
+    - object_reference:
+        naked_identifier: r
+- statement_terminator: ;
+- statement:
+    drop_share_statement:
+    - keyword: DROP
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: s
+- statement_terminator: ;
+- statement:
+    drop_variable_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: VARIABLE
+    - naked_identifier: v
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+- statement_terminator: ;
