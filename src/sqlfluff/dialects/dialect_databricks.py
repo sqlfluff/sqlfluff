@@ -596,7 +596,14 @@ databricks_dialect.replace(
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-volumes.html
     ShowObjectGrammar=sparksql_dialect.get_grammar("ShowObjectGrammar").copy(
         insert=[
-            Sequence("CATALOGS", Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True)),
+            Sequence(
+                "CATALOGS",
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
             Sequence("CONNECTIONS"),
             Sequence(
                 Ref.keyword("STORAGE", optional=True),
@@ -611,10 +618,33 @@ databricks_dialect.replace(
                     Sequence("WITH", "GROUP", Ref("ObjectReferenceSegment")),
                     optional=True,
                 ),
-                Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True),
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
             ),
-            Sequence("EFFECTIVE", "POLICIES", "ON", OneOf("METASTORE", Sequence(Ref.keyword("CATALOG"), Ref("CatalogReferenceSegment")), Sequence(Ref.keyword("SCHEMA"), Ref("DatabaseReferenceSegment")), Sequence(Ref.keyword("TABLE"), Ref("TableReferenceSegment")))),
-            Sequence("POLICIES", "ON", OneOf("METASTORE", Sequence(Ref.keyword("CATALOG"), Ref("CatalogReferenceSegment")), Sequence(Ref.keyword("SCHEMA"), Ref("DatabaseReferenceSegment")), Sequence(Ref.keyword("TABLE"), Ref("TableReferenceSegment")))),
+            Sequence(
+                "EFFECTIVE",
+                "POLICIES",
+                "ON",
+                OneOf(
+                    "METASTORE",
+                    Sequence(Ref.keyword("CATALOG"), Ref("CatalogReferenceSegment")),
+                    Sequence(Ref.keyword("SCHEMA"), Ref("DatabaseReferenceSegment")),
+                    Sequence(Ref.keyword("TABLE"), Ref("TableReferenceSegment")),
+                ),
+            ),
+            Sequence(
+                "POLICIES",
+                "ON",
+                OneOf(
+                    "METASTORE",
+                    Sequence(Ref.keyword("CATALOG"), Ref("CatalogReferenceSegment")),
+                    Sequence(Ref.keyword("SCHEMA"), Ref("DatabaseReferenceSegment")),
+                    Sequence(Ref.keyword("TABLE"), Ref("TableReferenceSegment")),
+                ),
+            ),
             Sequence(
                 "PROCEDURES",
                 Sequence(
@@ -623,16 +653,41 @@ databricks_dialect.replace(
                     optional=True,
                 ),
             ),
-            Sequence("PROVIDERS", Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True)),
-            Sequence("RECIPIENTS", Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True)),
+            Sequence(
+                "PROVIDERS",
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "RECIPIENTS",
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
             Sequence(
                 "SHARES",
                 "IN",
                 "PROVIDER",
                 Ref("ObjectReferenceSegment"),
-                Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True),
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
             ),
-            Sequence("SHARES", Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True)),
+            Sequence(
+                "SHARES",
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
             Sequence(
                 "TABLES",
                 "DROPPED",
@@ -643,7 +698,14 @@ databricks_dialect.replace(
                 ),
                 Sequence("LIMIT", Ref("NumericLiteralSegment"), optional=True),
             ),
-            Sequence("USERS", Sequence(Ref.keyword("LIKE", optional=True), Ref("QuotedLiteralSegment"), optional=True)),
+            Sequence(
+                "USERS",
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
             Sequence("ALL", "IN", "SHARE", Ref("ObjectReferenceSegment")),
             Sequence(
                 "COLUMNS",
