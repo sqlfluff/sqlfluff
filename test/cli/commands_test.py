@@ -2656,7 +2656,7 @@ def test__cli__command_lint_serialize_gitlab_parse_error():
     assert result == [
         {
             "check_name": "PRS",
-            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'",
+            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'. Expected: <Delimited: [<Ref: 'SelectClauseElementSegment'>]> after <WordSegment: ([L:  1, ...",
             "severity": "major",
             "fingerprint": "9319cfff6469f2165074d8033911e5b7",
             "location": {
