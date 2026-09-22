@@ -544,3 +544,31 @@ test_fail_placeholder_templater_set_columns:
       placeholder:
         param_style: dollar
         CATALOG: my_catalog
+
+test_fail_repeated_unaliased_cte_wildcard_reference:
+  desc: >
+    The same CTE referenced by an unaliased wildcard in more than one branch of
+    a set expression must resolve every time, so a genuine column count
+    mismatch is still reported.
+  fail_str: |
+    with cte as (
+        select a, b from t
+    )
+    select * from cte
+    union
+    select * from cte
+    union
+    select c, d, e
+    from t2
+
+test_pass_self_referencing_cte_wildcard:
+  desc: >
+    A CTE which references itself through an unaliased wildcard must not
+    recurse indefinitely while it is being resolved.
+  pass_str: |
+    with cte as (
+        select * from cte union all select 1 as n
+    )
+    select * from cte
+    union
+    select 1

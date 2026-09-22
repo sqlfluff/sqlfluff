@@ -131,6 +131,13 @@ class Rule_AM07(BaseRule):
                 _cols, _resolved = self.__resolve_wild_query(cte)
                 num_cols += _cols
                 resolved = resolved and _resolved
+                # NOTE: lookup_cte() pops the CTE from the scope which owns
+                # it, so that a CTE referencing itself doesn't recurse
+                # forever while being resolved. Restore it now that its
+                # resolution has finished, so a later selectable in the same
+                # set expression can still resolve the same reference.
+                if cte.parent is not None:
+                    cte.parent.ctes[cte_name.upper()] = cte
             else:
                 # Unable to resolve
                 resolved = False
