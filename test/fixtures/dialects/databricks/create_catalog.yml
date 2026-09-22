@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2be7135c97ba1a580c69fe096e3cfad84cf4f876b2d4df564fd81e3d0ca54ac1
+_hash: 97eb192862fda66e613d5e96d086101ba730ae29087985cee4add8d0b8de21c3
 file:
 - statement:
     create_catalog_statement:
@@ -58,4 +58,130 @@ file:
     - keyword: MANAGED
     - keyword: LOCATION
     - quoted_literal: "'s3://depts/customers'"
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: USING
+    - keyword: SHARE
+    - naked_identifier: provider
+    - dot: .
+    - naked_identifier: share
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: FOR
+    - numeric_literal: '30'
+    - keyword: DAYS
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: FOR
+    - numeric_literal: '1'
+    - keyword: HOUR
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: DEFAULT
+    - keyword: COLLATION
+    - naked_identifier: UTF8_BINARY
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: k
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: foreign_cat
+    - keyword: USING
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: conn
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: k
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+        naked_identifier: foreign_cat
+    - keyword: USING
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: conn
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: k
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: foreign_cat
+    - keyword: USING
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: conn
+    - keyword: COMMENT
+    - quoted_literal: "'a foreign catalog'"
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: k
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
 - statement_terminator: ;

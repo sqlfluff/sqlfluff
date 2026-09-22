@@ -1,0 +1,102 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 812ae383184ee9469b13fa32f7062972b5aaa477351f3edfbe1222cdbb36a919
+file:
+- statement:
+    create_external_location_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - naked_identifier: s3_remote
+    - keyword: URL
+    - quoted_literal: "'s3://us-east-1/location'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: STORAGE
+      - keyword: CREDENTIAL
+      - object_reference:
+          naked_identifier: s3_remote_cred
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_location_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - naked_identifier: s3_remote
+    - keyword: URL
+    - quoted_literal: "'s3://us-east-1/location'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: STORAGE
+      - keyword: CREDENTIAL
+      - object_reference:
+          naked_identifier: s3_remote_cred
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'Default source'"
+- statement_terminator: ;
+- statement:
+    create_external_location_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: s3_remote
+    - keyword: URL
+    - quoted_literal: "'s3://us-east-1/location'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: STORAGE
+      - keyword: CREDENTIAL
+      - object_reference:
+          naked_identifier: c
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_location_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - quoted_identifier: '`s3-remote`'
+    - keyword: URL
+    - quoted_literal: "'s3://us-east-1/location'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: STORAGE
+      - keyword: CREDENTIAL
+      - object_reference:
+          quoted_identifier: '`s3-remote-cred`'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_location_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - quoted_identifier: '`s3-remote`'
+    - keyword: URL
+    - quoted_literal: "'s3://us-east-1/location'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: STORAGE
+      - keyword: CREDENTIAL
+      - object_reference:
+          quoted_identifier: '`s3-remote-cred`'
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'x'"
+- statement_terminator: ;
