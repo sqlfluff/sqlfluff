@@ -1103,32 +1103,48 @@ class TestCli:
     ):
         """A relative `cache_dir` lands in the same place on every run.
 
-        `cache_dir` ends in `_dir`, which the config loader would otherwise
-        resolve relative to the *config file* -- but only once the directory
-        exists, because resolution goes through `glob`. That would put the
-        cache in one place on the first run and another on the second.
+        `cache_dir` ends in `_dir`, so `RESOLVE_PATH_SUFFIXES` would otherwise
+        resolve it relative to the *config file* -- but only once a directory
+        of that name exists beside the config, because resolution goes through
+        `glob`, which matches nothing that is not already on disk. The same
+        config would then name one location before such a directory appeared
+        and another one afterwards. `NO_RESOLVE_KEYS` is what prevents that.
 
-        The config therefore lives in a *parent* of the working directory, so
-        the two candidate bases genuinely differ: resolving against the config
-        file would give ``<tmp>/.sqlfluff_cache`` and against the working
-        directory ``<tmp>/work/.sqlfluff_cache``. Running from the config's own
-        directory would make both answers identical and prove nothing.
+        The config is therefore supplied from a directory which is not the
+        working directory and which *already holds* a `.sqlfluff_cache`. That
+        decoy is what makes the two candidate bases distinguishable: with the
+        exclusion in place the cache goes to the working directory, and without
+        it the `glob` matches the decoy and the cache silently moves next to
+        the config file. Without a decoy the `glob` finds nothing either way,
+        and the test would pass however `NO_RESOLVE_KEYS` were set.
+
+        The config is passed with `--config` rather than left in a parent
+        directory to be discovered. Ancestor discovery walks only as far as the
+        common path between the working directory and the user's home
+        directory, so on Windows a working directory on a different drive from
+        ``~`` has no ancestors searched at all -- a test which relied on
+        discovery would pass or fail according to which drive it ran on.
         """
+        config_dir = tmp_path / "elsewhere"
+        config_path = config_dir / ".sqlfluff"
         write(
-            tmp_path / ".sqlfluff",
+            config_path,
             "[sqlfluff]\ndialect = ansi\ncache = True\ncache_dir = .sqlfluff_cache\n",
         )
+        decoy = config_dir / ".sqlfluff_cache"
+        decoy.mkdir()
         clear_config_caches()
+
         work = tmp_path / "work"
         work.mkdir()
         write(work / "a.sql", CLEAN_SQL)
         monkeypatch.chdir(work)
 
         for _ in range(2):
-            self._lint_cli(work)
+            self._lint_cli(work, "--config", str(config_path))
             assert (work / ".sqlfluff_cache" / CACHE_FILENAME).exists()
-            # Never beside the config file.
-            assert not (tmp_path / ".sqlfluff_cache").exists()
+            # Never beside the config file, however inviting the decoy.
+            assert not (decoy / CACHE_FILENAME).exists()
 
     def test_second_run_reports_the_same_result(self, project, tmp_path):
         """A cached run produces the same output and exit code as the first."""
