@@ -1,0 +1,153 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 25b2957d1441b20b47e6522cdb5192b937d1a3717b17c1fcbd451088f0ed61a2
+file:
+- statement:
+    create_group_statement:
+    - keyword: CREATE
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: g
+- statement_terminator: ;
+- statement:
+    create_group_statement:
+    - keyword: CREATE
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: g
+    - keyword: WITH
+    - keyword: USER
+    - object_reference:
+        quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    create_group_statement:
+    - keyword: CREATE
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: g
+    - keyword: WITH
+    - keyword: USER
+    - object_reference:
+        quoted_identifier: '`u`'
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: h
+- statement_terminator: ;
+- statement:
+    drop_group_statement:
+    - keyword: DROP
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: g
+- statement_terminator: ;
+- statement:
+    deny_statement:
+    - keyword: DENY
+    - access_permissions:
+        access_permission:
+          keyword: SELECT
+    - keyword: 'ON'
+    - access_object:
+        access_schema_object:
+          keyword: TABLE
+        object_reference:
+          naked_identifier: t
+    - keyword: TO
+    - access_target:
+        role_reference:
+          quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    deny_statement:
+    - keyword: DENY
+    - access_permissions:
+      - keyword: ALL
+      - keyword: PRIVILEGES
+    - keyword: 'ON'
+    - access_object:
+        access_schema_object:
+          keyword: TABLE
+        object_reference:
+          naked_identifier: t
+    - keyword: TO
+    - access_target:
+        role_reference:
+          quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    grant_on_share_statement:
+    - keyword: GRANT
+    - access_permissions:
+        access_permission:
+          keyword: SELECT
+    - keyword: 'ON'
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: s
+    - keyword: TO
+    - keyword: RECIPIENT
+    - object_reference:
+        naked_identifier: r
+- statement_terminator: ;
+- statement:
+    revoke_on_share_statement:
+    - keyword: REVOKE
+    - access_permissions:
+        access_permission:
+          keyword: SELECT
+    - keyword: 'ON'
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: s
+    - keyword: FROM
+    - keyword: RECIPIENT
+    - object_reference:
+        naked_identifier: r
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: READ
+          - keyword: FILES
+      - keyword: 'ON'
+      - access_object:
+          keyword: ANY
+          file_keyword: FILE
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    msck_repair_privileges_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    msck_repair_privileges_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    msck_repair_privileges_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: ANONYMOUS
+    - keyword: FUNCTION
+    - keyword: PRIVILEGES
+- statement_terminator: ;
