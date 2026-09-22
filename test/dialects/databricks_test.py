@@ -59,3 +59,20 @@ def test_materialized_view_constraints_reject_invalid_order(sql: str) -> None:
 def test_private_requires_streaming_table(sql: str) -> None:
     """PRIVATE is only valid on a streaming table, not on a table."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param("SHOW GRANTS;\n", id="no_securable"),
+        pytest.param("SHOW GRANTS TABLE my_table;\n", id="missing_on"),
+        pytest.param("SHOW GRANTS `alf` my_table;\n", id="principal_without_on"),
+    ],
+)
+def test_show_grants_requires_a_securable(sql: str) -> None:
+    """`SHOW GRANTS [ principal ] ON securable_object`.
+
+    The securable and its `ON` are both required; only the principal is
+    optional.
+    """
+    assert _violations(sql), f"Expected a parse failure for:\n{sql}"
