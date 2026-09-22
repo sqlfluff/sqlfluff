@@ -261,7 +261,13 @@ try:
                 try:
                     if _prof is not None:
                         _ts = time.perf_counter()
-                    rs_match = self._rs_parser.parse_match_result_from_tokens(tokens)
+                    # Pass the full segment count so Rust enforces
+                    # `max_parse_nodes` from the same base as the Python engine
+                    # (which seeds from `len(segments)`); Rust only sees the
+                    # trimmed code slice otherwise.
+                    rs_match = self._rs_parser.parse_match_result_from_tokens(
+                        tokens, base_node_count=len(segments)
+                    )
                     if _prof is not None:
                         _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:

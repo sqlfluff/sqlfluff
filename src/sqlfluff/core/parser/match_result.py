@@ -285,6 +285,12 @@ class MatchResult:
                 # Get the location from the next segment unless there isn't one.
                 _pos = _get_point_pos_at_idx(segments, idx)
                 result_segments_list.append(trigger(pos_marker=_pos))
+                # Inserted segments are materialized as nodes too, so charge
+                # them to the node budget (as the zero-length branch above
+                # already does). The Rust parser counts them unconditionally,
+                # so charging them here keeps the two engines' limits aligned.
+                if parse_context:
+                    parse_context.increment_parse_nodes()
 
         # If we finish working through the triggers and there's
         # still something left, then add that too.
