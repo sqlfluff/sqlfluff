@@ -1077,25 +1077,23 @@ def lint(
         result.persist_timing_records(persist_timing)
 
     output_stream.close()
-    # NB: When a machine-readable format (json, yaml, sarif, ...) is being
-    # written to stdout (i.e. no --write-output file was given), that stdout
-    # payload must remain parseable on its own. Printing the bench summary
-    # in that case would append plain text after it, corrupting the payload.
-    # `format == none` writes nothing to stdout either, so it is safe too.
-    # `write_output` is checked for truthiness, not `is not None`, to match
-    # `dump_file_payload`'s own handling of an empty string as "no file given".
-    if bench and (
-        format == FormatType.human.value
-        or format == FormatType.none.value
-        or write_output
-    ):
-        click.echo("==== overall timings ====")
-        click.echo(formatter.cli_table([("Clock time", result.total_time)]))
+    # NB: For machine-readable formats (json, yaml, sarif, ...) the bench
+    # summary always goes to stderr instead of stdout, regardless of
+    # --write-output, so it can never land next to (or inside, via an alias
+    # like --write-output=/dev/stdout) a payload that must stay parseable on
+    # its own - while still always showing the timings the user asked for.
+    if bench:
+        bench_err = output_policy.machine_output
+        click.echo("==== overall timings ====", err=bench_err)
+        click.echo(
+            formatter.cli_table([("Clock time", result.total_time)]), err=bench_err
+        )
         timing_summary = result.timing_summary()
         for step in timing_summary:
-            click.echo(f"=== {step} ===")
+            click.echo(f"=== {step} ===", err=bench_err)
             click.echo(
-                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20)
+                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20),
+                err=bench_err,
             )
 
     if not nofail:
