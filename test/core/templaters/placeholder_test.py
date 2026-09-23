@@ -252,6 +252,31 @@ def test__templater_raw():
             """
             SELECT user_mail, city_id
             FROM users_data
+            WHERE userid = ${user_id} AND city = {{ city }}
+            """,
+            "databricks",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = 42 AND city = 'London'
+            """,
+            dict(
+                user_id="42",
+                city="'London'",
+            ),
+        ),
+        (
+            # Databricks widget names may be dotted and the braced form may
+            # be empty. Unset parameters keep their name.
+            "SELECT ${test.nrows}, $npartitions, ${} FROM t;",
+            "databricks",
+            "SELECT test.nrows, npartitions, 1 FROM t;",
+            {},
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
             WHERE (city_id) IN $12
             AND date > $90
             """,
@@ -402,6 +427,8 @@ def test__templater_raw():
         "numeric_colon",
         "pyformat",
         "dollar",
+        "databricks_widgets_and_dashboard",
+        "databricks_unset_and_empty",
         "numeric_dollar",
         "numeric_dollar_with_braces",
         "numeric_dollar_with_braces_and_string",
