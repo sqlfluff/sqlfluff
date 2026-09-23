@@ -816,6 +816,9 @@ oracle_dialect.replace(
             Ref("PlusJoinGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
+            # CURSOR and MULTISET take a query as their only argument.
+            Sequence("CURSOR", Bracketed(Ref("SelectableGrammar"))),
+            Sequence("MULTISET", Bracketed(Ref("SelectableGrammar"))),
             Ref("TriggerCorrelationReferenceSegment"),
             Bracketed(
                 OneOf(

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f9de1f34769f07e2598fcce4c02bf5944c214d8eded2fe052998c91dd814029
+_hash: 81307f19fc863a63933cc60329fd208ffed77a43d536537f7bf87f85cc0a3c05
 file:
 - statement:
     scripting_declare_statement:
@@ -135,36 +135,30 @@ file:
     scripting_declare_statement:
     - keyword: DECLARE
     - variable: res
-    - data_type:
-        data_type_identifier: RESULTSET
+    - keyword: RESULTSET
     - keyword: DEFAULT
-    - expression:
-        function:
-          function_name:
-            function_name_identifier: ASYNC
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      column_reference:
-                        naked_identifier: a
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            naked_identifier: t001
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: a
-              end_bracket: )
+    - keyword: ASYNC
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t001
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: a
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     scripting_declare_statement:
@@ -199,36 +193,30 @@ file:
 - statement_terminator: ;
 - statement:
     scripting_declare_statement:
-      keyword: DECLARE
-      variable: res
-      data_type:
-        data_type_identifier: RESULTSET
-      assignment_operator: :=
-      expression:
-        function:
-          function_name:
-            function_name_identifier: ASYNC
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      column_reference:
-                        naked_identifier: a
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            naked_identifier: t001
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: a
-              end_bracket: )
+    - keyword: DECLARE
+    - variable: res
+    - keyword: RESULTSET
+    - assignment_operator: :=
+    - keyword: ASYNC
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t001
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: a
+        end_bracket: )
 - statement_terminator: ;

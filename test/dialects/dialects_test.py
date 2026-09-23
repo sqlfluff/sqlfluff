@@ -78,10 +78,32 @@ def test__dialect__rejects_trailing_comma_after_final_cte(dialect):
         "SELECT 1 + SELECT 2;",
         "SELECT 1 WHERE x = SELECT 1;",
         "SELECT (SELECT SELECT 1);",
+        "SELECT COALESCE(SELECT 1);",
     ],
 )
 def test__dialect__scalar_subquery_requires_parentheses(dialect, sql):
     """A SELECT cannot be used as a bare expression, even inside a subquery."""
+    parsed = Linter(dialect=dialect).parse_string(sql)
+    assert [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+
+@pytest.mark.parametrize(
+    "dialect",
+    ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "sqlite"],
+)
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT FOO(SELECT 1);",
+        "SELECT FOO(WITH q AS (SELECT 1) SELECT * FROM q);",
+    ],
+)
+def test__dialect__function_query_argument_requires_parentheses(dialect, sql):
+    """A query in a generic function argument must be parenthesized.
+
+    NOTE: T-SQL is excluded because it already accepted these forms before
+    this change; that behaviour is unchanged here.
+    """
     parsed = Linter(dialect=dialect).parse_string(sql)
     assert [v for v in parsed.violations if v.rule_code() == "PRS"]
 
@@ -117,7 +139,6 @@ def test__dialect__bracketed_subquery_expression(dialect, sql):
 @pytest.mark.parametrize(
     "dialect,sql,select_count",
     [
-        ("ansi", "SELECT ARRAY(SELECT 1);", 2),
         ("bigquery", "SELECT ARRAY(SELECT 1);", 2),
         ("postgres", "SELECT ARRAY(SELECT 1);", 2),
         ("oracle", "SELECT CURSOR(SELECT 1 FROM dual) FROM dual;", 2),
@@ -157,10 +178,10 @@ def test__dialect__select_in_query_context(dialect, sql, select_count):
     assert len(list(parsed.tree.recursive_crawl("select_statement"))) == select_count
 
 
-def test__dialect__function_subquery_with_cte():
-    """A query-taking constructor must recognize WITH, not just its SELECTs."""
+def test__dialect__postgres_array_subquery_with_cte():
+    """The Postgres ARRAY(subquery) support must recognize WITH, not just SELECTs."""
     sql = "SELECT ARRAY(WITH q AS (SELECT x FROM t) SELECT x FROM q) FROM outer_t;"
-    parsed = Linter(dialect="ansi").parse_string(sql)
+    parsed = Linter(dialect="postgres").parse_string(sql)
     assert not parsed.violations
     assert parsed.tree.raw == sql
     assert len(list(parsed.tree.recursive_crawl("select_statement"))) == 3

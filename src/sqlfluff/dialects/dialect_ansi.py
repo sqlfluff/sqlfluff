@@ -1556,11 +1556,8 @@ class FunctionContentsSegment(BaseSegment):
 
     match_grammar = Sequence(
         Bracketed(
-            OneOf(
-                # These brackets enclose queries such as ARRAY(SELECT ...).
-                Ref("SelectStatementExpressionSegment"),
-                Ref("SelectableGrammar"),
-                Ref("FunctionContentsGrammar"),
+            Ref(
+                "FunctionContentsGrammar",
                 # The brackets might be empty for some functions...
                 optional=True,
             ),
