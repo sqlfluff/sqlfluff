@@ -170,6 +170,12 @@ def test__dialect__bracketed_subquery_expression(dialect, sql):
             "DO UPDATE SET (a, b) = ROW (SELECT 1, 2);",
             1,
         ),
+        ("snowflake", "LET res RESULTSET := ASYNC (SELECT 1);", 1),
+        (
+            "snowflake",
+            "DECLARE\n  res RESULTSET;\nBEGIN\n  res := ASYNC (SELECT 1);\nEND;",
+            1,
+        ),
     ],
 )
 def test__dialect__select_in_query_context(dialect, sql, select_count):

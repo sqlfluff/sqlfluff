@@ -4722,6 +4722,14 @@ class ScriptingLetStatementSegment(BaseSegment):
             OneOf(
                 # Variable assignment
                 OneOf(
+                    # Asynchronous resultset initialization (ASYNC is only
+                    # valid for RESULTSET variables).
+                    Sequence(
+                        Ref("ResultsetTypeSegment"),
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        "ASYNC",
+                        Ref("ExpressionSegment"),
+                    ),
                     Sequence(
                         Ref("DatatypeSegment"),
                         OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
@@ -4756,6 +4764,8 @@ class ScriptingLetStatementSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 # Cursors cannot be reassigned
                 # no code
+                # Asynchronous resultset reassigment
+                Sequence("ASYNC", Bracketed(Ref("SelectableGrammar"))),
                 # Resultset reassigment
                 Bracketed(Ref("SelectableGrammar")),
             ),
