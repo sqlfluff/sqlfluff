@@ -101,8 +101,10 @@ def test__dialect__scalar_subquery_requires_parentheses(dialect, sql):
 def test__dialect__function_query_argument_requires_parentheses(dialect, sql):
     """A query in a generic function argument must be parenthesized.
 
-    NOTE: T-SQL is excluded because it already accepted these forms before
-    this change; that behaviour is unchanged here.
+    NOTE: T-SQL is not included because its generic function path accepted
+    these forms before this change and still does. T-SQL's reserved-keyword
+    functions (COALESCE, NULLIF) are matched separately, so the rejection
+    cases above still apply to them.
     """
     parsed = Linter(dialect=dialect).parse_string(sql)
     assert [v for v in parsed.violations if v.rule_code() == "PRS"]

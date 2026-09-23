@@ -11760,6 +11760,20 @@ class BindVariableSegment(BaseSegment):
     )
 
 
+class ResultsetTypeSegment(BaseSegment):
+    """The `RESULTSET` data type for Snowflake scripting variables.
+
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+    """
+
+    type = "data_type"
+    match_grammar: Matchable = StringParser(
+        "RESULTSET",
+        CodeSegment,
+        type="data_type_identifier",
+    )
+
+
 class ScriptingDeclareStatementSegment(BaseSegment):
     """A snowflake `Declare` statement for SQL scripting.
 
@@ -11777,6 +11791,14 @@ class ScriptingDeclareStatementSegment(BaseSegment):
             OneOf(
                 # Variable assignment
                 OneOf(
+                    # Asynchronous resultset initialization (ASYNC is only
+                    # valid for RESULTSET variables).
+                    Sequence(
+                        Ref("ResultsetTypeSegment"),
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        "ASYNC",
+                        Ref("ExpressionSegment"),
+                    ),
                     Sequence(
                         Ref("DatatypeSegment"),
                         OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
@@ -11802,7 +11824,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                             Ref("WalrusOperatorSegment"),
                         ),
                         Sequence("ASYNC", optional=True),
-                        Bracketed(Ref("SelectableGrammar"), optional=True),
+                        Bracketed(Ref("SelectClauseSegment"), optional=True),
                         optional=True,
                     ),
                 ),
@@ -11825,6 +11847,14 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                 OneOf(
                     # Variable assignment
                     OneOf(
+                        # Asynchronous resultset initialization (ASYNC is only
+                        # valid for RESULTSET variables).
+                        Sequence(
+                            Ref("ResultsetTypeSegment"),
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            "ASYNC",
+                            Ref("ExpressionSegment"),
+                        ),
                         Sequence(
                             Ref("DatatypeSegment"),
                             OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
@@ -11852,7 +11882,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                                 Ref("WalrusOperatorSegment"),
                             ),
                             Sequence("ASYNC", optional=True),
-                            Bracketed(Ref("SelectableGrammar"), optional=True),
+                            Bracketed(Ref("SelectClauseSegment"), optional=True),
                             optional=True,
                         ),
                     ),

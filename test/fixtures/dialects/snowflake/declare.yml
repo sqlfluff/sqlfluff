@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81307f19fc863a63933cc60329fd208ffed77a43d536537f7bf87f85cc0a3c05
+_hash: d562152982b1f1262c6a2cd3455a501e78b57ab9d7a87d263aa68a5612a93aa0
 file:
 - statement:
     scripting_declare_statement:
@@ -135,30 +135,33 @@ file:
     scripting_declare_statement:
     - keyword: DECLARE
     - variable: res
-    - keyword: RESULTSET
+    - data_type:
+        data_type_identifier: RESULTSET
     - keyword: DEFAULT
     - keyword: ASYNC
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                naked_identifier: a
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t001
-          orderby_clause:
-          - keyword: ORDER
-          - keyword: BY
-          - column_reference:
-              naked_identifier: a
-        end_bracket: )
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t001
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     scripting_declare_statement:
@@ -195,28 +198,31 @@ file:
     scripting_declare_statement:
     - keyword: DECLARE
     - variable: res
-    - keyword: RESULTSET
+    - data_type:
+        data_type_identifier: RESULTSET
     - assignment_operator: :=
     - keyword: ASYNC
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                naked_identifier: a
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t001
-          orderby_clause:
-          - keyword: ORDER
-          - keyword: BY
-          - column_reference:
-              naked_identifier: a
-        end_bracket: )
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t001
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+          end_bracket: )
 - statement_terminator: ;
