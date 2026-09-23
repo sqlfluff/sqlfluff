@@ -11,6 +11,7 @@ double-counting issues.
 """
 
 import functools
+import inspect
 import logging
 import os
 import time
@@ -119,6 +120,30 @@ try:
     )
 
     _HAS_RUST_PARSER = True
+
+    _RS_BASE_NODE_COUNT_SUPPORTED: Optional[bool] = None
+
+    def _rs_supports_base_node_count() -> bool:
+        """Whether the installed ``sqlfluffrs`` accepts ``base_node_count``.
+
+        The parameter was added alongside this code, so a wheel that predates
+        it (for example the pinned released one, when ``sqlfluff`` itself is
+        installed from a branch) would raise ``TypeError`` if the keyword were
+        passed unconditionally. Detect support once and fall back to the
+        token-count base otherwise.
+        """
+        global _RS_BASE_NODE_COUNT_SUPPORTED
+        if _RS_BASE_NODE_COUNT_SUPPORTED is None:
+            try:
+                _RS_BASE_NODE_COUNT_SUPPORTED = (
+                    "base_node_count"
+                    in inspect.signature(
+                        RsParser.parse_match_result_from_tokens
+                    ).parameters
+                )
+            except (TypeError, ValueError):  # pragma: no cover
+                _RS_BASE_NODE_COUNT_SUPPORTED = False
+        return bool(_RS_BASE_NODE_COUNT_SUPPORTED)
 
     class RustParser:
         """Parser wrapper that uses Rust implementation but returns BaseSegment.
@@ -261,7 +286,19 @@ try:
                 try:
                     if _prof is not None:
                         _ts = time.perf_counter()
-                    rs_match = self._rs_parser.parse_match_result_from_tokens(tokens)
+                    # Pass the full segment count so Rust enforces
+                    # `max_parse_nodes` from the same base as the Python engine
+                    # (which seeds from `len(segments)`); Rust only sees the
+                    # trimmed code slice otherwise. Older `sqlfluffrs` builds
+                    # don't accept the keyword, so pass it only when supported.
+                    _rust_kwargs = (
+                        {"base_node_count": len(segments)}
+                        if _rs_supports_base_node_count()
+                        else {}
+                    )
+                    rs_match = self._rs_parser.parse_match_result_from_tokens(
+                        tokens, **_rust_kwargs
+                    )
                     if _prof is not None:
                         _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:

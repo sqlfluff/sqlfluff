@@ -882,4 +882,40 @@ mod tests {
         assert!(m1.is_better_than(&m2));
         assert!(!m2.is_better_than(&m1));
     }
+
+    #[test]
+    fn test_node_count_counts_classed_children_and_all_inserts() {
+        // A leaf match with a class counts one node.
+        let leaf = MatchResult {
+            matched_slice: 0..1,
+            matched_class: Some(MatchedClass::root()),
+            insert_segments: vec![],
+            child_matches: vec![],
+        };
+        assert_eq!(leaf.node_count(), 1);
+
+        // Inserts are charged even on non-empty matches. The Python engine used
+        // to charge them only for zero-length matches, which let it under-count
+        // relative to Rust; this pins the Rust side of that agreement.
+        let parent = MatchResult {
+            matched_slice: 0..3,
+            matched_class: Some(MatchedClass::root()),
+            insert_segments: vec![
+                (0, MetaSegment::Indent { is_implicit: false }),
+                (3, MetaSegment::Dedent { is_implicit: false }),
+            ],
+            child_matches: vec![Arc::new(leaf)],
+        };
+        // 1 classed node + 2 inserts + 1 classed child.
+        assert_eq!(parent.node_count(), 4);
+
+        // A wrapper with no class contributes only its children.
+        let wrapper = MatchResult {
+            matched_slice: 0..3,
+            matched_class: None,
+            insert_segments: vec![],
+            child_matches: vec![Arc::new(parent)],
+        };
+        assert_eq!(wrapper.node_count(), 4);
+    }
 }
