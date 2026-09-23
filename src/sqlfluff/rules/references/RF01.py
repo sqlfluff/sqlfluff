@@ -321,6 +321,14 @@ class Rule_RF01(BaseRule):
 
         targets += self._get_implicit_targets(query)
 
+        if query.dialect.name == "trino" and not self.force_enable:
+            # ROW access starts with a visible table or alias, followed by a
+            # column and its fields. Do not match an alias in the field suffix.
+            for reference in self._table_ref_as_tuple(r, query.dialect):
+                for end in range(1, len(reference) - 1):
+                    if any(reference[:end] == target[-end:] for target in targets):
+                        return None
+
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:

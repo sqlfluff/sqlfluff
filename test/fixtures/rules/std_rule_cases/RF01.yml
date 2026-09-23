@@ -488,6 +488,95 @@ test_trino_correlated_reference_in_joined_subquery:
     core:
       dialect: trino
 
+test_trino_correlated_row_reference_in_joined_subquery:
+  pass_str: |
+    SELECT ci.id
+    FROM source_table AS ci
+    WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = ci.metadata.sub_column
+    )
+  configs:
+    core:
+      dialect: trino
+
+test_trino_correlated_nested_row_reference_quoted_alias:
+  pass_str: |
+    SELECT "Ci".id
+    FROM source_table AS "Ci"
+    WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = "Ci".metadata.nested.sub_column
+    )
+  configs:
+    core:
+      dialect: trino
+
+test_trino_correlated_row_reference_qualified_table:
+  pass_str: |
+    SELECT source_table.id
+    FROM catalog.schema.source_table
+    WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = catalog.schema.source_table.metadata.sub_column
+            OR b.key = schema.source_table.metadata.sub_column
+            OR b.key = source_table.metadata.sub_column
+    )
+  configs:
+    core:
+      dialect: trino
+
+test_trino_row_reference_with_multiple_tables:
+  pass_str: |
+    SELECT a.metadata.nested.value
+    FROM first_table AS a
+    JOIN second_table AS b ON a.id = b.id;
+  configs:
+    core:
+      dialect: trino
+
+test_trino_unknown_correlated_row_reference:
+  fail_str: |
+    SELECT ci.id
+    FROM source_table AS ci
+    WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.metadata.sub_column
+    )
+  line_numbers: [5]
+  configs:
+    core:
+      dialect: trino
+
+test_trino_correlated_row_reference_force_enable:
+  fail_str: |
+    SELECT ci.id
+    FROM source_table AS ci
+    WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = ci.metadata.sub_column
+    )
+  line_numbers: [5]
+  configs:
+    core:
+      dialect: trino
+    rules:
+      references.from:
+        force_enable: true
+
+test_trino_unknown_row_qualifier_containing_parent_alias:
+  fail_str: |
+    SELECT ci.id
+    FROM source_table AS ci
+    WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.ci.metadata.sub_column
+    )
+  line_numbers: [5]
+  configs:
+    core:
+      dialect: trino
+
 test_trino_unknown_reference_with_multiple_tables:
   fail_str: |
     SELECT missing.value
