@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd6d590d5303f19aff70b8a8dd3b6ca8eab8e93194a52ebec8160fa7dddd98fb
+_hash: 719695d9f72ec148ced2393d7f4ea80e835d1a9f9c2dc617b1d001e7ae46effc
 file:
 - statement:
     create_row_access_policy_statement:
@@ -14,7 +14,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - naked_identifier: my_access_policy
+    - object_reference:
+        naked_identifier: my_access_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -37,7 +38,8 @@ file:
     - keyword: ROW
     - keyword: ACCESS
     - keyword: POLICY
-    - naked_identifier: my_access_policy
+    - object_reference:
+        naked_identifier: my_access_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -63,7 +65,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - naked_identifier: my_access_policy
+    - object_reference:
+        naked_identifier: my_access_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -89,7 +92,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - naked_identifier: my_access_policy
+    - object_reference:
+        naked_identifier: my_access_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -115,7 +119,8 @@ file:
     - keyword: ROW
     - keyword: ACCESS
     - keyword: POLICY
-    - naked_identifier: my_access_policy
+    - object_reference:
+        naked_identifier: my_access_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -136,7 +141,8 @@ file:
     - keyword: ROW
     - keyword: ACCESS
     - keyword: POLICY
-    - naked_identifier: my_access_policy
+    - object_reference:
+        naked_identifier: my_access_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -162,7 +168,8 @@ file:
     - keyword: ROW
     - keyword: ACCESS
     - keyword: POLICY
-    - quoted_identifier: '"My-Access-Policy"'
+    - object_reference:
+        quoted_identifier: '"My-Access-Policy"'
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -176,4 +183,44 @@ file:
     - function_assigner: ->
     - expression:
         boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: DUMMY_SCHEMA
+      - dot: .
+      - naked_identifier: DATA_FIREWALL
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: FOO
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: FOO
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'allowed'"
+          end_bracket: )
 - statement_terminator: ;
