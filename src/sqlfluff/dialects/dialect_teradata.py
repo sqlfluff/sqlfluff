@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     Sequence,
@@ -228,6 +229,9 @@ class BteqKeyWordSegment(BaseSegment):
     """
 
     type = "bteq_key_word_segment"
+    # Gaps are spelled out as same-line whitespace so a keyword and its literal
+    # cannot be split across a newline, e.g. `.QUIT` on one line must not pick
+    # up a number from the next one.
     match_grammar = Sequence(
         Ref("DotSegment", optional=True),
         OneOf(
@@ -246,7 +250,13 @@ class BteqKeyWordSegment(BaseSegment):
             "QUIT",
             "ACTIVITYCOUNT",
         ),
-        Ref("LiteralGrammar", optional=True),
+        Sequence(
+            Ref("BteqInlineWhitespaceGrammar"),
+            Ref("LiteralGrammar"),
+            allow_gaps=False,
+            optional=True,
+        ),
+        allow_gaps=False,
     )
 
 
@@ -295,10 +305,19 @@ class BteqStatementSegment(BaseSegment):
         # parse; any other command word (e.g. `.SET`, `.OS`, `.REMARK`) is
         # accepted generically so the full BTEQ command set is supported.
         OneOf(Ref("BteqKeyWordSegment"), Ref("BteqCommandNameSegment")),
-        # Optional arguments, anchored to the command's own line by the leading
-        # same-line whitespace. Because the outer sequence disallows gaps, a
-        # command with no arguments (e.g. `.LOGOFF`) stops here rather than
-        # skipping the end-of-line newline and absorbing the next statement.
+        # The command's arguments, confined to the command's own line.
+        #
+        # GREEDY trims the window to the terminating newline before any of the
+        # content below is matched, so nothing in here can reach the next line
+        # no matter how freely it skips whitespace. That matters because the
+        # argument matching below does allow gaps, and a newline is just
+        # another gap: without the window, `.IF ERRORCODE <> 0 THEN .QUIT 1`
+        # keeps matching keywords onto the following line and swallows the
+        # dot-command sitting there.
+        #
+        # The leading whitespace is matched explicitly rather than skipped,
+        # which is what stops a command with no arguments at all (`.LOGOFF`)
+        # from stepping over its own newline.
         Sequence(
             Ref("BteqInlineWhitespaceGrammar"),
             # Structured arguments for the commands we model in detail.
@@ -314,17 +333,12 @@ class BteqStatementSegment(BaseSegment):
                 Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
                 optional=True,
             ),
-            # Any remaining tokens on the line are treated as opaque command
-            # arguments, bounded by the newline (or a semicolon) so they never
-            # bleed into the following statement.
-            Anything(
-                terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
-                optional=True,
-            ),
-            # No gaps: the leading whitespace above must be matched explicitly
-            # (rather than skipped) to anchor the arguments to the command line.
+            # Anything else on the line is opaque command arguments.
+            Anything(optional=True),
             allow_gaps=False,
             optional=True,
+            parse_mode=ParseMode.GREEDY,
+            terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
         ),
         allow_gaps=False,
     )
@@ -906,27 +920,55 @@ class StatementSegment(ansi.StatementSegment):
     )
 
 
+class BteqCommandStatementSegment(StatementSegment):
+    """A statement which is specifically a BTEQ dot-command.
+
+    This is the ordinary ``statement`` node, narrowed to just the dot-command
+    case. :class:`FileSegment` uses it to make the trailing semicolon optional
+    for dot-commands only, so ordinary SQL keeps its terminator.
+    """
+
+    type = "statement"
+
+    match_grammar = Ref("BteqStatementSegment")
+
+
 class FileSegment(ansi.FileSegment):
     """A Teradata file/script.
 
-    BTEQ dot-commands are terminated by the end of their line rather than a
-    semicolon, so a statement's terminator is optional here. This lets a
-    newline-terminated dot-command be separated from the following statement
-    without a semicolon (a BTEQ script rarely puts semicolons on dot-commands),
-    while ordinary SQL statements continue to be semicolon-terminated. This
-    mirrors the optional-delimiter approach already used by the T-SQL dialect.
+    A BTEQ dot-command is terminated by the end of its line rather than by a
+    semicolon, so its terminator is optional here. Ordinary SQL still has to be
+    terminated, which is why the two cases are separate branches below rather
+    than one branch with an optional delimiter: making the delimiter optional
+    for every statement would leave nothing stopping two unseparated SQL
+    statements except the fact that the first one happens to match greedily and
+    then fail. Keeping the branches apart makes that a property of the grammar
+    instead of a side effect.
+
+    As in ansi, the final statement in a file may leave off its trailing
+    semicolon.
     """
 
     match_grammar = Sequence(
         AnyNumberOf(
             OneOf(
+                # A dot-command ends at its newline, so the semicolon is
+                # optional.
                 Sequence(
-                    Ref("StatementSegment"),
+                    Ref("BteqCommandStatementSegment"),
                     Ref("DelimiterGrammar", optional=True),
                 ),
+                # Ordinary SQL keeps its terminator.
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterGrammar"),
+                ),
+                # Stray or repeated delimiters.
                 Ref("DelimiterGrammar"),
             ),
         ),
+        # The last statement in the file may omit its trailing delimiter.
+        Ref("StatementSegment", optional=True),
     )
 
 

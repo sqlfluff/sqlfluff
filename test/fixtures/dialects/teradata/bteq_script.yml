@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b68e14ca3a82946e2c047c2db58a244b88f1a824e74e0f612689be21d79da28e
+_hash: e64b41b7bf6cae77c236afcd6a8f20122d84fd70b43844ea13c78379fb79da8f
 file:
 - statement:
     bteq_statement:
@@ -45,6 +45,12 @@ file:
         keyword: QUIT
         numeric_literal: '1'
 - statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: LABEL
+      word: LOADSTEP
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -75,6 +81,22 @@ file:
     bteq_statement:
     - dot: .
     - bteq_key_word_segment:
+        keyword: IF
+    - bteq_key_word_segment:
+        keyword: ACTIVITYCOUNT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '0'
+    - bteq_key_word_segment:
+        keyword: THEN
+    - bteq_key_word_segment:
+        dot: .
+        keyword: QUIT
+        numeric_literal: '2'
+- statement:
+    bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
         keyword: EXPORT
     - word: DATA
     - word: FILE
@@ -82,6 +104,16 @@ file:
     - word: out
     - dot: .
     - word: dat
+- statement:
+    bteq_statement:
+      dot: .
+      bteq_key_word_segment:
+        keyword: RUN
+      keyword: FILE
+      comparison_operator:
+        raw_comparison_operator: '='
+      bteq_file_path:
+        naked_identifier: POSTING
 - statement:
     bteq_statement:
       dot: .
