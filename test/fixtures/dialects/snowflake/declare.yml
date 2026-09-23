@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d562152982b1f1262c6a2cd3455a501e78b57ab9d7a87d263aa68a5612a93aa0
+_hash: db41f551b5d601b1343458cf414304f9518a371245d3fa306883a4d86e6d6159
 file:
 - statement:
     scripting_declare_statement:
@@ -139,29 +139,27 @@ file:
         data_type_identifier: RESULTSET
     - keyword: DEFAULT
     - keyword: ASYNC
-    - expression:
-        bracketed:
-          start_bracket: (
-          expression:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: a
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: t001
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  naked_identifier: a
-          end_bracket: )
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t001
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: a
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     scripting_declare_statement:
@@ -202,27 +200,25 @@ file:
         data_type_identifier: RESULTSET
     - assignment_operator: :=
     - keyword: ASYNC
-    - expression:
-        bracketed:
-          start_bracket: (
-          expression:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: a
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: t001
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  naked_identifier: a
-          end_bracket: )
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t001
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: a
+        end_bracket: )
 - statement_terminator: ;

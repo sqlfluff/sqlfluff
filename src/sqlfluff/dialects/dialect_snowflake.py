@@ -4728,7 +4728,7 @@ class ScriptingLetStatementSegment(BaseSegment):
                         Ref("ResultsetTypeSegment"),
                         OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
                         "ASYNC",
-                        Ref("ExpressionSegment"),
+                        Bracketed(Ref("SelectableGrammar")),
                     ),
                     Sequence(
                         Ref("DatatypeSegment"),
@@ -11807,7 +11807,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                         Ref("ResultsetTypeSegment"),
                         OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
                         "ASYNC",
-                        Ref("ExpressionSegment"),
+                        Bracketed(Ref("SelectableGrammar")),
                     ),
                     Sequence(
                         Ref("DatatypeSegment"),
@@ -11863,7 +11863,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                             Ref("ResultsetTypeSegment"),
                             OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
                             "ASYNC",
-                            Ref("ExpressionSegment"),
+                            Bracketed(Ref("SelectableGrammar")),
                         ),
                         Sequence(
                             Ref("DatatypeSegment"),
