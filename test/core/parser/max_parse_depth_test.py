@@ -1,5 +1,7 @@
 """Tests for max_parse_depth limit (DoS mitigation)."""
 
+from typing import Callable
+
 import pytest
 
 from sqlfluff.core import FluffConfig
@@ -129,3 +131,83 @@ def test_parse_context_max_parse_depth_zero_disables_limit():
     config = FluffConfig(overrides={"dialect": "ansi", "max_parse_depth": 0})
     ctx = ParseContext.from_config(config)
     assert ctx.max_parse_depth == 0
+
+
+def _rust_parser_available() -> bool:
+    """Whether the Rust parser extension is importable."""
+    try:
+        from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER
+    except ImportError:
+        return False
+    return bool(_HAS_RUST_PARSER)
+
+
+def _engine_accepts_at_depth(sql: str, use_rust: bool, limit: int) -> bool:
+    """Whether the engine parses ``sql`` under ``max_parse_depth=limit``."""
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "use_rust_parser": use_rust,
+            # Disable the node limit so only the depth guard is exercised.
+            "max_parse_nodes": 0,
+            "max_parse_depth": limit,
+        }
+    )
+    parsed = Linter(config=config).parse_string(sql)
+    return not any(
+        isinstance(v, SQLParseError) and MESSAGE_PREFIX in v.desc()
+        for v in parsed.violations
+    )
+
+
+def _depth_metric(sql: str, use_rust: bool, hi: int = 1500) -> int:
+    """Smallest ``max_parse_depth`` at which the engine accepts ``sql``.
+
+    The guard rejects when the tracked depth is strictly greater than the
+    limit, so this equals the engine's peak tracked depth for the input.
+    """
+    assert _engine_accepts_at_depth(sql, use_rust, hi), "upper bound too low"
+    lo = 1
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if _engine_accepts_at_depth(sql, use_rust, mid):
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+
+
+_DEPTH_SHAPES: list[tuple[str, Callable[[int], str]]] = [
+    ("nested_brackets", lambda d: "SELECT " + "(" * d + "1" + ")" * d),
+    ("nested_functions", lambda d: "SELECT " + "f(" * d + "1" + ")" * d),
+    ("nested_subqueries", lambda d: "SELECT " + "(SELECT " * d + "1" + ")" * d),
+    ("bracketed_arithmetic", lambda d: "SELECT " + "1+(" * d + "1" + ")" * d),
+    ("flat_plus_chain", lambda d: "SELECT " + "+".join("1" for _ in range(d))),
+]
+
+
+@pytest.mark.skipif(not _rust_parser_available(), reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "name,builder", _DEPTH_SHAPES, ids=[shape[0] for shape in _DEPTH_SHAPES]
+)
+def test_max_parse_depth_rust_is_never_stricter_than_python(
+    name: str, builder: Callable[[int], str]
+) -> None:
+    """The Rust engine must not reject SQL that the Python engine accepts.
+
+    The two engines count parse depth differently: Python tracks nested
+    ``deeper_match`` contexts while Rust tracks its table-driven frame stack, so
+    the exact boundary at which ``max_parse_depth`` trips is engine-dependent.
+    Python is currently the stricter of the two. This test pins only the *safe*
+    direction — Rust's threshold must not exceed Python's — so that the default
+    (Rust) engine can never start rejecting input that pure Python would parse.
+    Exact parity is a separate, tracked issue.
+    """
+    sql = builder(25)
+    python_metric = _depth_metric(sql, use_rust=False)
+    rust_metric = _depth_metric(sql, use_rust=True)
+    assert rust_metric <= python_metric, (
+        f"{name}: Rust depth threshold ({rust_metric}) exceeded Python's "
+        f"({python_metric}); the default engine now rejects deeper input than "
+        "pure Python, which is the unsafe direction."
+    )
