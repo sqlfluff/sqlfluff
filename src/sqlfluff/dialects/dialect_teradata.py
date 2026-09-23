@@ -203,10 +203,11 @@ teradata_dialect.add(
         "whitespace", WhitespaceSegment, type="whitespace"
     ),
     # The command word of a BTEQ dot-command that we don't model explicitly
-    # (e.g. `.SET`, `.OS`, `.REMARK`, `.SHOW`). Matches any bare word.
-    BteqCommandNameSegment=TypedParser(
-        "word", CodeSegment, type="bteq_key_word_segment"
-    ),
+    # (e.g. `.SET`, `.OS`, `.REMARK`, `.SHOW`). Matches any bare word, so it
+    # also picks up misspellings. It carries its own type rather than reusing
+    # `bteq_key_word_segment`, which would leave anything keyed on that type
+    # unable to tell a modelled control-flow keyword from an arbitrary word.
+    BteqCommandNameSegment=TypedParser("word", CodeSegment, type="bteq_command_name"),
 )
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e64b41b7bf6cae77c236afcd6a8f20122d84fd70b43844ea13c78379fb79da8f
+_hash: eea8ad7ab84a5b30241409d57e21b7ea1359501f2cb3a071701cbf8a8fabf2fb
 file:
 - statement:
     bteq_statement:
@@ -18,7 +18,7 @@ file:
 - statement:
     bteq_statement:
       dot: .
-      bteq_key_word_segment: SET
+      bteq_command_name: SET
       word: WIDTH
       numeric_literal: '254'
 - statement:

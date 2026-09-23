@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5fa22b19a2c159e9b6edf38539c487897abed84b0ea4801891eae1857375499
+_hash: ce05f5b03007c6e58e62bd9086c29a3c48bc208cab252f48f894365a2c17f84b
 file:
 - statement:
     bteq_statement:
@@ -19,14 +19,14 @@ file:
 - statement:
     bteq_statement:
       dot: .
-      bteq_key_word_segment: SET
+      bteq_command_name: SET
       word: WIDTH
       numeric_literal: '254'
 - statement_terminator: ;
 - statement:
     bteq_statement:
       dot: .
-      bteq_key_word_segment: SET
+      bteq_command_name: SET
       word: SEPARATOR
       single_quote: "'|'"
 - statement_terminator: ;
@@ -89,13 +89,13 @@ file:
 - statement:
     bteq_statement:
       dot: .
-      bteq_key_word_segment: REMARK
+      bteq_command_name: REMARK
       single_quote: "'load complete'"
 - statement_terminator: ;
 - statement:
     bteq_statement:
     - dot: .
-    - bteq_key_word_segment: OS
+    - bteq_command_name: OS
     - word: ls
     - minus: '-'
     - word: l
@@ -103,7 +103,7 @@ file:
 - statement:
     bteq_statement:
       dot: .
-      bteq_key_word_segment: SHOW
+      bteq_command_name: SHOW
       word: CONTROLS
 - statement_terminator: ;
 - statement:

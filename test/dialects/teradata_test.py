@@ -86,6 +86,28 @@ def test_bteq_arguments_stop_at_the_end_of_the_line(
     assert bteq_statements[0].raw == first_command
 
 
+def test_modelled_and_generic_command_words_have_distinct_types(
+    teradata_linter: Linter,
+) -> None:
+    """A modelled keyword is distinguishable from an arbitrary command word.
+
+    `.LOGON` is one of the control-flow commands the grammar models, while
+    `.SET` and anything misspelled is matched by the generic catch-all. The
+    two must not share a segment type, or anything keyed on the modelled
+    keywords silently applies to opaque words as well.
+    """
+    parsed = teradata_linter.parse_string(
+        ".LOGON tdpid\n.SET WIDTH 254\n.NOSUCHCMD x\n"
+    )
+
+    assert not parsed.violations
+
+    keywords = [s.raw for s in parsed.tree.recursive_crawl("bteq_key_word_segment")]
+    command_names = [s.raw for s in parsed.tree.recursive_crawl("bteq_command_name")]
+    assert keywords == ["LOGON"]
+    assert command_names == ["SET", "NOSUCHCMD"]
+
+
 def test_bteq_keyword_does_not_take_a_literal_from_the_next_line(
     teradata_linter: Linter,
 ) -> None:
