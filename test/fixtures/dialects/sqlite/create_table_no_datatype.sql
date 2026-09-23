@@ -1,0 +1,15 @@
+CREATE TABLE t1 (a, b, c);
+
+CREATE TABLE t2 (
+    a PRIMARY KEY,
+    b NOT NULL,
+    c DEFAULT 1,
+    d UNIQUE,
+    e CHECK (e > 0),
+    f COLLATE NOCASE,
+    g REFERENCES t1 (a)
+);
+
+ALTER TABLE t1 ADD COLUMN d;
+
+ALTER TABLE t1 ADD COLUMN e GENERATED ALWAYS AS (a + 1) VIRTUAL;

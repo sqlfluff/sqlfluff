@@ -1,0 +1,126 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d24dd95d86ed177d079427d9c5ccfc00abfeb06877b2aac29a27f26335eefb69
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              numeric_literal: '1'
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          column_constraint_segment:
+            keyword: UNIQUE
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: e
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: f
+          column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              naked_identifier: NOCASE
+      - comma: ','
+      - column_definition:
+          naked_identifier: g
+          column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: t1
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: a
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: d
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: +
+              numeric_literal: '1'
+            end_bracket: )
+        - keyword: VIRTUAL
+- statement_terminator: ;
