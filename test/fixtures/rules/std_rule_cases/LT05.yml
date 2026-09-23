@@ -827,3 +827,97 @@ test_fail_no_fix_jinja_macro_with_brackets:
             {{ cast_tz("cast(source.order_arrived_date || ' ' || source.order_arrived_time as timestamp)") }}
         )
     FROM source
+
+test_pass_ignore_url_comment_lines:
+  pass_str: |
+    -- https://example.com/a/long/reference?query=value#fragment
+      --http://example.com/another/long/reference
+    /* https://example.com/a/long/reference */
+    /*
+        https://example.com/a/long/reference
+    */
+    -- ftp://example.com/a/long/reference
+    SELECT 1;
+  configs:
+    core:
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_mysql:
+  pass_str: |
+    # https://example.com/a/long/reference
+    SELECT 1;
+  configs:
+    core:
+      dialect: mysql
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_snowflake:
+  pass_str: |
+    // https://example.com/a/long/reference
+    SELECT 1;
+  configs:
+    core:
+      dialect: snowflake
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_crlf_and_eof:
+  pass_str: "-- https://example.com/a/long/reference\r\n-- https://example.com/a/long/reference"
+  configs:
+    core:
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_url_comment_lines_default:
+  fail_str: |
+    -- https://example.com/a/long/reference
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_ignore_url_comment_lines_disabled:
+  fail_str: |
+    -- https://example.com/a/long/reference
+  configs:
+    core:
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: false
+
+test_fail_ignore_url_comment_lines_prose:
+  line_numbers: [1, 2, 3, 4, 5]
+  fail_str: |
+    -- This ordinary comment is still too long.
+    -- See https://example.com/a/long/reference
+    -- https://example.com/a/long/reference for details
+    -- https://example.com/one https://example.com/two
+    /* See https://example.com/a/long/reference */
+  configs:
+    core:
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_after_template:
+  pass_str: |
+    {% set value = 1 %}
+    SELECT {{ value }};
+    -- https://example.com/a/long/reference
+  configs:
+    core:
+      max_line_length: 30
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true

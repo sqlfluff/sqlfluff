@@ -1,5 +1,6 @@
 """Implementation of Rule LT05."""
 
+import re
 from typing import cast
 
 from sqlfluff.core.parser.segments import RawSegment, TemplateSegment
@@ -25,18 +26,48 @@ class Rule_LT05(BaseRule):
     config_keywords = [
         "ignore_comment_lines",
         "ignore_comment_clauses",
+        "ignore_url_comment_lines",
     ]
 
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Line is too long."""
         self.ignore_comment_lines: bool
         self.ignore_comment_clauses: bool
+        self.ignore_url_comment_lines: bool
         # Reflow and generate fixes.
         results = (
             ReflowSequence.from_root(context.segment, context.config)
             .break_long_lines()
             .get_results()
         )
+
+        if self.ignore_url_comment_lines and results:
+            assert context.templated_file
+            source_lines = context.templated_file.source_str.split("\n")
+            url_comment_lines = set()
+            for seg in context.segment.raw_segments:
+                if not seg.is_type("comment") or not seg.pos_marker:
+                    continue
+                comment = seg.raw_trimmed().strip()
+                if seg.is_type("block_comment"):
+                    comment = comment.removeprefix("/*").removesuffix("*/").strip()
+                # Require a single URL with a scheme, without surrounding prose.
+                if not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9+.-]*://\S+", comment):
+                    continue
+                # Check the source line, not just the rendered comment: SQL or
+                # template code beside a URL must still count toward the limit.
+                source_line_no = seg.pos_marker.source_position()[0]
+                if source_lines[source_line_no - 1].strip() == seg.raw.strip():
+                    url_comment_lines.add(seg.pos_marker.working_line_no)
+            results = [
+                res
+                for res in results
+                if not (
+                    res.anchor
+                    and res.anchor.pos_marker
+                    and res.anchor.pos_marker.working_line_no in url_comment_lines
+                )
+            ]
 
         # Ignore any comment line if appropriate.
         if self.ignore_comment_lines:

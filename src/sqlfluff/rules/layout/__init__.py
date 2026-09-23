@@ -22,6 +22,15 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 " when linting line lengths?"
             ),
         },
+        "ignore_url_comment_lines": {
+            "validation": [True, False],
+            "definition": (
+                "Ignore lines containing only whitespace and a SQL comment "
+                "whose content is a single URL with a scheme (e.g. https://). "
+                "Defaults to False. Comments containing prose and lines "
+                "containing SQL are still checked."
+            ),
+        },
         "maximum_empty_lines_between_statements": {
             "validation": range(1000),
             "definition": (
