@@ -615,6 +615,18 @@ def greedy_match(
                 elif segments[_idx - 1].is_type("whitespace", "newline"):
                     allowable_match = True
                     break
+                elif segments[_idx - 1].is_type(
+                    "end_bracket",
+                    "end_square_bracket",
+                    "end_curly_bracket",
+                ):
+                    # A closing bracket is unambiguously a code boundary: a
+                    # keyword may follow one directly (`(a)FROM t`) and still
+                    # terminate. Only a word-like segment could absorb the
+                    # keyword into the preceding token, so the whitespace
+                    # requirement does not apply here.
+                    allowable_match = True
+                    break
                 else:
                     # Found something other than metas and whitespace.
                     break
