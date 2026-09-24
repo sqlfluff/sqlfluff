@@ -144,11 +144,11 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "magic_single_line",
-            r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+            r"(-- MAGIC %)([^\n]{2,})( [^\n%]{1})([^\n]*)",
             CodeSegment,
         ),
-        RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
-        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer("magic_line", r"(-- MAGIC)( [^\n%]{1})([^\n]*)", CodeSegment),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})", CodeSegment),
         RegexLexer(
             "bare_magic_sql",
             r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
@@ -2202,13 +2202,23 @@ class MagicCellStatementSegment(BaseSegment):
                 # line (`-- MAGIC %md`) or with content after it
                 # (`-- MAGIC %md # Title`). Both may be followed by further
                 # `-- MAGIC` lines: the directive only names the language, it
-                # does not say how many lines the cell has.
+                # does not say how many lines the cell has. A later line may
+                # itself start with `%` (an `%md` cell quoting `%pip`, for
+                # example) without opening another cell, so directive-shaped
+                # lines are body text too.
                 OneOf(
                     Ref("MagicStartGrammar"),
                     Ref("MagicSingleLineGrammar"),
                     optional=True,
                 ),
-                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+                AnyNumberOf(
+                    OneOf(
+                        Ref("MagicLineGrammar"),
+                        Ref("MagicSingleLineGrammar"),
+                        Ref("MagicStartGrammar"),
+                    ),
+                    optional=True,
+                ),
             ),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
