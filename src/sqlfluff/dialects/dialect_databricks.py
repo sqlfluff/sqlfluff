@@ -888,6 +888,20 @@ class DropVolumeStatementSegment(BaseSegment):
     )
 
 
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    Databricks documents an optional MATERIALIZED keyword:
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-view
+    """
+
+    match_grammar = ansi.DropViewStatementSegment.match_grammar.copy(
+        insert=[Ref.keyword("MATERIALIZED", optional=True)],
+        before=Ref.keyword("VIEW"),
+    )
+
+
 class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
