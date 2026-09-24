@@ -27,6 +27,14 @@ def _violations(sql: str) -> list:
     return violations
 
 
+def test_merge_insert_requires_values_clause() -> None:
+    """Oracle MERGE insert clauses cannot omit VALUES before WHERE."""
+    assert _violations(
+        "MERGE INTO target t USING source s ON (t.id = s.id) "
+        "WHEN NOT MATCHED THEN INSERT (id) WHERE s.id > 0;"
+    )
+
+
 # OraclePhysicalAttributesSegment - table-level attributes
 @pytest.mark.parametrize(
     "sql",
