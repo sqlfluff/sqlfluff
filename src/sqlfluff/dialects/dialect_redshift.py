@@ -2638,7 +2638,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
                     Sequence(
                         Ref("ObjectReferenceDelimiterGrammar"),
                         Ref("SingleIdentifierGrammar"),
-                        AnyNumberOf(Ref("ArrayAccessorSegment")),
+                        Ref("AccessorGrammar", optional=True),
                     ),
                 ),
             ),
