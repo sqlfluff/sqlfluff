@@ -1412,15 +1412,25 @@ class UnparsableSegment(BaseSegment):
     # Unparsable segments could contain anything.
     can_start_end_non_code = True
     _expected = ""
+    # The segment at which the parse actually failed, when the parser was
+    # able to record it (used to anchor parse failures). `None` otherwise.
+    _failure_segment: Optional["BaseSegment"] = None
 
     def __init__(
         self,
         segments: tuple[BaseSegment, ...],
         pos_marker: Optional[PositionMarker] = None,
         expected: str = "",
+        failure_segment: Optional[BaseSegment] = None,
     ) -> None:
         self._expected = expected
+        self._failure_segment = failure_segment
         super().__init__(segments=segments, pos_marker=pos_marker)
+
+    @property
+    def failure_segment(self) -> Optional["BaseSegment"]:
+        """The segment at which the parse actually failed, if known."""
+        return self._failure_segment
 
     def _suffix(self) -> str:
         """Return any extra output required at the end when logging.

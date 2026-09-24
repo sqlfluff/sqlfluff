@@ -31,6 +31,8 @@ try:
 except ImportError:
     SQLLexErrorClass = (SQLLexError,)
 
+from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER
+
 
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
@@ -1315,3 +1317,162 @@ def test__linter__large_file_skip_fail_config(
     # But if large_file_skip_fail is set, the CLI would bump this to 1.
     would_fail = bool(result.files_skipped and config.get("large_file_skip_fail"))
     assert would_fail == expected_would_fail
+
+
+@pytest.mark.parametrize("use_rust", [False, True])
+def test__linter__furthest_failure_anchor(use_rust):
+    """Parse failures can optionally be anchored at the furthest failure.
+
+    A root-shape parse failure is normally anchored at the start of the
+    enclosing unparsable section (here line 1, position 1). With
+    `core.furthest_failure_anchor` enabled the violation is anchored where
+    the parser actually got to instead. Both engines must agree.
+    """
+    sql = "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte"
+    overrides = {"dialect": "ansi", "use_rust_parser": use_rust}
+
+    default = Linter(config=FluffConfig(overrides=overrides)).parse_string(sql)
+    assert [(v.line_no, v.line_pos) for v in default.violations] == [(1, 1)]
+
+    anchored_config = FluffConfig(
+        overrides={**overrides, "furthest_failure_anchor": True}
+    )
+    anchored = Linter(config=anchored_config).parse_string(sql)
+    assert [(v.line_no, v.line_pos) for v in anchored.violations] == [(2, 1)]
+
+
+def test__linter__furthest_failure_anchor_cache_stable():
+    """The recorded furthest failure does not depend on parse cache warmth.
+
+    The recorder is a monotonic high-water mark, so a repeated parse (and a
+    cache hit that doesn't re-enter the handler) must not move the anchor.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi", "furthest_failure_anchor": True})
+    linter = Linter(config=config)
+    sql = "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte"
+    first = linter.parse_string(sql)
+    second = linter.parse_string(sql)
+    assert [v.desc() for v in first.violations] == [v.desc() for v in second.violations]
+    assert [(v.line_no, v.line_pos) for v in second.violations] == [(2, 1)]
+
+
+# (dialect, sql, anchored position, unanchored position)
+_FURTHEST_FAILURE_CASES = [
+    # Root-shape failure: anchored at the clause that begins the failure.
+    ("ansi", "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte", (2, 1), (1, 1)),
+    # A failure before a terminator must not anchor at the *next* statement.
+    (
+        "databricks",
+        "ALTER TABLE test_change CHANGE a;\nDESC test_change;",
+        (1, 33),
+        (1, 1),
+    ),
+    ("databricks", "FROM t;\nTABLE t;", (1, 7), (1, 1)),
+    # A required element failing inside an empty bracket anchors at the `)`.
+    (
+        "databricks",
+        "WITH t() AS (SELECT 1)\nSELECT * FROM t;",
+        (1, 8),
+        (1, 1),
+    ),
+    # Failures already at the section start are unchanged.
+    ("ansi", "select 1 2 3\nfrom my_table", (1, 10), (1, 10)),
+    ("ansi", "SELECT (1 + ) AS x;", (1, 11), (1, 11)),
+    # A failure recorded *before* the section (an earlier speculative attempt)
+    # falls back to the section start rather than pointing at the wrong SQL.
+    ("databricks", "desc formatted char_tbl c;", (1, 25), (1, 25)),
+]
+
+
+def _prs_positions(
+    sql: str, dialect: str, use_rust: bool, anchor: bool
+) -> list[tuple[int, int]]:
+    """Return the (line, position) of each parse (PRS) violation."""
+    config = FluffConfig(
+        overrides={
+            "dialect": dialect,
+            "use_rust_parser": use_rust,
+            "furthest_failure_anchor": anchor,
+        }
+    )
+    parsed = Linter(config=config).parse_string(sql)
+    return [
+        (v.line_no, v.line_pos) for v in parsed.violations if v.rule_code() == "PRS"
+    ]
+
+
+@pytest.mark.parametrize("dialect,sql,anchored,unanchored", _FURTHEST_FAILURE_CASES)
+def test__linter__furthest_failure_anchor_pinned(dialect, sql, anchored, unanchored):
+    """Pin the anchored and unanchored position of representative failures."""
+    assert _prs_positions(sql, dialect, False, False) == [unanchored]
+    assert _prs_positions(sql, dialect, False, True) == [anchored]
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize("dialect,sql,anchored,unanchored", _FURTHEST_FAILURE_CASES)
+def test__linter__furthest_failure_anchor_engine_agreement(
+    dialect, sql, anchored, unanchored
+):
+    """The Python and Rust parsers must anchor a failure identically.
+
+    This is the regression fence for the feature: the two engines backtrack
+    differently, so their "furthest failure" records can disagree unless the
+    recording sites and the linter-side bounds are kept in step.
+    """
+    python_positions = _prs_positions(sql, dialect, False, True)
+    assert python_positions == [anchored]
+    assert _prs_positions(sql, dialect, True, True) == python_positions
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__linter__furthest_failure_anchor_missing_rust_property(monkeypatch):
+    """Anchoring degrades gracefully against an older `sqlfluffrs` build.
+
+    The property is read through `getattr`, so a wheel that predates it falls
+    back to the unanchored position instead of failing the parse.
+    """
+    import sqlfluff.core.parser.rust_parser as rust_parser
+
+    real_parser = rust_parser.RsParser
+
+    class _NoFurthestFailure:
+        def __init__(self, inner):
+            self.__dict__["_inner"] = inner
+
+        def __getattr__(self, name):
+            if name == "furthest_failure":
+                raise AttributeError(name)
+            return getattr(self.__dict__["_inner"], name)
+
+    monkeypatch.setattr(
+        rust_parser,
+        "RsParser",
+        lambda **kwargs: _NoFurthestFailure(real_parser(**kwargs)),
+    )
+    sql = "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte"
+    assert _prs_positions(sql, "ansi", True, True) == [(1, 1)]
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__linter__furthest_failure_anchor_not_read_when_disabled(monkeypatch):
+    """The Rust property is not consulted at all while the feature is off."""
+    import sqlfluff.core.parser.rust_parser as rust_parser
+
+    real_parser = rust_parser.RsParser
+
+    class _ForbidRead:
+        def __init__(self, inner):
+            self.__dict__["_inner"] = inner
+
+        def __getattr__(self, name):
+            if name == "furthest_failure":
+                raise AssertionError("furthest_failure read while disabled")
+            return getattr(self.__dict__["_inner"], name)
+
+    monkeypatch.setattr(
+        rust_parser,
+        "RsParser",
+        lambda **kwargs: _ForbidRead(real_parser(**kwargs)),
+    )
+    sql = "WITH cte AS (SELECT 1)\nSELEC id\nFROM cte"
+    assert _prs_positions(sql, "ansi", True, False) == [(1, 1)]

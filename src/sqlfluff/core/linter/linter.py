@@ -314,22 +314,50 @@ class Linter:
             linter_logger.info("\n" + parsed.stringify())
         # We may succeed parsing, but still have unparsable segments. Extract them
         # here.
+        anchor_furthest = config.get("furthest_failure_anchor")
         for unparsable in parsed.iter_unparsables():
             # No exception has been raised explicitly, but we still create one here
             # so that we can use the common interface
             assert unparsable.pos_marker
+            # Optionally anchor the violation at the point the parser actually
+            # got to, rather than at the start of the unparsable section.
+            _anchor: BaseSegment = unparsable
+            if anchor_furthest:
+                _candidate = unparsable.failure_segment
+                if _candidate is not None and _candidate.pos_marker is not None:
+                    _section = unparsable.pos_marker.source_slice
+                    _fail_start = _candidate.pos_marker.source_slice.start
+                    # The anchor must fall inside the unparsable section, and
+                    # no later than its first statement terminator: a failure
+                    # recorded past a `;` belongs to the *following* statement,
+                    # so pointing at it would be misleading. Anything outside
+                    # those bounds falls back to the section start.
+                    if _section.start <= _fail_start < _section.stop:
+                        for _seg in unparsable.raw_segments:
+                            _pm = _seg.pos_marker
+                            if (
+                                _pm is not None
+                                and _seg.is_code
+                                and _seg.raw == ";"
+                                and _section.start <= _pm.source_slice.start
+                                and _fail_start > _pm.source_slice.start
+                            ):
+                                _candidate = _seg
+                                break
+                        _anchor = _candidate
+            assert _anchor.pos_marker
             violations.append(
                 SQLParseError(
                     "Line {0[0]}, Position {0[1]}: Found unparsable section: "
                     "{1!r}".format(
-                        unparsable.pos_marker.working_loc,
+                        _anchor.pos_marker.working_loc,
                         (
                             unparsable.raw
                             if len(unparsable.raw) < 40
                             else unparsable.raw[:40] + "..."
                         ),
                     ),
-                    segment=unparsable,
+                    segment=_anchor,
                 )
             )
             if linter_logger.isEnabledFor(logging.INFO):

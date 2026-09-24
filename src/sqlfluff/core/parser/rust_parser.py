@@ -325,7 +325,22 @@ try:
                 _unmatched = segments[matched_stop:_end_idx]
 
                 # PYTHON PARITY: If there are unmatched code segments, wrap them in
-                # UnparsableSegment. This matches the logic in FileSegment.root_parse()
+                # UnparsableSegment. This matches the logic in FileSegment.root_parse().
+                #
+                # Only consult the furthest-failure record when the (opt-in)
+                # anchoring feature is enabled: it is unused otherwise, and
+                # gating it means the default path doesn't depend on the
+                # running `sqlfluffrs` build exposing the property. `getattr`
+                # keeps an older wheel from breaking the parse outright.
+                _failure_segment = None
+                if self.config.get("furthest_failure_anchor"):
+                    _rust_failure_idx = getattr(
+                        self._rs_parser, "furthest_failure", None
+                    )
+                    if _rust_failure_idx is not None and 0 <= _rust_failure_idx < len(
+                        code_segments
+                    ):
+                        _failure_segment = code_segments[_rust_failure_idx]
                 content: tuple[BaseSegment, ...]
                 if not _match_truthy:
                     parse_context.increment_parse_nodes()
@@ -333,6 +348,7 @@ try:
                         UnparsableSegment(
                             segments[_start_idx:_end_idx],
                             expected=str(self.RootSegment.match_grammar),
+                            failure_segment=_failure_segment,
                         ),
                     )
                 elif _unmatched:
@@ -351,6 +367,7 @@ try:
                             UnparsableSegment(
                                 _unmatched[_idx:],
                                 expected="Nothing else in FileSegment.",
+                                failure_segment=_failure_segment,
                             ),
                         )
                     )

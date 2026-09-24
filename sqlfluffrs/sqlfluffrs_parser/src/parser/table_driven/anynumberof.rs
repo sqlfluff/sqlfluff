@@ -540,6 +540,7 @@ impl Parser<'_> {
 
         if *count < inst.min_times as usize {
             // Didn't meet min_times
+            self.record_failure(*matched_idx);
             return Ok(stack.complete_frame_empty(&frame));
         }
 

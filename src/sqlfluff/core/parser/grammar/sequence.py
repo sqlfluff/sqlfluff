@@ -212,6 +212,7 @@ class Sequence(BaseGrammar):
                     # If nothing has been matched _anyway_ then just bail out.
                     or matched_idx == start_idx
                 ):
+                    parse_context.record_failure(matched_idx)
                     return MatchResult.empty_at(idx)
 
                 # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
@@ -248,6 +249,7 @@ class Sequence(BaseGrammar):
                 if self.parse_mode == ParseMode.STRICT:
                     # In a strict mode, failing to match an element means that
                     # we don't match anything.
+                    parse_context.record_failure(_idx)
                     return MatchResult.empty_at(idx)
 
                 if (
