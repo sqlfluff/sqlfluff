@@ -43,6 +43,10 @@ class LintingResult:
         self._start_time: float = time.monotonic()
         self.total_time: float = 0.0
         self.files_skipped: int = 0
+        # The number of files which were not linted because a cache entry
+        # showed they were already clean. Reported by the CLI so that a
+        # surprisingly fast run is explainable.
+        self.files_cached: int = 0
 
     def add(self, path: LintedDir) -> None:
         """Add a new `LintedDir` to this result."""
