@@ -35,6 +35,14 @@ def test_merge_insert_requires_values_clause() -> None:
     )
 
 
+def test_merge_delete_requires_where_clause() -> None:
+    """Oracle MERGE delete clauses cannot omit WHERE."""
+    assert _violations(
+        "MERGE INTO target t USING source s ON (t.id = s.id) "
+        "WHEN MATCHED THEN UPDATE SET t.value = s.value DELETE;"
+    )
+
+
 # OraclePhysicalAttributesSegment - table-level attributes
 @pytest.mark.parametrize(
     "sql",
