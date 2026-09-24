@@ -573,8 +573,18 @@ impl Parser<'_> {
                             } else {
                                 None
                             };
-                            let error_message =
-                                specific_message.unwrap_or_else(|| "Nothing here.".to_string());
+                            let error_message = specific_message.unwrap_or_else(|| {
+                                // PYTHON PARITY: name the first unexpected token
+                                // rather than just "Nothing here." (Python:
+                                // sequence.py GREEDY mop-up).
+                                format!(
+                                    "Nothing here. Found {}",
+                                    self.tokens
+                                        .get(check_pos)
+                                        .map(|t| format!("{}", t))
+                                        .unwrap_or_else(|| "end of input".to_string())
+                                )
+                            });
 
                             vdebug!(
                                     "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {}): {}",
