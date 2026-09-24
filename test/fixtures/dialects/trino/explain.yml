@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1aeaa69f58ee580e0bc86a975dff11719f74ca8d88b40dd10a1aa2391f90d97c
+_hash: d31e1d2303d7ace5f40c7afd45618ed82da8efe1bce13491b5f513ae34183dd1
 file:
 - statement:
     explain_statement:
@@ -183,4 +183,106 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: staging_orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: target
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - keyword: IO
+      - end_bracket: )
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: target
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ANALYZE
+    - merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: target
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
 - statement_terminator: ;

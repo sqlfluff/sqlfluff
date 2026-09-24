@@ -674,7 +674,10 @@ class ExplainStatementSegment(ansi.ExplainStatementSegment):
             ),
             optional=True,
         ),
-        ansi.ExplainStatementSegment.explainable_stmt,
+        OneOf(
+            ansi.ExplainStatementSegment.explainable_stmt,
+            Ref("MergeStatementSegment"),
+        ),
     )
 
 
@@ -750,7 +753,7 @@ class ShowStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     OneOf("FROM", "IN"),
-                    Ref("DatabaseReferenceSegment"),
+                    Ref("SingleIdentifierGrammar"),
                     optional=True,
                 ),
             ),
@@ -758,7 +761,7 @@ class ShowStatementSegment(BaseSegment):
                 "SCHEMAS",
                 Sequence(
                     OneOf("FROM", "IN"),
-                    Ref("DatabaseReferenceSegment"),
+                    Ref("SingleIdentifierGrammar"),
                     optional=True,
                 ),
                 _like_clause,

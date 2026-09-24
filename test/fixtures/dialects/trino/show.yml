@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 78bab6a9382115a7c5904e4305f67c5c6db9700ae4d6666b8584fa0855019b54
+_hash: c8a1dce7e063a3247ed29db1721a15d703882ca1e0ec869e3f9101b63f356aa5
 file:
 - statement:
     show_statement:
@@ -156,8 +156,7 @@ file:
     - keyword: SHOW
     - keyword: ROLES
     - keyword: FROM
-    - database_reference:
-        naked_identifier: hive
+    - naked_identifier: hive
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -165,8 +164,7 @@ file:
     - keyword: CURRENT
     - keyword: ROLES
     - keyword: IN
-    - database_reference:
-        naked_identifier: hive
+    - naked_identifier: hive
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -180,8 +178,30 @@ file:
     - keyword: ROLE
     - keyword: GRANTS
     - keyword: FROM
-    - database_reference:
-        naked_identifier: hive
+    - naked_identifier: hive
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ROLES
+    - keyword: FROM
+    - quoted_identifier: '"hive.sales"'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CURRENT
+    - keyword: ROLES
+    - keyword: IN
+    - quoted_identifier: '"hive.sales"'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ROLE
+    - keyword: GRANTS
+    - keyword: FROM
+    - quoted_identifier: '"hive.sales"'
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -193,16 +213,21 @@ file:
     - keyword: SHOW
     - keyword: SCHEMAS
     - keyword: FROM
-    - database_reference:
-        naked_identifier: hive
+    - naked_identifier: hive
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: FROM
+    - quoted_identifier: '"hive.sales"'
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: SCHEMAS
     - keyword: IN
-    - database_reference:
-        naked_identifier: hive
+    - naked_identifier: hive
     - keyword: LIKE
     - quoted_literal: "'s%'"
 - statement_terminator: ;

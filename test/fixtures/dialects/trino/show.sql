@@ -38,9 +38,17 @@ SHOW ROLE GRANTS;
 
 SHOW ROLE GRANTS FROM hive;
 
+SHOW ROLES FROM "hive.sales";
+
+SHOW CURRENT ROLES IN "hive.sales";
+
+SHOW ROLE GRANTS FROM "hive.sales";
+
 SHOW SCHEMAS;
 
 SHOW SCHEMAS FROM hive;
+
+SHOW SCHEMAS FROM "hive.sales";
 
 SHOW SCHEMAS IN hive LIKE 's%';
 
