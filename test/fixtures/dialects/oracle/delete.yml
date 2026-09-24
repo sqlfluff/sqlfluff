@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72edf9a904cd8c522ab85b4c7c1b016e7bd76e15debd74e811a983c859eec0d3
+_hash: f357c97ac769e763b1000c7a1dc376f20699f8da2e80d650571760f469d6fea0
 file:
   batch:
   - statement:
@@ -111,6 +111,61 @@ file:
             numeric_literal: '100'
         returning_clause:
           keyword: RETURNING
+          naked_identifier: last_name
+          into_clause:
+            keyword: INTO
+            bind_variable:
+              bind_colon: ':'
+              parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        returning_clause:
+          keyword: RETURNING
+          naked_identifier: last_name
+          into_clause:
+            keyword: INTO
+            bind_variable:
+              bind_colon: ':'
+              parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        from_clause:
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        returning_clause:
+          keyword: RETURNING
+          naked_identifier: last_name
+          into_clause:
+            keyword: INTO
+            bind_variable:
+              bind_colon: ':'
+              parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        from_clause:
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        returning_clause:
+          keyword: RETURN
           naked_identifier: last_name
           into_clause:
             keyword: INTO

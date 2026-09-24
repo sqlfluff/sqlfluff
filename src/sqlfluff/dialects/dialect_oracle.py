@@ -703,6 +703,9 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref("ReturningClauseSegment")]),
     ColumnConstraintDefaultGrammar=OneOf(
         ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
         Ref("SequencePseudocolumnGrammar"),
