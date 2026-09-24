@@ -4255,9 +4255,7 @@ class DeleteFromClauseSegment(ansi.FromClauseSegment):
     type = "from_clause"
     match_grammar: Matchable = Sequence(
         Ref.keyword("FROM", optional=True),
-        Delimited(
-            Ref("FromExpressionSegment"),
-        ),
+        Ref("FromExpressionSegment"),
     )
 
 
