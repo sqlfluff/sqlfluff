@@ -1483,6 +1483,7 @@ class BatchSegment(BaseSegment):
             Delimited(
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
+                    Ref("SqlplusShowStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1509,6 +1510,92 @@ class SqlplusSetStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
+
+
+class SqlplusShowStatementSegment(BaseSegment):
+    """A SQL*Plus `SHOW` command.
+
+    Only valid in SQL*Plus, not in the SQL language itself.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
+    """
+
+    type = "sqlplus_show_statement"
+
+    # Object types accepted by SHOW ERRORS.
+    _errors_object_type = OneOf(
+        Sequence("ANALYTIC", "VIEW"),
+        Sequence("ATTRIBUTE", "DIMENSION"),
+        "HIERARCHY",
+        "FUNCTION",
+        "PROCEDURE",
+        "TRIGGER",
+        "VIEW",
+        "DIMENSION",
+        Sequence("PACKAGE", Ref.keyword("BODY", optional=True)),
+        Sequence("TYPE", Ref.keyword("BODY", optional=True)),
+        Sequence("JAVA", "CLASS"),
+    )
+
+    match_grammar = Sequence(
+        OneOf("SHOW", "SHO"),
+        OneOf(
+            # SHOW ERR[ORS] [object_type [schema.]name]
+            Sequence(
+                OneOf("ERRORS", "ERR"),
+                Sequence(
+                    _errors_object_type,
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW SPPARAMETER[S] [name]
+            Sequence(
+                OneOf("SPPARAMETERS", "SPPARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW RECYC[LEBIN] [original_name]
+            Sequence(
+                OneOf("RECYCLEBIN", "RECYC"),
+                Ref("ObjectReferenceSegment", optional=True),
+            ),
+            # SHOW CONN[ECTION] NETS[ERVICENAMES] [net_service_name ...]
+            Sequence(
+                OneOf("CONNECTION", "CONN"),
+                OneOf("NETSERVICENAMES", "NETS"),
+                AnyNumberOf(Ref("ObjectReferenceSegment")),
+            ),
+            # Single-keyword options.
+            "ALL",
+            "USER",
+            "SGA",
+            "PDBS",
+            "EDITION",
+            "HISTORY",
+            "LNO",
+            "PNO",
+            "SQLCODE",
+            "CON_ID",
+            "CON_NAME",
+            "XQUERY",
+            OneOf("RELEASE", "REL"),
+            OneOf("BTITLE", "BTI"),
+            OneOf("TTITLE", "TTI"),
+            OneOf("REPFOOTER", "REPF"),
+            OneOf("REPHEADER", "REPH"),
+            OneOf("LOBPREFETCH", "LOBPREF"),
+            OneOf("ROWPREFETCH", "ROWPREF"),
+            OneOf("SPOOL", "SPOO"),
+            OneOf("STATEMENTCACHE", "STATEMENTC"),
+            # Any other SET system variable (e.g. LINESIZE, PAGESIZE).
+            Ref("SingleIdentifierGrammar"),
+        ),
     )
 
 

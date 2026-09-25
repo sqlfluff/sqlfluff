@@ -368,3 +368,12 @@ test_fail_retain_comments_after_else:
                 THEN "value2" -- but also here
         END
     FROM table;
+
+test_fail_nested_end_on_same_line:
+  # The space before the outer END is kept when no comment follows the
+  # nested END.
+  fail_str: |
+    SELECT CASE WHEN x = 1 THEN a ELSE CASE WHEN x = 2 THEN b END END AS y FROM t
+  fix_str: |
+    SELECT CASE WHEN x = 1 THEN a
+            WHEN x = 2 THEN b END AS y FROM t

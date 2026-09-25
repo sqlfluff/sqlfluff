@@ -549,17 +549,23 @@ class FrameClauseSegment(BaseSegment):
 
 
 class SetOperatorSegment(BaseSegment):
-    """A set operator such as Union, Intersect or Except."""
+    """A set operator such as Union, Intersect or Except.
+
+    Trino takes either quantifier after any of the three, and the grammar is
+    the same for all of them.
+
+    https://trino.io/docs/current/sql/select.html#union-clause
+    """
 
     type = "set_operator"
     match_grammar: Matchable = OneOf(
-        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
         Sequence(
             OneOf(
+                "UNION",
                 "INTERSECT",
                 "EXCEPT",
             ),
-            Ref.keyword("ALL", optional=True),
+            OneOf("DISTINCT", "ALL", optional=True),
         ),
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )

@@ -11886,6 +11886,23 @@ class ScriptingDeclareStatementSegment(BaseSegment):
     )
 
 
+def _scripting_if_branch_body(terminators) -> AnyNumberOf:
+    """One or more delimited statements for an IF/ELSEIF/ELSE branch.
+
+    reset_terminators on each StatementSegment prevents the branch-level
+    terminators (ELSEIF, ELSE, END IF) from leaking into nested expressions
+    such as CASE … ELSE … END.
+    """
+    return AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment", reset_terminators=True),
+            Ref("DelimiterGrammar"),
+        ),
+        min_times=1,
+        terminators=terminators,
+    )
+
+
 class ScriptingIfStatementSegment(BaseSegment):
     """A snowflake `If` statement for SQL scripting.
 
@@ -11899,19 +11916,9 @@ class ScriptingIfStatementSegment(BaseSegment):
             Bracketed(Ref("ExpressionSegment")),
             "THEN",
             Indent,
-            Ref("StatementSegment"),
-            AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar"),
-                    Ref("StatementSegment"),
-                ),
-                terminators=[
-                    "ELSEIF",
-                    "ELSE",
-                    Sequence("END", "IF"),
-                ],
+            _scripting_if_branch_body(
+                ["ELSEIF", "ELSE", Sequence("END", "IF")],
             ),
-            Ref("DelimiterGrammar"),
             Dedent,
         ),
         AnyNumberOf(
@@ -11920,19 +11927,9 @@ class ScriptingIfStatementSegment(BaseSegment):
                 Bracketed(Ref("ExpressionSegment")),
                 "THEN",
                 Indent,
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        Ref("StatementSegment"),
-                    ),
-                    terminators=[
-                        "ELSEIF",
-                        "ELSE",
-                        Sequence("END", "IF"),
-                    ],
+                _scripting_if_branch_body(
+                    ["ELSEIF", "ELSE", Sequence("END", "IF")],
                 ),
-                Ref("DelimiterGrammar"),
                 Dedent,
             ),
             terminators=[
@@ -11944,17 +11941,9 @@ class ScriptingIfStatementSegment(BaseSegment):
             Sequence(
                 "ELSE",
                 Indent,
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        Ref("StatementSegment"),
-                    ),
-                    terminators=[
-                        Sequence("END", "IF"),
-                    ],
+                _scripting_if_branch_body(
+                    [Sequence("END", "IF")],
                 ),
-                Ref("DelimiterGrammar"),
                 Dedent,
             ),
             optional=True,
