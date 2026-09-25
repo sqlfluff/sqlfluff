@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39952379cbb396da12521214e71093dfaa5817bb574a5470c18612a7fba7898a
+_hash: 202968d489a339d532bf2ec3c9a4b41ecca23390db5805c6bf7c46666996fee0
 file:
 - batch:
     statement:
@@ -29,7 +29,7 @@ file:
                   table_reference:
                     naked_identifier: smwhr
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       comment_statement:
@@ -41,7 +41,7 @@ file:
       - keyword: is
       - quoted_literal: "'abc'"
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_synonym_statement:
@@ -56,4 +56,4 @@ file:
       - object_reference:
           naked_identifier: example
     slash_buffer_executor:
-      slash: /
+      divide: /

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a710195c6caa6b80990e695e7cfbcd1481d6f90643e2a11d29b56d40c18142e
+_hash: 0611b9fc3c240ce19c098869010cbaea6e65482928ec935648a087114af8539a
 file:
 - batch:
     statement:
@@ -33,7 +33,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_function_statement:
@@ -58,7 +58,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -79,7 +79,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -108,7 +108,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_function_statement:
@@ -133,7 +133,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -153,7 +153,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -173,7 +173,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -193,7 +193,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -213,4 +213,4 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /

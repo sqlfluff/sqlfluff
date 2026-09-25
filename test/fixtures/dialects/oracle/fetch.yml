@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6288c34f8fe941b43daa1c2fad7e3792a8683e7b770743e8180618e67b97b591
+_hash: a48bef7befcd3bebb9f1a119070b7d9be25a300f955a02c84a3acef9d18018dc
 file:
 - batch:
     statement:
@@ -238,7 +238,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -507,7 +507,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -819,7 +819,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -1058,7 +1058,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -1230,7 +1230,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -1362,7 +1362,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -1453,7 +1453,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -1852,7 +1852,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -2001,7 +2001,7 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       begin_end_block:
@@ -2151,4 +2151,4 @@ file:
       - keyword: END
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6815f531db76686031947110f91ee5ea9920df9576c90539b3ba8eab418df8c
+_hash: 2c5ae2ecdee06b86758dbaec7b09a36d66ed412b3525d2313013be3776f38094
 file:
   batch:
   - statement:
@@ -338,4 +338,72 @@ file:
                   alias_expression:
                     naked_identifier: p
           end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: myview
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '100'
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: z
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: myview2
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              expression:
+              - function:
+                  function_name:
+                    function_name_identifier: nvl
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: bytes
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '0'
+                    - end_bracket: )
+              - binary_operator: /
+              - numeric_literal: '1024'
+              - binary_operator: /
+              - numeric_literal: '1024'
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: size_mb
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: dual
   - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40411257950619d71da8bc7c6593ce9e1df059d414667fd0f58777884ce64011
+_hash: cfc4b91c615c5fa6e59af95bb38c3c6560f7fd80c98562f9ea77e5c4d3bb21e0
 file:
 - batch:
     statement:
@@ -68,7 +68,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -103,7 +103,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -152,7 +152,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -311,7 +311,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -466,7 +466,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -553,7 +553,7 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_procedure_statement:
@@ -597,4 +597,4 @@ file:
         - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /

@@ -3,6 +3,10 @@
 This inherits from the ansi dialect.
 """
 
+from __future__ import annotations
+
+from typing import Optional, Union
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -38,10 +42,13 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -56,6 +63,74 @@ oracle_dialect = ansi_dialect.copy_as(
 
 .. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html""",
 )
+
+
+class BatchDelimiterLookaheadMatcher(Matchable):
+    """Matches `/` when it appears at a statement boundary (not as division).
+
+    Used as the match grammar for the batch delimiter segment. The matcher
+    looks backward through non-code/meta segments to determine whether `/`
+    is a SQL*Plus batch delimiter (preceded by statement terminator, newline,
+    file start, or another batch delimiter) rather than a division operator.
+    """
+
+    def __init__(self) -> None:
+        pass
+
+    def is_optional(self) -> bool:
+        return False
+
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
+    ) -> SimpleHintType:
+        return (), ("divide",)
+
+    def cache_key(self) -> str:
+        return "oracle-batch-delimiter-matcher"
+
+    @staticmethod
+    def _prev_non_ws_idx(
+        segments: Sequence[BaseSegment],
+        idx: int,
+    ) -> int:
+        while idx >= 0 and (not segments[idx].is_code or segments[idx].is_meta):
+            if segments[idx].is_type("newline"):
+                return -2
+            idx -= 1
+        return idx
+
+    def match(
+        self,
+        segments: Sequence[BaseSegment],
+        idx: int,
+        parse_context: ParseContext,
+    ) -> MatchResult:
+        if idx >= len(segments) or not segments[idx].is_type("divide"):
+            return MatchResult.empty_at(idx)
+        prev = self._prev_non_ws_idx(segments, idx - 1)
+        if prev == -2:
+            return MatchResult(slice(idx, idx + 1))
+        if prev < 0:
+            return MatchResult(slice(idx, idx + 1))
+        prev_seg = segments[prev]
+        if prev_seg.is_type(
+            "statement_terminator", "slash_buffer_executor", "batch", "start_bracket"
+        ):
+            return MatchResult(slice(idx, idx + 1))
+        return MatchResult.empty_at(idx)
+
+
+class OracleBatchDelimiterSegment(BaseSegment):
+    """A `/` standalone, functioning as a batch delimiter for SQL*Plus.
+
+    Only matches when the `/` appears at a statement boundary, NOT as a division operator.
+    A division operator will have a code operand immediately (whitespace aside) before it;
+    a batch delimiter will be at line start after newlines/whitespace with no preceding operand.
+    """
+
+    type = "slash_buffer_executor"
+
+    match_grammar = BatchDelimiterLookaheadMatcher()
 
 oracle_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", oracle_reserved_keywords
@@ -699,7 +774,7 @@ oracle_dialect.add(
         ),
         Sequence("WITH", "CREDENTIAL"),
     ),
-    BatchDelimiterGrammar=Ref("SlashBufferExecutorSegment"),
+    BatchDelimiterGrammar=Ref("OracleBatchDelimiterSegment"),
 )
 
 oracle_dialect.replace(
@@ -1494,13 +1569,6 @@ class BatchSegment(BaseSegment):
         ),
         Ref("BatchDelimiterGrammar"),
     )
-
-
-class SlashBufferExecutorSegment(BaseSegment):
-    """A `/` standalone, functioning as a batch delimiter for SQL*Plus."""
-
-    type = "slash_buffer_executor"
-    match_grammar = Ref("SlashSegment")
 
 
 class SqlplusSetStatementSegment(BaseSegment):

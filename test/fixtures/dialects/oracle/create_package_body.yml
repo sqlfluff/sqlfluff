@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c26399034de07c8c1df551ba8c6670411aea124f1686bd20e087c87439f43e9
+_hash: 2ad3bd679b43a69de95e2d7cc34812f463cf081d1a25978846bd05b968050129
 file:
 - batch:
     statement:
@@ -19,7 +19,7 @@ file:
           naked_identifier: minimal_package
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -37,7 +37,7 @@ file:
           naked_identifier: minimal_package
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -54,7 +54,7 @@ file:
           naked_identifier: minimal_as
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -76,7 +76,7 @@ file:
           naked_identifier: example
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -110,7 +110,7 @@ file:
           naked_identifier: full_example
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -159,7 +159,7 @@ file:
           naked_identifier: pkg_with_exception
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -746,7 +746,7 @@ file:
           naked_identifier: emp_mgmt
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_package_body_statement:
@@ -840,7 +840,7 @@ file:
           naked_identifier: test_package
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       drop_package_statement:

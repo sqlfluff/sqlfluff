@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f4ae9f6bbb34e4cae76e4bc6f58042b9cb9d00e8ebb29a32732373b2de629ce5
+_hash: 5e9a88548278291ca1f3af586d8d34775da925c0dc21249cd851dcf2222862b9
 file:
 - batch:
     statement:
@@ -118,7 +118,7 @@ file:
           - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_trigger_statement:
@@ -278,7 +278,7 @@ file:
               naked_identifier: order_info_insert
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_trigger_statement:
@@ -397,7 +397,7 @@ file:
           - keyword: END
       - statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_trigger_statement:
@@ -680,7 +680,7 @@ file:
           naked_identifier: maintain_employee_salaries
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_trigger_statement:

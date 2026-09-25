@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b10c544bc2d8d6374985867e1ba3ea443d29baed3deff5100566623b66301a8d
+_hash: dbff10d355cd890950d2331b4328c928740236720afe801a9d7318dc1bebbb06
 file:
 - batch:
     statement:
@@ -95,7 +95,7 @@ file:
         - end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -129,7 +129,7 @@ file:
           end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -153,7 +153,7 @@ file:
           end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -182,7 +182,7 @@ file:
       - keyword: FINAL
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -207,7 +207,7 @@ file:
       - keyword: FINAL
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -226,7 +226,7 @@ file:
           end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -250,7 +250,7 @@ file:
               end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -277,7 +277,7 @@ file:
       - keyword: PERSISTABLE
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -297,7 +297,7 @@ file:
       - keyword: PERSISTABLE
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -317,7 +317,7 @@ file:
       - keyword: PERSISTABLE
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -344,7 +344,7 @@ file:
         - end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -359,7 +359,7 @@ file:
           data_type_identifier: textdoc_typ
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -422,7 +422,7 @@ file:
         - end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -437,7 +437,7 @@ file:
           data_type_identifier: cust_address_typ2
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -459,7 +459,7 @@ file:
         - end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -486,7 +486,7 @@ file:
           end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
 - batch:
     statement:
       create_type_statement:
@@ -520,4 +520,4 @@ file:
         - end_bracket: )
     statement_terminator: ;
     slash_buffer_executor:
-      slash: /
+      divide: /
