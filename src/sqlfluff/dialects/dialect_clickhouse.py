@@ -2763,13 +2763,6 @@ class ProjectionDefinitionSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "PROJECTION",
-        OneOf(
-            # Needed for ALTER TABLE ... MODIFY PROJECTION
-            Ref("IfExistsGrammar", optional=True),
-            # Needed for ALTER TABLE ... ADD PROJECTION
-            Ref("IfNotExistsGrammar", optional=True),
-            optional=True,
-        ),
         Ref("SingleIdentifierGrammar"),
         OneOf(
             # Projection query
@@ -3150,12 +3143,18 @@ class AlterTableStatementSegment(BaseSegment):
             # ALTER TABLE ... ADD PROJECTION
             Sequence(
                 "ADD",
-                Ref("ProjectionDefinitionSegment"),
+                ProjectionDefinitionSegment.match_grammar.copy(
+                    insert=[Ref("IfNotExistsGrammar", optional=True)],
+                    before=Ref("SingleIdentifierGrammar"),
+                ),
             ),
             # ALTER TABLE ... MODIFY PROJECTION
             Sequence(
                 "MODIFY",
-                Ref("ProjectionDefinitionSegment"),
+                ProjectionDefinitionSegment.match_grammar.copy(
+                    insert=[Ref("IfExistsGrammar", optional=True)],
+                    before=Ref("SingleIdentifierGrammar"),
+                ),
             ),
             # ALTER TABLE ... DROP PROJECTION
             Sequence(
