@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb20f22dc8224fc4ca141d7f6f2a207d7212b83d1e83fbe3b730b74f8536bc4b
+_hash: 22bb8c71134426891dafb151200aad23721c4ecb824a094be0b5db620f0a3f5e
 file:
 - batch:
     sqlplus_set_statement:
@@ -76,8 +76,23 @@ file:
 - batch:
     sqlplus_set_statement:
     - keyword: SET
+    - keyword: ESCAPE
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ESC
+    - sqlplus_character: '!'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
     - keyword: FEEDBACK
     - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FEEDBACK
+    - keyword: 'ON'
 - batch:
     sqlplus_set_statement:
     - keyword: SET
@@ -102,6 +117,26 @@ file:
 - batch:
     sqlplus_set_statement:
     - keyword: SET
+    - keyword: FLAGGER
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: ENTRY
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: INTERMED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: FULL
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
     - keyword: HEADING
     - keyword: 'OFF'
 - batch:
@@ -123,12 +158,27 @@ file:
     sqlplus_set_statement:
     - keyword: SET
     - keyword: LINESIZE
+    - numeric_literal: '80'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: LINESIZE
     - keyword: WINDOW
 - batch:
     sqlplus_set_statement:
     - keyword: SET
     - keyword: 'NULL'
     - quoted_literal: "'(null)'"
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: 'NULL'
+    - sqlplus_text: 'NULL'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: 'NULL'
+    - quoted_identifier: '"N/A"'
 - batch:
     sqlplus_set_statement:
     - keyword: SET
@@ -165,6 +215,29 @@ file:
 - batch:
     sqlplus_set_statement:
     - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: SIZE
+    - keyword: UNL
+    - keyword: FORMAT
+    - keyword: WRAPPED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: FOR
+    - keyword: WOR
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: FORMAT
+    - keyword: TRUNCATED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
     - keyword: SQLBLANKLINES
     - keyword: 'ON'
 - batch:
@@ -176,7 +249,12 @@ file:
     sqlplus_set_statement:
     - keyword: SET
     - keyword: SUFFIX
-    - naked_identifier: sql
+    - sqlplus_text: sql
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SUF
+    - quoted_literal: "'txt'"
 - batch:
     sqlplus_set_statement:
     - keyword: SET
@@ -192,6 +270,11 @@ file:
     - keyword: SET
     - keyword: TIME
     - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TI
+    - keyword: 'OFF'
 - batch:
     sqlplus_set_statement:
     - keyword: SET

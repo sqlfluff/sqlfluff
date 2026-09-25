@@ -1517,7 +1517,13 @@ class SqlplusSetStatementSegment(BaseSegment):
     type = "sqlplus_set_statement"
 
     _on_off = OneOf("ON", "OFF")
-    _text = OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar"))
+    # Unquoted text is a single word, which may be a reserved word (SET NULL NULL).
+    # It isn't an identifier or keyword, so capitalisation rules leave it alone.
+    _text = OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("QuotedIdentifierSegment"),
+        RegexParser(r"[^\s;/'\"]+", CodeSegment, type="sqlplus_text"),
+    )
     _integer = RegexParser(r"[0-9]+", LiteralSegment, type="numeric_literal")
     # A single non-alphanumeric character, bare or quoted, e.g. SET DEFINE & or '^'.
     # A bare `;` or `/` is left alone so it still ends the statement or batch.
