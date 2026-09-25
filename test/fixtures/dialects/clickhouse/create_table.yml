@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6cf094d627e149fdcfb4a171fe8a9d4686e1f004c33fac58359bf65e7c945f9
+_hash: d156d5a71f4fcf77bdf21a98d7f7e3c15ad8ab79b1804fa3826e7a8a16eb8e84
 file:
 - statement:
     create_table_statement:
@@ -996,19 +996,20 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE
@@ -1075,14 +1076,15 @@ file:
                 naked_identifier: user_id
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE
@@ -1287,19 +1289,20 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE
@@ -1374,14 +1377,15 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE
@@ -1456,14 +1460,15 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
       - comma: ','
       - projection_definition:
         - keyword: PROJECTION
@@ -1486,19 +1491,20 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
       - comma: ','
       - projection_definition:
           keyword: PROJECTION
@@ -1637,19 +1643,20 @@ file:
         - keyword: TYPE
         - naked_identifier: basic
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE
@@ -1724,14 +1731,15 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+              start_bracket: (
+              naked_identifier: index_granularity
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4096'
+              end_bracket: )
       - comma: ','
       - projection_definition:
         - keyword: PROJECTION
@@ -1754,19 +1762,20 @@ file:
                 naked_identifier: region
             end_bracket: )
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
       - comma: ','
       - projection_definition:
           keyword: PROJECTION
@@ -1815,19 +1824,20 @@ file:
         - keyword: TYPE
         - naked_identifier: basic
         - keyword: WITH
-        - keyword: SETTINGS
-        - bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+        - settings_clause:
+            keyword: SETTINGS
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: index_granularity
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4096'
+            - comma: ','
+            - naked_identifier: index_granularity_bytes
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1048576'
+            - end_bracket: )
       - end_bracket: )
     - engine:
         keyword: ENGINE

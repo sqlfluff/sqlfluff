@@ -2787,22 +2787,44 @@ class ProjectionDefinitionSegment(BaseSegment):
         ),
         Sequence(
             "WITH",
-            "SETTINGS",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("NumericLiteralSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                    ),
-                ),
-            ),
+            Ref("ProjectionDefinitionStatementSettingsClauseSegment"),
             optional=True,
+        ),
+    )
+
+
+class AlterTableAddProjectionDefinitionStatement(ProjectionDefinitionSegment):
+    """A helper projection definition used in ALTER TABLE ... ADD PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    )
+
+
+class AlterTableModifyProjectionDefinitionStatement(ProjectionDefinitionSegment):
+    """A helper projection definition used in ALTER TABLE ... MODIFY PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    )
+
+
+class ProjectionDefinitionStatementSettingsClauseSegment(SettingsClauseSegment):
+    """A helper SettingsClauseSegment used in ProjectionDefinitionStatement."""
+
+    type = "settings_clause"
+
+    match_grammar: Matchable = Sequence(
+        "SETTINGS",
+        # Brackets are needed for settings in projections
+        Bracketed(
+            SettingsClauseSegment.match_grammar.copy(remove=[Ref.keyword("SETTINGS")]),
         ),
     )
 
@@ -3143,18 +3165,12 @@ class AlterTableStatementSegment(BaseSegment):
             # ALTER TABLE ... ADD PROJECTION
             Sequence(
                 "ADD",
-                ProjectionDefinitionSegment.match_grammar.copy(
-                    insert=[Ref("IfNotExistsGrammar", optional=True)],
-                    before=Ref("SingleIdentifierGrammar"),
-                ),
+                Ref("AlterTableAddProjectionDefinitionStatement"),
             ),
             # ALTER TABLE ... MODIFY PROJECTION
             Sequence(
                 "MODIFY",
-                ProjectionDefinitionSegment.match_grammar.copy(
-                    insert=[Ref("IfExistsGrammar", optional=True)],
-                    before=Ref("SingleIdentifierGrammar"),
-                ),
+                Ref("AlterTableModifyProjectionDefinitionStatement"),
             ),
             # ALTER TABLE ... DROP PROJECTION
             Sequence(

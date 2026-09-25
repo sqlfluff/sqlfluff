@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74fa1b34f72fa338aa9212d419496d84998afbe3af27903c777af0c803aa9159
+_hash: 1d99bd9496326372dbb4dca7deeb9770ef0518121699965567f51eaafe2d05a8
 file:
 - statement:
     alter_table_statement:
@@ -1722,27 +1722,29 @@ file:
       - dot: .
       - naked_identifier: example
     - keyword: ADD
-    - keyword: PROJECTION
-    - naked_identifier: uid_proj
-    - keyword: INDEX
-    - column_reference:
-        naked_identifier: user_id
-    - keyword: TYPE
-    - naked_identifier: basic
-    - keyword: WITH
-    - keyword: SETTINGS
-    - bracketed:
-      - start_bracket: (
-      - naked_identifier: index_granularity
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '4096'
-      - comma: ','
-      - naked_identifier: index_granularity_bytes
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '1048576'
-      - end_bracket: )
+    - projection_definition:
+      - keyword: PROJECTION
+      - naked_identifier: uid_proj
+      - keyword: INDEX
+      - column_reference:
+          naked_identifier: user_id
+      - keyword: TYPE
+      - naked_identifier: basic
+      - keyword: WITH
+      - settings_clause:
+          keyword: SETTINGS
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: index_granularity
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '4096'
+          - comma: ','
+          - naked_identifier: index_granularity_bytes
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '1048576'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1753,41 +1755,99 @@ file:
       - dot: .
       - naked_identifier: example
     - keyword: ADD
-    - keyword: PROJECTION
-    - naked_identifier: region_proj
-    - bracketed:
-        start_bracket: (
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
+    - projection_definition:
+        keyword: PROJECTION
+        naked_identifier: region_proj
+        bracketed:
+          start_bracket: (
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: user_id
+                    end_bracket: )
+          where_clause:
+            keyword: where
+            expression:
+              column_reference:
+                naked_identifier: region
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'JP'"
+          groupby_clause:
+          - keyword: group
+          - keyword: by
+          - column_reference:
               naked_identifier: region
-        - comma: ','
-        - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: count
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: user_id
-                  end_bracket: )
-        where_clause:
-          keyword: where
-          expression:
-            column_reference:
-              naked_identifier: region
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - naked_identifier: user_proj
+      - keyword: INDEX
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: trim
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: cast
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: user_id
+                        keyword: as
+                        data_type:
+                          data_type_identifier: Nullable
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              data_type:
+                                data_type_identifier: String
+                              end_bracket: )
+                        end_bracket: )
+                end_bracket: )
+      - keyword: TYPE
+      - naked_identifier: basic
+      - keyword: WITH
+      - settings_clause:
+          keyword: SETTINGS
+          bracketed:
+            start_bracket: (
+            naked_identifier: index_granularity
             comparison_operator:
               raw_comparison_operator: '='
-            quoted_literal: "'JP'"
-        groupby_clause:
-        - keyword: group
-        - keyword: by
-        - column_reference:
-            naked_identifier: region
-        end_bracket: )
+            numeric_literal: '4096'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1798,97 +1858,44 @@ file:
       - dot: .
       - naked_identifier: example
     - keyword: ADD
-    - keyword: PROJECTION
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - naked_identifier: user_proj
-    - keyword: INDEX
-    - expression:
-        function:
-          function_name:
-            function_name_identifier: trim
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: cast
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: user_id
-                      keyword: as
-                      data_type:
-                        data_type_identifier: Nullable
-                        bracketed_arguments:
-                          bracketed:
-                            start_bracket: (
-                            data_type:
-                              data_type_identifier: String
-                            end_bracket: )
-                      end_bracket: )
-              end_bracket: )
-    - keyword: TYPE
-    - naked_identifier: basic
-    - keyword: WITH
-    - keyword: SETTINGS
-    - bracketed:
-        start_bracket: (
-        naked_identifier: index_granularity
-        comparison_operator:
-          raw_comparison_operator: '='
-        numeric_literal: '4096'
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: default
-      - dot: .
-      - naked_identifier: example
-    - keyword: ADD
-    - keyword: PROJECTION
-    - naked_identifier: region_proj_3
-    - bracketed:
-        start_bracket: (
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
-              naked_identifier: region
-        - comma: ','
-        - select_clause_element:
-            column_reference:
+    - projection_definition:
+      - keyword: PROJECTION
+      - naked_identifier: region_proj_3
+      - bracketed:
+          start_bracket: (
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: user_id
+          where_clause:
+            keyword: where
+            expression:
+              column_reference:
+                naked_identifier: region
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'JP'"
+          orderby_clause:
+          - keyword: order
+          - keyword: by
+          - column_reference:
               naked_identifier: user_id
-        where_clause:
-          keyword: where
-          expression:
-            column_reference:
-              naked_identifier: region
+          end_bracket: )
+      - keyword: WITH
+      - settings_clause:
+          keyword: SETTINGS
+          bracketed:
+            start_bracket: (
+            naked_identifier: index_granularity
             comparison_operator:
               raw_comparison_operator: '='
-            quoted_literal: "'JP'"
-        orderby_clause:
-        - keyword: order
-        - keyword: by
-        - column_reference:
-            naked_identifier: user_id
-        end_bracket: )
-    - keyword: WITH
-    - keyword: SETTINGS
-    - bracketed:
-        start_bracket: (
-        naked_identifier: index_granularity
-        comparison_operator:
-          raw_comparison_operator: '='
-        numeric_literal: '4096'
-        end_bracket: )
+            numeric_literal: '4096'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1899,36 +1906,37 @@ file:
       - dot: .
       - naked_identifier: example
     - keyword: ADD
-    - keyword: PROJECTION
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - naked_identifier: region_proj_4
-    - bracketed:
-        start_bracket: (
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
-              naked_identifier: region
-        - comma: ','
-        - select_clause_element:
-            column_reference:
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - naked_identifier: region_proj_4
+      - bracketed:
+          start_bracket: (
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: user_id
+          where_clause:
+            keyword: where
+            expression:
+              column_reference:
+                naked_identifier: region
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'JP'"
+          orderby_clause:
+          - keyword: order
+          - keyword: by
+          - column_reference:
               naked_identifier: user_id
-        where_clause:
-          keyword: where
-          expression:
-            column_reference:
-              naked_identifier: region
-            comparison_operator:
-              raw_comparison_operator: '='
-            quoted_literal: "'JP'"
-        orderby_clause:
-        - keyword: order
-        - keyword: by
-        - column_reference:
-            naked_identifier: user_id
-        end_bracket: )
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1939,22 +1947,24 @@ file:
       - dot: .
       - naked_identifier: example
     - keyword: MODIFY
-    - keyword: PROJECTION
-    - naked_identifier: uid_proj
-    - keyword: INDEX
-    - column_reference:
-        naked_identifier: user_id
-    - keyword: TYPE
-    - naked_identifier: basic
-    - keyword: WITH
-    - keyword: SETTINGS
-    - bracketed:
-        start_bracket: (
-        naked_identifier: index_granularity
-        comparison_operator:
-          raw_comparison_operator: '='
-        numeric_literal: '4096'
-        end_bracket: )
+    - projection_definition:
+      - keyword: PROJECTION
+      - naked_identifier: uid_proj
+      - keyword: INDEX
+      - column_reference:
+          naked_identifier: user_id
+      - keyword: TYPE
+      - naked_identifier: basic
+      - keyword: WITH
+      - settings_clause:
+          keyword: SETTINGS
+          bracketed:
+            start_bracket: (
+            naked_identifier: index_granularity
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '4096'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1965,43 +1975,44 @@ file:
       - dot: .
       - naked_identifier: example
     - keyword: MODIFY
-    - keyword: PROJECTION
-    - keyword: IF
-    - keyword: EXISTS
-    - naked_identifier: region_proj
-    - bracketed:
-        start_bracket: (
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: EXISTS
+      - naked_identifier: region_proj
+      - bracketed:
+          start_bracket: (
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: user_id
+                    end_bracket: )
+          where_clause:
+            keyword: where
+            expression:
+              column_reference:
+                naked_identifier: region
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'JP'"
+          groupby_clause:
+          - keyword: group
+          - keyword: by
+          - column_reference:
               naked_identifier: region
-        - comma: ','
-        - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: count
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: user_id
-                  end_bracket: )
-        where_clause:
-          keyword: where
-          expression:
-            column_reference:
-              naked_identifier: region
-            comparison_operator:
-              raw_comparison_operator: '='
-            quoted_literal: "'JP'"
-        groupby_clause:
-        - keyword: group
-        - keyword: by
-        - column_reference:
-            naked_identifier: region
-        end_bracket: )
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
