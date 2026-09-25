@@ -2335,6 +2335,61 @@ def _fix_long_line_with_comment(
     return elements, fixes
 
 
+def _is_comma_break(elements: ReflowSequenceType, e_idx: int) -> bool:
+    """Is the point at this index a break before or after a comma?"""
+    return (
+        "comma" in elements[e_idx - 1].class_types
+        or "comma" in elements[e_idx + 1].class_types
+    )
+
+
+def _fill_breaks(
+    elements: ReflowSequenceType,
+    target_breaks: list[int],
+    line_start: int,
+    line_end: int,
+    first_indent: str,
+    next_indent: str,
+    line_length_limit: int,
+) -> list[int]:
+    """Choose a subset of target breaks which fills each line.
+
+    Each break is only taken if the line would otherwise run past the
+    next break (or the end of the line) and go over the limit. Lengths
+    are measured the same way as in `lint_line_length`.
+
+    If no earlier break is taken, the last one is checked against the
+    whole line, which is already too long, so at least one break is
+    always taken.
+
+    This is a helper function within .lint_line_length().
+    """
+    chosen: list[int] = []
+    start_idx = line_start
+    indent_len = len(first_indent)
+    idx = 0
+    while idx < len(target_breaks):
+        # A comma with `line_position = alone` has a break on each side.
+        # Take both or neither, so the comma is never left trailing.
+        group_len = 1
+        if (
+            idx + 1 < len(target_breaks)
+            and target_breaks[idx + 1] == target_breaks[idx] + 2
+        ):
+            group_len = 2
+        group = target_breaks[idx : idx + group_len]
+        idx += group_len
+        next_idx = target_breaks[idx] if idx < len(target_breaks) else line_end
+        if (
+            indent_len + _source_char_len(elements[start_idx:next_idx])
+            > line_length_limit
+        ):
+            chosen += group
+            start_idx = group[-1] + 1
+            indent_len = len(next_indent)
+    return chosen
+
+
 def _fix_long_line_with_fractional_targets(
     elements: ReflowSequenceType, target_breaks: list[int], desired_indent: str
 ) -> list[LintResult]:
@@ -2480,6 +2535,7 @@ def lint_line_length(
     line_length_limit: int,
     implicit_indents: str = "forbid",
     trailing_comments: str = "before",
+    list_wrapping: str = "one_per_line",
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
@@ -2698,6 +2754,22 @@ def lint_line_length(
                             current_indent,
                         )
                     else:
+                        # All the commas of one list share a balance, so by
+                        # default the list is split at every comma. With
+                        # "fill", only split where the line would be too long.
+                        if list_wrapping == "fill" and all(
+                            _is_comma_break(elem_buffer, e_idx)
+                            for e_idx in target_breaks
+                        ):
+                            target_breaks = _fill_breaks(
+                                elem_buffer,
+                                target_breaks,
+                                i - len(line_buffer),
+                                i,
+                                current_indent,
+                                desired_indent,
+                                line_length_limit,
+                            )
                         line_results = _fix_long_line_with_fractional_targets(
                             elem_buffer, target_breaks, desired_indent
                         )

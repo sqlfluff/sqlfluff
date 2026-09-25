@@ -256,6 +256,55 @@ When controlling line breaks, we are trying to achieve a few different things:
    less common cases, it may also be desirable for some elements to have both
    a line break *before and after* (e.g. a set operator such as `UNION`).
 
+.. _listwrapping:
+
+Long Lists
+^^^^^^^^^^
+
+When a comma separated list (for example the terms of a :code:`GROUP BY`,
+or the arguments of a function) is too long for one line, *SQLFluff* puts
+each element of the list on its own line. To put as many elements on each
+line as fit within the line length instead, set :code:`list_wrapping` in
+the :code:`sqlfluff:indentation` section of your config file:
+
+.. code-block:: cfg
+
+   [sqlfluff:indentation]
+   list_wrapping = fill
+
+For example, with a :code:`max_line_length` of 45, the default layout is:
+
+.. code-block:: sql
+
+   SELECT a
+   FROM tbl
+   GROUP BY
+       long_column_name1,
+       long_column_name2,
+       long_column_name3,
+       long_column_name4
+
+With :code:`list_wrapping = fill`, it becomes:
+
+.. code-block:: sql
+
+   SELECT a
+   FROM tbl
+   GROUP BY
+       long_column_name1, long_column_name2,
+       long_column_name3, long_column_name4
+
+The configured position of commas (see :ref:`layoutspacingconfig`)
+still applies where a line is broken. Operators such as :code:`AND`
+or :code:`+` are not filled, and still get one line break each.
+
+.. note::
+
+   :sqlfluff:ref:`LT09` puts each select target on its own line, at any
+   line length. It is one of the rules which :code:`sqlfluff format`
+   applies. To also fill the select targets, add :code:`LT09` to
+   :code:`exclude_rules`.
+
 
 Indentation
 -----------
