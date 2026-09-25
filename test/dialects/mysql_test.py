@@ -5,6 +5,9 @@ from typing import Callable
 import pytest
 from _pytest.logging import LogCaptureFixture
 
+from sqlfluff.core import Linter
+from sqlfluff.core.errors import SQLParseError
+
 
 @pytest.mark.parametrize(
     "raw",
@@ -28,3 +31,19 @@ def test_mysql_if_statement_does_not_match_invalid_syntax(
 ) -> None:
     """Test that invalid IF statements do not match."""
     dialect_specific_segment_not_match("mysql", "IfExpressionStatement", raw, caplog)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "KILL HARD 5\n",
+        "KILL SOFT CONNECTION 5\n",
+        "KILL QUERY ID 5\n",
+        "KILL USER 'u'@'h'\n",
+    ],
+)
+def test_mysql_kill_rejects_mariadb_only_forms(raw: str) -> None:
+    """Test that the MariaDB-only KILL forms do not parse as MySQL."""
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    assert len(parsed.violations) == 1
+    assert isinstance(parsed.violations[0], SQLParseError)
