@@ -3207,7 +3207,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
             Ref("TruncateTablesStatementSegment"),
-            Ref("ProjectionDefinitionSegment"),
         ]
     )
 
