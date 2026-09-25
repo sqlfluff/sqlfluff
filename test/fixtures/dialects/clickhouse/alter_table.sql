@@ -145,7 +145,7 @@ ALTER TABLE users DELETE WHERE deleted = 1 AND last_activity < now() - INTERVAL 
 ALTER TABLE sessions ON CLUSTER '{cluster}' DELETE WHERE session_id IN (SELECT id FROM expired_sessions);
 ALTER TABLE temp_data DELETE WHERE created_at < '2023-01-01' SETTINGS mutations_sync = 2;
 
--- https://fiddle.clickhouse.com/64145185-83d7-40c9-9e99-b45daf395ea6
+-- https://fiddle.clickhouse.com/afece05e-0643-4b24-8ea5-6da15284a68d
 ALTER TABLE default.example ADD PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096,
     index_granularity_bytes = 1048576
@@ -153,7 +153,7 @@ ALTER TABLE default.example ADD PROJECTION uid_proj INDEX user_id TYPE basic WIT
 
 ALTER TABLE default.example ADD PROJECTION region_proj (select region, count(user_id) where region = 'JP' group by region);
 
-ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_2 (select region, user_id where region = 'JP' order by user_id)
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS user_proj INDEX trim(cast(user_id as Nullable(String))) TYPE basic
     WITH SETTINGS (
     index_granularity = 4096
 );
@@ -163,10 +163,7 @@ ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_3 (select r
     index_granularity = 4096
 );
 
-ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_4 (select region, user_id where region = 'JP' order by user_id)
-    WITH SETTINGS (
-    index_granularity = 4096
-);
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_4 (select region, user_id where region = 'JP' order by user_id);
 
 ALTER TABLE default.example MODIFY PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096
@@ -174,16 +171,11 @@ ALTER TABLE default.example MODIFY PROJECTION uid_proj INDEX user_id TYPE basic 
 
 ALTER TABLE default.example MODIFY PROJECTION region_proj (select region, count(user_id) where region = 'JP' group by region);
 
-ALTER TABLE default.example MODIFY PROJECTION IF EXISTS region_proj_2 (select region, user_id where region = 'JP' order by user_id)
-    WITH SETTINGS (
-    index_granularity = 4096
-);
-
 ALTER TABLE default.example DROP PROJECTION IF EXISTS region_proj ;
 
 ALTER TABLE default.example MATERIALIZE PROJECTION uid_proj ;
 
-ALTER TABLE default.example MATERIALIZE PROJECTION region_proj_2 IN PARTITION 'JP';
+ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION 'JP';
 
 ALTER TABLE default.example CLEAR PROJECTION region_proj_3;
 

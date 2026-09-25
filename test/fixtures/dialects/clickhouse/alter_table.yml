@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1b67d396a84ecdf8d3fbb595a71ef45b49fb869c4167d929bf3d3a902d8cf85
+_hash: 8c74ad022d1e2621730dedfd8d491c5a9938fb1d0fb003570ac39d8032eab68e
 file:
 - statement:
     alter_table_statement:
@@ -1805,32 +1805,38 @@ file:
       - keyword: IF
       - keyword: NOT
       - keyword: EXISTS
-      - naked_identifier: region_proj_2
-      - bracketed:
-          start_bracket: (
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: user_id
-          where_clause:
-            keyword: where
-            expression:
-              column_reference:
-                naked_identifier: region
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "'JP'"
-          orderby_clause:
-          - keyword: order
-          - keyword: by
-          - column_reference:
-              naked_identifier: user_id
-          end_bracket: )
+      - naked_identifier: user_proj
+      - keyword: INDEX
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: trim
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: cast
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: user_id
+                        keyword: as
+                        data_type:
+                          data_type_identifier: Nullable
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              data_type:
+                                data_type_identifier: String
+                              end_bracket: )
+                        end_bracket: )
+                end_bracket: )
+      - keyword: TYPE
+      - naked_identifier: basic
       - keyword: WITH
       - keyword: SETTINGS
       - bracketed:
@@ -1931,15 +1937,6 @@ file:
           - column_reference:
               naked_identifier: user_id
           end_bracket: )
-      - keyword: WITH
-      - keyword: SETTINGS
-      - bracketed:
-          start_bracket: (
-          naked_identifier: index_granularity
-          comparison_operator:
-            raw_comparison_operator: '='
-          numeric_literal: '4096'
-          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -2022,55 +2019,6 @@ file:
       - naked_identifier: default
       - dot: .
       - naked_identifier: example
-    - keyword: MODIFY
-    - projection_definition:
-      - keyword: PROJECTION
-      - keyword: IF
-      - keyword: EXISTS
-      - naked_identifier: region_proj_2
-      - bracketed:
-          start_bracket: (
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: user_id
-          where_clause:
-            keyword: where
-            expression:
-              column_reference:
-                naked_identifier: region
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "'JP'"
-          orderby_clause:
-          - keyword: order
-          - keyword: by
-          - column_reference:
-              naked_identifier: user_id
-          end_bracket: )
-      - keyword: WITH
-      - keyword: SETTINGS
-      - bracketed:
-          start_bracket: (
-          naked_identifier: index_granularity
-          comparison_operator:
-            raw_comparison_operator: '='
-          numeric_literal: '4096'
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: default
-      - dot: .
-      - naked_identifier: example
     - keyword: DROP
     - keyword: PROJECTION
     - keyword: IF
@@ -2099,7 +2047,7 @@ file:
       - naked_identifier: example
     - keyword: MATERIALIZE
     - keyword: PROJECTION
-    - naked_identifier: region_proj_2
+    - naked_identifier: user_proj
     - keyword: IN
     - keyword: PARTITION
     - quoted_identifier: "'JP'"
