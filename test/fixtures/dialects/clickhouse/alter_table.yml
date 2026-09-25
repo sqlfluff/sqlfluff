@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a26857446c156c0a177626f92ad9c0e72c37f7164faa640aa929076a7f28b8b
+_hash: c1b67d396a84ecdf8d3fbb595a71ef45b49fb869c4167d929bf3d3a902d8cf85
 file:
 - statement:
     alter_table_statement:
@@ -1731,20 +1731,19 @@ file:
       - keyword: TYPE
       - naked_identifier: basic
       - keyword: WITH
-      - settings_clause:
-          keyword: SETTINGS
-          bracketed:
-          - start_bracket: (
-          - naked_identifier: index_granularity
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '4096'
-          - comma: ','
-          - naked_identifier: index_granularity_bytes
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1048576'
-          - end_bracket: )
+      - keyword: SETTINGS
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: index_granularity
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '4096'
+        - comma: ','
+        - naked_identifier: index_granularity_bytes
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1048576'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1833,15 +1832,14 @@ file:
               naked_identifier: user_id
           end_bracket: )
       - keyword: WITH
-      - settings_clause:
-          keyword: SETTINGS
-          bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+      - keyword: SETTINGS
+      - bracketed:
+          start_bracket: (
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '4096'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1884,15 +1882,14 @@ file:
               naked_identifier: user_id
           end_bracket: )
       - keyword: WITH
-      - settings_clause:
-          keyword: SETTINGS
-          bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+      - keyword: SETTINGS
+      - bracketed:
+          start_bracket: (
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '4096'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1935,15 +1932,14 @@ file:
               naked_identifier: user_id
           end_bracket: )
       - keyword: WITH
-      - settings_clause:
-          keyword: SETTINGS
-          bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+      - keyword: SETTINGS
+      - bracketed:
+          start_bracket: (
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '4096'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1963,15 +1959,14 @@ file:
       - keyword: TYPE
       - naked_identifier: basic
       - keyword: WITH
-      - settings_clause:
-          keyword: SETTINGS
-          bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+      - keyword: SETTINGS
+      - bracketed:
+          start_bracket: (
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '4096'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -2059,15 +2054,14 @@ file:
               naked_identifier: user_id
           end_bracket: )
       - keyword: WITH
-      - settings_clause:
-          keyword: SETTINGS
-          bracketed:
-            start_bracket: (
-            naked_identifier: index_granularity
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '4096'
-            end_bracket: )
+      - keyword: SETTINGS
+      - bracketed:
+          start_bracket: (
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '4096'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

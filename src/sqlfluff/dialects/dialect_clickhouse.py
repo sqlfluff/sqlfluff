@@ -754,20 +754,17 @@ class SettingsClauseSegment(BaseSegment):
     type = "settings_clause"
     match_grammar: Matchable = Sequence(
         "SETTINGS",
-        # OptionallyBracketed is only needed in the ProjectionDefinitionSegment
-        OptionallyBracketed(
-            Delimited(
-                Sequence(
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
                     Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("NumericLiteralSegment"),
-                        Ref("QuotedLiteralSegment"),
-                        Ref("BooleanLiteralGrammar"),
-                    ),
-                    optional=True,
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
                 ),
+                optional=True,
             ),
         ),
         optional=True,
@@ -2797,7 +2794,21 @@ class ProjectionDefinitionSegment(BaseSegment):
         ),
         Sequence(
             "WITH",
-            Ref("SettingsClauseSegment"),
+            "SETTINGS",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                    ),
+                ),
+            ),
             optional=True,
         ),
     )
