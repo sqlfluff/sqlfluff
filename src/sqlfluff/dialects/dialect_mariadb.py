@@ -1452,3 +1452,24 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
     )
+
+
+class KillStatementSegment(mysql.KillStatementSegment):
+    """A `KILL` statement, with MariaDB's additional forms.
+
+    Adds ``HARD``/``SOFT``, ``QUERY ID`` and ``USER``. MariaDB only.
+    https://mariadb.com/kb/en/kill/
+    """
+
+    match_grammar: Matchable = Sequence(
+        "KILL",
+        OneOf("HARD", "SOFT", optional=True),
+        OneOf(
+            Sequence("QUERY", "ID", Ref("KillIdGrammar")),
+            Sequence("USER", Ref("RoleReferenceSegment")),
+            Sequence(
+                OneOf("CONNECTION", "QUERY", optional=True),
+                Ref("KillIdGrammar"),
+            ),
+        ),
+    )

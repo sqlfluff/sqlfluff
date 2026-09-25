@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 19d918b1bfc99224954406a6742c253d629e122f380c831a652d030ada8790d2
+file:
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - keyword: QUERY
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - keyword: ID
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: QUERY
+    - keyword: ID
+    - variable: '@query_id'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - keyword: USER
+    - role_reference:
+        naked_identifier: u1
+- statement_terminator: ;
