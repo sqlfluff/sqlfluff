@@ -1574,7 +1574,7 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
-                Ref("SingleQuotedIdentifierSegment"),
+                Ref("QuotedLiteralSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
             Sequence(
@@ -1582,7 +1582,7 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
                 OneOf(
                     Ref("NakedIdentifierSegment"),
                     Ref("QuotedIdentifierSegment"),
-                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
                 ),
                 optional=True,
