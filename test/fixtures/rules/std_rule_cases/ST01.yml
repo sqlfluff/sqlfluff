@@ -65,3 +65,24 @@ else_expression:
             else iff(wing_type is not null, 'tweet', 'invalid')
         end
     from x
+
+# Test for issue #8562: Comment inside ELSE NULL should be preserved
+# https://github.com/sqlfluff/sqlfluff/issues/8562
+else_null_with_comment:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            else /* keep default */ null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            /* keep default */
+        end
+    from x
