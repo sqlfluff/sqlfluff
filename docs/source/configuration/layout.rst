@@ -300,10 +300,10 @@ or :code:`+` are not filled, and still get one line break each.
 
 .. note::
 
-   :sqlfluff:ref:`LT09` puts each select target on its own line, at any
-   line length. It is one of the rules which :code:`sqlfluff format`
-   applies. To also fill the select targets, add :code:`LT09` to
-   :code:`exclude_rules`.
+   When a select clause has more than one target, :sqlfluff:ref:`LT09`
+   puts each target on its own line, at any line length. It is one of
+   the rules which :code:`sqlfluff format` applies. To also fill the
+   select targets, add :code:`LT09` to :code:`exclude_rules`.
 
 
 Indentation

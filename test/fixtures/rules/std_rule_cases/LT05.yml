@@ -869,8 +869,8 @@ test_fail_list_wrapping_fill_leading:
           line_position: leading
 
 test_fail_list_wrapping_fill_alone:
-  # The comma at each break stays on its own line. Each line of the list
-  # is exactly 40 characters long.
+  # The comma at each break stays on its own line. Each element line is
+  # exactly 40 characters long.
   fail_str: |
     select a
     from tbl
