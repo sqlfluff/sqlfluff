@@ -1769,34 +1769,29 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     type = "create_table_statement"
 
-    _create_replace_temp_table_if_not_exists = OneOf(
-        # {CREATE [OR REPLACE] TABLE
-        # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            Ref.keyword("TEMPORARY", optional=True),
-            "TABLE",
-        ),
-        # REPLACE TABLE
-        # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
-        Sequence(
-            "REPLACE",
-            Ref.keyword("TEMPORARY", optional=True),
-            "TABLE",
-        ),
-        # CREATE TABLE [IF NOT EXISTS]
-        Sequence(
-            "CREATE",
-            Ref.keyword("TEMPORARY", optional=True),
-            "TABLE",
-            Ref("IfNotExistsGrammar", optional=True),
-        ),
-    )
-
     match_grammar: Matchable = OneOf(
         Sequence(
-            _create_replace_temp_table_if_not_exists,
+            OneOf(
+                # {CREATE [OR REPLACE] TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "CREATE",
+                    Ref("OrReplaceGrammar", optional=True),
+                    "TABLE",
+                ),
+                # REPLACE TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "REPLACE",
+                    "TABLE",
+                ),
+                # CREATE TABLE [IF NOT EXISTS]
+                Sequence(
+                    "CREATE",
+                    "TABLE",
+                    Ref("IfNotExistsGrammar", optional=True),
+                ),
+            ),
             Ref("TableReferenceSegment"),
             Ref("OnClusterClauseSegment", optional=True),
             OneOf(
@@ -1850,7 +1845,30 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
         # CREATE TEMPORARY TABLE
         Sequence(
-            _create_replace_temp_table_if_not_exists,
+            OneOf(
+                # {CREATE [OR REPLACE] TEMPORARY TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "CREATE",
+                    Ref("OrReplaceGrammar", optional=True),
+                    "TEMPORARY",
+                    "TABLE",
+                ),
+                # REPLACE TEMPORARY TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "REPLACE",
+                    "TEMPORARY",
+                    "TABLE",
+                ),
+                # CREATE TEMPORARY TABLE [IF NOT EXISTS]
+                Sequence(
+                    "CREATE",
+                    "TEMPORARY",
+                    "TABLE",
+                    Ref("IfNotExistsGrammar", optional=True),
+                ),
+            ),
             Ref("TableReferenceSegment"),
             OneOf(
                 # CREATE TEMPORARY TABLE (...):
