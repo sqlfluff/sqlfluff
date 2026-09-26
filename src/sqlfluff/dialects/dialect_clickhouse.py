@@ -186,6 +186,23 @@ clickhouse_dialect.add(
         ),
         "FIRST",
     ),
+    # https://clickhouse.com/docs/reference/statements/alter/partition#how-to-set-partition-expression
+    PartitionExpressionGrammar=OneOf(
+        # ALTER TABLE visits DETACH PARTITION 201901
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            # ALTER TABLE visits DETACH PARTITION ID '201901'
+            Ref.keyword("ID", optional=True),
+            # ALTER TABLE visits ATTACH PARTITION 'JP'
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        # ALTER TABLE example DROP PARTITION TRUE;
+        Ref("BooleanLiteralGrammar"),
+        # ALTER TABLE example DROP PARTITION ('JP', 1, toYYYYMM(toDate('2019-01-25')))
+        Ref("TupleSegment"),
+        # ALTER TABLE visits DETACH PARTITION tuple(toYYYYMM(toDate('2019-01-25')))
+        Ref("FunctionSegment"),
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -3187,7 +3204,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("IfExistsGrammar", optional=True),
                 Ref("SingleIdentifierGrammar"),
                 Sequence(
-                    "IN", "PARTITION", Ref("SingleIdentifierGrammar"), optional=True
+                    "IN", "PARTITION", Ref("PartitionExpressionGrammar"), optional=True
                 ),
             ),
             # ALTER TABLE ... CLEAR PROJECTION
@@ -3197,7 +3214,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("IfExistsGrammar", optional=True),
                 Ref("SingleIdentifierGrammar"),
                 Sequence(
-                    "IN", "PARTITION", Ref("SingleIdentifierGrammar"), optional=True
+                    "IN", "PARTITION", Ref("PartitionExpressionGrammar"), optional=True
                 ),
             ),
         ),

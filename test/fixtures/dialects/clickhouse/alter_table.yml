@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60b99755971ed7d533eb39e57b3c82d5098ae1d7155935e215dd9a4c320e021c
+_hash: 15b79c3a0867b113742ab4986d87a1165a984594a377b9787c0d84259f18ab08
 file:
 - statement:
     alter_table_statement:
@@ -2258,7 +2258,115 @@ file:
     - naked_identifier: user_proj
     - keyword: IN
     - keyword: PARTITION
-    - quoted_identifier: "'JP'"
+    - numeric_literal: '201901'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - keyword: ID
+    - quoted_identifier: "'201901'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - quoted_identifier: "'201901'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - function:
+        function_name:
+          function_name_identifier: tuple
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: toYYYYMM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: toDate
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'2019-01-25'"
+                            end_bracket: )
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example2
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - tuple:
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'JP'"
+          comma: ','
+          numeric_literal: '1'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -2285,5 +2393,113 @@ file:
     - naked_identifier: region_proj_4
     - keyword: IN
     - keyword: PARTITION
-    - quoted_identifier: "'JP'"
+    - numeric_literal: '201901'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - keyword: ID
+    - quoted_identifier: "'201901'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - quoted_identifier: "'201901'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - function:
+        function_name:
+          function_name_identifier: tuple
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: toYYYYMM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: toDate
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'2019-01-25'"
+                            end_bracket: )
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example2
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: user_proj
+    - keyword: IN
+    - keyword: PARTITION
+    - tuple:
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'JP'"
+          comma: ','
+          numeric_literal: '1'
+          end_bracket: )
 - statement_terminator: ;

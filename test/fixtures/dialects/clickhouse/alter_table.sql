@@ -145,7 +145,7 @@ ALTER TABLE users DELETE WHERE deleted = 1 AND last_activity < now() - INTERVAL 
 ALTER TABLE sessions ON CLUSTER '{cluster}' DELETE WHERE session_id IN (SELECT id FROM expired_sessions);
 ALTER TABLE temp_data DELETE WHERE created_at < '2023-01-01' SETTINGS mutations_sync = 2;
 
--- https://fiddle.clickhouse.com/c9db3430-e1e6-48eb-8001-812735f5061b
+-- https://fiddle.clickhouse.com/f858527b-4004-4e14-bfac-2f9d2cad849c
 ALTER TABLE default.example ADD PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096,
     index_granularity_bytes = 1048576
@@ -184,8 +184,28 @@ ALTER TABLE default.example DROP PROJECTION IF EXISTS region_proj ;
 
 ALTER TABLE default.example MATERIALIZE PROJECTION uid_proj ;
 
-ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION 'JP';
+ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION 201901;
+
+ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION ID '201901';
+
+ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION '201901';
+
+ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION TRUE;
+
+ALTER TABLE default.example MATERIALIZE PROJECTION user_proj IN PARTITION tuple(toYYYYMM(toDate('2019-01-25')));
+
+ALTER TABLE default.example2 MATERIALIZE PROJECTION IF EXISTS user_proj IN PARTITION ('JP', 1);
 
 ALTER TABLE default.example CLEAR PROJECTION region_proj_3;
 
-ALTER TABLE default.example CLEAR PROJECTION region_proj_4 IN PARTITION 'JP';
+ALTER TABLE default.example CLEAR PROJECTION region_proj_4 IN PARTITION 201901;
+
+ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION ID '201901';
+
+ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION '201901';
+
+ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION TRUE;
+
+ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION tuple(toYYYYMM(toDate('2019-01-25')));
+
+ALTER TABLE default.example2 CLEAR PROJECTION IF EXISTS user_proj IN PARTITION ('JP', 1);
