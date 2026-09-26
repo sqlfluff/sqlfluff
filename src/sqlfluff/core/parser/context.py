@@ -264,6 +264,12 @@ class ParseContext:
         self._match_stack.append(self.match_segment)
         self.match_segment = name
         self.match_depth += 1
+        # NOTE: This counter tracks nested `deeper_match` contexts, which is only
+        # one way of measuring parse depth. The Rust parser tracks its
+        # table-driven frame stack instead, so the exact level at which
+        # `max_parse_depth` trips is engine-dependent. Python is currently the
+        # stricter of the two; see
+        # test_max_parse_depth_rust_is_never_stricter_than_python.
         if self.max_parse_depth > 0 and self.match_depth > self.max_parse_depth:
             raise SQLParseError(
                 f"Maximum parse depth exceeded (limit {self.max_parse_depth}). "
