@@ -7,3 +7,4 @@ alter schema schema1 unset data_retention_time_in_days;
 alter schema schema1 unset data_retention_time_in_days, max_data_extension_time_in_days;
 alter schema schema1 unset tag foo, bar;
 alter schema schema1 set row_timestamp_default = false;
+alter schema schema1 unset row_timestamp_default;
