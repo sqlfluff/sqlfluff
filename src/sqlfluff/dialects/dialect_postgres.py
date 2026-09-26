@@ -612,6 +612,36 @@ postgres_dialect.replace(
             casefold=str.lower,
         )
     ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # A user-defined type name. Per the PostgreSQL grammar a type name is
+        # `unreserved_keyword | type_func_name_keyword | IDENT`; crucially it may
+        # NOT be a `col_name_keyword` (the `cannot-be-function-or-type` class,
+        # e.g. BETWEEN). Built-in types such as INT/VARCHAR are matched by
+        # explicit branches in DatatypeSegment before this fallback is reached,
+        # so excluding those keywords here does not affect them. Reserved
+        # keywords are intentionally NOT excluded, because some grammar (e.g. the
+        # `substring(... SIMILAR ... ESCAPE ...)` special form) relies on
+        # matching such words as data-type identifiers. See issue #6430.
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^("
+                + r"|".join(
+                    ["NOT"]
+                    + sorted(
+                        get_keywords(
+                            postgres_keywords,
+                            "non-reserved-(cannot-be-function-or-type)",
+                        )
+                    )
+                )
+                + r")$",
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
+        ),
+    ),
     Expression_C_Grammar=Sequence(
         Ref("WalrusOperatorSegment", optional=True),
         OneOf(

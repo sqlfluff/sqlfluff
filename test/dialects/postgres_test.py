@@ -89,6 +89,41 @@ def test_space_is_not_reserved(raw: str) -> None:
     assert result.num_violations() == 0
 
 
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Built-in types must still parse.
+        "CREATE TABLE t (a int, b varchar(10), c timestamp, d numeric(5, 2))",
+        # User-defined / unreserved type names must still parse.
+        "CREATE TABLE t (x my_custom_type)",
+        # `col_name_keyword`s that double as built-in types are still handled by
+        # the explicit DatatypeSegment branches.
+        "CREATE TABLE t (a bigint, b boolean, c json)",
+    ],
+)
+def test_valid_column_types_parse(raw: str) -> None:
+    """Valid column data types parse without unparsable sections."""
+    lnt = Linter(dialect="postgres")
+    parsed = lnt.parse_string(raw)
+    assert not any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # `between` is a col_name_keyword (cannot-be-function-or-type); it must
+        # NOT be accepted as a bare data type. See issue #6430.
+        "CREATE TABLE test_table (type between NOT NULL)",
+    ],
+)
+def test_col_name_keyword_not_valid_datatype(raw: str) -> None:
+    """A `cannot-be-function-or-type` keyword is rejected as a data type."""
+    lnt = Linter(dialect="postgres")
+    parsed = lnt.parse_string(raw)
+    # The invalid type name should produce an unparsable section.
+    assert any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
 def test_priority_keyword_merge() -> None:
     """Test merging on keyword lists works as expected."""
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
