@@ -1,0 +1,376 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 22bb8c71134426891dafb151200aad23721c4ecb824a094be0b5db620f0a3f5e
+file:
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: DEFINE
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: DEFINE
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: DEF
+    - quoted_literal: "'^'"
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: DEFINE
+    - sqlplus_character: '&'
+- batch:
+    sqlplus_set_statement:
+    - keyword: set
+    - keyword: define
+    - keyword: 'off'
+- batch:
+  - sqlplus_set_statement:
+    - keyword: SET
+    - keyword: DEFINE
+    - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: tools
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: id
+        - comma: ','
+        - column_reference:
+            naked_identifier: name
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            comma: ','
+            quoted_literal: "'Hammer & Tongs'"
+            end_bracket: )
+  - statement_terminator: ;
+  - sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ECHO
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ESCAPE
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ESC
+    - quoted_literal: "'\\'"
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ESCAPE
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ESC
+    - sqlplus_character: '!'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FEEDBACK
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FEEDBACK
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FEED
+    - numeric_literal: '6'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FEEDBACK
+    - keyword: ONLY
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FEEDBACK
+    - numeric_literal: '6'
+    - keyword: SQL_ID
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: INTERMEDIATE
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: ENTRY
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: INTERMED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: FLAGGER
+    - keyword: FULL
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: HEADING
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: HEA
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: LINESIZE
+    - numeric_literal: '200'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: LIN
+    - numeric_literal: '80'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: LINESIZE
+    - numeric_literal: '80'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: LINESIZE
+    - keyword: WINDOW
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: 'NULL'
+    - quoted_literal: "'(null)'"
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: 'NULL'
+    - sqlplus_text: 'NULL'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: 'NULL'
+    - quoted_identifier: '"N/A"'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SCAN
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUT
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: SIZE
+    - keyword: UNLIMITED
+    - keyword: FORMAT
+    - keyword: WORD_WRAPPED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: SIZE
+    - numeric_literal: '1000000'
+    - keyword: FOR
+    - keyword: WRA
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: SIZE
+    - keyword: UNL
+    - keyword: FORMAT
+    - keyword: WRAPPED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: FOR
+    - keyword: WOR
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: FORMAT
+    - keyword: TRUNCATED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SQLBLANKLINES
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SQLBL
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SUFFIX
+    - sqlplus_text: sql
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SUF
+    - quoted_literal: "'txt'"
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TERMOUT
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TERM
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TI
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TIMING
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TIMI
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: VERIFY
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: VER
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ECHO
+    - keyword: 'OFF'
+    - keyword: FEEDBACK
+    - keyword: 'OFF'
+- batch:
+  - sqlplus_set_statement:
+    - keyword: SET
+    - keyword: ECHO
+    - keyword: 'OFF'
+    - keyword: FEEDBACK
+    - keyword: 'OFF'
+    - keyword: VERIFY
+    - keyword: 'OFF'
+    - keyword: TERMOUT
+    - keyword: 'OFF'
+  - statement_terminator: ;
+  - sqlplus_set_statement:
+    - keyword: SET
+    - keyword: HEADING
+    - keyword: 'OFF'
+    - keyword: LINESIZE
+    - numeric_literal: '200'
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: SIZE
+    - keyword: UNLIMITED
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: DEFINE
+    - keyword: 'OFF'
+    - keyword: ESCAPE
+    - keyword: 'ON'
+- batch:
+    statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: tools
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: id
+        - comma: ','
+        - column_reference:
+            naked_identifier: name
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            numeric_literal: '2'
+            comma: ','
+            quoted_literal: "'Nuts & Bolts'"
+            end_bracket: )
+    statement_terminator: ;
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+    statement_terminator: ;
