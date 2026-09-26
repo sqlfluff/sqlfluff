@@ -1202,6 +1202,45 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     match_grammar = Ref.keyword("ARRAY")
 
 
+class ArrayFunctionNameSegment(BaseSegment):
+    """ARRAY function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "ARRAY",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class ArrayFunctionContentsSegment(BaseSegment):
+    """Array function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
+class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
+    """Expression to construct an ARRAY from a subquery.
+
+    https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS
+    """
+
+    match_grammar = Sequence(
+        Ref("ArrayFunctionNameSegment"),
+        Ref("ArrayFunctionContentsSegment"),
+    )
+
+
 class ArrayTypeSuffixSegment(BaseSegment):
     """The ``[]`` suffix that turns a scalar type into an array type.
 
@@ -5459,14 +5498,16 @@ class ConflictActionSegment(BaseSegment):
                             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                             Ref("EqualsSegment"),
                             Ref.keyword("ROW", optional=True),
-                            Bracketed(
-                                Delimited(OneOf(Ref("ExpressionSegment"), "DEFAULT"))
+                            OneOf(
+                                # "ROW (SELECT a, b)" consumes a whole
+                                # multi-column subselect.
+                                Bracketed(Ref("SelectableGrammar")),
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(Ref("ExpressionSegment"), "DEFAULT")
+                                    )
+                                ),
                             ),
-                        ),
-                        Sequence(
-                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                            Ref("EqualsSegment"),
-                            Bracketed(Ref("SelectableGrammar")),
                         ),
                     )
                 ),

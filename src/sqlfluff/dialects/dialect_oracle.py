@@ -255,11 +255,14 @@ oracle_dialect.add(
     PivotInGrammar=Sequence(
         "IN",
         Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("Expression_D_Grammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                )
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Delimited(
+                    Sequence(
+                        Ref("Expression_D_Grammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    )
+                ),
             )
         ),
     ),
@@ -813,12 +816,16 @@ oracle_dialect.replace(
             Ref("PlusJoinGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
+            # CURSOR and MULTISET take a query as their only argument.
+            Sequence("CURSOR", Bracketed(Ref("SelectableGrammar"))),
+            Sequence("MULTISET", Bracketed(Ref("SelectableGrammar"))),
             Ref("TriggerCorrelationReferenceSegment"),
             Bracketed(
                 OneOf(
                     # We're using the expression segment here rather than the grammar so
                     # that in the parsed structure we get nested elements.
                     Ref("ExpressionSegment"),
+                    Ref("SelectStatementExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
                         Ref(
@@ -833,8 +840,6 @@ oracle_dialect.replace(
                 ),
                 parse_mode=ParseMode.GREEDY,
             ),
-            # Allow potential select statement without brackets
-            Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("TypedStructLiteralSegment"),
@@ -852,7 +857,7 @@ oracle_dialect.replace(
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
-                Ref("DatatypeSegment"),
+                Ref("DatatypeSegment", exclude=Ref.keyword("SELECT")),
                 # Don't use the full LiteralGrammar here
                 # because only some of them are applicable.
                 # Notably we shouldn't use QualifiedNumericLiteralSegment
