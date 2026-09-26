@@ -1459,6 +1459,16 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    # The id argument of KILL.  A general ExpressionSegment would also accept
+    # `KILL HARD 5` as a typed literal, silently mis-parsing an unsupported form,
+    # so only the shapes a connection or query id takes are allowed.
+    KillIdGrammar=OneOf(
+        Ref("FunctionSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("SessionVariableNameSegment"),
+        Ref("LocalVariableNameSegment"),
+        Bracketed(Ref("ExpressionSegment")),
+    ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableAssignmentSegment=Sequence(
         Ref("SessionVariableNameSegment"),
@@ -1744,6 +1754,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
             Ref("AlterDatabaseStatementSegment"),
@@ -3449,6 +3460,20 @@ class FlushStatementSegment(BaseSegment):
                 Sequence("FOR", "EXPORT", optional=True),
             ),
         ),
+    )
+
+
+class KillStatementSegment(BaseSegment):
+    """A `KILL` statement, ending a connection or the statement it is running.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/kill.html
+    """
+
+    type = "kill_statement"
+    match_grammar: Matchable = Sequence(
+        "KILL",
+        OneOf("CONNECTION", "QUERY", optional=True),
+        Ref("KillIdGrammar"),
     )
 
 
