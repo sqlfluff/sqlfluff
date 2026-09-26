@@ -24,13 +24,16 @@ from sqlfluff.core.parser import (
     ImplicitIndent,
     Indent,
     Matchable,
+    NewlineSegment,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     Sequence,
     StringParser,
     TypedParser,
+    WhitespaceSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -190,6 +193,21 @@ teradata_dialect.add(
     # works where a boolean is expected (e.g. inside CASE WHEN).
     # https://docs.teradata.com/r/kmuOwjp1zEYg98JsB8fu_A/3VIgdwHNVU~tsnNiIR1aEw
     OverlapsOperatorSegment=StringParser("OVERLAPS", ComparisonOperatorSegment),
+    # A bare newline, used to terminate single-line BTEQ dot-commands so their
+    # opaque arguments are not consumed across the end of the line.
+    BteqNewlineGrammar=TypedParser("newline", NewlineSegment, type="newline"),
+    # Same-line whitespace (explicitly not a newline). Used to anchor a BTEQ
+    # command's arguments to its own line so a command with no arguments does
+    # not reach across the end-of-line newline into the next statement.
+    BteqInlineWhitespaceGrammar=TypedParser(
+        "whitespace", WhitespaceSegment, type="whitespace"
+    ),
+    # The command word of a BTEQ dot-command that we don't model explicitly
+    # (e.g. `.SET`, `.OS`, `.REMARK`, `.SHOW`). Matches any bare word, so it
+    # also picks up misspellings. It carries its own type rather than reusing
+    # `bteq_key_word_segment`, which would leave anything keyed on that type
+    # unable to tell a modelled control-flow keyword from an arbitrary word.
+    BteqCommandNameSegment=TypedParser("word", CodeSegment, type="bteq_command_name"),
 )
 
 
@@ -212,6 +230,9 @@ class BteqKeyWordSegment(BaseSegment):
     """
 
     type = "bteq_key_word_segment"
+    # Gaps are spelled out as same-line whitespace so a keyword and its literal
+    # cannot be split across a newline, e.g. `.QUIT` on one line must not pick
+    # up a number from the next one.
     match_grammar = Sequence(
         Ref("DotSegment", optional=True),
         OneOf(
@@ -230,7 +251,13 @@ class BteqKeyWordSegment(BaseSegment):
             "QUIT",
             "ACTIVITYCOUNT",
         ),
-        Ref("LiteralGrammar", optional=True),
+        Sequence(
+            Ref("BteqInlineWhitespaceGrammar"),
+            Ref("LiteralGrammar"),
+            allow_gaps=False,
+            optional=True,
+        ),
+        allow_gaps=False,
     )
 
 
@@ -255,32 +282,66 @@ class BteqFilePathSegment(BaseSegment):
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
-    Non exhaustive and maybe catching too many statements?
+    BTEQ has a large set of dot-prefixed control commands (``.LOGON``,
+    ``.SET``, ``.EXPORT``, ``.IMPORT``, ``.OS``, ``.REMARK`` ...), each
+    confined to a single line. Rather than modelling every command and its
+    arguments, we recognise the leading keyword(s) for the common control-flow
+    forms and then consume the remainder of the line as opaque arguments so the
+    command is accepted without producing an unparsable section.
+
+    https://docs.teradata.com/r/jmAxXLdiDu6NiyjT6hhk7g/TvACxJd5BGW6uUDX_l2O4g
 
     # BTEQ commands
     .if errorcode > 0 then .quit 2
     .IF ACTIVITYCOUNT = 0 THEN .QUIT
     .RUN FILE=POSTING
+    .LOGON tdpid/username,password
+    .EXPORT DATA FILE=out.dat
     """
 
     type = "bteq_statement"
     match_grammar = Sequence(
         Ref("DotSegment"),
-        Ref("BteqKeyWordSegment"),
-        AnyNumberOf(
-            Ref("BteqKeyWordSegment"),
-            # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
-            Sequence(
-                "FILE",
-                Ref("EqualsSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+        # The command keyword. Known control-flow keywords keep a structured
+        # parse; any other command word (e.g. `.SET`, `.OS`, `.REMARK`) is
+        # accepted generically so the full BTEQ command set is supported.
+        OneOf(Ref("BteqKeyWordSegment"), Ref("BteqCommandNameSegment")),
+        # The command's arguments, confined to the command's own line.
+        #
+        # GREEDY trims the window to the terminating newline before any of the
+        # content below is matched, so nothing in here can reach the next line
+        # no matter how freely it skips whitespace. That matters because the
+        # argument matching below does allow gaps, and a newline is just
+        # another gap: without the window, `.IF ERRORCODE <> 0 THEN .QUIT 1`
+        # keeps matching keywords onto the following line and swallows the
+        # dot-command sitting there.
+        #
+        # The leading whitespace is matched explicitly rather than skipped,
+        # which is what stops a command with no arguments at all (`.LOGOFF`)
+        # from stepping over its own newline.
+        Sequence(
+            Ref("BteqInlineWhitespaceGrammar"),
+            # Structured arguments for the commands we model in detail.
+            AnyNumberOf(
+                Ref("BteqKeyWordSegment"),
+                # FILE=<path> argument, e.g. `.RUN FILE=POSTING`.
+                Sequence(
+                    "FILE",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("QuotedLiteralSegment"), Ref("BteqFilePathSegment")),
+                ),
+                # if ... then: the ...
+                Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
+                optional=True,
             ),
-            # if ... then: the ...
-            Sequence(
-                Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar"), optional=True
-            ),
+            # Anything else on the line is opaque command arguments.
+            Anything(optional=True),
+            allow_gaps=False,
             optional=True,
+            parse_mode=ParseMode.GREEDY,
+            terminators=[Ref("BteqNewlineGrammar"), Ref("SemicolonSegment")],
         ),
+        allow_gaps=False,
     )
 
 
@@ -857,6 +918,58 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetSessionStatementSegment"),
             Ref("SetQueryBandStatementSegment"),
         ],
+    )
+
+
+class BteqCommandStatementSegment(StatementSegment):
+    """A statement which is specifically a BTEQ dot-command.
+
+    This is the ordinary ``statement`` node, narrowed to just the dot-command
+    case. :class:`FileSegment` uses it to make the trailing semicolon optional
+    for dot-commands only, so ordinary SQL keeps its terminator.
+    """
+
+    type = "statement"
+
+    match_grammar = Ref("BteqStatementSegment")
+
+
+class FileSegment(ansi.FileSegment):
+    """A Teradata file/script.
+
+    A BTEQ dot-command is terminated by the end of its line rather than by a
+    semicolon, so its terminator is optional here. Ordinary SQL still has to be
+    terminated, which is why the two cases are separate branches below rather
+    than one branch with an optional delimiter: making the delimiter optional
+    for every statement would leave nothing stopping two unseparated SQL
+    statements except the fact that the first one happens to match greedily and
+    then fail. Keeping the branches apart makes that a property of the grammar
+    instead of a side effect.
+
+    As in ansi, the final statement in a file may leave off its trailing
+    semicolon.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            OneOf(
+                # A dot-command ends at its newline, so the semicolon is
+                # optional.
+                Sequence(
+                    Ref("BteqCommandStatementSegment"),
+                    Ref("DelimiterGrammar", optional=True),
+                ),
+                # Ordinary SQL keeps its terminator.
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterGrammar"),
+                ),
+                # Stray or repeated delimiters.
+                Ref("DelimiterGrammar"),
+            ),
+        ),
+        # The last statement in the file may omit its trailing delimiter.
+        Ref("StatementSegment", optional=True),
     )
 
 
