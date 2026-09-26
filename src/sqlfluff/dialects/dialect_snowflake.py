@@ -5850,6 +5850,7 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "MAX_DATA_EXTENSION_TIME_IN_DAYS",
                         "DEFAULT_DDL_COLLATION",
                         "COMMENT",
+                        "ROW_TIMESTAMP_DEFAULT",
                     ),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
@@ -5883,6 +5884,11 @@ class SchemaObjectParamsSegment(BaseSegment):
             "DEFAULT_DDL_COLLATION",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ROW_TIMESTAMP_DEFAULT",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Ref("CommentEqualsClauseSegment"),
     )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c7c8f3b3a77221c8a7a0cb73d92ad964212627ef575955d5952270448f9e589
+_hash: 070b6c55c6972e78612acdc351696b5930071f3582db0f92ddbfa083282596a9
 file:
 - statement:
     alter_schema_statement:
@@ -106,4 +106,26 @@ file:
     - comma: ','
     - tag_reference:
         naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: schema1
+    - keyword: set
+    - schema_object_properties:
+        keyword: row_timestamp_default
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: schema1
+    - keyword: unset
+    - keyword: row_timestamp_default
 - statement_terminator: ;
