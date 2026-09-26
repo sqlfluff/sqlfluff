@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c0b681abf8db8b52b35bb4927c019530edc4a0f60dd5f575a39032e35763315
+_hash: 463592a1df4173b659f0873a41197f264d9c84f711d54c653b0d1cfb22d878c5
 file:
 - statement:
     create_event_statement:
@@ -124,9 +124,9 @@ file:
           \ day'"
     - keyword: DO
     - statement:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
+        compound_statement:
+        - keyword: BEGIN
+        - statement:
             insert_statement:
             - keyword: INSERT
             - keyword: INTO
@@ -166,23 +166,21 @@ file:
                         - naked_identifier: site_activity
                         - dot: .
                         - naked_identifier: sessions
-- statement_terminator: ;
-- statement:
-    delete_statement:
-      keyword: DELETE
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - naked_identifier: site_activity
-              - dot: .
-              - naked_identifier: sessions
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: END
+        - statement_terminator: ;
+        - statement:
+            delete_statement:
+              keyword: DELETE
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: site_activity
+                      - dot: .
+                      - naked_identifier: sessions
+        - statement_terminator: ;
+        - keyword: END
 - statement_terminator: ;
 - statement:
     create_event_statement:

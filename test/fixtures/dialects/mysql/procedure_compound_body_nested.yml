@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2f7b49b26cd8d972a44041c5c9d8320a69fcf22919e00bda9f3b3f64b30acf70
+file:
+  statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p3
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement:
+            declare_statement:
+            - keyword: DECLARE
+            - variable: v1
+            - data_type:
+                data_type_identifier: INT
+            - keyword: DEFAULT
+            - expression:
+                numeric_literal: '0'
+        - statement_terminator: ;
+        - statement:
+            compound_statement:
+            - keyword: BEGIN
+            - statement:
+                set_statement:
+                  keyword: SET
+                  variable: v1
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+            - statement_terminator: ;
+            - statement:
+                set_statement:
+                  keyword: SET
+                  variable: v1
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                      naked_identifier: v1
+                    binary_operator: +
+                    numeric_literal: '1'
+            - statement_terminator: ;
+            - keyword: END
+        - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: v1
+        - statement_terminator: ;
+        - keyword: END
+  statement_terminator: ;
