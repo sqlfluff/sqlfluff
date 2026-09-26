@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2697a4556bc801199aec5b93e94c55db5522b9a21093a66883f80c9412416914
+_hash: d8291252afa937b4bf7aa12251c32587465cad3c364847b51500325a8f8982e5
 file:
 - statement:
     access_statement:
@@ -139,4 +139,75 @@ file:
       - access_target:
           role_reference:
             quoted_identifier: '`data-engineers`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: READ
+          - keyword: VOLUME
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: VOLUME
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: my_volume
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`data-engineers`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: READ
+          - keyword: VOLUME
+        - comma: ','
+        - access_permission:
+          - keyword: WRITE
+          - keyword: VOLUME
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: VOLUME
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: my_volume
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`data-engineers`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+              keyword: VOLUME
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: main
+          - dot: .
+          - naked_identifier: default
+      - keyword: TO
+      - access_target:
+          role_reference:
+            quoted_identifier: '`finance-team`'
 - statement_terminator: ;
