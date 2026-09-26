@@ -190,6 +190,8 @@ clickhouse_dialect.add(
     PartitionExpressionGrammar=OneOf(
         # ALTER TABLE visits DETACH PARTITION 201901
         Ref("NumericLiteralSegment"),
+        # ALTER TABLE visits DETACH PARTITION -201901
+        Ref("QualifiedNumericLiteralSegment"),
         Sequence(
             # ALTER TABLE visits DETACH PARTITION ID '201901'
             Ref.keyword("ID", optional=True),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 15b79c3a0867b113742ab4986d87a1165a984594a377b9787c0d84259f18ab08
+_hash: 44707c171d008c5a4f5cee153427f5df7c2ac6ddd46993632cd3c21947bd2348
 file:
 - statement:
     alter_table_statement:
@@ -2255,10 +2255,44 @@ file:
       - naked_identifier: example
     - keyword: MATERIALIZE
     - keyword: PROJECTION
-    - naked_identifier: user_proj
+    - naked_identifier: region_proj_4
     - keyword: IN
     - keyword: PARTITION
     - numeric_literal: '201901'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - naked_identifier: region_proj_4
+    - keyword: IN
+    - keyword: PARTITION
+    - numeric_literal:
+        sign_indicator: +
+        numeric_literal: '201901'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: MATERIALIZE
+    - keyword: PROJECTION
+    - naked_identifier: region_proj_4
+    - keyword: IN
+    - keyword: PARTITION
+    - numeric_literal:
+        sign_indicator: '-'
+        numeric_literal: '201901'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -2394,6 +2428,40 @@ file:
     - keyword: IN
     - keyword: PARTITION
     - numeric_literal: '201901'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - naked_identifier: region_proj_4
+    - keyword: IN
+    - keyword: PARTITION
+    - numeric_literal:
+        sign_indicator: +
+        numeric_literal: '201901'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: CLEAR
+    - keyword: PROJECTION
+    - naked_identifier: region_proj_4
+    - keyword: IN
+    - keyword: PARTITION
+    - numeric_literal:
+        sign_indicator: '-'
+        numeric_literal: '201901'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
