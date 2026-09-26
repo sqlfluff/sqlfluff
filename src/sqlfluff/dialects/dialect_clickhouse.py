@@ -179,6 +179,13 @@ clickhouse_dialect.add(
     RawIsNotDistinctFromSegment=StringParser(
         "<=>", SymbolSegment, type="raw_comparison_operator"
     ),
+    PositionalPlacementGrammar=OneOf(
+        Sequence(
+            "AFTER",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        "FIRST",
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -2801,7 +2808,7 @@ class AlterTableAddProjectionDefinitionStatement(ProjectionDefinitionSegment):
     match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
         insert=[Ref("IfNotExistsGrammar", optional=True)],
         before=Ref("SingleIdentifierGrammar"),
-    )
+    ).copy(insert=[Ref("PositionalPlacementGrammar", optional=True)])
 
 
 class AlterTableModifyProjectionDefinitionStatement(ProjectionDefinitionSegment):
@@ -2907,14 +2914,7 @@ class AlterTableStatementSegment(BaseSegment):
                         Ref("ExpressionSegment"),
                     ),
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... ADD ALIAS name FOR column_name
             Sequence(
@@ -3063,14 +3063,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... ALTER COLUMN name [TYPE] [type]
             Sequence(
@@ -3087,14 +3080,7 @@ class AlterTableStatementSegment(BaseSegment):
                     # Without TYPE keyword
                     Ref("DatatypeSegment"),  # Data type
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... REMOVE TTL
             Sequence(

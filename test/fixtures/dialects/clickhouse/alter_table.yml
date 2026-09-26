@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d99bd9496326372dbb4dca7deeb9770ef0518121699965567f51eaafe2d05a8
+_hash: 31f7c105c11cc1be966432f7466dda5840f995eeae9449ae54ec985bf4a1562c
 file:
 - statement:
     alter_table_statement:
@@ -1756,9 +1756,9 @@ file:
       - naked_identifier: example
     - keyword: ADD
     - projection_definition:
-        keyword: PROJECTION
-        naked_identifier: region_proj
-        bracketed:
+      - keyword: PROJECTION
+      - naked_identifier: region_proj
+      - bracketed:
           start_bracket: (
           select_clause:
           - keyword: select
@@ -1791,6 +1791,7 @@ file:
           - column_reference:
               naked_identifier: region
           end_bracket: )
+      - keyword: FIRST
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1848,6 +1849,8 @@ file:
               raw_comparison_operator: '='
             numeric_literal: '4096'
             end_bracket: )
+      - keyword: AFTER
+      - naked_identifier: region_proj
 - statement_terminator: ;
 - statement:
     alter_table_statement:
