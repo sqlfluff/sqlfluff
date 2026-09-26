@@ -1772,7 +1772,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     match_grammar: Matchable = OneOf(
         Sequence(
             OneOf(
-                # {CREATE [OR REPLACE] TABLE
+                # CREATE [OR REPLACE] TABLE
                 # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
                 Sequence(
                     "CREATE",
@@ -1846,7 +1846,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         # CREATE TEMPORARY TABLE
         Sequence(
             OneOf(
-                # {CREATE [OR REPLACE] TEMPORARY TABLE
+                # CREATE [OR REPLACE] TEMPORARY TABLE
                 # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
                 Sequence(
                     "CREATE",
