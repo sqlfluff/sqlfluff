@@ -1785,11 +1785,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     "REPLACE",
                     "TABLE",
                 ),
-                # CREATE TABLE [IF NOT EXISTS]
+                # CREATE TABLE IF NOT EXISTS
                 Sequence(
                     "CREATE",
                     "TABLE",
-                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IfNotExistsGrammar"),
                 ),
             ),
             Ref("TableReferenceSegment"),
@@ -1861,12 +1861,12 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     "TEMPORARY",
                     "TABLE",
                 ),
-                # CREATE TEMPORARY TABLE [IF NOT EXISTS]
+                # CREATE TEMPORARY TABLE IF NOT EXISTS
                 Sequence(
                     "CREATE",
                     "TEMPORARY",
                     "TABLE",
-                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("IfNotExistsGrammar"),
                 ),
             ),
             Ref("TableReferenceSegment"),
