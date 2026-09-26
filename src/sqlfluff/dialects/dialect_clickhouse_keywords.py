@@ -114,6 +114,7 @@ UNRESERVED_KEYWORDS = [
     "BY",
     "CHECK",
     "CLEAR",
+    "CLONE",
     "CLUSTER",
     "CODEC",
     "COLLATE",

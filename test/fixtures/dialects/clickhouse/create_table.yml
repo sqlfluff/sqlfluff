@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02e93d2b4a90a471ee3fba20d90c6b29cee1a4cf6cca8a4e879dfab1a579343b
+_hash: 849b62eb7c2728fa7d323d3d11bc6ba510feb7dfff08f71c04f431def2dfd002
 file:
 - statement:
     create_table_statement:
@@ -829,4 +829,287 @@ file:
         table_engine_function:
           function_name:
             function_name_identifier: MergeTree
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`n`'
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`s`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`a`'
+          data_type:
+            data_type_identifier: DateTime64
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: s
+      - keyword: PRIMARY
+      - keyword: KEY
+      - expression:
+          column_reference:
+            naked_identifier: n
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: n
+      - keyword: SAMPLE
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: n
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: n
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: n
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '12345'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: n
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: n
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '12345'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: n
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '12345'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t1
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: n
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: n
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '12345'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - keyword: CLONE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - keyword: CLONE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: t2
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t4
+    - keyword: CLONE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: t3
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t5
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
 - statement_terminator: ;
