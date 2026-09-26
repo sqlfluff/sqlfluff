@@ -1,0 +1,167 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f4d4b858f08ee851388c978d4d0bd43ab75d397ce8f0ed860054273037028891
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: topic
+                array_accessor:
+                  start_square_bracket: '['
+                  numeric_literal: '0'
+                  end_square_bracket: ']'
+                dot: .
+                naked_identifier: extension
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: x
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+                boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: topic
+                array_accessor:
+                  start_square_bracket: '['
+                  numeric_literal: '0'
+                  end_square_bracket: ']'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: x
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+                boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+            - table_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: arr
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '1'
+                end_square_bracket: ']'
+            - dot: .
+            - naked_identifier: b
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '2'
+                end_square_bracket: ']'
+            - semi_structured_expression:
+                dot: .
+                naked_identifier: c
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: y
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: topic
+                - dot: .
+                - naked_identifier: ext
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: x
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+                boolean_literal: 'TRUE'
+- statement_terminator: ;
