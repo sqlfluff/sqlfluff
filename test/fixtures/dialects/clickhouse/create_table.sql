@@ -93,7 +93,7 @@ CREATE TABLE my_table
 )
 ENGINE = MergeTree;
 
--- https://fiddle.clickhouse.com/642653b0-05ec-437c-b601-996b89700c4b
+-- https://fiddle.clickhouse.com/2026d50c-aef6-4c80-a8d8-4b98cf31dc89
 CREATE TABLE example_1
 (
     id UInt64,
@@ -243,6 +243,29 @@ CREATE TABLE example_12
     index_granularity_bytes = 1048576
 ),
   PROJECTION region_proj_3 (select region, user_id where region = 'JP' order by user_id),
+  PROJECTION region_proj INDEX region TYPE basic,
+    PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
+    index_granularity = 4096,
+    index_granularity_bytes = 1048576
+)
+)
+ENGINE = MergeTree
+ORDER BY id;
+
+CREATE TABLE example_13
+(
+    id UInt64,
+    region String,
+    user_id UInt32,
+    PROJECTION region_proj_1 (with 'JP' as country select region, count(user_id) where region = country group by region)
+    WITH SETTINGS (
+    index_granularity = 4096
+),
+  PROJECTION region_proj_2 (with 1 = 0 as f1 select region, user_id order by region) WITH SETTINGS (
+    index_granularity = 4096,
+    index_granularity_bytes = 1048576
+),
+  PROJECTION region_proj_3 (with cast('JP' as String) as country, 1 = 1 as f1 select region, user_id where region = country order by user_id),
   PROJECTION region_proj INDEX region TYPE basic,
     PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096,

@@ -145,7 +145,7 @@ ALTER TABLE users DELETE WHERE deleted = 1 AND last_activity < now() - INTERVAL 
 ALTER TABLE sessions ON CLUSTER '{cluster}' DELETE WHERE session_id IN (SELECT id FROM expired_sessions);
 ALTER TABLE temp_data DELETE WHERE created_at < '2023-01-01' SETTINGS mutations_sync = 2;
 
--- https://fiddle.clickhouse.com/f060561d-a385-4e76-8d1e-8d35eb84ebba
+-- https://fiddle.clickhouse.com/c9db3430-e1e6-48eb-8001-812735f5061b
 ALTER TABLE default.example ADD PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096,
     index_granularity_bytes = 1048576
@@ -164,6 +164,15 @@ ALTER TABLE default.example ADD PROJECTION region_proj_3 (select region, user_id
 );
 
 ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_4 (select region, user_id where region = 'JP' order by user_id);
+
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj (with 'JP' as country select region, count(user_id) where region = country group by region) FIRST;
+
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_3 (with (1 = 1) as f1, cast('JP' as String) as country select region, user_id where region = country order by user_id)
+    WITH SETTINGS (
+    index_granularity = 4096
+);
+
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_4 (with 1 = 0 as f1, cast('JP' as String) as country select region, user_id where region = country order by user_id);
 
 ALTER TABLE default.example MODIFY PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096

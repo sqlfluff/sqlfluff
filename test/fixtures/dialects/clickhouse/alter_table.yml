@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31f7c105c11cc1be966432f7466dda5840f995eeae9449ae54ec985bf4a1562c
+_hash: 60b99755971ed7d533eb39e57b3c82d5098ae1d7155935e215dd9a4c320e021c
 file:
 - statement:
     alter_table_statement:
@@ -1940,6 +1940,208 @@ file:
           - column_reference:
               naked_identifier: user_id
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - naked_identifier: region_proj
+      - bracketed:
+        - start_bracket: (
+        - keyword: with
+        - expression:
+            quoted_literal: "'JP'"
+        - keyword: as
+        - naked_identifier: country
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: user_id
+                    end_bracket: )
+        - where_clause:
+            keyword: where
+            expression:
+            - column_reference:
+                naked_identifier: region
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: country
+        - groupby_clause:
+          - keyword: group
+          - keyword: by
+          - column_reference:
+              naked_identifier: region
+        - end_bracket: )
+      - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - naked_identifier: region_proj_3
+      - bracketed:
+        - start_bracket: (
+        - keyword: with
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '1'
+              end_bracket: )
+        - keyword: as
+        - naked_identifier: f1
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: cast
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'JP'"
+                  keyword: as
+                  data_type:
+                    data_type_identifier: String
+                  end_bracket: )
+        - keyword: as
+        - naked_identifier: country
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: user_id
+        - where_clause:
+            keyword: where
+            expression:
+            - column_reference:
+                naked_identifier: region
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: country
+        - orderby_clause:
+          - keyword: order
+          - keyword: by
+          - column_reference:
+              naked_identifier: user_id
+        - end_bracket: )
+      - keyword: WITH
+      - settings_clause:
+          keyword: SETTINGS
+          bracketed:
+            start_bracket: (
+            naked_identifier: index_granularity
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '4096'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - naked_identifier: region_proj_4
+      - bracketed:
+        - start_bracket: (
+        - keyword: with
+        - expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '0'
+        - keyword: as
+        - naked_identifier: f1
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: cast
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'JP'"
+                  keyword: as
+                  data_type:
+                    data_type_identifier: String
+                  end_bracket: )
+        - keyword: as
+        - naked_identifier: country
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: user_id
+        - where_clause:
+            keyword: where
+            expression:
+            - column_reference:
+                naked_identifier: region
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: country
+        - orderby_clause:
+          - keyword: order
+          - keyword: by
+          - column_reference:
+              naked_identifier: user_id
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

@@ -2774,6 +2774,21 @@ class ProjectionDefinitionSegment(BaseSegment):
         OneOf(
             # Projection query
             Bracketed(
+                # Common Scalar Expressions are supported in the projection query definition,
+                # even though it is not stated explicitly in the docs.
+                # For more info look here:
+                # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserProjectionSelectQuery.cpp#L34-L42
+                Sequence(
+                    "WITH",
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            "AS",
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    optional=True,
+                ),
                 Ref("SelectClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
                 OneOf(
