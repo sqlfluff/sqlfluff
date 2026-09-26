@@ -1077,14 +1077,23 @@ def lint(
         result.persist_timing_records(persist_timing)
 
     output_stream.close()
+    # NB: For machine-readable formats (json, yaml, sarif, ...) the bench
+    # summary always goes to stderr instead of stdout, regardless of
+    # --write-output, so it can never land next to (or inside, via an alias
+    # like --write-output=/dev/stdout) a payload that must stay parseable on
+    # its own - while still always showing the timings the user asked for.
     if bench:
-        click.echo("==== overall timings ====")
-        click.echo(formatter.cli_table([("Clock time", result.total_time)]))
+        bench_err = output_policy.machine_output
+        click.echo("==== overall timings ====", err=bench_err)
+        click.echo(
+            formatter.cli_table([("Clock time", result.total_time)]), err=bench_err
+        )
         timing_summary = result.timing_summary()
         for step in timing_summary:
-            click.echo(f"=== {step} ===")
+            click.echo(f"=== {step} ===", err=bench_err)
             click.echo(
-                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20)
+                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20),
+                err=bench_err,
             )
 
     if not nofail:

@@ -875,6 +875,123 @@ def test__cli__verbose_machine_output_stays_serialized():
     assert result.stderr
 
 
+def test__cli__bench_machine_output_stays_serialized():
+    """--bench timings must not contaminate machine-readable stdout.
+
+    They should still be shown (on stderr), not silently dropped.
+    """
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=json",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    # The whole of stdout must be valid JSON: if --bench appended its
+    # "==== overall timings ====" table after the payload, this parse
+    # would fail with "Extra data".
+    json.loads(result.stdout)
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+
+
+def test__cli__bench_machine_output_stays_serialized_empty_write_output():
+    """An empty --write-output value must be treated like no file at all."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=json",
+                "--write-output=",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    # dump_file_payload() treats an empty --write-output as "write to
+    # stdout" (it checks truthiness, not `is not None`), so the payload
+    # lands on stdout here same as the no-write-output case above - and
+    # the bench table must still be shown, just on stderr.
+    json.loads(result.stdout)
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+
+
+def test__cli__bench_prints_to_stderr_for_format_none():
+    """--bench timings for --format=none go to stderr, not stdout.
+
+    format=none writes nothing to stdout, so the bench table cannot
+    corrupt a payload there either way, but it is routed to stderr for
+    consistency with every other non-human format.
+    """
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=none",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+
+
+def test__cli__bench_prints_to_stdout_for_format_human():
+    """--bench timings for the default human format stay on stdout."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" in result.stdout
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="/dev/stdout is not available on Windows"
+)
+def test__cli__bench_write_output_dev_stdout_stays_serialized():
+    """--write-output=/dev/stdout must not be corrupted by --bench either.
+
+    dump_file_payload() opens --write-output as a real file, so when it is
+    given an alias for the process's actual stdout fd, anything written to
+    stdout via click.echo() lands in the same stream. Routing --bench to
+    stderr unconditionally for non-human formats (rather than only when
+    --write-output is unset) covers this case too.
+    """
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sqlfluff",
+            "lint",
+            "--bench",
+            "--format=json",
+            "--write-output=/dev/stdout",
+            "--disable-progress-bar",
+            "test/fixtures/cli/passing_a.sql",
+        ],
+        capture_output=True,
+        text=True,
+        env=os.environ,
+    )
+    json.loads(proc.stdout)
+    assert "==== overall timings ====" not in proc.stdout
+    assert "==== overall timings ====" in proc.stderr
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""
