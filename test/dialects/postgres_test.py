@@ -98,6 +98,9 @@ def test_space_is_not_reserved(raw: str) -> None:
         # real built-in types, so they must still parse (see issue #6430 review).
         "CREATE TABLE t (a dec, b dec(10, 2))",
         "CREATE TABLE t (a nchar(5), b national character(5), c national char)",
+        # And their VARYING spellings.
+        "CREATE TABLE t (a nchar varying(5), b national character varying(5),"
+        " c national char varying(5))",
         # User-defined / unreserved type names must still parse.
         "CREATE TABLE t (x my_custom_type)",
         # `col_name_keyword`s that double as built-in types are still handled by
