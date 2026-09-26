@@ -5884,6 +5884,11 @@ class SchemaObjectParamsSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
         ),
+        Sequence(
+            "ROW_TIMESTAMP_DEFAULT",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
         Ref("CommentEqualsClauseSegment"),
     )
 

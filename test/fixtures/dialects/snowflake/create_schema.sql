@@ -8,3 +8,4 @@ create transient schema if not exists mytestschema default_ddl_collation = 'de_D
 CREATE SCHEMA MYDB.MYSCHEMA COMMENT = "Space for landing my data";
 CREATE SCHEMA IF NOT EXISTS MYDB.MYSCHEMA COMMENT = "Space for landing my data";
 CREATE OR ALTER SCHEMA MYDB.MYSCHEMA;
+create schema mytestschema row_timestamp_default = true;
