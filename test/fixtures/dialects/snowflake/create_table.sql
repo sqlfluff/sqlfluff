@@ -358,5 +358,5 @@ CREATE TABLE IF NOT EXISTS my_schema.my_table (
 
 CREATE OR REPLACE TABLE dummy_table (
   id NUMBER NOT NULL,
-  name STRING,
+  name STRING
 ) ROW_TIMESTAMP = TRUE;

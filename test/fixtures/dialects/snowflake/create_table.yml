@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4d9a83521d6fb14f5ef56f1c78a05f306b174306f238ccb0c36b898db2eb7fb
+_hash: 8a7473b189bc10b374a8fb02b8b875ea5366fb353a5b16bc635f17aa5094c0eb
 file:
 - statement:
     create_table_statement:
@@ -2665,7 +2665,6 @@ file:
           naked_identifier: name
           data_type:
             data_type_identifier: STRING
-      - comma: ','
       - end_bracket: )
     - keyword: ROW_TIMESTAMP
     - comparison_operator:
