@@ -9604,6 +9604,7 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
                 OneOf("SUSPEND", "RESUME"),
                 OneOf("INDEXING", "SERVING"),
             ),
+            "REFRESH",
             Sequence(
                 "SET",
                 AnySetOf(
