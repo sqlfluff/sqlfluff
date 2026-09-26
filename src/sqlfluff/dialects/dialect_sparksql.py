@@ -1225,6 +1225,14 @@ class StructTypeSchemaSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColonSegment", optional=True),
                 Ref("DatatypeSegment"),
+                # complexColType allows NOT NULL before the comment, the same
+                # way colType does for a top-level column.
+                Sequence("NOT", "NULL", optional=True),
+                # ANSI leaves CollateGrammar as Nothing(), and sparksql does
+                # not define it, so this slot is inert here. Databricks does
+                # define it, and documents a per-field COLLATE in exactly
+                # this position.
+                Ref("CollateGrammar", optional=True),
                 Ref("CommentGrammar", optional=True),
             ),
             bracket_pairs_set="angle_bracket_pairs",
