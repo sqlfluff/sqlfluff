@@ -84,7 +84,7 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
                 optional=True,
             ),
         ],
-        at=3,
+        at=2,
     )
 
 

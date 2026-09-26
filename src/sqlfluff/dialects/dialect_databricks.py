@@ -9,7 +9,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -1169,7 +1168,6 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("ColumnReferenceSegment"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnPropertiesSegment"),
             Ref("ColumnConstraintSegment"),

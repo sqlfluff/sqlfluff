@@ -1,0 +1,223 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d0ac03165d1d3a7d7f0520f31f4d1cf53c481689f7b4fdd05bcc9e363b75087d
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: DECIMAL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: NUMERIC
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '1'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: DEC
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '5'
+              - comma: ','
+              - numeric_literal: '1'
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '11'
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: GEOGRAPHY
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4326'
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                keyword: AS
+                data_type:
+                  data_type_identifier: DECIMAL
+                  bracketed_arguments:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '10'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+                end_bracket: )
+- statement_terminator: ;
