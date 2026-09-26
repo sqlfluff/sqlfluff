@@ -2840,7 +2840,10 @@ class AlterTableAddProjectionDefinitionStatement(ProjectionDefinitionSegment):
     match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
         insert=[Ref("IfNotExistsGrammar", optional=True)],
         before=Ref("SingleIdentifierGrammar"),
-    ).copy(insert=[Ref("PositionalPlacementGrammar", optional=True)])
+    ).copy(
+        # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserAlterQuery.cpp#L474-L480
+        insert=[Ref("PositionalPlacementGrammar", optional=True)]
+    )
 
 
 class AlterTableModifyProjectionDefinitionStatement(ProjectionDefinitionSegment):
