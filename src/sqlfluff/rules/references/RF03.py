@@ -109,8 +109,9 @@ class Rule_RF03(BaseRule):
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: set = set()
+        templater_name = context.config.get("templater")
         # Recursively visit and check each query in the tree.
-        return list(self._visit_queries(query, visited))
+        return list(self._visit_queries(query, visited, templater_name))
 
     def _iter_available_targets(
         self, query: Query, subquery: Optional[Query] = None
@@ -128,7 +129,9 @@ class Rule_RF03(BaseRule):
                     if (subquery and not alias.object_reference) or alias.ref_str:
                         yield alias
 
-    def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
+    def _visit_queries(
+        self, query: Query, visited: set, templater_name: str
+    ) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
         if query.selectables:
             select_info = query.selectables[0].select_info
@@ -161,6 +164,7 @@ class Rule_RF03(BaseRule):
                     self._fix_inconsistent_to,
                     fixable,
                     query.dialect.name,
+                    templater_name,
                 )
         children = list(query.children)
         # 'query.children' includes CTEs and "main" queries, but not queries in
@@ -179,7 +183,7 @@ class Rule_RF03(BaseRule):
                     visited.update(s.selectable for s in q.selectables)
                     children.append(q)
         for child in children:
-            yield from self._visit_queries(child, visited)
+            yield from self._visit_queries(child, visited, templater_name)
 
 
 def _check_references(
@@ -192,6 +196,7 @@ def _check_references(
     fix_inconsistent_to: Optional[str],
     fixable: bool,
     dialect_name: str,
+    templater_name: str,
 ) -> Iterator[LintResult]:
     """Iterate through references and check consistency."""
     # A buffer to keep any violations.
@@ -202,10 +207,19 @@ def _check_references(
     seen_ref_types: set[str] = set()
     for ref in references:
         this_ref_type: str = qualification(ref, dialect_name)
-        # Skip unqualified templated references (e.g., placeholder parameters like
-        # :colname that get rendered as bare identifiers by the templater). These
-        # are not real column references and should not be qualified or flagged.
-        if this_ref_type == "unqualified" and ref.is_templated:
+        # Skip unqualified references rendered by the `placeholder` templater
+        # (e.g. bind parameters like `:colname` that get rendered as bare
+        # identifiers). These are not real column references and should not
+        # be qualified or flagged. This must NOT be widened to templated
+        # references in general: a Jinja/dbt `{{ my_col }}` renders to a
+        # genuine column identifier that the user intends to reference, and
+        # skipping it here would silently hide real qualification
+        # inconsistencies.
+        if (
+            this_ref_type == "unqualified"
+            and ref.is_templated
+            and templater_name == "placeholder"
+        ):
             continue
         # Skip whole-row references: a bare reference matching the single table's
         # own alias/name (e.g. ``tbl ->> 'k'`` in postgres, or ``SELECT tbl FROM
@@ -242,9 +256,9 @@ def _check_references(
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
             # recurse with a different single_table_references value.
-            # This re-check iterates the same references list, so the templated
-            # unqualified-reference skip above still applies and intentionally
-            # keeps those placeholders out of every consistency pass.
+            # This re-check iterates the same references list, so the
+            # placeholder-templater skip above still applies and intentionally
+            # keeps those bind parameters out of every consistency pass.
             yield from _check_references(
                 table_aliases,
                 standalone_aliases,
@@ -256,6 +270,7 @@ def _check_references(
                 fix_inconsistent_to=None,
                 fixable=fixable,
                 dialect_name=dialect_name,
+                templater_name=templater_name,
             )
 
         yield lint_res

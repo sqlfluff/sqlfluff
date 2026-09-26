@@ -648,6 +648,24 @@ test_pass_placeholder_colon_double_colon_cast:
       placeholder:
         param_style: colon
 
+test_fail_jinja_templated_unqualified_reference_inconsistent:
+  # A `{{ var }}` reference rendered by the Jinja templater is a genuine
+  # column name the user intends to select, unlike a `placeholder`-templater
+  # bind parameter (e.g. `:colname` above). It must still be checked for
+  # qualification consistency, not silently exempted just because it is
+  # templated.
+  fail_str: |
+    {% set my_col = 'customer_id' %}
+    SELECT {{ my_col }}, orders.total
+    FROM orders
+  fix_str: |
+    {% set my_col = 'customer_id' %}
+    SELECT orders.{{ my_col }}, orders.total
+    FROM orders
+  configs:
+    core:
+      templater: jinja
+
 test_pass_postgres_whole_row_json_operator:
   # A bare reference matching the table's own alias is a whole-row reference
   # (here the left operand of the `->>` JSON operator), not a column, so RF03
