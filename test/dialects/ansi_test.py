@@ -226,3 +226,49 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
         idx for idx, raw_seg in enumerate(tree.get_raw_segments()) if raw_seg.is_meta
     )
     assert res_meta_locs == meta_loc
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE TABLE t (a DECIMAL(10, 2, 3));",
+            id="decimal_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a NUMERIC(1, 2, 3));",
+            id="numeric_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a VARCHAR(3, 4));",
+            id="varchar_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a CHAR(3, 4));",
+            id="char_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a INT(1, 2, 3));",
+            id="int_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a DECIMAL());",
+            id="decimal_empty_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a DECIMAL(, 2));",
+            id="decimal_missing_precision",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a DECIMAL(10,));",
+            id="decimal_missing_scale",
+        ),
+    ],
+)
+def test__dialect__ansi__datatype_argument_arity(sql: str) -> None:
+    """A data type argument list must respect its documented arity (#8589)."""
+    parsed = Linter(dialect="ansi").parse_string(sql)
+    violations: list = list(parsed.violations)
+    if parsed.tree:
+        violations += list(parsed.tree.recursive_crawl("unparsable"))
+    assert violations, f"Expected violations but got none for:\n{sql}"

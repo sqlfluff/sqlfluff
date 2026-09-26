@@ -8,7 +8,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
@@ -645,7 +644,6 @@ class ColumnDefinitionSegment(BaseSegment):
                 ),
             ),
         ),
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),

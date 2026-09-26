@@ -74,3 +74,45 @@ def test_private_requires_streaming_table(sql: str) -> None:
 def test_replace_using_requires_sequence_by(sql: str) -> None:
     """replace_using_spec is REPLACE USING (...) SEQUENCE BY col, as documented."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE TABLE t (a DECIMAL(10, 2, 3));",
+            id="decimal_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a NUMERIC(1, 2, 3));",
+            id="numeric_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a VARCHAR(3, 4));",
+            id="varchar_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a CHAR(3, 4));",
+            id="char_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a INT(1, 2, 3));",
+            id="int_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a INT(11));",
+            id="int_length_argument",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a GEOGRAPHY(4326, 1));",
+            id="geography_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a GEOGRAPHY);",
+            id="geography_without_srid",
+        ),
+    ],
+)
+def test_datatype_argument_arity(sql: str) -> None:
+    """A data type argument list must respect its documented arity (#8589)."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"

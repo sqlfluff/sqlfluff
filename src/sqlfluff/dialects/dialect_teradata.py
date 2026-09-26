@@ -558,7 +558,6 @@ class ColumnDefinitionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
             # Adding Teradata specific column definitions
