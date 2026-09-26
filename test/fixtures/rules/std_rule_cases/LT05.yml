@@ -827,3 +827,173 @@ test_fail_no_fix_jinja_macro_with_brackets:
             {{ cast_tz("cast(source.order_arrived_date || ' ' || source.order_arrived_time as timestamp)") }}
         )
     FROM source
+
+test_fail_list_wrapping_fill:
+  # With list_wrapping = fill, put as many elements on each line as fit.
+  # The first line of the list is exactly 41 characters long.
+  fail_str: |
+    select a
+    from tbl
+    group by long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        long_column_name1, long_column_name2,
+        long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 41
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_leading:
+  fail_str: |
+    select a
+    from tbl
+    group by long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        long_column_name1, long_column_name2
+        , long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+test_fail_list_wrapping_fill_alone:
+  # The comma at each break stays on its own line. Each element line is
+  # exactly 40 characters long.
+  fail_str: |
+    select a
+    from tbl
+    group by long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        long_column_name1, long_column_name2
+        ,
+        long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+    layout:
+      type:
+        comma:
+          line_position: alone
+
+test_fail_list_wrapping_fill_function:
+  fail_str: |
+    select my_function(argument_one, argument_two, argument_three, argument_four) as x
+    from tbl
+  fix_str: |
+    select
+        my_function(
+            argument_one, argument_two,
+            argument_three, argument_four
+        ) as x
+    from tbl
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_nested:
+  # The outer list is filled first, then the inner list.
+  fail_str: |
+    select a
+    from tbl
+    group by col_a, coalesce(first_argument_value, second_argument_value), col_b, col_c
+  fix_str: |
+    select a
+    from tbl
+    group by
+        col_a,
+        coalesce(
+            first_argument_value,
+            second_argument_value
+        ),
+        col_b, col_c
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_indented:
+  fail_str: |
+    with cte as (
+        select a
+        from tbl
+        group by long_column_name1, long_column_name2, long_column_name3
+    )
+
+    select a from cte
+  fix_str: |
+    with cte as (
+        select a
+        from tbl
+        group by
+            long_column_name1, long_column_name2,
+            long_column_name3
+    )
+
+    select a from cte
+  configs:
+    core:
+      max_line_length: 50
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_operators:
+  # Only the commas are filled. Operators still split as before.
+  fail_str: |
+    select
+        a, b + c, long_name + long_name * long_name - long_name as foo, long_name AND long_name OR long_name OR long_name as bar
+    from blah
+  fix_str: |
+    select
+        a, b + c,
+        long_name
+        + long_name * long_name
+        - long_name as foo,
+        long_name AND long_name
+        OR long_name
+        OR long_name as bar
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_boolean:
+  # Boolean operators are not a list, so they still split one per line.
+  fail_str: |
+    select a
+    from tbl
+    where column_one = 1 and column_two = 2 and column_three = 3 and column_four = 4
+  fix_str: |
+    select a
+    from tbl
+    where
+        column_one = 1
+        and column_two = 2
+        and column_three = 3
+        and column_four = 4
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill

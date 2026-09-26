@@ -676,6 +676,7 @@ class ReflowSequence:
             line_length_limit=self.reflow_config.max_line_length,
             implicit_indents=self.reflow_config.implicit_indents,
             trailing_comments=self.reflow_config.trailing_comments,
+            list_wrapping=self.reflow_config.list_wrapping,
         )
 
         return ReflowSequence(
