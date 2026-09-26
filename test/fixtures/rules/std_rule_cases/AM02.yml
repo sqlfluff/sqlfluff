@@ -195,3 +195,25 @@ test_redshift:
   configs:
     core:
       dialect: redshift
+
+test_fail_mixed_case_union_preserves_case:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    Union
+    SELECT
+      c,
+      d
+    FROM tbl1
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    Union distinct
+    SELECT
+      c,
+      d
+    FROM tbl1
