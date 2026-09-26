@@ -1148,7 +1148,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     ),
                     # numeric types [precision ["," scale])]
                     Sequence(
-                        OneOf("DECIMAL", "NUMERIC"),
+                        OneOf("DECIMAL", "DEC", "NUMERIC"),
                         Ref("BracketedArguments", optional=True),
                     ),
                     # monetary type
@@ -1165,6 +1165,9 @@ class DatatypeSegment(ansi.DatatypeSegment):
                                 Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
+                                "NCHAR",
+                                Sequence("NATIONAL", "CHARACTER"),
+                                Sequence("NATIONAL", "CHAR"),
                                 "VARCHAR",
                             ),
                             Ref("BracketedArguments", optional=True),
