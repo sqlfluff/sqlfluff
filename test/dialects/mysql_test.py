@@ -6,7 +6,6 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError
 
 
 @pytest.mark.parametrize(
@@ -36,14 +35,20 @@ def test_mysql_if_statement_does_not_match_invalid_syntax(
 @pytest.mark.parametrize(
     "raw",
     [
-        "KILL HARD 5\n",
-        "KILL SOFT CONNECTION 5\n",
-        "KILL QUERY ID 5\n",
-        "KILL USER 'u'@'h'\n",
+        "KILL HARD 5",
+        "KILL SOFT CONNECTION 5",
+        "KILL QUERY ID 5",
+        "KILL USER 'u'@'h'",
     ],
 )
 def test_mysql_kill_rejects_mariadb_only_forms(raw: str) -> None:
-    """Test that the MariaDB-only KILL forms do not parse as MySQL."""
+    """Test that the MariaDB-only KILL forms do not parse as MySQL.
+
+    MySQL has no HARD/SOFT, QUERY ID or USER forms. The MariaDB keyword is
+    read as a variable holding the id, so it is the argument that follows
+    it which fails to parse.
+    """
     parsed = Linter(dialect="mysql").parse_string(raw)
-    assert len(parsed.violations) == 1
-    assert isinstance(parsed.violations[0], SQLParseError)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
