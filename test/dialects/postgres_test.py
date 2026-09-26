@@ -116,8 +116,13 @@ def test_valid_column_types_parse(raw: str) -> None:
     "raw",
     [
         # `between` is a col_name_keyword (cannot-be-function-or-type); it must
-        # NOT be accepted as a bare data type. See issue #6430.
+        # NOT be accepted as a bare data type. See issue #6430. A few
+        # representative members of the class are checked since the exclusion is
+        # class-wide and the mechanism is shared.
         "CREATE TABLE test_table (type between NOT NULL)",
+        "CREATE TABLE test_table (a values)",
+        "CREATE TABLE test_table (a setof)",
+        "CREATE TABLE test_table (a row)",
     ],
 )
 def test_col_name_keyword_not_valid_datatype(raw: str) -> None:
