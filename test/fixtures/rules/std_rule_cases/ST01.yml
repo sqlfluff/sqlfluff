@@ -65,3 +65,88 @@ else_expression:
             else iff(wing_type is not null, 'tweet', 'invalid')
         end
     from x
+
+redundant_else_null_with_comment:
+  # The comment lives *inside* the else clause, so it must survive the
+  # clause being removed. https://github.com/sqlfluff/sqlfluff/issues/8562
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            else /* keep default */ null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            /* keep default */
+        end
+    from x
+
+redundant_else_null_with_comment_on_own_line:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            else
+                -- keep default
+                null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            -- keep default
+        end
+    from x
+
+redundant_else_null_with_several_comments:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            else -- why
+                /* not */ /* this */
+                null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            -- why
+            /* not */ /* this */
+        end
+    from x
+
+redundant_else_null_with_comment_on_one_line:
+  fail_str: |
+    select case when name = 'cat' then 'meow' else /* keep */ null end from x
+
+  fix_str: |
+    select case when name = 'cat' then 'meow' /* keep */ end from x
+
+redundant_else_null_comment_after_null:
+  # This comment is a sibling of the else clause rather than a child of it,
+  # so it is already outside what the rule deletes.
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            else null -- keep default
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow' -- keep default
+        end
+    from x
