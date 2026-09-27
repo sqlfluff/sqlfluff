@@ -232,10 +232,13 @@ class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
 class PartitionSegment(BaseSegment):
     """A partition segment supporting StarRocks specific syntax.
 
-    Supports three types of partitioning:
+    Supports four types of partitioning:
     1. Range partitioning (PARTITION BY RANGE)
-    2. Expression partitioning using time functions (date_trunc/time_slice)
-    3. Expression partitioning using column expressions
+    2. List partitioning (PARTITION BY LIST)
+    3. Expression partitioning using time functions (date_trunc/time_slice)
+    4. Expression partitioning using column expressions
+
+    https://docs.starrocks.io/docs/table_design/data_distribution/list_partitioning/
     """
 
     type = "partition_segment"
@@ -297,6 +300,31 @@ class PartitionSegment(BaseSegment):
                             ),
                         )
                     ),
+                ),
+            ),
+            # List partitioning
+            Sequence(
+                "LIST",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            "PARTITION",
+                            Ref("ObjectReferenceSegment"),
+                            "VALUES",
+                            "IN",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        # Single column partitions
+                                        Ref("LiteralGrammar"),
+                                        # Multi-column partitions
+                                        Bracketed(Delimited(Ref("LiteralGrammar"))),
+                                    )
+                                )
+                            ),
+                        )
+                    )
                 ),
             ),
             # Expression partitioning - time function expressions

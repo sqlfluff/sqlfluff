@@ -1,0 +1,235 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d1d36ef7cd8173d45d14286230223461f090bb5152f05fa2a2e5e883456ef47a
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_recharge_detail2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: recharge_money
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: city
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: dt
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: DUPLICATE
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - partition_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: LIST
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: city
+          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - object_reference:
+            naked_identifier: pLos_Angeles
+        - keyword: VALUES
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '"Los Angeles"'
+          - comma: ','
+          - quoted_literal: '"San Francisco"'
+          - comma: ','
+          - quoted_literal: '"San Diego"'
+          - end_bracket: )
+        - comma: ','
+        - keyword: PARTITION
+        - object_reference:
+            naked_identifier: pSan_Francisco
+        - keyword: VALUES
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '"San Jose"'
+          - comma: ','
+          - quoted_literal: '"Fresno"'
+          - end_bracket: )
+        - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_recharge_detail4
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: city
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: dt
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - engine_type: OLAP
+    - keyword: DUPLICATE
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - partition_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: LIST
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: dt
+        - comma: ','
+        - column_reference:
+            naked_identifier: city
+        - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - keyword: PARTITION
+        - object_reference:
+            naked_identifier: p1
+        - keyword: VALUES
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '"2022-04-01"'
+            - comma: ','
+            - quoted_literal: '"Los Angeles"'
+            - end_bracket: )
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '"2022-04-02"'
+            - comma: ','
+            - quoted_literal: '"Los Angeles"'
+            - end_bracket: )
+          - end_bracket: )
+        - comma: ','
+        - keyword: PARTITION
+        - object_reference:
+            naked_identifier: p2
+        - keyword: VALUES
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '"2022-04-01"'
+            - comma: ','
+            - quoted_literal: '"Houston"'
+            - end_bracket: )
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '"2022-04-02"'
+            - comma: ','
+            - quoted_literal: '"Houston"'
+            - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
