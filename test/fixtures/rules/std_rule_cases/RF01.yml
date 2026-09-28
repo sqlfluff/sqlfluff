@@ -1322,3 +1322,23 @@ test_fail_redundantly_bracketed_join_target_unknown_table_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_case_insensitive_table_alias_8594:
+  desc: Case-insensitive alias matching (issue #8594)
+  pass_str: |
+    SELECT CI.id
+    FROM source_table AS ci
+    JOIN second_table AS b ON ci.id = b.id;
+
+test_pass_case_insensitive_unaliased_table_8594:
+  desc: Case-insensitive table matching without alias (issue #8594)
+  pass_str: |
+    SELECT SOURCE_TABLE.id
+    FROM source_table;
+
+test_pass_case_insensitive_reverse_case_8594:
+  desc: Lowercase reference to uppercase table (issue #8594)
+  pass_str: |
+    SELECT source_table.id
+    FROM SOURCE_TABLE;
+
