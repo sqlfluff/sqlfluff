@@ -303,14 +303,23 @@ class TestLoadAndPersist:
             "[]",
             '{"schema_version": 999, "run_fingerprint": "x", "entries": {}}',
             '{"schema_version": 1, "run_fingerprint": "wrong", "entries": {}}',
-            '{"schema_version": 1, "entries": "not a mapping"}',
+            '{"schema_version": 1, "run_fingerprint": "<THIS RUN>", '
+            '"entries": "not a mapping"}',
         ],
         ids=["invalid", "wrong-type", "wrong-schema", "wrong-run", "bad-entries"],
     )
     def test_unusable_file_loads_empty(self, project, tmp_path, content):
-        """Anything we can't fully validate is treated as no cache at all."""
+        """Anything we can't fully validate is treated as no cache at all.
+
+        `<THIS RUN>` stands in for the current run fingerprint, which is not
+        known at collection time. The `bad-entries` case needs it: a payload
+        whose fingerprint does not match is discarded before `entries` is
+        looked at, so without it that case would never reach the branch it is
+        named after.
+        """
         cache_dir = tmp_path / "cache"
         cache_dir.mkdir()
+        content = content.replace("<THIS RUN>", run_fingerprint())
         write(cache_dir / CACHE_FILENAME, content)
         cache = LintCache(str(cache_dir), make_config(project))
         cache.load()
@@ -328,6 +337,25 @@ class TestLoadAndPersist:
         reloaded = LintCache(cache_dir, make_config(project))
         reloaded.load()
         assert reloaded.check(target) is not None
+
+    def test_a_failed_write_leaves_nothing_behind(self, project, tmp_path):
+        """A write which fails part way through removes its temporary file.
+
+        The payload goes to a temporary file which is then swapped in, so a
+        failure inside `json.dump` leaves a partial file that is not the
+        cache. Left there it would litter the cache directory once per run.
+        An entry holding something JSON cannot represent fails at exactly
+        that point without having to reach for the filesystem.
+        """
+        cache_dir = tmp_path / "cache"
+        cache = LintCache(str(cache_dir), make_config(project))
+        cache._entries["a.sql"] = {"last_seen": time.time(), "key": object()}
+
+        cache.persist()
+
+        assert not (cache_dir / CACHE_FILENAME).exists()
+        assert [path.name for path in cache_dir.iterdir()] == [".gitignore"]
+        assert cache._writable is False
 
     def test_persist_writes_a_gitignore(self, project, tmp_path):
         """The cache directory ignores itself, so it can't be committed."""
@@ -656,6 +684,32 @@ def test__templater_unknown_subclass_is_not_cacheable():
 def test__templater_config_only_templaters_are_cacheable(templater):
     """Templaters whose whole context is config declare no external state."""
     assert templater.cache_fingerprint(None) == ""
+
+
+class DerivedPythonTemplater(PythonTemplater):
+    """A stand-in for a subclass of the python templater."""
+
+    name = "derived_python"
+
+
+class DerivedPlaceholderTemplater(PlaceholderTemplater):
+    """A stand-in for a subclass of the placeholder templater."""
+
+    name = "derived_placeholder"
+
+
+@pytest.mark.parametrize(
+    "templater", [DerivedPythonTemplater(), DerivedPlaceholderTemplater()]
+)
+def test__templater_config_only_subclasses_are_not_cacheable(templater):
+    """Neither config-only opt-in is inherited.
+
+    Same reasoning as the Jinja subclass. The opt-in asserts that *this*
+    templater reads nothing outside the file, which a subclass rendering
+    through a project makes untrue. The `type(self) is ...` guard exists so
+    that it cannot be inherited by accident, and this is what proves it.
+    """
+    assert templater.cache_fingerprint(None) is None
 
 
 class TestJinjaFingerprint:

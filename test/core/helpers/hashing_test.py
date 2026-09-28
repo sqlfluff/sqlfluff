@@ -166,6 +166,30 @@ class TestHashPathContents:
         target.write_text("A = 2", encoding="utf-8")
         assert hash_path_contents([str(target)]) != before
 
+    def test_unreadable_file_is_not_treated_as_missing(self, tmp_path, monkeypatch):
+        """A file which exists but can't be read still contributes to the digest.
+
+        It must not raise, because the fingerprint is taken before any file
+        is linted, and it must not be confused with the path being absent, or
+        losing read access to a macro file would look like deleting it.
+        Permissions can't make a file unreadable portably (not on Windows,
+        not as root), so the read itself is made to fail.
+        """
+        target = tmp_path / "lib.py"
+        target.write_text("A = 1", encoding="utf-8")
+        readable = hash_path_contents([str(target)])
+
+        def refuse(fname, hasher):
+            raise PermissionError(13, "Permission denied", fname)
+
+        monkeypatch.setattr("sqlfluff.core.helpers.hashing.hash_file_bytes", refuse)
+        unreadable = hash_path_contents([str(target)])
+        assert hash_path_contents([str(target)]) == unreadable
+        os.remove(target)
+        missing = hash_path_contents([str(target)])
+
+        assert unreadable not in (readable, missing)
+
     def test_empty_file_still_contributes_its_name(self, tmp_path):
         """An empty file is not the same as no file.
 
