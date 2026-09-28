@@ -21,8 +21,6 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import (
-    _bench_err_for_write_output,
-    _write_output_aliases_stderr,
     cli_format,
     dialects,
     fix,
@@ -1041,7 +1039,13 @@ def test__cli__write_output_aliases_stderr_direct(tmp_path, monkeypatch):
     subprocess support configured, so a subprocess-only test can never
     satisfy the 100% coverage gate for these helpers' own branches - drive
     them directly here too.
+
+    Imported locally, not at module scope, so this whole file stays
+    collectable (and every other test in it still runs) against a tree
+    that predates this helper.
     """
+    from sqlfluff.cli.commands import _write_output_aliases_stderr
+
     target = tmp_path / "stderr-alias.txt"
     with open(target, "w") as fake_stderr:
         monkeypatch.setattr(sys, "stderr", fake_stderr)
@@ -1057,7 +1061,10 @@ def test__cli__bench_err_for_write_output_direct(tmp_path, monkeypatch):
     Same rationale as test__cli__write_output_aliases_stderr_direct above:
     the caller in lint() only ever sees this decision made correctly via a
     real subprocess, so pin every branch here where coverage can see it.
+    Imported locally for the same collectability reason as that test.
     """
+    from sqlfluff.cli.commands import _bench_err_for_write_output
+
     target = tmp_path / "stderr-alias.txt"
     with open(target, "w") as fake_stderr:
         monkeypatch.setattr(sys, "stderr", fake_stderr)
