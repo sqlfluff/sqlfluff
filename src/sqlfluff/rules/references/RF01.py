@@ -36,6 +36,15 @@ class RF01Query(Query):
     parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
 
 
+def _normalize_ref_part(part: ObjectReferencePart) -> str:
+    """Normalize a reference part, taking dialect casefolding into account."""
+    if not part.segments:
+        return part.part
+    seg = part.segments[0]
+    norm = seg.normalize(part.part)
+    return seg.casefold(norm) if seg.casefold else norm
+
+
 class Rule_RF01(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
@@ -129,7 +138,7 @@ class Rule_RF01(BaseRule):
         return [
             tuple(ref.part for ref in raw_references),
             tuple(ref.segments[0].normalize(ref.part) for ref in raw_references),
-            tuple(ref.segments[0].raw_normalized() for ref in raw_references),
+            tuple(_normalize_ref_part(ref) for ref in raw_references),
         ]
 
     def _analyze_table_references(
@@ -261,8 +270,8 @@ class Rule_RF01(BaseRule):
                 (
                     tr,
                     (
-                        sr.segments[0].raw_normalized(),
-                        tr.segments[0].raw_normalized(),
+                        _normalize_ref_part(sr),
+                        _normalize_ref_part(tr),
                     ),
                 )
             )
@@ -283,7 +292,7 @@ class Rule_RF01(BaseRule):
             ):
                 tbl_refs.append((tr, (tr.part,)))
                 tbl_refs.append((tr, (tr.segments[0].normalize(tr.part),)))
-                tbl_refs.append((tr, (tr.segments[0].raw_normalized(),)))
+                tbl_refs.append((tr, (_normalize_ref_part(tr),)))
         return tbl_refs
 
     def _resolve_reference(

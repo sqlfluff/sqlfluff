@@ -1342,3 +1342,42 @@ test_pass_case_insensitive_reverse_case_8594:
     SELECT source_table.id
     FROM SOURCE_TABLE;
 
+test_fail_case_sensitive_quoted_alias_8594:
+  desc: Quoted alias remains case-sensitive (issue #8594)
+  fail_str: |
+    SELECT "CI".id
+    FROM source_table AS "ci";
+  violations:
+    - code: RF01
+      description: Reference '"CI".id' refers to table/view not found in the FROM clause
+        or found in ancestor statement.
+      name: references.from
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 8
+      start_file_pos: 7
+      end_line_no: 1
+      end_line_pos: 12
+      end_file_pos: 11
+
+test_pass_case_insensitive_multipart_table_8594:
+  desc: Case-insensitive multipart schema.table matching (issue #8594)
+  pass_str: |
+    SELECT MYSCHEMA.MYTABLE.id
+    FROM myschema.mytable;
+
+test_pass_case_insensitive_standalone_alias_8594:
+  desc: Case-insensitive standalone alias matching (issue #8594)
+  pass_str: |
+    select
+        PVT.cl1
+    from
+        levels as lvl
+    pivot
+    (max(value) for rn in([1]) ) as pvt
+  configs:
+    core:
+      dialect: tsql
+
+
