@@ -703,6 +703,9 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref("ReturningClauseSegment")]),
     ColumnConstraintDefaultGrammar=OneOf(
         ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
         Ref("SequencePseudocolumnGrammar"),
@@ -1483,6 +1486,7 @@ class BatchSegment(BaseSegment):
             Delimited(
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
+                    Ref("SqlplusShowStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1509,6 +1513,92 @@ class SqlplusSetStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+    )
+
+
+class SqlplusShowStatementSegment(BaseSegment):
+    """A SQL*Plus `SHOW` command.
+
+    Only valid in SQL*Plus, not in the SQL language itself.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
+    """
+
+    type = "sqlplus_show_statement"
+
+    # Object types accepted by SHOW ERRORS.
+    _errors_object_type = OneOf(
+        Sequence("ANALYTIC", "VIEW"),
+        Sequence("ATTRIBUTE", "DIMENSION"),
+        "HIERARCHY",
+        "FUNCTION",
+        "PROCEDURE",
+        "TRIGGER",
+        "VIEW",
+        "DIMENSION",
+        Sequence("PACKAGE", Ref.keyword("BODY", optional=True)),
+        Sequence("TYPE", Ref.keyword("BODY", optional=True)),
+        Sequence("JAVA", "CLASS"),
+    )
+
+    match_grammar = Sequence(
+        OneOf("SHOW", "SHO"),
+        OneOf(
+            # SHOW ERR[ORS] [object_type [schema.]name]
+            Sequence(
+                OneOf("ERRORS", "ERR"),
+                Sequence(
+                    _errors_object_type,
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW SPPARAMETER[S] [name]
+            Sequence(
+                OneOf("SPPARAMETERS", "SPPARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW RECYC[LEBIN] [original_name]
+            Sequence(
+                OneOf("RECYCLEBIN", "RECYC"),
+                Ref("ObjectReferenceSegment", optional=True),
+            ),
+            # SHOW CONN[ECTION] NETS[ERVICENAMES] [net_service_name ...]
+            Sequence(
+                OneOf("CONNECTION", "CONN"),
+                OneOf("NETSERVICENAMES", "NETS"),
+                AnyNumberOf(Ref("ObjectReferenceSegment")),
+            ),
+            # Single-keyword options.
+            "ALL",
+            "USER",
+            "SGA",
+            "PDBS",
+            "EDITION",
+            "HISTORY",
+            "LNO",
+            "PNO",
+            "SQLCODE",
+            "CON_ID",
+            "CON_NAME",
+            "XQUERY",
+            OneOf("RELEASE", "REL"),
+            OneOf("BTITLE", "BTI"),
+            OneOf("TTITLE", "TTI"),
+            OneOf("REPFOOTER", "REPF"),
+            OneOf("REPHEADER", "REPH"),
+            OneOf("LOBPREFETCH", "LOBPREF"),
+            OneOf("ROWPREFETCH", "ROWPREF"),
+            OneOf("SPOOL", "SPOO"),
+            OneOf("STATEMENTCACHE", "STATEMENTC"),
+            # Any other SET system variable (e.g. LINESIZE, PAGESIZE).
+            Ref("SingleIdentifierGrammar"),
+        ),
     )
 
 
@@ -1585,6 +1675,31 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
             BracketedSegment,
         ],
         allow_gaps=False,
+    )
+
+
+class FetchClauseSegment(ansi.FetchClauseSegment):
+    """A `FETCH` clause, which in Oracle can limit by a percentage of rows.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/SELECT.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            ),
+            Ref.keyword("PERCENT", optional=True),
+            optional=True,
+        ),
+        OneOf("ROW", "ROWS"),
+        OneOf("ONLY", Sequence("WITH", "TIES")),
     )
 
 
@@ -4134,14 +4249,30 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     )
 
 
+class DeleteFromClauseSegment(ansi.FromClauseSegment):
+    """The target of a `DELETE` statement, where `FROM` is optional.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html
+    """
+
+    type = "from_clause"
+    match_grammar: Matchable = Sequence(
+        Ref.keyword("FROM", optional=True),
+        Ref("FromExpressionSegment"),
+    )
+
+
 class DeleteStatementSegment(ansi.DeleteStatementSegment):
     """A `DELETE` statement.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html
     """
 
-    match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
-        insert=[Ref("ReturningClauseSegment", optional=True)]
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref("DeleteFromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 

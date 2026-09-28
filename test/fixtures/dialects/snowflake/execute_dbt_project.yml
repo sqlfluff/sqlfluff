@@ -1,0 +1,159 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9a724e96927fa77b70061c3ea8d6eb4e3ac2ae522aee6c03e2d68272b9f65fe7
+file:
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_dbt_project
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_project
+    - keyword: ARGS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'--select simple_customers combined_bookings prepped_data --target\
+        \ dev'"
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_project
+    - keyword: DBT_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'1.9.4'"
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_project
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_integration
+          end_bracket: )
+    - keyword: ENVIRONMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'prod'"
+    - keyword: WRITEBACK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FROM
+    - keyword: WORKSPACE
+    - object_reference:
+        quoted_identifier: '"My dbt Project Workspace"'
+    - keyword: ENV_VARS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'DBT_KEY1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - quoted_literal: "'DBT_KEY2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - keyword: FROM
+    - keyword: WORKSPACE
+    - object_reference:
+        naked_identifier: my_workspace
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'@my_stage/target'"
+      - keyword: AS
+      - quoted_literal: "'state'"
+      - end_bracket: )
+    - keyword: PROJECT_ROOT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'analytics'"
+- statement_terminator: ;
+- statement:
+    execute_dbt_project_statement:
+    - keyword: EXECUTE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_project
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        function:
+          function_name:
+            system_function_name: SYSTEM$DBT_GET_LAST_SUCCESSFUL_RUN_TARGET
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        keyword: AS
+        quoted_literal: "'state'"
+        end_bracket: )
+- statement_terminator: ;
