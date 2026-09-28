@@ -9,6 +9,7 @@ import shutil
 import subprocess
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 import pytest
@@ -407,6 +408,236 @@ def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):
             fname="stdin",
             config=FluffConfig(configs=dbt_fluff_config),
         )
+
+
+@pytest.mark.parametrize("use_catalogs_v2", [False, True])
+def test__templater_dbt_manifest_resolves_catalog(tmp_path, use_catalogs_v2):
+    """Parse a dbt BigQuery model using a catalog from catalogs.yml."""
+    if DbtTemplater().dbt_version_tuple < (1, 10):
+        pytest.skip("catalog integrations require dbt 1.10+")
+    if use_catalogs_v2 and DbtTemplater().dbt_version_tuple < (1, 12):
+        pytest.skip("catalogs.yml v2 requires dbt 1.12+")
+    pytest.importorskip("dbt.adapters.bigquery")
+    from dbt.adapters.factory import get_adapter
+
+    (tmp_path / "models").mkdir()
+    (tmp_path / "dbt_project.yml").write_text(
+        "name: example\nversion: '1.0.0'\nconfig-version: 2\nprofile: example\n"
+        f"flags:\n  use_catalogs_v2: {str(use_catalogs_v2).lower()}\n"
+    )
+    (tmp_path / "profiles.yml").write_text(
+        "example:\n  target: dev\n  outputs:\n    dev:\n"
+        "      type: bigquery\n      method: oauth\n"
+        "      project: example-project\n      dataset: example_dataset\n"
+        "      threads: 1\n"
+    )
+    if use_catalogs_v2:
+        (tmp_path / "catalogs.yml").write_text(
+            "catalogs:\n  - name: my_catalog\n    type: biglake_metastore\n"
+            "    table_format: iceberg\n    config:\n      bigquery:\n"
+            "        external_volume: gs://my-bucket\n        file_format: parquet\n"
+        )
+    else:
+        (tmp_path / "catalogs.yml").write_text(
+            "catalogs:\n  - name: my_catalog\n"
+            "    active_write_integration: my_catalog\n"
+            "    write_integrations:\n      - name: my_catalog\n"
+            "        catalog_type: biglake_metastore\n"
+            "        external_volume: gs://my-bucket\n"
+        )
+    (tmp_path / "models" / "my_model.sql").write_text(
+        "{{ config(materialized='table', catalog_name='my_catalog', "
+        "storage_uri='gs://my-bucket/my_model') }}\nSELECT 1 AS id\n"
+    )
+
+    templater = DbtTemplater()
+    templater.sqlfluff_config = FluffConfig(
+        overrides={"dialect": "bigquery", "templater": "dbt"}
+    )
+    templater.project_dir = str(tmp_path)
+    templater.profiles_dir = str(tmp_path)
+
+    try:
+        assert "model.example.my_model" in templater.dbt_manifest.nodes
+        assert (
+            get_adapter(templater.dbt_config).get_catalog_integration("my_catalog").name
+            == "my_catalog"
+        )
+    finally:
+        from dbt.adapters.factory import reset_adapters
+
+        reset_adapters()
+
+
+def test__templater_dbt_legacy_catalog_before_manifest(tmp_path):
+    """Register catalogs before manifest loading in the Postgres CI matrix."""
+    if DbtTemplater().dbt_version_tuple < (1, 10):
+        pytest.skip("catalog integrations require dbt 1.10+")
+    from dbt.config import catalogs
+    from dbt.parser.manifest import ManifestLoader
+
+    (tmp_path / "catalogs.yml").write_text(
+        "catalogs:\n  - name: my_catalog\n"
+        "    active_write_integration: my_write\n"
+        "    write_integrations:\n      - name: my_write\n"
+        "        catalog_type: postgres\n"
+    )
+    templater = DbtTemplater()
+    runtime_config = SimpleNamespace(
+        flags={}, project_root=str(tmp_path), project_name="example", cli_vars={}
+    )
+    templater.__dict__["dbt_config"] = runtime_config
+    adapter = mock.Mock()
+    manifest = object()
+
+    def manifest_after_registration(config):
+        assert config is runtime_config
+        adapter.add_catalog_integration.assert_called_once()
+        integration = adapter.add_catalog_integration.call_args.args[0]
+        assert integration.name == "my_catalog"
+        assert integration.catalog_name == "my_write"
+        return manifest
+
+    with (
+        mock.patch("dbt.adapters.factory.get_adapter", return_value=adapter),
+        mock.patch.object(
+            ManifestLoader, "get_full_manifest", side_effect=manifest_after_registration
+        ),
+    ):
+        assert templater.dbt_manifest is manifest
+    assert len(catalogs.load_catalogs(str(tmp_path), "example", {})) == 1
+
+
+def test__templater_dbt_duplicate_catalog_is_idempotent(tmp_path):
+    """Ignore an equivalent catalog already registered by another project."""
+    if DbtTemplater().dbt_version_tuple < (1, 10):
+        pytest.skip("catalog integrations require dbt 1.10+")
+    from dbt.adapters.catalogs import DbtCatalogIntegrationAlreadyExistsError
+    from dbt.parser.manifest import ManifestLoader
+
+    (tmp_path / "catalogs.yml").write_text(
+        "catalogs:\n  - name: my_catalog\n"
+        "    active_write_integration: my_write\n"
+        "    write_integrations:\n      - name: my_write\n"
+        "        catalog_type: postgres\n"
+    )
+    templater = DbtTemplater()
+    templater.__dict__["dbt_config"] = SimpleNamespace(
+        flags={}, project_root=str(tmp_path), project_name="example", cli_vars={}
+    )
+    adapter = mock.Mock()
+    adapter.add_catalog_integration.side_effect = (
+        DbtCatalogIntegrationAlreadyExistsError("my_catalog")
+    )
+    adapter.get_catalog_integration.return_value = SimpleNamespace(
+        catalog_type="postgres",
+        catalog_name="my_write",
+        table_format=None,
+        file_format=None,
+        external_volume=None,
+        catalog_database=None,
+    )
+    with (
+        mock.patch("dbt.adapters.factory.get_adapter", return_value=adapter),
+        mock.patch.object(ManifestLoader, "get_full_manifest") as load_manifest,
+    ):
+        assert templater.dbt_manifest is load_manifest.return_value
+    load_manifest.assert_called_once()
+
+
+def test__templater_dbt_mismatched_duplicate_catalog_raises(tmp_path):
+    """Do not hide a different catalog definition under the same name."""
+    if DbtTemplater().dbt_version_tuple < (1, 10):
+        pytest.skip("catalog integrations require dbt 1.10+")
+    from dbt.adapters.catalogs import DbtCatalogIntegrationAlreadyExistsError
+    from dbt.parser.manifest import ManifestLoader
+
+    (tmp_path / "catalogs.yml").write_text(
+        "catalogs:\n  - name: my_catalog\n"
+        "    active_write_integration: my_write\n"
+        "    write_integrations:\n      - name: my_write\n"
+        "        catalog_type: postgres\n"
+    )
+    templater = DbtTemplater()
+    templater.__dict__["dbt_config"] = SimpleNamespace(
+        flags={}, project_root=str(tmp_path), project_name="example", cli_vars={}
+    )
+    adapter = mock.Mock()
+    adapter.add_catalog_integration.side_effect = (
+        DbtCatalogIntegrationAlreadyExistsError("my_catalog")
+    )
+    adapter.get_catalog_integration.return_value = SimpleNamespace(
+        catalog_type="postgres",
+        catalog_name="different_catalog",
+        table_format=None,
+        file_format=None,
+        external_volume=None,
+        catalog_database=None,
+    )
+    with (
+        mock.patch("dbt.adapters.factory.get_adapter", return_value=adapter),
+        mock.patch.object(ManifestLoader, "get_full_manifest") as load_manifest,
+        pytest.raises(SQLFluffUserError, match="Catalog already exists: my_catalog"),
+    ):
+        _ = templater.dbt_manifest
+    load_manifest.assert_not_called()
+
+
+def test__templater_dbt_v2_rejects_unsupported_adapter(tmp_path):
+    """Give an actionable error before bridging a v2 catalog on older adapters."""
+    if DbtTemplater().dbt_version_tuple < (1, 12):
+        pytest.skip("catalogs.yml v2 requires dbt 1.12+")
+    from dbt.adapters.capability import Capability
+    from dbt.config import catalogs
+    from dbt.parser.manifest import ManifestLoader
+
+    (tmp_path / "catalogs.yml").write_text(
+        "catalogs:\n  - name: my_catalog\n"
+        "    type: biglake_metastore\n    table_format: iceberg\n"
+        "    config:\n      bigquery:\n"
+        "        external_volume: gs://my-bucket\n"
+    )
+    templater = DbtTemplater()
+    templater.__dict__["dbt_config"] = SimpleNamespace(
+        flags={"use_catalogs_v2": True},
+        project_root=str(tmp_path),
+        project_name="example",
+        cli_vars={},
+    )
+    adapter = mock.Mock()
+    adapter.type.return_value = "unsupported"
+    adapter.capabilities.return_value = {Capability.CatalogsV2: False}
+    with (
+        mock.patch("dbt.adapters.factory.get_adapter", return_value=adapter),
+        mock.patch.object(ManifestLoader, "get_full_manifest") as load_manifest,
+        pytest.raises(SQLFluffUserError, match="does not support catalogs.yml v2"),
+    ):
+        _ = templater.dbt_manifest
+    adapter.bridge_v2_catalog.assert_not_called()
+    load_manifest.assert_not_called()
+    assert len(catalogs.load_catalogs_v2(str(tmp_path), "example", {})) == 1
+
+
+def test__templater_dbt_v2_requires_supported_dbt():
+    """Explain when catalogs.yml v2 is requested on an older dbt version."""
+    if DbtTemplater().dbt_version_tuple >= (1, 12):
+        pytest.skip("catalogs.yml v2 is available in dbt 1.12+")
+    from dbt.parser.manifest import ManifestLoader
+
+    templater = DbtTemplater()
+    templater.__dict__["dbt_config"] = SimpleNamespace(
+        flags={"use_catalogs_v2": True},
+        project_root="/project",
+        project_name="example",
+        cli_vars={},
+    )
+    with (
+        mock.patch("dbt.adapters.factory.get_adapter"),
+        mock.patch.object(ManifestLoader, "get_full_manifest") as load_manifest,
+        pytest.raises(SQLFluffUserError, match="does not support catalogs.yml v2"),
+    ):
+        _ = templater.dbt_manifest
+    load_manifest.assert_not_called()
 
 
 def test__find_node_with_symlinked_local_package(tmp_path):
