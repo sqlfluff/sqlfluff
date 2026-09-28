@@ -232,10 +232,11 @@ class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
 class PartitionSegment(BaseSegment):
     """A partition segment supporting StarRocks specific syntax.
 
-    Supports three types of partitioning:
+    Supports these types of partitioning:
     1. Range partitioning (PARTITION BY RANGE)
     2. Expression partitioning using time functions (date_trunc/time_slice)
-    3. Expression partitioning using column expressions
+    3. List partitioning (PARTITION BY LIST)
+    4. Expression partitioning using column expressions
     """
 
     type = "partition_segment"
