@@ -2873,6 +2873,71 @@ class ProjectionDefinitionStatementSettingsClauseSegment(SettingsClauseSegment):
     )
 
 
+class ProjectionDefinitionCreateHypotheticalProjectionSegment(
+    ProjectionDefinitionSegment
+):
+    """A helper projection definition used in CREATE HYPOTHETICAL PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    ).copy(
+        # insert after SingleIdentifierGrammar
+        insert=[Sequence("ON", Ref("TableReferenceSegment"))],
+        at=3,
+    )
+
+
+class CreateHypotheticalProjectionSegment(BaseSegment):
+    """A `CREATE HYPOTHETICAL PROJECTION` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/hypothetical-projection#create-hypothetical-projection
+    """
+
+    type = "create_hypothetical_projection_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "HYPOTHETICAL",
+        Ref("ProjectionDefinitionCreateHypotheticalProjectionSegment"),
+    )
+
+
+class DropHypotheticalProjectionSegment(BaseSegment):
+    """A `DROP HYPOTHETICAL PROJECTION` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/hypothetical-projection#drop-hypothetical-projection
+    """
+
+    type = "drop_hypothetical_projection_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "HYPOTHETICAL",
+        "PROJECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        "ON",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class DropAllHypotheticalProjectionsSegment(BaseSegment):
+    """A `DROP ALL HYPOTHETICAL PROJECTIONS` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/hypothetical-projection#drop-all-hypothetical-projections
+    """
+
+    type = "drop_all_hypothetical_projections_statement"
+
+    match_grammar: Matchable = Sequence("DROP", "ALL", "HYPOTHETICAL", "PROJECTIONS")
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement for ClickHouse.
 
@@ -3245,6 +3310,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
             Ref("TruncateTablesStatementSegment"),
+            Ref("CreateHypotheticalProjectionSegment"),
+            Ref("DropHypotheticalProjectionSegment"),
+            Ref("DropAllHypotheticalProjectionsSegment"),
         ]
     )
 
