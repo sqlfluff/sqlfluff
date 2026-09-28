@@ -350,6 +350,30 @@ snowflake_dialect.add(
             optional=True,
         ),
     ),
+    # WORKLOAD_IDENTITY property shared by CREATE USER and ALTER USER,
+    # for workload identity federation. TYPE is required.
+    # https://docs.snowflake.com/en/user-guide/workload-identity-federation
+    WorkloadIdentityPropertyGrammar=Sequence(
+        "WORKLOAD_IDENTITY",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf("AWS", "AZURE", "GCP", "OIDC"),
+            ),
+            AnySetOf(
+                Sequence("ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence("ISSUER", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence("SUBJECT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence(
+                    "OIDC_AUDIENCE_LIST",
+                    Ref("EqualsSegment"),
+                    Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                ),
+            ),
+        ),
+    ),
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
@@ -3979,6 +4003,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("DBT", "PROJECT"),
         Sequence("DCM", "PROJECT"),
         Sequence("MCP", "SERVER"),
+        Sequence("SEMANTIC", "VIEW"),
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
@@ -4012,6 +4037,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         Sequence("DBT", "PROJECTS"),
         Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
+        Sequence("SEMANTIC", "VIEWS"),
     )
 
 
@@ -4020,6 +4046,24 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
 
     match_grammar: Matchable = OneOf(
         "ACCOUNT",
+        # Inherited grants support the account-wide container, which is not
+        # followed by an object reference:
+        # https://docs.snowflake.com/en/user-guide/inherited-grants-using
+        Sequence(
+            "ALL",
+            OneOf(
+                Ref("AccessSchemaPluralObjectSegment"),
+                Sequence("MATERIALIZED", "VIEWS"),
+                Sequence("EXTERNAL", "TABLES"),
+                Sequence("DYNAMIC", "TABLES"),
+                Sequence("ICEBERG", "TABLES"),
+                Sequence("FILE", "FORMATS"),
+                "SCHEMAS",
+                "WAREHOUSES",
+            ),
+            "IN",
+            "ACCOUNT",
+        ),
         Sequence(
             OneOf(
                 Sequence("RESOURCE", "MONITOR"),
@@ -4036,11 +4080,12 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
                 Ref("AccessSchemaObjectSegment"),
                 Sequence(
                     OneOf("ALL", "FUTURE"),
-                    OneOf("DYNAMIC", optional=True),
                     OneOf(
                         Ref("AccessSchemaPluralObjectSegment"),
                         Sequence("MATERIALIZED", "VIEWS"),
                         Sequence("EXTERNAL", "TABLES"),
+                        Sequence("DYNAMIC", "TABLES"),
+                        Sequence("ICEBERG", "TABLES"),
                         Sequence("FILE", "FORMATS"),
                     ),
                     "IN",
@@ -4073,6 +4118,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 "USER",
                 "WAREHOUSE",
                 "DATABASE",
+                Sequence("DATABASE", "ROLE"),
                 "INTEGRATION",
                 "SHARE",
                 "TAG",
@@ -4169,6 +4215,8 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
         "GRANT",
         OneOf(
             Sequence(
+                # https://docs.snowflake.com/en/user-guide/inherited-grants-using
+                Ref.keyword("INHERITED", optional=True),
                 Ref("AccessPermissionsSegment"),
                 "ON",
                 Ref("AccessObjectSegment"),
@@ -4219,6 +4267,8 @@ class RevokeStatementSegment(ansi.RevokeStatementSegment):
         Sequence("GRANT", "OPTION", "FOR", optional=True),
         OneOf(
             Sequence(
+                # https://docs.snowflake.com/en/user-guide/inherited-grants-using
+                Ref.keyword("INHERITED", optional=True),
                 Ref("AccessPermissionsSegment"),
                 "ON",
                 Ref("AccessObjectSegment"),
@@ -5800,6 +5850,7 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "MAX_DATA_EXTENSION_TIME_IN_DAYS",
                         "DEFAULT_DDL_COLLATION",
                         "COMMENT",
+                        "ROW_TIMESTAMP_DEFAULT",
                     ),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
@@ -5833,6 +5884,11 @@ class SchemaObjectParamsSegment(BaseSegment):
             "DEFAULT_DDL_COLLATION",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ROW_TIMESTAMP_DEFAULT",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Ref("CommentEqualsClauseSegment"),
     )
@@ -7377,6 +7433,7 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            Ref("WorkloadIdentityPropertyGrammar"),
             Sequence(
                 "DAYS_TO_EXPIRY",
                 Ref("EqualsSegment"),
@@ -9837,6 +9894,21 @@ class AlterUserStatementSegment(BaseSegment):
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
+            # ALTER USER ... SET { AUTHENTICATION | PASSWORD | SESSION } POLICY
+            # https://docs.snowflake.com/en/sql-reference/sql/alter-user
+            Sequence(
+                "SET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            Sequence("SET", Ref("WorkloadIdentityPropertyGrammar")),
             # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
             # we will just use that.
