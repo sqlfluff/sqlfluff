@@ -1075,12 +1075,16 @@ test_fail_list_wrapping_fill_jinja_macro:
   # length of the column name it renders. The first line of the list is
   # exactly 45 characters long.
   fail_str: |
-    {% macro col(n) %}long_column_name{{ n }}{% endmacro %}
+    {% macro col(n) -%}
+    long_column_name{{ n }}
+    {%- endmacro %}
     select a
     from tbl
     group by {{ col(1) }}, {{ col(2) }}, {{ col(3) }}, {{ col(4) }}, {{ col(5) }}, {{ col(6) }}
   fix_str: |
-    {% macro col(n) %}long_column_name{{ n }}{% endmacro %}
+    {% macro col(n) -%}
+    long_column_name{{ n }}
+    {%- endmacro %}
     select a
     from tbl
     group by
@@ -1096,12 +1100,16 @@ test_fail_list_wrapping_fill_jinja_macro_list:
   # One macro call renders three columns and their commas. The fill does
   # not break inside the macro call.
   fail_str: |
-    {% macro dims() %}dim_one, dim_two, dim_three{% endmacro %}
+    {% macro dims() -%}
+    dim_one, dim_two, dim_three
+    {%- endmacro %}
     select a
     from tbl
     group by {{ dims() }}, long_column_name1, long_column_name2, long_column_name3
   fix_str: |
-    {% macro dims() %}dim_one, dim_two, dim_three{% endmacro %}
+    {% macro dims() -%}
+    dim_one, dim_two, dim_three
+    {%- endmacro %}
     select a
     from tbl
     group by
@@ -1156,8 +1164,8 @@ test_pass_list_wrapping_fill_jinja_source_length:
           c3: rendered_column_name_which_is_long_three
 
 test_fail_no_fix_list_wrapping_fill_jinja:
-  # One template tag renders the whole list. The fill does not break inside
-  # the tag, so the line stays as it is.
+  # One template tag renders the whole list. LT05 does not break inside the
+  # tag, so the line stays as it is.
   fail_str: |
     select a
     from tbl

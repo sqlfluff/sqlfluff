@@ -283,6 +283,8 @@ The configured position of commas (see
 [Configuring layout and spacing](#configuring-layout-and-spacing))
 still applies where a line is broken. Operators such as `AND`
 or `+` are not filled, and still get one line break each.
+The fill only changes a line that is too long. It does not join
+lines, so a list that is already split stays as it is.
 
 ::: tip NOTE
 When a select clause has more than one target,

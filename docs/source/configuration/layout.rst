@@ -297,6 +297,8 @@ With :code:`list_wrapping = fill`, it becomes:
 The configured position of commas (see :ref:`layoutspacingconfig`)
 still applies where a line is broken. Operators such as :code:`AND`
 or :code:`+` are not filled, and still get one line break each.
+The fill only changes a line that is too long. It does not join
+lines, so a list that is already split stays as it is.
 
 .. note::
 
