@@ -691,7 +691,7 @@ def _write_output_aliases_stderr(filename: Optional[str]) -> bool:
 
 
 def _bench_err_for_write_output(
-    bench_err: bool, file_output: str, write_output: Optional[str]
+    bench_err: bool, file_output: Optional[str], write_output: Optional[str]
 ) -> bool:
     """Decide whether --bench diagnostics should still go to stderr.
 
