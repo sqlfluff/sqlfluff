@@ -141,6 +141,53 @@ test_redshift_unknown_reference_in_joined_subquery:
     core:
       dialect: redshift
 
+test_impala_struct_fields:
+  pass_str: |
+    SELECT address.city FROM source_table;
+    SELECT a.address.city FROM source_table AS a;
+    SELECT `a`.address.city.name
+    FROM source_table AS `a` JOIN other_table AS b ON `a`.id = b.id;
+    SELECT a.address.city FROM source_table AS a
+    UNION ALL SELECT b.address.city FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.address.city
+    );
+  configs:
+    core:
+      dialect: impala
+
+test_impala_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.address.city FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: impala
+    rules:
+      references.from:
+        force_enable: true
+
+test_impala_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.address.city FROM source_table AS a
+    JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: impala
+
+test_impala_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.address.city
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: impala
+
 test_hive_struct_fields:
   pass_str: |
     SELECT metadata.value FROM source_table;

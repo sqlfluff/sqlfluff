@@ -46,7 +46,7 @@ class Rule_RF01(BaseRule):
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
 
-       For Athena, Databricks, DuckDB, Hive, Redshift and Trino, single-source
+       For Athena, Databricks, DuckDB, Hive, Impala, Redshift and Trino, single-source
        SELECTs are exempt by default because dotted references may access
        ROW/struct fields. SELECTs with multiple sources are still checked,
        allowing field access through a visible table or alias. Use
@@ -297,6 +297,7 @@ class Rule_RF01(BaseRule):
             "databricks",
             "duckdb",
             "hive",
+            "impala",
             "redshift",
             "trino",
         )
@@ -408,6 +409,8 @@ class Rule_RF01(BaseRule):
         # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
         # DuckDB:
         # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
+        # Impala:
+        # https://impala.apache.org/docs/build/html/topics/impala_struct.html
         # Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
         # Trino:
@@ -419,6 +422,7 @@ class Rule_RF01(BaseRule):
             "databricks",
             "duckdb",
             "hive",
+            "impala",
             "redshift",
             "soql",
             "sparksql",
