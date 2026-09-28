@@ -354,6 +354,17 @@ class TestIsCacheable:
         assert linted.violations == []
         assert linted.is_cacheable()
 
+    def test_warning_only_file_is_not_cacheable(self):
+        """A rule configured as a warning still has something to report.
+
+        The default `get_violations()` hides warnings, so this is the case
+        where `is_cacheable()` has to pass `filter_warning=False` to see it.
+        """
+        linted = self._lint("select  a,b from tbl\n", warnings="LT01,LT09,CP01")
+        assert linted.get_violations() == []
+        assert linted.get_violations(filter_warning=False)
+        assert not linted.is_cacheable()
+
     def test_unused_noqa_is_not_cacheable(self):
         """An unused `noqa` blocks caching even though `violations` is empty.
 

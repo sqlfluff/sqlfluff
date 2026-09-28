@@ -290,3 +290,33 @@ class TestHashPathContents:
             pytest.skip(f"symlinks unavailable in this environment: {err}")
         # The assertion is simply that this returns at all.
         assert hash_path_contents([str(root)])
+
+    def test_unlistable_directory_is_not_fingerprintable(self, tmp_path, monkeypatch):
+        """A subtree we cannot list may still be readable by name, so decline.
+
+        Recording only the error would leave the digest unchanged while a file
+        beneath it, reachable by an ``{% include %}`` of its full name, changed.
+        """
+        root = tmp_path / "search"
+        (root / "sub").mkdir(parents=True)
+        (root / "sub" / "m.sql").write_text("x", encoding="utf-8")
+        real_scandir = os.scandir
+
+        def scandir(path="."):
+            if os.path.basename(os.fspath(path)) == "sub":
+                raise PermissionError(13, "Permission denied", os.fspath(path))
+            return real_scandir(path)
+
+        monkeypatch.setattr(os, "scandir", scandir)
+        assert hash_path_contents([str(root)]) is None
+
+    @pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="needs os.mkfifo")
+    def test_fifo_is_not_opened(self, tmp_path):
+        """A FIFO would block forever if read, so it contributes a marker."""
+        root = tmp_path / "search"
+        root.mkdir()
+        (root / "m.sql").write_text("x", encoding="utf-8")
+        before = hash_path_contents([str(root)])
+        os.mkfifo(root / "pipe")
+        # The assertion is mostly that this returns at all.
+        assert hash_path_contents([str(root)]) not in (None, before)

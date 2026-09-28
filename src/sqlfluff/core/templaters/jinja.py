@@ -531,21 +531,27 @@ class JinjaTemplater(PythonTemplater):
         Everything the Jinja templater renders with comes either from the file
         itself, from config (macros defined in ``[sqlfluff:templater:jinja:
         macros]``, the context, and the environment options -- all covered by
-        the config digest), or from one of four configured paths:
+        the config digest), or from one of three configured paths:
 
         * ``loader_search_path``, searched by ``{% include %}`` / ``{% import %}``
         * ``load_macros_from_path``, loaded as macro definitions
         * ``exclude_macros_from_path``, which subtracts from the above
-        * ``library_path``, imported as python modules
 
-        Those four are hashed here, contents and all, so that editing a macro
+        Those three are hashed here, contents and all, so that editing a macro
         invalidates every file which could have used it.
 
         The paths are hashed as one ordered sequence without labelling which
         setting each came from. That is sufficient: the config digest already
-        distinguishes a path configured as (say) ``library_path`` from the same
-        path configured as ``load_macros_from_path``, so the two cannot be
+        distinguishes a path configured as (say) ``loader_search_path`` from the
+        same path configured as ``load_macros_from_path``, so the two cannot be
         confused for one another.
+
+        Caching is declined when ``library_path`` is set. Those modules are
+        arbitrary Python: they can import other modules and read any file, so
+        hashing the directory would not cover what they actually depend on.
+        It is declined too when the templater was built with
+        ``override_context``, which is instance state the config digest never
+        sees.
         """
         # Only this exact class, for the same reason as `PythonTemplater` and
         # `PlaceholderTemplater`: this declaration covers what *Jinja* reads,
@@ -555,14 +561,14 @@ class JinjaTemplater(PythonTemplater):
         # `RawTemplater.cache_fingerprint`.
         if type(self) is not JinjaTemplater:
             return None
-        library_path = self._get_library_path(config)
+        if self.override_context or self._get_library_path(config):
+            return None
         paths: list[str] = [
             # Order matters and is preserved: Jinja resolves a template name
             # against the search path in order.
             *(self._get_loader_search_path(config) or []),
             *(self._get_macros_path(config, "load_macros_from_path") or []),
             *(self._get_macros_path(config, "exclude_macros_from_path") or []),
-            *([library_path] if library_path else []),
         ]
         return hash_path_contents(paths)
 

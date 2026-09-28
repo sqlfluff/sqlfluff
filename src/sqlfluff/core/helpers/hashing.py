@@ -13,6 +13,8 @@ adversary.
 
 import hashlib
 import os
+import stat
+from typing import Optional
 
 #: Read files in chunks so that a very large file isn't held in memory purely
 #: to be fingerprinted.
@@ -57,7 +59,7 @@ def hash_strings(hasher: "hashlib._Hash", *values: str) -> None:
         hasher.update(b"\0")
 
 
-def hash_path_contents(paths: list[str]) -> str:
+def hash_path_contents(paths: list[str]) -> Optional[str]:
     """Return a stable digest of the contents of a set of files or directories.
 
     This is the building block templaters use to fingerprint the external files
@@ -69,13 +71,24 @@ def hash_path_contents(paths: list[str]) -> str:
     A path which does not exist contributes a marker rather than being ignored,
     so that creating it later is also a change.
 
+    A directory which cannot be listed makes the whole result ``None``. Its
+    files may still be readable by name (a directory with execute but not read
+    permission), so a template could depend on contents this digest cannot
+    see. There is no stable stand-in for that, so the caller has to treat the
+    paths as un-fingerprintable.
+
+    Only regular files are read. Anything else (a FIFO, a socket, a device)
+    contributes a marker of its type instead: opening a FIFO blocks until
+    something writes to it, which would hang the lint run.
+
     Args:
         paths: The paths to fingerprint, in a meaningful order. Order is part
             of the digest, because search order can affect how a template
             resolves.
 
     Returns:
-        A hex digest of the contents of all the given paths.
+        A hex digest of the contents of all the given paths, or ``None`` if a
+        directory among them could not be listed.
     """
     hasher = hashlib.sha256()
     for path in paths:
@@ -92,7 +105,10 @@ def hash_path_contents(paths: list[str]) -> str:
             # replay a stale clean result. `seen` breaks the cycles that
             # following links can introduce.
             seen: set[str] = set()
-            for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
+            walk_errors: list[OSError] = []
+            for dirpath, dirnames, filenames in os.walk(
+                path, onerror=walk_errors.append, followlinks=True
+            ):
                 real = os.path.realpath(dirpath)
                 if real in seen:
                     # Reached by another route already, so its contents are in
@@ -119,6 +135,8 @@ def hash_path_contents(paths: list[str]) -> str:
                         os.path.relpath(full, path),
                         _file_digest(full),
                     )
+            if walk_errors:
+                return None
         else:
             hash_strings(hasher, "missing", "")
     return hasher.hexdigest()
@@ -134,6 +152,9 @@ def _file_digest(fname: str) -> str:
     """
     hasher = hashlib.sha256()
     try:
+        mode = os.stat(fname).st_mode
+        if not stat.S_ISREG(mode):
+            return f"special:{stat.S_IFMT(mode)}"
         hash_file_bytes(fname, hasher)
     except OSError as err:
         # An unreadable file folds the error into the digest rather than being

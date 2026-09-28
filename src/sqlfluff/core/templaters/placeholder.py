@@ -86,10 +86,12 @@ class PlaceholderTemplater(RawTemplater):
 
         Both the parameter style and the substituted values come from
         ``[sqlfluff:templater:placeholder]``, which the config digest covers.
+        As for the python templater, an ``override_context`` is not config and
+        so declines caching.
         """
         # Only this exact class. A subclass may read anything, and must make
         # its own declaration -- see `RawTemplater.cache_fingerprint`.
-        if type(self) is not PlaceholderTemplater:
+        if type(self) is not PlaceholderTemplater or self.override_context:
             return None
         return ""
 

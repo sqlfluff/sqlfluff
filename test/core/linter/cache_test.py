@@ -10,6 +10,7 @@ assert on `LintingResult.files_cached`, which counts the files the second run
 did not have to look at.
 """
 
+import importlib.metadata
 import json
 import os
 import time
@@ -139,6 +140,43 @@ def test__cache_run_fingerprint_reacts_to_version(monkeypatch):
     monkeypatch.setattr(
         "sqlfluff.core.linter.cache._get_sqlfluff_version", lambda: "0.0.0-test"
     )
+    assert run_fingerprint() != before
+
+
+def test__cache_run_fingerprint_reacts_to_a_dependency(monkeypatch):
+    """Upgrading Jinja2 (or any runtime dependency) throws the cache away.
+
+    The renderer can change what a template produces without SQLFluff itself
+    changing version.
+    """
+    before = run_fingerprint()
+    real_version = importlib.metadata.version
+    monkeypatch.setattr(
+        importlib.metadata,
+        "version",
+        lambda name: "0.0.0-test" if name.lower() == "jinja2" else real_version(name),
+    )
+    assert run_fingerprint() != before
+
+
+def test__cache_run_fingerprint_reacts_to_python(monkeypatch):
+    """A different interpreter is a different environment."""
+    before = run_fingerprint()
+    monkeypatch.setattr("sqlfluff.core.linter.cache.sys.version", "0.0.0-test")
+    assert run_fingerprint() != before
+
+
+def test__cache_run_fingerprint_records_a_missing_dependency(monkeypatch):
+    """A declared dependency which is not installed still counts."""
+    real_version = importlib.metadata.version
+
+    def version(name):
+        if name.lower() == "jinja2":
+            raise importlib.metadata.PackageNotFoundError(name)
+        return real_version(name)
+
+    before = run_fingerprint()
+    monkeypatch.setattr(importlib.metadata, "version", version)
     assert run_fingerprint() != before
 
 
@@ -283,6 +321,22 @@ class TestLoadAndPersist:
         cached clean result, so we decline instead.
         """
         assert LintCache.from_config(make_config(project), user_rules=[object]) is None
+
+    @pytest.mark.parametrize("target", ["_get_sqlfluff_version", "_discover_plugins"])
+    def test_from_config_declines_when_unfingerprintable(
+        self, project, monkeypatch, target
+    ):
+        """No fingerprint means no cache, never a crash or a placeholder key.
+
+        A placeholder would stay the same while the thing it stands for (the
+        installed version, the plugin set) changed.
+        """
+
+        def boom():
+            raise importlib.metadata.PackageNotFoundError("sqlfluff")
+
+        monkeypatch.setattr(f"sqlfluff.core.linter.cache.{target}", boom)
+        assert LintCache.from_config(make_config(project)) is None
 
     def test_from_config_builds_when_enabled(self, project, tmp_path):
         """The configured directory is respected and made absolute."""
@@ -712,6 +766,20 @@ def test__templater_config_only_subclasses_are_not_cacheable(templater):
     assert templater.cache_fingerprint(None) is None
 
 
+@pytest.mark.parametrize(
+    "templater_cls", [JinjaTemplater, PythonTemplater, PlaceholderTemplater]
+)
+def test__templater_override_context_is_not_cacheable(project, templater_cls):
+    """``override_context`` is instance state the config digest never sees.
+
+    Two templaters built with different overrides render differently under an
+    identical key, so either would replay the other's clean result.
+    """
+    config = make_config(project)
+    templater = templater_cls(override_context={"x": "1"})
+    assert templater.cache_fingerprint(config) is None
+
+
 class TestJinjaFingerprint:
     """The Jinja templater's declaration of what it reads from disk."""
 
@@ -735,13 +803,12 @@ class TestJinjaFingerprint:
             "load_macros_from_path",
             "exclude_macros_from_path",
             "loader_search_path",
-            "library_path",
         ],
     )
     def test_reacts_to_content_of_each_configured_path(self, project, setting):
         """Editing a file under any configured path changes the fingerprint.
 
-        All four settings feed the Jinja environment, so all four have to be
+        All three settings feed the Jinja environment, so all three have to be
         covered; missing one would let a macro edit go unnoticed.
         """
         macro_dir = project / "macros"
@@ -751,6 +818,21 @@ class TestJinjaFingerprint:
         before = templater.cache_fingerprint(config)
         write(macro_dir / "m.sql", "{% macro f() %}2{% endmacro %}")
         assert templater.cache_fingerprint(config) != before
+
+    def test_library_path_declines(self, project):
+        """Library modules are arbitrary Python, so their inputs are unknowable."""
+        write(project / "lib" / "helper.py", "X = 1\n")
+        config = self._config(project, library_path="lib")
+        assert config.get("templater_obj").cache_fingerprint(config) is None
+
+    def test_unlistable_path_declines(self, project, monkeypatch):
+        """A configured directory we cannot list cannot be proven unchanged."""
+        write(project / "macros" / "m.sql", "{% macro f() %}1{% endmacro %}")
+        config = self._config(project, load_macros_from_path="macros")
+        monkeypatch.setattr(
+            "sqlfluff.core.templaters.jinja.hash_path_contents", lambda paths: None
+        )
+        assert config.get("templater_obj").cache_fingerprint(config) is None
 
     def test_reacts_to_a_new_macro_file(self, project):
         """Adding a macro file changes the fingerprint."""
@@ -882,6 +964,37 @@ class TestLintPathsIntegration:
         assert lint(project, make_config(project)).files_cached == 1
         write(project / "macros" / "m.sql", "{% macro f() %}b{% endmacro %}")
         assert lint(project, make_config(project)).files_cached == 0
+
+    def test_library_path_reads_are_never_replayed(self, project):
+        """A library module's inputs outside ``library_path`` cannot go stale.
+
+        The module here reads a data file next to, not inside, the library
+        directory. Hashing ``library_path`` alone missed the edit and replayed
+        a clean result for a file which no longer parses.
+        """
+        write(project / "data.txt", "a")
+        write(
+            project / "lib" / "helper.py",
+            "import os\n"
+            "_HERE = os.path.dirname(os.path.abspath(__file__))\n"
+            "def col():\n"
+            "    with open(os.path.join(_HERE, '..', 'data.txt')) as f:\n"
+            "        return f.read()\n",
+        )
+        rewrite_config(
+            project,
+            "[sqlfluff]\ndialect = ansi\n"
+            "[sqlfluff:templater:jinja]\nlibrary_path = lib\n",
+        )
+        write(project / "a.sql", "SELECT {{ helper.col() }}\nFROM tbl\n")
+        # Twice: the first import writes lib/__pycache__, which on its own
+        # would change a digest of the directory and hide the problem.
+        lint(project, make_config(project))
+        assert not lint(project, make_config(project)).get_violations()
+        write(project / "data.txt", "a,,")
+        result = lint(project, make_config(project))
+        assert result.files_cached == 0
+        assert result.get_violations()
 
     def test_templater_opt_out_disables_caching(self, project, monkeypatch):
         """A templater which declines is never cached, however clean the file.
@@ -1113,6 +1226,30 @@ class TestCli:
         write(project / "a.sql", CLEAN_SQL)
         self._lint_cli(project, "--cache-dir", str(tmp_path / "cache"))
         assert not (tmp_path / "cache").exists()
+
+    def test_verbose_output_of_a_cached_run(self, project, tmp_path):
+        """A cached file still gets its per-file line, plus one summary line.
+
+        Without the per-file line, `-v` output would silently lose every file
+        the cache skipped. The summary is the one deliberate difference.
+        """
+        write(project / "a.sql", CLEAN_SQL)
+        flags = ("-v", "--cache", "--cache-dir", str(tmp_path / "cache"))
+        first = self._lint_cli(project, *flags).stdout
+        second = self._lint_cli(project, *flags).stdout
+        assert "cached (skipped)" not in first
+        assert "cached (skipped):  1 of 1" in second
+        for output in (first, second):
+            assert "a.sql] PASS" in output
+
+    def test_no_cache_summary_without_verbose(self, project, tmp_path):
+        """The summary is verbose output; a quiet run stays quiet."""
+        write(project / "a.sql", CLEAN_SQL)
+        flags = ("--cache", "--cache-dir", str(tmp_path / "cache"))
+        self._lint_cli(project, *flags)
+        second = self._lint_cli(project, *flags).stdout
+        assert "cached (skipped)" not in second
+        assert "PASS" not in second
 
     def test_cache_flag_creates_the_cache(self, project, tmp_path):
         """`--cache` writes a cache in the requested directory."""

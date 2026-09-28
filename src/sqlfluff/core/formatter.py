@@ -77,6 +77,15 @@ class FormatterInterface(ABC):
         working; only formatters which want to surface the number override it.
         """
 
+    def dispatch_cached_file(self, fname: str, only_fixable: bool) -> None:
+        """Report a file served from the lint cache as clean.
+
+        The counterpart of :meth:`dispatch_file_violations` for a file which
+        was not linted this run, so that per-file output doesn't depend on
+        whether the result came from the cache. Concrete for the same reason
+        as :meth:`dispatch_cache_summary`.
+        """
+
     @abstractmethod
     def dispatch_path(self, path: str) -> None:
         """Dispatch paths for display."""

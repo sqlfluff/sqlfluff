@@ -60,17 +60,20 @@ following makes a file get linted again:
   :code:`--rules`.
 * A file the templater reads changes. For the Jinja templater that means
   anything under :code:`load_macros_from_path`,
-  :code:`exclude_macros_from_path`, :code:`loader_search_path` or
-  :code:`library_path`: editing a macro re-lints every file which could have
-  used it, and so does adding, removing or renaming one.
-* The SQLFluff version changes.
+  :code:`exclude_macros_from_path` or :code:`loader_search_path`: editing a
+  macro re-lints every file which could have used it, and so does adding,
+  removing or renaming one.
+* The SQLFluff version, the Python version, or the version of one of
+  SQLFluff's own dependencies (Jinja2, for example) changes.
 * An installed SQLFluff plugin is added, removed or upgraded.
 
 The last two discard the entire cache rather than individual entries, because
-either can change the result for every file.
+either can change the result for every file. If any of them cannot be
+determined, caching is switched off for that run rather than guessed at.
 
-Caching is declined outright, rather than keyed, when a :class:`Linter` is
-constructed with :code:`user_rules` from the Python API. Every other input has
+Caching is declined outright, rather than keyed, when a
+:class:`~sqlfluff.core.linter.Linter` is constructed with :code:`user_rules`
+from the Python API. Every other input has
 a stable identity -- a file has its bytes, config its values, a plugin its
 version -- but a rule class passed in-process has none: its name would not
 change when its body did, so a cached clean result could hide an edited rule.
@@ -83,12 +86,19 @@ Which templaters can be cached
 ------------------------------
 
 * :code:`raw` -- cached. It reads nothing outside the file.
-* :code:`jinja` -- cached. The external files it reads are fingerprinted.
+* :code:`jinja` -- cached, unless :code:`library_path` is set. The external
+  files it reads are fingerprinted, but a library module is arbitrary Python:
+  it can import other packages or read any file, so there is nothing to hash
+  that would prove its output unchanged.
 * :code:`python` -- cached. Its whole context comes from config.
 * :code:`placeholder` -- cached. Its whole context comes from config.
 * :code:`dbt` -- **not cached.**
 * :code:`sqlmesh` -- **not cached.**
 * Any third party templater -- **not cached**, unless it opts in (see below).
+
+A templater constructed with :code:`override_context` from the Python API is
+never cached, whichever class it is: the overrides are not part of the
+configuration, so the key cannot see them.
 
 The opt-in is per *exact* class and is never inherited. A templater which
 subclasses a cacheable one -- as both :code:`dbt` and :code:`sqlmesh` subclass
@@ -151,6 +161,10 @@ Caveats
   :code:`--format json` or :code:`--persist-timing`, because no work happened.
   Everything else, including the character and segment statistics, is identical
   to an uncached run.
+* **Verbose output adds one line.** With :code:`-v`, a run which used the cache
+  prints :code:`cached (skipped): N of M` before linting starts. A cached file
+  still gets its own :code:`PASS` line, but because cached files are settled
+  before the rest are linted, their lines come first.
 * **There is no parse tree for a cached file.** Code using the Python API which
   reads :code:`LintedDir.files` or :code:`.tree` will not see cached files, for
   the same reason. Leave caching off in that case.

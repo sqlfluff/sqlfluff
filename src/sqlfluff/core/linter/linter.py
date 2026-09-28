@@ -1198,6 +1198,8 @@ class Linter:
                     expanded_path_to_linted_dir[fname].add_cached_clean(
                         fname, statistics
                     )
+                    if self.formatter:
+                        self.formatter.dispatch_cached_file(fname, only_fixable=fix)
             result.files_cached = len(expanded_paths) - len(uncached_paths)
             if result.files_cached:
                 linter_logger.info(

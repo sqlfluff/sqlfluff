@@ -325,12 +325,22 @@ class OutputStreamFormatter(FormatterInterface):
             fname,
             violations,
         )
-        kind = (
+        self.dispatch_message(s, self._file_output_kind(only_fixable))
+
+    def dispatch_cached_file(self, fname: str, only_fixable: bool) -> None:
+        """Report a cached file exactly as a clean linted one is reported."""
+        self.dispatch_message(
+            self._format_file_violations(fname, []),
+            self._file_output_kind(only_fixable),
+        )
+
+    def _file_output_kind(self, only_fixable: bool) -> OutputKind:
+        """The kind of output a per-file result is reported as."""
+        return (
             OutputKind.STATUS
             if only_fixable and not self.show_lint_violations
             else OutputKind.DIAGNOSTIC
         )
-        self.dispatch_message(s, kind)
 
     def colorize(self, s: str, color: Optional[Color] = None) -> str:
         """Optionally use ANSI colour codes to colour a string."""

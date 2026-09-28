@@ -31,9 +31,12 @@ one rather than reporting zeroes.
 """
 
 import hashlib
+import importlib.metadata
 import json
 import logging
 import os
+import re
+import sys
 import tempfile
 import time
 from collections.abc import Sequence
@@ -110,25 +113,52 @@ def config_digest(config: "FluffConfig") -> str:
     return hasher.hexdigest()
 
 
+def _runtime_dependencies() -> list[tuple[str, str]]:
+    """Return the name and installed version of each SQLFluff runtime dependency.
+
+    Several of these change results without SQLFluff itself changing: Jinja2
+    renders every templated file, and ``regex`` drives the lexer. Reading the
+    list from SQLFluff's own metadata keeps it in step with ``pyproject.toml``
+    rather than duplicating it here. Optional extras are skipped, and a
+    dependency which is not installed (``tomli`` on newer Pythons) is recorded
+    as such rather than ignored.
+    """
+    deps: list[tuple[str, str]] = []
+    for requirement in importlib.metadata.requires("sqlfluff") or []:
+        if "extra ==" in requirement:
+            continue
+        match = re.match(r"[A-Za-z0-9._-]+", requirement)
+        if not match:  # pragma: no cover
+            continue
+        name = match.group(0)
+        try:
+            version = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            version = "<not installed>"
+        deps.append((name.lower(), version))
+    return sorted(deps)
+
+
 def run_fingerprint() -> str:
     """Return a digest of the state which invalidates the *whole* cache.
 
-    That is the SQLFluff version plus the name and version of every installed
-    SQLFluff plugin. A change to any of those can change the result for every
-    file, so rather than repeating it in each key we store it once in the cache
-    header and discard the file when it moves.
+    That is the SQLFluff version, the Python version, the version of every
+    runtime dependency, and the name and version of every installed SQLFluff
+    plugin. A change to any of those can change the result for every file, so
+    rather than repeating it in each key we store it once in the cache header
+    and discard the file when it moves.
+
+    Raises if any of that cannot be determined. There is no safe value to
+    substitute: a placeholder would stay the same while the thing it stands
+    for changed. :meth:`LintCache.from_config` turns the error into "no cache".
     """
     hasher = hashlib.sha256()
     hash_strings(hasher, "schema", str(CACHE_SCHEMA_VERSION))
     hash_strings(hasher, "sqlfluff", _get_sqlfluff_version())
-    try:
-        plugins = sorted((name, version) for _, name, version in _discover_plugins())
-    except Exception as err:  # pragma: no cover
-        # Plugin discovery walks installed distributions and so can fail on a
-        # broken environment. Fold the failure into the digest: it is stable
-        # for as long as the failure is, and changes when it is fixed.
-        linter_logger.debug("Cache: plugin discovery failed: %s", err)
-        plugins = [("<discovery-failed>", str(err))]
+    hash_strings(hasher, "python", sys.version)
+    for name, version in _runtime_dependencies():
+        hash_strings(hasher, "dependency", name, version)
+    plugins = sorted((name, version) for _, name, version in _discover_plugins())
     for name, version in plugins:
         hash_strings(hasher, "plugin", name, version)
     return hasher.hexdigest()
@@ -268,7 +298,18 @@ class LintCache:
         cache_dir = config.get("cache_dir", default=DEFAULT_CACHE_DIR)
         if not cache_dir:  # pragma: no cover
             cache_dir = DEFAULT_CACHE_DIR
-        cache = cls(os.path.abspath(str(cache_dir)), config)
+        try:
+            cache = cls(os.path.abspath(str(cache_dir)), config)
+        except Exception as err:
+            # Computing the run fingerprint reads installed distribution
+            # metadata, which can fail on a broken environment. Without a
+            # fingerprint no entry can be proven current, so run uncached.
+            linter_logger.warning(
+                "Lint caching is disabled because the environment could not "
+                "be fingerprinted: %s",
+                err,
+            )
+            return None
         cache.load()
         return cache
 
