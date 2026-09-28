@@ -21,6 +21,8 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import (
+    _bench_err_for_write_output,
+    _write_output_aliases_stderr,
     cli_format,
     dialects,
     fix,
@@ -1028,6 +1030,49 @@ def test__cli__bench_write_output_dev_stderr_stays_serialized():
     assert proc.stderr[payload_start + end :].strip() == ""
     assert "==== overall timings ====" not in proc.stderr
     assert "==== overall timings ====" in proc.stdout
+
+
+def test__cli__write_output_aliases_stderr_direct(tmp_path, monkeypatch):
+    """Exercise _write_output_aliases_stderr()'s branches in-process.
+
+    The subprocess tests above prove the end-to-end behaviour (needed
+    because Click's test runner fakes stdout/stderr without real OS file
+    descriptors to alias against), but this repo's coverage tooling has no
+    subprocess support configured, so a subprocess-only test can never
+    satisfy the 100% coverage gate for these helpers' own branches - drive
+    them directly here too.
+    """
+    target = tmp_path / "stderr-alias.txt"
+    with open(target, "w") as fake_stderr:
+        monkeypatch.setattr(sys, "stderr", fake_stderr)
+        assert _write_output_aliases_stderr(str(target)) is True
+        assert _write_output_aliases_stderr(str(tmp_path / "missing.txt")) is False
+    assert _write_output_aliases_stderr(None) is False
+    assert _write_output_aliases_stderr("") is False
+
+
+def test__cli__bench_err_for_write_output_direct(tmp_path, monkeypatch):
+    """Exercise _bench_err_for_write_output()'s branches in-process.
+
+    Same rationale as test__cli__write_output_aliases_stderr_direct above:
+    the caller in lint() only ever sees this decision made correctly via a
+    real subprocess, so pin every branch here where coverage can see it.
+    """
+    target = tmp_path / "stderr-alias.txt"
+    with open(target, "w") as fake_stderr:
+        monkeypatch.setattr(sys, "stderr", fake_stderr)
+        # Payload aliases stderr: flip bench off stderr.
+        assert _bench_err_for_write_output(True, "payload", str(target)) is False
+        # write_output doesn't alias stderr: leave bench on stderr.
+        assert (
+            _bench_err_for_write_output(True, "payload", str(tmp_path / "x.txt"))
+            is True
+        )
+        # --format=none: file_output is "" even though write_output was
+        # given, so nothing was actually written to it - don't flip.
+        assert _bench_err_for_write_output(True, "", str(target)) is True
+    # bench_err already False (human format): stays False regardless.
+    assert _bench_err_for_write_output(False, "payload", None) is False
 
 
 @pytest.mark.parametrize("command", [lint, fix, cli_format])

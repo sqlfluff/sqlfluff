@@ -690,6 +690,21 @@ def _write_output_aliases_stderr(filename: Optional[str]) -> bool:
     )
 
 
+def _bench_err_for_write_output(
+    bench_err: bool, file_output: str, write_output: Optional[str]
+) -> bool:
+    """Decide whether --bench diagnostics should still go to stderr.
+
+    `bench_err` is the caller's default (True for machine-readable
+    formats). If the machine-readable payload itself was written to
+    stderr (aliased via --write-output), the bench summary must move to
+    stdout instead, or the two would collide on the same stream.
+    """
+    if bench_err and file_output and _write_output_aliases_stderr(write_output):
+        return False
+    return bench_err
+
+
 @cli.command()
 @common_options
 @core_options
@@ -1108,8 +1123,7 @@ def lint(
     # payload.
     if bench:
         bench_err = output_policy.machine_output
-        if bench_err and file_output and _write_output_aliases_stderr(write_output):
-            bench_err = False
+        bench_err = _bench_err_for_write_output(bench_err, file_output, write_output)
         click.echo("==== overall timings ====", err=bench_err)
         click.echo(
             formatter.cli_table([("Clock time", result.total_time)]), err=bench_err
