@@ -301,6 +301,31 @@ class PartitionSegment(BaseSegment):
             ),
             # Expression partitioning - time function expressions
             Ref("FunctionSegment"),
+            # List partitioning
+            Sequence(
+                "LIST",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            "PARTITION",
+                            Ref("ObjectReferenceSegment"),
+                            "VALUES",
+                            "IN",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        # Multi-column: tuples of literals
+                                        Bracketed(Delimited(Ref("LiteralGrammar"))),
+                                        # Single-column: bare literals
+                                        Ref("LiteralGrammar"),
+                                    )
+                                )
+                            ),
+                        )
+                    )
+                ),
+            ),
             # Expression partitioning - column expressions
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
         ),
