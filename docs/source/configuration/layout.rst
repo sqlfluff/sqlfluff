@@ -297,8 +297,11 @@ With :code:`list_wrapping = fill`, it becomes:
 The configured position of commas (see :ref:`layoutspacingconfig`)
 still applies where a line is broken. Operators such as :code:`AND`
 or :code:`+` are not filled, and still get one line break each.
-The fill only changes a line that is too long. It does not join
-lines, so a list that is already split stays as it is.
+The fill only breaks a line that is too long. It does not join
+lines, so it keeps the line breaks that are already in a list.
+:sqlfluff:ref:`LT05` does not break inside a template tag. When one
+tag renders the whole list, the line stays too long, with either
+value of :code:`list_wrapping`.
 
 .. note::
 
