@@ -992,6 +992,44 @@ def test__cli__bench_write_output_dev_stdout_stays_serialized():
     assert "==== overall timings ====" in proc.stderr
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="/dev/stderr is not available on Windows"
+)
+def test__cli__bench_write_output_dev_stderr_stays_serialized():
+    """--write-output=/dev/stderr must not be corrupted by --bench either.
+
+    When the machine-readable payload is itself routed to stderr, the
+    bench summary (which would otherwise also go to stderr for
+    machine-readable formats) must move to stdout instead, or the two
+    would collide on the same stream.
+    """
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sqlfluff",
+            "lint",
+            "--bench",
+            "--format=json",
+            "--write-output=/dev/stderr",
+            "--disable-progress-bar",
+            "test/fixtures/cli/passing_a.sql",
+        ],
+        capture_output=True,
+        text=True,
+        env=os.environ,
+    )
+    # stderr may also carry unrelated warnings (e.g. plugin load-order
+    # notices) ahead of the payload, so locate the JSON list rather than
+    # parsing the whole stream - but still prove nothing (like the bench
+    # table) was appended after it.
+    payload_start = proc.stderr.index("[")
+    _, end = json.JSONDecoder().raw_decode(proc.stderr, payload_start)
+    assert proc.stderr[payload_start + end :].strip() == ""
+    assert "==== overall timings ====" not in proc.stderr
+    assert "==== overall timings ====" in proc.stdout
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""

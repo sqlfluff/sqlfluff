@@ -669,6 +669,27 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         click.echo(payload)
 
 
+def _write_output_aliases_stderr(filename: Optional[str]) -> bool:
+    """Return True if `--write-output` targets the same stream as stderr.
+
+    Used so a diagnostic that is normally routed to stderr to avoid
+    colliding with a machine-readable payload (e.g. --bench) doesn't
+    instead collide with that payload when the user has pointed
+    --write-output at stderr itself (e.g. --write-output=/dev/stderr).
+    """
+    if not filename:
+        return False
+    try:
+        target_stat = os.stat(filename)
+        stderr_stat = os.fstat(sys.stderr.fileno())
+    except OSError:
+        return False
+    return (
+        target_stat.st_dev == stderr_stat.st_dev
+        and target_stat.st_ino == stderr_stat.st_ino
+    )
+
+
 @cli.command()
 @common_options
 @core_options
@@ -1078,12 +1099,17 @@ def lint(
 
     output_stream.close()
     # NB: For machine-readable formats (json, yaml, sarif, ...) the bench
-    # summary always goes to stderr instead of stdout, regardless of
-    # --write-output, so it can never land next to (or inside, via an alias
-    # like --write-output=/dev/stdout) a payload that must stay parseable on
-    # its own - while still always showing the timings the user asked for.
+    # summary goes to stderr instead of stdout, so it can never land next to
+    # (or inside, via an alias like --write-output=/dev/stdout) a payload
+    # that must stay parseable on its own - while still always showing the
+    # timings the user asked for. If the payload itself was written to
+    # stderr (e.g. --write-output=/dev/stderr), the bench summary is routed
+    # to stdout instead, so it stays out of whichever stream carries the
+    # payload.
     if bench:
         bench_err = output_policy.machine_output
+        if bench_err and file_output and _write_output_aliases_stderr(write_output):
+            bench_err = False
         click.echo("==== overall timings ====", err=bench_err)
         click.echo(
             formatter.cli_table([("Clock time", result.total_time)]), err=bench_err
