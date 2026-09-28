@@ -41,15 +41,16 @@ class Rule_RF01(BaseRule):
 
     .. note::
 
-       This rule is disabled by default for Athena, BigQuery, Databricks, DuckDB, Hive,
-       Redshift, SOQL and SparkSQL due to the support of things like
+       This rule is disabled by default for BigQuery, SOQL and SparkSQL
+       due to the support of things like
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
 
-       For Trino, single-source SELECTs are exempt by default because dotted
-       references may access ROW fields. SELECTs with multiple sources are
-       still checked. Use ``force_enable = True`` for strict checking of
-       single-source SELECTs too.
+       For Athena, Databricks, DuckDB, Hive, Redshift and Trino, single-source
+       SELECTs are exempt by default because dotted references may access
+       ROW/struct fields. SELECTs with multiple sources are still checked,
+       allowing field access through a visible table or alias. Use
+       ``force_enable = True`` for strict checking of these references too.
 
     **Anti-pattern**
 
@@ -291,20 +292,28 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw,))
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
+        supports_struct_access = query.dialect.name in (
+            "athena",
+            "databricks",
+            "duckdb",
+            "hive",
+            "redshift",
+            "trino",
+        )
 
-        # Trino's single-source exemption belongs to the reference's own scope,
+        # The single-source exemption belongs to the reference's own scope,
         # not a parent visited while resolving a correlated reference.
         if self._dialect_supports_dot_access(query.dialect) and not (
-            query.dialect.name == "trino" and is_parent_lookup
+            supports_struct_access and is_parent_lookup
         ):
             # BigQuery supports having multiple aliases in the FROM statement
             # SparkSQL supports directly accessing values in nested array columns
             if (
                 len(distinct_targets) == 1
-                # An aliased Trino table contributes both its name and alias
-                # to targets, but is still one source for ROW field access.
+                # An aliased table contributes both its name and alias
+                # to targets, but is still one source for ROW/struct access.
                 or (
-                    query.dialect.name == "trino"
+                    supports_struct_access
                     and len(query.aliases) == 1
                     and not query.standalone_aliases
                 )
@@ -321,8 +330,8 @@ class Rule_RF01(BaseRule):
 
         targets += self._get_implicit_targets(query)
 
-        if query.dialect.name == "trino" and not self.force_enable:
-            # ROW access starts with a visible table or alias, followed by a
+        if supports_struct_access and not self.force_enable:
+            # ROW/struct access starts with a visible table or alias, followed by a
             # column and its fields. Do not match an alias in the field suffix.
             for reference in self._table_ref_as_tuple(r, query.dialect):
                 for end in range(1, len(reference) - 1):
