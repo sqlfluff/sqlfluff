@@ -244,6 +244,53 @@ When controlling line breaks, we are trying to achieve a few different things:
    less common cases, it may also be desirable for some elements to have both
    a line break *before and after* (e.g. a set operator such as `UNION`).
 
+### Long Lists
+
+When a comma separated list (for example the terms of a `GROUP BY`,
+or the arguments of a function) is too long for one line, *SQLFluff* puts
+each element of the list on its own line. To put as many elements on each
+line as fit within the line length instead, set `list_wrapping` in
+the `sqlfluff:indentation` section of your config file:
+
+```ini
+[sqlfluff:indentation]
+list_wrapping = fill
+```
+
+For example, with a `max_line_length` of 45, the default layout is:
+
+```sql
+SELECT a
+FROM tbl
+GROUP BY
+    long_column_name1,
+    long_column_name2,
+    long_column_name3,
+    long_column_name4
+```
+
+With `list_wrapping = fill`, it becomes:
+
+```sql
+SELECT a
+FROM tbl
+GROUP BY
+    long_column_name1, long_column_name2,
+    long_column_name3, long_column_name4
+```
+
+The configured position of commas (see
+[Configuring layout and spacing](#configuring-layout-and-spacing))
+still applies where a line is broken. Operators such as `AND`
+or `+` are not filled, and still get one line break each.
+
+::: tip NOTE
+When a select clause has more than one target,
+[LT09](../reference/rules/layout#lt09) puts each target on its own line,
+at any line length. It is one of the rules which `sqlfluff format`
+applies. To also fill the select targets, add `LT09` to `exclude_rules`.
+:::
+
 
 ## Indentation
 
