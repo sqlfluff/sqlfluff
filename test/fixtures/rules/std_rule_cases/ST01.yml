@@ -150,3 +150,35 @@ redundant_else_null_comment_after_null:
             when name = 'cat' then 'meow' -- keep default
         end
     from x
+
+redundant_else_null_line_comment_before_end:
+  # The line comment's newline is inside the else clause. If it went with
+  # the clause, the comment would run on into the END.
+  fail_str: |
+    select case when name = 'cat' then 'meow' else -- keep
+     null end from x
+
+  fix_str: |
+    select case when name = 'cat' then 'meow' -- keep
+     end from x
+
+redundant_else_null_continuation_comment_after_inline_else:
+  # The ELSE doesn't start its line, so there is no indent to inherit and the
+  # continuation comment keeps its own.
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow' else
+            -- one
+            -- two
+            null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow' -- one
+            -- two
+        end
+    from x

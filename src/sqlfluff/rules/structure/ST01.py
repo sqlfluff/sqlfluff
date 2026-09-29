@@ -77,7 +77,18 @@ class Rule_ST01(BaseRule):
             # where the clause was, rather than deleting the clause outright.
             # c.f. ST04, which likewise restores comments when it removes an
             # else_clause from a case expression.
-            comments = self._clause_comments(else_clause, before_else)
+            after_else = children.select(
+                start_seg=else_clause[0],
+                loop_while=sp.or_(sp.is_type("whitespace"), sp.is_meta()),
+            )
+            next_seg = children.select(
+                start_seg=after_else[-1] if after_else else else_clause[0]
+            ).first()
+            comments = self._clause_comments(
+                else_clause,
+                before_else,
+                newline_follows=bool(next_seg.select(sp.is_type("newline"))),
+            )
             if comments:
                 return LintResult(
                     anchor=context.segment,
@@ -92,7 +103,7 @@ class Rule_ST01(BaseRule):
 
     @classmethod
     def _clause_comments(
-        cls, else_clause: Segments, before_else: Segments
+        cls, else_clause: Segments, before_else: Segments, newline_follows: bool
     ) -> list[BaseSegment]:
         """Rebuild the clause's comments so they can stand in for the clause.
 
@@ -100,6 +111,10 @@ class Rule_ST01(BaseRule):
         between them, re-indenting any continuation line to the indent the
         ELSE had. Everything outside that span - the keyword, the NULL and
         the metas - is what the rule removes, so it is dropped.
+
+        If the last comment is a line comment, the line break which ended it
+        is kept too, unless one already follows the clause. Without it the
+        comment would run on into whatever comes next, e.g. the ``END``.
         """
         clause_children = list(else_clause.children())
         comment_idxs = [
@@ -108,12 +123,24 @@ class Rule_ST01(BaseRule):
         if not comment_idxs:
             return []
 
+        end_idx = comment_idxs[-1] + 1
+        if clause_children[comment_idxs[-1]].is_type("inline_comment") and (
+            not newline_follows
+        ):
+            end_idx = next(
+                idx + 1
+                for idx in range(end_idx, len(clause_children))
+                if clause_children[idx].is_type("newline")
+            )
+
         indent = cls._else_indent(before_else)
         buff: list[BaseSegment] = []
         # The comments take the place of the ELSE, so the first one inherits
-        # the clause's own indent and only later lines need re-indenting.
+        # the clause's own indent and only later lines need re-indenting. An
+        # ELSE which doesn't start its line has no indent to hand on, so there
+        # the continuation lines keep the whitespace they already had.
         after_newline = False
-        for seg in clause_children[comment_idxs[0] : comment_idxs[-1] + 1]:
+        for seg in clause_children[comment_idxs[0] : end_idx]:
             if seg.is_type("newline"):
                 buff.append(seg)
                 after_newline = True
@@ -122,8 +149,7 @@ class Rule_ST01(BaseRule):
                     buff.append(WhitespaceSegment(indent))
                 buff.append(seg)
                 after_newline = False
-            elif seg.is_type("whitespace") and not after_newline:
-                # Spacing between two comments on one line.
+            elif seg.is_type("whitespace") and (not after_newline or not indent):
                 buff.append(seg)
         return buff
 
