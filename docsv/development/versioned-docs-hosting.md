@@ -406,8 +406,8 @@ sufficient.
 - If neither a rebuild nor a snapshot import is practical, the version remains
   unpublished until a manual artifact is supplied.
 - Backfill every final release from `2.0.0` onward. The beta already hosts
-  `4.2.2` and `4.3.0`; the remaining releases are handled in major-series
-  batches by `.github/workflows/backfill-docs.yaml`.
+  `4.2.2` and `4.3.0`; the remaining releases are assembled as a one-time
+  local artifact for upload to R2 and Netlify.
 
 ### Release Channel Policy
 
@@ -565,7 +565,7 @@ Deliverables:
 - Use `4.2.2` as the first VitePress-native release
 - Build versions older than that cutoff using the existing Sphinx toolchain
 - Inject shared picker assets into Sphinx output
-- Add a controlled backfill workflow for selected historical releases
+- Validate the assembled historical archive before its one-time upload
 - Treat the initial proof as successful once `latest`, `stable`, and one older
   Sphinx-hosted version are live under the beta domain
 
@@ -643,13 +643,8 @@ Expected repository or project-level configuration values:
 
 All final release tags from `2.0.0` onward are in scope. Prereleases are not
 part of this historical backfill; new prereleases continue to publish through
-the release workflow. Run the backfill workflow for major series 2, 3, and 4.
-It mirrors existing Read the Docs Sphinx builds and builds tags with no published
-Read the Docs copy from their tagged source. Each run validates and deploys one
-major series, so a failed series can be retried without rebuilding prior ones.
-The mirror retries HTTP 429 responses and builds from the tag if the archive
-remains rate limited. The `--source-only` option allows a local backfill without
-depending on the public archive.
+the release workflow. The one-time local build mirrored existing Read the Docs
+Sphinx pages where available and built the remaining releases from their tags.
 
 On 2026-09-29, a local dry run against the latest assembled deployment artifact
 completed all three major-series batches. The resulting manifest includes all
@@ -660,14 +655,14 @@ uploaded to the beta site.
 ## Immediate Next Steps
 
 The release workflow has published `4.2.2` and `4.3.0`, including `stable`.
-Shared picker assets are also published. The next checks are:
+Shared picker assets are also published. The next steps are:
 
-1. Run the backfill workflow for major series 2, 3, and 4, then verify that all
-   54 final releases appear in `/en/versions.json` and have live index pages.
-2. Check old Sphinx permalinks, search, picker navigation, and the `noindex`
-   header on representative versions from each series.
-3. Exercise a manual rebuild of an already published tag. Add immutable
-   snapshot archives and a rollback path before relying on the new host.
+1. Download the current R2 site and reconcile any changes since the local
+   artifact was assembled; retain a rollback copy.
+2. Dry-run the R2 sync, upload the validated artifact, and deploy the same tree
+   to Netlify.
+3. Verify all 54 releases, representative Sphinx permalinks, search, picker
+   navigation, and the beta `noindex` header on the deployed site.
 4. Complete the URL parity review against `docs.sqlfluff.com` before cutover.
 
 ## Success Criteria
