@@ -647,6 +647,15 @@ the release workflow. Run the backfill workflow for major series 2, 3, and 4.
 It mirrors existing Read the Docs Sphinx builds and builds tags with no published
 Read the Docs copy from their tagged source. Each run validates and deploys one
 major series, so a failed series can be retried without rebuilding prior ones.
+The mirror retries HTTP 429 responses and builds from the tag if the archive
+remains rate limited. The `--source-only` option allows a local backfill without
+depending on the public archive.
+
+On 2026-09-29, a local dry run against the latest assembled deployment artifact
+completed all three major-series batches. The resulting manifest includes all
+54 final releases (21 from 2.x, 22 from 3.x, and 11 from 4.x), and each has an
+index page. The major-series smoke checks passed. This local copy has not been
+uploaded to the beta site.
 
 ## Immediate Next Steps
 

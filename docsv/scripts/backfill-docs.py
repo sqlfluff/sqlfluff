@@ -20,6 +20,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -151,19 +152,28 @@ class RTDMirror:
         request = urllib.request.Request(
             url, headers={"User-Agent": "SQLFluff-docs-backfill/1.0"}
         )
-        try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                if not response.url.startswith(self.base):
-                    raise ValueError(
-                        f"Historical URL escaped its version: {url} -> {response.url}"
-                    )
-                body = response.read()
-                content_type = response.headers.get_content_type()
-        except urllib.error.HTTPError as exc:
-            if exc.code == 404 and relative != "index.html":
-                self.missing.append(relative)
-                return
-            raise
+        for attempt in range(5):
+            try:
+                with urllib.request.urlopen(request, timeout=30) as response:
+                    if not response.url.startswith(self.base):
+                        raise ValueError(
+                            f"Historical URL escaped its version: {url} -> {response.url}"
+                        )
+                    body = response.read()
+                    content_type = response.headers.get_content_type()
+                break
+            except urllib.error.HTTPError as exc:
+                if exc.code == 404 and relative != "index.html":
+                    self.missing.append(relative)
+                    return
+                if exc.code != 429 or attempt == 4:
+                    raise
+                retry_after = exc.headers.get("Retry-After") if exc.headers else None
+                delay = min(120, 5 * 2**attempt)
+                if retry_after and retry_after.isdecimal():
+                    delay = min(120, max(delay, int(retry_after)))
+                print(f"Rate limited at {url}; retrying in {delay}s", flush=True)
+                time.sleep(delay)
 
         target = self.destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -225,7 +235,10 @@ def build_sphinx(tag: str, source: Path, dist: Path) -> None:
         "-r",
         str(source / "docs" / "requirements.txt"),
     )
-    run(sys.executable, "generate-auto-docs.py", cwd=source / "docs")
+    for generator in ("generate-auto-docs.py", "generate-rule-docs.py"):
+        if (source / "docs" / generator).is_file():
+            run(sys.executable, generator, cwd=source / "docs")
+            break
     run(
         sys.executable,
         "-m",
@@ -260,18 +273,27 @@ def fix_release_identity(dist: Path, tag: str) -> None:
             page.write_text(updated, encoding="utf-8")
 
 
-def backfill(tag: str, site_dir: Path) -> None:
+def backfill(tag: str, site_dir: Path, *, source_only: bool = False) -> None:
     """Build or mirror, inject the picker, and assemble one Sphinx release."""
     with tempfile.TemporaryDirectory(prefix=f"sqlfluff-docs-{tag}-") as temp:
         work = Path(temp)
         dist = work / "html"
         mirror = RTDMirror(tag, dist)
-        try:
-            count = mirror.mirror(redirect_pages(tag))
-            print(f"Mirrored {count} Sphinx HTML pages for {tag}", flush=True)
-        except urllib.error.HTTPError as exc:
-            if exc.code != 404:
-                raise
+        build_from_source = source_only
+        if not build_from_source:
+            try:
+                count = mirror.mirror(redirect_pages(tag))
+                print(f"Mirrored {count} Sphinx HTML pages for {tag}", flush=True)
+            except urllib.error.HTTPError as exc:
+                if exc.code not in (404, 429):
+                    raise
+                if exc.code == 429:
+                    print(
+                        f"Archive rate limited {tag}; building tagged source",
+                        flush=True,
+                    )
+                build_from_source = True
+        if build_from_source:
             shutil.rmtree(dist, ignore_errors=True)
             build_sphinx(tag, work / "source", dist)
             print(f"Built Sphinx docs from tag {tag}", flush=True)
@@ -314,6 +336,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--site-dir", type=Path, required=True)
     parser.add_argument("--major", type=int, choices=(2, 3, 4), required=True)
+    parser.add_argument(
+        "--source-only",
+        action="store_true",
+        help="Build tagged sources without mirroring",
+    )
     args = parser.parse_args()
 
     site_dir = args.site_dir.resolve()
@@ -343,7 +370,7 @@ def main() -> int:
             print(f"Already published: {tag}", flush=True)
             continue
         print(f"Backfilling {tag}", flush=True)
-        backfill(tag, site_dir)
+        backfill(tag, site_dir, source_only=args.source_only)
         published.add(tag)
 
     curate_picker(site_dir, args.major, versions[-1])

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import urllib.error
 from pathlib import Path
 
 import pytest
@@ -37,6 +38,26 @@ def test_mirror_stays_within_the_requested_version(backfill, tmp_path):
     mirror.add(mirror.base, "../../stable/index.html")
     mirror.add(mirror.base, "https://example.com/asset.js")
     assert set(mirror.todo) == {"gettingstarted.html", "_static/alabaster.css"}
+
+
+def test_mirror_retries_rate_limit(backfill, monkeypatch, tmp_path):
+    """A temporary archive rate limit does not abort an entire major series."""
+    mirror = backfill.RTDMirror("2.0.0", tmp_path)
+    attempts = []
+    delays = []
+
+    def urlopen(request, timeout):
+        attempts.append(request.full_url)
+        code = 429 if len(attempts) == 1 else 404
+        raise urllib.error.HTTPError(request.full_url, code, "", {}, None)
+
+    monkeypatch.setattr(backfill.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(backfill.time, "sleep", delays.append)
+    mirror.fetch("missing.html")
+
+    assert len(attempts) == 2
+    assert delays == [5]
+    assert mirror.missing == ["missing.html"]
 
 
 def test_historical_redirect_pages_are_discovered(backfill, monkeypatch):
