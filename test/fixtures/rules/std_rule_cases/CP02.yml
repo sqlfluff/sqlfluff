@@ -452,3 +452,61 @@ test_pass_jinja_fully_templated_identifier:
     rules:
       capitalisation.identifiers:
         extended_capitalisation_policy: lower
+
+test_fail_jinja_split_templated_identifier:
+  # A literal portion split by a templated block should be recased in
+  # full, without touching the templated blocks (see #5616).
+  fail_str: |
+    SELECT 1
+    FROM {{ env_type }}_MY_DB.{{ env_type }}_MY_SCHEMA.my_table
+  fix_str: |
+    SELECT 1
+    FROM {{ env_type }}_my_db.{{ env_type }}_my_schema.my_table
+  configs:
+    core:
+      templater: jinja
+      dialect: snowflake
+    templater:
+      jinja:
+        context:
+          env_type: DEV
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_jinja_empty_template_mixed_identifier:
+  # The templated portion can render to empty text (or otherwise match
+  # the literal source): the identifier is still mixed and must be
+  # checked (see #5616).
+  fail_str: |
+    SELECT 1
+    FROM {{ "" }}_MY_DB.schema.my_table
+  fix_str: |
+    SELECT 1
+    FROM {{ "" }}_my_db.schema.my_table
+  configs:
+    core:
+      templater: jinja
+      dialect: snowflake
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_pass_jinja_mixed_templated_identifier_ignored_words:
+  # Configured ignore words apply to the literal portion of a mixed
+  # identifier (see #5616).
+  pass_str: |
+    SELECT 1
+    FROM {{ env_type }}_MY_DB.schema.my_table
+  configs:
+    core:
+      templater: jinja
+      dialect: snowflake
+    templater:
+      jinja:
+        context:
+          env_type: DEV
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+        ignore_words: _MY_DB

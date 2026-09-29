@@ -190,6 +190,15 @@ class Rule_CP01(BaseRule):
         """
         return segment.raw
 
+    def _is_mixed_templated_segment(self, segment: BaseSegment) -> bool:
+        """Whether the segment's source mixes templated and literal text.
+
+        Subclasses which check such segments against only their literal
+        portion should override this so that they are not skipped outright
+        when templated areas are ignored.
+        """
+        return False
+
     def _handle_segment(self, segment: BaseSegment, context: RuleContext) -> LintResult:
         # NOTE: this mutates the memory field.
         memory = context.memory
@@ -213,27 +222,30 @@ class Rule_CP01(BaseRule):
                 ignore_templated_areas,
             ) = self._init_capitalisation_policy(context)
 
-        # Skip if in ignore list
-        if ignore_words_list and segment.raw.lower() in ignore_words_list:
-            return LintResult(memory=memory)
-
-        # Skip if matches ignore regex
-        if self.ignore_words_regex and regex.search(
-            self.ignore_words_regex, segment.raw
-        ):
-            return LintResult(memory=memory)
-
         # The text used for the capitalisation checks. This is normally the
         # segment's raw (rendered) string, but subclasses may override it
         # (e.g. to check only the non-templated part of an identifier).
         check_raw = self._raw_for_capitalisation(segment)
+
+        # Skip if in ignore list. Use the same text which is checked below,
+        # so exclusions also apply to mixed templated/literal segments.
+        if ignore_words_list and check_raw.lower() in ignore_words_list:
+            return LintResult(memory=memory)
+
+        # Skip if matches ignore regex
+        if self.ignore_words_regex and regex.search(self.ignore_words_regex, check_raw):
+            return LintResult(memory=memory)
 
         # Skip if templated.  If the user wants to ignore templated areas, we
         # don't even want to look at them to avoid affecting flagging
         # non-template areas that are inconsistent with the template areas.
         # Segments which mix templated and literal source text (and are
         # therefore checked against their literal portion) are still checked.
-        if segment.is_templated and ignore_templated_areas and check_raw == segment.raw:
+        if (
+            segment.is_templated
+            and ignore_templated_areas
+            and not self._is_mixed_templated_segment(segment)
+        ):
             return LintResult(memory=memory)
 
         # Skip if empty.
@@ -269,9 +281,7 @@ class Rule_CP01(BaseRule):
         # Update the memory
         memory["refuted_cases"] = refuted_cases
 
-        self.logger.debug(
-            f"Refuted cases after segment '{check_raw}': {refuted_cases}"
-        )
+        self.logger.debug(f"Refuted cases after segment '{check_raw}': {refuted_cases}")
 
         # Skip if no inconsistencies, otherwise compute a concrete policy
         # to convert to.
