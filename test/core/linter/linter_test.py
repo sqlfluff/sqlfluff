@@ -1085,11 +1085,14 @@ def test__linter__mask_templated_violations(
             "{% endfor %}\n",
             [("LT05", 2, 1)],
         ),
-        # The two variants measure the line with a different length.
+        # The `if` block starts the line, after a `{% set %}` block.
         (
-            "{% set x = 1 %}{% if false %}select " + "a" * 65 + "{% endif %}select 1\n",
+            "{% set x = 1 %}{% if false %}select "
+            + "a" * 65
+            + " union all {% endif %}select 1\n",
             [("LT05", 1, 1)],
         ),
+        # The two variants measure the line with a different length.
         (
             "select a, b, c from tbl  -- trailing comment here"
             "{% if false %} " + "x" * 23 + "{% endif %}\n",
