@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39952379cbb396da12521214e71093dfaa5817bb574a5470c18612a7fba7898a
+_hash: 662ced44794cc6187ea11d8f32469cc72e3e25c1773d6db1048d83fadb6748ff
 file:
 - batch:
     statement:
@@ -57,3 +57,66 @@ file:
           naked_identifier: example
     slash_buffer_executor:
       slash: /
+- batch:
+    statement:
+      create_view_statement:
+      - keyword: create
+      - keyword: or
+      - keyword: replace
+      - keyword: view
+      - table_reference:
+          naked_identifier: v_division
+      - keyword: as
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '100'
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: z
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: dual
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      create_view_statement:
+      - keyword: create
+      - keyword: or
+      - keyword: replace
+      - keyword: view
+      - table_reference:
+          naked_identifier: v_semicolon
+      - keyword: as
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              expression:
+              - bare_function: sysdate
+              - binary_operator: '-'
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '24'
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: hh
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: dual
+    statement_terminator: ;

@@ -42,6 +42,7 @@ from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1260,6 +1261,31 @@ class IndexTypeReferenceSegment(BaseSegment):
 
 
 # Adding Oracle specific statements.
+class StartOfLineSlashParser(StringParser):
+    """Matches a `/` only when it is the first token on its line.
+
+    In SQL*Plus a `/` at the start of a line executes the statement buffer,
+    so it can never be a division operator. Using this as a statement
+    terminator lets divisions such as `1 / 24` parse normally inside a
+    statement while still ending the statement at a batch delimiter.
+    """
+
+    def match(self, segments, idx, parse_context):
+        """Match a `/` preceded (ignoring whitespace) by a newline."""
+        if not (
+            idx < len(segments)
+            and segments[idx].raw_upper == "/"
+            and segments[idx].is_code
+        ):
+            return MatchResult.empty_at(idx)
+        check_idx = idx - 1
+        while check_idx >= 0 and segments[check_idx].is_type("whitespace"):
+            check_idx -= 1
+        if check_idx < 0 or segments[check_idx].is_type("newline"):
+            return self._match_at(idx)
+        return MatchResult.empty_at(idx)
+
+
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments.
 
@@ -1313,6 +1339,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropProfileStatementSegment"),
             Ref("DropClusterStatementSegment"),
         ],
+        # A `/` at the start of a line is a SQL*Plus batch delimiter, never a
+        # division operator, so a statement must not extend past it.
+        terminators=[StartOfLineSlashParser("/", SymbolSegment)],
     )
 
 
@@ -1725,9 +1754,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
-        ),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
