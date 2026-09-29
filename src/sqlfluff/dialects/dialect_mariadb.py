@@ -12,12 +12,14 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    KeywordSegment,
     Matchable,
     OneOf,
     OptionallyDelimited,
     ParseMode,
     Ref,
     Sequence,
+    StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
@@ -45,6 +47,11 @@ mariadb_dialect.sets("reserved_keywords").clear()
 mariadb_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", mariadb_reserved_keywords
 )
+
+# MariaDB has no gb18030 character set, so `_gb18030'x'` is the column
+# `_gb18030` with an alias.
+# https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/supported-character-sets-and-collations
+mariadb_dialect.sets("character_set_names").discard("GB18030")
 mariadb_dialect.replace(
     AddDropSystemVersioningGrammar=Sequence(
         OneOf("ADD", "DROP"),
@@ -83,6 +90,15 @@ mariadb_dialect.replace(
     # (`DEFAULT NEXT VALUE FOR seq`) or bracketed (`DEFAULT (NEXT VALUE FOR
     # seq)`) -- both are accepted by MariaDB. The base column-default grammar
     # only allows literals/functions, so it does not cover this.
+    # MariaDB lets GROUP_CONCAT and JSON_ARRAYAGG end with a LIMIT clause:
+    # `GROUP_CONCAT(v ORDER BY v SEPARATOR ',' LIMIT 2)`. MySQL does not.
+    # https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/group_concat
+    AggregateLimitClauseGrammar=Ref("LimitClauseSegment"),
+    FunctionNameExclusionGrammar=mysql_dialect.get_grammar(
+        "FunctionNameExclusionGrammar"
+    ).copy(
+        insert=[Ref("JsonArrayaggFunctionNameSegment")],
+    ),
     ColumnConstraintDefaultGrammar=OneOf(
         Ref("SequenceValueForSegment"),
         Bracketed(Ref("SequenceValueForSegment")),
@@ -1451,4 +1467,50 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
         "SEQUENCE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
+    )
+
+
+class FunctionSegment(mysql.FunctionSegment):
+    """A scalar or aggregate function, with MariaDB's JSON_ARRAYAGG."""
+
+    match_grammar = mysql.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonArrayaggFunctionNameSegment"),
+                Ref("JsonArrayaggFunctionContentsSegment"),
+                # The parser accepts OVER here, although MariaDB cannot execute
+                # JSON_ARRAYAGG as a window function yet.
+                Ref("OverClauseSegment", optional=True),
+            ),
+        ],
+        at=0,
+    )
+
+
+class JsonArrayaggFunctionNameSegment(BaseSegment):
+    """JSON_ARRAYAGG function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_ARRAYAGG", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class JsonArrayaggFunctionContentsSegment(BaseSegment):
+    """JSON_ARRAYAGG function contents.
+
+    JSON_ARRAYAGG([DISTINCT] expr [ORDER BY ...] [LIMIT ...])
+
+    https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_arrayagg
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref.keyword("DISTINCT", optional=True),
+        Ref("ExpressionSegment"),
+        Ref("AggregateOrderByClause", optional=True),
+        Ref("AggregateLimitClauseGrammar", optional=True),
     )

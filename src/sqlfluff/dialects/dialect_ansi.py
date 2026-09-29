@@ -461,6 +461,32 @@ ansi_dialect.add(
         Ref("TypedArrayLiteralSegment"),
         Ref("ObjectLiteralSegment"),
     ),
+    # Function names that FunctionSegment's generic path must not match,
+    # because they have their own grammar there.
+    FunctionNameExclusionGrammar=OneOf(
+        Ref("DatePartFunctionNameSegment"),
+        Ref("ColumnsExpressionFunctionNameSegment"),
+        Ref("ValuesClauseSegment"),
+    ),
+    # A literal preceded by the name of its data type, e.g. `INT '5'`. The SQL
+    # standard only has this for a few types (`DATE '...'` and the like);
+    # allowing any type is a PostgreSQL generalization. Dialects without it
+    # replace this with Nothing().
+    # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC
+    TypedLiteralGrammar=Sequence(
+        Ref("DatatypeSegment"),
+        # Don't use the full LiteralGrammar here
+        # because only some of them are applicable.
+        # Notably we shouldn't use QualifiedNumericLiteralSegment
+        # here because it looks like an arithmetic operation.
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("BooleanLiteralGrammar"),
+            Ref("NullLiteralSegment"),
+            Ref("DateTimeLiteralGrammar"),
+        ),
+    ),
     AndOperatorGrammar=StringParser("AND", BinaryOperatorSegment),
     OrOperatorGrammar=StringParser("OR", BinaryOperatorSegment),
     NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
@@ -1580,11 +1606,7 @@ class FunctionSegment(BaseSegment):
             Sequence(
                 Ref(
                     "FunctionNameSegment",
-                    exclude=OneOf(
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("ColumnsExpressionFunctionNameSegment"),
-                        Ref("ValuesClauseSegment"),
-                    ),
+                    exclude=Ref("FunctionNameExclusionGrammar"),
                 ),
                 Ref("FunctionContentsSegment"),
             ),
@@ -2341,20 +2363,7 @@ ansi_dialect.add(
                 OneOf(Ref("StructTypeSegment"), Ref("MapTypeSegment")),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
-            Sequence(
-                Ref("DatatypeSegment"),
-                # Don't use the full LiteralGrammar here
-                # because only some of them are applicable.
-                # Notably we shouldn't use QualifiedNumericLiteralSegment
-                # here because it looks like an arithmetic operation.
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("BooleanLiteralGrammar"),
-                    Ref("NullLiteralSegment"),
-                    Ref("DateTimeLiteralGrammar"),
-                ),
-            ),
+            Ref("TypedLiteralGrammar"),
             Ref("LocalAliasSegment"),
             Ref("ListComprehensionGrammar"),
             terminators=[Ref("CommaSegment")],
