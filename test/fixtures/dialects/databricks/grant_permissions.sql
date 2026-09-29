@@ -7,3 +7,6 @@ GRANT EXECUTE ON FUNCTION prod.ml_team.iris_model TO `ml-team-acme`;
 GRANT READ ON METASTORE TO 'principal';
 GRANT SELECT ON VIEW schema.view TO `the_view_accessors`;
 GRANT ALL PRIVILEGES ON CATALOG main TO `data-engineers`;
+GRANT READ VOLUME ON VOLUME main.default.my_volume TO `data-engineers`;
+GRANT READ VOLUME, WRITE VOLUME ON VOLUME main.default.my_volume TO `data-engineers`;
+GRANT CREATE VOLUME ON SCHEMA main.default TO `finance-team`;
