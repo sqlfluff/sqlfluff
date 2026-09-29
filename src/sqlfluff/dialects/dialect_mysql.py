@@ -1721,6 +1721,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RepeatStatementSegment"),
             Ref("LoopStatementSegment"),
             Ref("CallStoredProcedureSegment"),
+            Ref("DoStatementSegment"),
             Ref("PrepareSegment"),
             Ref("ExecuteSegment"),
             Ref("DeallocateSegment"),
@@ -2713,6 +2714,20 @@ class CallStoredProcedureSegment(BaseSegment):
             Ref("FunctionSegment"),
             Ref("FunctionNameSegment"),
         ),
+    )
+
+
+class DoStatementSegment(BaseSegment):
+    """A DO statement, which evaluates expressions and discards the results.
+
+    https://dev.mysql.com/doc/refman/8.0/en/do.html
+    """
+
+    type = "do_statement"
+
+    match_grammar = Sequence(
+        "DO",
+        Delimited(Ref("ExpressionSegment")),
     )
 
 
