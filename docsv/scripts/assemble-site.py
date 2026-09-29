@@ -571,7 +571,7 @@ def build_global_headers(language: str) -> str:
     there is no fingerprint to change, and a long cache would mean a picker fix
     reaching frozen versions only once browsers expired it.
     """
-    return dedent(
+    headers = dedent(
         f"""
         /{language}/latest/
             Cache-Control: public, max-age=0, must-revalidate
@@ -601,6 +601,9 @@ def build_global_headers(language: str) -> str:
             Cache-Control: public, max-age=300, must-revalidate
         """
     )
+    if os.environ.get("SQLFLUFF_DOCS_NOINDEX") == "1":
+        headers += f"/{language}/*\n    X-Robots-Tag: noindex, nofollow\n"
+    return headers
 
 
 VERSIONS_PAGE_STYLE = """

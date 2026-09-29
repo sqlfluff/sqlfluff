@@ -1,0 +1,89 @@
+name: Backfill historical docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: Final release series to backfill (run 2, then 3, then 4)
+        required: true
+        type: choice
+        options:
+          - "2"
+          - "3"
+          - "4"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docs-beta-latest"
+  cancel-in-progress: false
+
+env:
+  DOCS_SITE_DIR: site
+  DOCS_R2_PREFIX: site
+  SQLFLUFF_DOCS_NOINDEX: "1"
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout all release tags
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python for historical Sphinx builds
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node for Netlify deployment
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Download the current assembled site
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: >-
+          aws s3 sync s3://${{ secrets.R2_BUCKET }}/${{ env.DOCS_R2_PREFIX }} ${{ env.DOCS_SITE_DIR }}
+          --only-show-errors
+          --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Backfill one major series and validate the assembled site
+        env:
+          MAJOR: ${{ inputs.major }}
+        run: python docsv/scripts/backfill-docs.py --site-dir "$DOCS_SITE_DIR" --major "$MAJOR"
+
+      - name: Upload assembled site artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: assembled-docs-site-${{ inputs.major }}
+          path: ${{ env.DOCS_SITE_DIR }}
+
+      - name: Sync assembled site to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: >-
+          aws s3 sync ${{ env.DOCS_SITE_DIR }} s3://${{ secrets.R2_BUCKET }}/${{ env.DOCS_R2_PREFIX }}
+          --delete
+          --only-show-errors
+          --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Deploy assembled site to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: >-
+          npx --yes netlify-cli deploy
+          --dir=${{ env.DOCS_SITE_DIR }}
+          --prod
+          --message "docs backfill major ${{ inputs.major }} from ${GITHUB_SHA}"

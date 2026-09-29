@@ -409,6 +409,17 @@ def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
     assert "immutable" not in shared
 
 
+def test_beta_headers_keep_archived_sphinx_pages_out_of_search(
+    assemble_site, monkeypatch
+):
+    """Mirrored pages have no VitePress robots meta tag of their own."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+
+    headers = assemble_site.build_global_headers("en")
+
+    assert "/en/*\n    X-Robots-Tag: noindex, nofollow" in headers
+
+
 def test_the_404_page_is_published_at_the_site_root(assemble_site, tmp_path):
     """Netlify only serves a 404 page from the publish root.
 
