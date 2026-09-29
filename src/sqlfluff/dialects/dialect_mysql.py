@@ -1600,7 +1600,8 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
             ),
             allow_gaps=True,
         ),
-        "CURRENT_USER",
+        # CURRENT_USER and CURRENT_USER() both name the current account.
+        Sequence("CURRENT_USER", Bracketed(optional=True)),
     )
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 19d918b1bfc99224954406a6742c253d629e122f380c831a652d030ada8790d2
+_hash: bcfd8ea7262102e59356c4f1b39b250cb6c0b46576ec92693805823c42087d6d
 file:
 - statement:
     kill_statement:
@@ -62,4 +62,43 @@ file:
     - keyword: USER
     - role_reference:
         naked_identifier: u1
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+        keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+        keyword: CURRENT_USER
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: CONNECTION
+    - keyword: USER
+    - role_reference:
+        keyword: CURRENT_USER
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;

@@ -1458,6 +1458,8 @@ class KillStatementSegment(mysql.KillStatementSegment):
     """A `KILL` statement, with MariaDB's additional forms.
 
     Adds ``HARD``/``SOFT``, ``QUERY ID`` and ``USER``. MariaDB only.
+    ``CONNECTION`` or ``QUERY`` may also precede ``USER``: the server accepts
+    ``KILL QUERY USER 'u'@'h'``, although the documented syntax omits it.
     https://mariadb.com/kb/en/kill/
     """
 
@@ -1466,10 +1468,12 @@ class KillStatementSegment(mysql.KillStatementSegment):
         OneOf("HARD", "SOFT", optional=True),
         OneOf(
             Sequence("QUERY", "ID", Ref("KillIdGrammar")),
-            Sequence("USER", Ref("RoleReferenceSegment")),
             Sequence(
                 OneOf("CONNECTION", "QUERY", optional=True),
-                Ref("KillIdGrammar"),
+                OneOf(
+                    Sequence("USER", Ref("RoleReferenceSegment")),
+                    Ref("KillIdGrammar"),
+                ),
             ),
         ),
     )
