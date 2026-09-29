@@ -182,6 +182,14 @@ class Rule_CP01(BaseRule):
 
         return [self._handle_segment(context.segment, context)]
 
+    def _raw_for_capitalisation(self, segment: BaseSegment) -> str:
+        """Return the text to use for capitalisation checks.
+
+        Overridden by subclasses which need to check only part of the
+        segment's text (e.g. the non-templated portion of an identifier).
+        """
+        return segment.raw
+
     def _handle_segment(self, segment: BaseSegment, context: RuleContext) -> LintResult:
         # NOTE: this mutates the memory field.
         memory = context.memory
@@ -215,21 +223,28 @@ class Rule_CP01(BaseRule):
         ):
             return LintResult(memory=memory)
 
-        # Skip if templated.  If the user wants to ignore templated areas, we don't
-        # even want to look at them to avoid affecting flagging non-template areas
-        # that are inconsistent with the template areas.
-        if segment.is_templated and ignore_templated_areas:
+        # The text used for the capitalisation checks. This is normally the
+        # segment's raw (rendered) string, but subclasses may override it
+        # (e.g. to check only the non-templated part of an identifier).
+        check_raw = self._raw_for_capitalisation(segment)
+
+        # Skip if templated.  If the user wants to ignore templated areas, we
+        # don't even want to look at them to avoid affecting flagging
+        # non-template areas that are inconsistent with the template areas.
+        # Segments which mix templated and literal source text (and are
+        # therefore checked against their literal portion) are still checked.
+        if segment.is_templated and ignore_templated_areas and check_raw == segment.raw:
             return LintResult(memory=memory)
 
         # Skip if empty.
-        if not segment.raw:
+        if not check_raw:
             return LintResult(memory=memory)
 
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?
         first_letter_is_lowercase = False
-        for character in segment.raw:
+        for character in check_raw:
             if is_capitalizable(character):
                 first_letter_is_lowercase = character != character.upper()
                 break
@@ -242,20 +257,20 @@ class Rule_CP01(BaseRule):
         refuted_cases.update(["camel", "pascal", "snake"])
         if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise"])
-            if segment.raw != segment.raw.lower():
+            if check_raw != check_raw.lower():
                 refuted_cases.update(["lower"])
         else:
             refuted_cases.update(["lower"])
-            if segment.raw != segment.raw.upper():
+            if check_raw != check_raw.upper():
                 refuted_cases.update(["upper"])
-            if segment.raw != segment.raw.capitalize():
+            if check_raw != check_raw.capitalize():
                 refuted_cases.update(["capitalise"])
 
         # Update the memory
         memory["refuted_cases"] = refuted_cases
 
         self.logger.debug(
-            f"Refuted cases after segment '{segment.raw}': {refuted_cases}"
+            f"Refuted cases after segment '{check_raw}': {refuted_cases}"
         )
 
         # Skip if no inconsistencies, otherwise compute a concrete policy
@@ -263,7 +278,7 @@ class Rule_CP01(BaseRule):
         if cap_policy == "consistent":
             possible_cases = [c for c in cap_policy_opts if c not in refuted_cases]
             self.logger.debug(
-                f"Possible cases after segment '{segment.raw}': {possible_cases}"
+                f"Possible cases after segment '{check_raw}': {possible_cases}"
             )
             if possible_cases:
                 # Save the latest possible case and skip
@@ -292,7 +307,7 @@ class Rule_CP01(BaseRule):
                 )
 
         # Set the fixed to same as initial in case any of below don't match
-        fixed_raw = segment.raw
+        fixed_raw = check_raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
             if concrete_policy == "upper":
@@ -310,7 +325,7 @@ class Rule_CP01(BaseRule):
             fixed_raw = regex.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
-                segment.raw,
+                check_raw,
             )
         elif concrete_policy == "camel":
             # Similar to Pascal, for Camel, we can only do a best efforts approach.
@@ -318,22 +333,22 @@ class Rule_CP01(BaseRule):
             fixed_raw = regex.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(1) + match.group(2).lower() + match.group(3),
-                segment.raw,
+                check_raw,
             )
         elif concrete_policy == "snake":
-            if segment.raw.isupper():
-                fixed_raw = segment.raw.lower()
+            if check_raw.isupper():
+                fixed_raw = check_raw.lower()
             else:
                 fixed_raw = regex.sub(
                     r"(?<=[a-z0-9])([A-Z])|(?<=[A-Za-z])([0-9])|(?<=[0-9])([A-Za-z])",
                     lambda match: "_" + match.group(),
-                    segment.raw,
+                    check_raw,
                 ).lower()
 
-        if fixed_raw == segment.raw:
+        if fixed_raw == check_raw:
             # No need to fix
             self.logger.debug(
-                f"Capitalisation of segment '{segment.raw}' already OK with "
+                f"Capitalisation of segment '{check_raw}' already OK with "
                 f"policy '{concrete_policy}', returning with memory {memory}"
             )
             return LintResult(memory=memory)
@@ -348,7 +363,7 @@ class Rule_CP01(BaseRule):
 
             # Return the fixed segment
             self.logger.debug(
-                f"INCONSISTENT Capitalisation of segment '{segment.raw}', "
+                f"INCONSISTENT Capitalisation of segment '{check_raw}', "
                 f"fixing to '{fixed_raw}' and returning with memory {memory}"
             )
             return LintResult(

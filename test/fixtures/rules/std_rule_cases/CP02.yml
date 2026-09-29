@@ -413,3 +413,42 @@ test_pass_placeholder_templater_percent_parameters:
     templater:
       placeholder:
         param_style: percent
+
+test_fail_jinja_mixed_templated_identifier:
+  # Identifiers mixing templated and literal source should be checked
+  # against their literal portion only (see #5616).
+  fail_str: |
+    SELECT 1
+    FROM {{ env_type }}_MY_DB.schema.my_table
+  fix_str: |
+    SELECT 1
+    FROM {{ env_type }}_my_db.schema.my_table
+  configs:
+    core:
+      templater: jinja
+      dialect: snowflake
+    templater:
+      jinja:
+        context:
+          env_type: DEV
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_pass_jinja_fully_templated_identifier:
+  # A fully templated identifier is generated code: leave it alone.
+  pass_str: |
+    SELECT 1
+    FROM {{ db_name }}.{{ schema_name }}.my_table
+  configs:
+    core:
+      templater: jinja
+      dialect: snowflake
+    templater:
+      jinja:
+        context:
+          db_name: MY_DB
+          schema_name: MY_SCHEMA
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
