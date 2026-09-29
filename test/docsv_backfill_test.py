@@ -39,18 +39,30 @@ def test_mirror_stays_within_the_requested_version(backfill, tmp_path):
     assert set(mirror.todo) == {"gettingstarted.html", "_static/alabaster.css"}
 
 
-def test_historical_redirect_pages_are_discovered(backfill):
+def test_historical_redirect_pages_are_discovered(backfill, monkeypatch):
     """The old redirect pages are not linked in the navigation crawl."""
+    monkeypatch.setattr(
+        backfill,
+        "output",
+        lambda *args: (
+            'redirects = {"indentation": "layout.html", '
+            '"architecture": "internals.html"}\n'
+        ),
+    )
     assert {"indentation.html", "architecture.html"}.issubset(
         set(backfill.redirect_pages("2.0.0"))
     )
 
 
-def test_major_four_inventory_includes_the_missing_releases(backfill):
-    """The actual repository tags include the releases absent from beta."""
+def test_major_four_inventory_includes_only_final_releases(backfill, monkeypatch):
+    """The backfill ignores prereleases and tags outside the chosen series."""
+    monkeypatch.setattr(
+        backfill,
+        "output",
+        lambda *args: "4.0.2\n4.0.4a1\n4.1.0\n4.2.1\n3.5.0\n",
+    )
     tags = backfill.final_releases(4)
-    assert {"4.0.2", "4.1.0", "4.2.0", "4.2.1"}.issubset(tags)
-    assert "4.0.4a1" not in tags
+    assert tags == ["4.0.2", "4.1.0", "4.2.1"]
 
 
 def test_historical_page_uses_its_actual_release_number(backfill, tmp_path):
