@@ -136,6 +136,45 @@ def test_col_name_keyword_not_valid_datatype(raw: str) -> None:
     assert any(True for _ in parsed.tree.recursive_crawl("unparsable"))
 
 
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Greenplum adds its own `col_name_keyword`s (cannot-be-function-or-type)
+        # on top of PostgreSQL's, e.g. CUBE, ROLLUP, SETS and MEDIAN. The
+        # exclusion is inherited from PostgreSQL and extended per-dialect via the
+        # `cannot_be_type_keywords` set, so these must also be rejected as bare
+        # data types in Greenplum. See issue #6430.
+        "CREATE TABLE t (a cube NOT NULL)",
+        "CREATE TABLE t (a rollup NOT NULL)",
+        "CREATE TABLE t (a sets NOT NULL)",
+        "CREATE TABLE t (a median NOT NULL)",
+        # Keywords inherited from PostgreSQL must still be rejected too.
+        "CREATE TABLE t (a between NOT NULL)",
+    ],
+)
+def test_greenplum_col_name_keyword_not_valid_datatype(raw: str) -> None:
+    """A `cannot-be-function-or-type` keyword (incl. inherited) is rejected in Greenplum."""
+    lnt = Linter(dialect="greenplum")
+    parsed = lnt.parse_string(raw)
+    assert any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Built-in / user-defined type names must still parse in Greenplum
+        # (regression guard for the inherited exclusion).
+        "CREATE TABLE t (a int, b varchar(10))",
+        "CREATE TABLE t (x my_custom_type)",
+    ],
+)
+def test_greenplum_valid_column_types_parse(raw: str) -> None:
+    """Valid Greenplum column data types parse without unparsable sections."""
+    lnt = Linter(dialect="greenplum")
+    parsed = lnt.parse_string(raw)
+    assert not any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
 def test_priority_keyword_merge() -> None:
     """Test merging on keyword lists works as expected."""
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
