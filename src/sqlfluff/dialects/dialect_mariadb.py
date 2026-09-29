@@ -52,6 +52,18 @@ mariadb_dialect.update_keywords_set_from_multiline_string(
 # `_gb18030` with an alias.
 # https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/supported-character-sets-and-collations
 mariadb_dialect.sets("character_set_names").discard("GB18030")
+
+mariadb_dialect.add(
+    # A value in the LIMIT of GROUP_CONCAT and JSON_ARRAYAGG.
+    AggregateLimitValueGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("ParameterSegment"),
+        # A routine variable. LocalVariableNameSegment accepts any word,
+        # reserved or not, so LIMIT's own ALL is excluded here explicitly.
+        Ref("LocalVariableNameSegment", exclude=Ref.keyword("ALL")),
+    ),
+)
+
 mariadb_dialect.replace(
     AddDropSystemVersioningGrammar=Sequence(
         OneOf("ADD", "DROP"),
@@ -93,7 +105,7 @@ mariadb_dialect.replace(
     # MariaDB lets GROUP_CONCAT and JSON_ARRAYAGG end with a LIMIT clause:
     # `GROUP_CONCAT(v ORDER BY v SEPARATOR ',' LIMIT 2)`. MySQL does not.
     # https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/group_concat
-    AggregateLimitClauseGrammar=Ref("LimitClauseSegment"),
+    AggregateLimitClauseGrammar=Ref("AggregateLimitClauseSegment"),
     FunctionNameExclusionGrammar=mysql_dialect.get_grammar(
         "FunctionNameExclusionGrammar"
     ).copy(
@@ -1484,6 +1496,27 @@ class FunctionSegment(mysql.FunctionSegment):
             ),
         ],
         at=0,
+    )
+
+
+class AggregateLimitClauseSegment(BaseSegment):
+    """The LIMIT clause of GROUP_CONCAT and JSON_ARRAYAGG.
+
+    LIMIT {[offset,] row_count | row_count OFFSET offset}
+
+    Narrower than a query's LIMIT: each value is a number, a `?` placeholder
+    or a routine variable, never an expression or ALL.
+    """
+
+    type = "limit_clause"
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Ref("AggregateLimitValueGrammar"),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("AggregateLimitValueGrammar")),
+            Sequence("OFFSET", Ref("AggregateLimitValueGrammar")),
+            optional=True,
+        ),
     )
 
 

@@ -67,6 +67,10 @@ def test_mysql_word_then_literal_is_not_a_typed_literal(raw: str) -> None:
         ("mariadb", "SELECT GROUP_CONCAT(v LIMIT 1 SEPARATOR '|') FROM t"),
         # JSON_ARRAYAGG has no SEPARATOR.
         ("mariadb", "SELECT JSON_ARRAYAGG(v SEPARATOR ',') FROM t"),
+        # The LIMIT values are numbers, placeholders or routine variables only.
+        ("mariadb", "SELECT GROUP_CONCAT(v LIMIT ALL) FROM t"),
+        ("mariadb", "SELECT GROUP_CONCAT(v LIMIT 1 + 1) FROM t"),
+        ("mariadb", "SELECT GROUP_CONCAT(v LIMIT @x) FROM t"),
     ],
 )
 def test_mysql_group_concat_rejects_invalid_forms(dialect: str, raw: str) -> None:

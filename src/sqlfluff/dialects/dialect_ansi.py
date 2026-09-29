@@ -471,7 +471,8 @@ ansi_dialect.add(
     # A literal preceded by the name of its data type, e.g. `INT '5'`. The SQL
     # standard only has this for a few types (`DATE '...'` and the like);
     # allowing any type is a PostgreSQL generalization. Dialects without it
-    # replace this with Nothing().
+    # replace this with Nothing(), and must also remove the second copy of the
+    # rule in BaseExpressionElementGrammar, as mysql does.
     # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC
     TypedLiteralGrammar=Sequence(
         Ref("DatatypeSegment"),
@@ -636,6 +637,7 @@ ansi_dialect.add(
         Ref("FunctionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+        # A second copy of TypedLiteralGrammar, with a wider literal set.
         Sequence(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),

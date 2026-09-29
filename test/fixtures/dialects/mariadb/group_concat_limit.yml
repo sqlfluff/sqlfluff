@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 295a1bc140a65967b55cc83f0772de5c8b742b0a529dfc350cb7621ff0f8d27a
+_hash: fd1da5990c9795d612a0c8664547b0e971f165ba9e7b88a7df574e40ef68dfc0
 file:
 - statement:
     select_statement:
@@ -134,6 +134,72 @@ file:
                 - numeric_literal: '2'
                 - keyword: OFFSET
                 - numeric_literal: '1'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: GROUP_CONCAT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: v
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: v
+                limit_clause:
+                  keyword: LIMIT
+                  parameter: '?'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: GROUP_CONCAT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: v
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: v
+                limit_clause:
+                - keyword: LIMIT
+                - variable: n
+                - keyword: OFFSET
+                - variable: m
                 end_bracket: )
       from_clause:
         keyword: FROM

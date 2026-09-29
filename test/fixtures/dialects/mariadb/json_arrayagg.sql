@@ -8,4 +8,5 @@ SELECT JSON_ARRAYAGG(v ORDER BY v LIMIT 1, 2) FROM t;
 
 SELECT JSON_ARRAYAGG(v LIMIT 2 OFFSET 1) FROM t;
 
+-- MariaDB's parser accepts OVER here; execution then reports it as unsupported.
 SELECT JSON_ARRAYAGG(v) OVER (PARTITION BY w) FROM t;
