@@ -254,6 +254,15 @@ class OutputStreamFormatter(FormatterInterface):
             minimum_verbosity=1,
         )
 
+    def dispatch_cache_summary(self, cached: int, linted: int) -> None:
+        """Report how many files were served from the lint cache."""
+        self.dispatch_message(
+            f"{self.colorize('cached (skipped): ', Color.light)} "
+            f"{cached} of {cached + linted}",
+            OutputKind.VERBOSE,
+            minimum_verbosity=1,
+        )
+
     def dispatch_dialect_warning(self, dialect: str) -> None:
         """Dispatch a warning for dialects."""
         self.dispatch_message(  # pragma: no cover
@@ -316,12 +325,22 @@ class OutputStreamFormatter(FormatterInterface):
             fname,
             violations,
         )
-        kind = (
+        self.dispatch_message(s, self._file_output_kind(only_fixable))
+
+    def dispatch_cached_file(self, fname: str, only_fixable: bool) -> None:
+        """Report a cached file exactly as a clean linted one is reported."""
+        self.dispatch_message(
+            self._format_file_violations(fname, []),
+            self._file_output_kind(only_fixable),
+        )
+
+    def _file_output_kind(self, only_fixable: bool) -> OutputKind:
+        """The kind of output a per-file result is reported as."""
+        return (
             OutputKind.STATUS
             if only_fixable and not self.show_lint_violations
             else OutputKind.DIAGNOSTIC
         )
-        self.dispatch_message(s, kind)
 
     def colorize(self, s: str, color: Optional[Color] = None) -> str:
         """Optionally use ANSI colour codes to colour a string."""

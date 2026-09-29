@@ -97,3 +97,12 @@ being passed to *SQLFluff* and so silence any warnings about the
 
 .. _`top level config`: https://pre-commit.com/#top_level-exclude
 .. _`hook specific config`: https://pre-commit.com/#config-exclude
+
+Speeding up repeated runs
+-------------------------
+
+`pre-commit`_ only passes the files in a commit, so most hooks are already
+small. If you also run *SQLFluff* over the whole project -- from
+:code:`pre-commit run --all-files`, from a :code:`Makefile`, or by hand while
+iterating -- see :ref:`caching` for how to skip files which already came back
+clean.

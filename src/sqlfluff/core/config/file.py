@@ -30,6 +30,14 @@ COMMA_SEPARATED_PATH_KEYS = (
     "exclude_macros_from_path",
 )
 RESOLVE_PATH_SUFFIXES = ("_path", "_dir")
+# Keys which look like paths by the suffix rule above but must not be resolved
+# by it. Resolution goes through `glob`, which yields nothing for a path that
+# does not exist yet and so leaves the raw value in place. That is fine for an
+# input the user has already created, but not for an *output* directory: it
+# would be interpreted relative to the config file once it exists and relative
+# to the working directory before that, so the same config would name two
+# different locations depending on whether the previous run had happened.
+NO_RESOLVE_KEYS = ("cache_dir",)
 # Values in this section are arbitrary user data for templating, so the path
 # heuristics below must not be applied to them.
 OPAQUE_SECTION_KEY_PATH = ("templater", "jinja", "context")
@@ -96,7 +104,10 @@ def _resolve_paths_in_config(
             # If no paths resolved, keep the original patterns
             config[key] = ",".join(resolved_paths) if resolved_paths else val
         # It it's a single path key, resolve it.
-        elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
+        elif (
+            key.lower().endswith(RESOLVE_PATH_SUFFIXES)
+            and key.lower() not in NO_RESOLVE_KEYS
+        ):
             assert isinstance(val, str), (
                 f"Value for {key} in {log_filename} must be a string not {type(val)}."
             )

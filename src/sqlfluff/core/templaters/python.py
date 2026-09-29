@@ -168,6 +168,20 @@ class PythonTemplater(RawTemplater):
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
+    def cache_fingerprint(self, config: FluffConfig) -> Optional[str]:
+        """The python templater reads nothing outside the file and its config.
+
+        Its entire context comes from ``[sqlfluff:templater:python:context]``,
+        which the cache already covers via the config digest. An
+        ``override_context`` passed to the constructor is not config, so the
+        digest cannot see it, and caching is declined when one is set.
+        """
+        # Only this exact class. A subclass may read anything, and must make
+        # its own declaration -- see `RawTemplater.cache_fingerprint`.
+        if type(self) is not PythonTemplater or self.override_context:
+            return None
+        return ""
+
     @staticmethod
     def infer_type(s: Any) -> Any:
         """Infer a python type from a string and convert.

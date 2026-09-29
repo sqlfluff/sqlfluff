@@ -13,6 +13,7 @@ be part of `CI/CD`_ pipelines.
 
    security
    cli_use
+   caching
    diff_quality
    pre_commit
    github_actions
