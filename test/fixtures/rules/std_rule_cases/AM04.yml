@@ -773,3 +773,19 @@ test_pass_templated_wildcard:
       jinja:
         context:
           cols: "*"
+
+test_pass_repeated_unaliased_cte_wildcard_reference:
+  # Mirrors the AM07 fix (see AM07.yml): lookup_cte() pops the CTE from
+  # scope, so a second unaliased wildcard reference to the same CTE in a
+  # later branch of a set expression used to be wrongly treated as an
+  # unresolvable external table, raising a false positive here.
+  pass_str: |
+    with cte as (
+        select a, b from t
+    )
+    select * from cte
+    union
+    select * from cte
+    union
+    select c, d
+    from t2

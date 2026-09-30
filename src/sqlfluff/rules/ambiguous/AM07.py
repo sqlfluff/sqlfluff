@@ -136,8 +136,11 @@ class Rule_AM07(BaseRule):
                 # forever while being resolved. Restore it now that its
                 # resolution has finished, so a later selectable in the same
                 # set expression can still resolve the same reference.
-                if cte.parent is not None:
-                    cte.parent.ctes[cte_name.upper()] = cte
+                # Every CTE reachable via lookup_cte() was constructed with
+                # its owning query as `parent` (see Query.from_segment), so
+                # this is never None.
+                assert cte.parent is not None
+                cte.parent.ctes[cte_name.upper()] = cte
             else:
                 # Unable to resolve
                 resolved = False
