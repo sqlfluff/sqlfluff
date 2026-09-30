@@ -789,3 +789,15 @@ test_pass_repeated_unaliased_cte_wildcard_reference:
     union
     select c, d
     from t2
+
+test_fail_self_referencing_cte_wildcard:
+  # Mirrors the AM07 recursion guard (see AM07.yml). Restoring the CTE
+  # after resolution must not let a CTE which references itself recurse
+  # indefinitely here either. A self-referencing wildcard genuinely
+  # cannot be resolved, so the rule is expected to report rather than
+  # bail out silently.
+  fail_str: |
+    with cte as (
+        select * from cte
+    )
+    select * from cte
