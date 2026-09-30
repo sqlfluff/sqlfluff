@@ -8,6 +8,7 @@ import pickle
 import shutil
 import subprocess
 from copy import deepcopy
+from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from unittest import mock
 
@@ -21,21 +22,47 @@ from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
-def test__templater_dbt_missing(dbt_templater, project_dir, dbt_fluff_config):
-    """Check that a nice error is returned when dbt module is missing."""
-    try:
-        import dbt  # noqa: F401
+def _fake_versions(installed):
+    """Build a stand-in for importlib.metadata.version from a dict."""
 
-        pytest.skip(reason="dbt is installed")
-    except ModuleNotFoundError:
-        pass
+    def _version(name):
+        try:
+            return installed[name]
+        except KeyError:
+            raise PackageNotFoundError(name) from None
 
-    with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]"):
-        dbt_templater.process(
-            in_str="",
-            fname=os.path.join(project_dir, "models/my_new_project/test.sql"),
-            config=FluffConfig(configs=dbt_fluff_config),
-        )
+    return _version
+
+
+@pytest.mark.parametrize(
+    "installed,match",
+    [
+        # Nothing installed.
+        ({}, r"requires dbt-core, which is not installed"),
+        # dbt-oss alone, and the broken state of dbt-core overwriting dbt-oss.
+        ({"dbt-oss": "2.0.4"}, r"dbt-oss 2\.0\.4 is installed"),
+        ({"dbt-oss": "2.0.4", "dbt-core": "1.12.5"}, r"dbt-oss 2\.0\.4"),
+        # dbt-core below the supported minimum.
+        ({"dbt-core": "1.4.0"}, r"requires dbt-core>=1\.4\.1, but dbt-core 1\.4\.0"),
+    ],
+)
+def test__templater_dbt_installation_errors(installed, match):
+    """Check the templater refuses to start without a usable dbt-core."""
+    with mock.patch(
+        "sqlfluff_templater_dbt.templater.version", _fake_versions(installed)
+    ):
+        with pytest.raises(SQLFluffUserError, match=match):
+            DbtTemplater()
+
+
+@pytest.mark.parametrize("core_version", ["1.4.1", "1.10.0b1", "1.12.5"])
+def test__templater_dbt_installation_ok(core_version):
+    """Check supported dbt-core versions, including pre-releases, pass."""
+    with mock.patch(
+        "sqlfluff_templater_dbt.templater.version",
+        _fake_versions({"dbt-core": core_version}),
+    ):
+        DbtTemplater()
 
 
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):

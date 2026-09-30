@@ -53,6 +53,14 @@ your package manager of choice (e.g.
 :code:`pip install dbt-postgres sqlfluff-templater-dbt`) and then will need the
 following configuration:
 
+.. note::
+
+   The templater needs :code:`dbt-core` 1.4.1 or later, but does not install
+   it: most adapters already depend on it, and otherwise
+   :code:`pip install dbt-core` alongside your adapter. The Rust-based
+   :code:`dbt-oss` engine is not supported, and installing :code:`dbt-core`
+   into the same environment overwrites its files.
+
 .. _`dbt adapter`: https://docs.getdbt.com/docs/available-adapters
 
 In *.sqlfluff*:

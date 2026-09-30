@@ -12,10 +12,12 @@ DbtTemplater class and so are only imported when necessary.
 import logging
 import os
 import os.path
+import re
 from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -44,6 +46,49 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
+
+# The oldest dbt-core release the templater supports.
+MIN_DBT_CORE_VERSION = (1, 4, 1)
+
+
+def check_dbt_installation() -> None:
+    """Raise a user error if the installed dbt cannot run this templater.
+
+    dbt-core is deliberately not a declared dependency of this package.
+    dbt-oss (the Rust engine) ships the same ``dbt`` import package, so
+    pulling in dbt-core alongside it silently overwrites dbt-oss's files.
+    dbt-oss also renders Jinja outside Python, so there is no compilation
+    for this templater to hook into.
+    """
+    try:
+        oss_version = version("dbt-oss")
+    except PackageNotFoundError:
+        pass
+    else:
+        raise SQLFluffUserError(
+            f"The dbt templater requires dbt-core, but dbt-oss {oss_version} is "
+            "installed. dbt-oss is not supported: run SQLFluff from an environment "
+            "with dbt-core and without dbt-oss. If both are installed, dbt-core has "
+            "overwritten part of dbt-oss: uninstall dbt-core, then reinstall dbt-oss."
+        )
+
+    try:
+        core_version = version("dbt-core")
+    except PackageNotFoundError:
+        raise SQLFluffUserError(
+            "The dbt templater requires dbt-core, which is not installed. Install "
+            "it together with the adapter for your warehouse, e.g. "
+            "`pip install dbt-core dbt-postgres`."
+        ) from None
+
+    # Only compare the numeric release part, e.g. "1.10.0b1" -> (1, 10, 0).
+    match = re.match(r"(\d+)\.(\d+)\.(\d+)", core_version)
+    if match and tuple(map(int, match.groups())) < MIN_DBT_CORE_VERSION:
+        raise SQLFluffUserError(
+            f"The dbt templater requires dbt-core>="
+            f"{'.'.join(map(str, MIN_DBT_CORE_VERSION))}, but dbt-core "
+            f"{core_version} is installed."
+        )
 
 
 @dataclass
@@ -179,6 +224,8 @@ class DbtTemplater(JinjaTemplater):
     templates_in_worker = False
 
     def __init__(self, override_context: Optional[dict[str, Any]] = None):
+        # Fail before any dbt import, which would give a less helpful error.
+        check_dbt_installation()
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
