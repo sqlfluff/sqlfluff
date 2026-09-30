@@ -738,6 +738,135 @@ test_pass_clickhouse_quoted_select_naked_table_cs:
     core:
       dialect: clickhouse
 
+test_pass_clickhouse_joined_table_function_requires_alias:
+  # https://github.com/sqlfluff/sqlfluff/issues/4743
+  # ClickHouse rejects a table function without an alias on either side of a
+  # join, or in a comma list, while the `joined_subquery_requires_alias`
+  # setting is on (the default), so removing the alias (as the autofix did)
+  # produces invalid SQL.
+  pass_str: |
+    SELECT a.x
+    FROM (SELECT 1 AS x) AS a
+    INNER JOIN numbers(10) AS b ON 1 = 1
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_left_joined_table_function_requires_alias:
+  pass_str: |
+    SELECT a.x
+    FROM (SELECT 1 AS x) AS a
+    LEFT JOIN generateRandom('y Int32') AS b ON 1 = 1
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_table_function_before_join_requires_alias:
+  # The left side of a join is validated too, also when the right side is a
+  # plain table.
+  pass_str: |
+    SELECT t.dummy
+    FROM numbers(3) AS a
+    INNER JOIN system.one AS t ON 1 = 1
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_comma_joined_table_function_requires_alias:
+  pass_str: |
+    SELECT a.number
+    FROM numbers(3) AS a, numbers(2) AS b
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_cross_joined_table_functions_require_alias:
+  pass_str: |
+    SELECT 1
+    FROM numbers(3) AS a
+    CROSS JOIN numbers(2) AS b
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_table_function_in_from_unused_alias:
+  # A lone table function in the FROM clause does not need an alias, so an
+  # unused one is still flagged.
+  fail_str: |
+    SELECT 1
+    FROM numbers(10) AS n
+  fix_str: |
+    SELECT 1
+    FROM numbers(10)
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_table_function_with_nested_select_unused_alias:
+  # A FROM clause inside a table function's query is not another table source
+  # of the outer FROM clause.
+  fail_str: |
+    SELECT 1 AS x
+    FROM view(SELECT 1 FROM system.one) AS v
+  fix_str: |
+    SELECT 1 AS x
+    FROM view(SELECT 1 FROM system.one)
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_table_function_with_array_join_unused_alias:
+  # ARRAY JOIN unfolds an array, it does not add a table source, so the table
+  # function is still the only source.
+  fail_str: |
+    SELECT x
+    FROM numbers(3) AS n
+    ARRAY JOIN [1, 2] AS x
+  fix_str: |
+    SELECT x
+    FROM numbers(3)
+    ARRAY JOIN [1, 2] AS x
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_table_function_sources_scoped_per_union_branch:
+  # Each SELECT of a UNION has its own FROM clause: `x` is a lone source, `y`
+  # is one of two.
+  fail_str: |
+    SELECT 1 AS c FROM numbers(3) AS x
+    UNION ALL
+    SELECT t.dummy AS c FROM numbers(2) AS y, system.one AS t
+  fix_str: |
+    SELECT 1 AS c FROM numbers(3)
+    UNION ALL
+    SELECT t.dummy AS c FROM numbers(2) AS y, system.one AS t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_table_function_sources_scoped_per_cte:
+  # The CTE's FROM clause has one source, even though the outer one has two.
+  fail_str: |
+    WITH a AS (SELECT 1 AS c FROM numbers(3) AS x)
+    SELECT t.dummy FROM a, system.one AS t
+  fix_str: |
+    WITH a AS (SELECT 1 AS c FROM numbers(3))
+    SELECT t.dummy FROM a, system.one AS t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_ansi_joined_table_function_unused_alias:
+  fail_str: |
+    SELECT a.x
+    FROM (SELECT 1 AS x) AS a
+    INNER JOIN numbers(10) AS b ON 1 = 1
+  fix_str: |
+    SELECT a.x
+    FROM (SELECT 1 AS x) AS a
+    INNER JOIN numbers(10) ON 1 = 1
+
 test_pass_db2_naked_select_double_quoted_table:
   pass_str: |
     SELECT a.col_1
