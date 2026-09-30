@@ -32,7 +32,7 @@ from sqlfluff.core.helpers.identity import get_next_id
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import (
-    is_inside_next_segment,
+    inside_next_segment_flags,
     trim_non_code_segments,
 )
 from sqlfluff.core.parser.markers import PositionMarker
@@ -554,12 +554,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Use the index so that we can look forward
         # and backward.
         segment_buffer: tuple[BaseSegment, ...] = ()
+        inside_next: Optional[list[bool]] = None
         for idx, segment in enumerate(segments):
             # Get hold of the current position.
             old_position = segment.pos_marker
             new_position = segment.pos_marker
             # Fill any that don't have a position.
             if not old_position:
+                inside_next = inside_next or inside_next_segment_flags(segments)
                 # Can we get a position from the previous?
                 start_point = None
                 if idx > 0:
@@ -596,7 +598,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             and is_zero_slice(fwd_seg.pos_marker.templated_slice)
                             and not is_zero_slice(fwd_seg.pos_marker.source_slice)
                             and getattr(fwd_seg, "block_type", "") == "templated"
-                        ) or is_inside_next_segment(segments, fwd_idx):
+                        ) or inside_next[fwd_idx]:
                             continue
                         # NOTE: Use raw segments because it's more reliable.
                         end_point = fwd_seg.raw_segments[
@@ -608,7 +610,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # positioned inside a later sibling. The start point is then
                 # after the end point, so start at the end point instead.
                 # See: https://github.com/sqlfluff/sqlfluff/issues/8611
-                if end_point and idx > 0 and is_inside_next_segment(segments, idx - 1):
+                if end_point and idx > 0 and inside_next[idx - 1]:
                     start_point = end_point
 
                 if start_point and end_point and start_point != end_point:

@@ -7,7 +7,7 @@ from typing import Optional
 
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.parser.helpers import is_inside_next_segment
+from sqlfluff.core.parser.helpers import inside_next_segment_flags
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -123,6 +123,7 @@ def _iter_templated_patches(
         templated_idx = segment.pos_marker.templated_slice.start
         insert_buff = ""
         first_segment_pos: Optional[PositionMarker] = None
+        inside_next = inside_next_segment_flags(segments)
         for idx, seg in enumerate(segments):
             # First check for insertions.
             # At this stage, everything should have a position.
@@ -161,7 +162,7 @@ def _iter_templated_patches(
                 and is_zero_slice(seg.pos_marker.templated_slice)
                 and not is_zero_slice(seg.pos_marker.source_slice)
                 and getattr(seg, "block_type", "") == "templated"
-            ) or is_inside_next_segment(segments, idx):
+            ) or inside_next[idx]:
                 # Yield any embedded source fixes (rare, but possible).
                 yield from _iter_source_fix_patches(seg, templated_file=templated_file)
                 # Do NOT update templated_idx here.  The placeholder occupies no
