@@ -7,6 +7,7 @@ from typing import Optional
 
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser.helpers import is_inside_next_segment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -122,7 +123,7 @@ def _iter_templated_patches(
         templated_idx = segment.pos_marker.templated_slice.start
         insert_buff = ""
         first_segment_pos: Optional[PositionMarker] = None
-        for seg in segments:
+        for idx, seg in enumerate(segments):
             # First check for insertions.
             # At this stage, everything should have a position.
             assert seg.pos_marker
@@ -151,13 +152,16 @@ def _iter_templated_patches(
             # source characters between `templated_idx` and the placeholder's
             # templated position (e.g. the opening quote of a quoted literal).
             # See: https://github.com/sqlfluff/sqlfluff/issues/6261
+            # The same applies to any zero-length segment (e.g. an `{% if %}`
+            # placeholder or its indent) positioned inside a later sibling.
+            # See: https://github.com/sqlfluff/sqlfluff/issues/8611
             if (
                 seg.is_type("placeholder")
                 and seg.raw == ""
                 and is_zero_slice(seg.pos_marker.templated_slice)
                 and not is_zero_slice(seg.pos_marker.source_slice)
                 and getattr(seg, "block_type", "") == "templated"
-            ):
+            ) or is_inside_next_segment(segments, idx):
                 # Yield any embedded source fixes (rare, but possible).
                 yield from _iter_source_fix_patches(seg, templated_file=templated_file)
                 # Do NOT update templated_idx here.  The placeholder occupies no
@@ -184,9 +188,16 @@ def _iter_templated_patches(
                 # first raw, not the pos marker of the whole thing. That accounts
                 # better for loops.
                 first_segment_pos = first_segment_pos or seg.pos_marker
+                # A gap before this segment is a deletion, also when the insert
+                # buffer is not empty, so the slice must cover the gap.
+                # See: https://github.com/sqlfluff/sqlfluff/issues/8611
                 templated_slice = slice(
                     templated_idx,
-                    max(first_segment_pos.templated_slice.start, templated_idx),
+                    max(
+                        first_segment_pos.templated_slice.start,
+                        templated_idx,
+                        seg.pos_marker.templated_slice.start,
+                    ),
                 )
                 yield FixPatch(
                     # Whether the source slice is zero depends on the start_diff.
@@ -198,7 +209,7 @@ def _iter_templated_patches(
                     # be greater than or equal to the start.
                     source_slice=(
                         templated_file.templated_slice_to_source_slice(templated_slice)
-                        if start_diff > 0 and not insert_buff
+                        if start_diff > 0
                         else slice(
                             source_idx,
                             max(first_segment_pos.source_slice.start, source_idx),
