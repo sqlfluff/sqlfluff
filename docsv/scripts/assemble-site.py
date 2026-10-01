@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+from datetime import date
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from textwrap import dedent
 from typing import Any
@@ -640,6 +641,7 @@ VERSIONS_PAGE_STYLE = """
     li a:hover { text-decoration: underline; }
     .version { font-variant-numeric: tabular-nums; }
     .meta { color: #57606a; font-size: 0.85rem; }
+    .date { min-width: 6.2rem; font-variant-numeric: tabular-nums; }
     .tag {
         padding: 0 0.35rem;
         font-size: 0.75rem;
@@ -690,15 +692,15 @@ def render_version_item(entry: dict[str, Any], stable_key: str | None) -> str:
         tags.append("current release")
     if entry.get("prerelease"):
         tags.append("pre-release")
-    if entry.get("builder") == "sphinx":
-        tags.append("archived")
-
-    parts = [f'<a class="version" href="{path}">{label}</a>']
-    parts += [f'<span class="tag">{html.escape(tag)}</span>' for tag in tags]
-
+    parts = []
     if entry.get("published_at"):
-        published = html.escape(str(entry["published_at"]))
-        parts.append(f'<span class="meta">{published}</span>')
+        published = date.fromisoformat(str(entry["published_at"])[:10]).isoformat()
+        parts.append(
+            f'<time class="meta date" datetime="{published}">{published}</time>'
+        )
+
+    parts.append(f'<a class="version" href="{path}">{label}</a>')
+    parts += [f'<span class="tag">{html.escape(tag)}</span>' for tag in tags]
 
     return "<li>" + "".join(parts) + "</li>"
 

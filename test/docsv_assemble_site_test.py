@@ -399,6 +399,38 @@ def test_versions_page_groups_releases_by_major(assemble_site):
     assert [entry["key"] for entry in groups[0][1]] == ["4.1.0"]
 
 
+def test_versions_page_shows_release_date_before_version(assemble_site):
+    """Historical releases use a concise date without a misleading badge."""
+    entry = {
+        "key": "2.0.0",
+        "path": "/en/2.0.0/",
+        "kind": "release",
+        "builder": "sphinx",
+        "published_at": "2023-03-14T09:45:27Z",
+    }
+
+    item = assemble_site.render_version_item(entry, stable_key=None)
+
+    assert '<time class="meta date" datetime="2023-03-14">2023-03-14</time>' in item
+    assert item.index("2023-03-14</time>") < item.index('href="/en/2.0.0/"')
+    assert "09:45:27" not in item
+    assert "archived" not in item
+
+
+def test_versions_page_accepts_date_only_release_metadata(assemble_site):
+    """Existing manual releases may already use YYYY-MM-DD metadata."""
+    item = assemble_site.render_version_item(
+        {
+            "key": "3.4.1",
+            "path": "/en/3.4.1/",
+            "published_at": "2025-06-13",
+        },
+        stable_key=None,
+    )
+
+    assert 'datetime="2025-06-13"' in item
+
+
 def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
     """The assets have fixed filenames, so a long cache would freeze the picker."""
     headers = assemble_site.build_global_headers("en")
