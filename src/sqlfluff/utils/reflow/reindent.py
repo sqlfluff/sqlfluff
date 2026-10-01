@@ -2274,8 +2274,7 @@ def _fix_long_line_with_comment(
     # safe. Moving it before the line rebuilds it from its rendered text, so
     # the tags are lost. The placeholders for the tags sit before the comment,
     # so a break before the comment splits its source.
-    assert comment_seg.pos_marker
-    if not comment_seg.pos_marker.is_literal():
+    if comment_seg.pos_marker and not comment_seg.pos_marker.is_literal():
         reflow_logger.debug("    Unfixable because comment contains template tags.")
         return elements, []
 
