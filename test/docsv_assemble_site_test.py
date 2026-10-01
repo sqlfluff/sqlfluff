@@ -431,6 +431,33 @@ def test_versions_page_accepts_date_only_release_metadata(assemble_site):
     assert 'datetime="2025-06-13"' in item
 
 
+def test_versions_page_ignores_invalid_release_date(assemble_site, capsys):
+    """A bad manifest date should not prevent the archive page from rendering."""
+    page = assemble_site.build_versions_page(
+        "en",
+        {
+            "versions": [
+                {
+                    "key": "3.4.1",
+                    "path": "/en/3.4.1/",
+                    "published_at": "2026-13-14",
+                },
+                {
+                    "key": "3.4.0",
+                    "path": "/en/3.4.0/",
+                    "published_at": "2025-06-13",
+                },
+            ]
+        },
+    )
+
+    assert '<a class="version" href="/en/3.4.1/">3.4.1</a>' in page
+    assert '<a class="version" href="/en/3.4.0/">3.4.0</a>' in page
+    assert 'datetime="2026-13-14"' not in page
+    assert 'datetime="2025-06-13"' in page
+    assert "ignoring invalid published_at for 3.4.1" in capsys.readouterr().out
+
+
 def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
     """The assets have fixed filenames, so a long cache would freeze the picker."""
     headers = assemble_site.build_global_headers("en")

@@ -694,10 +694,17 @@ def render_version_item(entry: dict[str, Any], stable_key: str | None) -> str:
         tags.append("pre-release")
     parts = []
     if entry.get("published_at"):
-        published = date.fromisoformat(str(entry["published_at"])[:10]).isoformat()
-        parts.append(
-            f'<time class="meta date" datetime="{published}">{published}</time>'
-        )
+        try:
+            published = date.fromisoformat(str(entry["published_at"])[:10]).isoformat()
+        except ValueError:
+            print(
+                f"Warning: ignoring invalid published_at for {entry['key']}: "
+                f"{entry['published_at']!r}"
+            )
+        else:
+            parts.append(
+                f'<time class="meta date" datetime="{published}">{published}</time>'
+            )
 
     parts.append(f'<a class="version" href="{path}">{label}</a>')
     parts += [f'<span class="tag">{html.escape(tag)}</span>' for tag in tags]

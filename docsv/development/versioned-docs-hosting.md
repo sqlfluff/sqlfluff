@@ -649,21 +649,16 @@ Sphinx pages where available and built the remaining releases from their tags.
 On 2026-09-29, a local dry run against the latest assembled deployment artifact
 completed all three major-series batches. The resulting manifest includes all
 54 final releases (21 from 2.x, 22 from 3.x, and 11 from 4.x), and each has an
-index page. The major-series smoke checks passed. This local copy has not been
-uploaded to the beta site.
+index page. The major-series smoke checks passed. The assembled artifact was
+uploaded to R2 and deployed to the beta site.
 
-## Immediate Next Steps
+## Remaining Cutover Work
 
-The release workflow has published `4.2.2` and `4.3.0`, including `stable`.
-Shared picker assets are also published. The next steps are:
+The historical backfill is complete. Before replacing the production docs site:
 
-1. Download the current R2 site and reconcile any changes since the local
-   artifact was assembled; retain a rollback copy.
-2. Dry-run the R2 sync, upload the validated artifact, and deploy the same tree
-   to Netlify.
-3. Verify all 54 releases, representative Sphinx permalinks, search, picker
-   navigation, and the beta `noindex` header on the deployed site.
-4. Complete the URL parity review against `docs.sqlfluff.com` before cutover.
+1. Recheck permalinks, archived Sphinx navigation and search, the version picker,
+   and the beta `noindex` header after further docs deployments.
+2. Complete the URL parity review against `docs.sqlfluff.com`.
 
 ## Success Criteria
 
