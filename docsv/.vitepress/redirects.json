@@ -10,7 +10,7 @@
   "perma/dialects": "reference/dialects",
   "perma/architecture": "development/architecture",
   "perma/rule_disabling": "configuration/rules#enabling-and-disabling-rules",
-  "perma/internals": "reference/internals/index",
+  "perma/internals": "perma/architecture",
   "perma/modularity": "guide/why#modularity",
   "perma/indentation": "configuration/layout#configuring-indent-locations",
   "perma/releasenotes": "reference/release-notes",
