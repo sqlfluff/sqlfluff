@@ -676,14 +676,32 @@ def _write_output_aliases_stderr(filename: Optional[str]) -> bool:
     colliding with a machine-readable payload (e.g. --bench) doesn't
     instead collide with that payload when the user has pointed
     --write-output at stderr itself (e.g. --write-output=/dev/stderr).
+
+    The target is identified by opening it and comparing the open file's
+    device/inode to stderr's, rather than `os.stat()`-ing the path: on
+    macOS/BSD a path like `/dev/stderr` is its own device node, so stat-ing
+    the path reports that node rather than the stream it redirects to, and
+    the comparison would wrongly miss the alias. `os.open()` follows the
+    redirection, so the fstat sees the real underlying stream on every
+    platform (on Linux `/dev/stderr` already resolves via `/proc`).
     """
     if not filename:
         return False
     try:
-        target_stat = os.stat(filename)
         stderr_stat = os.fstat(sys.stderr.fileno())
     except OSError:
         return False
+    # O_NONBLOCK (where available) so an exotic target such as a reader-less
+    # FIFO can't make this probe hang; it's ignored for regular files.
+    flags = os.O_WRONLY | getattr(os, "O_NONBLOCK", 0)
+    try:
+        fd = os.open(filename, flags)
+    except OSError:
+        return False
+    try:
+        target_stat = os.fstat(fd)
+    finally:
+        os.close(fd)
     return (
         target_stat.st_dev == stderr_stat.st_dev
         and target_stat.st_ino == stderr_stat.st_ino

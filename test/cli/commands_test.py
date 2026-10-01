@@ -1020,12 +1020,21 @@ def test__cli__bench_write_output_dev_stderr_stays_serialized():
         env=os.environ,
     )
     # stderr may also carry unrelated warnings (e.g. plugin load-order
-    # notices) ahead of the payload, so locate the JSON list rather than
-    # parsing the whole stream - but still prove nothing (like the bench
-    # table) was appended after it.
-    payload_start = proc.stderr.index("[")
-    _, end = json.JSONDecoder().raw_decode(proc.stderr, payload_start)
-    assert proc.stderr[payload_start + end :].strip() == ""
+    # notices) ahead of the payload, and the log handler itself prefixes
+    # records with escape sequences that contain "[". So don't assume the
+    # first "[" starts the payload: try to decode from each "[" in turn and
+    # take the first that yields a valid JSON document - then prove nothing
+    # (like the bench table) was appended after it.
+    decoder = json.JSONDecoder()
+    payload_end = None
+    for idx in (i for i, char in enumerate(proc.stderr) if char == "["):
+        try:
+            _, payload_end = decoder.raw_decode(proc.stderr, idx)
+        except json.JSONDecodeError:
+            continue
+        break
+    assert payload_end is not None, "no JSON payload found on stderr"
+    assert proc.stderr[payload_end:].strip() == ""
     assert "==== overall timings ====" not in proc.stderr
     assert "==== overall timings ====" in proc.stdout
 
