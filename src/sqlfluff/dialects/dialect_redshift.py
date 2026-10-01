@@ -2628,19 +2628,9 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         insert=[
             Ref("ObjectUnpivotSegment", optional=True),
             Ref("ArrayUnnestSegment", optional=True),
-            # A SUPER path with at least one array accessor. The plain
-            # `TableReferenceSegment` below ends at the first `[`, so this
-            # is tried first to allow paths like `a.topic[0].extension`.
             Sequence(
                 Ref("TableReferenceSegment"),
-                AnyNumberOf(Ref("ArrayAccessorSegment"), min_times=1),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("ObjectReferenceDelimiterGrammar"),
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("AccessorGrammar", optional=True),
-                    ),
-                ),
+                Ref("AccessorGrammar"),
             ),
         ],
         before=Ref("TableReferenceSegment"),
