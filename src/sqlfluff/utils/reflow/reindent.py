@@ -2265,6 +2265,17 @@ def _fix_long_line_with_comment(
     first_seg = line_buffer[0].segments[0]
     last_elem_idx = elements.index(line_buffer[-1])
 
+    # If the comment isn't literal in the source (i.e. it spans a templated
+    # section, so it contains tags), don't move it. The copy we create is
+    # built from the rendered text, so the tags would be dropped from the
+    # new copy while the original is only partially deleted, which either
+    # leaves tag text behind as SQL or duplicates the comment.
+    # NOTE: A segment without a pos_marker is a fix insertion rather than
+    # templated content, so it doesn't need this guard.
+    if comment_seg.pos_marker and not comment_seg.pos_marker.is_literal():
+        reflow_logger.debug("    Unfixable because comment is not literal.")
+        return elements, []
+
     assert trailing_comments in (
         "after",
         "before",

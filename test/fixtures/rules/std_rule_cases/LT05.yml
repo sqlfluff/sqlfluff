@@ -827,3 +827,31 @@ test_fail_no_fix_jinja_macro_with_brackets:
             {{ cast_tz("cast(source.order_arrived_date || ' ' || source.order_arrived_time as timestamp)") }}
         )
     FROM source
+
+test_fail_line_too_long_templated_comment_with_if_tag:
+  # A comment which spans a templated section must not be moved. The moved
+  # copy is built from the rendered text, so the tags would be dropped from
+  # the copy while the original is only partly deleted, leaving the tag text
+  # behind to be parsed as SQL.
+  # https://github.com/sqlfluff/sqlfluff/issues/8616
+  fail_str: "SELECT 1 -- a comment{% if true %} which is long{% endif %} and on\n"
+  configs:
+    core:
+      max_line_length: 60
+
+test_fail_line_too_long_templated_comment_with_set_tag:
+  # As above, but for a tag which is not yielded separately by the lexer.
+  # Moving the comment here duplicates it, once per fix run.
+  # https://github.com/sqlfluff/sqlfluff/issues/8616
+  fail_str: "SELECT 1 -- a comment{% set q = 1 %} which is long and on\n"
+  configs:
+    core:
+      max_line_length: 50
+
+test_fail_line_too_long_templated_comment_with_jinja_comment_tag:
+  # As above, but for a jinja comment tag inside a SQL comment.
+  # https://github.com/sqlfluff/sqlfluff/issues/8616
+  fail_str: "SELECT 1 -- a note{# x #} which is long enough to overflow\n"
+  configs:
+    core:
+      max_line_length: 50
