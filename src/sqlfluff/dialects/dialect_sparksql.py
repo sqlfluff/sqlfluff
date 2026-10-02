@@ -3582,7 +3582,12 @@ class ConvertToDeltaStatementSegment(BaseSegment):
         "CONVERT",
         "TO",
         "DELTA",
-        Ref("FileReferenceSegment"),
+        # "Either an optionally qualified table identifier or a path to a
+        # parquet or iceberg file directory."
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
         Sequence("NO", "STATISTICS", optional=True),
         Ref("PartitionSpecGrammar", optional=True),
     )
