@@ -7421,26 +7421,6 @@ class DeallocateStatementSegment(BaseSegment):
     )
 
 
-class TypedArrayLiteralSegment(ansi.TypedArrayLiteralSegment):
-    """An array literal segment."""
-
-    type = "typed_array_literal"
-    match_grammar = ansi.TypedArrayLiteralSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                Ref.keyword("VARIADIC"),
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("WalrusOperatorSegment"),
-                    optional=True,
-                ),
-                optional=True,
-            )
-        ],
-        before=Ref("ArrayTypeSegment"),
-    )
-
-
 class SetSessionAuthorizationStatementSegment(BaseSegment):
     """A `SET SESSION AUTHORIZATION` statement.
 

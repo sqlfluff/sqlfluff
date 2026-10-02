@@ -141,6 +141,32 @@ test_fail_postgres_array_data_type_extra_space:
     core:
       dialect: postgres
 
+# A VARIADIC prefix on an array literal argument is not part of the array
+# literal, so the space after it must be kept.
+# https://github.com/sqlfluff/sqlfluff/issues/8623
+test_pass_postgres_variadic_array_literal:
+  pass_str: |
+    SELECT f(VARIADIC ARRAY[1, 2]);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_variadic_named_array_literal:
+  pass_str: |
+    SELECT f(VARIADIC arr := ARRAY[1, 2]);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_variadic_array_literal_extra_space:
+  fail_str: |
+    SELECT f(VARIADIC ARRAY [1, 2]);
+  fix_str: |
+    SELECT f(VARIADIC ARRAY[1, 2]);
+  configs:
+    core:
+      dialect: postgres
+
 # A bare array literal still keeps the space after the preceding keyword.
 test_pass_duckdb_array_literal_not_touched:
   pass_str: |
