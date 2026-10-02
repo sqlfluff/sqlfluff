@@ -1,0 +1,19 @@
+GRANT CREATE SEMANTIC VIEW ON SCHEMA my_db.my_schema TO ROLE my_role;
+
+GRANT CREATE SEMANTIC VIEW ON SCHEMA my_db.my_schema
+    TO DATABASE ROLE my_db.write_role;
+
+GRANT CREATE DATABASE ROLE ON DATABASE my_db TO ROLE my_role;
+
+GRANT USAGE ON SEMANTIC VIEW my_db.my_schema.my_semantic_view
+    TO ROLE my_role;
+
+GRANT SELECT ON ALL SEMANTIC VIEWS IN SCHEMA my_db.my_schema
+    TO ROLE my_role;
+
+GRANT SELECT ON FUTURE SEMANTIC VIEWS IN SCHEMA my_db.my_schema
+    TO ROLE my_role;
+
+REVOKE CREATE DATABASE ROLE ON DATABASE my_db FROM ROLE my_role;
+
+REVOKE CREATE SEMANTIC VIEW ON SCHEMA my_db.my_schema FROM ROLE my_role;

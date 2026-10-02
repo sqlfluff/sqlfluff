@@ -64,9 +64,51 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+
 clickhouse_dialect.insert_lexer_matchers(
     [StringLexer("double_equals", "==", CodeSegment)],
     before="equals",
+)
+
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/reference/syntax#numeric
+    [
+        # Regex for binary must start with 0b (uppercase B is not allowed),
+        # only 0, 1 and _ are allowed, binary can't start with an underscore
+        # or end with it, e.g. 0b_100 or 0b100_ are not allowed.
+        # Decimal point is also not allowed.
+        # Negative lookahead assertion to ensure we don't match decimal points
+        # or words, e.g. 0b1.1 or 0b100foo or 0b1. are not allowed.
+        RegexLexer(
+            "binary_literal",
+            r"0b[01]+(?:_[01]+)*(?![.\w])",  # e.g. 0b1_00
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+        # Regex for hex can start with either 0x or 0X, underscore is allowed
+        # if it is not at the start or at the end., e.g. 0x1_ or 0x_1 are not allowed.
+        # Optional exponential part is expressed with [pP], e.g 0xap1 (equals to 10 * 2^1).
+        # Negative lookahead assertion to ensure we don't match decimal points
+        # or words, e.g. 0x1.1.1 or 0x1.1foo are not allowed.
+        RegexLexer(
+            "hexadecimal_literal",
+            r"0[xX][a-fA-F\d]+(?:_[a-fA-F\d]+)*"  # hex int e.g. 0xab34_cd
+            r"(?:"  # hex decimal (either ends in . or has a decimal part)
+            r"\.(?:[a-fA-F\d]+(?:_[a-fA-F\d]+)*)?"
+            r")?"
+            r"(?:[pP][+-]?\d+(?:_\d+)*)?"  # optional exponential e.g. 0XAB34_CDp-10
+            r"(?![.\w])",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+    ],
+    before="numeric_literal",
+)
+
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/reference/operators#is-not-distinct-from
+    [StringLexer("is_not_distinct_from", "<=>", CodeSegment)],
+    before="less_than",
 )
 
 clickhouse_dialect.patch_lexer_matchers(
@@ -89,6 +131,37 @@ clickhouse_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"(``|\\`)", "`")],
             },
         ),
+        # Numeric literal matches integers, decimals, and exponential formats,
+        # Patch to support single underscores.
+        # Pattern breakdown:
+        # (?>                      Atomic grouping
+        #                          (https://www.regular-expressions.info/atomic.html).
+        #  \d+(_\d+)*\.\d+(_\d+)*  e.g. 123.456 or 123_000.456_000
+        #  |\d+(_\d+)*\.(?![\.\w]) e.g. 123. or 1_23.
+        #                          (N.B. negative lookahead assertion to ensure we
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
+        #     |\.\d+(_\d+)*        e.g. .456 or .456_000
+        #     |\d+(_\d+)*          e.g. 123 or 123_000
+        # )
+        # (\.?[eE][+-]?\d+(_\d+)*)?  Optional exponential.
+        # (
+        #     (?<=\.)              If matched character ends with . (e.g. 123.) then
+        #                          don't worry about word boundary check.
+        #     |(?=\b)              Check that we are at word boundary to avoid matching
+        #                          valid naked identifiers (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*"  # Decimal numbers with underscores
+            r"|\d+(_\d+)*\.(?![.\w])"  # Integer with trailing dot
+            r"|\.\d+(_\d+)*"  # Decimal starting with dot
+            r"|\d+(_\d+)*)"  # Integer with underscores
+            r"(\.?[eE][+-]?\d+(_\d+)*)?"  # Optional exponential
+            r"((?<=\.)|(?=\b))",  # Word boundary check
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -102,6 +175,35 @@ clickhouse_dialect.add(
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question"),
     RawDoubleEqualsSegment=StringParser(
         "==", SymbolSegment, type="raw_comparison_operator"
+    ),
+    RawIsNotDistinctFromSegment=StringParser(
+        "<=>", SymbolSegment, type="raw_comparison_operator"
+    ),
+    PositionalPlacementGrammar=OneOf(
+        Sequence(
+            "AFTER",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        "FIRST",
+    ),
+    # https://clickhouse.com/docs/reference/statements/alter/partition#how-to-set-partition-expression
+    PartitionExpressionGrammar=OneOf(
+        # ALTER TABLE visits DETACH PARTITION 201901
+        Ref("NumericLiteralSegment"),
+        # ALTER TABLE visits DETACH PARTITION -201901
+        Ref("QualifiedNumericLiteralSegment"),
+        Sequence(
+            # ALTER TABLE visits DETACH PARTITION ID '201901'
+            Ref.keyword("ID", optional=True),
+            # ALTER TABLE visits ATTACH PARTITION 'JP'
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        # ALTER TABLE example DROP PARTITION TRUE;
+        Ref("BooleanLiteralGrammar"),
+        # ALTER TABLE example DROP PARTITION ('JP', 1, toYYYYMM(toDate('2019-01-25')))
+        Ref("TupleSegment"),
+        # ALTER TABLE visits DETACH PARTITION tuple(toYYYYMM(toDate('2019-01-25')))
+        Ref("FunctionSegment"),
     ),
 )
 
@@ -128,6 +230,7 @@ clickhouse_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
         Ref("IsDistinctFromGrammar"),
+        Ref("IsNotDistinctFromSegment"),
     ),
     # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
     JoinTypeKeywordsGrammar=Sequence(
@@ -284,7 +387,8 @@ clickhouse_dialect.replace(
     ),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
-    ).copy(
+    )
+    .copy(
         insert=[
             Ref.keyword("PREWHERE"),
             Ref.keyword("SETTINGS"),
@@ -292,6 +396,10 @@ clickhouse_dialect.replace(
             Ref.keyword("FORMAT"),
         ],
         before=Ref.keyword("WHERE"),
+    )
+    .copy(
+        insert=[Sequence("GROUP", "BY")],
+        before=Sequence("ORDER", "BY"),
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
     .copy(
@@ -429,6 +537,12 @@ class DoubleEqualsSegment(CompositeComparisonOperatorSegment):
     match_grammar: Matchable = Ref("RawDoubleEqualsSegment")
 
 
+class IsNotDistinctFromSegment(CompositeComparisonOperatorSegment):
+    """IS NOT DISTINCT FROM operator (<=>)."""
+
+    match_grammar: Matchable = Ref("RawIsNotDistinctFromSegment")
+
+
 class AccessPermissionSegment(ansi.AccessPermissionSegment):
     """A ClickHouse access permission.
 
@@ -502,7 +616,9 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 ),
                 # ALTER PROJECTION
                 Sequence(
-                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    OneOf(
+                        "ADD", "MODIFY", "DROP", "MATERIALIZE", "CLEAR", optional=True
+                    ),
                     "PROJECTION",
                 ),
                 # ALTER VIEW - REFRESH/MODIFY QUERY
@@ -819,6 +935,13 @@ class GroupByClauseSegment(BaseSegment):
 class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
+    ClickHouse documents the DISTINCT qualifier on INTERSECT and EXCEPT as well
+    as on UNION. Unlike standard SQL, the default for INTERSECT and EXCEPT is to
+    keep duplicates, so DISTINCT changes the result rather than restating it.
+
+    https://clickhouse.com/docs/sql-reference/statements/select/except
+    https://clickhouse.com/docs/sql-reference/statements/select/intersect
+
     Excludes ClickHouse `SELECT * EXCEPT (...)` wildcard exclusions from being
     consumed as set operators.
     """
@@ -830,7 +953,7 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
                 "INTERSECT",
                 "EXCEPT",
             ),
-            Ref.keyword("ALL", optional=True),
+            OneOf("DISTINCT", "ALL", optional=True),
         ),
         "MINUS",
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
@@ -1206,6 +1329,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
             Ref("SingleIdentifierGrammar"),
             Ref("CTEColumnList", optional=True),
             "AS",
+            Ref.keyword("MATERIALIZED", optional=True),
             Bracketed(
                 # Ephemeral here to subdivide the query.
                 Ref("SelectableGrammar"),
@@ -1695,6 +1819,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -1749,6 +1874,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -2651,6 +2777,102 @@ class SystemStatementSegment(BaseSegment):
     )
 
 
+class ProjectionDefinitionSegment(BaseSegment):
+    """A Projection definition.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/alter/projection
+    https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree#projections
+    """
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = Sequence(
+        "PROJECTION",
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            # Projection query
+            Bracketed(
+                # Common Scalar Expressions are supported in the projection query definition,
+                # even though it is not stated explicitly in the docs.
+                # For more info look here:
+                # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserProjectionSelectQuery.cpp#L34-L42
+                Sequence(
+                    "WITH",
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            "AS",
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Ref("SelectClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+                OneOf(
+                    Ref("OrderByClauseSegment"),
+                    Ref("GroupByClauseSegment"),
+                ),
+            ),
+            # Projection index
+            Sequence(
+                "INDEX",
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+                "TYPE",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Ref("ProjectionDefinitionStatementSettingsClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterTableAddProjectionDefinitionStatement(ProjectionDefinitionSegment):
+    """A helper projection definition used in ALTER TABLE ... ADD PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    ).copy(
+        # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserAlterQuery.cpp#L474-L480
+        insert=[Ref("PositionalPlacementGrammar", optional=True)]
+    )
+
+
+class AlterTableModifyProjectionDefinitionStatement(ProjectionDefinitionSegment):
+    """A helper projection definition used in ALTER TABLE ... MODIFY PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    )
+
+
+class ProjectionDefinitionStatementSettingsClauseSegment(SettingsClauseSegment):
+    """A helper SettingsClauseSegment used in ProjectionDefinitionStatement."""
+
+    type = "settings_clause"
+
+    match_grammar: Matchable = Sequence(
+        "SETTINGS",
+        # Brackets are needed for settings in projections
+        Bracketed(
+            SettingsClauseSegment.match_grammar.copy(remove=[Ref.keyword("SETTINGS")]),
+        ),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement for ClickHouse.
 
@@ -2729,14 +2951,7 @@ class AlterTableStatementSegment(BaseSegment):
                         Ref("ExpressionSegment"),
                     ),
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... ADD ALIAS name FOR column_name
             Sequence(
@@ -2885,14 +3100,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... ALTER COLUMN name [TYPE] [type]
             Sequence(
@@ -2909,14 +3117,7 @@ class AlterTableStatementSegment(BaseSegment):
                     # Without TYPE keyword
                     Ref("DatatypeSegment"),  # Data type
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... REMOVE TTL
             Sequence(
@@ -2983,6 +3184,43 @@ class AlterTableStatementSegment(BaseSegment):
             Sequence(
                 "DELETE",
                 Ref("WhereClauseSegment"),
+            ),
+            # ALTER TABLE ... ADD PROJECTION
+            Sequence(
+                "ADD",
+                Ref("AlterTableAddProjectionDefinitionStatement"),
+            ),
+            # ALTER TABLE ... MODIFY PROJECTION
+            Sequence(
+                "MODIFY",
+                Ref("AlterTableModifyProjectionDefinitionStatement"),
+            ),
+            # ALTER TABLE ... DROP PROJECTION
+            Sequence(
+                "DROP",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            # ALTER TABLE ... MATERIALIZE PROJECTION
+            Sequence(
+                "MATERIALIZE",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "IN", "PARTITION", Ref("PartitionExpressionGrammar"), optional=True
+                ),
+            ),
+            # ALTER TABLE ... CLEAR PROJECTION
+            Sequence(
+                "CLEAR",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "IN", "PARTITION", Ref("PartitionExpressionGrammar"), optional=True
+                ),
             ),
         ),
         Ref("SettingsClauseSegment", optional=True),
