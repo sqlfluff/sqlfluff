@@ -156,16 +156,19 @@ class Rule_RF03(BaseRule):
                         self._iter_available_targets(query.parent, query)
                     )
                     # An inner alias shadows an outer one with the same name,
-                    # so those references point at the inner table.
-                    inner_ref_strs = {t.ref_str for t in select_info.table_aliases}
-                    outer_only_ref_strs = {
-                        t.ref_str
+                    # so those references point at the inner table. Compare
+                    # normalized names, as most dialects ignore identifier case.
+                    inner_names = {
+                        _normalized_alias(t) for t in select_info.table_aliases
+                    }
+                    outer_only_names = {
+                        _normalized_alias(t)
                         for t in parent_ref_tables
-                        if t.ref_str not in inner_ref_strs
+                        if _normalized_alias(t) not in inner_names
                     }
                     if _references_any_table(
                         select_info.reference_buffer,
-                        outer_only_ref_strs,
+                        outer_only_names,
                         query.dialect.name,
                     ):
                         possible_ref_tables += parent_ref_tables
@@ -206,17 +209,27 @@ class Rule_RF03(BaseRule):
             yield from self._visit_queries(child, visited)
 
 
+def _normalized_alias(alias: AliasInfo) -> str:
+    """Get the name of a table alias, normalized to the dialect's casing."""
+    # Aliases without a segment have no name (e.g. an unaliased subquery).
+    return alias.segment.raw_normalized() if alias.segment else ""
+
+
 def _references_any_table(
     references: list[ObjectReferenceSegment],
-    table_ref_strs: set[str],
+    table_names: set[str],
     dialect_name: str,
 ) -> bool:
-    """Check whether any reference is qualified with one of the given tables."""
+    """Check whether any reference is qualified with one of the given tables.
+
+    ``table_names`` must be normalized to the dialect's casing.
+    """
     for ref in references:
         for part in extract_possible_references(
             ref, level=ObjectReferenceLevel.TABLE, dialect_name=dialect_name
         ):
-            if part.part in table_ref_strs:
+            name = "".join(seg.raw_normalized() for seg in part.segments)
+            if name in table_names:
                 return True
     return False
 

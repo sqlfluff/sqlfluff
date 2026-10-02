@@ -913,3 +913,45 @@ test_fail_cte_outer_alias_unqualified_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_tsql_cross_apply_correlated_case_insensitive_8626:
+  # T-SQL identifiers are case-insensitive, so `o.order_id` refers to the
+  # outer alias `O` and the APPLY subquery is still correlated.
+  pass_str: |
+    select O.order_id
+    from dbo.orders as O
+    cross apply (
+        select top 1 1 as has_lines
+        from dbo.order_lines as l
+        where l.order_id = o.order_id
+    ) as ol
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_tsql_cross_apply_shadowed_alias_case_insensitive_8626:
+  # The inner alias `L` shadows the outer alias `l` in T-SQL, which is
+  # case-insensitive. `l.order_id` refers to the inner table, so the fix is safe.
+  fail_str: |
+    select l.order_id
+    from dbo.orders as l
+    cross apply (
+        select top 1 l.order_id
+        from dbo.order_lines as L
+    ) as ol
+  fix_str: |
+    select l.order_id
+    from dbo.orders as l
+    cross apply (
+        select top 1 order_id
+        from dbo.order_lines as L
+    ) as ol
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
