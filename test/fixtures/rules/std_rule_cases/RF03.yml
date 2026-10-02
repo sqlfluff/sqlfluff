@@ -955,3 +955,75 @@ test_fail_tsql_cross_apply_shadowed_alias_case_insensitive_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_postgres_nested_lateral_correlated_unqualified_8626:
+  # A nested LATERAL subquery can see the tables of all enclosing queries, not
+  # just its direct parent. `a.x` refers to the outermost query.
+  pass_str: |
+    select e.y
+    from a
+    cross join lateral (
+        select d.z from b
+        cross join lateral (
+            select c.y, c.z from c where c.x = a.x
+        ) as d
+    ) as e
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_nested_cross_apply_correlated_unqualified_8626:
+  # Same as above, for nested CROSS APPLY.
+  pass_str: |
+    select o.order_id
+    from dbo.orders as o
+    cross apply (
+        select ol2.has_lines
+        from dbo.order_headers as h
+        cross apply (
+            select top 1 1 as has_lines
+            from dbo.order_lines as l
+            where l.order_id = o.order_id
+        ) as ol2
+    ) as ol
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_tsql_nested_cross_apply_shadowed_alias_8626:
+  # The innermost alias `o` shadows the outermost alias `o`, so `o.order_id`
+  # refers to the innermost table and the fix is safe.
+  fail_str: |
+    select o.order_id
+    from dbo.orders as o
+    cross apply (
+        select x.order_id
+        from dbo.order_headers as h
+        cross apply (
+            select top 1 o.order_id
+            from dbo.order_lines as o
+        ) as x
+    ) as y
+  fix_str: |
+    select o.order_id
+    from dbo.orders as o
+    cross apply (
+        select x.order_id
+        from dbo.order_headers as h
+        cross apply (
+            select top 1 order_id
+            from dbo.order_lines as o
+        ) as x
+    ) as y
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
