@@ -241,6 +241,7 @@ def test_reflow__point_respace_point(
         "SELECT a AS x, b AS y, (SELECT c AS z FROM t2) AS w FROM t1\n",
         "CREATE TABLE t (a INT, b VARCHAR(10), c DECIMAL(18, 5))\n",
         "SELECT\n    a AS x,\n    (b + c) AS y,\n    COALESCE(d, (e)) AS z\nFROM t\n",
+        "SELECT ((a + (b)) * (c)) AS x, ((d)) AS y FROM t\n",
     ],
 )
 @pytest.mark.parametrize(
@@ -250,6 +251,9 @@ def test_reflow__point_respace_point(
         ("alias_expression", "statement"),
         ("data_type", "statement"),
         ("data_type", "bracketed"),
+        # The parent can itself be a candidate, and candidates can be nested.
+        ("bracketed", "bracketed"),
+        ("bracketed", "select_clause"),
     ],
 )
 @pytest.mark.parametrize("align_scope", [None, "bracketed", "file"])

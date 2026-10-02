@@ -341,10 +341,14 @@ def _find_alignment_siblings(
     """Find segments of `segment_type` within `parent_segment` to align with.
 
     Candidates with a segment of type `align_scope` on the path from
-    `parent_segment` (inclusive) are excluded. This is equivalent to checking
-    `parent_segment.path_to()` for each candidate, but done in a single walk:
-    calling `path_to()` per candidate made alignment quadratic in the number
-    of candidates for every aligned element.
+    `parent_segment` (inclusive) are excluded. This gives the same result as
+    checking `parent_segment.path_to()` for each candidate, but in a single
+    walk: calling `path_to()` per candidate made alignment quadratic in the
+    number of candidates for every aligned element.
+
+    The walk follows the actual children of each segment. `path_to()` relies
+    on stored parent references, and if those are stale it can fail to find a
+    path and so not see a boundary. In that case this walk still applies it.
     """
     siblings: list[BaseSegment] = []
     # Each entry is a segment and whether a boundary lies on the path to it.
