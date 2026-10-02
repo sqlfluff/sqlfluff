@@ -771,17 +771,17 @@ test_fail_athena_struct_field_access_qualified_config:
 
 test_pass_tsql_outer_apply_correlated_unqualified_8626:
   # The APPLY subquery can see the tables of the outer query, so removing
-  # the qualifiers would change `a.patientid = s.patientid` into
-  # `patientid = patientid`. Treat it like a correlated WHERE subquery.
+  # the qualifiers would change `l.order_id = o.order_id` into
+  # `order_id = order_id`. Treat it like a correlated WHERE subquery.
   # https://github.com/sqlfluff/sqlfluff/issues/8626
   pass_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     outer apply (
-        select top 1 1 as heeft_afspraak
-        from dbo.afspraken as a
-        where a.patientid = s.patientid
-    ) as lg
+        select top 1 1 as has_lines
+        from dbo.order_lines as l
+        where l.order_id = o.order_id
+    ) as ol
   configs:
     core:
       dialect: tsql
@@ -790,14 +790,15 @@ test_pass_tsql_outer_apply_correlated_unqualified_8626:
         single_table_references: unqualified
 
 test_pass_tsql_cross_apply_correlated_unqualified_8626:
+  # Same as above, for CROSS APPLY.
   pass_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     cross apply (
-        select top 1 1 as heeft_afspraak
-        from dbo.afspraken as a
-        where a.patientid = s.patientid
-    ) as lg
+        select top 1 1 as has_lines
+        from dbo.order_lines as l
+        where l.order_id = o.order_id
+    ) as ol
   configs:
     core:
       dialect: tsql
@@ -806,14 +807,15 @@ test_pass_tsql_cross_apply_correlated_unqualified_8626:
         single_table_references: unqualified
 
 test_pass_postgres_lateral_correlated_unqualified_8626:
+  # LATERAL subqueries can also see the tables of the outer query.
   pass_str: |
-    select s.patientid
-    from spoed as s
+    select o.order_id
+    from orders as o
     cross join lateral (
-        select 1 as heeft_afspraak
-        from afspraken as a
-        where a.patientid = s.patientid
-    ) as lg
+        select 1 as has_lines
+        from order_lines as l
+        where l.order_id = o.order_id
+    ) as ol
   configs:
     core:
       dialect: postgres
@@ -822,16 +824,16 @@ test_pass_postgres_lateral_correlated_unqualified_8626:
         single_table_references: unqualified
 
 test_fail_no_fix_tsql_cross_apply_correlated_qualified_8626:
-  # The unqualified `patientid` could refer to either `a` or `s`, so
+  # The unqualified `order_id` could refer to either `l` or `o`, so
   # qualifying it is unsafe.
   fail_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     cross apply (
-        select top 1 1 as heeft_afspraak
-        from dbo.afspraken as a
-        where patientid = s.patientid
-    ) as lg
+        select top 1 1 as has_lines
+        from dbo.order_lines as l
+        where order_id = o.order_id
+    ) as ol
   configs:
     core:
       dialect: tsql
@@ -843,19 +845,19 @@ test_fail_tsql_cross_apply_uncorrelated_unqualified_8626:
   # Without references to the outer query, the APPLY subquery is still a
   # single table select and can be fixed.
   fail_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     cross apply (
-        select top 1 a.patientid
-        from dbo.afspraken as a
-    ) as lg
+        select top 1 l.order_id
+        from dbo.order_lines as l
+    ) as ol
   fix_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     cross apply (
-        select top 1 patientid
-        from dbo.afspraken as a
-    ) as lg
+        select top 1 order_id
+        from dbo.order_lines as l
+    ) as ol
   configs:
     core:
       dialect: tsql
@@ -864,23 +866,50 @@ test_fail_tsql_cross_apply_uncorrelated_unqualified_8626:
         single_table_references: unqualified
 
 test_fail_tsql_derived_table_join_unqualified_8626:
+  # Regression guard: a plain (uncorrelated) derived table in the FROM
+  # clause is still a single table select and can be fixed.
   fail_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     inner join (
-        select a.patientid
-        from dbo.afspraken as a
-    ) as lg on lg.patientid = s.patientid
+        select l.order_id
+        from dbo.order_lines as l
+    ) as ol on ol.order_id = o.order_id
   fix_str: |
-    select s.patientid
-    from dbo.spoed as s
+    select o.order_id
+    from dbo.orders as o
     inner join (
-        select patientid
-        from dbo.afspraken as a
-    ) as lg on lg.patientid = s.patientid
+        select order_id
+        from dbo.order_lines as l
+    ) as ol on ol.order_id = o.order_id
   configs:
     core:
       dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_cte_outer_alias_unqualified_8626:
+  # A CTE can't see the FROM clause of the main query, so the correlated
+  # subquery handling doesn't apply to it. The CTE stays a single table
+  # select, even if a qualifier matches an alias of the main query.
+  fail_str: |
+    with c as (
+        select o.order_id
+        from order_lines as l
+    )
+    select o.order_id
+    from c
+    inner join orders as o on o.order_id = c.order_id
+  fix_str: |
+    with c as (
+        select order_id
+        from order_lines as l
+    )
+    select o.order_id
+    from c
+    inner join orders as o on o.order_id = c.order_id
+  configs:
     rules:
       references.consistent:
         single_table_references: unqualified

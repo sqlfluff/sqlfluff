@@ -145,18 +145,27 @@ class Rule_RF03(BaseRule):
                     possible_ref_tables += list(
                         self._iter_available_targets(query.parent, query)
                     )
-                elif query.parent:
+                elif query.parent and query.cte_definition_segment is None:
                     # Subqueries in the FROM clause normally can't see the
                     # other tables of the containing query. Correlated ones
                     # can (e.g. T-SQL CROSS/OUTER APPLY or LATERAL joins), so
-                    # count the parent tables if any of them is referenced.
+                    # count the parent tables if any reference uses one of
+                    # them. In valid SQL only correlated subqueries do that.
+                    # CTEs are skipped: they never see the outer FROM clause.
                     parent_ref_tables = list(
                         self._iter_available_targets(query.parent, query)
                     )
+                    # An inner alias shadows an outer one with the same name,
+                    # so those references point at the inner table.
+                    inner_ref_strs = {t.ref_str for t in select_info.table_aliases}
+                    outer_only_ref_strs = {
+                        t.ref_str
+                        for t in parent_ref_tables
+                        if t.ref_str not in inner_ref_strs
+                    }
                     if _references_any_table(
                         select_info.reference_buffer,
-                        {t.ref_str for t in parent_ref_tables}
-                        - {t.ref_str for t in select_info.table_aliases},
+                        outer_only_ref_strs,
                         query.dialect.name,
                     ):
                         possible_ref_tables += parent_ref_tables
