@@ -1214,6 +1214,22 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class DatatypeSegment(sparksql.DatatypeSegment):
+    """Databricks data types including GEOMETRY."""
+
+    match_grammar = sparksql.DatatypeSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "GEOMETRY",
+                Bracketed(
+                    OneOf(Ref("NumericLiteralSegment"), "ANY"),
+                    optional=True,
+                ),
+            ),
+        ]
+    )
+
+
 class PropertyNameSegment(sparksql.PropertyNameSegment):
     """A property name segment. Databricks allows for back quoted segments."""
 

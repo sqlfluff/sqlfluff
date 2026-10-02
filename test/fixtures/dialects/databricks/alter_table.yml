@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aebe4258aa537f3b5b85a9703a1740986c98062b5f6d4cc6b385feb15b2758e7
+_hash: c5010283d517737a0ddc41e0e55acbf925891509342d34148141d7bb79075fcc
 file:
 - statement:
     alter_table_statement:
@@ -908,4 +908,54 @@ file:
       - column_reference:
           naked_identifier: loc
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: geometry_types
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: geom_default
+    - keyword: TYPE
+    - data_type:
+        keyword: GEOMETRY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: geometry_types
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+          naked_identifier: geom_any
+        data_type:
+          keyword: GEOMETRY
+          bracketed:
+            start_bracket: (
+            keyword: ANY
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: geometry_types
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: geom_srid
+    - keyword: TYPE
+    - data_type:
+        keyword: GEOMETRY
+        bracketed:
+          start_bracket: (
+          numeric_literal: '4326'
+          end_bracket: )
 - statement_terminator: ;
