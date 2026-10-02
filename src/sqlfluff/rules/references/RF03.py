@@ -145,6 +145,21 @@ class Rule_RF03(BaseRule):
                     possible_ref_tables += list(
                         self._iter_available_targets(query.parent, query)
                     )
+                elif query.parent:
+                    # Subqueries in the FROM clause normally can't see the
+                    # other tables of the containing query. Correlated ones
+                    # can (e.g. T-SQL CROSS/OUTER APPLY or LATERAL joins), so
+                    # count the parent tables if any of them is referenced.
+                    parent_ref_tables = list(
+                        self._iter_available_targets(query.parent, query)
+                    )
+                    if _references_any_table(
+                        select_info.reference_buffer,
+                        {t.ref_str for t in parent_ref_tables}
+                        - {t.ref_str for t in select_info.table_aliases},
+                        query.dialect.name,
+                    ):
+                        possible_ref_tables += parent_ref_tables
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
                     # potential lint warnings, but don't generate fixes, because
@@ -180,6 +195,21 @@ class Rule_RF03(BaseRule):
                     children.append(q)
         for child in children:
             yield from self._visit_queries(child, visited)
+
+
+def _references_any_table(
+    references: list[ObjectReferenceSegment],
+    table_ref_strs: set[str],
+    dialect_name: str,
+) -> bool:
+    """Check whether any reference is qualified with one of the given tables."""
+    for ref in references:
+        for part in extract_possible_references(
+            ref, level=ObjectReferenceLevel.TABLE, dialect_name=dialect_name
+        ):
+            if part.part in table_ref_strs:
+                return True
+    return False
 
 
 def _check_references(
