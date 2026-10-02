@@ -14,9 +14,38 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This minor release introduces SQLMesh integration, new linting and formatting
+options, and a refreshed documentation site, alongside a broad set of dialect
+improvements and bug fixes.
+
+* **SQLMesh projects can now use SQLFluff through the new
+  `sqlfluff-templater-sqlmesh` plugin.** The optional templater brings SQLFluff
+  linting to SQLMesh models, with support for model definitions and macro
+  rendering.
+* **Two recent rules offer additional opt-in conventions.** `CV13` encourages
+  a pure `SELECT * FROM <cte>` passthrough as the final query in a CTE-based
+  model, following the dbt convention. `TQ04` prefers `expression AS alias`
+  over T-SQL's `alias = expression` syntax. Both are currently disabled by
+  default and can be enabled with `force_enable = True`.
+* **The CLI gains GitLab Code Quality output** through `--format gitlab`,
+  allowing findings to appear directly in GitLab merge requests. This joins
+  the existing SARIF and GitHub annotation formats for integrating SQLFluff
+  into CI.
+* **The Jinja templater now supports custom delimiters**, including the
+  `<% ... %>` syntax used by Snowflake CLI. `LT15` also gains an optional
+  minimum number of blank lines between statements.
+* **[docs.sqlfluff.com](https://docs.sqlfluff.com) has migrated to a new
+  documentation format.** The site is more responsive, easier to search,
+  and supports dark mode, with a design that fits the rest of the SQLFluff
+  project.
+
+Beyond that, this release expands parsing support across Snowflake,
+MariaDB/MySQL, ClickHouse, PostgreSQL, Oracle, Databricks, Flink, Athena,
+SQLite, Trino, and other dialects. Rule and templater fixes improve
+reliability, reduce false positives, and prevent unsafe autofixes.
+
+This release also includes first-time contributions from **twenty-eight**
+new contributors. Thank you all for your contributions. 🏆
 
 ## What’s Changed
 
