@@ -3784,19 +3784,26 @@ class InsertStatementSegment(BaseSegment):
 
     _insert_into_clause = Sequence(
         "INTO",
+        Indent,
         OneOf(
             Ref("TableReferenceSegment"),
             Bracketed(Ref("SelectStatementSegment")),
         ),
         Ref("AliasExpressionSegment", optional=True),
         Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+        Dedent,
     )
 
     _insert_set_or_values_clause = (
         Sequence(
             OneOf(
                 Ref("ValuesClauseSegment"),
-                Sequence("SET", Delimited(Ref("SetClauseSegment"))),
+                Sequence(
+                    "SET",
+                    Indent,
+                    Delimited(Ref("SetClauseSegment")),
+                    Dedent,
+                ),
             ),
             Ref("ReturningClauseSegment", optional=True),
             optional=True,
@@ -4850,6 +4857,7 @@ class ValuesClauseSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         OneOf("VALUE", "VALUES"),
+        Indent,
         OptionallyBracketed(
             Delimited(
                 "DEFAULT",
@@ -4857,4 +4865,5 @@ class ValuesClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
     )
