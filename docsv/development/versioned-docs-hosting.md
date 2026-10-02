@@ -4,6 +4,43 @@ This document captures the proposed implementation for hosting the VitePress
 documentation at `docs.beta.sqlfluff.com` using Netlify for serving and
 Cloudflare R2 as the persistent store for versioned builds.
 
+## Production cutover preparation (2026-10-02)
+
+The beta site now hosts all 54 final releases from 2.0.0 onward. The latest
+deploy on `main` succeeded, but `docs.sqlfluff.com` still serves Read the Docs.
+The older implementation notes below describe the original rollout plan.
+
+A URL audit compared the 44 document paths in the current Read the Docs stable
+search index, plus its index utilities and the latest/stable roots: all 48 work
+on the current production site, while 14 worked on the beta site before the
+cutover redirects. The other 34 legacy paths now have redirects to built
+VitePress pages. In particular, the old production-use overview has its own
+landing page and `production/security.html` goes to the security guide. The
+old Sphinx `search.html`, `genindex.html`, and `py-modindex.html` URLs lead to
+the nearest VitePress starting pages; they do not reproduce the old indexes.
+The live redirect behavior must be checked after this change is deployed.
+
+Indexing policy:
+
+- `docs.sqlfluff.com/en/stable/` is the only indexed documentation version.
+  Its HTML has canonical URLs on `docs.sqlfluff.com`.
+- `/en/latest/` and numbered releases remain accessible through the picker
+  and direct links but get `X-Robots-Tag: noindex`. We do not claim their
+  different content is a duplicate of stable.
+- `/en/versions.html` may be indexed so readers can find older releases.
+- After production activation, `docs.beta.sqlfluff.com` and the site's
+  `unique-mooncake-626ae6.netlify.app` hostname redirect to the same path on
+  `docs.sqlfluff.com` with a permanent redirect.
+
+The deployment remains in beta indexing mode by default. To activate the
+production policy, first attach `docs.sqlfluff.com` to the Netlify site and
+cut its DNS over. Then set the GitHub Actions repository variable
+`DOCS_INDEXING_MODE=production` and run the docs deployment workflow from
+`main`. That run prepares the existing stable HTML even if it builds only
+`latest`, publishes the stable-only sitemap and `robots.txt`, changes the
+root redirect to stable, and removes beta-wide noindex headers. Verify the
+stable, archive, beta, and Netlify hostname responses after the deployment.
+
 The goal is to mirror the useful parts of the current Read the Docs model:
 
 - `docs.beta.sqlfluff.com/en/latest/` built from `main`
@@ -405,9 +442,9 @@ sufficient.
   maintainers may publish an archived static snapshot for that version instead.
 - If neither a rebuild nor a snapshot import is practical, the version remains
   unpublished until a manual artifact is supplied.
-- Backfill every final release from `2.0.0` onward. The beta already hosts
-  `4.2.2` and `4.3.0`; the remaining releases are assembled as a one-time
-  local artifact for upload to R2 and Netlify.
+- The one-time backfill of all 54 final releases from `2.0.0` onward was
+  uploaded to R2 and deployed to beta on 2026-09-29. Later rebuilds update
+  individual versions.
 
 ### Release Channel Policy
 
