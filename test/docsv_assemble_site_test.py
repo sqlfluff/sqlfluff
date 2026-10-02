@@ -479,6 +479,120 @@ def test_beta_headers_keep_archived_sphinx_pages_out_of_search(
     assert "/en/*\n    X-Robots-Tag: noindex, nofollow" in headers
 
 
+def test_production_indexing_keeps_only_stable_search_facing(
+    assemble_site, monkeypatch
+):
+    """Archives and development stay accessible without competing in search."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_INDEXING_MODE", "production")
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+    manifest = {
+        "default": "stable",
+        "versions": [
+            {"key": "latest"},
+            {"key": "stable"},
+            {"key": "4.3.0"},
+        ],
+    }
+
+    headers = assemble_site.build_global_headers("en", manifest)
+    redirects = assemble_site.build_redirects("en", manifest)
+    archive = assemble_site.build_versions_page("en", manifest)
+
+    assert "/en/latest/*\n    X-Robots-Tag: noindex, follow" in headers
+    assert "/en/4.3.0/*\n    X-Robots-Tag: noindex, follow" in headers
+    assert "/en/*\n    X-Robots-Tag: noindex" not in headers
+    assert "/en/stable/*\n    X-Robots-Tag: noindex" not in headers
+    assert "/ /en/stable/ 302" in redirects
+    assert (
+        "https://docs.beta.sqlfluff.com/* https://docs.sqlfluff.com/:splat 301!"
+        in redirects
+    )
+    assert (
+        'rel="canonical" href="https://docs.sqlfluff.com/en/versions.html"' in archive
+    )
+    assert 'name="robots" content="noindex' not in archive
+
+
+def test_stable_html_gets_a_single_canonical_without_beta_noindex(
+    assemble_site, tmp_path
+):
+    """The current assembler can make an older tagged build indexable."""
+    page = tmp_path / "development" / "architecture.html"
+    page.parent.mkdir()
+    page.write_text(
+        '<html><head><meta name="robots" content="noindex,nofollow"></head></html>',
+        encoding="utf-8",
+    )
+
+    assemble_site.prepare_stable_html_for_indexing(tmp_path, "en")
+    assemble_site.prepare_stable_html_for_indexing(tmp_path, "en")
+
+    html = page.read_text(encoding="utf-8")
+    assert "noindex" not in html
+    assert html.count('rel="canonical"') == 1
+    assert (
+        'href="https://docs.sqlfluff.com/en/stable/development/architecture.html"'
+        in html
+    )
+
+
+def test_latest_publish_prepares_existing_stable_tree_for_indexing(
+    assemble_site, monkeypatch, tmp_path
+):
+    """Activation does not depend on rebuilding the stable release first."""
+    site = tmp_path / "site"
+    stable = _dist(tmp_path, "stable")
+    (stable / "index.html").write_text(
+        '<html><head><meta name="robots" content="noindex,nofollow"></head></html>',
+        encoding="utf-8",
+    )
+    assemble_site.assemble_site(
+        dist=stable,
+        output_dir=site,
+        language="en",
+        channel="stable",
+        title="Stable",
+        kind="channel",
+        stable_release="4.3.0",
+        shared_dir=tmp_path / "absent",
+    )
+
+    monkeypatch.setenv("SQLFLUFF_DOCS_INDEXING_MODE", "production")
+    assemble_site.assemble_site(
+        dist=_dist(tmp_path, "latest"),
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+    html = (site / "en" / "stable" / "index.html").read_text(encoding="utf-8")
+    assert "noindex" not in html
+    assert 'rel="canonical" href="https://docs.sqlfluff.com/en/stable/"' in html
+    assert (site / "sitemap.xml").is_file()
+    assert (site / "robots.txt").read_text(encoding="utf-8") == (
+        "Sitemap: https://docs.sqlfluff.com/sitemap.xml\n"
+    )
+
+
+def test_production_sitemap_lists_only_stable_pages(assemble_site, tmp_path):
+    """Only canonical pages belong in the submitted sitemap."""
+    stable = tmp_path / "en" / "stable"
+    (stable / "guide").mkdir(parents=True)
+    (stable / "index.html").write_text("home", encoding="utf-8")
+    (stable / "guide" / "index.html").write_text("guide", encoding="utf-8")
+    (stable / "404.html").write_text("not found", encoding="utf-8")
+
+    sitemap = assemble_site.build_sitemap(tmp_path, "en")
+
+    assert "https://docs.sqlfluff.com/en/stable/</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/stable/guide/</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/versions.html</loc>" in sitemap
+    assert "404.html" not in sitemap
+
+
 def test_the_404_page_is_published_at_the_site_root(assemble_site, tmp_path):
     """Netlify only serves a 404 page from the publish root.
 

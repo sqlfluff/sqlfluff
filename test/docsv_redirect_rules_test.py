@@ -381,4 +381,4 @@ def test_the_reason_an_entry_was_rejected_is_reported(assemble_site, tmp_path):
 
 def test_the_shipped_map_loads_cleanly(assemble_site):
     """The validation above must not reject the map actually published."""
-    assert len(assemble_site.load_redirect_map(assemble_site.DEFAULT_REDIRECTS)) == 102
+    assert len(assemble_site.load_redirect_map(assemble_site.DEFAULT_REDIRECTS)) == 136

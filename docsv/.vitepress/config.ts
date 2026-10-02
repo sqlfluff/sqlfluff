@@ -187,6 +187,20 @@ export default defineConfig({
 
     head,
 
+    // Only the public stable build has a canonical URL. Development and
+    // numbered releases are deliberately left out of search.
+    transformPageData(pageData) {
+        if (docsBase !== '/en/stable/' || noIndex) return
+        const path = pageData.relativePath
+            .replace(/index\.md$/, '')
+            .replace(/\.md$/, '.html')
+        pageData.frontmatter.head ??= []
+        pageData.frontmatter.head.push([
+            'link',
+            { rel: 'canonical', href: `https://docs.sqlfluff.com${docsBase}${path}` },
+        ])
+    },
+
     // The shared design script is the single owner of the theme signals, so
     // VitePress must not also manage them. This drops its inline dark-mode
     // script and its own two-state toggle, which the shared three-state control
