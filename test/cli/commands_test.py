@@ -1,5 +1,6 @@
 """The Test file for CLI (General)."""
 
+import io
 import json
 import logging
 import os
@@ -1060,6 +1061,11 @@ def test__cli__write_output_aliases_stderr_direct(tmp_path, monkeypatch):
         monkeypatch.setattr(sys, "stderr", fake_stderr)
         assert _write_output_aliases_stderr(str(target)) is True
         assert _write_output_aliases_stderr(str(tmp_path / "missing.txt")) is False
+    # stderr has no real OS file descriptor to fstat (e.g. a Click/pytest
+    # captured stream): StringIO.fileno() raises io.UnsupportedOperation, an
+    # OSError subclass, so the probe can't alias and must return False.
+    monkeypatch.setattr(sys, "stderr", io.StringIO())
+    assert _write_output_aliases_stderr(str(target)) is False
     assert _write_output_aliases_stderr(None) is False
     assert _write_output_aliases_stderr("") is False
 
