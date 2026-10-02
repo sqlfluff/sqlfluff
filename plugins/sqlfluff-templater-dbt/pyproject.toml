@@ -54,7 +54,8 @@ keywords = [
 ]
 dependencies = [
     "sqlfluff==4.3.0",
-    "dbt-core>=1.4.1",
+    # dbt-core>=1.4.1 is required but checked at runtime instead: declaring it
+    # would install it over dbt-oss, which ships the same `dbt` package.
     "jinja2-simple-tags>=0.3.1",
 ]
 
