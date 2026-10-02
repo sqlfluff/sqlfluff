@@ -960,7 +960,7 @@ test_pass_postgres_nested_lateral_correlated_unqualified_8626:
   # A nested LATERAL subquery can see the tables of all enclosing queries, not
   # just its direct parent. `a.x` refers to the outermost query.
   pass_str: |
-    select e.y
+    select e.z
     from a
     cross join lateral (
         select d.z from b
