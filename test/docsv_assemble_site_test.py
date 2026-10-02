@@ -399,6 +399,65 @@ def test_versions_page_groups_releases_by_major(assemble_site):
     assert [entry["key"] for entry in groups[0][1]] == ["4.1.0"]
 
 
+def test_versions_page_shows_release_date_before_version(assemble_site):
+    """Historical releases use a concise date without a misleading badge."""
+    entry = {
+        "key": "2.0.0",
+        "path": "/en/2.0.0/",
+        "kind": "release",
+        "builder": "sphinx",
+        "published_at": "2023-03-14T09:45:27Z",
+    }
+
+    item = assemble_site.render_version_item(entry, stable_key=None)
+
+    assert '<time class="meta date" datetime="2023-03-14">2023-03-14</time>' in item
+    assert item.index("2023-03-14</time>") < item.index('href="/en/2.0.0/"')
+    assert "09:45:27" not in item
+    assert "archived" not in item
+
+
+def test_versions_page_accepts_date_only_release_metadata(assemble_site):
+    """Existing manual releases may already use YYYY-MM-DD metadata."""
+    item = assemble_site.render_version_item(
+        {
+            "key": "3.4.1",
+            "path": "/en/3.4.1/",
+            "published_at": "2025-06-13",
+        },
+        stable_key=None,
+    )
+
+    assert 'datetime="2025-06-13"' in item
+
+
+def test_versions_page_ignores_invalid_release_date(assemble_site, capsys):
+    """A bad manifest date should not prevent the archive page from rendering."""
+    page = assemble_site.build_versions_page(
+        "en",
+        {
+            "versions": [
+                {
+                    "key": "3.4.1",
+                    "path": "/en/3.4.1/",
+                    "published_at": "2026-13-14",
+                },
+                {
+                    "key": "3.4.0",
+                    "path": "/en/3.4.0/",
+                    "published_at": "2025-06-13",
+                },
+            ]
+        },
+    )
+
+    assert '<a class="version" href="/en/3.4.1/">3.4.1</a>' in page
+    assert '<a class="version" href="/en/3.4.0/">3.4.0</a>' in page
+    assert 'datetime="2026-13-14"' not in page
+    assert 'datetime="2025-06-13"' in page
+    assert "ignoring invalid published_at for 3.4.1" in capsys.readouterr().out
+
+
 def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
     """The assets have fixed filenames, so a long cache would freeze the picker."""
     headers = assemble_site.build_global_headers("en")
@@ -407,6 +466,17 @@ def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
 
     assert "must-revalidate" in shared
     assert "immutable" not in shared
+
+
+def test_beta_headers_keep_archived_sphinx_pages_out_of_search(
+    assemble_site, monkeypatch
+):
+    """Mirrored pages have no VitePress robots meta tag of their own."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+
+    headers = assemble_site.build_global_headers("en")
+
+    assert "/en/*\n    X-Robots-Tag: noindex, nofollow" in headers
 
 
 def test_the_404_page_is_published_at_the_site_root(assemble_site, tmp_path):
