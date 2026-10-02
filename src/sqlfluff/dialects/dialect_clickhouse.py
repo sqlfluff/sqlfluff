@@ -2220,8 +2220,10 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
         # TABLE keyword is optional, even though the documentation
         # doesn't state it
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Dedent,
         Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
@@ -2239,8 +2241,10 @@ class TruncateDatabaseStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "TRUNCATE",
         "DATABASE",
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
+        Dedent,
         Ref("OnClusterClauseSegment", optional=True),
     )
 
@@ -2259,8 +2263,10 @@ class TruncateTablesStatementSegment(BaseSegment):
         Ref.keyword("ALL", optional=True),
         "TABLES",
         "FROM",
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
+        Dedent,
         # We specifically do not use LikeExpressionGrammar here,
         # as it covers cases that TRUNCATE TABLES does not support.
         # For instance, something like

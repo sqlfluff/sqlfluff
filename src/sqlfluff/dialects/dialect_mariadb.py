@@ -339,8 +339,10 @@ class DeleteStatementSegment(BaseSegment):
             Sequence(
                 "HISTORY",
                 "FROM",
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("SelectPartitionClauseSegment", optional=True),
+                Dedent,
                 Sequence(
                     "BEFORE",
                     "SYSTEM_TIME",
@@ -357,18 +359,22 @@ class DeleteStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "FROM",
+                        Indent,
                         Delimited(
                             Ref("DeleteTargetTableSegment"),
                             terminators=["USING"],
                         ),
+                        Dedent,
                         Ref("DeleteUsingClauseSegment"),
                         Ref("WhereClauseSegment", optional=True),
                     ),
                     Sequence(
+                        Indent,
                         Delimited(
                             Ref("DeleteTargetTableSegment"),
                             terminators=["FROM"],
                         ),
+                        Dedent,
                         Ref("FromClauseSegment"),
                         Ref("WhereClauseSegment", optional=True),
                     ),
@@ -505,6 +511,7 @@ class InsertStatementSegment(BaseSegment):
         ),
         Ref.keyword("IGNORE", optional=True),
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Sequence(
             "PARTITION",
@@ -514,6 +521,7 @@ class InsertStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         OneOf(
             Ref("ValuesClauseSegment"),
             Ref("SetClauseListSegment"),
@@ -541,16 +549,22 @@ class ReplaceSegment(BaseSegment):
         "REPLACE",
         OneOf("LOW_PRIORITY", "DELAYED", optional=True),
         Sequence("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("SelectPartitionClauseSegment", optional=True),
+        Dedent,
         OneOf(
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref("ValuesClauseSegment"),
             ),
             Ref("SetClauseListSegment"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref("SelectStatementSegment"),
             ),
         ),
