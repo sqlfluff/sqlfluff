@@ -1027,3 +1027,26 @@ test_fail_tsql_nested_cross_apply_shadowed_alias_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_fail_postgres_lateral_unaliased_outer_subquery_8626:
+  # The outer query selects from a subquery without an alias, which no
+  # reference can name. The LATERAL subquery doesn't reference the outer query,
+  # so it is still a single table select and can be fixed.
+  fail_str: |
+    select l.order_id
+    from (select 1 as id)
+    cross join lateral (
+        select o.order_id from orders as o where o.id = 1
+    ) as l
+  fix_str: |
+    select l.order_id
+    from (select 1 as id)
+    cross join lateral (
+        select order_id from orders as o where id = 1
+    ) as l
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified

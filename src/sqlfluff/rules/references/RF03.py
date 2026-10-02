@@ -128,19 +128,19 @@ class Rule_RF03(BaseRule):
                     if (subquery and not alias.object_reference) or alias.ref_str:
                         yield alias
 
-    def _outer_ref_tables(self, query: Query) -> list[AliasInfo]:
-        """Get the tables of all queries containing a FROM clause subquery.
+    def _outer_visible_aliases(self, query: Query) -> list[AliasInfo]:
+        """Get the aliases visible from all queries enclosing this subquery.
 
         A correlated subquery may reference any enclosing query, not just its
         direct parent, so walk up the whole chain of ancestors. CTEs stop the
         walk: they never see the FROM clause of the query that uses them.
         """
-        outer_ref_tables: list[AliasInfo] = []
+        outer_aliases: list[AliasInfo] = []
         child = query
         while child.parent and child.cte_definition_segment is None:
-            outer_ref_tables += self._iter_available_targets(child.parent, child)
+            outer_aliases += self._iter_available_targets(child.parent, child)
             child = child.parent
-        return outer_ref_tables
+        return outer_aliases
 
     def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
@@ -159,13 +159,14 @@ class Rule_RF03(BaseRule):
                     possible_ref_tables += list(
                         self._iter_available_targets(query.parent, query)
                     )
-                elif query.parent and query.cte_definition_segment is None:
+                else:
                     # Subqueries in the FROM clause normally can't see the
                     # tables of the containing queries. Correlated ones can
                     # (e.g. T-SQL CROSS/OUTER APPLY or LATERAL joins), so count
                     # the outer tables if any reference uses one of them. In
-                    # valid SQL only correlated subqueries do that.
-                    outer_ref_tables = self._outer_ref_tables(query)
+                    # valid SQL only correlated subqueries do that. Top level
+                    # queries and CTEs have no outer aliases.
+                    outer_aliases = self._outer_visible_aliases(query)
                     # An inner alias shadows an outer one with the same name,
                     # so those references point at the inner table. Compare
                     # normalized names, as most dialects ignore identifier case.
@@ -173,16 +174,14 @@ class Rule_RF03(BaseRule):
                         _normalized_alias(t) for t in select_info.table_aliases
                     }
                     outer_only_names = {
-                        _normalized_alias(t)
-                        for t in outer_ref_tables
-                        if _normalized_alias(t) not in inner_names
-                    }
-                    if _references_any_table(
+                        _normalized_alias(t) for t in outer_aliases
+                    } - inner_names
+                    if outer_only_names and _references_any_table(
                         select_info.reference_buffer,
                         outer_only_names,
                         query.dialect.name,
                     ):
-                        possible_ref_tables += outer_ref_tables
+                        possible_ref_tables += outer_aliases
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
                     # potential lint warnings, but don't generate fixes, because
