@@ -442,9 +442,9 @@ sufficient.
   maintainers may publish an archived static snapshot for that version instead.
 - If neither a rebuild nor a snapshot import is practical, the version remains
   unpublished until a manual artifact is supplied.
-- Backfill every final release from `2.0.0` onward. The beta already hosts
-  `4.2.2` and `4.3.0`; the remaining releases are assembled as a one-time
-  local artifact for upload to R2 and Netlify.
+- The one-time backfill of all 54 final releases from `2.0.0` onward was
+  uploaded to R2 and deployed to beta on 2026-09-29. Later rebuilds update
+  individual versions.
 
 ### Release Channel Policy
 

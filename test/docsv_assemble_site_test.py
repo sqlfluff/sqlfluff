@@ -523,6 +523,8 @@ def test_stable_html_gets_a_single_canonical_without_beta_noindex(
         '<html><head><meta name="robots" content="noindex,nofollow"></head></html>',
         encoding="utf-8",
     )
+    genindex = tmp_path / "genindex.html"
+    genindex.write_text("<html><head></head></html>", encoding="utf-8")
 
     assemble_site.prepare_stable_html_for_indexing(tmp_path, "en")
     assemble_site.prepare_stable_html_for_indexing(tmp_path, "en")
@@ -533,6 +535,10 @@ def test_stable_html_gets_a_single_canonical_without_beta_noindex(
     assert (
         'href="https://docs.sqlfluff.com/en/stable/development/architecture.html"'
         in html
+    )
+    assert (
+        'href="https://docs.sqlfluff.com/en/stable/genindex.html"'
+        in genindex.read_text(encoding="utf-8")
     )
 
 
@@ -583,12 +589,15 @@ def test_production_sitemap_lists_only_stable_pages(assemble_site, tmp_path):
     (stable / "guide").mkdir(parents=True)
     (stable / "index.html").write_text("home", encoding="utf-8")
     (stable / "guide" / "index.html").write_text("guide", encoding="utf-8")
+    (stable / "genindex.html").write_text("index", encoding="utf-8")
     (stable / "404.html").write_text("not found", encoding="utf-8")
 
     sitemap = assemble_site.build_sitemap(tmp_path, "en")
 
     assert "https://docs.sqlfluff.com/en/stable/</loc>" in sitemap
     assert "https://docs.sqlfluff.com/en/stable/guide/</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/stable/genindex.html</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/stable/gen</loc>" not in sitemap
     assert "https://docs.sqlfluff.com/en/versions.html</loc>" in sitemap
     assert "404.html" not in sitemap
 

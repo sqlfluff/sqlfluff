@@ -54,14 +54,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || github.ref }}
 
-      # Release builds use their tag's content, but deployment policy and
-      # redirects must come from the current workflow ref. Otherwise rebuilding
+      # Release and manual version rebuilds use their tag's content, but
+      # deployment policy and redirects come from main. Otherwise rebuilding
       # an old tag can restore obsolete headers or permalink targets.
       - name: Checkout current docs deployment scripts
         uses: actions/checkout@v7
         with:
           path: .docs-deploy
-          ref: ${{ github.event_name == 'release' && 'main' || github.ref }}
+          ref: ${{ (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.version != '')) && 'main' || github.ref }}
 
       # Resolves the three trigger paths — push, release, and manual dispatch —
       # into one set of outputs, so the build and assemble steps below share a

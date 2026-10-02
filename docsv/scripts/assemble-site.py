@@ -639,6 +639,17 @@ def build_global_headers(language: str, manifest: dict[str, Any] | None = None) 
     return headers
 
 
+def stable_page_url(page: Path, stable_dir: Path, language: str) -> str:
+    """Return the public URL for a stable HTML page."""
+    relative = page.relative_to(stable_dir)
+    if page.name == "index.html":
+        directory = relative.parent.as_posix()
+        suffix = "" if directory == "." else f"{directory}/"
+    else:
+        suffix = relative.as_posix()
+    return f"{PRODUCTION_ORIGIN}/{language}/stable/{suffix}"
+
+
 def build_sitemap(site_dir: Path, language: str) -> str:
     """List only canonical stable pages and the versions directory."""
     stable_dir = site_dir / language / "stable"
@@ -646,11 +657,7 @@ def build_sitemap(site_dir: Path, language: str) -> str:
     for page in sorted(stable_dir.rglob("*.html")):
         if page.name == "404.html":
             continue
-        relative = page.relative_to(stable_dir).as_posix()
-        suffix = relative.removesuffix("index.html") or ""
-        if suffix == relative:
-            suffix = relative
-        locations.append(f"{PRODUCTION_ORIGIN}/{language}/stable/{suffix}")
+        locations.append(stable_page_url(page, stable_dir, language))
     body = "\n".join(f"  <url><loc>{xml_escape(url)}</loc></url>" for url in locations)
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -671,11 +678,7 @@ def prepare_stable_html_for_indexing(stable_dir: Path, language: str) -> None:
             content,
         )
         if 'rel="canonical"' not in content:
-            relative = page.relative_to(stable_dir).as_posix()
-            suffix = relative.removesuffix("index.html")
-            if suffix == relative:
-                suffix = relative
-            canonical = f"{PRODUCTION_ORIGIN}/{language}/stable/{suffix}"
+            canonical = stable_page_url(page, stable_dir, language)
             content = content.replace(
                 "</head>",
                 f'<link rel="canonical" href="{html.escape(canonical, quote=True)}">\n</head>',
