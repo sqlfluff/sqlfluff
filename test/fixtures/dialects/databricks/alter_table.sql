@@ -110,8 +110,6 @@ ALTER TABLE rocks DROP COLUMN IF EXISTS rock, loc;
 
 ALTER TABLE rocks DROP COLUMN IF EXISTS (rock, loc);
 
-ALTER TABLE geometry_types ALTER COLUMN geom_default TYPE GEOMETRY;
-
 ALTER TABLE geometry_types ADD COLUMN geom_any GEOMETRY(ANY);
 
 ALTER TABLE geometry_types ALTER COLUMN geom_srid TYPE GEOMETRY(4326);

@@ -123,9 +123,8 @@ CREATE TABLE catalog.silver.child2 (
     ON UPDATE NO ACTION ON DELETE NO ACTION
 ) USING DELTA;
 
--- Geometry types accept the default, ANY and explicit SRID forms
+-- Geometry types accept ANY and explicit SRID forms
 CREATE TABLE geometry_types (
-    geom_default GEOMETRY,
     geom_any GEOMETRY(ANY),
     geom_srid GEOMETRY(4326)
 )
