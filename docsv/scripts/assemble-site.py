@@ -971,9 +971,7 @@ def assemble_site(
         stable_release=stable_release,
     )
     keys = {entry.get("key") for entry in manifest["versions"]}
-    manifest["default"] = (
-        "stable" if production_indexing() and "stable" in keys else "latest"
-    )
+    manifest["default"] = "stable" if "stable" in keys else "latest"
     if production_indexing() and "stable" in keys:
         # A normal main deploy may be the first after cutover. Its stable tree
         # came from R2, so clear the beta robots tag there as well.

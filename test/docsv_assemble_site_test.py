@@ -713,6 +713,63 @@ def test_the_404_page_comes_from_the_default_channel(assemble_site, tmp_path):
     assert (site / "404.html").read_text(encoding="utf-8") == "<html>latest 404</html>"
 
 
+def test_stable_becomes_the_default_even_in_beta_mode(
+    assemble_site, monkeypatch, tmp_path
+):
+    """A main publish keeps the landing page on stable once it exists."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_INDEXING_MODE", "beta")
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+    site = tmp_path / "site"
+    latest = _dist(tmp_path, "latest")
+    stable = _dist(tmp_path, "stable")
+    (latest / "404.html").write_text("latest 404", encoding="utf-8")
+    (stable / "404.html").write_text("stable 404", encoding="utf-8")
+
+    assemble_site.assemble_site(
+        dist=latest,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+    assert assemble_site.load_manifest(site / "en" / "versions.json")["default"] == (
+        "latest"
+    )
+
+    assemble_site.assemble_site(
+        dist=stable,
+        output_dir=site,
+        language="en",
+        channel="stable",
+        title="Stable",
+        kind="channel",
+        stable_release="4.3.0",
+        shared_dir=tmp_path / "absent",
+    )
+    assemble_site.assemble_site(
+        dist=latest,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+    assert assemble_site.load_manifest(site / "en" / "versions.json")["default"] == (
+        "stable"
+    )
+    redirects = (site / "_redirects").read_text(encoding="utf-8")
+    assert "/ /en/stable/ 302" in redirects
+    assert "/en/ /en/stable/ 302" in redirects
+    assert (site / "404.html").read_text(encoding="utf-8") == "stable 404"
+    assert "/en/*\n    X-Robots-Tag: noindex, nofollow" in (
+        site / "_headers"
+    ).read_text(encoding="utf-8")
+
+
 def test_the_404_page_tracks_the_default_channel_when_it_is_rebuilt(
     assemble_site, tmp_path
 ):

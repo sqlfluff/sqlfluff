@@ -24,6 +24,8 @@ Indexing policy:
 
 - `docs.sqlfluff.com/en/stable/` is the only indexed documentation version.
   Its HTML has canonical URLs on `docs.sqlfluff.com`.
+- The site root and `/en/` land on `/en/stable/` whenever stable is published,
+  including on beta. A latest-only site lands on `/en/latest/`.
 - `/en/latest/` and numbered releases remain accessible through the picker
   and direct links but get `X-Robots-Tag: noindex`. We do not claim their
   different content is a duplicate of stable.
@@ -285,7 +287,7 @@ The exact schema can evolve, but a practical initial contract is:
 
 ```json
 {
-  "default": "latest",
+  "default": "stable",
   "latest": "latest",
   "stable": "4.3.0",
   "versions": [
