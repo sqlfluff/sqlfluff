@@ -343,6 +343,17 @@ def _validate_one_reference(
     if single_table_references == this_ref_type:
         return None
 
+    # A single templated expression can render to more than one column. For
+    # example a Jinja/dbt `{{ cols }}` (or `dbt_utils.star()`) rendering to
+    # `customer_id, region` is lexed as several column references that all map
+    # back to the *same* template slice. We can still flag such references for
+    # consistency, but we must not attach a fix: inserting or deleting a
+    # qualifier around that shared slice would only touch the first rendered
+    # column (producing e.g. `orders.{{ cols }}` -> `orders.customer_id,
+    # region`, which leaves `region` unqualified) and silently corrupt the SQL.
+    # Leave the rewrite to the user when the reference is templated.
+    ref_is_templated = ref.is_templated
+
     # If not, it's the wrong type and we should handle it.
     if single_table_references == "unqualified":
         # If unqualified and not fixable, there is no error.
@@ -351,14 +362,18 @@ def _validate_one_reference(
         # If this is qualified we must have a "table", "."" at least
         return LintResult(
             anchor=ref,
-            fixes=[LintFix.delete(el) for el in ref.segments[:2]],
+            fixes=(
+                []
+                if ref_is_templated
+                else [LintFix.delete(el) for el in ref.segments[:2]]
+            ),
             description="{} reference {!r} found in single table select.".format(
                 this_ref_type.capitalize(), ref.raw
             ),
         )
 
     fixes = None
-    if fixable:
+    if fixable and not ref_is_templated:
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,
