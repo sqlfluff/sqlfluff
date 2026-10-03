@@ -260,6 +260,10 @@ class RsParser:
     def parse_match_result_from_tokens(
         self, tokens: List[RsToken]
     ) -> RsMatchResult: ...
+    @property
+    def furthest_failure(self) -> Optional[int]:
+        """Furthest token index at which the last parse's required element failed."""
+        ...
 
 def cp01_violations(
     tree: RsTree,

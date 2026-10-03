@@ -360,6 +360,15 @@ impl Parser<'_> {
                 .inst(content_ids[*content_idx])
                 .is_optional();
 
+        if current_required_failed {
+            // Python parity: when a required element inside the brackets fails,
+            // Python's inner matcher records the failure at the content position.
+            // Record the same position here so the two engines anchor the
+            // enclosing parse failure identically (rather than at the opening
+            // bracket).
+            self.record_failure(self.pos);
+        }
+
         // CRITICAL: Check if there are more content elements to parse
         // Continue parsing even if current element returned Empty (optional elements)
         if !current_required_failed && *content_idx + 1 < content_ids.len() {

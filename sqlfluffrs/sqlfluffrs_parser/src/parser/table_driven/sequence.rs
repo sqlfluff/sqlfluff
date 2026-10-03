@@ -359,6 +359,7 @@ impl Parser<'_> {
             let next_is_optional = self.grammar_ctx.is_optional(elements[next_element_idx]);
             if child_start_pos >= max_idx && !next_is_optional {
                 if parse_mode == ParseMode::Strict || matched_idx == start_idx {
+                    self.record_failure(matched_idx);
                     return Ok(stack.complete_frame_empty_at_pos(&frame, start_idx));
                 }
                 // GREEDY modes with partial match - wrap as UnparsableSegment
@@ -437,6 +438,13 @@ impl Parser<'_> {
         {
             // STRICT mode or GREEDY_ONCE_STARTED with no matches yet
             // - return Empty, from the beginning of the sequence
+            let failure_pos = self.calculate_sequence_child_start_position(
+                matched_idx,
+                allow_gaps,
+                current_element_grammar_id,
+                max_idx,
+            );
+            self.record_failure(failure_pos);
             return Ok(stack.complete_frame_empty_at_pos(&frame, start_idx));
         }
 

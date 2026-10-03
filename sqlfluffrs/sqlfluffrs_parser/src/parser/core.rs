@@ -187,6 +187,9 @@ pub struct Parser<'a> {
     pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
     pub(crate) max_parse_nodes: usize,
+    /// Furthest token index at which a required element failed to match, if
+    /// any. Used to anchor parse failures at the point the parser reached.
+    pub(crate) furthest_failure: std::cell::Cell<Option<usize>>,
 }
 
 impl<'a> Parser<'a> {
@@ -236,6 +239,7 @@ impl<'a> Parser<'a> {
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
             max_parse_nodes: 0,
+            furthest_failure: std::cell::Cell::new(None),
         }
     }
 
@@ -254,6 +258,20 @@ impl<'a> Parser<'a> {
     pub fn with_node_limit(mut self, max_parse_nodes: usize) -> Self {
         self.max_parse_nodes = max_parse_nodes;
         self
+    }
+
+    /// Record a required-element match failure at token index `idx`, keeping
+    /// only the furthest one seen.
+    pub fn record_failure(&self, idx: usize) {
+        match self.furthest_failure.get() {
+            Some(current) if current >= idx => {}
+            _ => self.furthest_failure.set(Some(idx)),
+        }
+    }
+
+    /// The furthest token index at which a required element failed to match.
+    pub fn furthest_failure(&self) -> Option<usize> {
+        self.furthest_failure.get()
     }
 
     fn check_parse_node_limit(

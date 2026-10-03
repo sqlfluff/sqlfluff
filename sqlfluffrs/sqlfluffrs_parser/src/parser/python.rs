@@ -461,6 +461,9 @@ pub struct PyParser {
     parser_warn_threshold: usize,
     max_parse_depth: usize,
     max_parse_nodes: usize,
+    /// Furthest token index at which the last parse's required element failed.
+    /// `usize::MAX` is the "no failure recorded" sentinel.
+    furthest_failure: std::sync::atomic::AtomicUsize,
 }
 
 #[pymethods]
@@ -500,6 +503,7 @@ impl PyParser {
             parser_warn_threshold: parser_warn_threshold.unwrap_or(2_000_000),
             max_parse_depth,
             max_parse_nodes,
+            furthest_failure: std::sync::atomic::AtomicUsize::new(usize::MAX),
         })
     }
 
@@ -507,6 +511,18 @@ impl PyParser {
     #[getter]
     fn dialect(&self) -> String {
         format!("{:?}", self.dialect).to_lowercase()
+    }
+
+    /// Furthest token index at which the last parse's required element failed.
+    #[getter]
+    fn furthest_failure(&self) -> Option<usize> {
+        match self
+            .furthest_failure
+            .load(std::sync::atomic::Ordering::Relaxed)
+        {
+            usize::MAX => None,
+            idx => Some(idx),
+        }
     }
 
     /// Parse SQL from tokens and return MatchResult (deferred AST construction)
@@ -537,6 +553,12 @@ impl PyParser {
 
         // Parse and get the MatchResult directly
         let match_result = parser.call_rule_as_root().map_err(parse_error_to_pyerr)?;
+
+        // Surface where the parse got to, for anchoring parse failures.
+        self.furthest_failure.store(
+            parser.furthest_failure().unwrap_or(usize::MAX),
+            std::sync::atomic::Ordering::Relaxed,
+        );
 
         Ok(PyMatchResult(match_result))
     }
