@@ -1,5 +1,6 @@
 """The Test file for CLI (General)."""
 
+import io
 import json
 import logging
 import os
@@ -873,6 +874,309 @@ def test__cli__verbose_machine_output_stays_serialized():
     json.loads(result.stdout)
     assert "==== sqlfluff ====" not in result.stdout
     assert result.stderr
+
+
+def test__cli__bench_machine_output_stays_serialized():
+    """--bench timings must not contaminate machine-readable stdout.
+
+    They should still be shown (on stderr), not silently dropped.
+    """
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=json",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    # The whole of stdout must be valid JSON: if --bench appended its
+    # "==== overall timings ====" table after the payload, this parse
+    # would fail with "Extra data".
+    json.loads(result.stdout)
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+
+
+def test__cli__bench_machine_output_stays_serialized_empty_write_output():
+    """An empty --write-output value must be treated like no file at all."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=json",
+                "--write-output=",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    # dump_file_payload() treats an empty --write-output as "write to
+    # stdout" (it checks truthiness, not `is not None`), so the payload
+    # lands on stdout here same as the no-write-output case above - and
+    # the bench table must still be shown, just on stderr.
+    json.loads(result.stdout)
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+
+
+def test__cli__bench_prints_to_stderr_for_format_none():
+    """--bench timings for --format=none go to stderr, not stdout.
+
+    format=none writes nothing to stdout, so the bench table cannot
+    corrupt a payload there either way, but it is routed to stderr for
+    consistency with every other non-human format.
+    """
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--format=none",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+
+
+def test__cli__bench_prints_to_stdout_for_format_human():
+    """--bench timings for the default human format stay on stdout."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                "--bench",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" in result.stdout
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="/dev/stdout is not available on Windows"
+)
+def test__cli__bench_write_output_dev_stdout_stays_serialized():
+    """--write-output=/dev/stdout must not be corrupted by --bench either.
+
+    dump_file_payload() opens --write-output as a real file, so when it is
+    given an alias for the process's actual stdout fd, anything written to
+    stdout via click.echo() lands in the same stream. Routing --bench to
+    stderr unconditionally for non-human formats (rather than only when
+    --write-output is unset) covers this case too.
+    """
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sqlfluff",
+            "lint",
+            "--bench",
+            "--format=json",
+            "--write-output=/dev/stdout",
+            "--disable-progress-bar",
+            "test/fixtures/cli/passing_a.sql",
+        ],
+        capture_output=True,
+        text=True,
+        env=os.environ,
+    )
+    json.loads(proc.stdout)
+    assert "==== overall timings ====" not in proc.stdout
+    assert "==== overall timings ====" in proc.stderr
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="/dev/stderr is not available on Windows"
+)
+def test__cli__bench_write_output_dev_stderr_stays_serialized():
+    """--write-output=/dev/stderr must not be corrupted by --bench either.
+
+    When the machine-readable payload is itself routed to stderr, the
+    bench summary (which would otherwise also go to stderr for
+    machine-readable formats) must move to stdout instead, or the two
+    would collide on the same stream.
+    """
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sqlfluff",
+            "lint",
+            "--bench",
+            "--format=json",
+            "--write-output=/dev/stderr",
+            "--disable-progress-bar",
+            "test/fixtures/cli/passing_a.sql",
+        ],
+        capture_output=True,
+        text=True,
+        env=os.environ,
+    )
+    # stderr may also carry unrelated warnings (e.g. plugin load-order
+    # notices) ahead of the payload, and the log handler itself prefixes
+    # records with escape sequences that contain "[". So don't assume the
+    # first "[" starts the payload: try to decode from each "[" in turn and
+    # take the first that yields a valid JSON document - then prove nothing
+    # (like the bench table) was appended after it.
+    decoder = json.JSONDecoder()
+    payload_end = None
+    for idx in (i for i, char in enumerate(proc.stderr) if char == "["):
+        try:
+            _, payload_end = decoder.raw_decode(proc.stderr, idx)
+        except json.JSONDecodeError:
+            continue
+        break
+    assert payload_end is not None, "no JSON payload found on stderr"
+    assert proc.stderr[payload_end:].strip() == ""
+    assert "==== overall timings ====" not in proc.stderr
+    assert "==== overall timings ====" in proc.stdout
+
+
+def test__cli__write_output_aliases_stderr_direct(tmp_path, monkeypatch):
+    """Exercise _write_output_aliases_stderr()'s branches in-process.
+
+    The subprocess tests above prove the end-to-end behaviour (needed
+    because Click's test runner fakes stdout/stderr without real OS file
+    descriptors to alias against), but this repo's coverage tooling has no
+    subprocess support configured, so a subprocess-only test can never
+    satisfy the 100% coverage gate for these helpers' own branches - drive
+    them directly here too.
+
+    The helper takes the ``fstat`` of the handle that wrote the payload
+    (what ``dump_file_payload`` returns), never a path, so it never opens
+    the target a second time.
+
+    Imported locally, not at module scope, so this whole file stays
+    collectable (and every other test in it still runs) against a tree
+    that predates this helper.
+    """
+    from sqlfluff.cli.commands import _write_output_aliases_stderr
+
+    target = tmp_path / "stderr-alias.txt"
+    with open(target, "w") as fake_stderr:
+        monkeypatch.setattr(sys, "stderr", fake_stderr)
+        # The payload's write handle IS stderr's handle: same dev/ino.
+        assert _write_output_aliases_stderr(os.fstat(fake_stderr.fileno())) is True
+        # A different file's identity doesn't alias stderr.
+        other = tmp_path / "other.txt"
+        other.write_text("")
+        assert _write_output_aliases_stderr(os.stat(str(other))) is False
+    # No payload file was written (went to stdout): nothing to alias.
+    assert _write_output_aliases_stderr(None) is False
+    # stderr has no real OS file descriptor to fstat (e.g. a Click/pytest
+    # captured stream): StringIO.fileno() raises io.UnsupportedOperation, an
+    # OSError subclass, so the probe can't alias and must return False.
+    monkeypatch.setattr(sys, "stderr", io.StringIO())
+    assert _write_output_aliases_stderr(os.stat(str(target))) is False
+
+
+class _FakeStderr:
+    """Minimal stderr stand-in exposing a real OS fd to fstat against."""
+
+    def __init__(self, fd):
+        self._fd = fd
+
+    def fileno(self):
+        return self._fd
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="FIFOs are POSIX-only",
+)
+def test__cli__dump_file_payload_fifo_opened_once(tmp_path, monkeypatch):
+    """A FIFO --write-output target must be opened exactly once.
+
+    Regression test for the double-open bug: the --bench alias probe used
+    to re-open the --write-output target by path to fstat it, so with
+    `--bench --format=json --write-output=<fifo>` a per-writer FIFO consumer
+    received a spurious second open after the payload (an empty, second
+    document). dump_file_payload now returns the fstat of its single write
+    handle and the bench decision reuses it, so the FIFO is opened once and
+    never again - while the alias is still detected correctly.
+    """
+    import threading
+
+    from sqlfluff.cli.commands import (
+        _bench_err_for_write_output,
+        dump_file_payload,
+    )
+
+    fifo = tmp_path / "payload.fifo"
+    os.mkfifo(fifo)
+
+    # Count every open of the FIFO path, via either builtins.open (how the
+    # payload is written) or os.open (how the old probe re-opened it). The
+    # old code would register a second open here; the new code must not.
+    opens: list = []
+    real_builtins_open = open
+    real_os_open = os.open
+
+    def _counting_open(file, mode="r", *args, **kwargs):
+        if str(file) == str(fifo):
+            opens.append(("open", mode))
+        return real_builtins_open(file, mode, *args, **kwargs)
+
+    def _counting_os_open(path, *args, **kwargs):
+        if str(path) == str(fifo):
+            opens.append(("os.open", None))
+        return real_os_open(path, *args, **kwargs)
+
+    # Drain the FIFO from a reader so the writer's open() doesn't block.
+    reads: list = []
+
+    def _reader():
+        with real_builtins_open(fifo, "r") as handle:
+            reads.append(handle.read())
+
+    reader = threading.Thread(target=_reader)
+    reader.start()
+
+    monkeypatch.setattr("builtins.open", _counting_open)
+    monkeypatch.setattr(os, "open", _counting_os_open)
+
+    write_output_stat = dump_file_payload(str(fifo), "[]")
+    # The bench decision must reuse the captured stat, not re-open the FIFO.
+    _bench_err_for_write_output(True, write_output_stat)
+
+    reader.join()
+
+    assert reads == ["[]"]
+    assert opens == [("open", "w")], f"FIFO opened more than once: {opens}"
+
+
+def test__cli__bench_err_for_write_output_direct(tmp_path, monkeypatch):
+    """Exercise _bench_err_for_write_output()'s branches in-process.
+
+    Same rationale as test__cli__write_output_aliases_stderr_direct above:
+    the caller in lint() only ever sees this decision made correctly via a
+    real subprocess, so pin every branch here where coverage can see it.
+    Imported locally for the same collectability reason as that test.
+    """
+    from sqlfluff.cli.commands import _bench_err_for_write_output
+
+    target = tmp_path / "stderr-alias.txt"
+    with open(target, "w") as fake_stderr:
+        monkeypatch.setattr(sys, "stderr", fake_stderr)
+        alias_stat = os.fstat(fake_stderr.fileno())
+        # Payload aliases stderr: flip bench off stderr.
+        assert _bench_err_for_write_output(True, alias_stat) is False
+        # Payload written elsewhere: leave bench on stderr.
+        other = tmp_path / "x.txt"
+        other.write_text("")
+        assert _bench_err_for_write_output(True, os.stat(str(other))) is True
+        # Nothing written to a file (payload went to stdout): don't flip.
+        assert _bench_err_for_write_output(True, None) is True
+    # bench_err already False (human format): stays False regardless.
+    assert _bench_err_for_write_output(False, alias_stat) is False
 
 
 @pytest.mark.parametrize("command", [lint, fix, cli_format])

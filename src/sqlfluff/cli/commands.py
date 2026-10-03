@@ -658,15 +658,77 @@ def dialects(**kwargs) -> None:
     click.echo(formatter.format_dialects(dialect_readout), color=c.get("color"))
 
 
-def dump_file_payload(filename: Optional[str], payload: str) -> None:
-    """Write the output file content to stdout or file."""
+def dump_file_payload(
+    filename: Optional[str], payload: str
+) -> Optional[os.stat_result]:
+    """Write the output file content to stdout or file.
+
+    Returns the ``fstat`` of the file handle the payload was written to, so
+    a caller can identify which stream it actually landed on (e.g. whether
+    ``--write-output`` aliased stderr) WITHOUT opening the target a second
+    time. Returns ``None`` when the payload went to stdout.
+    """
     # If there's a file specified to write to, write to it.
     if filename:
         with open(filename, "w") as out_file:
             out_file.write(payload)
+            # Capture the identity of the very handle we just wrote through.
+            # Re-opening the path to stat it would be wrong for one-shot
+            # targets: with `--bench --format=json --write-output=<fifo>` a
+            # second open would hand a per-writer FIFO consumer a spurious
+            # extra connection (an empty, second document).
+            return os.fstat(out_file.fileno())
     # Otherwise write to stdout
     else:
         click.echo(payload)
+        return None
+
+
+def _write_output_aliases_stderr(write_output_stat: Optional[os.stat_result]) -> bool:
+    """Return True if the written `--write-output` payload shares stderr.
+
+    Used so a diagnostic normally routed to stderr to avoid colliding with
+    a machine-readable payload (e.g. --bench) doesn't instead collide with
+    that payload when the user has pointed --write-output at stderr itself
+    (e.g. --write-output=/dev/stderr).
+
+    `write_output_stat` is the ``fstat`` of the handle that WROTE the
+    payload (captured by ``dump_file_payload``), never a fresh stat of the
+    path. Reusing that handle's identity means:
+
+    * the target is never opened a second time - so a FIFO consumer sees
+      only the single, expected writer connection; and
+    * the comparison works for redirections like --write-output=/dev/stderr
+      on every platform, including macOS/BSD where stat-ing the
+      ``/dev/stderr`` path reports a synthetic ``/dev/fd`` node rather than
+      the stream it redirects to - the write handle already followed that
+      redirection.
+    """
+    if write_output_stat is None:
+        return False
+    try:
+        stderr_stat = os.fstat(sys.stderr.fileno())
+    except OSError:
+        return False
+    return (
+        write_output_stat.st_dev == stderr_stat.st_dev
+        and write_output_stat.st_ino == stderr_stat.st_ino
+    )
+
+
+def _bench_err_for_write_output(
+    bench_err: bool, write_output_stat: Optional[os.stat_result]
+) -> bool:
+    """Decide whether --bench diagnostics should still go to stderr.
+
+    `bench_err` is the caller's default (True for machine-readable
+    formats). If the machine-readable payload itself was written to
+    stderr (aliased via --write-output), the bench summary must move to
+    stdout instead, or the two would collide on the same stream.
+    """
+    if bench_err and _write_output_aliases_stderr(write_output_stat):
+        return False
+    return bench_err
 
 
 @cli.command()
@@ -1070,21 +1132,35 @@ def lint(
                 )
         file_output = json.dumps(gitlab_result, indent=2)
 
+    write_output_stat: Optional[os.stat_result] = None
     if file_output:
-        dump_file_payload(write_output, file_output)
+        write_output_stat = dump_file_payload(write_output, file_output)
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
 
     output_stream.close()
+    # NB: For machine-readable formats (json, yaml, sarif, ...) the bench
+    # summary goes to stderr instead of stdout, so it can never land next to
+    # (or inside, via an alias like --write-output=/dev/stdout) a payload
+    # that must stay parseable on its own - while still always showing the
+    # timings the user asked for. If the payload itself was written to
+    # stderr (e.g. --write-output=/dev/stderr), the bench summary is routed
+    # to stdout instead, so it stays out of whichever stream carries the
+    # payload.
     if bench:
-        click.echo("==== overall timings ====")
-        click.echo(formatter.cli_table([("Clock time", result.total_time)]))
+        bench_err = output_policy.machine_output
+        bench_err = _bench_err_for_write_output(bench_err, write_output_stat)
+        click.echo("==== overall timings ====", err=bench_err)
+        click.echo(
+            formatter.cli_table([("Clock time", result.total_time)]), err=bench_err
+        )
         timing_summary = result.timing_summary()
         for step in timing_summary:
-            click.echo(f"=== {step} ===")
+            click.echo(f"=== {step} ===", err=bench_err)
             click.echo(
-                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20)
+                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20),
+                err=bench_err,
             )
 
     if not nofail:
