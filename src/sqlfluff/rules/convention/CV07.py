@@ -112,12 +112,8 @@ class Rule_CV07(BaseRule):
             lift_nodes = list(dict.fromkeys(leading + trailing))
             fixes = []
             if lift_nodes:
-                # NOTE: create_before()/create_after() both assert a non-empty
-                # edit, so each is only safe to call when that side actually
-                # has liftable content. Liftable content is very often
-                # one-sided (e.g. a single leading space with nothing to
-                # lift at the trailing end), so guard them independently
-                # rather than on the combined ``lift_nodes``.
+                # create_before()/create_after() assert a non-empty edit, and
+                # liftable content is often one-sided, so guard each side.
                 if leading:
                     fixes.append(LintFix.create_before(parent, list(leading)))
                 if trailing:
