@@ -514,7 +514,12 @@ impl PyParser {
     /// This returns a MatchResult that Python can apply using its own apply() logic,
     /// avoiding double-counting issues and allowing Python to maintain control over
     /// the AST construction process.
-    pub fn parse_match_result_from_tokens(&self, tokens: Vec<PyToken>) -> PyResult<PyMatchResult> {
+    #[pyo3(signature = (tokens, base_node_count=None))]
+    pub fn parse_match_result_from_tokens(
+        &self,
+        tokens: Vec<PyToken>,
+        base_node_count: Option<usize>,
+    ) -> PyResult<PyMatchResult> {
         // Convert PyToken to internal Token
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
@@ -533,7 +538,8 @@ impl PyParser {
             self.max_parse_depth,
         )
         .with_parser_limits(self.max_parser_iterations, self.parser_warn_threshold)
-        .with_node_limit(self.max_parse_nodes);
+        .with_node_limit(self.max_parse_nodes)
+        .with_base_node_count(base_node_count.unwrap_or(0));
 
         // Parse and get the MatchResult directly
         let match_result = parser.call_rule_as_root().map_err(parse_error_to_pyerr)?;
