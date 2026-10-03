@@ -306,6 +306,82 @@ class DbtTemplater(JinjaTemplater):
 
         return DbtCompiler(self.dbt_config)
 
+    def _register_catalog_integrations(self) -> None:
+        """Register catalog integrations before dbt parses the manifest."""
+        if self.dbt_version_tuple < (1, 10):
+            return
+
+        from dbt.adapters.factory import get_adapter
+        from dbt.config import catalogs as dbt_catalogs
+
+        adapter = get_adapter(self.dbt_config)
+        project_dir = self.dbt_config.project_root
+        project_name = self.dbt_config.project_name
+        cli_vars = self.dbt_config.cli_vars
+        flags = self.dbt_config.flags
+        use_catalogs_v2 = (
+            flags.get("use_catalogs_v2", False)
+            if isinstance(flags, dict)
+            else getattr(flags, "USE_CATALOGS_V2", False)
+        )
+
+        if use_catalogs_v2:
+            load_catalogs_v2 = getattr(dbt_catalogs, "load_catalogs_v2", None)
+            if load_catalogs_v2 is None:
+                raise SQLFluffUserError(
+                    "This dbt version does not support catalogs.yml v2. "
+                    "Use catalogs.yml v1 or upgrade dbt."
+                )
+            from dbt.adapters.capability import Capability
+
+            catalogs = load_catalogs_v2(project_dir, project_name, cli_vars)
+            catalogs_v2_capability = getattr(Capability, "CatalogsV2", None)
+            if catalogs and (
+                catalogs_v2_capability is None
+                or not adapter.capabilities()[catalogs_v2_capability]
+            ):
+                raise SQLFluffUserError(
+                    f"Adapter '{adapter.type()}' does not support catalogs.yml v2. "
+                    "Use catalogs.yml v1 or upgrade the adapter."
+                )
+            integrations = [adapter.bridge_v2_catalog(catalog) for catalog in catalogs]
+        else:
+            integrations = [
+                dbt_catalogs.get_active_write_integration(catalog)
+                for catalog in dbt_catalogs.load_catalogs(
+                    project_dir, project_name, cli_vars
+                )
+            ]
+
+        from dbt.adapters.catalogs import DbtCatalogIntegrationAlreadyExistsError
+
+        for integration in integrations:
+            if integration is None:
+                continue
+            try:
+                adapter.add_catalog_integration(integration)
+            except DbtCatalogIntegrationAlreadyExistsError:
+                # dbt's adapter is process-global and can already contain this
+                # integration when SQLFluff loads more than one project. Only
+                # ignore an equivalent registration; do not hide a collision
+                # with a different configuration.
+                existing = adapter.get_catalog_integration(integration.name)
+                attributes = (
+                    "catalog_type",
+                    "catalog_name",
+                    "table_format",
+                    "file_format",
+                    "external_volume",
+                    "catalog_database",
+                )
+                if all(
+                    getattr(existing, attribute, None)
+                    == getattr(integration, attribute, None)
+                    for attribute in attributes
+                ):
+                    continue
+                raise
+
     @cached_property
     @handle_dbt_errors(
         SQLFluffUserError,
@@ -324,6 +400,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
+        self._register_catalog_integrations()
         return ManifestLoader.get_full_manifest(self.dbt_config)
 
     @cached_property
