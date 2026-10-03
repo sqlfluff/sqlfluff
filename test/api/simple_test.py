@@ -499,8 +499,8 @@ def test__api__parse_fail():
         assert (
             str(err)
             == """Found 2 issues while parsing string.
-Line 1, Position 15: Found unparsable section: '+++'
-Line 1, Position 41: Found unparsable section: 'blah'"""
+Line 1, Position 15: Found unparsable section: '+++'. Expected: Nothing here.
+Line 1, Position 41: Found unparsable section: 'blah'. Expected: Nothing here."""
         )
 
 

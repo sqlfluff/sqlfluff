@@ -21,6 +21,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.helpers.string import curtail_string
 from sqlfluff.core.linter.common import (
     ParsedString,
     ParsedVariant,
@@ -318,20 +319,19 @@ class Linter:
             # No exception has been raised explicitly, but we still create one here
             # so that we can use the common interface
             assert unparsable.pos_marker
-            violations.append(
-                SQLParseError(
-                    "Line {0[0]}, Position {0[1]}: Found unparsable section: "
-                    "{1!r}".format(
-                        unparsable.pos_marker.working_loc,
-                        (
-                            unparsable.raw
-                            if len(unparsable.raw) < 40
-                            else unparsable.raw[:40] + "..."
-                        ),
-                    ),
-                    segment=unparsable,
+            _raw = unparsable.raw
+            if len(_raw) > 80:
+                _raw = _raw[:80] + "..."
+            _description = (
+                "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                    unparsable.pos_marker.working_loc, _raw
                 )
             )
+            if unparsable._expected:
+                _description += ". Expected: {0}".format(
+                    curtail_string(unparsable._expected, 80)
+                )
+            violations.append(SQLParseError(_description, segment=unparsable))
             if linter_logger.isEnabledFor(logging.INFO):
                 linter_logger.info("Found unparsable segment...")
                 linter_logger.info(unparsable.stringify())
