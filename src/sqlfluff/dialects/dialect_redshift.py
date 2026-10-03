@@ -3007,8 +3007,8 @@ class ExcludeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXCLUDE",
         OneOf(
-            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Delimited(Ref("SingleIdentifierGrammar")),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Delimited(Ref("ColumnReferenceSegment")),
         ),
     )
 
