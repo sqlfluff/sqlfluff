@@ -658,58 +658,66 @@ def dialects(**kwargs) -> None:
     click.echo(formatter.format_dialects(dialect_readout), color=c.get("color"))
 
 
-def dump_file_payload(filename: Optional[str], payload: str) -> None:
-    """Write the output file content to stdout or file."""
+def dump_file_payload(
+    filename: Optional[str], payload: str
+) -> Optional[os.stat_result]:
+    """Write the output file content to stdout or file.
+
+    Returns the ``fstat`` of the file handle the payload was written to, so
+    a caller can identify which stream it actually landed on (e.g. whether
+    ``--write-output`` aliased stderr) WITHOUT opening the target a second
+    time. Returns ``None`` when the payload went to stdout.
+    """
     # If there's a file specified to write to, write to it.
     if filename:
         with open(filename, "w") as out_file:
             out_file.write(payload)
+            # Capture the identity of the very handle we just wrote through.
+            # Re-opening the path to stat it would be wrong for one-shot
+            # targets: with `--bench --format=json --write-output=<fifo>` a
+            # second open would hand a per-writer FIFO consumer a spurious
+            # extra connection (an empty, second document).
+            return os.fstat(out_file.fileno())
     # Otherwise write to stdout
     else:
         click.echo(payload)
+        return None
 
 
-def _write_output_aliases_stderr(filename: Optional[str]) -> bool:
-    """Return True if `--write-output` targets the same stream as stderr.
+def _write_output_aliases_stderr(write_output_stat: Optional[os.stat_result]) -> bool:
+    """Return True if the written `--write-output` payload shares stderr.
 
-    Used so a diagnostic that is normally routed to stderr to avoid
-    colliding with a machine-readable payload (e.g. --bench) doesn't
-    instead collide with that payload when the user has pointed
-    --write-output at stderr itself (e.g. --write-output=/dev/stderr).
+    Used so a diagnostic normally routed to stderr to avoid colliding with
+    a machine-readable payload (e.g. --bench) doesn't instead collide with
+    that payload when the user has pointed --write-output at stderr itself
+    (e.g. --write-output=/dev/stderr).
 
-    The target is identified by opening it and comparing the open file's
-    device/inode to stderr's, rather than `os.stat()`-ing the path: on
-    macOS/BSD a path like `/dev/stderr` is its own device node, so stat-ing
-    the path reports that node rather than the stream it redirects to, and
-    the comparison would wrongly miss the alias. `os.open()` follows the
-    redirection, so the fstat sees the real underlying stream on every
-    platform (on Linux `/dev/stderr` already resolves via `/proc`).
+    `write_output_stat` is the ``fstat`` of the handle that WROTE the
+    payload (captured by ``dump_file_payload``), never a fresh stat of the
+    path. Reusing that handle's identity means:
+
+    * the target is never opened a second time - so a FIFO consumer sees
+      only the single, expected writer connection; and
+    * the comparison works for redirections like --write-output=/dev/stderr
+      on every platform, including macOS/BSD where stat-ing the
+      ``/dev/stderr`` path reports a synthetic ``/dev/fd`` node rather than
+      the stream it redirects to - the write handle already followed that
+      redirection.
     """
-    if not filename:
+    if write_output_stat is None:
         return False
     try:
         stderr_stat = os.fstat(sys.stderr.fileno())
     except OSError:
         return False
-    # O_NONBLOCK (where available) so an exotic target such as a reader-less
-    # FIFO can't make this probe hang; it's ignored for regular files.
-    flags = os.O_WRONLY | getattr(os, "O_NONBLOCK", 0)
-    try:
-        fd = os.open(filename, flags)
-    except OSError:
-        return False
-    try:
-        target_stat = os.fstat(fd)
-    finally:
-        os.close(fd)
     return (
-        target_stat.st_dev == stderr_stat.st_dev
-        and target_stat.st_ino == stderr_stat.st_ino
+        write_output_stat.st_dev == stderr_stat.st_dev
+        and write_output_stat.st_ino == stderr_stat.st_ino
     )
 
 
 def _bench_err_for_write_output(
-    bench_err: bool, file_output: Optional[str], write_output: Optional[str]
+    bench_err: bool, write_output_stat: Optional[os.stat_result]
 ) -> bool:
     """Decide whether --bench diagnostics should still go to stderr.
 
@@ -718,7 +726,7 @@ def _bench_err_for_write_output(
     stderr (aliased via --write-output), the bench summary must move to
     stdout instead, or the two would collide on the same stream.
     """
-    if bench_err and file_output and _write_output_aliases_stderr(write_output):
+    if bench_err and _write_output_aliases_stderr(write_output_stat):
         return False
     return bench_err
 
@@ -1124,8 +1132,9 @@ def lint(
                 )
         file_output = json.dumps(gitlab_result, indent=2)
 
+    write_output_stat: Optional[os.stat_result] = None
     if file_output:
-        dump_file_payload(write_output, file_output)
+        write_output_stat = dump_file_payload(write_output, file_output)
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
@@ -1141,7 +1150,7 @@ def lint(
     # payload.
     if bench:
         bench_err = output_policy.machine_output
-        bench_err = _bench_err_for_write_output(bench_err, file_output, write_output)
+        bench_err = _bench_err_for_write_output(bench_err, write_output_stat)
         click.echo("==== overall timings ====", err=bench_err)
         click.echo(
             formatter.cli_table([("Clock time", result.total_time)]), err=bench_err

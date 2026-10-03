@@ -1050,6 +1050,10 @@ def test__cli__write_output_aliases_stderr_direct(tmp_path, monkeypatch):
     satisfy the 100% coverage gate for these helpers' own branches - drive
     them directly here too.
 
+    The helper takes the ``fstat`` of the handle that wrote the payload
+    (what ``dump_file_payload`` returns), never a path, so it never opens
+    the target a second time.
+
     Imported locally, not at module scope, so this whole file stays
     collectable (and every other test in it still runs) against a tree
     that predates this helper.
@@ -1059,15 +1063,94 @@ def test__cli__write_output_aliases_stderr_direct(tmp_path, monkeypatch):
     target = tmp_path / "stderr-alias.txt"
     with open(target, "w") as fake_stderr:
         monkeypatch.setattr(sys, "stderr", fake_stderr)
-        assert _write_output_aliases_stderr(str(target)) is True
-        assert _write_output_aliases_stderr(str(tmp_path / "missing.txt")) is False
+        # The payload's write handle IS stderr's handle: same dev/ino.
+        assert _write_output_aliases_stderr(os.fstat(fake_stderr.fileno())) is True
+        # A different file's identity doesn't alias stderr.
+        other = tmp_path / "other.txt"
+        other.write_text("")
+        assert _write_output_aliases_stderr(os.stat(str(other))) is False
+    # No payload file was written (went to stdout): nothing to alias.
+    assert _write_output_aliases_stderr(None) is False
     # stderr has no real OS file descriptor to fstat (e.g. a Click/pytest
     # captured stream): StringIO.fileno() raises io.UnsupportedOperation, an
     # OSError subclass, so the probe can't alias and must return False.
     monkeypatch.setattr(sys, "stderr", io.StringIO())
-    assert _write_output_aliases_stderr(str(target)) is False
-    assert _write_output_aliases_stderr(None) is False
-    assert _write_output_aliases_stderr("") is False
+    assert _write_output_aliases_stderr(os.stat(str(target))) is False
+
+
+class _FakeStderr:
+    """Minimal stderr stand-in exposing a real OS fd to fstat against."""
+
+    def __init__(self, fd):
+        self._fd = fd
+
+    def fileno(self):
+        return self._fd
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="FIFOs are POSIX-only",
+)
+def test__cli__dump_file_payload_fifo_opened_once(tmp_path, monkeypatch):
+    """A FIFO --write-output target must be opened exactly once.
+
+    Regression test for the double-open bug: the --bench alias probe used
+    to re-open the --write-output target by path to fstat it, so with
+    `--bench --format=json --write-output=<fifo>` a per-writer FIFO consumer
+    received a spurious second open after the payload (an empty, second
+    document). dump_file_payload now returns the fstat of its single write
+    handle and the bench decision reuses it, so the FIFO is opened once and
+    never again - while the alias is still detected correctly.
+    """
+    import threading
+
+    from sqlfluff.cli.commands import (
+        _bench_err_for_write_output,
+        dump_file_payload,
+    )
+
+    fifo = tmp_path / "payload.fifo"
+    os.mkfifo(fifo)
+
+    # Count every open of the FIFO path, via either builtins.open (how the
+    # payload is written) or os.open (how the old probe re-opened it). The
+    # old code would register a second open here; the new code must not.
+    opens: list = []
+    real_builtins_open = open
+    real_os_open = os.open
+
+    def _counting_open(file, mode="r", *args, **kwargs):
+        if str(file) == str(fifo):
+            opens.append(("open", mode))
+        return real_builtins_open(file, mode, *args, **kwargs)
+
+    def _counting_os_open(path, *args, **kwargs):
+        if str(path) == str(fifo):
+            opens.append(("os.open", None))
+        return real_os_open(path, *args, **kwargs)
+
+    # Drain the FIFO from a reader so the writer's open() doesn't block.
+    reads: list = []
+
+    def _reader():
+        with real_builtins_open(fifo, "r") as handle:
+            reads.append(handle.read())
+
+    reader = threading.Thread(target=_reader)
+    reader.start()
+
+    monkeypatch.setattr("builtins.open", _counting_open)
+    monkeypatch.setattr(os, "open", _counting_os_open)
+
+    write_output_stat = dump_file_payload(str(fifo), "[]")
+    # The bench decision must reuse the captured stat, not re-open the FIFO.
+    _bench_err_for_write_output(True, write_output_stat)
+
+    reader.join()
+
+    assert reads == ["[]"]
+    assert opens == [("open", "w")], f"FIFO opened more than once: {opens}"
 
 
 def test__cli__bench_err_for_write_output_direct(tmp_path, monkeypatch):
@@ -1083,18 +1166,17 @@ def test__cli__bench_err_for_write_output_direct(tmp_path, monkeypatch):
     target = tmp_path / "stderr-alias.txt"
     with open(target, "w") as fake_stderr:
         monkeypatch.setattr(sys, "stderr", fake_stderr)
+        alias_stat = os.fstat(fake_stderr.fileno())
         # Payload aliases stderr: flip bench off stderr.
-        assert _bench_err_for_write_output(True, "payload", str(target)) is False
-        # write_output doesn't alias stderr: leave bench on stderr.
-        assert (
-            _bench_err_for_write_output(True, "payload", str(tmp_path / "x.txt"))
-            is True
-        )
-        # --format=none: file_output is "" even though write_output was
-        # given, so nothing was actually written to it - don't flip.
-        assert _bench_err_for_write_output(True, "", str(target)) is True
+        assert _bench_err_for_write_output(True, alias_stat) is False
+        # Payload written elsewhere: leave bench on stderr.
+        other = tmp_path / "x.txt"
+        other.write_text("")
+        assert _bench_err_for_write_output(True, os.stat(str(other))) is True
+        # Nothing written to a file (payload went to stdout): don't flip.
+        assert _bench_err_for_write_output(True, None) is True
     # bench_err already False (human format): stays False regardless.
-    assert _bench_err_for_write_output(False, "payload", None) is False
+    assert _bench_err_for_write_output(False, alias_stat) is False
 
 
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
