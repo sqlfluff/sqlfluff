@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6815f531db76686031947110f91ee5ea9920df9576c90539b3ba8eab418df8c
+_hash: d44a2518a5b281eaa04e71d0e241f4f5074dbd0706fbeb617e627376def4e242
 file:
   batch:
   - statement:
@@ -338,4 +338,106 @@ file:
                   alias_expression:
                     naked_identifier: p
           end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: NEW_VIEW
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '100'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: SIZE_RATIO
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: DUAL
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: NEW_VIEW
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: T
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: SAMPLE_TIME
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - bare_function: SYSDATE
+            - binary_operator: '-'
+            - numeric_literal: '1'
+            - binary_operator: /
+            - numeric_literal: '24'
+  - statement_terminator: ;
+  - statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+          naked_identifier: NEW_VIEW
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - function:
+                  function_name:
+                    function_name_identifier: NVL
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: BYTES
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '0'
+                    - end_bracket: )
+              - binary_operator: /
+              - numeric_literal: '1024'
+              - binary_operator: /
+              - numeric_literal: '1024'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: SIZE_MB
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: T
   - statement_terminator: ;
