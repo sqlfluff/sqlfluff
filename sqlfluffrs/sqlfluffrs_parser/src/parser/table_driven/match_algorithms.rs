@@ -166,6 +166,9 @@ impl Parser<'_> {
     ///
     /// Edge case: if the terminator is at the very start of the search range
     /// (`_start_idx == working_idx`), Python allows it without whitespace.
+    ///
+    /// A closing bracket also counts: a keyword glued to one (`(a)FROM t`) is
+    /// still a terminator, because no word-like token can absorb it.
     pub(crate) fn is_preceded_by_whitespace(
         &self,
         tokens: &[Token],
@@ -184,9 +187,22 @@ impl Parser<'_> {
                 continue;
             }
             // Found a concrete token before position i
+            let token_type = tok.get_type();
+            let token_raw = tok.raw();
             return tok.is_whitespace()
-                || tok.get_type() == "newline"
-                || tok.get_type() == "whitespace";
+                || token_type == "newline"
+                || token_type == "whitespace"
+                // A closing bracket is an unambiguous code boundary: a keyword
+                // may follow one directly (`(a)FROM t`) and should still
+                // terminate. Only a word-like token could absorb the keyword
+                // into the preceding token, so the whitespace requirement does
+                // not apply after a bracket. The Rust lexer leaves brackets as
+                // `raw` tokens (the Python parser re-types them), so match on
+                // the raw bracket rather than the segment type.
+                // PYTHON PARITY: `greedy_match()` in `match_algorithms.py`.
+                || token_raw == ")"
+                || token_raw == "]"
+                || token_raw == "}";
         }
         // Went all the way back to start_idx — allow it (first element)
         true
