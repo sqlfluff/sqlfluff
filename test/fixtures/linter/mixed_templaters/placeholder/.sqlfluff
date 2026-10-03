@@ -1,0 +1,5 @@
+[sqlfluff]
+templater = placeholder
+
+[sqlfluff:templater:placeholder]
+param_regex = \{(?P<param_name>\w+)\}
