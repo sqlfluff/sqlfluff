@@ -22,12 +22,18 @@ anything_dialect_exclude_bracket_unclosed:
     universal ASCII closer.
 anything_crossed_ascii_bracket_raises:
   sql: CREATE TABLE t (col VARCHAR(x ( y ] z )))
-  expect: error
+  expect: tree
   pins: "ASCII-bracket variant of the crossed-bracket detection gap fixed alongside
     materialize_curly_cross_silent_recovery - core.rs's match_bracket_recursively
     now raises on any wrong-type ASCII closing bracket crossed inside an Anything()
     region, matching Python's resolve_bracket SQLParseError (\"Found unexpected end
-    bracket!, was expecting <StringParser: ')'>, but got <StringParser: ']'>\")."
+    bracket!, was expecting <StringParser: ')'>, but got <StringParser: ']'>\").
+    The expectation changed from error to tree when data type argument arity was
+    bound (#8589): VARCHAR now takes a LengthTypeArguments bracket rather than
+    falling through ColumnDefinitionSegment's Anything() catch-all (removed), so
+    this input reaches a graceful unparsable section in both engines instead of
+    the raising path. The raise itself is still pinned by
+    materialize_curly_cross_silent_recovery."
 bracketed_required_content_fails_at_close_bracket:
   sql: select CAST(5);
   dialect: tsql

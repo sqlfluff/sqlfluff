@@ -1190,12 +1190,21 @@ class PrimitiveTypeSegment(BaseSegment):
         # CHAR, CHARACTER, and VARCHAR require mandatory length
         Sequence(
             OneOf("CHAR", "CHARACTER", "VARCHAR"),
-            Ref("BracketedArguments"),
+            Ref("LengthTypeArguments"),
         ),
         # DECIMAL, DEC, and NUMERIC have optional precision/scale
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMERIC"),
-            Ref("BracketedArguments", optional=True),
+            Ref("NumericTypeArguments", optional=True),
+        ),
+        # Geospatial types require a single SRID (or `ANY`).
+        Sequence(
+            MultiStringParser(
+                ("GEOGRAPHY", "GEOMETRY"),
+                CodeSegment,
+                type="data_type_identifier",
+            ),
+            Ref("SridTypeArguments"),
         ),
         "BINARY",
         "INTERVAL",
@@ -1578,7 +1587,6 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("ColumnReferenceSegment"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
