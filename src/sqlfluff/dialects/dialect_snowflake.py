@@ -1882,6 +1882,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -1894,6 +1895,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 parse_mode=ParseMode.GREEDY,
             ),
         ),
+        Dedent,
     )
 
 
@@ -1912,8 +1914,10 @@ class InsertStatementSegment(BaseSegment):
             # Single table INSERT INTO.
             Sequence(
                 "INTO",
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref("SelectableGrammar"),
             ),
             # Unconditional multi-table INSERT INTO.
@@ -1922,8 +1926,10 @@ class InsertStatementSegment(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         "INTO",
+                        Indent,
                         Ref("TableReferenceSegment"),
                         Ref("BracketedColumnReferenceListGrammar", optional=True),
+                        Dedent,
                         Ref("ValuesClauseSegment", optional=True),
                     ),
                     min_times=1,
@@ -1944,10 +1950,12 @@ class InsertStatementSegment(BaseSegment):
                         AnyNumberOf(
                             Sequence(
                                 "INTO",
+                                Indent,
                                 Ref("TableReferenceSegment"),
                                 Ref(
                                     "BracketedColumnReferenceListGrammar", optional=True
                                 ),
+                                Dedent,
                                 Ref("ValuesClauseSegment", optional=True),
                             ),
                             min_times=1,
@@ -1958,8 +1966,10 @@ class InsertStatementSegment(BaseSegment):
                 Sequence(
                     "ELSE",
                     "INTO",
+                    Indent,
                     Ref("TableReferenceSegment"),
                     Ref("BracketedColumnReferenceListGrammar", optional=True),
+                    Dedent,
                     Ref("ValuesClauseSegment", optional=True),
                     optional=True,
                 ),
@@ -10499,8 +10509,10 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DELETE",
         "FROM",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Sequence(
             "USING",
             Indent,
@@ -10771,8 +10783,10 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 

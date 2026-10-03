@@ -2649,9 +2649,10 @@ test_fail_postgres_on_conflict_returning:
     SET
     bar = $2;
   fix_str: |
-    INSERT INTO foo (
-        id, bar
-    )
+    INSERT INTO
+        foo (
+            id, bar
+        )
     VALUES (
         $1, $2
     ) ON CONFLICT (id) DO UPDATE
@@ -2856,8 +2857,8 @@ test_pass_from_values_same_line_implicit_allow:
   pass_str: |
     SELECT *
     FROM VALUES
-        (1, 'something'),
-        (2, 'something');
+            (1, 'something'),
+            (2, 'something');
   configs:
     core:
       dialect: snowflake
@@ -2881,8 +2882,8 @@ test_pass_from_values_separate_line_implicit_allow:
     SELECT *
     FROM
         VALUES
-        (1, 'something'),
-        (2, 'something');
+            (1, 'something'),
+            (2, 'something');
   configs:
     core:
       dialect: snowflake
@@ -2895,14 +2896,374 @@ test_pass_from_values_bracketed_implicit_allow:
     SELECT *
     FROM (
         VALUES
-        (1, 'something'),
-        (2, 'something')
+            (1, 'something'),
+            (2, 'something')
     );
   configs:
     core:
       dialect: snowflake
     indentation:
       implicit_indents: allow
+
+test_pass_ansi_values_rows_indented:
+  # VALUES rows nest one level under the VALUES keyword, like any clause.
+  pass_str: |
+    VALUES
+        (1, 2),
+        (3, 4);
+
+test_pass_postgres_insert_values_rows_indented:
+  # Issue 5855: VALUES rows nest one level under the VALUES keyword.
+  pass_str: |
+    INSERT INTO foo (bar, baz)
+    VALUES
+        (1, 2),
+        (3, 4);
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_insert_target_indented:
+  # Issue 5855: INSERT target nests one level,
+  # like UPDATE and MERGE targets.
+  pass_str: |
+    INSERT INTO
+        assets (
+            id,
+            filename
+        )
+    VALUES
+        (1, 'f');
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_insert_target_columns_broken:
+  # Table and column list share one indent level when broken across lines.
+  pass_str: |
+    INSERT INTO
+        foo
+        (bar, baz)
+    VALUES
+        (1, 2);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_insert_values_flat_rows:
+  # Issue 5855: rows at the VALUES level are fixed to nest one level deeper.
+  fail_str: |
+    INSERT INTO foo (bar, baz)
+    VALUES
+    (1, 2),
+    (3, 4);
+  fix_str: |
+    INSERT INTO foo (bar, baz)
+    VALUES
+        (1, 2),
+        (3, 4);
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_insert_target_unindented:
+  # Issue 5855: flat INSERT target and rows are fixed to nest.
+  fail_str: |
+    INSERT INTO
+    assets (
+    id,
+    filename
+    )
+    VALUES
+    (1, 'f');
+  fix_str: |
+    INSERT INTO
+        assets (
+            id,
+            filename
+        )
+    VALUES
+        (1, 'f');
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_tsql_insert_values_rows_indented:
+  # Issue 5855: same nesting in tsql.
+  pass_str: |
+    INSERT INTO foo (bar)
+    VALUES
+        (1),
+        (2);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_exasol_insert_values_rows_indented:
+  # Issue 5855: same nesting in exasol.
+  pass_str: |
+    INSERT INTO foo (bar)
+    VALUES
+        (1),
+        (2);
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_sqlite_insert_values_rows_indented:
+  # Issue 5855: same nesting in sqlite.
+  pass_str: |
+    INSERT INTO foo (bar)
+    VALUES
+        (1),
+        (2);
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_mysql_insert_target_indented:
+  # Issue 5855: same nesting in mysql, including REPLACE with PARTITION.
+  pass_str: |
+    INSERT INTO
+        tbl (a)
+    VALUES
+        (1);
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_replace_partition_indented:
+  # Issue 5855: PARTITION stays inside the REPLACE target block.
+  pass_str: |
+    REPLACE INTO
+        tbl PARTITION (p0)
+    VALUES
+        (1);
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mariadb_replace_partition_indented:
+  # Issue 5855: PARTITION stays inside the REPLACE target block.
+  pass_str: |
+    REPLACE INTO
+        tbl PARTITION (p0)
+    VALUES
+        (1);
+  configs:
+    core:
+      dialect: mariadb
+
+test_pass_bigquery_insert_target_indented:
+  # Issue 5855: same nesting in bigquery.
+  pass_str: |
+    INSERT INTO
+        dataset.inventory (product, quantity)
+    VALUES
+        ('washer', 10);
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_sparksql_insert_target_indented:
+  # Issue 5855: same nesting in sparksql.
+  pass_str: |
+    INSERT INTO
+        tbl
+    SELECT a FROM b;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_starrocks_insert_target_indented:
+  # Issue 5855: same nesting in starrocks.
+  pass_str: |
+    INSERT OVERWRITE
+        tbl
+    SELECT a FROM b;
+  configs:
+    core:
+      dialect: starrocks
+
+test_pass_hive_insert_directory_indented:
+  # Issue 5855: directory destination nests under DIRECTORY.
+  pass_str: |
+    INSERT OVERWRITE DIRECTORY
+        '/tmp/out'
+    SELECT a FROM t;
+  configs:
+    core:
+      dialect: hive
+
+test_pass_oracle_insert_target_indented:
+  # Issue 5855: same nesting in oracle.
+  pass_str: |
+    INSERT INTO foo (bar)
+    VALUES
+        (1),
+        (2);
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_tsql_insert_target_broken:
+  # Issue 5855: broken tsql target shares one indent level.
+  pass_str: |
+    INSERT INTO
+        foo (bar)
+    VALUES
+        (1);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_bulk_insert_target_indented:
+  # Issue 5855: BULK INSERT target nests one level.
+  pass_str: |
+    BULK INSERT
+        mytable
+    FROM 'data.csv';
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_delete_target_indented:
+  # Issue 5855: DELETE target nests one level.
+  pass_str: |
+    DELETE
+        tbl
+    WHERE x = 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_clickhouse_truncate_database_indented:
+  # Issue 5855: TRUNCATE DATABASE target nests one level.
+  pass_str: |
+    TRUNCATE DATABASE
+        mydb;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_truncate_tables_indented:
+  # Issue 5855: TRUNCATE TABLES target nests one level.
+  pass_str: |
+    TRUNCATE TABLES FROM
+        mydb;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_sparksql_insert_directory_indented:
+  # Issue 5855: directory destination nests under DIRECTORY.
+  pass_str: |
+    INSERT OVERWRITE DIRECTORY
+        '/tmp/out'
+    SELECT a FROM t;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_postgres_delete_target_indented:
+  # Issue 5855: DELETE target nests one level, like UPDATE and MERGE targets.
+  pass_str: |
+    DELETE FROM
+        tbl
+    WHERE x = 1;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_bigquery_delete_target_indented:
+  # Issue 5855: DELETE target nests one level, like UPDATE and MERGE targets.
+  pass_str: |
+    DELETE
+        tbl
+    WHERE x = 1;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_ansi_truncate_target_indented:
+  # Issue 5855: TRUNCATE target nests one level, like other DML targets.
+  pass_str: |
+    TRUNCATE TABLE
+        tbl;
+  configs:
+    core:
+      dialect: ansi
+
+test_pass_mysql_upsert_set_indented:
+  # Issue 5855: ON DUPLICATE KEY UPDATE assignments nest like other SET lists.
+  pass_str: |
+    INSERT INTO t (a) VALUES (1) ON DUPLICATE KEY UPDATE
+        a = 1;
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_postgres_select_into_indented:
+  # Issue 5855: SELECT INTO target nests one level.
+  pass_str: |
+    SELECT a
+    INTO
+        new_t
+    FROM old_t;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_for_update_of_indented:
+  # Issue 5855: FOR UPDATE OF table list nests one level.
+  pass_str: |
+    SELECT a FROM t
+    FOR UPDATE OF
+        t1,
+        t2;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_tsql_for_json_indented:
+  # Issue 5855: FOR JSON modes nest one level.
+  pass_str: |
+    SELECT a FROM t
+    FOR JSON
+        AUTO,
+        INCLUDE_NULL_VALUES;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_oracle_insert_set_indented:
+  # Issue 5855: INSERT SET assignments nest like other SET lists.
+  pass_str: |
+    INSERT INTO t SET
+        a = 1;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_mysql_select_into_outfile_indented:
+  # Issue 5855: SELECT INTO destination nests one level.
+  pass_str: |
+    SELECT a FROM t
+    INTO
+        OUTFILE '/tmp/x';
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_tsql_fetch_cursor_indented:
+  # Issue 5855: FETCH cursor target nests one level.
+  pass_str: |
+    FETCH NEXT
+    FROM
+        cur;
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_jinja_if_with_in_clause:
   # Regression test for GitHub issue #7740.
