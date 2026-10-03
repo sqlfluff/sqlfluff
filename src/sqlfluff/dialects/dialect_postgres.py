@@ -381,6 +381,16 @@ postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
 
+# Track the `col_name_keyword` class (PostgreSQL's
+# `non-reserved-(cannot-be-function-or-type)` keywords, e.g. BETWEEN) in a
+# dedicated dialect set. These may not be used as a bare data type name.
+# Storing them in a set (rather than closing over `postgres_keywords`
+# directly) lets child dialects such as Greenplum extend the exclusion with
+# their own `cannot-be-function-or-type` keywords. See issue #6430.
+postgres_dialect.sets("cannot_be_type_keywords").update(
+    get_keywords(postgres_keywords, "non-reserved-(cannot-be-function-or-type)")
+)
+
 # `SOURCE` and `TARGET` are not PostgreSQL keywords in general, but the
 # `MERGE ... WHEN NOT MATCHED BY {SOURCE,TARGET}` clauses (added in PostgreSQL
 # 17) need them. Register them as unreserved so they remain usable as ordinary
@@ -611,6 +621,31 @@ postgres_dialect.replace(
             + r")$",
             casefold=str.lower,
         )
+    ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # A user-defined type name. Per the PostgreSQL grammar a type name is
+        # `unreserved_keyword | type_func_name_keyword | IDENT`; crucially it may
+        # NOT be a `col_name_keyword` (the `cannot-be-function-or-type` class,
+        # e.g. BETWEEN). Built-in types such as INT/VARCHAR are matched by
+        # explicit branches in DatatypeSegment before this fallback is reached,
+        # so excluding those keywords here does not affect them. Reserved
+        # keywords are intentionally NOT excluded, because some grammar (e.g. the
+        # `substring(... SIMILAR ... ESCAPE ...)` special form) relies on
+        # matching such words as data-type identifiers. The excluded class is
+        # read from the `cannot_be_type_keywords` dialect set so child dialects
+        # (e.g. Greenplum) that add their own such keywords are handled too.
+        # See issue #6430.
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^("
+                + r"|".join(["NOT"] + sorted(dialect.sets("cannot_be_type_keywords")))
+                + r")$",
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
+        ),
     ),
     Expression_C_Grammar=Sequence(
         Ref("WalrusOperatorSegment", optional=True),
@@ -1118,7 +1153,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     ),
                     # numeric types [precision ["," scale])]
                     Sequence(
-                        OneOf("DECIMAL", "NUMERIC"),
+                        OneOf("DECIMAL", "DEC", "NUMERIC"),
                         Ref("BracketedArguments", optional=True),
                     ),
                     # monetary type
@@ -1135,6 +1170,12 @@ class DatatypeSegment(ansi.DatatypeSegment):
                                 Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
+                                "NCHAR",
+                                Sequence("NCHAR", "VARYING"),
+                                Sequence("NATIONAL", "CHARACTER"),
+                                Sequence("NATIONAL", "CHARACTER", "VARYING"),
+                                Sequence("NATIONAL", "CHAR"),
+                                Sequence("NATIONAL", "CHAR", "VARYING"),
                                 "VARCHAR",
                             ),
                             Ref("BracketedArguments", optional=True),
