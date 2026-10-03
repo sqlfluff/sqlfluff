@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22bb8c71134426891dafb151200aad23721c4ecb824a094be0b5db620f0a3f5e
+_hash: 883888870292414c1df46da1bd7065f3206ff2566affe27a0088cf7e22e75235
 file:
 - batch:
     sqlplus_set_statement:
@@ -167,6 +167,11 @@ file:
 - batch:
     sqlplus_set_statement:
     - keyword: SET
+    - keyword: LONG
+    - numeric_literal: '100000'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
     - keyword: 'NULL'
     - quoted_literal: "'(null)'"
 - batch:
@@ -178,7 +183,17 @@ file:
     sqlplus_set_statement:
     - keyword: SET
     - keyword: 'NULL'
-    - quoted_identifier: '"N/A"'
+    - quoted_literal: '"N/A"'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: PAGESIZE
+    - numeric_literal: '0'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: PAGES
+    - numeric_literal: '50'
 - batch:
     sqlplus_set_statement:
     - keyword: SET
@@ -238,6 +253,13 @@ file:
 - batch:
     sqlplus_set_statement:
     - keyword: SET
+    - keyword: SERVEROUTPUT
+    - keyword: 'ON'
+    - keyword: FOR
+    - keyword: TRU
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
     - keyword: SQLBLANKLINES
     - keyword: 'ON'
 - batch:
@@ -255,6 +277,11 @@ file:
     - keyword: SET
     - keyword: SUF
     - quoted_literal: "'txt'"
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SUFFIX
+    - quoted_literal: '"txt"'
 - batch:
     sqlplus_set_statement:
     - keyword: SET
@@ -284,6 +311,16 @@ file:
     sqlplus_set_statement:
     - keyword: SET
     - keyword: TIMI
+    - keyword: 'OFF'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TRIMSPOOL
+    - keyword: 'ON'
+- batch:
+    sqlplus_set_statement:
+    - keyword: SET
+    - keyword: TRIMS
     - keyword: 'OFF'
 - batch:
     sqlplus_set_statement:

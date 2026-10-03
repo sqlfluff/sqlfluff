@@ -1519,9 +1519,10 @@ class SqlplusSetStatementSegment(BaseSegment):
     _on_off = OneOf("ON", "OFF")
     # Unquoted text is a single word, which may be a reserved word (SET NULL NULL).
     # It isn't an identifier or keyword, so capitalisation rules leave it alone.
+    # Double-quoted text is a literal too, not a quoted identifier.
     _text = OneOf(
         Ref("QuotedLiteralSegment"),
-        Ref("QuotedIdentifierSegment"),
+        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
         RegexParser(r"[^\s;/'\"]+", CodeSegment, type="sqlplus_text"),
     )
     _integer = RegexParser(r"[0-9]+", LiteralSegment, type="numeric_literal")
@@ -1562,12 +1563,16 @@ class SqlplusSetStatementSegment(BaseSegment):
                     OneOf("LINESIZE", "LIN"),
                     OneOf("WINDOW", _integer),
                 ),
+                # SET LONG {80 | n}
+                Sequence("LONG", _integer),
                 # SET NULL text
                 Sequence("NULL", _text),
+                # SET PAGES[IZE] {14 | n}
+                Sequence(OneOf("PAGESIZE", "PAGES"), _integer),
                 # SET SCAN {ON | OFF}
                 Sequence("SCAN", _on_off),
                 # SET SERVEROUT[PUT] {ON | OFF} [SIZE {n | UNL[IMITED]}]
-                #   [FOR[MAT] {WRA[PPED] | WOR[D_WRAPPED] | TRUNCATED}]
+                #   [FOR[MAT] {WRA[PPED] | WOR[D_WRAPPED] | TRU[NCATED]}]
                 Sequence(
                     OneOf("SERVEROUTPUT", "SERVEROUT"),
                     _on_off,
@@ -1578,7 +1583,14 @@ class SqlplusSetStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         OneOf("FORMAT", "FOR"),
-                        OneOf("WRAPPED", "WRA", "WORD_WRAPPED", "WOR", "TRUNCATED"),
+                        OneOf(
+                            "WRAPPED",
+                            "WRA",
+                            "WORD_WRAPPED",
+                            "WOR",
+                            "TRUNCATED",
+                            "TRU",
+                        ),
                         optional=True,
                     ),
                 ),
@@ -1592,6 +1604,8 @@ class SqlplusSetStatementSegment(BaseSegment):
                 Sequence(OneOf("TIME", "TI"), _on_off),
                 # SET TIMI[NG] {ON | OFF}
                 Sequence(OneOf("TIMING", "TIMI"), _on_off),
+                # SET TRIMS[POOL] {ON | OFF}
+                Sequence(OneOf("TRIMSPOOL", "TRIMS"), _on_off),
                 # SET VER[IFY] {ON | OFF}
                 Sequence(OneOf("VERIFY", "VER"), _on_off),
             ),
