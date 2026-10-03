@@ -67,6 +67,136 @@ def test__dialect__rejects_trailing_comma_after_final_cte(dialect):
     assert parsing_errors
 
 
+@pytest.mark.parametrize(
+    "dialect",
+    ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "tsql", "sqlite"],
+)
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT SELECT 1;",
+        "SELECT 1 + SELECT 2;",
+        "SELECT 1 WHERE x = SELECT 1;",
+        "SELECT (SELECT SELECT 1);",
+        "SELECT COALESCE(SELECT 1);",
+    ],
+)
+def test__dialect__scalar_subquery_requires_parentheses(dialect, sql):
+    """A SELECT cannot be used as a bare expression, even inside a subquery."""
+    parsed = Linter(dialect=dialect).parse_string(sql)
+    assert [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+
+@pytest.mark.parametrize(
+    "dialect",
+    ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "sqlite"],
+)
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT FOO(SELECT 1);",
+        "SELECT FOO(WITH q AS (SELECT 1) SELECT * FROM q);",
+    ],
+)
+def test__dialect__function_query_argument_requires_parentheses(dialect, sql):
+    """A query in a generic function argument must be parenthesized.
+
+    NOTE: T-SQL is not included because its generic function path accepted
+    these forms before this change and still does. T-SQL's reserved-keyword
+    functions (COALESCE, NULLIF) are matched separately, so the rejection
+    cases above still apply to them.
+    """
+    parsed = Linter(dialect=dialect).parse_string(sql)
+    assert [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+
+def test__dialect__scalar_subquery_assignment_requires_parentheses():
+    """A scalar subquery in a Databricks assignment also needs parentheses."""
+    parsed = Linter(dialect="databricks").parse_string(
+        "SET VARIABLE `foo` = SELECT 'bar';"
+    )
+    assert [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+
+@pytest.mark.parametrize(
+    "dialect",
+    ["ansi", "bigquery", "snowflake", "postgres", "mysql", "oracle", "tsql", "sqlite"],
+)
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT (SELECT 1);",
+        "SELECT COALESCE((SELECT 1), 0);",
+        "SELECT EXISTS(SELECT 1);",
+    ],
+)
+def test__dialect__bracketed_subquery_expression(dialect, sql):
+    """Enclosing brackets make a subquery valid in an expression."""
+    parsed = Linter(dialect=dialect).parse_string(sql)
+    assert not parsed.violations
+    assert parsed.tree.raw == sql
+    assert len(list(parsed.tree.recursive_crawl("select_statement"))) == 2
+
+
+@pytest.mark.parametrize(
+    "dialect,sql,select_count",
+    [
+        ("bigquery", "SELECT ARRAY(SELECT 1);", 2),
+        ("postgres", "SELECT ARRAY(SELECT 1);", 2),
+        ("oracle", "SELECT CURSOR(SELECT 1 FROM dual) FROM dual;", 2),
+        (
+            "oracle",
+            "SELECT CAST(MULTISET(SELECT 1 FROM dual) AS int_tab) FROM dual;",
+            2,
+        ),
+        ("mysql", "SELECT @foo + (SELECT 1);", 2),
+        ("tsql", "SELECT 1 SELECT 2;", 2),
+        ("databricks", "SET VARIABLE `foo` = (SELECT 'bar');", 1),
+        (
+            "oracle",
+            "SELECT * FROM customers PIVOT XML "
+            "(COUNT(state_code) FOR state_code IN "
+            "(SELECT DISTINCT state_code FROM state));",
+            2,
+        ),
+        (
+            "clickhouse",
+            "WITH (SELECT (1, 2, 3)) AS arr SELECT * FROM tbl WHERE x IN arr;",
+            2,
+        ),
+        (
+            "postgres",
+            "INSERT INTO t VALUES (1) ON CONFLICT (id) "
+            "DO UPDATE SET (a, b) = ROW (SELECT 1, 2);",
+            1,
+        ),
+        ("snowflake", "LET res RESULTSET := ASYNC (SELECT 1);", 1),
+        (
+            "snowflake",
+            "DECLARE\n  res RESULTSET;\nBEGIN\n  res := ASYNC (SELECT 1);\nEND;",
+            1,
+        ),
+    ],
+)
+def test__dialect__select_in_query_context(dialect, sql, select_count):
+    """Query-taking constructors and separate statements still accept SELECT."""
+    parsed = Linter(dialect=dialect).parse_string(sql)
+    assert not parsed.violations
+    assert parsed.tree.raw == sql
+    assert len(list(parsed.tree.recursive_crawl("select_statement"))) == select_count
+
+
+def test__dialect__postgres_array_subquery_with_cte():
+    """The Postgres ARRAY(subquery) support must recognize WITH, not just SELECTs."""
+    sql = "SELECT ARRAY(WITH q AS (SELECT x FROM t) SELECT x FROM q) FROM outer_t;"
+    parsed = Linter(dialect="postgres").parse_string(sql)
+    assert not parsed.violations
+    assert parsed.tree.raw == sql
+    assert len(list(parsed.tree.recursive_crawl("select_statement"))) == 3
+    assert len(list(parsed.tree.recursive_crawl("with_compound_statement"))) == 1
+    assert len(list(parsed.tree.recursive_crawl("common_table_expression"))) == 1
+
+
 @pytest.mark.integration
 @pytest.mark.parse_suite
 @pytest.mark.parametrize("dialect,file", parse_success_examples)

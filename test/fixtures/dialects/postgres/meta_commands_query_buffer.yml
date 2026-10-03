@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ffd50a7c2e12273b3f820d4d2e08e2bdfdf324b3c3ad6cc2f7f80f086e86d51
+_hash: 784b9d61a3e9b2054864c351ea0e44062370441a858a7868d61ccfdc69daef21
 file:
 - statement:
     meta_command_statement:
@@ -93,68 +93,62 @@ file:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: EXISTS
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    select_statement:
-                      select_clause:
-                        keyword: SELECT
-                        select_clause_element:
-                          numeric_literal: '1'
-                      from_clause:
-                        keyword: FROM
-                        from_expression:
-                          from_expression_element:
-                            table_expression:
-                              table_reference:
-                                naked_identifier: customer
-                      where_clause:
-                        keyword: WHERE
-                        expression:
-                          column_reference:
-                            naked_identifier: customer_id
-                          comparison_operator:
-                            raw_comparison_operator: '='
-                          numeric_literal: '123'
-                  end_bracket: )
+            expression:
+              keyword: EXISTS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: customer
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: customer_id
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '123'
+                end_bracket: )
             alias_expression:
               alias_operator:
                 keyword: as
               naked_identifier: is_customer
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: EXISTS
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    select_statement:
-                      select_clause:
-                        keyword: SELECT
-                        select_clause_element:
-                          numeric_literal: '1'
-                      from_clause:
-                        keyword: FROM
-                        from_expression:
-                          from_expression_element:
-                            table_expression:
-                              table_reference:
-                                naked_identifier: employee
-                      where_clause:
-                        keyword: WHERE
-                        expression:
-                          column_reference:
-                            naked_identifier: employee_id
-                          comparison_operator:
-                            raw_comparison_operator: '='
-                          numeric_literal: '456'
-                  end_bracket: )
+            expression:
+              keyword: EXISTS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: employee
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: employee_id
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '456'
+                end_bracket: )
             alias_expression:
               alias_operator:
                 keyword: as
