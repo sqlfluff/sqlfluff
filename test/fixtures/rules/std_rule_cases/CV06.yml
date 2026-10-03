@@ -476,6 +476,44 @@ test_fail_final_semi_colon_newline_single_line_block_comment_custom_multiline:
         require_final_semicolon: true
         multiline_newline: true
 
+test_fail_newline_nested_block_comment_custom_multiline_postgres:
+  # The first line of a nested block comment that spans lines also ends in
+  # "*/", but the comment goes on, so it moves like any multiline comment.
+  fail_str: |
+    SELECT foo
+    FROM bar /* outer /* inner */
+    still outer */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* outer /* inner */
+    still outer */
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_nested_block_comment_custom_multiline_tsql:
+  fail_str: |
+    SELECT foo
+    FROM bar /* outer /* inner */
+    still outer */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* outer /* inner */
+    still outer */
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
 test_fail_newline_create_table:
   # https://github.com/sqlfluff/sqlfluff/issues/2268
   fail_str: |

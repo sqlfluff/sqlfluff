@@ -112,7 +112,13 @@ class Rule_CV06(BaseRule):
                     not s.is_type("block_comment")
                     # A block comment spanning lines is lexed one piece per
                     # line, so only a piece that opens and closes is whole.
-                    or (s.raw.startswith("/*") and s.raw.endswith("*/"))
+                    # Where comments nest, the first line of one that spans
+                    # lines can also end in "*/", so every opening must close.
+                    or (
+                        s.raw.startswith("/*")
+                        and s.raw.endswith("*/")
+                        and s.raw.count("/*") == s.raw.count("*/")
+                    )
                 )
                 and s.pos_marker
                 and s.pos_marker.working_line_no
