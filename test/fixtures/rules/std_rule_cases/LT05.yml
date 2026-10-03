@@ -827,3 +827,20 @@ test_fail_no_fix_jinja_macro_with_brackets:
             {{ cast_tz("cast(source.order_arrived_date || ' ' || source.order_arrived_time as timestamp)") }}
         )
     FROM source
+
+test_fail_no_fix_trailing_comment_with_jinja_block:
+  # Moving the comment would drop the tags from the moved copy and only
+  # part of the original would be deleted.
+  fail_str: "select a, b, c from tbl  -- comment{% if true %} more{% endif %} text here that goes on and on and on\n"
+
+test_fail_no_fix_trailing_comment_with_jinja_set:
+  # Moving the comment would leave the original in place, so the comment
+  # would appear twice.
+  fail_str: "select a, b, c from tbl  -- comment{% set q = 1 %} more text here that goes on and on and on\n"
+
+test_fail_no_fix_trailing_comment_with_jinja_block_after:
+  # A break before the comment would copy the tags onto the code line.
+  fail_str: "select a, b, c from tbl  -- comment{% if true %} more{% endif %} text here that goes on and on and on\n"
+  configs:
+    indentation:
+      trailing_comments: after
