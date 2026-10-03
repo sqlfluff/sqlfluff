@@ -116,6 +116,23 @@ mysql_dialect.insert_lexer_matchers(
     before="numeric_literal",
 )
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        # The national string `N'text'`. The `N` must touch the quote.
+        # https://dev.mysql.com/doc/refman/8.4/en/charset-national.html
+        RegexLexer(
+            "single_quote_with_n",
+            r"(?s)([nN]'(?:\\'|''|\\\\|[^'])*'(?!'))",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"(?s)([nN]'((?:\\'|''|\\\\|[^'])*)'(?!'))", 2),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
+        ),
+    ],
+    before="word",
+)
+
 # Set Keywords
 # Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
 # Just add MySQL unreserved keywords.
@@ -167,6 +184,58 @@ mysql_dialect.sets("date_part_function_name").update(
     ]
 )
 
+# Character set names. `_name` before a string is an introducer only when
+# `name` is one of these: `_latin1'x'` is a latin1 string, but `_foo 'x'` is
+# the column `_foo` with the alias 'x'.
+# https://dev.mysql.com/doc/refman/8.4/en/charset-charsets.html
+mysql_dialect.sets("character_set_names").update(
+    [
+        "ARMSCII8",
+        "ASCII",
+        "BIG5",
+        "BINARY",
+        "CP1250",
+        "CP1251",
+        "CP1256",
+        "CP1257",
+        "CP850",
+        "CP852",
+        "CP866",
+        "CP932",
+        "DEC8",
+        "EUCJPMS",
+        "EUCKR",
+        "GB18030",
+        "GB2312",
+        "GBK",
+        "GEOSTD8",
+        "GREEK",
+        "HEBREW",
+        "HP8",
+        "KEYBCS2",
+        "KOI8R",
+        "KOI8U",
+        "LATIN1",
+        "LATIN2",
+        "LATIN5",
+        "LATIN7",
+        "MACCE",
+        "MACROMAN",
+        "SJIS",
+        "SWE7",
+        "TIS620",
+        "UCS2",
+        "UJIS",
+        "UTF16",
+        "UTF16LE",
+        "UTF32",
+        "UTF8MB3",
+        "UTF8MB4",
+        # An alias of UTF8MB3.
+        "UTF8",
+    ]
+)
+
 mysql_dialect.sets("bare_functions").update(
     [
         "NOW",
@@ -186,8 +255,30 @@ mysql_dialect.replace(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SystemVariableSegment"),
+            Ref("IntroducedLiteralSegment"),
+            Ref("QuotedLiteralSegmentWithN"),
         ]
     ),
+    # `BINARY expr` casts to a binary string. It binds tighter than any
+    # comparison: `BINARY 'a' = 'A'` is `(BINARY 'a') = 'A'`.
+    # https://dev.mysql.com/doc/refman/8.4/en/cast-functions.html#operator_binary
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[Ref.keyword("BINARY")],
+    ),
+    # GROUP_CONCAT has its own grammar, so the generic function path must not
+    # also match it.
+    FunctionNameExclusionGrammar=ansi_dialect.get_grammar(
+        "FunctionNameExclusionGrammar"
+    ).copy(
+        insert=[Ref("GroupConcatFunctionNameSegment")],
+    ),
+    # MySQL has no general `type 'literal'` form. `DATE '...'`, `TIME '...'`
+    # and `TIMESTAMP '...'` are DateTimeLiteralGrammar, and `_utf8mb4'...'`
+    # is IntroducedLiteralSegment. Anything else, such as `foo 'x'`, is a
+    # column with an alias, and `foo 5` is a syntax error.
+    TypedLiteralGrammar=Nothing(),
     PostTableExpressionGrammar=OneOf(
         Ref("IndexHintClauseSegment"),
         Ref("SelectPartitionClauseSegment"),
@@ -217,7 +308,14 @@ mysql_dialect.replace(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
             Ref("VariableAssignmentSegment"),
-        ]
+        ],
+        # A typed literal; see TypedLiteralGrammar.
+        remove=[
+            Sequence(
+                Ref("DatatypeSegment"),
+                Ref("LiteralGrammar"),
+            ),
+        ],
     ),
     Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
         "Expression_D_Potential_Select_Statement_Without_Brackets"
@@ -385,6 +483,20 @@ mysql_dialect.add(
             + r"|".join(sorted(dialect.sets("reserved_keywords")))
             + r")$",
         )
+    ),
+    # A character set introducer: `_` and a character set name. A `_word` that
+    # is not a character set is an ordinary identifier.
+    CharacterSetIntroducerSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"_(?:" + r"|".join(sorted(dialect.sets("character_set_names"))) + r")\Z",
+            CodeSegment,
+            type="character_set_introducer",
+        )
+    ),
+    # The national string `N'text'`, lexed as one token like `X'41'`: `N 'x'`
+    # and `N"x"` are the column `N` with an alias.
+    QuotedLiteralSegmentWithN=TypedParser(
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
 )
 
@@ -597,6 +709,13 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("ConvertFunctionNameSegment"),
                 Ref("ConvertFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("GroupConcatFunctionNameSegment"),
+                Ref("GroupConcatFunctionContentsSegment"),
+                # The parser accepts OVER here, although neither server can
+                # execute GROUP_CONCAT as a window function yet.
+                Ref("OverClauseSegment", optional=True),
             ),
         ],
         at=0,
@@ -1429,6 +1548,8 @@ class IntervalExpressionSegment(BaseSegment):
 mysql_dialect.add(
     AddDropSystemVersioningGrammar=Nothing(),
     TriggerOrReplaceGrammar=Nothing(),
+    # A trailing LIMIT on GROUP_CONCAT; MariaDB only.
+    AggregateLimitClauseGrammar=Nothing(),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, type="parameter_direction"
     ),
@@ -1560,6 +1681,24 @@ class IndexColumnPrefixLengthSegment(BaseSegment):
 
     type = "bracketed_arguments"
     match_grammar = Bracketed(Ref("NumericLiteralSegment"))
+
+
+class IntroducedLiteralSegment(BaseSegment):
+    """A literal with a character set introducer.
+
+    `_utf8mb4'text'`, `_latin1 X'41'` or `_binary b'0101'`.
+    https://dev.mysql.com/doc/refman/8.4/en/charset-introducer.html
+    """
+
+    type = "introduced_literal"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CharacterSetIntroducerSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
 
 
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
@@ -3137,6 +3276,50 @@ class ConvertFunctionContentsSegment(BaseSegment):
             Sequence(Ref("CommaSegment"), Ref("DatatypeSegment")),
             Sequence("USING", OneOf("BINARY", Ref("NakedIdentifierSegment"))),
         ),
+    )
+
+
+class GroupConcatFunctionNameSegment(BaseSegment):
+    """GROUP_CONCAT function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "GROUP_CONCAT", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class GroupConcatFunctionContentsSegment(BaseSegment):
+    """GROUP_CONCAT function contents.
+
+    GROUP_CONCAT([DISTINCT] expr [, expr ...] [ORDER BY ...] [SEPARATOR str])
+
+    The separator is a single string token, or a hexadecimal or bit-value
+    literal; not a number, and not an expression.
+    https://dev.mysql.com/doc/refman/8.4/en/aggregate-functions.html#function_group-concat
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref.keyword("DISTINCT", optional=True),
+        Delimited(Ref("ExpressionSegment")),
+        Ref("AggregateOrderByClause", optional=True),
+        Sequence(
+            "SEPARATOR",
+            OneOf(
+                TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+                Ref("DoubleQuotedLiteralSegment"),
+                RegexParser(
+                    r"[xX]'[0-9a-fA-F]*'|0x[0-9a-fA-F]+|[bB]'[01]*'|0b[01]+",
+                    LiteralSegment,
+                    type="numeric_literal",
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("AggregateLimitClauseGrammar", optional=True),
     )
 
 
