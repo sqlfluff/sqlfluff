@@ -1,0 +1,110 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e79b3f21b7a1a68f350e4c3d2b54f9eb50fd85aad73a6af486da3d06c7a4a93b
+file:
+- statement:
+    do_statement:
+      keyword: DO
+      expression:
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      expression:
+        function:
+          function_name:
+            function_name_identifier: SLEEP
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: do
+      expression:
+        function:
+          function_name:
+            function_name_identifier: release_lock
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'lock_name'"
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    do_statement:
+    - keyword: DO
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - expression:
+        numeric_literal: '2'
+    - comma: ','
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: SLEEP
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '0'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      expression:
+        variable: '@a'
+        assignment_operator: :=
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '0'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    do_statement:
+    - keyword: DO
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+    - comma: ','
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+          end_bracket: )
+- statement_terminator: ;

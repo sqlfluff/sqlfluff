@@ -179,6 +179,32 @@ clickhouse_dialect.add(
     RawIsNotDistinctFromSegment=StringParser(
         "<=>", SymbolSegment, type="raw_comparison_operator"
     ),
+    PositionalPlacementGrammar=OneOf(
+        Sequence(
+            "AFTER",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        "FIRST",
+    ),
+    # https://clickhouse.com/docs/reference/statements/alter/partition#how-to-set-partition-expression
+    PartitionExpressionGrammar=OneOf(
+        # ALTER TABLE visits DETACH PARTITION 201901
+        Ref("NumericLiteralSegment"),
+        # ALTER TABLE visits DETACH PARTITION -201901
+        Ref("QualifiedNumericLiteralSegment"),
+        Sequence(
+            # ALTER TABLE visits DETACH PARTITION ID '201901'
+            Ref.keyword("ID", optional=True),
+            # ALTER TABLE visits ATTACH PARTITION 'JP'
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        # ALTER TABLE example DROP PARTITION TRUE;
+        Ref("BooleanLiteralGrammar"),
+        # ALTER TABLE example DROP PARTITION ('JP', 1, toYYYYMM(toDate('2019-01-25')))
+        Ref("TupleSegment"),
+        # ALTER TABLE visits DETACH PARTITION tuple(toYYYYMM(toDate('2019-01-25')))
+        Ref("FunctionSegment"),
+    ),
 )
 
 clickhouse_dialect.replace(
@@ -361,7 +387,8 @@ clickhouse_dialect.replace(
     ),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
-    ).copy(
+    )
+    .copy(
         insert=[
             Ref.keyword("PREWHERE"),
             Ref.keyword("SETTINGS"),
@@ -369,6 +396,10 @@ clickhouse_dialect.replace(
             Ref.keyword("FORMAT"),
         ],
         before=Ref.keyword("WHERE"),
+    )
+    .copy(
+        insert=[Sequence("GROUP", "BY")],
+        before=Sequence("ORDER", "BY"),
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
     .copy(
@@ -585,7 +616,9 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 ),
                 # ALTER PROJECTION
                 Sequence(
-                    OneOf("ADD", "DROP", "MATERIALIZE", "CLEAR"),
+                    OneOf(
+                        "ADD", "MODIFY", "DROP", "MATERIALIZE", "CLEAR", optional=True
+                    ),
                     "PROJECTION",
                 ),
                 # ALTER VIEW - REFRESH/MODIFY QUERY
@@ -1786,6 +1819,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -1840,6 +1874,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -2742,6 +2777,102 @@ class SystemStatementSegment(BaseSegment):
     )
 
 
+class ProjectionDefinitionSegment(BaseSegment):
+    """A Projection definition.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/alter/projection
+    https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree#projections
+    """
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = Sequence(
+        "PROJECTION",
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            # Projection query
+            Bracketed(
+                # Common Scalar Expressions are supported in the projection query definition,
+                # even though it is not stated explicitly in the docs.
+                # For more info look here:
+                # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserProjectionSelectQuery.cpp#L34-L42
+                Sequence(
+                    "WITH",
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            "AS",
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Ref("SelectClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+                OneOf(
+                    Ref("OrderByClauseSegment"),
+                    Ref("GroupByClauseSegment"),
+                ),
+            ),
+            # Projection index
+            Sequence(
+                "INDEX",
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+                "TYPE",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Ref("ProjectionDefinitionStatementSettingsClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterTableAddProjectionDefinitionStatement(ProjectionDefinitionSegment):
+    """A helper projection definition used in ALTER TABLE ... ADD PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    ).copy(
+        # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserAlterQuery.cpp#L474-L480
+        insert=[Ref("PositionalPlacementGrammar", optional=True)]
+    )
+
+
+class AlterTableModifyProjectionDefinitionStatement(ProjectionDefinitionSegment):
+    """A helper projection definition used in ALTER TABLE ... MODIFY PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    )
+
+
+class ProjectionDefinitionStatementSettingsClauseSegment(SettingsClauseSegment):
+    """A helper SettingsClauseSegment used in ProjectionDefinitionStatement."""
+
+    type = "settings_clause"
+
+    match_grammar: Matchable = Sequence(
+        "SETTINGS",
+        # Brackets are needed for settings in projections
+        Bracketed(
+            SettingsClauseSegment.match_grammar.copy(remove=[Ref.keyword("SETTINGS")]),
+        ),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement for ClickHouse.
 
@@ -2820,14 +2951,7 @@ class AlterTableStatementSegment(BaseSegment):
                         Ref("ExpressionSegment"),
                     ),
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... ADD ALIAS name FOR column_name
             Sequence(
@@ -2976,14 +3100,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... ALTER COLUMN name [TYPE] [type]
             Sequence(
@@ -3000,14 +3117,7 @@ class AlterTableStatementSegment(BaseSegment):
                     # Without TYPE keyword
                     Ref("DatatypeSegment"),  # Data type
                 ),
-                OneOf(
-                    Sequence(
-                        "AFTER",
-                        Ref("SingleIdentifierGrammar"),  # Column name
-                    ),
-                    "FIRST",
-                    optional=True,
-                ),
+                Ref("PositionalPlacementGrammar", optional=True),
             ),
             # ALTER TABLE ... REMOVE TTL
             Sequence(
@@ -3074,6 +3184,43 @@ class AlterTableStatementSegment(BaseSegment):
             Sequence(
                 "DELETE",
                 Ref("WhereClauseSegment"),
+            ),
+            # ALTER TABLE ... ADD PROJECTION
+            Sequence(
+                "ADD",
+                Ref("AlterTableAddProjectionDefinitionStatement"),
+            ),
+            # ALTER TABLE ... MODIFY PROJECTION
+            Sequence(
+                "MODIFY",
+                Ref("AlterTableModifyProjectionDefinitionStatement"),
+            ),
+            # ALTER TABLE ... DROP PROJECTION
+            Sequence(
+                "DROP",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            # ALTER TABLE ... MATERIALIZE PROJECTION
+            Sequence(
+                "MATERIALIZE",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "IN", "PARTITION", Ref("PartitionExpressionGrammar"), optional=True
+                ),
+            ),
+            # ALTER TABLE ... CLEAR PROJECTION
+            Sequence(
+                "CLEAR",
+                "PROJECTION",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "IN", "PARTITION", Ref("PartitionExpressionGrammar"), optional=True
+                ),
             ),
         ),
         Ref("SettingsClauseSegment", optional=True),

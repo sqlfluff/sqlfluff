@@ -137,7 +137,7 @@ redirects = {
     "perma/rule_disabling": (
         "../configuration/rule_configuration.html#enabling-and-disabling-rules"
     ),
-    "perma/internals": "../reference/internals/index.html",
+    "perma/internals": "../guides/contributing/architecture.html",
     "perma/modularity": "../why_sqlfluff.html#modularity",
     "perma/indentation": "../configuration/layout.html#configuring-indent-locations",
     "perma/releasenotes": "../reference/releasenotes.html",

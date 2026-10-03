@@ -83,6 +83,7 @@ class ReflowConfig:
     skip_implicit_indents_in: frozenset[str] = frozenset()
     implicit_indents: str = "forbid"
     trailing_comments: str = "before"
+    list_wrapping: str = "one_per_line"
     ignore_comment_lines: bool = False
 
     @classmethod
@@ -129,6 +130,7 @@ class ReflowConfig:
             ),
             implicit_indents=config.get("implicit_indents", ["indentation"]),
             trailing_comments=config.get("trailing_comments", ["indentation"]),
+            list_wrapping=config.get("list_wrapping", ["indentation"]),
             ignore_comment_lines=config.get("ignore_comment_lines", ["indentation"]),
         )
 

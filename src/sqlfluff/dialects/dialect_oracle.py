@@ -703,6 +703,9 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref("ReturningClauseSegment")]),
     ColumnConstraintDefaultGrammar=OneOf(
         ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
         Ref("SequencePseudocolumnGrammar"),
@@ -4246,14 +4249,30 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     )
 
 
+class DeleteFromClauseSegment(ansi.FromClauseSegment):
+    """The target of a `DELETE` statement, where `FROM` is optional.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html
+    """
+
+    type = "from_clause"
+    match_grammar: Matchable = Sequence(
+        Ref.keyword("FROM", optional=True),
+        Ref("FromExpressionSegment"),
+    )
+
+
 class DeleteStatementSegment(ansi.DeleteStatementSegment):
     """A `DELETE` statement.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html
     """
 
-    match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
-        insert=[Ref("ReturningClauseSegment", optional=True)]
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref("DeleteFromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 
