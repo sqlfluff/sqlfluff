@@ -74,3 +74,16 @@ def test_private_requires_streaming_table(sql: str) -> None:
 def test_replace_using_requires_sequence_by(sql: str) -> None:
     """replace_using_spec is REPLACE USING (...) SEQUENCE BY col, as documented."""
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "srid",
+    [
+        pytest.param("4326.5", id="decimal_srid"),
+        pytest.param("1e3", id="exponent_srid"),
+    ],
+)
+def test_geometry_srid_must_be_integer(srid: str) -> None:
+    """GEOMETRY SRIDs accept integer values, not other numeric forms."""
+    sql = f"CREATE TABLE t (geom GEOMETRY({srid}));"
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"

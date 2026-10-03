@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     Indent,
+    LiteralSegment,
     Matchable,
     NewlineSegment,
     OneOf,
@@ -209,6 +210,11 @@ databricks_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     TryCastOperatorSegment=StringParser(
         "?::", SymbolSegment, type="try_casting_operator"
+    ),
+    IntegerLiteralSegment=RegexParser(
+        r"(?<!\.)\b\d+\b(?!\.\d)",
+        LiteralSegment,
+        type="integer_literal",
     ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
@@ -1211,6 +1217,22 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
             Ref("ColumnConstraintSegment"),
             Ref("ColumnDefaultGrammar"),  # For default values
         ),
+    )
+
+
+class DatatypeSegment(sparksql.DatatypeSegment):
+    """Databricks data types including GEOMETRY."""
+
+    match_grammar = sparksql.DatatypeSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "GEOMETRY",
+                Bracketed(
+                    OneOf(Ref("IntegerLiteralSegment"), "ANY"),
+                    optional=False,
+                ),
+            ),
+        ]
     )
 
 
