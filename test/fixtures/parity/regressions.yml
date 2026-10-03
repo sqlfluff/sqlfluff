@@ -47,7 +47,8 @@ bracketed_optional_content_failure_nothing_here:
   sql: SELECT SUM(a) OVER (1 2 3) FROM t
   expect: tree
   pins: Bracketed content-failure message must match Python's Sequence.match -
-    a failed *optional* content element yields "Nothing here.", not the specific
+    a failed *optional* content element yields the generic "Nothing here. Found
+    <token>" message (naming the first unexpected token), not the specific
     "<elem> to start sequence/after X" message reserved for required failures.
 ansi_grant_all_masking_policies:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r

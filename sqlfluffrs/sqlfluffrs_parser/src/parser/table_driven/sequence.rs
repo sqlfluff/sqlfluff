@@ -864,12 +864,19 @@ impl Parser<'_> {
                         _stop_idx
                     );
 
-                    let mut segment_kwargs = hashbrown::HashMap::new();
-                    segment_kwargs.insert("expected".to_string(), "Nothing here.".to_string());
+                    // PYTHON PARITY: name the first unexpected token rather than
+                    // just "Nothing here." (Python: sequence.py GREEDY mop-up).
+                    let expected_message = format!(
+                        "Nothing here. Found {}",
+                        self.tokens
+                            .get(_idx)
+                            .map(|t| format!("{}", t))
+                            .unwrap_or_else(|| "end of input".to_string())
+                    );
 
                     child_matches.push(Arc::new(MatchResult {
                         matched_slice: _idx.._stop_idx,
-                        matched_class: Some(MatchedClass::unparsable("Nothing here.", _stop_idx)),
+                        matched_class: Some(MatchedClass::unparsable(&expected_message, _stop_idx)),
                         ..Default::default()
                     }));
 
