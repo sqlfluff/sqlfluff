@@ -648,6 +648,41 @@ test_pass_placeholder_colon_double_colon_cast:
       placeholder:
         param_style: colon
 
+test_fail_jinja_templated_unqualified_reference_inconsistent:
+  # A `{{ var }}` reference rendered by the Jinja templater is a genuine
+  # column name the user intends to select, unlike a `placeholder`-templater
+  # bind parameter (e.g. `:colname` above). It must still be checked for
+  # qualification consistency, not silently exempted just because it is
+  # templated. No `fix_str` is given: the inconsistency is flagged, but the
+  # rule must not rewrite inside the template slice (see
+  # `test_fail_jinja_templated_multi_column_reference_not_autofixed` for why),
+  # so it is reported for the user to resolve by hand.
+  fail_str: |
+    {% set my_col = 'customer_id' %}
+    SELECT {{ my_col }}, orders.total
+    FROM orders
+  configs:
+    core:
+      templater: jinja
+
+test_fail_jinja_templated_multi_column_reference_not_autofixed:
+  # A single templated expression can render to MORE THAN ONE column, e.g.
+  # `{% set cols = 'customer_id, region' %}` (or `dbt_utils.star()`, which
+  # returns such comma-separated strings). The rendered `{{ cols }}` is lexed
+  # as several column references that all map back to the one `{{ cols }}`
+  # source slice. The mixed qualified/unqualified usage is still flagged, but
+  # the rule must NOT attach a fix: prepending the qualifier would yield
+  # `orders.{{ cols }}` -> `orders.customer_id, region`, qualifying only the
+  # first rendered column and silently leaving `region` unqualified. The
+  # absence of a `fix_str` asserts the SQL is left untouched for the user.
+  fail_str: |
+    {% set cols = 'customer_id, region' %}
+    SELECT {{ cols }}, orders.total
+    FROM orders
+  configs:
+    core:
+      templater: jinja
+
 test_pass_postgres_whole_row_json_operator:
   # A bare reference matching the table's own alias is a whole-row reference
   # (here the left operand of the `->>` JSON operator), not a column, so RF03
