@@ -16,7 +16,7 @@ import { DESIGN_SOURCE, assertDesignPackage } from '../scripts/sync-design.mjs'
 const configDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = join(configDir, '../../')
 
-/** Stable release version from pyproject.toml — mirrors Sphinx's `|release|` substitution. */
+/** Stable release version from pyproject.toml. */
 function readStableVersion(): string {
     const pyproject = readFileSync(join(repoRoot, 'pyproject.toml'), 'utf-8')
     const match = pyproject.match(/stable_version\s*=\s*"([^"]+)"/)

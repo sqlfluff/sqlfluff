@@ -33,7 +33,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: "docs-beta-latest"
+  group: "docs-publish"
   cancel-in-progress: false
 
 env:
@@ -41,7 +41,7 @@ env:
   DOCS_R2_PREFIX: site
   SQLFLUFF_DOCS_BASE: /en/latest/
   SQLFLUFF_DOCS_NOINDEX: "1"
-  SQLFLUFF_DOCS_INDEXING_MODE: ${{ vars.DOCS_INDEXING_MODE || 'beta' }}
+  SQLFLUFF_DOCS_INDEXING_MODE: ${{ vars.DOCS_INDEXING_MODE || 'production' }}
 
 jobs:
   publish:

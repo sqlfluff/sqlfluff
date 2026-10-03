@@ -136,7 +136,7 @@ sqlfluff_rules_oracle = "sqlfluff.rules.oracle"
 
 
 [tool.sqlfluff_docs]
-# NOTE: Stable version is used by docs/conf.py
+# Stable version used by the VitePress docs configuration.
 stable_version = "4.4.0"
 
 
@@ -269,11 +269,6 @@ markers = [
     "fix_suite: Marks the suite of fixing tests across a range of dialects (part of integration).",
     "rules_suite: Marks the suite of rules tests. Also known as the yaml tests (part of integration).",
 ]
-
-
-[tool.doc8]
-# Ignore auto-generated docs
-ignore-path = "docs/source/_partials/"
 
 
 [tool.codespell]
