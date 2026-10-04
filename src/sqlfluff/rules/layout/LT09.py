@@ -307,6 +307,36 @@ class Rule_LT09(BaseRule):
             # autofixed in the future if/when we have the time.
             return LintResult(anchor=select_clause.get())
 
+        # Do not rejoin a single target when that would recreate a line-length
+        # violation. LT05 may have moved the target below SELECT to keep an
+        # overlong line from oscillating between the two layouts.
+        select_keyword = select_children[select_targets_info.select_idx]
+        if select_keyword.pos_marker and context.config.get("max_line_length"):
+            prefix = "".join(
+                segment.raw
+                for segment in select_children[
+                    select_targets_info.select_idx : select_targets_info.first_new_line_idx
+                ]
+            )
+            modifier = select_children.select(
+                sp.is_type("select_clause_modifier")
+            ).first()
+            if (
+                modifier
+                and select_children.index(modifier.get())
+                >= select_targets_info.first_new_line_idx
+            ):
+                prefix += f" {modifier[0].raw}"
+            resulting_line_length = (
+                select_keyword.pos_marker.working_line_pos
+                - 1
+                + len(prefix)
+                + 1
+                + len(target_seg.raw)
+            )
+            if resulting_line_length > context.config.get("max_line_length"):
+                return LintResult(anchor=select_clause.get())
+
         # Prepare the select clause which will be inserted
         insert_buff = [WhitespaceSegment(), target_seg]
         # Delete the first select target from its original location.
