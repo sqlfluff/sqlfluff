@@ -78,6 +78,10 @@ class ParseContext:
         self.max_parse_depth = max_parse_depth
         self.max_parse_nodes = max_parse_nodes
         self.current_parse_nodes = 0
+        # The furthest token index at which a required element failed to
+        # match during this parse, or `None` if none has failed yet. Used
+        # to anchor parse failures at the point the parser actually reached.
+        self._furthest_failure: Optional[int] = None
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
@@ -161,6 +165,21 @@ class ParseContext:
     def seed_parse_nodes(self, count: int) -> None:
         """Seed the current node budget from an existing segment count."""
         self.increment_parse_nodes(count)
+
+    def record_failure(self, idx: int) -> None:
+        """Record a required-element failure at token index `idx`.
+
+        Only the furthest such failure is kept: anchoring a parse error at
+        the furthest point the parser reached is more useful than the point
+        where some speculative alternative happened to fail.
+        """
+        if self._furthest_failure is None or idx > self._furthest_failure:
+            self._furthest_failure = idx
+
+    @property
+    def furthest_failure(self) -> Optional[int]:
+        """The furthest token index at which a required element failed."""
+        return self._furthest_failure
 
     def _set_terminators(
         self,
