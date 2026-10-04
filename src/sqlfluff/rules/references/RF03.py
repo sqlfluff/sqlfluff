@@ -155,12 +155,11 @@ class Rule_RF03(BaseRule):
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
                 # the *parent* query level. Only check if it is a subquery of the
-                # parent.
+                # parent. Nested subqueries can see the tables of all enclosing
+                # queries, which matters if the parent has no tables of its own.
                 possible_ref_tables = list(self._iter_available_targets(query))
                 if query.parent and query.is_subquery:
-                    possible_ref_tables += list(
-                        self._iter_available_targets(query.parent, query)
-                    )
+                    possible_ref_tables += self._outer_visible_aliases(query)
                 else:
                     # Subqueries in the FROM clause and CTEs normally can't see
                     # the tables of the enclosing queries. Correlated ones can
