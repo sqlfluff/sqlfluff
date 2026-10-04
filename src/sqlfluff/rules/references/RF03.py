@@ -132,13 +132,15 @@ class Rule_RF03(BaseRule):
         """Get the aliases visible from all queries enclosing this subquery.
 
         A correlated subquery may reference any enclosing query, not just its
-        direct parent, so walk up the whole chain of ancestors. CTEs stop the
-        walk: they never see the FROM clause of the query that uses them.
+        direct parent, so walk up the whole chain of ancestors. A CTE never
+        sees the FROM clause of the query that uses it, so skip that query,
+        but it can see the queries enclosing its WITH statement.
         """
         outer_aliases: list[AliasInfo] = []
         child = query
-        while child.parent and child.cte_definition_segment is None:
-            outer_aliases += self._iter_available_targets(child.parent, child)
+        while child.parent:
+            if child.cte_definition_segment is None:
+                outer_aliases += self._iter_available_targets(child.parent, child)
             child = child.parent
         return outer_aliases
 
@@ -160,26 +162,28 @@ class Rule_RF03(BaseRule):
                         self._iter_available_targets(query.parent, query)
                     )
                 else:
-                    # Subqueries in the FROM clause normally can't see the
-                    # tables of the containing queries. Correlated ones can
+                    # Subqueries in the FROM clause and CTEs normally can't see
+                    # the tables of the enclosing queries. Correlated ones can
                     # (e.g. T-SQL CROSS/OUTER APPLY or LATERAL joins), so count
                     # the outer tables if any reference uses one of them. In
                     # valid SQL only correlated subqueries do that. Top level
-                    # queries and CTEs have no outer aliases.
+                    # queries have no outer aliases.
                     outer_aliases = self._outer_visible_aliases(query)
-                    # An inner alias shadows an outer one with the same name,
-                    # so those references point at the inner table. Compare
-                    # normalized names, as most dialects ignore identifier case.
-                    inner_names = {
-                        _normalized_alias(t) for t in select_info.table_aliases
-                    }
-                    outer_only_names = {
-                        _normalized_alias(t) for t in outer_aliases
-                    } - inner_names
-                    if outer_only_names and _references_any_table(
-                        select_info.reference_buffer,
-                        outer_only_names,
-                        query.dialect.name,
+                    # An unqualified column may also belong to an outer table,
+                    # so adding a qualifier is unsafe even without references
+                    # to the outer tables. Removing qualifiers is still safe:
+                    # unqualified names resolve to the inner table first.
+                    if outer_aliases and (
+                        _references_outer_table(
+                            select_info.reference_buffer,
+                            select_info.table_aliases,
+                            outer_aliases,
+                            query.dialect.name,
+                        )
+                        or (
+                            self.single_table_references != "unqualified"
+                            and _sees_outer_columns(query.selectables[0].selectable)
+                        )
                     ):
                         possible_ref_tables += outer_aliases
                 if len(possible_ref_tables) > 1:
@@ -219,28 +223,90 @@ class Rule_RF03(BaseRule):
             yield from self._visit_queries(child, visited)
 
 
-def _normalized_alias(alias: AliasInfo) -> str:
-    """Get the name of a table alias, normalized to the dialect's casing."""
+def _sees_outer_columns(selectable: BaseSegment) -> bool:
+    """Check whether a selectable can see the columns of the enclosing query.
+
+    A subquery in the FROM clause can only see them if it is a LATERAL or
+    APPLY subquery. Other subqueries (e.g. in the WHERE clause) always can.
+    A CTE takes the position of the WITH statement which defines it.
+    """
+    parent = selectable.get_parent()
+    while parent and not parent[0].is_type(
+        "from_expression_element", "select_statement"
+    ):
+        parent = parent[0].get_parent()
+    return parent is not None and (
+        parent[0].is_type("select_statement") or _is_lateral_element(parent[0])
+    )
+
+
+def _is_lateral_element(element: BaseSegment) -> bool:
+    """Check whether a FROM expression element is a LATERAL or APPLY join."""
+    if any(seg.raw_upper == "LATERAL" for seg in element.get_children("keyword")):
+        return True
+    parent = element.get_parent()
+    return bool(
+        parent
+        and parent[0].is_type("join_clause")
+        and any(seg.raw_upper == "APPLY" for seg in parent[0].get_children("keyword"))
+    )
+
+
+def _normalized_parts(reference: BaseSegment, dialect_name: str) -> tuple[str, ...]:
+    """Get the parts of a reference, normalized to the dialect's casing."""
+    return tuple(
+        "".join(seg.raw_normalized() for seg in part.segments)
+        for part in iter_raw_references(reference, dialect_name)
+    )
+
+
+def _table_names(alias: AliasInfo, dialect_name: str) -> tuple[str, ...]:
+    """Get the name which qualifies references to a table.
+
+    Aliased tables are only known by their alias. Other tables may also be
+    known by their schema qualified name, e.g. ``public.orders``.
+    """
+    if not alias.aliased and alias.object_reference:
+        return _normalized_parts(alias.object_reference, dialect_name)
     # Aliases without a segment have no name (e.g. an unaliased subquery).
-    return alias.segment.raw_normalized() if alias.segment else ""
+    return (alias.segment.raw_normalized(),) if alias.segment else ()
 
 
-def _references_any_table(
+def _is_suffix(short: tuple[str, ...], long: tuple[str, ...]) -> bool:
+    return 0 < len(short) <= len(long) and long[len(long) - len(short) :] == short
+
+
+def _references_outer_table(
     references: list[ObjectReferenceSegment],
-    table_names: set[str],
+    inner_aliases: list[AliasInfo],
+    outer_aliases: list[AliasInfo],
     dialect_name: str,
 ) -> bool:
-    """Check whether any reference is qualified with one of the given tables.
+    """Check whether any reference is qualified with a table of an outer query.
 
-    ``table_names`` must be normalized to the dialect's casing.
+    A reference qualified with ``orders`` or ``public.orders`` names the
+    ``public.orders`` table. An inner table shadows an outer table with the
+    same name, so references which name an inner table point at that one.
+    When it isn't clear which table a reference names, assume the outer one,
+    as that keeps the fixes safe.
     """
+    inner_names = [_table_names(t, dialect_name) for t in inner_aliases]
+    outer_names = [_table_names(t, dialect_name) for t in outer_aliases]
     for ref in references:
-        for part in extract_possible_references(
-            ref, level=ObjectReferenceLevel.TABLE, dialect_name=dialect_name
+        parts = _normalized_parts(ref, dialect_name)
+        # The leading parts of a column reference name the table, but it
+        # isn't clear how many (e.g. `schema.table.column` or
+        # `table.column.struct_field`), so try all of them. Unqualified
+        # references have no table name: they resolve to the inner table first.
+        qualifiers = [parts[:i] for i in range(1, len(parts))]
+        if any(_is_suffix(q, name) for q in qualifiers for name in inner_names):
+            continue
+        if any(
+            _is_suffix(q, name) or _is_suffix(name, q)
+            for q in qualifiers
+            for name in outer_names
         ):
-            name = "".join(seg.raw_normalized() for seg in part.segments)
-            if name in table_names:
-                return True
+            return True
     return False
 
 

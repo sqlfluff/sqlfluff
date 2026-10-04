@@ -1050,3 +1050,222 @@ test_fail_postgres_lateral_unaliased_outer_subquery_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_postgres_lateral_schema_qualified_outer_table_8626:
+  # The inner `orders` doesn't shadow `public.orders`, as they are in different
+  # schemas. `public.orders.id` refers to the outer query, so removing the
+  # qualifiers would turn the predicate into `id = id`.
+  pass_str: |
+    select s.x
+    from public.orders
+    cross join lateral (
+        select orders.x
+        from other.orders
+        where orders.id = public.orders.id
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_lateral_nested_cte_correlated_unqualified_8626:
+  # A CTE can't see the FROM clause of the query that uses it, but it can see
+  # the queries enclosing its WITH statement. `o.id` refers to the outer query.
+  pass_str: |
+    select s.x
+    from orders as o
+    cross join lateral (
+        with c as (
+            select l.x from lines as l where l.id = o.id
+        )
+        select x from c
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_postgres_lateral_nested_cte_uncorrelated_unqualified_8626:
+  # Without references to the outer query, a CTE inside a LATERAL subquery is
+  # still a single table select and can be fixed.
+  fail_str: |
+    select s.x
+    from orders as o
+    cross join lateral (
+        with c as (
+            select l.x from lines as l where l.id = 1
+        )
+        select c.x from c
+    ) as s
+  fix_str: |
+    select s.x
+    from orders as o
+    cross join lateral (
+        with c as (
+            select x from lines as l where id = 1
+        )
+        select x from c
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_no_fix_postgres_lateral_whole_row_outer_reference_qualified_8626:
+  # `o` may be a whole-row reference to the outer table rather than a column
+  # of `l`, so it must not be qualified as `l.o`.
+  fail_str: |
+    select s.j
+    from orders as o
+    cross join lateral (
+        select to_jsonb(o) as j, l.x from lines as l
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_postgres_lateral_bare_outer_column_qualified_8626:
+  # A LATERAL subquery can see the columns of the outer query. The unqualified
+  # `order_id` could belong to `o` rather than `l`, so qualifying it is unsafe.
+  fail_str: |
+    select s.x
+    from orders as o
+    cross join lateral (
+        select l.x from lines as l where l.id = order_id
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_tsql_outer_apply_bare_outer_column_consistent_8626:
+  # The same applies to T-SQL APPLY subqueries in consistent mode, which fixes
+  # inconsistencies by qualifying references.
+  fail_str: |
+    select s.x
+    from orders as o
+    outer apply (
+        select l.x from lines as l where l.id = order_id
+    ) as s
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_lateral_nested_cte_bare_outer_column_qualified_8626:
+  # A CTE inside a LATERAL subquery can see the columns of the outer query, so
+  # qualifying the unqualified `order_id` is unsafe.
+  fail_str: |
+    select s.x
+    from orders as o
+    cross join lateral (
+        with c as (
+            select l.x from lines as l where l.id = order_id
+        )
+        select c.x from c
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_postgres_where_subquery_cte_bare_outer_column_qualified_8626:
+  # The same applies to a CTE inside a subquery in the WHERE clause.
+  fail_str: |
+    select o.x
+    from orders as o
+    where exists (
+        with c as (
+            select l.x from lines as l where l.id = order_id
+        )
+        select c.x from c
+    )
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_postgres_derived_table_cte_qualified_8626:
+  # A CTE inside a derived table which isn't LATERAL can't see the columns of
+  # the outer query, so it is still a single table select and can be fixed.
+  fail_str: |
+    select s.x
+    from orders as o
+    inner join (
+        with c as (
+            select x from lines as l
+        )
+        select c.x from c
+    ) as s on o.id = s.x
+  fix_str: |
+    select s.x
+    from orders as o
+    inner join (
+        with c as (
+            select l.x from lines as l
+        )
+        select c.x from c
+    ) as s on o.id = s.x
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_postgres_derived_table_column_named_like_outer_table_qualified_8626:
+  # `customer` is a column of `orders` which shares its name with the outer
+  # table. A derived table which isn't LATERAL can't see the outer table, so
+  # it is still a single table select and can be fixed.
+  fail_str: |
+    select s.total
+    from customer
+    inner join (
+        select customer, total from orders
+    ) as s on s.customer = customer.id
+  fix_str: |
+    select s.total
+    from customer
+    inner join (
+        select orders.customer, orders.total from orders
+    ) as s on s.customer = customer.id
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_postgres_where_subquery_column_named_like_outer_table_consistent_8626:
+  # `status` is a column of `orders` which shares its name with the outer
+  # table. Unqualified names resolve to the inner table first, so the
+  # inconsistency is still reported.
+  fail_str: |
+    select *
+    from status
+    where exists (
+        select 1 from orders where orders.x = 1 and status = 'a'
+    )
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
