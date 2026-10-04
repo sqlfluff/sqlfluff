@@ -490,21 +490,19 @@ impl Parser<'_> {
                 self.pos = frame.pos;
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-            } else {
-                // Handle trailing delimiter if allowed and present
-                if allow_trailing {
-                    if let Some(dm) = delimiter_match.take() {
-                        MatchResult::append_into(working_match, dm);
-                        *delimiter_count += 1;
-                    }
-                }
-                self.pos = *matched_idx;
-                frame.end_pos = Some(*matched_idx);
-                frame.state = FrameState::Combining;
-                stack.push(frame);
+                return Ok(TableFrameResult::Push(frame));
             }
-            return Ok(TableFrameResult::Done);
+            // Handle trailing delimiter if allowed and present
+            if allow_trailing {
+                if let Some(dm) = delimiter_match.take() {
+                    MatchResult::append_into(working_match, dm);
+                    *delimiter_count += 1;
+                }
+            }
+            self.pos = *matched_idx;
+            frame.end_pos = Some(*matched_idx);
+            frame.state = FrameState::Combining;
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Delimiter matched - store it (don't push to accumulated yet!)

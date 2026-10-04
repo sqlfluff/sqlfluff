@@ -396,7 +396,7 @@ impl<'a> Parser<'a> {
             let ctx = &self.grammar_ctx;
             let mut kept_names: Vec<String> = Vec::new();
             let mut dropped_names: Vec<String> = Vec::new();
-            for opt_id in options {
+            for opt_id in options.clone() {
                 let var = ctx.variant(opt_id);
                 let name = match var {
                     sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(opt_id).to_string(),

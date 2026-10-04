@@ -228,11 +228,9 @@ impl Parser<'_> {
                 }
 
                 FrameState::Complete(ref match_result) => {
-                    // This state is reached when a handler has finished producing a result.
-                    // The handler transitions the frame to Complete(match_result) and returns Push(frame).
-                    // The main loop then stores the result in stack.results for parent frames to access.
-                    // This separation keeps handlers focused on producing results, while the main
-                    // loop coordinates result storage.
+                    // Not reached in practice: handlers return Complete frames as `Push(frame)` and
+                    // `settle_frame` commits them immediately. Kept so a `Complete` frame pushed
+                    // directly onto the stack still commits.
                     self.commit_table_frame_result(&mut stack, &frame, match_result)?;
                 }
             }

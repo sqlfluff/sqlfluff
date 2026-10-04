@@ -474,7 +474,7 @@ impl Parser<'_> {
 
         // Re-prune at new position
         let element_ids = self.grammar_ctx.element_children(grammar_id);
-        let repruned_children = self.prune_options(element_ids);
+        let repruned_children = self.prune_options(element_ids.clone());
 
         vdebug!(
             "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
