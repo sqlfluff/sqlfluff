@@ -141,6 +141,28 @@ def test__rust_parser__max_parse_nodes_exceeded_in_rs_binding():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__tolerates_wheel_without_base_node_count(monkeypatch):
+    """An older sqlfluffrs without `base_node_count` must still parse.
+
+    The keyword was added with the max_parse_nodes parity work; a wheel that
+    predates it (e.g. the pinned released one while sqlfluff comes from a
+    branch) should fall back to the token-count base rather than raising
+    TypeError on every parse.
+    """
+    import sqlfluff.core.parser.rust_parser as rust_parser
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    monkeypatch.setattr(rust_parser, "_rs_supports_base_node_count", lambda: False)
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex("SELECT 1")
+    tree = rust_parser.RustParser(config=config).parse(segments)
+    assert tree is not None
+    assert tree.raw == "SELECT 1"
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__iteration_limit__exceeded_raises_base_exception():
     """Exceeding max_parser_iterations raises a BaseException (PanicException).
 

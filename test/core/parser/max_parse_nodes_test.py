@@ -1,5 +1,6 @@
 """Tests for max_parse_nodes limit (DoS mitigation)."""
 
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -8,8 +9,23 @@ from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.linter.linter import Linter
 
+try:
+    from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER
+except ImportError:  # pragma: no cover
+    _HAS_RUST_PARSER = False
+
 MAX_NODE_LIMIT = 300
 MESSAGE_PREFIX = "Maximum parse node count exceeded"
+
+# A synthesized reproduction of the accounting mismatch between the two
+# engines. See the file header for the full story.
+REPRO_FIXTURE = (
+    Path(__file__).parents[2] / "fixtures" / "parser" / "max_parse_nodes_repro.sql"
+)
+
+# Limits chosen to straddle the fixture's node count (~5.4k), including points
+# inside the band where the two engines used to disagree.
+_PARITY_LIMITS = [4000, 4500, 5000, 5500, 6000]
 
 
 def _linter_with_node_limit(limit: int):
@@ -48,7 +64,7 @@ def test_max_parse_nodes_default_allows_simple_sql():
 def test_default_max_parse_nodes_matches_config_default():
     """FluffConfig exposes the shipped default max_parse_nodes value."""
     config = FluffConfig(overrides={"dialect": "ansi"})
-    assert config.get("max_parse_nodes") == 100000
+    assert config.get("max_parse_nodes") == 200000
 
 
 def test_max_parse_nodes_exceeded_wide_select_python_parser():
@@ -180,3 +196,43 @@ def test_max_parse_nodes_token_gate_skips_parser(use_rust_parser, patch_target):
     err = parsed.violations[0]
     assert isinstance(err, SQLParseError)
     _assert_node_limit_error(err, MAX_NODE_LIMIT)
+
+
+def _limit_exceeded(sql: str, use_rust_parser: bool, limit: int) -> bool:
+    """Whether parsing ``sql`` with the given engine trips the node limit."""
+    linter = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "ansi",
+                "use_rust_parser": use_rust_parser,
+                "max_parse_nodes": limit,
+            }
+        )
+    )
+    parsed = linter.parse_string(sql)
+    return any(MESSAGE_PREFIX in v.desc() for v in parsed.violations)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize("limit", _PARITY_LIMITS)
+def test_max_parse_nodes_python_rust_agree(limit):
+    """The Python and Rust engines must enforce the node limit identically.
+
+    Regression for the accounting mismatch where Python charged inserted
+    segments only for zero-length matches while Rust charged them always, so
+    the Rust engine rejected files the Python engine accepted just under the
+    limit. The fixture is sized so that some of the parametrised limits fall
+    inside the band the two engines used to disagree on.
+    """
+    sql = REPRO_FIXTURE.read_text()
+    assert _limit_exceeded(sql, False, limit) == _limit_exceeded(sql, True, limit)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test_max_parse_nodes_repro_fixture_parses_at_default():
+    """The reproduction fixture parses under the shipped default on both engines."""
+    sql = REPRO_FIXTURE.read_text()
+    default = FluffConfig(overrides={"dialect": "ansi"}).get("max_parse_nodes")
+    assert default == 200000
+    assert not _limit_exceeded(sql, False, default)
+    assert not _limit_exceeded(sql, True, default)

@@ -187,6 +187,14 @@ pub struct Parser<'a> {
     pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
     pub(crate) max_parse_nodes: usize,
+    /// Base node count to add to the tree node count when enforcing
+    /// `max_parse_nodes` at the root. 0 = use the token count instead.
+    ///
+    /// The Python engine seeds its budget from the *full* lexed segment count
+    /// (including leading/trailing non-code), but Rust only ever sees the
+    /// trimmed code slice, so the caller passes the Python-side count here to
+    /// keep the two limits numerically identical.
+    pub(crate) base_node_count: usize,
 }
 
 impl<'a> Parser<'a> {
@@ -236,6 +244,7 @@ impl<'a> Parser<'a> {
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
             max_parse_nodes: 0,
+            base_node_count: 0,
         }
     }
 
@@ -254,6 +263,24 @@ impl<'a> Parser<'a> {
     pub fn with_node_limit(mut self, max_parse_nodes: usize) -> Self {
         self.max_parse_nodes = max_parse_nodes;
         self
+    }
+
+    /// Set the base node count used when enforcing `max_parse_nodes` at the
+    /// root (builder pattern). 0 falls back to the token count.
+    pub fn with_base_node_count(mut self, base_node_count: usize) -> Self {
+        self.base_node_count = base_node_count;
+        self
+    }
+
+    /// The base count to combine with a root match's node count. Prefers an
+    /// explicitly supplied base (so the Python and Rust limits agree); falls
+    /// back to the given token count when none was set.
+    fn node_base(&self, token_count: usize) -> usize {
+        if self.base_node_count > 0 {
+            self.base_node_count
+        } else {
+            token_count
+        }
     }
 
     fn check_parse_node_limit(
@@ -374,7 +401,7 @@ impl<'a> Parser<'a> {
 
         match result {
             Ok(match_result) => {
-                self.check_parse_node_limit(&match_result, token_slice.len())?;
+                self.check_parse_node_limit(&match_result, self.node_base(token_slice.len()))?;
                 Ok(match_result)
             }
             Err(err) => Err(err),
@@ -412,7 +439,7 @@ impl<'a> Parser<'a> {
                 insert_segments: vec![],
                 child_matches: vec![],
             };
-            self.check_parse_node_limit(&file_mr, self.tokens.len())?;
+            self.check_parse_node_limit(&file_mr, self.node_base(self.tokens.len()))?;
             let nodes = file_mr.apply(self.tokens);
             return Ok(nodes.into_iter().next().unwrap_or_default());
         }
@@ -484,7 +511,7 @@ impl<'a> Parser<'a> {
             insert_segments: vec![],
             child_matches: vec![content_child],
         };
-        self.check_parse_node_limit(&file_mr, token_slice_orig.len())?;
+        self.check_parse_node_limit(&file_mr, self.node_base(token_slice_orig.len()))?;
         let root_nodes = file_mr.apply(token_slice_orig);
         Ok(root_nodes.into_iter().next().unwrap_or_default())
     }
