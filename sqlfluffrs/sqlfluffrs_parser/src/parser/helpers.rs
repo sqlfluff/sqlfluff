@@ -8,7 +8,6 @@ use smallvec::SmallVec;
 use super::core::Parser;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 
-
 impl<'a> Parser<'a> {
     /// Print cache statistics
     pub fn print_cache_stats(&self) {
