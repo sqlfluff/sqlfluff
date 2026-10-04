@@ -167,10 +167,6 @@ pub struct Parser<'a> {
     /// Indentation configuration (key -> enabled)
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
     pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
-    // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
-    // Keyed by (pattern, case_insensitive): a RegexParser with `ignore_case=False`
-    // compiles the same pattern case-sensitively.
-    regex_cache: hashbrown::HashMap<(String, bool), std::sync::Arc<RegexMode>>,
     /// Memoizes a Ref's resolved child grammar (ref grammar_id -> child grammar_id).
     /// The resolution (element children / by-name dialect lookup) depends only on
     /// the Ref's grammar_id, but the same Ref is hit thousands of times per parse,
@@ -230,7 +226,6 @@ impl<'a> Parser<'a> {
             cache_enabled: true,
             grammar_ctx,
             indent_config,
-            regex_cache: hashbrown::HashMap::new(),
             ref_child_cache: hashbrown::HashMap::new(),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
@@ -1190,29 +1185,11 @@ impl<'a> Parser<'a> {
         // anti-template share the parser's case mode.
         let case_insensitive = !self.grammar_ctx.inst(grammar_id).flags.case_sensitive();
 
-        let pattern = {
-            let comp_key = normalize_for_compile(&pattern_str).to_string();
-            self.regex_cache
-                .entry((comp_key.clone(), case_insensitive))
-                .or_insert_with(|| {
-                    std::sync::Arc::new(RegexMode::new_with_flags(&comp_key, case_insensitive))
-                })
-                .clone()
-        };
-
-        let anti_pattern = if let Some(anti_str) = anti_opt.as_ref() {
-            let comp_key = normalize_for_compile(anti_str).to_string();
-            Some(
-                self.regex_cache
-                    .entry((comp_key.clone(), case_insensitive))
-                    .or_insert_with(|| {
-                        std::sync::Arc::new(RegexMode::new_with_flags(&comp_key, case_insensitive))
-                    })
-                    .clone(),
-            )
-        } else {
-            None
-        };
+        let pattern =
+            RegexMode::cached_with_flags(normalize_for_compile(&pattern_str), case_insensitive);
+        let anti_pattern = anti_opt.as_ref().map(|anti_str| {
+            RegexMode::cached_with_flags(normalize_for_compile(anti_str), case_insensitive)
+        });
 
         vdebug!(
             "RegexParser[table]: pos={}, pattern='{}', anti='{}', token_type='{}'",
