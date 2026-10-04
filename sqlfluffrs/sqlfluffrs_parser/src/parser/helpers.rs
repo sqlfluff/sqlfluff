@@ -8,8 +8,6 @@ use smallvec::SmallVec;
 use super::core::Parser;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 
 impl<'a> Parser<'a> {
     /// Print cache statistics

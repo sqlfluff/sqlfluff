@@ -2,8 +2,6 @@ use sqlfluffrs_types::{BracketPairSet, GrammarId, GrammarVariant, Token};
 
 use crate::parser::{ParseError, Parser};
 
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 /// Module-level implementations of the table-driven match algorithms.
 ///
 /// These functions implement the matching helpers used by the table-driven

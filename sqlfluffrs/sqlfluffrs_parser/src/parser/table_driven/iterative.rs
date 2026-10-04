@@ -1,5 +1,3 @@
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 use sqlfluffrs_types::GrammarId;
 use sqlfluffrs_types::ParseMode;
 // Only the verbose-debug tracing blocks in this module reference GrammarVariant directly;

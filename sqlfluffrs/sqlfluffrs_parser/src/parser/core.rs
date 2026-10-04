@@ -4,8 +4,6 @@
 //! including the main entry point for parsing with grammar.
 
 use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 use std::borrow::Cow;
 use std::sync::Arc;
 
@@ -1542,7 +1540,7 @@ impl<'a> Parser<'a> {
             #[cfg(feature = "verbose-debug")]
             let typ = tok.get_type();
             #[cfg(feature = "verbose-debug")]
-            let raw = tok.raw();
+            let raw = tok.raw().to_string();
             self.bump();
             count += 1;
 

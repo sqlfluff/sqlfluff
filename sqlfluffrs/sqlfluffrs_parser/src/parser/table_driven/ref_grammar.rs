@@ -7,8 +7,6 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser, RefState,
 };
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 
 /// Sentinel prefix for an unresolvable Ref's [`ParseError`] message. The
 /// Python side (`rust_parser.py`) recognises this prefix and re-raises

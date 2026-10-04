@@ -2,8 +2,6 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     AnyNumberOfState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 use sqlfluffrs_types::GrammarId;
 use std::sync::Arc;
 
