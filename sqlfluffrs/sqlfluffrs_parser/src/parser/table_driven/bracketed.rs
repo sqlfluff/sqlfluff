@@ -1,5 +1,4 @@
 use crate::parser::match_result::MatchedClass;
-use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
@@ -22,13 +21,10 @@ impl Parser<'_> {
             frame.pos
         );
         let start_idx = frame.pos;
-        let local_terminators = self
-            .grammar_ctx
-            .terminators(grammar_id)
-            .collect::<Vec<GrammarId>>();
+        let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
-        let all_terminators = Self::combine_terminators(
-            &local_terminators,
+        let all_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
@@ -50,7 +46,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             open_bracket_id,
             start_idx,
-            &all_terminators,
+            all_terminators,
             FrameContext::None,
             parent_max_idx,
             None, // No override for opening bracket
@@ -98,7 +94,7 @@ impl Parser<'_> {
                 self.handle_bracketed_content_result(frame, child_match, child_end_pos, stack)
             }
             BracketedPhase::MatchingClose => {
-                self.handle_bracketed_close_result(frame, child_match, child_end_pos, stack)
+                self.handle_bracketed_close_result(frame, child_match, child_end_pos)
             }
             BracketedPhase::Complete => {
                 unreachable!("BracketedPhase::Complete should not occur in WaitingForChild handler")
@@ -129,7 +125,10 @@ impl Parser<'_> {
             .filter(|(idx, _id)| *idx != start_bracket_idx && *idx != end_bracket_idx)
             .map(|(_, id)| id)
             .collect::<Vec<_>>();
-        let FrameContext::Bracketed(BracketedState {
+        let FrameContext::Bracketed(boxed) = &mut frame.context else {
+            unreachable!("Expected Bracketed context");
+        };
+        let BracketedState {
             phase: bracket_state,
             bracket_max_idx,
             last_child_frame_id,
@@ -138,18 +137,14 @@ impl Parser<'_> {
             parse_mode_override,
             child_matches,
             ..
-        }) = &mut frame.context
-        else {
-            unreachable!("Expected Bracketed context");
-        };
+        } = &mut **boxed;
         if child_is_empty {
             self.pos = frame.pos;
             vdebug!("Bracketed[table] returning Empty (no opening bracket)",);
             // Transition to Combining to finalize Empty result
             frame.end_pos = Some(frame.pos);
             frame.state = FrameState::Combining;
-            stack.push(frame);
-            return Ok(TableFrameResult::Done);
+            return Ok(TableFrameResult::Push(frame));
         }
 
         let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
@@ -243,7 +238,7 @@ impl Parser<'_> {
                 stack.frame_id_counter,
                 close_bracket_id,
                 self.pos,
-                &[close_bracket_id],
+                Arc::from([close_bracket_id]),
                 FrameContext::None,
                 parent_limit,
                 None, // No override for closing bracket
@@ -273,7 +268,7 @@ impl Parser<'_> {
             stack.frame_id_counter,
             content_grammar_id,
             self.pos,
-            &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
+            Arc::clone(&self.empty_terminators), // Don't pass close bracket as terminator - use bracket_max_idx instead
             FrameContext::None,
             *bracket_max_idx,
             *parse_mode_override, // Pass override to content
@@ -295,7 +290,10 @@ impl Parser<'_> {
         // Work with MatchResult directly (Python parity)
         let child_is_empty = child_match.is_empty();
         let all_children: &[GrammarId] = self.grammar_ctx.children_ids_slice(frame.grammar_id);
-        let FrameContext::Bracketed(BracketedState {
+        let FrameContext::Bracketed(boxed) = &mut frame.context else {
+            unreachable!("Expected Bracketed context");
+        };
+        let BracketedState {
             grammar_id,
             phase: bracket_state,
             bracket_max_idx,
@@ -305,10 +303,7 @@ impl Parser<'_> {
             parse_mode_override,
             child_matches,
             ..
-        }) = &mut frame.context
-        else {
-            unreachable!("Expected Bracketed context");
-        };
+        } = &mut **boxed;
         // Python reference: sequence.py Bracketed.match() lines ~530-570
         // In Python, Bracketed doesn't pre-compute the closing bracket position.
         // Instead, it lets Sequence.match() handle the content (which may return
@@ -398,7 +393,7 @@ impl Parser<'_> {
                     stack.frame_id_counter,
                     next_content_id,
                     self.pos,
-                    &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
+                    Arc::clone(&self.empty_terminators), // Don't pass close bracket as terminator - use bracket_max_idx instead
                     FrameContext::None,
                     *bracket_max_idx,
                     *parse_mode_override, // Pass override to content
@@ -419,8 +414,7 @@ impl Parser<'_> {
                 // Transition to Combining to finalize Empty result
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                Ok(TableFrameResult::Done)
+                Ok(TableFrameResult::Push(frame))
             } else {
                 // GREEDY mode should hard-raise here, matching Python's
                 // Bracketed.match() (resolve_bracket in match_algorithms.py) and
@@ -467,8 +461,7 @@ impl Parser<'_> {
                 self.pos = frame.pos;
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             // The empty-body case must fail in GREEDY mode too (Python
@@ -489,8 +482,7 @@ impl Parser<'_> {
                 self.pos = frame.pos;
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             if let Some(expected_close_pos) = *bracket_max_idx {
@@ -501,8 +493,7 @@ impl Parser<'_> {
                         // Transition to Combining to finalize Empty result
                         frame.end_pos = Some(frame.pos);
                         frame.state = FrameState::Combining;
-                        stack.push(frame);
-                        return Ok(TableFrameResult::Done);
+                        return Ok(TableFrameResult::Push(frame));
                     } else {
                         // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
                         //
@@ -615,7 +606,7 @@ impl Parser<'_> {
                 stack.frame_id_counter,
                 close_bracket_id,
                 self.pos,
-                &[close_bracket_id],
+                Arc::from([close_bracket_id]),
                 FrameContext::None,
                 parent_limit,
                 None, // No override for closing bracket
@@ -633,18 +624,17 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
-        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         // Work with MatchResult directly (Python parity)
         let child_is_empty = child_match.is_empty();
-        let FrameContext::Bracketed(BracketedState {
+        let FrameContext::Bracketed(boxed) = &mut frame.context else {
+            unreachable!("Expected Bracketed context");
+        };
+        let BracketedState {
             phase: bracket_state,
             child_matches,
             ..
-        }) = &mut frame.context
-        else {
-            unreachable!("Expected Bracketed context");
-        };
+        } = &mut **boxed;
         vdebug!(
             "DEBUG: Bracketed[table] MatchingClose - child_is_empty={}, child_end_pos={}",
             child_is_empty,
@@ -661,8 +651,7 @@ impl Parser<'_> {
                 frame.end_pos = Some(frame.pos);
                 // Transition to Combining to finalize Empty result
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             } else {
                 // GREEDY mode should hard-raise here too, for the same reason as
                 // the sibling GREEDY-EOF branch in
@@ -693,8 +682,7 @@ impl Parser<'_> {
         }
         // Transition to Combining to finalize result
         frame.state = FrameState::Combining;
-        stack.push(frame);
-        Ok(TableFrameResult::Done)
+        Ok(TableFrameResult::Push(frame))
     }
 
     /// Handle Bracketed grammar Combining state - build final node from accumulated children.
@@ -770,11 +758,11 @@ fn initialize_bracketed_frame(
     grammar_id: GrammarId,
     mut frame: TableParseFrame,
     stack: &mut TableParseFrameStack,
-    all_terminators: &[GrammarId],
+    all_terminators: &Arc<[GrammarId]>,
 ) {
     // Update frame with Bracketed context
     frame.state = FrameState::WaitingForChild { child_index: 0 };
-    frame.context = FrameContext::Bracketed(BracketedState {
+    frame.context = FrameContext::Bracketed(Box::new(BracketedState {
         grammar_id,
         phase: BracketedPhase::MatchingOpen,
         last_child_frame_id: None,
@@ -783,8 +771,8 @@ fn initialize_bracketed_frame(
         content_idx: 0,
         parse_mode_override: None, // Will be set when creating content frames
         child_matches: Vec::new(),
-    });
-    frame.table_terminators = SmallVec::from_slice(all_terminators);
+    }));
+    frame.table_terminators = Arc::clone(all_terminators);
     stack.push(frame);
 }
 
@@ -792,7 +780,7 @@ fn create_child_frame(
     frame_id: usize,
     grammar_id: GrammarId,
     start_idx: usize,
-    terminators: &[GrammarId],
+    terminators: Arc<[GrammarId]>,
     context: FrameContext,
     parent_max_idx: Option<usize>,
     parse_mode_override: Option<ParseMode>,
@@ -801,13 +789,12 @@ fn create_child_frame(
         frame_id,
         grammar_id,
         pos: start_idx,
-        table_terminators: smallvec::SmallVec::from_slice(terminators),
+        table_terminators: terminators,
         state: FrameState::Initial,
         context,
         parent_max_idx, // Propagate parent's limit!
         calculated_max_idx: None,
         end_pos: None,
-        element_key: None,
         parse_mode_override, // Propagate parse mode override!
     }
 }

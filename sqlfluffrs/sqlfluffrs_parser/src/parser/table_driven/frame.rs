@@ -1,4 +1,3 @@
-use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
@@ -20,7 +19,7 @@ pub enum TableFrameResult {
 /// Stack structure for managing ParseFrames and related state
 pub struct TableParseFrameStack {
     stack: Vec<TableParseFrame>,
-    /// Single pending result slot: `(frame_id, result, end_pos, element_key)`.
+    /// Single pending result slot: `(frame_id, result, end_pos)`.
     ///
     /// At most one child result is in-flight at any time because the stack
     /// processes frames sequentially and each parent consumes its child's result
@@ -28,10 +27,10 @@ pub struct TableParseFrameStack {
     /// eliminates all hash-map overhead on the hot child-to-parent hand-off path.
     ///
     /// - `end_pos`: token position just past the child's match.
-    /// - `element_key`: optional per-element identity for AnyNumberOf accounting.
-    results: Option<(usize, Arc<MatchResult>, usize, Option<u64>)>,
+    results: Option<(usize, Arc<MatchResult>, usize)>,
     pub frame_id_counter: usize,
-    // Add any additional state fields here as needed
+    /// Shared empty results, direct-mapped by position (see [`Self::empty_result_at`]).
+    empties: [Option<Arc<MatchResult>>; 8],
 }
 
 impl Default for TableParseFrameStack {
@@ -42,23 +41,59 @@ impl Default for TableParseFrameStack {
 
 impl TableParseFrameStack {
     pub fn new() -> Self {
+        Self::with_stack(Vec::new())
+    }
+
+    /// Build on a (cleared) reusable buffer; see [`Self::into_stack`].
+    pub fn with_stack(stack: Vec<TableParseFrame>) -> Self {
+        debug_assert!(stack.is_empty());
         TableParseFrameStack {
-            stack: Vec::new(),
+            stack,
             results: None,
             frame_id_counter: 0,
+            empties: Default::default(),
         }
+    }
+
+    /// A shared `Arc` of `MatchResult::empty_at(pos)`.
+    #[inline]
+    pub(crate) fn empty_result_at(&mut self, pos: usize) -> Arc<MatchResult> {
+        let slot = &mut self.empties[pos % 8];
+        match slot {
+            Some(e) if e.matched_slice.start == pos => Arc::clone(e),
+            _ => Arc::clone(slot.insert(Arc::new(MatchResult::empty_at(pos)))),
+        }
+    }
+
+    /// `Arc` a result, reusing the shared empty when it is exactly
+    /// `MatchResult::empty_at(pos)` (a failed match).
+    #[inline]
+    pub(crate) fn share_result(&mut self, mr: MatchResult) -> Arc<MatchResult> {
+        let start = mr.matched_slice.start;
+        if start == mr.matched_slice.end
+            && mr.matched_class.is_none()
+            && mr.insert_segments.is_empty()
+            && mr.child_matches.is_empty()
+        {
+            self.empty_result_at(start)
+        } else {
+            Arc::new(mr)
+        }
+    }
+
+    /// Hand back the frame buffer for reuse (emptied, capacity kept).
+    pub fn into_stack(mut self) -> Vec<TableParseFrame> {
+        self.stack.clear();
+        self.stack
     }
 
     /// Take a pending result for `frame_id`. Returns `None` if no result is
     /// pending or the stored frame id does not match.
     #[inline]
-    pub fn take_pending(
-        &mut self,
-        frame_id: usize,
-    ) -> Option<(Arc<MatchResult>, usize, Option<u64>)> {
+    pub fn take_pending(&mut self, frame_id: usize) -> Option<(Arc<MatchResult>, usize)> {
         self.results
             .take_if(|(stored_id, ..)| *stored_id == frame_id)
-            .map(|(_, result, end_pos, element_key)| (result, end_pos, element_key))
+            .map(|(_, result, end_pos)| (result, end_pos))
     }
 
     #[inline]
@@ -97,7 +132,8 @@ impl TableParseFrameStack {
     #[inline]
     pub(crate) fn insert_empty_result(&mut self, frame_id: usize, pos: usize) {
         debug_assert!(self.results.is_none());
-        self.results = Some((frame_id, Arc::new(MatchResult::empty_at(pos)), pos, None));
+        let empty = self.empty_result_at(pos);
+        self.results = Some((frame_id, empty, pos));
     }
 
     #[inline]
@@ -108,7 +144,8 @@ impl TableParseFrameStack {
         end_pos: usize,
     ) {
         debug_assert!(self.results.is_none());
-        self.results = Some((frame_id, Arc::new(match_result), end_pos, None));
+        let result = self.share_result(match_result);
+        self.results = Some((frame_id, result, end_pos));
     }
 
     #[inline]
@@ -119,19 +156,7 @@ impl TableParseFrameStack {
         end_pos: usize,
     ) {
         debug_assert!(self.results.is_none());
-        self.results = Some((frame_id, match_result, end_pos, None));
-    }
-
-    #[inline]
-    pub(crate) fn insert_arc_result_with_key(
-        &mut self,
-        frame_id: usize,
-        match_result: Arc<MatchResult>,
-        end_pos: usize,
-        element_key: Option<u64>,
-    ) {
-        debug_assert!(self.results.is_none());
-        self.results = Some((frame_id, match_result, end_pos, element_key));
+        self.results = Some((frame_id, match_result, end_pos));
     }
 
     /// Push child frame and update parent to wait for it
@@ -156,11 +181,10 @@ impl TableParseFrameStack {
         end_pos: Option<usize>,
     ) -> TableFrameResult {
         frame.transition_to_combining(end_pos);
-        self.push(frame);
-        TableFrameResult::Done
+        TableFrameResult::Push(frame)
     }
 
-    /// Complete a frame and insert into results map
+    /// Complete a frame; the main loop commits it (see `settle_frame`).
     #[inline]
     pub(crate) fn complete_frame(
         &mut self,
@@ -170,9 +194,7 @@ impl TableParseFrameStack {
         let pos = result.end();
         frame.end_pos = Some(pos);
         frame.state = FrameState::Complete(result);
-        self.push(frame);
-        // self.insert_result(frame.frame_id, result, pos);
-        TableFrameResult::Done
+        TableFrameResult::Push(frame)
     }
 
     /// Complete a frame with empty result
@@ -298,10 +320,10 @@ pub struct TableParseFrame {
     pub grammar_id: GrammarId,
     /// Position in token stream
     pub pos: usize,
-    /// When Some, this frame uses table-driven parsing
-    /// Table-driven terminators (parallel to terminators field)
-    /// SmallVec avoids heap allocation for common case of 0-4 terminators
-    pub table_terminators: SmallVec<[GrammarId; 4]>,
+    /// Terminators in effect for this frame. Shared (`Arc`) because children
+    /// mostly inherit their parent's set verbatim, so passing it down is a
+    /// refcount bump rather than a copy.
+    pub table_terminators: Arc<[GrammarId]>,
     /// Current state of this frame
     pub state: FrameState,
     /// Additional context depending on grammar type
@@ -320,9 +342,6 @@ pub struct TableParseFrame {
     /// Where this frame's match ended, set when transitioning to `Complete`.
     /// Authoritative result extent; mirrored into the `results` map's `end_pos`.
     pub end_pos: Option<usize>,
-    /// Element key for this match (used by AnyNumberOf to track per-element counts)
-    /// Set by OneOf when storing its result, propagated to parent via results map
-    pub element_key: Option<u64>,
     /// Parse mode override for this frame. When Some, this overrides the grammar's native parse_mode.
     /// Used by Bracketed to force content to use GREEDY mode when the Bracketed itself is GREEDY.
     /// This matches Python behavior where Bracketed(parse_mode=GREEDY) inherits from Sequence
@@ -336,20 +355,19 @@ impl TableParseFrame {
         frame_id: usize,
         grammar_id: GrammarId,
         pos: usize,
-        table_terminators: &[GrammarId],
+        table_terminators: &Arc<[GrammarId]>,
         parent_max_idx: Option<usize>,
     ) -> Self {
         TableParseFrame {
             frame_id,
             grammar_id,
             pos,
-            table_terminators: SmallVec::from_slice(table_terminators),
+            table_terminators: Arc::clone(table_terminators),
             state: FrameState::Initial,
             context: FrameContext::None,
             parent_max_idx,
             calculated_max_idx: None,
             end_pos: None,
-            element_key: None,
             parse_mode_override: None,
         }
     }

@@ -181,6 +181,14 @@ pub struct Parser<'a> {
     pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
     pub(crate) max_parse_nodes: usize,
+    /// Frame-stack buffers reused across (re-entrant) iterative parses, so
+    /// terminator probes don't regrow a fresh stack each time.
+    pub(crate) frame_stack_pool: Vec<Vec<TableParseFrame>>,
+    /// Shared empty terminator set (avoids allocating an empty `Arc<[_]>`).
+    pub(crate) empty_terminators: Arc<[GrammarId]>,
+    /// Last terminator set built from a slice, reused while the same slice
+    /// recurs (e.g. greedy_match probing one set at many positions).
+    pub(crate) last_terminators: Arc<[GrammarId]>,
 }
 
 impl<'a> Parser<'a> {
@@ -229,6 +237,9 @@ impl<'a> Parser<'a> {
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
             max_parse_nodes: 0,
+            frame_stack_pool: Vec::new(),
+            empty_terminators: Arc::from([]),
+            last_terminators: Arc::from([]),
         }
     }
 
@@ -1648,7 +1659,8 @@ impl<'a> Parser<'a> {
         parent_max_idx: Option<usize>,
     ) -> Result<MatchResult, ParseError> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
-        let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
+        let terms = self.terminators_arc(parent_terminators);
+        let frame = TableParseFrame::new_child(0, grammar_id, self.pos, &terms, None);
 
         match self.handle_anything_initial(frame, grammar_id, parent_terminators, parent_max_idx)? {
             TableFrameResult::Push(f) => {
