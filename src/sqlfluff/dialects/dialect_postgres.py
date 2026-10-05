@@ -7449,13 +7449,6 @@ class DeallocateStatementSegment(BaseSegment):
     )
 
 
-class TypedArrayLiteralSegment(ansi.TypedArrayLiteralSegment):
-    """An array literal segment."""
-
-    type = "typed_array_literal"
-    match_grammar = ansi.TypedArrayLiteralSegment.match_grammar
-
-
 class SetSessionAuthorizationStatementSegment(BaseSegment):
     """A `SET SESSION AUTHORIZATION` statement.
 
