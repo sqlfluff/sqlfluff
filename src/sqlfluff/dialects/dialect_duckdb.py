@@ -1406,11 +1406,7 @@ class SetStatementSegment(postgres.SetStatementSegment):
                 "VARIABLE",
                 Ref("NakedIdentifierSegment"),  # variable_name
                 OneOf("TO", Ref("EqualsSegment")),
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
+                Ref("ExpressionSegment"),
             ),
             Sequence(
                 OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
