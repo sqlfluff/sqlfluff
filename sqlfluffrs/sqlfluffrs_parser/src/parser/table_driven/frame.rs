@@ -4,9 +4,6 @@ use std::sync::Arc;
 
 use crate::parser::{FrameContext, FrameState, MatchResult};
 
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
-
 /// Result of frame processing - either finished or needs to push frame back
 // `Push(TableParseFrame)` is constructed and matched on every main-loop step of
 // the iterative parser; boxing it to shrink the enum would trade that for a heap

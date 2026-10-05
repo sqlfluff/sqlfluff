@@ -160,6 +160,10 @@ jobs:
         working-directory: sqlfluffrs
         run: cargo clippy --workspace --all-targets --features python -- -D warnings
 
+      - name: Clippy (verbose-debug)
+        working-directory: sqlfluffrs
+        run: cargo clippy --workspace --all-targets --features python,verbose-debug -- -D warnings
+
       - name: Run unit tests
         working-directory: sqlfluffrs
         run: cargo test --workspace --lib
