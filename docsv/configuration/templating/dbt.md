@@ -88,7 +88,12 @@ profiles_dir = <relative or absolute path to the directory that contains the pro
 profile = <dbt profile>
 target = <dbt target>
 dbt_skip_compilation_error = <True or False, default is True>
+populate_relations_cache = <True or False, default is True>
 ```
+
+Set `populate_relations_cache = False` to skip dbt's eager relation-cache
+population before templating, which can avoid upfront metadata queries on each
+SQLFluff invocation.
 
 ::: tip NOTE
 
@@ -99,6 +104,8 @@ explicit SQLFluff configuration still takes precedence over both. For example,
 `profiles_dir` can be set by `DBT_ENGINE_PROFILES_DIR` or
 `DBT_PROFILES_DIR`, and `profile` can be set by `DBT_ENGINE_PROFILE`
 or `DBT_PROFILE`.
+`populate_relations_cache` can likewise be set with
+`DBT_ENGINE_POPULATE_CACHE` or `DBT_POPULATE_CACHE`.
 :::
 
 ::: tip NOTE
