@@ -796,3 +796,27 @@ test_fail_postgres_quoted_role:
   configs:
     core:
       dialect: postgres
+
+test_pass_oracle_case_sensitive_quoted_alias:
+  # Oracle casefolds to UPPERCASE, so a quoted alias which is not already
+  # uppercase cannot be unquoted without changing the identifier.
+  pass_str: |
+    SELECT
+      col AS "renamedCol",
+      col AS "renamed_col"
+    FROM my_table
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_redundant_quoted_alias:
+  # An alias which already matches the casefolded form is redundantly quoted.
+  fail_str: |
+    SELECT col AS "RENAMEDCOL"
+    FROM my_table
+  fix_str: |
+    SELECT col AS RENAMEDCOL
+    FROM my_table
+  configs:
+    core:
+      dialect: oracle
