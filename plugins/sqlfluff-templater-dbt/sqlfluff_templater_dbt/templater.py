@@ -32,6 +32,7 @@ from typing import (
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
+from sqlfluff.core.config.ini import coerce_value
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 from sqlfluff.core.templaters.jinja import JinjaTemplater
@@ -395,14 +396,23 @@ class DbtTemplater(JinjaTemplater):
         DBT_ENGINE_* prefix as the preferred env var namespace, while keeping
         the legacy DBT_* variables for compatibility.
         """
+        config_value = self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, config_key)
+        )
+        if config_value is not None:
+            return config_value
         return (
-            self.sqlfluff_config.get_section(
-                (self.templater_selector, self.name, config_key)
-            )
-            or os.getenv(f"DBT_ENGINE_{env_var_suffix}")
+            os.getenv(f"DBT_ENGINE_{env_var_suffix}")
             or os.getenv(f"DBT_{env_var_suffix}")
             or default
         )
+
+    def _get_dbt_populate_relations_cache(self) -> bool:
+        """Return whether dbt should eagerly populate the relations cache."""
+        value = self._get_dbt_config_value(
+            "populate_relations_cache", "POPULATE_CACHE", "true"
+        )
+        return bool(coerce_value(value) if isinstance(value, str) else value)
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
@@ -889,9 +899,11 @@ class DbtTemplater(JinjaTemplater):
 
                 adapter.set_macro_resolver(self.dbt_manifest)
                 adapter.set_macro_context_generator(generate_runtime_macro_context)
-                adapter.set_relations_cache(self.dbt_manifest.nodes.values())
+                if self._get_dbt_populate_relations_cache():
+                    adapter.set_relations_cache(self.dbt_manifest.nodes.values())
             else:
-                adapter.set_relations_cache(self.dbt_manifest)
+                if self._get_dbt_populate_relations_cache():
+                    adapter.set_relations_cache(self.dbt_manifest)
 
         yield
         # :TRICKY: Once connected, we never disconnect. Making multiple

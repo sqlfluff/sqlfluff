@@ -704,6 +704,56 @@ def test__templater_dbt_handle_exceptions(
     assert str(roundtrip_exception) == str(excinfo.value)
 
 
+@pytest.mark.parametrize(
+    ("dbt_version_tuple", "config_value", "env_values", "expected_calls"),
+    [
+        (version, config_value, env_values, expected_calls)
+        for version in ((1, 7), (1, 8))
+        for config_value, env_values, expected_calls in [
+            (None, {"DBT_POPULATE_CACHE": "false"}, 0),
+            (None, {}, 1),
+            (
+                None,
+                {
+                    "DBT_POPULATE_CACHE": "false",
+                    "DBT_ENGINE_POPULATE_CACHE": "true",
+                },
+                1,
+            ),
+            (True, {"DBT_POPULATE_CACHE": "false"}, 1),
+            (False, {"DBT_POPULATE_CACHE": "true"}, 0),
+        ]
+    ],
+)
+def test__templater_dbt_populate_relations_cache(
+    dbt_version_tuple, config_value, env_values, expected_calls, monkeypatch
+):
+    """Test relation-cache population follows dbt environment/config values."""
+    monkeypatch.delenv("DBT_POPULATE_CACHE", raising=False)
+    monkeypatch.delenv("DBT_ENGINE_POPULATE_CACHE", raising=False)
+    for key, value in env_values.items():
+        monkeypatch.setenv(key, value)
+
+    config = {"core": {"dialect": "ansi"}, "templater": {"dbt": {}}}
+    if config_value is not None:
+        config["templater"]["dbt"]["populate_relations_cache"] = config_value
+    templater = DbtTemplater()
+    templater.sqlfluff_config = FluffConfig(configs=config)
+    templater.adapters.clear()
+    templater.project_dir = "/tmp/sqlfluff-test-project"
+    templater.dbt_config = mock.Mock()
+    templater.dbt_manifest = mock.Mock()
+    templater.__dict__["dbt_version_tuple"] = dbt_version_tuple
+    adapter = mock.Mock()
+    monkeypatch.setattr("dbt.adapters.factory.get_adapter", lambda _: adapter)
+
+    with templater.connection():
+        pass
+
+    assert adapter.set_relations_cache.call_count == expected_calls
+    templater.adapters.clear()
+
+
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
 def test__templater_dbt_handle_database_connection_failure(
     set_relations_cache,
