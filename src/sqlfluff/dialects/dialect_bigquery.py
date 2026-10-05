@@ -345,7 +345,6 @@ bigquery_dialect.replace(
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
-        Ref("DatetimeUnitSegment"),
         Ref("DatePartWeekSegment"),
         Sequence(
             Ref("ExpressionSegment"),
@@ -512,6 +511,10 @@ bigquery_dialect.sets("extended_datetime_units").update(["DATE", "DATETIME", "TI
 bigquery_dialect.sets("date_part_function_name").clear()
 bigquery_dialect.sets("date_part_function_name").update(
     [
+        # DATEADD takes the date part as its *first* argument. It is listed here
+        # so that it keeps parsing that argument as a date part now that the
+        # generic function-argument grammar no longer accepts a bare date part.
+        "DATEADD",
         "DATE_DIFF",
         "DATE_TRUNC",
         "DATETIME_DIFF",

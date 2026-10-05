@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c54cfecb9e82789d21a903c1597a099d07f8d290574d9b70d891d49a51329a5
+_hash: 9b25c0c9b3d160416c2372320476fd00c53651f74f01eb7f7f58517031cc8ef3
 file:
 - statement:
     select_statement:
@@ -92,12 +92,14 @@ file:
               function_name_identifier: parse_date
             function_contents:
               bracketed:
-                start_bracket: (
-                expression:
+              - start_bracket: (
+              - expression:
                   quoted_literal: '"%Y%m"'
-                comma: ','
-                date_part: year
-                end_bracket: )
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -220,4 +222,46 @@ file:
             raw_comparison_operator: '='
           parameterized_expression:
             at_sign_literal: '@query_parameter2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
 - statement_terminator: ;
