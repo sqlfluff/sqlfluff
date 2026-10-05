@@ -2270,6 +2270,14 @@ def _fix_long_line_with_comment(
         "before",
     ), f"Unexpected value for `trailing_comments`: {trailing_comments!r}"
 
+    # If the source of the comment contains a template tag, neither move is
+    # safe. Moving it before the line rebuilds it from its rendered text, so
+    # the tags are lost. The placeholders for the tags sit before the comment,
+    # so a break before the comment splits its source.
+    if comment_seg.pos_marker and not comment_seg.pos_marker.is_literal():
+        reflow_logger.debug("    Unfixable because comment contains template tags.")
+        return elements, []
+
     # The simpler case if if we're moving the comment to the line
     # _after_. In that case we just coerce the point before it to
     # be an indent.
