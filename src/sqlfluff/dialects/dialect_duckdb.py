@@ -1353,7 +1353,12 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         ),
                     ),
                     Sequence("COMPRESSION_LEVEL", Ref("NumericLiteralSegment")),
-                    Sequence("ROW_GROUP_SIZE_BYTES", Ref("NumericLiteralSegment")),
+                    Sequence(
+                        "ROW_GROUP_SIZE_BYTES",
+                        OneOf(
+                            Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
                     Sequence("ROW_GROUP_SIZE", Ref("NumericLiteralSegment")),
                     Sequence("PARQUET_VERSION", Ref("QuotedLiteralSegment")),
                 )
