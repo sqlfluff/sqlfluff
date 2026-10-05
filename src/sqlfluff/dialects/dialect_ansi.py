@@ -26,7 +26,6 @@ from sqlfluff.core.dialects.common import (
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseFileSegment,
     BaseSegment,
     BinaryOperatorSegment,
@@ -1018,15 +1017,62 @@ class TimeZoneGrammar(BaseSegment):
 
 
 class BracketedArguments(BaseSegment):
-    """A series of bracketed arguments.
+    """A series of bracketed arguments with no arity constraint.
 
-    e.g. the bracketed part of numeric(1, 3)
+    e.g. the bracketed part of `ENUM('a', 'b', 'c')` or a user defined type.
+    Data types whose arguments have a documented arity use one of the
+    constrained variants below instead.
     """
 
     type = "bracketed_arguments"
     match_grammar = Bracketed(
         # The brackets might be empty for some cases...
         Delimited(Ref("LiteralGrammar"), optional=True),
+    )
+
+
+class NumericTypeArguments(BaseSegment):
+    """Precision and optional scale for a numeric data type.
+
+    e.g. `DECIMAL(10)`, `DECIMAL(10, 2)`. The precision is required and the
+    scale is optional, so `DECIMAL()`, `DECIMAL(, 2)` and `DECIMAL(10, 2, 3)`
+    are all rejected (#8589).
+    """
+
+    type = "bracketed_arguments"
+    match_grammar: Matchable = Bracketed(
+        Sequence(
+            Ref("NumericLiteralSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class LengthTypeArguments(BaseSegment):
+    """A single length for a fixed-length data type.
+
+    e.g. `VARCHAR(10)`, `INT(11)`. The brackets take at most one numeric
+    literal, so a second argument is rejected (#8589). Empty brackets are
+    allowed because some dialects accept ``VARCHAR()``.
+    """
+
+    type = "bracketed_arguments"
+    match_grammar: Matchable = Bracketed(Ref("NumericLiteralSegment", optional=True))
+
+
+class SridTypeArguments(BaseSegment):
+    """A single SRID (or `ANY`) for a geospatial data type.
+
+    e.g. `GEOGRAPHY(4326)`, `GEOMETRY(ANY)`.
+    """
+
+    type = "bracketed_arguments"
+    match_grammar: Matchable = Bracketed(
+        OneOf(Ref("NumericLiteralSegment"), "ANY"),
     )
 
 
@@ -1037,6 +1083,38 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
+    # Type names whose bracketed arguments take a documented, restricted form.
+    # They are matched explicitly below and excluded from the generic fallback,
+    # so a malformed argument list cannot fall back to the unconstrained
+    # `BracketedArguments` (#8589). Matched by raw text rather than as dialect
+    # keywords, because several dialects (e.g. snowflake) replace their keyword
+    # sets wholesale.
+    _numeric_type_names = MultiStringParser(
+        ("DECIMAL", "DEC", "NUMERIC", "NUMBER", "FLOAT"),
+        CodeSegment,
+        type="data_type_identifier",
+    )
+    _length_type_names = MultiStringParser(
+        ("CHAR", "CHARACTER", "VARCHAR", "BINARY", "VARBINARY", "NCHAR", "NVARCHAR"),
+        CodeSegment,
+        type="data_type_identifier",
+    )
+    _integer_type_names = MultiStringParser(
+        ("INT", "INTEGER", "SMALLINT", "BIGINT", "TINYINT"),
+        CodeSegment,
+        type="data_type_identifier",
+    )
+    _srid_type_names = MultiStringParser(
+        ("GEOGRAPHY", "GEOMETRY"),
+        CodeSegment,
+        type="data_type_identifier",
+    )
+    _restricted_types = OneOf(
+        _numeric_type_names,
+        _length_type_names,
+        _integer_type_names,
+        _srid_type_names,
+    )
     match_grammar: Matchable = OneOf(
         Ref("TimeWithTZGrammar"),
         Sequence(
@@ -1048,7 +1126,35 @@ class DatatypeSegment(BaseSegment):
                 Sequence(
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
+                    Ref("LengthTypeArguments", optional=True),
+                    allow_gaps=False,
                 ),
+                # Numeric types take a precision and an optional scale.
+                Sequence(
+                    _numeric_type_names,
+                    Ref("NumericTypeArguments", optional=True),
+                    allow_gaps=False,
+                ),
+                # Fixed-length types take a single length.
+                Sequence(
+                    _length_type_names,
+                    Ref("LengthTypeArguments", optional=True),
+                    allow_gaps=False,
+                ),
+                # Integer types take an optional display width (MySQL).
+                Sequence(
+                    _integer_type_names,
+                    Ref("LengthTypeArguments", optional=True),
+                    allow_gaps=False,
+                ),
+                # Geospatial types take a single SRID (or `ANY`).
+                Sequence(
+                    _srid_type_names,
+                    Ref("SridTypeArguments", optional=True),
+                    allow_gaps=False,
+                ),
+                # Any other type, including dialect specific and user defined
+                # types. Their arguments are left unconstrained.
                 Sequence(
                     # Some dialects allow optional qualification of data types with
                     # schemas
@@ -1058,12 +1164,11 @@ class DatatypeSegment(BaseSegment):
                         allow_gaps=False,
                         optional=True,
                     ),
-                    Ref("DatatypeIdentifierSegment"),
+                    Ref("DatatypeIdentifierSegment", exclude=_restricted_types),
+                    Ref("BracketedArguments", optional=True),
                     allow_gaps=False,
                 ),
             ),
-            # There may be no brackets for some data types
-            Ref("BracketedArguments", optional=True),
             AnyNumberOf(
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),
@@ -3221,7 +3326,6 @@ class ColumnDefinitionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),

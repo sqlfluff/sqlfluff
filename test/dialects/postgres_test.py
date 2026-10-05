@@ -157,3 +157,29 @@ def test_get_keywords() -> None:
     expected_result_3 = ["B"]
 
     assert sorted(get_keywords(kw_list, "reserved")) == sorted(expected_result_3)
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE TABLE t (a NUMERIC(10, 2, 3));",
+            id="numeric_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a VARCHAR(3, 4));",
+            id="varchar_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a BIT(3, 4));",
+            id="bit_two_arguments",
+        ),
+    ],
+)
+def test__dialect__postgres__datatype_argument_arity(sql: str) -> None:
+    """A data type argument list must respect its documented arity (#8589)."""
+    parsed = Linter(dialect="postgres").parse_string(sql)
+    violations: list = list(parsed.violations)
+    if parsed.tree:
+        violations += list(parsed.tree.recursive_crawl("unparsable"))
+    assert violations, f"Expected violations but got none for:\n{sql}"

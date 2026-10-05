@@ -1123,12 +1123,12 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     # numeric types [(precision)]
                     Sequence(
                         OneOf("FLOAT"),
-                        Ref("BracketedArguments", optional=True),
+                        Ref("LengthTypeArguments", optional=True),
                     ),
                     # numeric types [precision ["," scale])]
                     Sequence(
                         OneOf("DECIMAL", "NUMERIC"),
-                        Ref("BracketedArguments", optional=True),
+                        Ref("NumericTypeArguments", optional=True),
                     ),
                     # monetary type
                     "MONEY",
@@ -1146,7 +1146,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                                 Sequence("CHARACTER", "VARYING"),
                                 "VARCHAR",
                             ),
-                            Ref("BracketedArguments", optional=True),
+                            Ref("LengthTypeArguments", optional=True),
                         ),
                         "TEXT",
                     ),
@@ -1164,7 +1164,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     Sequence(
                         "BIT",
                         OneOf("VARYING", optional=True),
-                        Ref("BracketedArguments", optional=True),
+                        Ref("LengthTypeArguments", optional=True),
                     ),
                     # uuid type
                     "UUID",
@@ -1184,13 +1184,29 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     # pgvector types
                     Sequence(
                         "VECTOR",
-                        Ref("BracketedArguments", optional=True),
+                        Ref("LengthTypeArguments", optional=True),
                     ),
                 ),
             ),
-            # user defined data types
+            # user defined data types. The built-in types whose arguments have
+            # a restricted arity are handled above and excluded here, so a
+            # malformed argument list cannot fall back to the unconstrained
+            # `BracketedArguments` (#8589).
             Sequence(
-                Ref("DatatypeIdentifierSegment"),
+                Ref(
+                    "DatatypeIdentifierSegment",
+                    exclude=OneOf(
+                        "FLOAT",
+                        "DECIMAL",
+                        "NUMERIC",
+                        "BPCHAR",
+                        "CHAR",
+                        "CHARACTER",
+                        "VARCHAR",
+                        "BIT",
+                        "VECTOR",
+                    ),
+                ),
                 Ref("BracketedArguments", optional=True),
             ),
         ),

@@ -102,3 +102,29 @@ def test_databricks_set_config_values_parse(sql: str, expected_value: str) -> No
         f"Expected clean parse for:\n{sql}"
     )
     assert _set_value_raw(sql, dialect="databricks") == expected_value
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE TABLE t (a DECIMAL(10, 2, 3));",
+            id="decimal_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a VARCHAR(3, 4));",
+            id="varchar_two_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a INT(1, 2, 3));",
+            id="int_three_arguments",
+        ),
+        pytest.param(
+            "CREATE TABLE t (a GEOGRAPHY(4326, 1));",
+            id="geography_two_arguments",
+        ),
+    ],
+)
+def test_datatype_argument_arity(sql: str) -> None:
+    """A data type argument list must respect its documented arity (#8589)."""
+    assert not _parses_cleanly(sql), f"Expected violations but got none for:\n{sql}"
