@@ -690,7 +690,7 @@ class UpsertClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         "CONFLICT",
-        Ref("ConflictTargetSegment", optional=True),
+        Ref("ConflictTargetSegment"),
         "DO",
         OneOf(
             "NOTHING",
@@ -716,6 +716,14 @@ class UpsertClauseSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class TargetlessUpsertClauseSegment(UpsertClauseSegment):
+    """An UPSERT clause without a target, allowed only as the final clause."""
+
+    match_grammar = UpsertClauseSegment.match_grammar.copy(
+        remove=[Ref("ConflictTargetSegment")],
     )
 
 
@@ -752,10 +760,12 @@ class InsertStatementSegment(BaseSegment):
             Sequence(
                 Ref("ValuesClauseSegment"),
                 AnyNumberOf(Ref("UpsertClauseSegment")),
+                Ref("TargetlessUpsertClauseSegment", optional=True),
             ),
             Sequence(
                 OptionallyBracketed(Ref("SelectableGrammar")),
                 AnyNumberOf(Ref("UpsertClauseSegment")),
+                Ref("TargetlessUpsertClauseSegment", optional=True),
             ),
             Ref("DefaultValuesGrammar"),
         ),
