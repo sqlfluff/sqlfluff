@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3901f10cb7b46483f262fb84994c722d7b9673457ccacccaed6789649dcd4440
+_hash: 7561d6e33f68f293f893e92505f7ddd177a7eee63548140fa0ccf64b1db665c0
 file:
 - statement:
     create_table_statement:
@@ -975,3 +975,31 @@ file:
         data_source_format:
           keyword: DELTA
 - statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: geometry_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: geom_any
+          data_type:
+            keyword: GEOMETRY
+            bracketed:
+              start_bracket: (
+              keyword: ANY
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: geom_srid
+          data_type:
+            keyword: GEOMETRY
+            bracketed:
+              start_bracket: (
+              integer_literal: '4326'
+              end_bracket: )
+      - end_bracket: )
