@@ -156,9 +156,9 @@ impl Parser<'_> {
 
         // Combine the Ref's local terminators with the parent terminators so
         // the referenced child parsing respects both sets (parity with Arc path)
-        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let child_terminators = Self::combine_terminators(
-            &local_terminators,
+        let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
+        let child_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );

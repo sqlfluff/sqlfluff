@@ -57,9 +57,9 @@ impl Parser<'_> {
         let post_skip_pos = self.skip_to_code_if_gaps(start_pos, self.tokens.len(), allow_gaps);
 
         // Combine terminators (read parent terminators from frame directly)
-        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = Parser::combine_terminators(
-            &local_terminators,
+        let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
+        let all_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
@@ -92,10 +92,10 @@ impl Parser<'_> {
         }
 
         // Get element children (excluding exclude grammar if present)
-        let all_children: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
+        let all_children = self.grammar_ctx.element_children(grammar_id);
 
         // Prune options based on simple hints
-        let pruned_children = self.prune_options(&all_children);
+        let pruned_children = self.prune_options(all_children);
 
         // Debug: list kept children names
         #[cfg(feature = "verbose-debug")]
@@ -143,7 +143,7 @@ impl Parser<'_> {
         );
 
         // Store context for WaitingForChild state (move pruned_children, no clone)
-        frame.context = FrameContext::OneOf(OneOfState {
+        frame.context = FrameContext::OneOf(Box::new(OneOfState {
             grammar_id,
             pruned_children,
             post_skip_pos,
@@ -152,7 +152,7 @@ impl Parser<'_> {
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
             current_child_id: Some(first_child),
-        });
+        }));
 
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
@@ -162,7 +162,7 @@ impl Parser<'_> {
         self.pos = post_skip_pos;
         if let Some(mr) = self.try_terminal_inline(first_child, Some(max_idx))? {
             let end_pos = self.pos;
-            let arc = Arc::new(mr);
+            let arc = stack.share_result(mr);
             return self.handle_oneof_waiting_for_child(frame, &arc, &end_pos, stack);
         }
 
@@ -293,7 +293,10 @@ impl Parser<'_> {
         let mut child_end_pos = *child_end_pos;
 
         loop {
-            let FrameContext::OneOf(OneOfState {
+            let FrameContext::OneOf(boxed) = &mut frame.context else {
+                unreachable!("Expected OneOf context");
+            };
+            let OneOfState {
                 pruned_children,
                 post_skip_pos,
                 longest_match,
@@ -301,10 +304,7 @@ impl Parser<'_> {
                 max_idx,
                 current_child_id,
                 ..
-            }) = &mut frame.context
-            else {
-                unreachable!("Expected OneOf context");
-            };
+            } = &mut **boxed;
 
             let consumed = child_end_pos - *post_skip_pos;
             let current_child = current_child_id.expect("current_child_id should be set");
@@ -381,8 +381,7 @@ impl Parser<'_> {
                 *longest_match = Some((child_match_rc, consumed, current_child));
                 // Skip directly to Combining state
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             // Update longest match if this is better
@@ -434,8 +433,7 @@ impl Parser<'_> {
                     pruned_children.len()
                 );
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             // Try next child
@@ -455,7 +453,7 @@ impl Parser<'_> {
                 // consecutive terminal candidates costs no extra native stack.
                 if let Some(mr) = self.try_terminal_inline(next_child, Some(*max_idx))? {
                     child_end_pos = self.pos;
-                    child_match = Arc::new(mr);
+                    child_match = stack.share_result(mr);
                     continue;
                 }
 
@@ -528,11 +526,10 @@ impl Parser<'_> {
             // No match found
             self.pos = frame.pos;
 
-            Arc::new(MatchResult::empty_at(frame.pos))
+            stack.empty_result_at(frame.pos)
         };
 
         // Transition to Complete
-        stack.complete_frame(frame, result_match);
-        Ok(TableFrameResult::Done)
+        Ok(stack.complete_frame(frame, result_match))
     }
 }

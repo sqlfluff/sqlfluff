@@ -1,4 +1,3 @@
-use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, GrammarVariant};
 use std::sync::Arc;
 
@@ -121,7 +120,7 @@ impl Parser<'_> {
 
         // Store local terminators for terminator checks at Delimited level
         // Move all_terminators into frame (no clone)
-        frame.table_terminators = SmallVec::from_vec(all_terminators);
+        frame.table_terminators = all_terminators.into();
 
         // Calculate max_idx with terminators (read from frame)
         let grammar_parse_mode = inst.parse_mode;
@@ -145,7 +144,7 @@ impl Parser<'_> {
         }
 
         // Store context for the element/delimiter phase loop.
-        frame.context = FrameContext::Delimited(DelimitedState {
+        frame.context = FrameContext::Delimited(Box::new(DelimitedState {
             grammar_id,
             delimiter_count: 0,
             matched_idx: start_pos,
@@ -155,9 +154,9 @@ impl Parser<'_> {
             last_child_frame_id: Some(stack.frame_id_counter),
             delimiter_match: None,
             pos_before_delimiter: None,
-            child_terminators, // Move, no clone
+            child_terminators: child_terminators.into(),
             working_match: Arc::new(MatchResult::empty_at(start_pos)),
-        });
+        }));
 
         // Inline fast path: a terminal element (e.g. a Ref to an identifier
         // parser) needs no frame machinery. Feed the result straight into the
@@ -165,7 +164,7 @@ impl Parser<'_> {
         self.pos = start_pos;
         if let Some(mr) = self.try_terminal_inline(elements_id, Some(max_idx))? {
             let end_pos = self.pos;
-            let arc = Arc::new(mr);
+            let arc = stack.share_result(mr);
             return self.handle_delimited_waiting_for_child(frame, &arc, &end_pos, stack);
         }
 
@@ -235,7 +234,10 @@ impl Parser<'_> {
         let cfg = self.delimited_frame_config(frame.grammar_id);
         let (allow_gaps, allow_trailing) = (cfg.allow_gaps, cfg.allow_trailing);
         let (min_delimiters, delimiter_id) = (cfg.min_delimiters, cfg.delimiter_id);
-        let FrameContext::Delimited(DelimitedState {
+        let FrameContext::Delimited(boxed) = &mut frame.context else {
+            unreachable!("Expected Delimited context");
+        };
+        let DelimitedState {
             delimiter_count,
             matched_idx,
             working_idx,
@@ -245,10 +247,7 @@ impl Parser<'_> {
             pos_before_delimiter,
             working_match,
             ..
-        }) = &mut frame.context
-        else {
-            unreachable!("Expected Delimited context");
-        };
+        } = &mut **boxed;
         // If allow_gaps, skip non-code tokens before processing
         *working_idx = self.skip_to_code_if_gaps(*working_idx, *max_idx, allow_gaps);
         self.pos = *working_idx;
@@ -291,14 +290,12 @@ impl Parser<'_> {
             if *delimiter_count < min_delimiters {
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             frame.end_pos = Some(final_pos);
             frame.state = FrameState::Combining;
-            stack.push(frame);
-            return Ok(TableFrameResult::Done);
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Handle element match failure
@@ -328,14 +325,12 @@ impl Parser<'_> {
             if *delimiter_count < min_delimiters {
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             frame.end_pos = Some(final_pos);
             frame.state = FrameState::Combining;
-            stack.push(frame);
-            return Ok(TableFrameResult::Done);
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Element matched - process it
@@ -391,8 +386,7 @@ impl Parser<'_> {
                 frame.end_pos = Some(final_pos);
             }
             frame.state = FrameState::Combining;
-            stack.push(frame);
-            return Ok(TableFrameResult::Done);
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Transition to MatchingDelimiter
@@ -409,7 +403,7 @@ impl Parser<'_> {
         self.pos = delimiter_pos;
         if let Some(mr) = self.try_terminal_inline(delimiter_id, None)? {
             let end_pos = self.pos;
-            let arc = Arc::new(mr);
+            let arc = stack.share_result(mr);
             return self.handle_delimited_delimiter_result(frame, &arc, &end_pos, stack);
         }
 
@@ -443,7 +437,10 @@ impl Parser<'_> {
         let (allow_gaps, allow_trailing) = (cfg.allow_gaps, cfg.allow_trailing);
         let (min_delimiters, optional_delimiter) = (cfg.min_delimiters, cfg.optional_delimiter);
         let (elements_id, delimiter_id) = (cfg.elements_id, cfg.delimiter_id);
-        let FrameContext::Delimited(DelimitedState {
+        let FrameContext::Delimited(boxed) = &mut frame.context else {
+            unreachable!("Expected Delimited context");
+        };
+        let DelimitedState {
             delimiter_count,
             matched_idx,
             working_idx,
@@ -454,10 +451,7 @@ impl Parser<'_> {
             child_terminators,
             working_match,
             ..
-        }) = &mut frame.context
-        else {
-            unreachable!("Expected Delimited context");
-        };
+        } = &mut **boxed;
         // Clone so the borrow of `frame.context` can end before `frame` is
         // moved into the push helpers; also preserves the terminators for
         // subsequent WaitingForChild iterations.
@@ -496,21 +490,19 @@ impl Parser<'_> {
                 self.pos = frame.pos;
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-            } else {
-                // Handle trailing delimiter if allowed and present
-                if allow_trailing {
-                    if let Some(dm) = delimiter_match.take() {
-                        MatchResult::append_into(working_match, dm);
-                        *delimiter_count += 1;
-                    }
-                }
-                self.pos = *matched_idx;
-                frame.end_pos = Some(*matched_idx);
-                frame.state = FrameState::Combining;
-                stack.push(frame);
+                return Ok(TableFrameResult::Push(frame));
             }
-            return Ok(TableFrameResult::Done);
+            // Handle trailing delimiter if allowed and present
+            if allow_trailing {
+                if let Some(dm) = delimiter_match.take() {
+                    MatchResult::append_into(working_match, dm);
+                    *delimiter_count += 1;
+                }
+            }
+            self.pos = *matched_idx;
+            frame.end_pos = Some(*matched_idx);
+            frame.state = FrameState::Combining;
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Delimiter matched - store it (don't push to accumulated yet!)
@@ -569,14 +561,12 @@ impl Parser<'_> {
             if *delimiter_count < min_delimiters {
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
-                stack.push(frame);
-                return Ok(TableFrameResult::Done);
+                return Ok(TableFrameResult::Push(frame));
             }
 
             frame.end_pos = Some(*matched_idx);
             frame.state = FrameState::Combining;
-            stack.push(frame);
-            return Ok(TableFrameResult::Done);
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Transition to MatchingElement
@@ -683,17 +673,17 @@ impl Parser<'_> {
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::Delimited(DelimitedState {
-            grammar_id,
-            delimiter_count,
-            working_match,
-            ..
-        }) = &frame.context
-        else {
+        let FrameContext::Delimited(boxed) = &frame.context else {
             return Err(ParseError::new(
                 "Expected Delimited context in combining".to_string(),
             ));
         };
+        let DelimitedState {
+            grammar_id,
+            delimiter_count,
+            working_match,
+            ..
+        } = &**boxed;
 
         vdebug!(
             "Delimited[table] Combining: frame_id={}, accumulated={}, delim_count={}",
@@ -722,8 +712,7 @@ impl Parser<'_> {
             working_match.clone()
         };
 
-        stack.complete_frame(frame, result_match);
-        Ok(TableFrameResult::Done)
+        Ok(stack.complete_frame(frame, result_match))
     }
 
     /// Resolve the per-frame configuration shared by the Delimited phase

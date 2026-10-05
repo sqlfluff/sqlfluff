@@ -14,6 +14,15 @@ use crate::parser::{
     FrameContext, FrameState, MatchResult, Node, ParseError, Parser,
 };
 
+/// Outcome of [`Parser::check_and_handle_table_frame_cache`].
+#[derive(Debug, PartialEq, Eq)]
+enum CacheLookup {
+    /// Cached result already stored on the stack; skip the frame.
+    Hit,
+    /// Not cached (or not cacheable); process the frame normally.
+    Miss,
+}
+
 impl Parser<'_> {
     fn store_sync_match_result(
         &self,
@@ -113,20 +122,20 @@ impl Parser<'_> {
         // handler will run and what terminators it will use.
 
         // Stack of parse frames and state
-        let mut stack = TableParseFrameStack::new();
+        let mut stack =
+            TableParseFrameStack::with_stack(self.frame_stack_pool.pop().unwrap_or_default());
         let initial_frame_id = stack.frame_id_counter;
         stack.frame_id_counter += 1;
         stack.push(TableParseFrame {
             frame_id: initial_frame_id,
             grammar_id: grammar,
             pos: self.pos,
-            table_terminators: smallvec::SmallVec::from_slice(parent_terminators),
+            table_terminators: self.terminators_arc(parent_terminators),
             state: FrameState::Initial,
             context: FrameContext::None,
             parent_max_idx: None, // No parent constraint at top level - let handler calculate
             calculated_max_idx: None, // Will be set by handler after calculation
             end_pos: None,
-            element_key: None,
             parse_mode_override: None, // No override for top-level frame
         });
 
@@ -163,14 +172,13 @@ impl Parser<'_> {
 
             // Re-check the cache ONLY for Initial frames
             // WaitingForChild frames have already started processing and have a child computing the result
-            let mut frame = if matches!(frame_from_stack.state, FrameState::Initial) {
-                match self.check_and_handle_table_frame_cache(frame_from_stack, &mut stack)? {
-                    TableFrameResult::Done => continue,
-                    TableFrameResult::Push(frame) => frame, // Cache miss - process this frame
-                }
-            } else {
-                frame_from_stack
-            };
+            if matches!(frame_from_stack.state, FrameState::Initial)
+                && self.check_and_handle_table_frame_cache(&frame_from_stack, &mut stack)?
+                    == CacheLookup::Hit
+            {
+                continue;
+            }
+            let mut frame = frame_from_stack;
 
             if iteration_count > max_iterations {
                 self.handle_table_max_iterations_exceeded(&mut stack, max_iterations, &mut frame);
@@ -195,20 +203,12 @@ impl Parser<'_> {
                         self.build_table_grammar_path(&frame, &stack)
                     );
 
-                    match self.handle_initial(frame, &mut stack, iteration_count)? {
-                        TableFrameResult::Done => continue,
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
+                    let next = self.handle_initial(frame, &mut stack, iteration_count)?;
+                    self.settle_frame(next, &mut stack)?;
                 }
                 FrameState::WaitingForChild { .. } => {
-                    match self.handle_waiting_for_child(frame, &mut stack, iteration_count)? {
-                        TableFrameResult::Done => continue,
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
+                    let next = self.handle_waiting_for_child(frame, &mut stack, iteration_count)?;
+                    self.settle_frame(next, &mut stack)?;
                 }
 
                 FrameState::Combining => {
@@ -223,20 +223,14 @@ impl Parser<'_> {
                     );
 
                     // Delegate to specific handler based on grammar type
-                    match self.handle_combining(frame, &mut stack)? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
+                    let next = self.handle_combining(frame, &mut stack)?;
+                    self.settle_frame(next, &mut stack)?;
                 }
 
                 FrameState::Complete(ref match_result) => {
-                    // This state is reached when a handler has finished producing a result.
-                    // The handler transitions the frame to Complete(match_result) and returns Push(frame).
-                    // The main loop then stores the result in stack.results for parent frames to access.
-                    // This separation keeps handlers focused on producing results, while the main
-                    // loop coordinates result storage.
+                    // Not reached in practice: handlers return Complete frames as `Push(frame)` and
+                    // `settle_frame` commits them immediately. Kept so a `Complete` frame pushed
+                    // directly onto the stack still commits.
                     self.commit_table_frame_result(&mut stack, &frame, match_result)?;
                 }
             }
@@ -309,7 +303,10 @@ impl Parser<'_> {
             stack.result_pending(),
             initial_frame_id
         );
-        if let Some((match_result, end_pos, _element_key)) = stack.take_pending(initial_frame_id) {
+        let pending = stack.take_pending(initial_frame_id);
+        let result_pending = stack.result_pending();
+        self.frame_stack_pool.push(stack.into_stack());
+        if let Some((match_result, end_pos)) = pending {
             vdebug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
@@ -353,11 +350,36 @@ impl Parser<'_> {
             // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
                 "Iterative parse produced no result (initial_frame_id={}, result_pending={})",
-                initial_frame_id,
-                stack.result_pending()
+                initial_frame_id, result_pending
             ));
             Err(error)
         }
+    }
+
+    /// Finish a handler step without bouncing the frame through the stack:
+    /// a `Combining` frame is combined right away and a `Complete` one is
+    /// committed right away - exactly what the next loop iterations would do
+    /// after pushing it, as it would be on top - saving a push/pop round trip
+    /// of the whole frame each. Anything else is pushed back as before.
+    #[inline]
+    fn settle_frame(
+        &mut self,
+        mut next: TableFrameResult,
+        stack: &mut TableParseFrameStack,
+    ) -> Result<(), ParseError> {
+        while let TableFrameResult::Push(frame) = next {
+            match frame.state {
+                FrameState::Combining => next = self.handle_combining(frame, stack)?,
+                FrameState::Complete(ref match_result) => {
+                    return self.commit_table_frame_result(stack, &frame, match_result);
+                }
+                _ => {
+                    stack.push(frame);
+                    break;
+                }
+            }
+        }
+        Ok(())
     }
 
     /// Dispatch handler for table-driven Initial state.
@@ -485,7 +507,7 @@ impl Parser<'_> {
             child.is_some()
         );
 
-        if let Some((child_node, child_end_pos, _child_element_key)) = &child {
+        if let Some((child_node, child_end_pos)) = &child {
             vdebug!(
                 "[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
                 frame.frame_id,
@@ -506,84 +528,26 @@ impl Parser<'_> {
 
             match &mut frame.context {
                 FrameContext::OneOf(_) => {
-                    match self.handle_oneof_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
-                    Ok(TableFrameResult::Done)
+                    self.handle_oneof_waiting_for_child(frame, child_node, child_end_pos, stack)
                 }
                 FrameContext::Sequence(_) => {
-                    match self.handle_sequence_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
-                    Ok(TableFrameResult::Done)
+                    self.handle_sequence_waiting_for_child(frame, child_node, child_end_pos, stack)
                 }
                 FrameContext::Ref(_) => {
-                    match self.handle_ref_waiting_for_child(frame, child_node, child_end_pos)? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
-                    Ok(TableFrameResult::Done)
+                    self.handle_ref_waiting_for_child(frame, child_node, child_end_pos)
                 }
                 FrameContext::Delimited(_) => {
-                    match self.handle_delimited_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
-                    Ok(TableFrameResult::Done)
+                    self.handle_delimited_waiting_for_child(frame, child_node, child_end_pos, stack)
                 }
                 FrameContext::Bracketed(_) => {
-                    match self.handle_bracketed_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
-                    Ok(TableFrameResult::Done)
+                    self.handle_bracketed_waiting_for_child(frame, child_node, child_end_pos, stack)
                 }
-                FrameContext::AnyNumberOf(_) => {
-                    match self.handle_anynumberof_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        TableFrameResult::Done => {}
-                        TableFrameResult::Push(updated_frame) => {
-                            stack.push(updated_frame);
-                        }
-                    }
-                    Ok(TableFrameResult::Done)
-                }
+                FrameContext::AnyNumberOf(_) => self.handle_anynumberof_waiting_for_child(
+                    frame,
+                    child_node,
+                    child_end_pos,
+                    stack,
+                ),
                 _ => {
                     // TODO: Handle other grammar types
                     unimplemented!("WaitingForChild for grammar type: {:?}", frame.grammar_id);
@@ -692,16 +656,8 @@ impl Parser<'_> {
         // Use the end_pos stored in the frame (or fall back to self.pos)
         let end_pos = frame.end_pos.unwrap_or(self.pos);
 
-        // Get element_key if any (set by OneOf for AnyNumberOf tracking)
-        let element_key = frame.element_key;
-
         // This frame is done - insert result
-        stack.insert_arc_result_with_key(
-            frame.frame_id,
-            Arc::clone(match_result),
-            end_pos,
-            element_key,
-        );
+        stack.insert_arc_result(frame.frame_id, Arc::clone(match_result), end_pos);
 
         // Cache the result for future reuse
         // Cache non-empty results always, but only cache Empty results when
@@ -823,24 +779,23 @@ impl Parser<'_> {
         resolved
     }
 
-    /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
+    /// Checks the cache for a frame and handles cache hits.
     ///
     /// Cache hits are special: they bypass the normal state machine and insert results directly
     /// into stack.results. This is an optimization that avoids the overhead of pushing the frame
     /// back through the Complete state when we already have the result.
     ///
-    /// - FrameResult::Done: Cache hit, result stored directly in stack.results, skip this frame
-    /// - FrameResult::Push(frame): Cache miss, push frame back to process normally
+    /// Takes the frame by reference so a miss doesn't move it in and out.
     fn check_and_handle_table_frame_cache(
         &mut self,
-        frame: TableParseFrame,
+        frame: &TableParseFrame,
         stack: &mut TableParseFrameStack,
-    ) -> Result<TableFrameResult, ParseError> {
+    ) -> Result<CacheLookup, ParseError> {
         if self.cache_enabled {
             // The cacheable-variant check and max_idx derivation live in frame_cache_key
             // (shared with the store site in commit_table_frame_result, so the keys cannot
             // drift). `None` means this grammar isn't cached.
-            if let Some(cache_key) = self.frame_cache_key(&frame)? {
+            if let Some(cache_key) = self.frame_cache_key(frame)? {
                 if let Some((match_result, end_pos)) = self.table_cache.get(&cache_key) {
                     vdebug!(
                         "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
@@ -852,12 +807,12 @@ impl Parser<'_> {
                     self.pos = *end_pos;
                     // Insert cached MatchResult - match_result is &Arc, clone the Arc (cheap refcount)
                     stack.insert_arc_result(frame.frame_id, Arc::clone(match_result), *end_pos);
-                    return Ok(TableFrameResult::Done);
+                    return Ok(CacheLookup::Hit);
                 }
             }
         }
-        // Cache miss or cache disabled or non-cacheable grammar - push frame back to process normally
-        Ok(TableFrameResult::Push(frame))
+        // Cache miss or cache disabled or non-cacheable grammar - process normally
+        Ok(CacheLookup::Miss)
     }
 
     fn handle_table_max_iterations_exceeded(
