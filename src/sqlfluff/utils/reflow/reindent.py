@@ -620,6 +620,33 @@ def _revise_templated_lines(
     # we're iterating through a copy so that we can safely
     # modify the underlying list.
     for idx, line in enumerate(lines[:]):
+        # A rendered line can contain SQL between nested block starts which
+        # were adjacent on one source line. Its apparent indentation then
+        # depends on which template branch rendered, so don't use that line
+        # to infer how the block tags should be indented.
+        block_starts = [
+            seg
+            for seg in line.iter_block_segments(elements)
+            if seg.is_type("placeholder")
+            and cast(TemplateSegment, seg).block_type == "block_start"
+        ]
+        block_start_lines = [
+            seg.pos_marker.source_position()[0]
+            for seg in block_starts
+            if seg.pos_marker
+        ]
+        if (
+            len(block_starts) > 1
+            and len(block_start_lines) == len(block_starts)
+            and len(set(block_start_lines)) == 1
+        ):
+            reflow_logger.debug(
+                "    Removing line %s from linting as it contains nested block starts.",
+                block_start_lines[0],
+            )
+            lines.remove(line)
+            continue
+
         # Get the first segment.
         first_seg = elements[line.indent_points[0].idx + 1].segments[0]
         src_str = first_seg.pos_marker.source_str()

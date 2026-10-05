@@ -260,6 +260,25 @@ def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
     assert "Skipping edit patch on uncertain templated section" not in caplog.text
 
 
+def test__fix__jinja_lt02_nested_block_tags_reach_a_fixed_point():
+    """Regression test for LT02 oscillating on nested Jinja tags on one line."""
+    sql = "select\n{% if true %}{% if false %}    a,\n{% endif %}{% endif %}    b\n"
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    linter = Linter(config=config)
+
+    once, changed_once = linter.lint_string(
+        sql, fname="test.sql", fix=True
+    ).fix_string()
+    twice, changed_twice = linter.lint_string(
+        once, fname="test.sql", fix=True
+    ).fix_string()
+
+    assert changed_once
+    assert not changed_twice
+    assert twice == once
+    assert not linter.lint_string(once, fname="test.sql").get_violations()
+
+
 def test__fix__jinja_dbt_var_subscript_allows_layout_fix():
     """Regression test for dbt `var()` placeholders used with subscripts."""
     sql = "select {{ var('123')['123'] }} ,1/2 as d from d\n"
