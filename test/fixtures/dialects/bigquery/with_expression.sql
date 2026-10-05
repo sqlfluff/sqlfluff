@@ -31,3 +31,9 @@ SELECT
     WITH(a AS (SELECT 1), a) AS subquery_variable
 FROM t
 WHERE WITH(a AS x * 2, a) > 10;
+
+-- Whitespace before the bracket is allowed.
+SELECT WITH (a AS 1, a);
+
+-- Quoted WITH names remain function calls.
+SELECT `with`(1);
