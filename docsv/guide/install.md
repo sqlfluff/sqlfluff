@@ -64,8 +64,9 @@ version number.
 
 ```bash
 sqlfluff version
-4.3.0
 ```
+
+This prints the version installed on your machine.
 
 ## Going further
 

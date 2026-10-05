@@ -163,7 +163,11 @@ class Rule_RF06(BaseRule):
         self.case_sensitive: bool
 
         # Ignore some segment types
-        if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
+        ignore_types = self._ignore_types
+        # MySQL and MariaDB account names have their own quoting requirements.
+        if context.dialect.name in ("mysql", "mariadb"):
+            ignore_types = [*ignore_types, "role_reference"]
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*ignore_types)):
             return None
 
         identifier_is_quoted = context.segment.is_type("quoted_identifier")

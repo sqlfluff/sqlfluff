@@ -737,3 +737,62 @@ test_snowflake_default_keyword:
   configs:
     core:
       dialect: snowflake
+
+test_pass_mysql_account_quotes:
+  # Account names are not ordinary identifiers; preserve their quoting.
+  pass_str: |
+    CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'password';
+    CREATE USER `jeffrey`@`localhost` IDENTIFIED BY 'password';
+    CREATE USER 'jeffrey' IDENTIFIED BY 'password';
+    GRANT ALL PRIVILEGES ON *.* TO 'prj_svc'@'localhost';
+    GRANT 'reader'@'localhost' TO 'jeffrey'@'localhost';
+    DROP USER 'jeffrey'@'localhost';
+    DROP USER `prj_svc`@`localhost`;
+    SET DEFAULT ROLE 'reader'@'localhost' TO 'jeffrey'@'localhost';
+    CREATE DEFINER = `admin`@`localhost` SQL SECURITY INVOKER
+    VIEW v5 AS SELECT 1;
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mariadb_account_quotes:
+  pass_str: |
+    CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'password';
+    CREATE USER `jeffrey`@`localhost` IDENTIFIED BY 'password';
+    CREATE USER 'jeffrey' IDENTIFIED BY 'password';
+    GRANT ALL PRIVILEGES ON *.* TO 'prj_svc'@'localhost';
+    DROP USER 'jeffrey'@'localhost';
+    DROP USER `prj_svc`@`localhost`;
+    CREATE DEFINER = `admin`@`localhost` SQL SECURITY INVOKER
+    VIEW IF NOT EXISTS v5 AS SELECT 1;
+  configs:
+    core:
+      dialect: mariadb
+
+test_fail_mysql_quoted_table_with_account:
+  fail_str: |
+    GRANT SELECT ON `app`.`records` TO 'prj_svc'@'localhost';
+  fix_str: |
+    GRANT SELECT ON app.records TO 'prj_svc'@'localhost';
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mariadb_quoted_table_with_account:
+  fail_str: |
+    GRANT SELECT ON `app`.`records` TO 'prj_svc'@'localhost';
+  fix_str: |
+    GRANT SELECT ON app.records TO 'prj_svc'@'localhost';
+  configs:
+    core:
+      dialect: mariadb
+
+test_fail_postgres_quoted_role:
+  # Other dialects still permit unquoting ordinary role identifiers.
+  fail_str: |
+    GRANT SELECT ON app.records TO "reader";
+  fix_str: |
+    GRANT SELECT ON app.records TO reader;
+  configs:
+    core:
+      dialect: postgres

@@ -844,3 +844,352 @@ test_fail_no_fix_trailing_comment_with_jinja_block_after:
   configs:
     indentation:
       trailing_comments: after
+
+test_fail_list_wrapping_fill:
+  # With list_wrapping = fill, put as many elements on each line as fit.
+  # The first line of the list is exactly 41 characters long.
+  fail_str: |
+    select a
+    from tbl
+    group by long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        long_column_name1, long_column_name2,
+        long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 41
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_leading:
+  fail_str: |
+    select a
+    from tbl
+    group by long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        long_column_name1, long_column_name2
+        , long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+test_fail_list_wrapping_fill_alone:
+  # The comma at each break stays on its own line. Each element line is
+  # exactly 40 characters long.
+  fail_str: |
+    select a
+    from tbl
+    group by long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        long_column_name1, long_column_name2
+        ,
+        long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+    layout:
+      type:
+        comma:
+          line_position: alone
+
+test_fail_list_wrapping_fill_function:
+  fail_str: |
+    select my_function(argument_one, argument_two, argument_three, argument_four) as x
+    from tbl
+  fix_str: |
+    select
+        my_function(
+            argument_one, argument_two,
+            argument_three, argument_four
+        ) as x
+    from tbl
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_nested:
+  # The outer list is filled first, then the inner list.
+  fail_str: |
+    select a
+    from tbl
+    group by col_a, coalesce(first_argument_value, second_argument_value), col_b, col_c
+  fix_str: |
+    select a
+    from tbl
+    group by
+        col_a,
+        coalesce(
+            first_argument_value,
+            second_argument_value
+        ),
+        col_b, col_c
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_indented:
+  fail_str: |
+    with cte as (
+        select a
+        from tbl
+        group by long_column_name1, long_column_name2, long_column_name3
+    )
+
+    select a from cte
+  fix_str: |
+    with cte as (
+        select a
+        from tbl
+        group by
+            long_column_name1, long_column_name2,
+            long_column_name3
+    )
+
+    select a from cte
+  configs:
+    core:
+      max_line_length: 50
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_operators:
+  # Only the commas are filled. Operators still split as before.
+  fail_str: |
+    select
+        a, b + c, long_name + long_name * long_name - long_name as foo, long_name AND long_name OR long_name OR long_name as bar
+    from blah
+  fix_str: |
+    select
+        a, b + c,
+        long_name
+        + long_name * long_name
+        - long_name as foo,
+        long_name AND long_name
+        OR long_name
+        OR long_name as bar
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_boolean:
+  # Boolean operators are not a list, so they still split one per line.
+  fail_str: |
+    select a
+    from tbl
+    where column_one = 1 and column_two = 2 and column_three = 3 and column_four = 4
+  fix_str: |
+    select a
+    from tbl
+    where
+        column_one = 1
+        and column_two = 2
+        and column_three = 3
+        and column_four = 4
+  configs:
+    core:
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_jinja_loop:
+  # The loop lines stay as they are. The list after the loop is filled.
+  fail_str: |
+    select a
+    from tbl
+    group by
+        {% for c in ['col_a', 'col_b'] %}
+        {{ c }},
+        {% endfor %}
+        long_column_name1, long_column_name2, long_column_name3, long_column_name4
+  fix_str: |
+    select a
+    from tbl
+    group by
+        {% for c in ['col_a', 'col_b'] %}
+        {{ c }},
+        {% endfor %}
+        long_column_name1, long_column_name2,
+        long_column_name3, long_column_name4
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_jinja_loop_inline:
+  # The loop and the list share a line. The loop body holds the only break
+  # before long_column_name1, so that break is taken, as it is without fill.
+  # The columns after the loop are filled.
+  fail_str: |
+    {% set cols = ['col_a', 'col_b'] %}
+    select a
+    from tbl
+    group by {% for c in cols %}{{ c }}, {% endfor %}long_column_name1, long_column_name2, long_column_name3
+  fix_str: |
+    {% set cols = ['col_a', 'col_b'] %}
+    select a
+    from tbl
+    group by
+        {% for c in cols %}{{ c }},
+        {% endfor %}long_column_name1,
+        long_column_name2, long_column_name3
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_jinja_if_else:
+  # Both branches of the if block have the same length, so both rendered
+  # variants take the same breaks. The first line of the list is 56
+  # characters long.
+  fail_str: |
+    select a
+    from tbl
+    group by col_a, {% if flag %}col_b{% else %}col_c{% endif %}, col_d, long_column_name1, long_column_name2
+  fix_str: |
+    select a
+    from tbl
+    group by
+        col_a, {% if flag %}col_b{% else %}col_c{% endif %},
+        col_d, long_column_name1, long_column_name2
+  configs:
+    core:
+      max_line_length: 57
+    indentation:
+      list_wrapping: fill
+    templater:
+      jinja:
+        context:
+          flag: true
+
+test_fail_list_wrapping_fill_jinja_macro:
+  # Each macro call is measured by its length in the source, not by the
+  # length of the column name it renders. The first line of the list is
+  # exactly 45 characters long.
+  fail_str: |
+    {% macro col(n) -%}
+    long_column_name{{ n }}
+    {%- endmacro %}
+    select a
+    from tbl
+    group by {{ col(1) }}, {{ col(2) }}, {{ col(3) }}, {{ col(4) }}, {{ col(5) }}, {{ col(6) }}
+  fix_str: |
+    {% macro col(n) -%}
+    long_column_name{{ n }}
+    {%- endmacro %}
+    select a
+    from tbl
+    group by
+        {{ col(1) }}, {{ col(2) }}, {{ col(3) }},
+        {{ col(4) }}, {{ col(5) }}, {{ col(6) }}
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_jinja_macro_list:
+  # One macro call renders three columns and their commas. The fill does
+  # not break inside the macro call.
+  fail_str: |
+    {% macro dims() -%}
+    dim_one, dim_two, dim_three
+    {%- endmacro %}
+    select a
+    from tbl
+    group by {{ dims() }}, long_column_name1, long_column_name2, long_column_name3
+  fix_str: |
+    {% macro dims() -%}
+    dim_one, dim_two, dim_three
+    {%- endmacro %}
+    select a
+    from tbl
+    group by
+        {{ dims() }}, long_column_name1,
+        long_column_name2, long_column_name3
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+
+test_fail_list_wrapping_fill_jinja_source_length:
+  # The variables render to short column names, but each line is measured
+  # in the source. The last line is exactly 46 characters long.
+  fail_str: |
+    select a
+    from tbl
+    group by {{ first_column_variable }}, {{ second_column_variable }}, col_c, col_d
+  fix_str: |
+    select a
+    from tbl
+    group by
+        {{ first_column_variable }},
+        {{ second_column_variable }}, col_c, col_d
+  configs:
+    core:
+      max_line_length: 46
+    indentation:
+      list_wrapping: fill
+    templater:
+      jinja:
+        context:
+          first_column_variable: col_a
+          second_column_variable: col_b
+
+test_pass_list_wrapping_fill_jinja_source_length:
+  # The rendered list is longer than the limit, but the source line is not.
+  pass_str: |
+    select a
+    from tbl
+    group by {{ c1 }}, {{ c2 }}, {{ c3 }}
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
+    templater:
+      jinja:
+        context:
+          c1: rendered_column_name_which_is_long_one
+          c2: rendered_column_name_which_is_long_two
+          c3: rendered_column_name_which_is_long_three
+
+test_fail_no_fix_list_wrapping_fill_jinja:
+  # One template tag renders the whole list. LT05 does not break inside the
+  # tag, so the line stays as it is.
+  fail_str: |
+    select a
+    from tbl
+    group by
+        {{ ['long_column_name1', 'long_column_name2', 'long_column_name3'] | join(', ') }}
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      list_wrapping: fill
