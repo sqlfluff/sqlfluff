@@ -751,11 +751,11 @@ class InsertStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("ValuesClauseSegment"),
-                Ref("UpsertClauseSegment", optional=True),
+                AnyNumberOf(Ref("UpsertClauseSegment")),
             ),
             Sequence(
                 OptionallyBracketed(Ref("SelectableGrammar")),
-                Ref("UpsertClauseSegment", optional=True),
+                AnyNumberOf(Ref("UpsertClauseSegment")),
             ),
             Ref("DefaultValuesGrammar"),
         ),
