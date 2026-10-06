@@ -3,60 +3,66 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 549fcf5009f679aec78e84c7be38efed1b2d096d9eeccf39bbb8f2e6719e94b0
+_hash: 16ae6751c5a2f5ce87485bcafdef0bb7662bbe0d9d6ed519d2604226e97c542a
 file:
 - statement:
     kill_statement:
       keyword: KILL
-      numeric_literal: '5'
+      expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: CONNECTION
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: QUERY
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: kill
     - keyword: connection
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: CONNECTION
-    - column_reference:
+    - expression:
         variable: '@thread_id'
 - statement_terminator: ;
 - statement:
     kill_statement:
       keyword: KILL
-      function:
-        function_name:
-          function_name_identifier: CONNECTION_ID
-        function_contents:
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+      expression:
+        function:
+          function_name:
+            function_name_identifier: CONNECTION_ID
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: QUERY
-    - function:
-        function_name:
-          function_name_identifier: CONNECTION_ID
-        function_contents:
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: CONNECTION_ID
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     kill_statement:

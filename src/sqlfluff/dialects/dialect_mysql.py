@@ -1580,12 +1580,6 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
-    # The id argument of KILL: any expression, as in the server's grammar
-    # (`KILL kill_option expr`). A single element stays unwrapped.
-    KillIdGrammar=OneOf(
-        Ref("BaseExpressionElementGrammar"),
-        Ref("ExpressionSegment"),
-    ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableAssignmentSegment=Sequence(
         Ref("SessionVariableNameSegment"),
@@ -3661,6 +3655,9 @@ class FlushStatementSegment(BaseSegment):
 class KillStatementSegment(BaseSegment):
     """A `KILL` statement, ending a connection or the statement it is running.
 
+    The id is any expression, as in the server's grammar
+    (`KILL kill_option expr`).
+
     As per https://dev.mysql.com/doc/refman/8.0/en/kill.html
     """
 
@@ -3668,7 +3665,7 @@ class KillStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "KILL",
         OneOf("CONNECTION", "QUERY", optional=True),
-        Ref("KillIdGrammar"),
+        Ref("ExpressionSegment"),
     )
 
 

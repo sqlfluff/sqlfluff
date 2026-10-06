@@ -3,40 +3,45 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49f5eeca87295ef8da8a2d0fa502b417c00c50a5af31fdaba3085190e2026490
+_hash: 6a5b30589f52f81a3b553d922ad867111c317cced38d649a5296526312fa3fff
 file:
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: CONNECTION
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: HARD
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: SOFT
     - keyword: CONNECTION
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: HARD
     - keyword: QUERY
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: QUERY
     - keyword: ID
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
@@ -44,7 +49,7 @@ file:
     - keyword: SOFT
     - keyword: QUERY
     - keyword: ID
-    - column_reference:
+    - expression:
         variable: '@query_id'
 - statement_terminator: ;
 - statement:

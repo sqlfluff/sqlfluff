@@ -1562,12 +1562,12 @@ class KillStatementSegment(mysql.KillStatementSegment):
         "KILL",
         OneOf("HARD", "SOFT", optional=True),
         OneOf(
-            Sequence("QUERY", "ID", Ref("KillIdGrammar")),
+            Sequence("QUERY", "ID", Ref("ExpressionSegment")),
             Sequence(
                 OneOf("CONNECTION", "QUERY", optional=True),
                 OneOf(
                     Sequence("USER", Ref("RoleReferenceSegment")),
-                    Ref("KillIdGrammar"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
