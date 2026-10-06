@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0619d78ca5ce85c3130a4f928668e9810e012db400fa9533d494a5d850b7571
+_hash: c5bf16c0955e4ef2b6f9bd216a407297b55ba29f94c5ab86aaaf9c088351ed62
 file:
 - statement:
     bteq_statement:
@@ -31,4 +31,4 @@ file:
       comparison_operator:
         raw_comparison_operator: '='
       bteq_file_path:
-        naked_identifier: POSTING
+        bteq_file_path_word: POSTING
