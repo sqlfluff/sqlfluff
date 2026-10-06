@@ -1,0 +1,145 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7b878f308b05b06c107b4dc3e252c12ae3968ada66eaaaf934092cf2cfc2cb77
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+            binary_operator: '*'
+            numeric_literal: '2'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - binary_operator: +
+          - column_reference:
+              naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: upper
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                  end_bracket: )
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'_'"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - cast_expression:
+              column_reference:
+                naked_identifier: id
+              casting_operator: '::'
+              data_type:
+                keyword: text
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+            binary_operator: '*'
+            numeric_literal: '3'
+          end_bracket: )
+    - comma: ','
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: d
+      - keyword: DROP
+      - keyword: EXPRESSION
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: d
+      - keyword: DROP
+      - keyword: EXPRESSION
+      - keyword: IF
+      - keyword: EXISTS
+- statement_terminator: ;
