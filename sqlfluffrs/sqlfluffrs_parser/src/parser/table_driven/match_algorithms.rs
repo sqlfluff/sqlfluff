@@ -192,6 +192,7 @@ impl Parser<'_> {
         let tokens = self.tokens;
         let tokens_len = tokens.len();
         let bracket_pairs = self.dialect.get_bracket_pairs();
+        let tables = self.grammar_ctx.tables();
 
         if start_idx >= tokens_len {
             return Ok((tokens_len, tokens_len));
@@ -212,7 +213,6 @@ impl Parser<'_> {
                 }
                 // PYTHON PARITY: only probe where the simple hint fits this
                 // token, as next_match does.
-                let tables = self.grammar_ctx.tables();
                 if let Some(hint) = tables.get_simple_hint_for_grammar(term_id) {
                     if !tables.hint_can_match(
                         hint,
@@ -250,7 +250,6 @@ impl Parser<'_> {
                         && !tokens[i].raw().is_empty()
                         && tokens[i].raw().chars().all(|c| c.is_ascii_alphabetic());
                     if tok_is_alpha && !self.is_preceded_by_whitespace(tokens, i, start_idx) {
-                        let tables = self.grammar_ctx.tables();
                         let variant = tables.get_inst(term_id).variant;
                         if variant != GrammarVariant::TypedParser {
                             vdebug!(
