@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bcfd8ea7262102e59356c4f1b39b250cb6c0b46576ec92693805823c42087d6d
+_hash: 49f5eeca87295ef8da8a2d0fa502b417c00c50a5af31fdaba3085190e2026490
 file:
 - statement:
     kill_statement:
@@ -44,7 +44,8 @@ file:
     - keyword: SOFT
     - keyword: QUERY
     - keyword: ID
-    - variable: '@query_id'
+    - column_reference:
+        variable: '@query_id'
 - statement_terminator: ;
 - statement:
     kill_statement:

@@ -1580,15 +1580,11 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
-    # The id argument of KILL.  A general ExpressionSegment would also accept
-    # `KILL HARD 5` as a typed literal, silently mis-parsing an unsupported form,
-    # so only the shapes a connection or query id takes are allowed.
+    # The id argument of KILL: any expression, as in the server's grammar
+    # (`KILL kill_option expr`). A single element stays unwrapped.
     KillIdGrammar=OneOf(
-        Ref("FunctionSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("SessionVariableNameSegment"),
-        Ref("LocalVariableNameSegment"),
-        Bracketed(Ref("ExpressionSegment")),
+        Ref("BaseExpressionElementGrammar"),
+        Ref("ExpressionSegment"),
     ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableAssignmentSegment=Sequence(

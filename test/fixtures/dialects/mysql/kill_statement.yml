@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6be6a9dba0faa2c72ed9f102e8500674fdd502883cca0b9af233e8093f4a5ca
+_hash: 549fcf5009f679aec78e84c7be38efed1b2d096d9eeccf39bbb8f2e6719e94b0
 file:
 - statement:
     kill_statement:
@@ -32,7 +32,8 @@ file:
     kill_statement:
     - keyword: KILL
     - keyword: CONNECTION
-    - variable: '@thread_id'
+    - column_reference:
+        variable: '@thread_id'
 - statement_terminator: ;
 - statement:
     kill_statement:
@@ -60,11 +61,12 @@ file:
 - statement:
     kill_statement:
       keyword: KILL
-      bracketed:
-        start_bracket: (
-        expression:
-        - numeric_literal: '1'
-        - binary_operator: +
-        - numeric_literal: '2'
-        end_bracket: )
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+          end_bracket: )
 - statement_terminator: ;

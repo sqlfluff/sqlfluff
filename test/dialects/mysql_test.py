@@ -97,8 +97,8 @@ def test_mysql_kill_rejects_mariadb_only_forms(raw: str) -> None:
     """Test that the MariaDB-only KILL forms do not parse as MySQL.
 
     MySQL has no HARD/SOFT, QUERY ID or USER forms. The MariaDB keyword is
-    read as a variable holding the id, so it is the argument that follows
-    it which fails to parse.
+    read as the id expression (a column name), so it is the argument that
+    follows it which fails to parse.
     """
     parsed = Linter(dialect="mysql").parse_string(raw)
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
