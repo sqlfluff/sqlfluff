@@ -197,36 +197,81 @@ impl Parser<'_> {
             return Ok((tokens_len, tokens_len));
         }
 
-        // If a terminator matches immediately (at start_idx), return as-is.
-        // Python allows keyword terminators at the very start ("first element" edge case).
-        for &term_id in terminators {
-            // Skip the NONCODE sentinel (not a real grammar id; handled by
-            // `is_terminated`). Indexing the grammar tables with it would panic.
-            if term_id == GrammarId::NONCODE {
-                continue;
-            }
-            vdebug!(
-                "[GREEDY_MATCH_TABLE] greedy_match: checking immediate terminator match for {:?} at {}",
-                term_id, start_idx
-            );
-            if self.terminator_matches_at(term_id, start_idx, terminators) {
-                vdebug!(
-                    "[GREEDY_MATCH_TABLE] greedy_match: immediate terminator {:?} matched at {}",
-                    term_id,
-                    start_idx
-                );
-                return Ok((start_idx, start_idx));
-            }
-        }
-
-        // Scan forward, looking for a terminator match.
-        // CRITICAL: Skip over brackets to avoid finding terminators inside them.
+        // Scan forward for a terminator, skipping over bracketed sections.
         let max_idx = std::cmp::min(max_idx, tokens_len);
         let mut i = start_idx;
         while i < max_idx {
             let token = &tokens[i];
             let raw = token.raw();
-            if bracket_pairs.is_open(raw) {
+            // PYTHON PARITY: terminators are checked before brackets
+            // (next_ex_bracket_match order), so a `(` terminator wins.
+            for &term_id in terminators {
+                // NONCODE is a sentinel handled by is_terminated; tables panic on it.
+                if term_id == GrammarId::NONCODE {
+                    continue;
+                }
+                // PYTHON PARITY: only probe where the simple hint fits this
+                // token, as next_match does.
+                let tables = self.grammar_ctx.tables();
+                if let Some(hint) = tables.get_simple_hint_for_grammar(term_id) {
+                    if !tables.hint_can_match(
+                        hint,
+                        token.raw_upper(),
+                        &token.instance_types,
+                        &token.class_types,
+                    ) {
+                        continue;
+                    }
+                }
+                vdebug!(
+                    "[GREEDY_MATCH_TABLE] greedy_match: checking terminator {:?} at {}",
+                    term_id,
+                    i
+                );
+                let cache_key = (i, term_id.0);
+                let cached = self.terminator_match_cache.get(&cache_key).copied();
+                let matched = if let Some(hit) = cached {
+                    hit
+                } else {
+                    // Frame-free for terminal terminators (see
+                    // terminator_matches_at); full sub-parse otherwise.
+                    let result = self.terminator_matches_at(term_id, i, terminators);
+                    self.terminator_match_cache.insert(cache_key, result);
+                    result
+                };
+                if matched {
+                    // If the matched terminator is a simple all-alphabetic token and the
+                    // token is not preceded by whitespace, reject it. This prevents
+                    // accidental matches of bare word tokens (e.g. identifiers) by
+                    // string-based terminators when the string matcher does not enforce
+                    // token-type constraints. Terminators implemented as TypedParser
+                    // (which match by token type rather than raw text) are exempt.
+                    let tok_is_alpha = tokens[i].is_code()
+                        && !tokens[i].raw().is_empty()
+                        && tokens[i].raw().chars().all(|c| c.is_ascii_alphabetic());
+                    if tok_is_alpha && !self.is_preceded_by_whitespace(tokens, i, start_idx) {
+                        let tables = self.grammar_ctx.tables();
+                        let variant = tables.get_inst(term_id).variant;
+                        if variant != GrammarVariant::TypedParser {
+                            vdebug!(
+                                "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
+                                term_id, i
+                            );
+                            continue;
+                        }
+                    }
+                    vdebug!(
+                        "[GREEDY_MATCH_TABLE] greedy_match: terminator {:?} matched at {}",
+                        term_id,
+                        i
+                    );
+                    let stop_idx = self.skip_stop_index_backward_to_code(i, start_idx);
+                    return Ok((i, stop_idx));
+                }
+            }
+            // Block comments lex per line, so a comment piece can be `)`.
+            let is_code = token.is_code();
+            if is_code && bracket_pairs.is_open(raw) {
                 if let Some(matching_idx) = token.matching_bracket_idx {
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match: skipping bracket at {} to {}",
@@ -291,7 +336,7 @@ impl Parser<'_> {
             // bracket! Return no match": abort the terminator search and
             // claim everything through max_idx, rather than scan past the
             // stray bracket to a later terminator like `FROM` or `UNION`.
-            if bracket_pairs.is_close(raw) {
+            if is_code && bracket_pairs.is_close(raw) {
                 vdebug!(
                     "[GREEDY_MATCH_TABLE] greedy_match: unexpected closing bracket at {} — aborting terminator search, claiming through {}",
                     i, max_idx
@@ -299,57 +344,6 @@ impl Parser<'_> {
                 return Ok((start_idx, max_idx));
             }
 
-            for &term_id in terminators {
-                // Skip the NONCODE sentinel (see the immediate-match loop above).
-                if term_id == GrammarId::NONCODE {
-                    continue;
-                }
-                vdebug!(
-                    "[GREEDY_MATCH_TABLE] greedy_match: checking terminator {:?} at {}",
-                    term_id,
-                    i
-                );
-                let cache_key = (i, term_id.0);
-                let cached = self.terminator_match_cache.get(&cache_key).copied();
-                let matched = if let Some(hit) = cached {
-                    hit
-                } else {
-                    // Frame-free for terminal terminators (see
-                    // terminator_matches_at); full sub-parse otherwise.
-                    let result = self.terminator_matches_at(term_id, i, terminators);
-                    self.terminator_match_cache.insert(cache_key, result);
-                    result
-                };
-                if matched {
-                    // If the matched terminator is a simple all-alphabetic token and the
-                    // token is not preceded by whitespace, reject it. This prevents
-                    // accidental matches of bare word tokens (e.g. identifiers) by
-                    // string-based terminators when the string matcher does not enforce
-                    // token-type constraints. Terminators implemented as TypedParser
-                    // (which match by token type rather than raw text) are exempt.
-                    let tok_is_alpha = tokens[i].is_code()
-                        && !tokens[i].raw().is_empty()
-                        && tokens[i].raw().chars().all(|c| c.is_ascii_alphabetic());
-                    if tok_is_alpha && !self.is_preceded_by_whitespace(tokens, i, start_idx) {
-                        let tables = self.grammar_ctx.tables();
-                        let variant = tables.get_inst(term_id).variant;
-                        if variant != GrammarVariant::TypedParser {
-                            vdebug!(
-                                "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
-                                term_id, i
-                            );
-                            continue;
-                        }
-                    }
-                    vdebug!(
-                        "[GREEDY_MATCH_TABLE] greedy_match: terminator {:?} matched at {}",
-                        term_id,
-                        i
-                    );
-                    let stop_idx = self.skip_stop_index_backward_to_code(i, start_idx);
-                    return Ok((i, stop_idx));
-                }
-            }
             i += 1;
         }
         vdebug!(
@@ -357,5 +351,33 @@ impl Parser<'_> {
             max_idx
         );
         Ok((start_idx, max_idx))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
+
+    use crate::parser::Parser;
+
+    /// Issue 8612: a `(` terminator must win over skipping the bracket pair.
+    #[test]
+    fn test_greedy_match_bracket_terminator_beats_bracket_skip() {
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        let (tokens, _) = lexer.lex(LexInput::String("a = b (c) d".to_string()), false);
+        let start_bracket = dialect
+            .get_segment_grammar("StartBracketSegment")
+            .expect("StartBracketSegment")
+            .grammar_id;
+
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+        let (term_idx, stop_idx) = parser
+            .greedy_match(0, &[start_bracket], tokens.len())
+            .expect("greedy_match");
+
+        assert_eq!(tokens[term_idx].raw(), "(");
+        assert_eq!(tokens[stop_idx - 1].raw(), "b");
     }
 }
