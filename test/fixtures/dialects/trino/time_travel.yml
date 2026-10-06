@@ -1,0 +1,281 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 97ef319c4f029c67d7986db961710c349a3239a3efb8d672dfad2f658e9e38aa
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: example
+              - dot: .
+              - naked_identifier: testdb
+              - dot: .
+              - naked_identifier: customer_orders
+            temporal_query:
+            - keyword: FOR
+            - keyword: VERSION
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                numeric_literal: '8954597067493422955'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: example
+              - dot: .
+              - naked_identifier: testdb
+              - dot: .
+              - naked_identifier: customer_orders
+            temporal_query:
+            - keyword: FOR
+            - keyword: VERSION
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                quoted_literal: "'historical-tag'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: example
+              - dot: .
+              - naked_identifier: testdb
+              - dot: .
+              - naked_identifier: customer_orders
+            temporal_query:
+            - keyword: FOR
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                keyword: TIMESTAMP
+                date_constructor_literal: "'2022-03-23 09:59:29.803 Europe/Vienna'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: example
+              - dot: .
+              - naked_identifier: testdb
+              - dot: .
+              - naked_identifier: customer_orders
+            temporal_query:
+            - keyword: FOR
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                keyword: DATE
+                date_constructor_literal: "'2022-03-23'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders
+            temporal_query:
+            - keyword: FOR
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                bare_function: current_timestamp
+                binary_operator: '-'
+                interval_expression:
+                - keyword: INTERVAL
+                - quoted_literal: "'1'"
+                - keyword: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: o
+          - dot: .
+          - naked_identifier: order_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders
+            temporal_query:
+            - keyword: FOR
+            - keyword: VERSION
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                numeric_literal: '8954597067493422955'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: o
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: o
+          - dot: .
+          - naked_identifier: order_id
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: cur
+          - dot: .
+          - naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: prev
+          - dot: .
+          - naked_identifier: status
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: cur
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customer_orders
+              temporal_query:
+              - keyword: FOR
+              - keyword: VERSION
+              - keyword: AS
+              - keyword: OF
+              - expression:
+                  numeric_literal: '8954597067493422955'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: prev
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: cur
+                - dot: .
+                - naked_identifier: order_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: prev
+                - dot: .
+                - naked_identifier: order_id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: example
+      - dot: .
+      - naked_identifier: testdb
+      - dot: .
+      - naked_identifier: customer_orders
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: example
+                - dot: .
+                - naked_identifier: testdb
+                - dot: .
+                - naked_identifier: customer_orders
+              temporal_query:
+              - keyword: FOR
+              - keyword: TIMESTAMP
+              - keyword: AS
+              - keyword: OF
+              - expression:
+                  keyword: TIMESTAMP
+                  date_constructor_literal: "'2022-03-23 09:59:29.803 Europe/Vienna'"
+- statement_terminator: ;

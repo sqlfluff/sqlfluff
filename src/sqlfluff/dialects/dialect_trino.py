@@ -446,6 +446,25 @@ class OverlapsClauseSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
+class TemporalQuerySegment(BaseSegment):
+    """A `FOR TIMESTAMP AS OF` or `FOR VERSION AS OF` time travel clause.
+
+    Fills the ANSI `TemporalQuerySegment` hook, so the clause sits right after
+    the table name and before any alias.
+
+    https://trino.io/docs/current/connector/iceberg.html#time-travel-queries
+    """
+
+    type = "temporal_query"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        OneOf("TIMESTAMP", "VERSION"),
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    )
+
+
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later."""
 
