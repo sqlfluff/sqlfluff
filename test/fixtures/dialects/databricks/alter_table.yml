@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aebe4258aa537f3b5b85a9703a1740986c98062b5f6d4cc6b385feb15b2758e7
+_hash: 55f2b8ede1bbffd484d4dbbf910db5782d156236c81243d2db588e181e7d1857
 file:
 - statement:
     alter_table_statement:
@@ -794,6 +794,47 @@ file:
               raw_comparison_operator: <
             numeric_literal: '20'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: persons
+    - keyword: ADD
+    - table_constraint:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: first_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: last_name
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: pets
+    - keyword: ADD
+    - table_constraint:
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: owner_first_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: owner_last_name
+        - end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+          naked_identifier: persons
 - statement_terminator: ;
 - statement:
     alter_table_statement:

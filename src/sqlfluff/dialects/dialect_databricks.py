@@ -1252,45 +1252,52 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-constraint.html
     """
 
-    match_grammar = Sequence(
-        "CONSTRAINT",
-        OneOf(
+    match_grammar = OneOf(
+        Sequence(
+            # The `CONSTRAINT name` prefix is optional for PRIMARY KEY and
+            # FOREIGN KEY constraints. Databricks generates a name if omitted.
             Sequence(
+                "CONSTRAINT",
                 Ref("ObjectReferenceSegment", optional=True),
-                Ref("PrimaryKeyGrammar"),
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment"),
-                        Ref.keyword("TIMESERIES", optional=True),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                            Ref.keyword("TIMESERIES", optional=True),
+                        ),
                     ),
+                    Ref("ConstraintOptionGrammar", optional=True),
                 ),
-                Ref("ConstraintOptionGrammar", optional=True),
-            ),
-            Sequence(
-                Ref("ObjectReferenceSegment", optional=True),
-                Indent,
-                Ref("ForeignKeyGrammar"),
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment"),
+                Sequence(
+                    Indent,
+                    Ref("ForeignKeyGrammar"),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
                     ),
+                    "REFERENCES",
+                    Ref("TableReferenceSegment"),
+                    Ref("BracketedColumnReferenceListGrammar", optional=True),
+                    OneOf(
+                        Ref("ForeignKeyOptionGrammar"),
+                        Ref("ConstraintOptionGrammar"),
+                        optional=True,
+                    ),
+                    Dedent,
                 ),
-                "REFERENCES",
-                Ref("TableReferenceSegment"),
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-                OneOf(
-                    Ref("ForeignKeyOptionGrammar"),
-                    Ref("ConstraintOptionGrammar"),
-                    optional=True,
-                ),
-                Dedent,
             ),
-            Sequence(
-                Ref("ObjectReferenceSegment"),
-                "CHECK",
-                Bracketed(Ref("ExpressionSegment")),
-                Ref.keyword("ENFORCED", optional=True),
-            ),
+        ),
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            "CHECK",
+            Bracketed(Ref("ExpressionSegment")),
+            Ref.keyword("ENFORCED", optional=True),
         ),
     )
 

@@ -122,3 +122,18 @@ CREATE TABLE catalog.silver.child2 (
     REFERENCES catalog.silver.parent (parent_key)
     ON UPDATE NO ACTION ON DELETE NO ACTION
 ) USING DELTA;
+
+-- Create table with unnamed primary key and foreign key constraints
+CREATE TABLE my_table (
+    col1 INT,
+    col2 INT,
+    col3 STRING,
+    PRIMARY KEY (col1, col2, col3)
+);
+
+CREATE TABLE catalog.silver.child3 (
+    child_key BIGINT NOT NULL,
+    parent_key BIGINT NOT NULL,
+    PRIMARY KEY (child_key) RELY,
+    FOREIGN KEY (parent_key) REFERENCES catalog.silver.parent (parent_key)
+) USING DELTA;

@@ -94,6 +94,10 @@ ALTER TABLE pets ADD CONSTRAINT pets_persons_fk
 
 ALTER TABLE pets ADD CONSTRAINT pets_name_not_cute_chk CHECK (length(name) < 20);
 
+ALTER TABLE persons ADD PRIMARY KEY (first_name, last_name);
+
+ALTER TABLE pets ADD FOREIGN KEY (owner_first_name, owner_last_name) REFERENCES persons;
+
 ALTER TABLE pets DROP CONSTRAINT pets_name_not_cute_chk;
 
 ALTER TABLE persons DROP CONSTRAINT persons_pk RESTRICT;
