@@ -508,6 +508,15 @@ postgres_dialect.add(
     OnKeywordAsIdentifierSegment=StringParser(
         "ON", IdentifierSegment, type="naked_identifier"
     ),
+    # A boolean option value: TRUE, ON or 1 enable the option, and FALSE, OFF
+    # or 0 disable it.
+    # https://www.postgresql.org/docs/current/sql-explain.html
+    OptionBooleanGrammar=OneOf(
+        Ref("BooleanLiteralGrammar"),
+        "ON",
+        "OFF",
+        Ref("NumericLiteralSegment"),
+    ),
     DollarNumericLiteralSegment=TypedParser(
         "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
     ),
@@ -2345,13 +2354,16 @@ class ExplainOptionSegment(BaseSegment):
     VERBOSE [ boolean ]
     COSTS [ boolean ]
     SETTINGS [ boolean ]
+    GENERIC_PLAN [ boolean ]
     BUFFERS [ boolean ]
+    SERIALIZE [ { NONE | TEXT | BINARY } ]
     WAL [ boolean ]
     TIMING [ boolean ]
     SUMMARY [ boolean ]
+    MEMORY [ boolean ]
     FORMAT { TEXT | XML | JSON | YAML }
 
-    https://www.postgresql.org/docs/14/sql-explain.html
+    https://www.postgresql.org/docs/17/sql-explain.html
     """
 
     type = "explain_option"
@@ -2364,12 +2376,18 @@ class ExplainOptionSegment(BaseSegment):
                 "VERBOSE",
                 "COSTS",
                 "SETTINGS",
+                "GENERIC_PLAN",
                 "BUFFERS",
                 "WAL",
                 "TIMING",
                 "SUMMARY",
+                "MEMORY",
             ),
-            Ref("BooleanLiteralGrammar", optional=True),
+            Ref("OptionBooleanGrammar", optional=True),
+        ),
+        Sequence(
+            "SERIALIZE",
+            OneOf("NONE", "TEXT", "BINARY", optional=True),
         ),
         Sequence(
             "FORMAT",
@@ -3737,7 +3755,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "ALLOW_CONNECTIONS",
                 Ref("EqualsSegment", optional=True),
-                Ref("BooleanLiteralGrammar"),
+                Ref("OptionBooleanGrammar"),
             ),
             Sequence(
                 "CONNECTION",
@@ -3748,7 +3766,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "IS_TEMPLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("BooleanLiteralGrammar"),
+                Ref("OptionBooleanGrammar"),
             ),
         ),
     )
@@ -3770,13 +3788,13 @@ class AlterDatabaseStatementSegment(BaseSegment):
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 AnyNumberOf(
-                    Sequence("ALLOW_CONNECTIONS", Ref("BooleanLiteralGrammar")),
+                    Sequence("ALLOW_CONNECTIONS", Ref("OptionBooleanGrammar")),
                     Sequence(
                         "CONNECTION",
                         "LIMIT",
                         Ref("NumericLiteralSegment"),
                     ),
-                    Sequence("IS_TEMPLATE", Ref("BooleanLiteralGrammar")),
+                    Sequence("IS_TEMPLATE", Ref("OptionBooleanGrammar")),
                     min_times=1,
                 ),
             ),
@@ -3940,7 +3958,7 @@ class DropSubscriptionStatementSegment(BaseSegment):
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
-    https://www.postgresql.org/docs/15/sql-vacuum.html
+    https://www.postgresql.org/docs/16/sql-vacuum.html
     https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L11658
     """
 
@@ -3966,9 +3984,13 @@ class VacuumStatementSegment(BaseSegment):
                             "DISABLE_PAGE_SKIPPING",
                             "SKIP_LOCKED",
                             "INDEX_CLEANUP",
+                            "PROCESS_MAIN",
                             "PROCESS_TOAST",
                             "TRUNCATE",
                             "PARALLEL",
+                            "SKIP_DATABASE_STATS",
+                            "ONLY_DATABASE_STATS",
+                            "BUFFER_USAGE_LIMIT",
                         ),
                         OneOf(
                             Ref("LiteralGrammar"),
@@ -4834,12 +4856,12 @@ class ReindexStatementSegment(BaseSegment):
         "REINDEX",
         Bracketed(
             Delimited(
-                Sequence("CONCURRENTLY", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence("CONCURRENTLY", Ref("OptionBooleanGrammar", optional=True)),
                 Sequence(
                     "TABLESPACE",
                     Ref("TablespaceReferenceSegment"),
                 ),
-                Sequence("VERBOSE", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence("VERBOSE", Ref("OptionBooleanGrammar", optional=True)),
             ),
             optional=True,
         ),
@@ -5168,13 +5190,19 @@ class DropStatisticsStatementSegment(BaseSegment):
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
-    As specified in https://www.postgresql.org/docs/13/sql-analyze.html
+    As specified in https://www.postgresql.org/docs/16/sql-analyze.html
     """
 
     type = "analyze_statement"
 
-    _option = Sequence(
-        OneOf("VERBOSE", "SKIP_LOCKED"), Ref("BooleanLiteralGrammar", optional=True)
+    _option = OneOf(
+        Sequence(
+            OneOf("VERBOSE", "SKIP_LOCKED"), Ref("OptionBooleanGrammar", optional=True)
+        ),
+        Sequence(
+            "BUFFER_USAGE_LIMIT",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+        ),
     )
 
     _tables_and_columns = Sequence(
@@ -6046,14 +6074,14 @@ class CopyStatementSegment(BaseSegment):
             Delimited(
                 AnySetOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
-                    Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("FREEZE", Ref("OptionBooleanGrammar", optional=True)),
                     Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
                     Sequence("NULL", Ref("QuotedLiteralSegment")),
                     # PostgreSQL 16+
                     Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
                     Sequence(
                         "HEADER",
-                        OneOf(Ref("BooleanLiteralGrammar"), "MATCH", optional=True),
+                        OneOf(Ref("OptionBooleanGrammar"), "MATCH", optional=True),
                     ),
                     Sequence("QUOTE", Ref("QuotedLiteralSegment")),
                     Sequence("ESCAPE", Ref("QuotedLiteralSegment")),
@@ -6742,7 +6770,7 @@ class CreateCollationStatementSegment(BaseSegment):
                     Sequence(
                         "DETERMINISTIC",
                         Ref("EqualsSegment"),
-                        Ref("BooleanLiteralGrammar"),
+                        Ref("OptionBooleanGrammar"),
                     ),
                     Sequence(
                         "VERSION",

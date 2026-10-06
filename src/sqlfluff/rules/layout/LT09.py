@@ -137,7 +137,8 @@ class Rule_LT09(BaseRule):
                 start_seg=selects.get(),
                 stop_seg=newlines.get(),
                 loop_while=sp.or_(
-                    sp.is_type("comment"), sp.is_type("whitespace"), sp.is_meta()
+                    sp.is_type("comment", "whitespace", "select_clause_modifier"),
+                    sp.is_meta(),
                 ),
             )
             if comment_after_select:

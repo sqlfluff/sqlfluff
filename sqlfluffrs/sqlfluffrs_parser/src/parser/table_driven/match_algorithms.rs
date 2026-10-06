@@ -2,8 +2,6 @@ use sqlfluffrs_types::{BracketPairSet, GrammarId, GrammarVariant, Token};
 
 use crate::parser::{ParseError, Parser};
 
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 /// Module-level implementations of the table-driven match algorithms.
 ///
 /// These functions implement the matching helpers used by the table-driven
@@ -54,20 +52,13 @@ fn try_match_grammar(
     // Restore position regardless of match success
     parser.pos = saved_pos;
 
-    match result {
-        Ok(mr) => {
-            if end_pos > pos && !mr.is_empty() {
-                Ok(end_pos)
-            } else {
-                Err(ParseError::with_context(
-                    "trying but only an empty match found".to_string(),
-                    Some(parser.pos),
-                    None,
-                ))
-            }
-        }
-        Err(e) => Err(e),
-    }
+    // An empty match reports `pos` (no progress).
+    let mr = result?;
+    Ok(if end_pos > pos && !mr.is_empty() {
+        end_pos
+    } else {
+        pos
+    })
 }
 
 /// The result of scanning forward for how an unresolved opening bracket at

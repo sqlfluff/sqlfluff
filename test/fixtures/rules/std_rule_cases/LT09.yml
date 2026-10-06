@@ -130,6 +130,28 @@ test_single_select_with_comment_after_select:
     SELECT --some comment
     a
 
+test_single_select_with_comment_after_distinct:
+  # As with a comment directly after SELECT, report but do not autofix.
+  fail_str: |
+    SELECT DISTINCT -- comment
+        A
+    FROM TBL;
+
+test_single_select_with_comment_after_all:
+  fail_str: |
+    SELECT ALL -- comment
+        A
+    FROM TBL;
+
+test_single_select_with_comment_after_top:
+  fail_str: |
+    SELECT TOP 10 -- comment
+        A
+    FROM TBL;
+  configs:
+    core:
+      dialect: snowflake
+
 test_comment_between_select_and_single_select_target:
   fail_str: |
     SELECT
@@ -257,6 +279,38 @@ test_distinct_single_fail_b:
   fix_str: |
     SELECT distinct a
     FROM my_table
+
+test_all_single_without_comment:
+  fail_str: |
+    SELECT ALL
+        A
+    FROM TBL;
+  fix_str: |
+    SELECT ALL A
+    FROM TBL;
+
+test_top_single_without_comment:
+  fail_str: |
+    SELECT TOP 10
+        A
+    FROM TBL;
+  fix_str: |
+    SELECT TOP 10 A
+    FROM TBL;
+  configs:
+    core:
+      dialect: snowflake
+
+test_distinct_single_with_comment_after_target:
+  # A comment on the target's line must not prevent the normal fix.
+  fail_str: |
+    SELECT DISTINCT
+        A -- column comment
+    FROM TBL;
+  fix_str: |
+    SELECT DISTINCT A
+        -- column comment
+    FROM TBL;
 
 test_single_select_with_no_from:
   fail_str: "SELECT\n   10000000\n"
