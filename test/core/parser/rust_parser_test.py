@@ -141,13 +141,14 @@ def test__rust_parser__max_parse_nodes_exceeded_in_rs_binding():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__iteration_limit__exceeded_raises_base_exception():
+def test__iteration_limit__exceeded_raises_base_exception(capfd):
     """Exceeding max_parser_iterations raises a BaseException (PanicException).
 
     ``max_parser_iterations=1`` is impossibly low for any real SQL, so even
     ``SELECT 1`` crosses the limit.  The Rust panic surfaces in Python as
     ``pyo3_runtime.PanicException``, which inherits from ``BaseException``
-    (not ``Exception``).
+    (not ``Exception``). The diagnostic dump goes to stderr, leaving stdout
+    clean for machine-readable output.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
@@ -175,6 +176,10 @@ def test__iteration_limit__exceeded_raises_base_exception():
         "Expected 'maximum iteration limit' in the panic message, got: "
         f"{exc_info.value}"
     )
+    out, err = capfd.readouterr()
+    assert out == ""
+    assert "Table Parse Cache Statistics:" in err
+    assert "Tokens around failure point:" in err
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
