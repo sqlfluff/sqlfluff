@@ -1,0 +1,213 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f3b33a219698ff2ea0bc1a6586f3dae7b395fae90f835c030de66ac8e95f7cd7
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: room_reservation
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: tstzrange
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: room_booking
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: booking_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: daterange
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: room_booking_pk
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: booking_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: room_booking_uq
+        - keyword: UNIQUE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: booking_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: room_hold
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: tsrange
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - keyword: NULLS
+        - keyword: NOT
+        - keyword: DISTINCT
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+        - index_parameters:
+            keyword: INCLUDE
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: room_id
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: availability
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: daterange
+        comma: ','
+        table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: room_reservation
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: room_reservation_uq
+        - keyword: UNIQUE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: room_reservation
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+- statement_terminator: ;

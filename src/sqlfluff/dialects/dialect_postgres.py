@@ -4219,6 +4219,19 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     As specified in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
+    # Key columns for UNIQUE and PRIMARY KEY constraints. Since Postgres 18
+    # the last column can be marked WITHOUT OVERLAPS to create a temporal
+    # constraint.
+    # https://www.postgresql.org/docs/18/sql-createtable.html
+    _key_column_list = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Sequence("WITHOUT", "OVERLAPS", optional=True),
+            ),
+        ),
+    )
+
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
@@ -4237,13 +4250,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                     "DISTINCT",
                     optional=True,
                 ),
-                Ref("BracketedColumnReferenceListGrammar"),
+                _key_column_list,
                 Ref("IndexParametersSegment", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
+                _key_column_list,
                 Ref("IndexParametersSegment", optional=True),
             ),
             Sequence(
