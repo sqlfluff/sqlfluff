@@ -205,6 +205,20 @@ sparksql_dialect.insert_lexer_matchers(
     ],
     before="newline",
 )
+sparksql_dialect.insert_lexer_matchers(
+    # Variable substitution, e.g. ${var} or ${hivevar:var}. Spark replaces
+    # these before parsing when `spark.sql.variable.substitute` is enabled
+    # (the default).
+    # https://spark.apache.org/docs/latest/configuration.html
+    [
+        RegexLexer(
+            "variable_substitution",
+            r"\$\{[^\s{}]+\}",
+            CodeSegment,
+        ),
+    ],
+    before="dollar_quote",
+)
 
 # Set the bare functions
 sparksql_dialect.sets("bare_functions").clear()
@@ -344,7 +358,26 @@ sparksql_dialect.replace(
         insert=[
             Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
+            Ref("VariableSubstitutionSegment"),
         ]
+    ),
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),
+            # e.g. `IN ${values}`, where the variable holds a bracketed list.
+            Ref("VariableSubstitutionSegment"),
+        ),
     ),
     NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
@@ -390,6 +423,7 @@ sparksql_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
+        Ref("VariableSubstitutionSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
@@ -506,6 +540,11 @@ sparksql_dialect.add(
         trim_chars=("`",),
         # match ANSI's naked identifier casefold, sparksql is case-insensitive.
         casefold=str.upper,
+    ),
+    VariableSubstitutionSegment=TypedParser(
+        "variable_substitution",
+        CodeSegment,
+        type="variable_substitution",
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
