@@ -1,0 +1,192 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0e7f7fed3bfd7b67de58c00cb19635f47ac4155d7e620b38c407091565443bb5
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_copy_tags
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+    - keyword: COPY
+    - keyword: TAGS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_aggregation_policy
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: ap
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: c1
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: c1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_projection_policy
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c1
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: PROJECTION
+          - keyword: POLICY
+          - object_reference:
+              naked_identifier: pp
+      - comma: ','
+      - column_definition:
+          naked_identifier: c2
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+          - keyword: WITH
+          - keyword: MASKING
+          - keyword: POLICY
+          - function_name:
+              function_name_identifier: mp
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'masked column'"
+      - end_bracket: )
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_contact
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DOWNSTREAM
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+        start_bracket: (
+        keyword: STEWARD
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: data_steward
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+- statement_terminator: ;

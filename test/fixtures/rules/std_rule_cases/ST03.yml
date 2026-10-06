@@ -168,6 +168,29 @@ test_pass_cte_defined_and_used_7:
     )
     select * from final
 
+test_pass_oracle_select_into_record_fields:
+  # Issue 8250: Dotted INTO targets must not hide the following FROM clause.
+  pass_str: |
+    CREATE OR REPLACE PROCEDURE test_proc(out_rec OUT SYS_REFCURSOR) IS
+      TYPE t_rec IS RECORD (a NUMBER, b NUMBER);
+      out_metrics t_rec;
+    BEGIN
+      WITH cte1 AS (
+        SELECT 1 AS x FROM dual
+      )
+      SELECT
+        cte1.x,
+        cte1.x
+      INTO
+        out_metrics.a,
+        out_metrics.b
+      FROM cte1;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+
 test_snowflake_delete_cte:
   fail_str: |
     DELETE FROM MYTABLE1

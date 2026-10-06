@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35c24239c4c6d346aa6155bc978b7a8d863a882b454cfd2b1790859482e6ffb9
+_hash: f57d0a3b701050fdffedbcd8dfb5c513eec26f73a91a04147104dd60caf3be45
 file:
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
     magic_cell_segment:
     - bare_magic_cell: '%python'
     - bare_magic_cell: print("magic cell, not modulo")
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
     select_statement:
       select_clause:

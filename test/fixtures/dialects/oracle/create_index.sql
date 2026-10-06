@@ -8,9 +8,9 @@ CREATE BITMAP INDEX s1.t_bitmap_idx ON s1.t (status_col);
 
 CREATE INDEX s1.t_schema_idx ON s1.t (col1);
 
-CREATE INDEX s1.t_ts_idx ON s1.t (col1)
+CREATE INDEX s1.t_ts_idx ON s1.t (col1) TABLESPACE idx_ts;
 
-TABLESPACE idx_ts;
+CREATE INDEX IF NOT EXISTS s1.t_ts_idx ON s1.t (col1); -- Oracle 19.28 and later
 
 -- Physical attributes
 CREATE INDEX s1.t_pct_idx ON s1.t (col1)

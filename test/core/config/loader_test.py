@@ -22,6 +22,9 @@ from sqlfluff.core.config.loader import (
 )
 from sqlfluff.core.config.toml import _format_toml_parse_error
 from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.helpers.dict import nested_combine
+from sqlfluff.core.templaters.jinja import JinjaTemplater
+from sqlfluff.core.templaters.python import PythonTemplater
 
 # tomllib is only in the stdlib from 3.11+
 if sys.version_info >= (3, 11):
@@ -37,8 +40,10 @@ config_a = {
 
 @pytest.fixture
 def mock_xdg_home(monkeypatch):
-    """Sets the XDG_CONFIG_HOME variable."""
-    monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
+    """Sets the XDG_CONFIG_HOME variable which must be an absolute path."""
+    monkeypatch.setenv(
+        "XDG_CONFIG_HOME", os.path.expanduser("~/.config/my/special/path")
+    )
 
 
 def test__config__load_file_dir():
@@ -373,6 +378,110 @@ def test__config__toml_list_config():
     assert cfg.get("rules") == ["LT03", "LT09"]
 
 
+@pytest.mark.parametrize("templater", ["jinja", "python", "dbt"])
+def test__config__toml_nested_template_context(tmp_path, templater):
+    """TOML context arrays retain their nested objects and scalar types."""
+    (tmp_path / "pyproject.toml").write_text(
+        '[tool.sqlfluff.core]\ndialect = "ansi"\nrules = [1, 2]\n'
+        f"[tool.sqlfluff.templater.{templater}]\n"
+        "ordinary_list = [1, 2]\n"
+        f"[tool.sqlfluff.templater.{templater}.context]\n"
+        'bundle = {metrics = [{name = "count", enabled = true, weight = 2}]}\n'
+        'values = [1, "123", true, [2, 3], {name = "nested"}]\n',
+        encoding="utf-8",
+    )
+    loaded = load_config_file(str(tmp_path), "pyproject.toml")
+    context = loaded["templater"][templater]["context"]
+    assert context["bundle"] == {
+        "metrics": [{"name": "count", "enabled": True, "weight": 2}]
+    }
+    assert context["values"] == [1, "123", True, [2, 3], {"name": "nested"}]
+    assert loaded["core"]["rules"] == ["1", "2"]
+    assert loaded["templater"][templater]["ordinary_list"] == ["1", "2"]
+    # Context dictionaries must remain mergeable across config files.
+    merged = nested_combine(
+        loaded, {"templater": {templater: {"context": {"bundle": {"extra": "kept"}}}}}
+    )
+    merged_context = merged["templater"][templater]["context"]
+    assert merged_context["bundle"] == {**context["bundle"], "extra": "kept"}
+
+
+@pytest.mark.parametrize(
+    "renderer,sql",
+    [
+        (
+            JinjaTemplater(),
+            "SELECT {% for m in bundle.selected_metrics %}"
+            "{{ m.definition }} AS {{ m.name }}{% endfor %}",
+        ),
+        (
+            PythonTemplater(),
+            "SELECT {bundle[selected_metrics][0][definition]} "
+            "AS {bundle[selected_metrics][0][name]}",
+        ),
+    ],
+    ids=["jinja", "python"],
+)
+def test__config__toml_ini_context_equivalence(tmp_path, renderer, sql):
+    """Both forms of the issue's config yield the same context and SQL."""
+    bundle = {
+        "safe_name": "test_metric",
+        "base_sql": "select 1",
+        "join_key": "user_id",
+        "selected_metrics": [{"name": "logged_days", "definition": "COUNT(*)"}],
+    }
+    (tmp_path / ".sqlfluff").write_text(
+        f"[sqlfluff]\ntemplater = {renderer.name}\ndialect = snowflake\n"
+        f"[sqlfluff:templater:{renderer.name}:context]\nbundle = {bundle!r}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "pyproject.toml").write_text(
+        f'[tool.sqlfluff.core]\ntemplater = "{renderer.name}"\ndialect = "snowflake"\n'
+        f"[tool.sqlfluff.templater.{renderer.name}.context]\n"
+        "bundle = {safe_name = 'test_metric', base_sql = 'select 1', "
+        "join_key = 'user_id', selected_metrics = "
+        "[{name = 'logged_days', definition = 'COUNT(*)'}]}\n",
+        encoding="utf-8",
+    )
+    contexts = []
+    for filename in (".sqlfluff", "pyproject.toml"):
+        cfg = FluffConfig(load_config_file(str(tmp_path), filename))
+        contexts.append(renderer.get_context("test.sql", cfg))
+        rendered, violations = renderer.process(
+            in_str=sql, fname="test.sql", config=cfg
+        )
+        assert not violations
+        assert rendered.templated_str == "SELECT COUNT(*) AS logged_days"
+    assert contexts[0] == contexts[1]
+    assert contexts[0]["bundle"] == bundle
+
+
+@pytest.mark.parametrize("templater", ["jinja", "python", "dbt"])
+@pytest.mark.parametrize(
+    "literal,expected",
+    [
+        ("2026-09-12", "2026-09-12"),
+        ("12:34:56", "12:34:56"),
+        ("2026-09-12T12:34:56", "2026-09-12 12:34:56"),
+        ("2026-09-12T12:34:56Z", "2026-09-12 12:34:56+00:00"),
+    ],
+)
+def test__config__toml_context_temporal_values(tmp_path, templater, literal, expected):
+    """Temporal values normalize identically inside and outside context arrays."""
+    (tmp_path / "pyproject.toml").write_text(
+        f"[tool.sqlfluff.templater.{templater}.context]\n"
+        f"scalar = {literal}\n"
+        f"values = [{literal}, [{literal}], {{value = {literal}}}]\n"
+        f"bundle = {{values = [{literal}]}}\n",
+        encoding="utf-8",
+    )
+    loaded = load_config_file(str(tmp_path), "pyproject.toml")
+    context = loaded["templater"][templater]["context"]
+    assert context["scalar"] == expected
+    assert context["values"] == [expected, [expected], {"value": expected}]
+    assert context["bundle"] == {"values": [expected]}
+
+
 def test__config__load_toml_invalid_syntax(tmp_path):
     """Invalid TOML should raise a SQLFluff user error with location info."""
     pyproject_path = tmp_path / "pyproject.toml"
@@ -439,6 +548,34 @@ def test__config__load_toml_utf8_bom_hint(tmp_path):
     assert "UTF-8 without BOM" in message
     assert "line 1" in message
     assert "column 1" in message
+
+
+def test__config__load_toml_non_table_rules(tmp_path):
+    """A `rules` value that isn't a table should raise a SQLFluffUserError.
+
+    Regression test: a `pyproject.toml` with `rules` set directly under
+    `[tool.sqlfluff]` (mirroring the `.sqlfluff` ini `rules = all` syntax,
+    rather than the required `[tool.sqlfluff.rules.<rule_name>]` tables)
+    used to raise a bare, uncaught ``AssertionError`` instead of the
+    ``SQLFluffUserError`` every other malformed config case produces.
+    """
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text(
+        '[tool.sqlfluff]\ndialect = "ansi"\nrules = "all"\n',
+        encoding="utf-8",
+    )
+
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), "pyproject.toml")
+    finally:
+        clear_config_caches()
+        pyproject_path.unlink(missing_ok=True)
+
+    message = str(exc_info.value)
+    assert str(pyproject_path).replace("\\", "/") in message.replace("\\", "/")
+    assert "invalid `rules` value" in message
+    assert "'all'" in message
 
 
 def test__config__format_toml_parse_error_regex_location() -> None:

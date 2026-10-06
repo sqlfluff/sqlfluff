@@ -107,7 +107,11 @@ oracle_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))",
+            # Like ANSI, but no bare leading-dot form (.\d+). Allow trailing-dot
+            # numerics (1.) via \d+\.(?![\.\w]), keep (?=\b) for digit/identifier
+            # splits, and also allow Oracle size suffixes (256K / 10P / 10E)
+            # matching SizeClauseGrammar's K/M/G/T/P/E (case-insensitive) (#8110).
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b)|(?=[KMGTPEkmgtpe]\b))",
             LiteralSegment,
         ),
     ]
@@ -140,6 +144,17 @@ oracle_dialect.insert_lexer_matchers(
         StringLexer("at_sign", "@", CodeSegment),
     ],
     before="word",
+)
+
+oracle_dialect.insert_lexer_matchers(
+    [
+        # Positional SQL*Plus substitution variables (&1, &&1) are lexed as a
+        # single token so that a trailing "." terminator (e.g. `&&1.`) is left
+        # as a separate segment rather than being absorbed into a numeric
+        # literal (`1.`), which would lose the substitution-variable boundary.
+        RegexLexer("substitution_variable", r"&&?\d+", CodeSegment),
+    ],
+    before="ampersand",
 )
 
 oracle_dialect.insert_lexer_matchers(
@@ -391,6 +406,30 @@ oracle_dialect.add(
                 Sequence("USING", Ref("ObjectReferenceSegment"), optional=True),
             ),
         ),
+    ),
+    OracleDeferrableGrammar=OneOf(
+        "DEFERRABLE",
+        Sequence("NOT", "DEFERRABLE"),
+    ),
+    OracleInitiallyGrammar=Sequence(
+        "INITIALLY",
+        OneOf("IMMEDIATE", "DEFERRED"),
+    ),
+    OracleConstraintStateGrammar=Sequence(
+        OneOf(
+            Sequence(
+                Ref("OracleDeferrableGrammar"),
+                Ref("OracleInitiallyGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("OracleInitiallyGrammar"),
+                Ref("OracleDeferrableGrammar", optional=True),
+            ),
+            optional=True,
+        ),
+        OneOf("RELY", "NORELY", optional=True),
+        OneOf("ENABLE", "DISABLE", optional=True),
+        OneOf("VALIDATE", "NOVALIDATE", optional=True),
     ),
     ElementSpecificationGrammar=Sequence(
         AnyNumberOf(
@@ -664,6 +703,9 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref("ReturningClauseSegment")]),
     ColumnConstraintDefaultGrammar=OneOf(
         ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
         Ref("SequencePseudocolumnGrammar"),
@@ -1444,6 +1486,7 @@ class BatchSegment(BaseSegment):
             Delimited(
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
+                    Ref("SqlplusShowStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1464,12 +1507,199 @@ class SlashBufferExecutorSegment(BaseSegment):
 
 
 class SqlplusSetStatementSegment(BaseSegment):
-    """A SQL*Plus `SET` command."""
+    """A SQL*Plus `SET` command.
+
+    Only valid in SQL*Plus, not in the SQL language itself. Covers the system
+    variables commonly used in deployment scripts. Each accepts its full name or
+    its shortest documented abbreviation, and one command can set several of them,
+    e.g. SET ECHO OFF FEEDBACK OFF.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SET-system-variable-summary.html
+    """
 
     type = "sqlplus_set_statement"
 
+    _on_off = OneOf("ON", "OFF")
+    # Unquoted text is a single word, which may be a reserved word (SET NULL NULL).
+    # It isn't an identifier or keyword, so capitalisation rules leave it alone.
+    # Double-quoted text is a literal too, not a quoted identifier.
+    _text = OneOf(
+        Ref("QuotedLiteralSegment"),
+        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
+        RegexParser(r"[^\s;/'\"]+", CodeSegment, type="sqlplus_text"),
+    )
+    _integer = RegexParser(r"[0-9]+", LiteralSegment, type="numeric_literal")
+    # A single non-alphanumeric character, bare or quoted, e.g. SET DEFINE & or '^'.
+    # A bare `;` or `/` is left alone so it still ends the statement or batch.
+    _character_on_off = OneOf(
+        "ON",
+        "OFF",
+        RegexParser(r"'[^\w\s']'", LiteralSegment, type="quoted_literal"),
+        RegexParser(r"[^\w\s;/]", SymbolSegment, type="sqlplus_character"),
+    )
+
     match_grammar = Sequence(
-        "SET", StringParser("SCAN", WordSegment, type="keyword"), OneOf("ON", "OFF")
+        "SET",
+        AnyNumberOf(
+            OneOf(
+                # SET DEFINE {& | c | ON | OFF}, abbreviated DEF
+                Sequence(OneOf("DEFINE", "DEF"), _character_on_off),
+                # SET ECHO {ON | OFF}
+                Sequence("ECHO", _on_off),
+                # SET ESC[APE] {\ | c | ON | OFF}
+                Sequence(OneOf("ESCAPE", "ESC"), _character_on_off),
+                # SET FEED[BACK] {6 | n | ON | OFF | ONLY} [SQL_ID]
+                Sequence(
+                    OneOf("FEEDBACK", "FEED"),
+                    OneOf("ON", "OFF", "ONLY", _integer),
+                    Ref.keyword("SQL_ID", optional=True),
+                ),
+                # SET FLAGGER {OFF | ENTRY | INTERMED[IATE] | FULL}
+                Sequence(
+                    "FLAGGER",
+                    OneOf("OFF", "ENTRY", "INTERMEDIATE", "INTERMED", "FULL"),
+                ),
+                # SET HEA[DING] {ON | OFF}
+                Sequence(OneOf("HEADING", "HEA"), _on_off),
+                # SET LIN[ESIZE] {80 | n | WINDOW}
+                Sequence(
+                    OneOf("LINESIZE", "LIN"),
+                    OneOf("WINDOW", _integer),
+                ),
+                # SET LONG {80 | n}
+                Sequence("LONG", _integer),
+                # SET NULL text
+                Sequence("NULL", _text),
+                # SET PAGES[IZE] {14 | n}
+                Sequence(OneOf("PAGESIZE", "PAGES"), _integer),
+                # SET SCAN {ON | OFF}
+                Sequence("SCAN", _on_off),
+                # SET SERVEROUT[PUT] {ON | OFF} [SIZE {n | UNL[IMITED]}]
+                #   [FOR[MAT] {WRA[PPED] | WOR[D_WRAPPED] | TRU[NCATED]}]
+                Sequence(
+                    OneOf("SERVEROUTPUT", "SERVEROUT"),
+                    _on_off,
+                    Sequence(
+                        "SIZE",
+                        OneOf("UNLIMITED", "UNL", _integer),
+                        optional=True,
+                    ),
+                    Sequence(
+                        OneOf("FORMAT", "FOR"),
+                        OneOf(
+                            "WRAPPED",
+                            "WRA",
+                            "WORD_WRAPPED",
+                            "WOR",
+                            "TRUNCATED",
+                            "TRU",
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # SET SQLBL[ANKLINES] {ON | OFF}
+                Sequence(OneOf("SQLBLANKLINES", "SQLBL"), _on_off),
+                # SET SUF[FIX] {SQL | text}
+                Sequence(OneOf("SUFFIX", "SUF"), _text),
+                # SET TERM[OUT] {ON | OFF}
+                Sequence(OneOf("TERMOUT", "TERM"), _on_off),
+                # SET TI[ME] {ON | OFF}
+                Sequence(OneOf("TIME", "TI"), _on_off),
+                # SET TIMI[NG] {ON | OFF}
+                Sequence(OneOf("TIMING", "TIMI"), _on_off),
+                # SET TRIMS[POOL] {ON | OFF}
+                Sequence(OneOf("TRIMSPOOL", "TRIMS"), _on_off),
+                # SET VER[IFY] {ON | OFF}
+                Sequence(OneOf("VERIFY", "VER"), _on_off),
+            ),
+            min_times=1,
+        ),
+    )
+
+
+class SqlplusShowStatementSegment(BaseSegment):
+    """A SQL*Plus `SHOW` command.
+
+    Only valid in SQL*Plus, not in the SQL language itself.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SHOW.html
+    """
+
+    type = "sqlplus_show_statement"
+
+    # Object types accepted by SHOW ERRORS.
+    _errors_object_type = OneOf(
+        Sequence("ANALYTIC", "VIEW"),
+        Sequence("ATTRIBUTE", "DIMENSION"),
+        "HIERARCHY",
+        "FUNCTION",
+        "PROCEDURE",
+        "TRIGGER",
+        "VIEW",
+        "DIMENSION",
+        Sequence("PACKAGE", Ref.keyword("BODY", optional=True)),
+        Sequence("TYPE", Ref.keyword("BODY", optional=True)),
+        Sequence("JAVA", "CLASS"),
+    )
+
+    match_grammar = Sequence(
+        OneOf("SHOW", "SHO"),
+        OneOf(
+            # SHOW ERR[ORS] [object_type [schema.]name]
+            Sequence(
+                OneOf("ERRORS", "ERR"),
+                Sequence(
+                    _errors_object_type,
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW PARAMETER[S] [name]
+            Sequence(
+                OneOf("PARAMETERS", "PARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW SPPARAMETER[S] [name]
+            Sequence(
+                OneOf("SPPARAMETERS", "SPPARAMETER"),
+                Ref("ParameterNameSegment", optional=True),
+            ),
+            # SHOW RECYC[LEBIN] [original_name]
+            Sequence(
+                OneOf("RECYCLEBIN", "RECYC"),
+                Ref("ObjectReferenceSegment", optional=True),
+            ),
+            # SHOW CONN[ECTION] NETS[ERVICENAMES] [net_service_name ...]
+            Sequence(
+                OneOf("CONNECTION", "CONN"),
+                OneOf("NETSERVICENAMES", "NETS"),
+                AnyNumberOf(Ref("ObjectReferenceSegment")),
+            ),
+            # Single-keyword options.
+            "ALL",
+            "USER",
+            "SGA",
+            "PDBS",
+            "EDITION",
+            "HISTORY",
+            "LNO",
+            "PNO",
+            "SQLCODE",
+            "CON_ID",
+            "CON_NAME",
+            "XQUERY",
+            OneOf("RELEASE", "REL"),
+            OneOf("BTITLE", "BTI"),
+            OneOf("TTITLE", "TTI"),
+            OneOf("REPFOOTER", "REPF"),
+            OneOf("REPHEADER", "REPH"),
+            OneOf("LOBPREFETCH", "LOBPREF"),
+            OneOf("ROWPREFETCH", "ROWPREF"),
+            OneOf("SPOOL", "SPOO"),
+            OneOf("STATEMENTCACHE", "STATEMENTC"),
+            # Any other SET system variable (e.g. LINESIZE, PAGESIZE).
+            Ref("SingleIdentifierGrammar"),
+        ),
     )
 
 
@@ -1546,6 +1776,31 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
             BracketedSegment,
         ],
         allow_gaps=False,
+    )
+
+
+class FetchClauseSegment(ansi.FetchClauseSegment):
+    """A `FETCH` clause, which in Oracle can limit by a percentage of rows.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/SELECT.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            ),
+            Ref.keyword("PERCENT", optional=True),
+            optional=True,
+        ),
+        OneOf("ROW", "ROWS"),
+        OneOf("ONLY", Sequence("WITH", "TIES")),
     )
 
 
@@ -1689,6 +1944,9 @@ class CreateTableStatementSegment(BaseSegment):
 class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     """A CREATE INDEX statement, Oracle-specific extension.
 
+    The `IF NOT EXISTS` clause was introduced in Oracle Database 19c Release
+    Update 19.28 onwards.
+
     https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-INDEX.html
     """
 
@@ -1698,6 +1956,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
         "CREATE",
         OneOf(Ref.keyword("UNIQUE"), Ref.keyword("BITMAP"), optional=True),
         "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
@@ -1717,12 +1976,7 @@ class ColumnDefinitionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         OneOf(
-            AnyNumberOf(
-                Sequence(
-                    Ref("ColumnConstraintSegment"),
-                    OneOf("ENABLE", "DISABLE", optional=True),
-                )
-            ),
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
             Sequence(
                 Ref("DatatypeSegment"),  # Column type
                 # For types like VARCHAR(100), VARCHAR(100 BYTE), VARCHAR (100 CHAR)
@@ -1737,12 +1991,7 @@ class ColumnDefinitionSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("ColumnConstraintSegment"),
-                        OneOf("ENABLE", "DISABLE", optional=True),
-                    )
-                ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
         ),
@@ -2027,17 +2276,28 @@ class FunctionNameSegment(BaseSegment):
 
 
 class SubstitutionVariableSegment(BaseSegment):
-    """SQL*Plus substitution variable (&var, &&var).
+    """SQL*Plus substitution variable (&var, &&var, &1, &&1).
+
+    Substitution variables are referenced either by name (``&var``, ``&&var``)
+    or by position (``&1``, ``&&1``), the latter being substituted from the
+    arguments passed to the calling script.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/using-substitution-variables-sqlplus.html
     """
 
     type = "substitution_variable"
 
-    match_grammar = Sequence(
-        Ref("AmpersandSegment"),
-        Ref("AmpersandSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
+    match_grammar = OneOf(
+        # Positional (&1, &&1): lexed as a single token so the trailing "."
+        # terminator is not swallowed into a numeric literal.
+        TypedParser("substitution_variable", CodeSegment),
+        # Named (&var, &&var).
+        Sequence(
+            Ref("AmpersandSegment"),
+            Ref("AmpersandSegment", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            allow_gaps=False,
+        ),
     )
 
 
@@ -2515,17 +2775,20 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 "CHECK",
                 Bracketed(Ref("ExpressionSegment")),
                 Sequence("NO", "INHERIT", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
@@ -2535,7 +2798,64 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 Ref(
                     "ReferenceDefinitionGrammar"
                 ),  # REFERENCES reftable [ ( refcolumn) ]
+                Ref("OracleConstraintStateGrammar", optional=True),
             ),
+        ),
+    )
+
+
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column constraint, e.g. for CREATE TABLE or ALTER TABLE ADD/MODIFY.
+
+    Extends ANSI to support Oracle's inline `USING INDEX` clause, which Oracle
+    allows after a column-level (unnamed-column-list) `PRIMARY KEY` or `UNIQUE`
+    constraint, in addition to the table-level constraint form already handled
+    by `TableConstraintSegment`.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/constraint.html
+    """
+
+    type = "column_constraint_segment"
+
+    match_grammar: Matchable = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                "NULL",
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
+            Sequence(
+                "DEFAULT",
+                Ref("ColumnConstraintDefaultGrammar"),
+            ),
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("UniqueKeyGrammar"),
+                Ref("UsingIndexClauseSegment", optional=True),
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
+            Ref("AutoIncrementGrammar"),
+            Sequence(
+                Ref("ReferenceDefinitionGrammar"),
+                Ref("OracleConstraintStateGrammar", optional=True),
+            ),
+            Ref("CommentClauseSegment"),
+            Sequence("COLLATE", Ref("CollationReferenceSegment")),
+            Ref("ColumnGeneratedGrammar"),
         ),
     )
 
@@ -3551,7 +3871,24 @@ class MergeUpdateClauseSegment(BaseSegment):
         Ref("SetClauseListSegment"),
         Dedent,
         Ref("WhereClauseSegment", optional=True),
+        Sequence("DELETE", Ref("WhereClauseSegment"), optional=True),
         Ref("ReturningClauseSegment", optional=True),
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Ref("ValuesClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
@@ -3830,7 +4167,11 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("BindVariableSegment"))),
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            Ref("ObjectReferenceSegment"),
+            Ref("BindVariableSegment"),
+        ),
     )
 
 
@@ -3907,6 +4248,26 @@ class ReturnStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment", optional=True),
+    )
+
+
+class CreateSequenceStatementSegment(BaseSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    Extends the ANSI grammar to support the `IF NOT EXISTS` clause,
+    available from Oracle Database 19c Release Update 19.28 onwards.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-SEQUENCE.html
+    """
+
+    type = "create_sequence_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
     )
 
 
@@ -4006,14 +4367,30 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     )
 
 
+class DeleteFromClauseSegment(ansi.FromClauseSegment):
+    """The target of a `DELETE` statement, where `FROM` is optional.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html
+    """
+
+    type = "from_clause"
+    match_grammar: Matchable = Sequence(
+        Ref.keyword("FROM", optional=True),
+        Ref("FromExpressionSegment"),
+    )
+
+
 class DeleteStatementSegment(ansi.DeleteStatementSegment):
     """A `DELETE` statement.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html
     """
 
-    match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
-        insert=[Ref("ReturningClauseSegment", optional=True)]
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref("DeleteFromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 

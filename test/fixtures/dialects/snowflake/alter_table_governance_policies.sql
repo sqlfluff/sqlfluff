@@ -1,0 +1,33 @@
+-- Data governance policy actions on ALTER TABLE
+-- https://docs.snowflake.com/en/sql-reference/sql/alter-table
+-- https://docs.snowflake.com/en/sql-reference/sql/alter-table-column
+
+ALTER TABLE t ADD STORAGE LIFECYCLE POLICY my_slc_policy ON (ts);
+
+ALTER TABLE t ADD STORAGE LIFECYCLE POLICY my_db.my_schema.my_slc_policy ON (ts, created_at);
+
+ALTER TABLE t DROP STORAGE LIFECYCLE POLICY;
+
+ALTER TABLE IF EXISTS t ADD STORAGE LIFECYCLE POLICY my_slc_policy ON (ts);
+
+ALTER TABLE t ADD COLUMN c6 STRING WITH PROJECTION POLICY my_projection_policy;
+
+ALTER TABLE t ADD COLUMN c7 STRING PROJECTION POLICY my_projection_policy COMMENT 'projected column';
+
+ALTER TABLE t ADD COLUMN c8 STRING WITH MASKING POLICY my_mask WITH PROJECTION POLICY my_projection_policy;
+
+ALTER TABLE t ALTER COLUMN c1 SET PROJECTION POLICY my_projection_policy;
+
+ALTER TABLE t MODIFY COLUMN c1 SET PROJECTION POLICY my_db.my_schema.my_projection_policy FORCE;
+
+ALTER TABLE t ALTER COLUMN c1 UNSET PROJECTION POLICY;
+
+ALTER TABLE t MODIFY COLUMN c1 UNSET PROJECTION POLICY;
+
+ALTER TABLE t SET AGGREGATION POLICY my_agg_policy ENTITY KEY (id) FORCE;
+
+ALTER TABLE t UNSET AGGREGATION POLICY;
+
+ALTER TABLE t SET JOIN POLICY my_join_policy FORCE;
+
+ALTER TABLE t UNSET JOIN POLICY;

@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 77dd1dd62b785f3d4c8b57396356b79037d46fdaf5c6a4d8d6f43aa6352fffda
+file:
+  statement:
+    create_alert_statement:
+    - keyword: CREATE
+    - keyword: ALERT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_alert
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: cost_center
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'finance'"
+          end_bracket: )
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 0 * * * UTC'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_warehouse
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'alerts when the gauge is too high'"
+    - keyword: CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'{\"key\": \"value\"}'"
+    - keyword: RUNBOOK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://example.com/runbook'"
+    - keyword: SUSPEND_ALERT_AFTER_NUM_FAILURES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3'
+    - keyword: IF
+    - bracketed:
+        start_bracket: (
+        alert_condition:
+          keyword: EXISTS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: gauge_value
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: gauge
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: gauge_value
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '200'
+            end_bracket: )
+        end_bracket: )
+    - keyword: THEN
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              function_name_identifier: my_procedure
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+  statement_terminator: ;

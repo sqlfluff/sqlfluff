@@ -1,0 +1,132 @@
+rule: CV13
+
+# CV13 is disabled by default (opinionated convention). The fixture cases below
+# exercise the rule's logic, so they enable it explicitly. Applied to every test
+# case that does not define its own `configs`.
+configs:
+  rules:
+    convention.last_select_star:
+      force_enable: true
+
+test_pass_cte_select_star:
+  # The dbt convention: a final CTE selected with `select * from final`.
+  pass_str: |
+    WITH final AS (
+        SELECT a, b FROM foo
+    )
+
+    SELECT * FROM final
+
+test_pass_cte_qualified_star:
+  # A qualified wildcard (`final.*`) is still a `select *`.
+  pass_str: |
+    WITH final AS (
+        SELECT a, b FROM foo
+    )
+
+    SELECT final.* FROM final
+
+test_pass_multiple_ctes:
+  pass_str: |
+    WITH
+    stg AS (
+        SELECT a, b FROM foo
+    ),
+    final AS (
+        SELECT a, b FROM stg
+    )
+
+    SELECT * FROM final
+
+test_pass_plain_select_out_of_scope:
+  # A plain (non-CTE) query is an ad-hoc query and not in scope.
+  pass_str: |
+    SELECT a, b FROM foo
+
+test_pass_plain_select_star_out_of_scope:
+  pass_str: |
+    SELECT * FROM foo
+
+test_pass_last_statement_not_a_query:
+  # The convention only applies when the file ends in a `WITH ... SELECT`.
+  pass_str: |
+    WITH final AS (SELECT a FROM foo) SELECT a FROM final;
+    INSERT INTO bar SELECT * FROM foo;
+
+test_pass_no_statements:
+  # A file with no statements should never flag.
+  pass_str: |
+    -- just a comment
+
+test_fail_cte_explicit_columns:
+  # The dbt anti-pattern: a final CTE selected with explicit columns.
+  fail_str: |
+    WITH final AS (
+        SELECT a, b FROM foo
+    )
+
+    SELECT a, b FROM final
+
+test_fail_only_last_statement:
+  # Earlier statements are ignored; only the final CTE select is checked.
+  fail_str: |
+    SELECT a, b FROM foo;
+    WITH final AS (SELECT a, b FROM bar) SELECT a, b FROM final;
+
+test_fail_select_star_no_from:
+  # A bare `select *` with no source is not the `select * from ...`
+  # convention.
+  fail_str: |
+    WITH final AS (SELECT a FROM foo) SELECT a
+
+test_fail_set_expression:
+  # A trailing set expression (e.g. UNION) is not a single `select * from`.
+  fail_str: |
+    WITH a AS (SELECT 1)
+    SELECT * FROM a
+    UNION
+    SELECT * FROM b
+
+test_fail_star_with_extra_column:
+  # `*` mixed with another column is not a lone wildcard.
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT *, extra_col FROM final
+
+test_fail_select_star_with_where:
+  # A `select * from` with a trailing transformation clause is not a pure
+  # passthrough (cubic-dev-ai PR review finding).
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT * FROM final WHERE a > 1
+
+test_fail_select_star_with_group_by:
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT * FROM final GROUP BY a
+
+test_fail_select_star_with_order_by_limit:
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT * FROM final ORDER BY a LIMIT 10
+
+test_fail_select_distinct_star:
+  # `SELECT DISTINCT *` reshapes the result set, so it is not a passthrough.
+  fail_str: |
+    WITH final AS (SELECT a FROM foo)
+    SELECT DISTINCT * FROM final
+
+test_pass_disabled_by_default:
+  # Without `force_enable`, CV13 never flags (it is off by default). This is the
+  # anti-pattern from test_fail_cte_explicit_columns, which passes here because
+  # the rule is not enabled.
+  pass_str: |
+    WITH final AS (
+        SELECT a, b FROM foo
+    )
+
+    SELECT a, b FROM final
+  configs:
+    rules:
+      convention.last_select_star:
+        force_enable: false

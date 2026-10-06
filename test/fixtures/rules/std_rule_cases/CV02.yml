@@ -5,6 +5,12 @@ test_pass_coalesce:
     SELECT coalesce(foo, 0) AS bar,
     FROM baz;
 
+test_pass_qualified_udf:
+  # A qualified name is a user-defined function, not the builtin NVL.
+  pass_str: |
+    SELECT myschema.nvl(foo, 0) AS bar,
+    FROM baz;
+
 test_fail_ifnull:
   fail_str: |
     SELECT ifnull(foo, 0) AS bar,

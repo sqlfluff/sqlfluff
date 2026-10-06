@@ -36,6 +36,13 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 "The maximum number of empty lines allowed inside statements."
             ),
         },
+        "minimum_empty_lines_between_statements": {
+            "validation": range(1000),
+            "definition": (
+                "The minimum number of empty lines required between statements. "
+                "Defaults to 0, which does not require any."
+            ),
+        },
         "maximum_empty_lines_between_batches": {
             "validation": range(1000),
             "definition": (

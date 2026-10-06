@@ -115,19 +115,21 @@ class Rule_CV12(BaseRule):
                 # If UNNEST function is used, disregard lack of condition
                 continue
 
-            encountered_references.add(
-                self._get_from_expression_element_alias(join_table_reference)
+            this_join_reference = self._get_from_expression_element_alias(
+                join_table_reference
             )
+            encountered_references.add(this_join_reference)
 
             join_clause_keywords = [
                 seg for seg in join_clause.segments if seg.type == "keyword"
             ]
 
             if any(
-                kw.raw_upper in ("CROSS", "POSITIONAL", "USING", "APPLY")
+                kw.raw_upper in ("CROSS", "NATURAL", "POSITIONAL", "USING", "APPLY")
                 for kw in join_clause_keywords
             ):
                 # If explicit CROSS JOIN is used, disregard lack of condition
+                # If NATURAL JOIN is used, disregard lack of condition
                 # If explicit POSITIONAL JOIN is used, disregard lack of condition
                 # If explicit JOIN USING is used, disregard lack of condition
                 # If explicit CROSS/OUTER APPLY is used, disregard lack of condition
@@ -136,6 +138,33 @@ class Rule_CV12(BaseRule):
             this_join_condition = join_clause.get_child("join_on_condition")
             if this_join_condition:
                 # Join condition is present, no error reported.
+                continue
+
+            if join_clause.is_templated:
+                # Moving a condition into an ON clause rewrites the whole join
+                # clause. If that clause contains templated code, the resulting
+                # patch can't be mapped back onto the source file and is
+                # silently dropped - but the WHERE clause rewrite below is
+                # literal, so it still applies. The net effect is that the join
+                # condition is deleted rather than moved, silently changing the
+                # meaning of the query. Flag the violation, but don't offer a
+                # fix we can't apply safely.
+                yield LintResult(anchor=join_clause)
+                continue
+
+            # Moving a WHERE predicate into ON changes which null-extended
+            # rows survive an outer join, so retain the diagnostic but
+            # suppress the fix for all outer joins. SEMI and ANTI joins are
+            # filtering joins, not null-extending outer joins.
+            is_outer_join = any(
+                kw.raw_upper in ("LEFT", "RIGHT", "FULL", "OUTER")
+                for kw in join_clause_keywords
+            )
+            is_semi_or_anti_join = any(
+                kw.raw_upper in ("SEMI", "ANTI") for kw in join_clause_keywords
+            )
+            if is_outer_join and not is_semi_or_anti_join:
+                yield LintResult(anchor=join_clause)
                 continue
 
             if not where_clause_simplifable:
@@ -154,13 +183,24 @@ class Rule_CV12(BaseRule):
                         )
                         if "dot" in col_ref.descendant_type_set
                     ]
-                    if len(qualified_column_references) > 1 and all(
-                        col_ref.raw_upper.startswith(
-                            tuple(
-                                f"{table_ref}." for table_ref in encountered_references
+                    if (
+                        len(qualified_column_references) > 1
+                        and all(
+                            col_ref.raw_upper.startswith(
+                                tuple(
+                                    f"{table_ref}."
+                                    for table_ref in encountered_references
+                                )
                             )
+                            for col_ref in qualified_column_references
                         )
-                        for col_ref in qualified_column_references
+                        # A condition that doesn't reference this join's own
+                        # table belongs to an earlier join, and moving it here
+                        # would change the query's semantics.
+                        and any(
+                            col_ref.raw_upper.startswith(f"{this_join_reference}.")
+                            for col_ref in qualified_column_references
+                        )
                     ):
                         this_join_clause_subexpressions.add(subexpr_idx)
                         consumed_subexpressions.add(subexpr_idx)
@@ -247,15 +287,16 @@ class Rule_CV12(BaseRule):
                 ],
             )
         else:
-            assert select_statement.segments[-1].is_type("where_clause")
-            assert select_statement.segments[-2].is_type("whitespace", "newline")
-            yield LintResult(
-                anchor=where_clause,
-                fixes=[
-                    LintFix.delete(select_statement.segments[-2]),
-                    LintFix.delete(select_statement.segments[-1]),
-                ],
-            )
+            # The where clause is not always the last child of the select
+            # statement. A clause such as GROUP BY, ORDER BY or LIMIT can
+            # follow it, so locate it rather than assume its position.
+            where_idx = select_statement.segments.index(where_clause)
+            fixes = [LintFix.delete(where_clause)]
+            if where_idx and select_statement.segments[where_idx - 1].is_type(
+                "whitespace", "newline"
+            ):
+                fixes.append(LintFix.delete(select_statement.segments[where_idx - 1]))
+            yield LintResult(anchor=where_clause, fixes=fixes)
 
     @staticmethod
     def _get_from_expression_element_alias(from_expr_element: BaseSegment) -> str:

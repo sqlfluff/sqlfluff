@@ -84,13 +84,13 @@ class RawSegment(BaseSegment):
 
         # pos marker is required here. We ignore the typing initially
         # because it might *initially* be unset, but it will be reset
-        # later. NOTE: Assigned normally (not via the __dict__ bypass below)
-        # because this annotated assignment is what tells mypy that, for a
-        # RawSegment specifically, pos_marker is non-Optional - several call
-        # sites downstream rely on that narrowing.
-        self.pos_marker: PositionMarker = pos_marker  # type: ignore
-
+        # later. NOTE: The annotated declaration below tells mypy that,
+        # for a RawSegment specifically, pos_marker is non-Optional.
+        # The actual assignment goes through __dict__ (not __setattr__)
+        # to avoid a wasted _recalculate_caches() call on construction.
+        self.pos_marker: PositionMarker
         d = self.__dict__
+        d["pos_marker"] = pos_marker
         d["_raw"] = _raw
         d["_raw_upper"] = _raw.upper()
         # Set the segments attribute to be an empty tuple.
@@ -123,6 +123,8 @@ class RawSegment(BaseSegment):
 
     def __setattr__(self, key: str, value: Any) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
+        if key == "pos_marker":
+            self._recalculate_caches()
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
@@ -350,12 +352,18 @@ class RawSegment(BaseSegment):
         # Build instance_types from token
         instance_types = tuple(token.instance_types)
 
+        # NOTE: The pyo3 getters return lists (Vec<String>), but the Python
+        # lexer configures these kwargs as tuples and downstream code (and
+        # byte-level parity with Python-lexed segments) expects tuples.
+        trim_start = tuple(token.trim_start) if token.trim_start else None
+        trim_chars = tuple(token.trim_chars) if token.trim_chars else None
+
         segment = cls(
             raw=token.raw,
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
             instance_types=instance_types,
-            trim_start=token.trim_start,
-            trim_chars=token.trim_chars,
+            trim_start=trim_start,
+            trim_chars=trim_chars,
             source_fixes=token.source_fixes,
             uuid=token.uuid,
             quoted_value=token.quoted_value,

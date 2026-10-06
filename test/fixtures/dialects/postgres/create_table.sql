@@ -370,3 +370,24 @@ CREATE TABLE myschema.user (
 CREATE TABLE my_table (
   interval  bigint
 );
+
+-- PostgreSQL 18: virtual generated columns (GENERATED ALWAYS AS (...) VIRTUAL)
+CREATE TABLE virtual_generated (
+    id bigint PRIMARY KEY,
+    is_small boolean GENERATED ALWAYS AS (id < 10) VIRTUAL,
+    full_name text GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL
+);
+
+-- STORED form (pre-18, still valid)
+CREATE TABLE stored_generated (
+    id bigint PRIMARY KEY,
+    sum_col integer GENERATED ALWAYS AS (a + b) STORED
+);
+
+-- GENERATED ALWAYS AS (...) with no STORED/VIRTUAL keyword
+-- (optional in the grammar, though Postgres currently requires one at runtime;
+-- the dialect accepts the bare form for parser completeness)
+CREATE TABLE bare_generated (
+    id bigint PRIMARY KEY,
+    flag boolean GENERATED ALWAYS AS (id > 0)
+);

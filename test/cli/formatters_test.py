@@ -8,7 +8,7 @@ import pytest
 
 from sqlfluff.cli.commands import fix
 from sqlfluff.cli.formatters import OutputStreamFormatter
-from sqlfluff.cli.outputstream import FileOutput
+from sqlfluff.cli.outputstream import FileOutput, OutputKind, OutputPolicy
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.parser import RawSegment
@@ -16,6 +16,29 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import RuleGhost
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.types import Color
+
+
+@pytest.mark.parametrize(
+    ("policy", "kind", "minimum_verbosity", "expected"),
+    [
+        (OutputPolicy(), OutputKind.STATUS, 0, True),
+        (OutputPolicy(quiet=True), OutputKind.PAYLOAD, 0, True),
+        (OutputPolicy(quiet=True), OutputKind.DIAGNOSTIC, 0, True),
+        (OutputPolicy(quiet=True), OutputKind.ACTION, 0, True),
+        (OutputPolicy(quiet=True), OutputKind.STATUS, 0, False),
+        (OutputPolicy(quiet=True), OutputKind.PROGRESS, 0, False),
+        (OutputPolicy(), OutputKind.VERBOSE, 1, False),
+        (OutputPolicy(verbosity=1), OutputKind.VERBOSE, 1, True),
+        (OutputPolicy(verbosity=1), OutputKind.VERBOSE, 2, False),
+        (OutputPolicy(verbosity=2), OutputKind.VERBOSE, 2, True),
+        (OutputPolicy(verbosity=2, quiet=True), OutputKind.VERBOSE, 1, False),
+        (OutputPolicy(machine_output=True), OutputKind.PAYLOAD, 0, True),
+        (OutputPolicy(machine_output=True), OutputKind.DIAGNOSTIC, 0, False),
+    ],
+)
+def test__cli__output_policy(policy, kind, minimum_verbosity, expected):
+    """Output policy should filter semantic categories independently."""
+    assert policy.allows(kind, minimum_verbosity=minimum_verbosity) is expected
 
 
 def escape_ansi(line):
@@ -27,7 +50,9 @@ def escape_ansi(line):
 def test__cli__formatters__filename_nocol(tmpdir):
     """Test formatting filenames."""
     formatter = OutputStreamFormatter(
-        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
+        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")),
+        False,
+        OutputPolicy(),
     )
     res = formatter.format_filename("blahblah", success=True)
     assert escape_ansi(res) == "== [blahblah] PASS"
@@ -49,7 +74,9 @@ def test__cli__formatters__violation(tmpdir):
     r = RuleGhost("A", "some-name", "DESC")
     v = SQLLintError(description=r.description, segment=s, rule=r)
     formatter = OutputStreamFormatter(
-        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
+        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")),
+        False,
+        OutputPolicy(),
     )
     f = formatter.format_violation(v)
     # Position is 3, 3 because foobarbar is on the third
@@ -63,7 +90,9 @@ def test__cli__formatters__violation(tmpdir):
 def test__cli__helpers__colorize(tmpdir):
     """Test ANSI colouring."""
     formatter = OutputStreamFormatter(
-        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
+        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")),
+        False,
+        OutputPolicy(),
     )
     # Force color output for this test.
     formatter.plain_output = False
@@ -101,7 +130,9 @@ def test__cli__helpers__cli_table(tmpdir):
     """Test making tables."""
     vals = [("a", 3), ("b", "c"), ("d", 4.7654), ("e", 9)]
     formatter = OutputStreamFormatter(
-        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
+        FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")),
+        False,
+        OutputPolicy(),
     )
     txt = formatter.cli_table(vals, col_width=7, divider_char="|", label_color=None)
     # NB: No trailing newline

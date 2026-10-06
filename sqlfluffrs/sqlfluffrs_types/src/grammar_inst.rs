@@ -374,7 +374,11 @@ impl fmt::Display for GrammarInst {
 /// Newtype wrapper for grammar instruction IDs
 ///
 /// Provides type safety when indexing into GRAMMAR_TABLE.
+/// `repr(transparent)` guarantees identical layout to `u32`, which
+/// `GrammarContext::children_ids_slice` relies on for its `&[u32]` ->
+/// `&[GrammarId]` cast.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(transparent)]
 pub struct GrammarId(pub u32);
 
 impl GrammarId {

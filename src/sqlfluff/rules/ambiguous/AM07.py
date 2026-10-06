@@ -33,7 +33,7 @@ class Rule_AM07(BaseRule):
     **Best practice**
 
     Always specify columns when writing set queries
-    and ensure that they all seleect same number of columns
+    and ensure that they all select same number of columns
 
     .. code-block:: sql
 

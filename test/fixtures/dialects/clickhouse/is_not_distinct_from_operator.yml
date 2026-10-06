@@ -1,0 +1,185 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a2352de7a65d58fd91768cc8002d24600953c4c1a91e04e94b5a033d86fe63f5
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: <
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f2
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f3
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f4
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: ==
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f5
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f6
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '>'
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f7
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: <=>
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f8
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - keyword: NOT
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: <=>
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: f9
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - keyword: IS
+          - keyword: DISTINCT
+          - keyword: FROM
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: f10
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - keyword: IS
+          - keyword: NOT
+          - keyword: DISTINCT
+          - keyword: FROM
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: f11
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: a
+                  - comma: ','
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: b
+                end_bracket: )
+  statement_terminator: ;

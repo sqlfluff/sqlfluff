@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::{PyDict, PyList, PyTuple};
 
 use crate::parser::MetaSegment;
 
@@ -9,6 +9,7 @@ use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
 use super::{Node, ParseError, Parser};
 use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_python::pyo3_helpers::{pylist_of_str_pairs, pylist_of_strs, pytuple_of_strs};
 use sqlfluffrs_python::token::PyToken;
 use sqlfluffrs_types::Token;
 use std::str::FromStr;
@@ -99,25 +100,25 @@ impl PyNode {
     }
 
     /// Get instance_types (for Raw nodes)
-    fn instance_types(&self) -> Option<Vec<String>> {
+    fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         match &self.0 {
-            Node::Raw { instance_types, .. } => Some(instance_types.clone()),
-            _ => None,
+            Node::Raw { instance_types, .. } => Ok(Some(pylist_of_strs(py, instance_types)?)),
+            _ => Ok(None),
         }
     }
 
     /// Get class_types — mirrors Python's class_types property.
-    fn class_types(&self) -> Option<Vec<String>> {
+    fn class_types<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         match &self.0 {
-            Node::Raw { class_types, .. } => Some(class_types.clone()),
+            Node::Raw { class_types, .. } => Ok(Some(pylist_of_strs(py, class_types)?)),
             Node::Segment { class_types, .. } => {
                 if class_types.is_empty() {
-                    None
+                    Ok(None)
                 } else {
-                    Some(class_types.clone())
+                    Ok(Some(pylist_of_strs(py, class_types)?))
                 }
             }
-            _ => None,
+            _ => Ok(None),
         }
     }
 
@@ -288,20 +289,24 @@ impl PyMatchResult {
 
     /// Get instance_types (semantic type markers like "keyword", "star")
     #[getter]
-    fn instance_types(&self) -> Option<Vec<String>> {
+    fn instance_types<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         self.0
             .matched_class
             .as_ref()
-            .and_then(|s| s.segment_kwargs.instance_types.clone())
+            .and_then(|s| s.segment_kwargs.instance_types.as_ref())
+            .map(|v| pylist_of_strs(py, v))
+            .transpose()
     }
 
     /// Get trim_chars for the segment
     #[getter]
-    fn trim_chars(&self) -> Option<Vec<String>> {
+    fn trim_chars<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
         self.0
             .matched_class
             .as_ref()
-            .and_then(|s| s.segment_kwargs.trim_chars.clone())
+            .and_then(|s| s.segment_kwargs.trim_chars.as_ref())
+            .map(|v| pytuple_of_strs(py, v))
+            .transpose()
     }
 
     /// Get casefold mode (for case-insensitive matching)
@@ -341,13 +346,15 @@ impl PyMatchResult {
             })
     }
 
-    /// Get escape_replacement for escape sequence handling
+    /// Get escape_replacements for escape sequence handling
     #[getter]
-    fn escape_replacement(&self) -> Option<(String, String)> {
+    fn escape_replacements<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyList>>> {
         self.0
             .matched_class
             .as_ref()
-            .and_then(|s| s.segment_kwargs.escape_replacement.clone())
+            .and_then(|s| s.segment_kwargs.escape_replacements.as_deref())
+            .map(|pairs| pylist_of_str_pairs(py, pairs))
+            .transpose()
     }
 
     /// Get insert_segments (meta segments like Indent/Dedent to insert)
@@ -514,7 +521,9 @@ impl PyParser {
         // Compute bracket pairs for the tokens.
         // When tokens come from Python (lexed by Python lexer), matching_bracket_idx is None.
         // We need to compute it for the Bracketed grammar to work correctly.
-        compute_bracket_pairs(&mut rust_tokens);
+        self.dialect
+            .get_bracket_pairs()
+            .compute_matching_indices(&mut rust_tokens);
 
         // Create parser
         let mut parser = Parser::new_with_max_parse_depth(
@@ -555,7 +564,9 @@ impl PyParser {
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Compute bracket pairs for the tokens.
-        compute_bracket_pairs(&mut rust_tokens);
+        self.dialect
+            .get_bracket_pairs()
+            .compute_matching_indices(&mut rust_tokens);
 
         // Create parser
         let mut parser = Parser::new_with_max_parse_depth(
@@ -601,7 +612,9 @@ impl PyParser {
         let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Compute bracket pairs for the tokens.
-        compute_bracket_pairs(&mut rust_tokens);
+        self.dialect
+            .get_bracket_pairs()
+            .compute_matching_indices(&mut rust_tokens);
 
         // Create parser with grammar counting enabled
         let mut parser = Parser::new_with_max_parse_depth(
@@ -637,68 +650,4 @@ impl PyParser {
 
         Ok((PyMatchResult(match_result), grammar_counts))
     }
-}
-
-/// Compute matching bracket indices for all bracket tokens.
-///
-/// This function sets `matching_bracket_idx` on each opening and closing bracket
-/// to point to its matching counterpart. This is used by the parser's
-/// `find_matching_bracket` function for O(1) bracket pair lookup.
-///
-/// This is necessary when tokens come from Python (via PyToken -> Token conversion)
-/// because the Python lexer doesn't compute these indices.
-fn compute_bracket_pairs(tokens: &mut [Token]) {
-    // Stack to track opening brackets: (index, bracket_char)
-    let mut bracket_stack: Vec<(usize, char)> = Vec::new();
-
-    for idx in 0..tokens.len() {
-        // Only code tokens can be brackets. Skipping non-code tokens (notably
-        // comments) prevents bracket characters inside a block/inline comment -
-        // e.g. `min(` / `)` - from being paired with real brackets in the SQL.
-        if !tokens[idx].is_code() {
-            continue;
-        }
-
-        let raw = tokens[idx].raw();
-
-        // Check if this is an opening bracket
-        if let Some(open_char) = match raw {
-            "(" => Some('('),
-            "[" => Some('['),
-            "{" => Some('{'),
-            _ => None,
-        } {
-            bracket_stack.push((idx, open_char));
-        }
-        // Check if this is a closing bracket
-        else if let Some(expected_open) = match raw {
-            ")" => Some('('),
-            "]" => Some('['),
-            "}" => Some('{'),
-            _ => None,
-        } {
-            // Only the most-recently-opened bracket (the top of the stack) may
-            // be closed next, per LIFO nesting discipline. See the sibling
-            // implementation in sqlfluffrs_lexer/src/lexer.rs::compute_bracket_pairs
-            // for the full rationale (Python parity with resolve_bracket in
-            // match_algorithms.py).
-            if let Some(&(open_idx, top_char)) = bracket_stack.last() {
-                if top_char == expected_open {
-                    bracket_stack.pop();
-                    // Set bidirectional pointers
-                    tokens[open_idx].matching_bracket_idx = Some(idx);
-                    tokens[idx].matching_bracket_idx = Some(open_idx);
-                } else {
-                    // A type mismatch is what Python's resolve_bracket raises
-                    // on, unwinding through every enclosing bracket's own
-                    // call. Clear the whole stack to match that: every
-                    // bracket still open at this point stays unresolved, so
-                    // none of them can later pair with a closer that follows.
-                    bracket_stack.clear();
-                }
-            }
-            // If the stack is empty, there's no open bracket at all - leave as None.
-        }
-    }
-    // Any remaining opening brackets on the stack are unmatched - leave as None
 }

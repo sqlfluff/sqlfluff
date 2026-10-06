@@ -369,7 +369,41 @@ mysql_dialect.add(
         "DUAL", IdentifierSegment, type="naked_identifier"
     ),
     CharsetGrammar=OneOf(Sequence("CHARACTER", "SET"), "CHARSET"),
+    # A character set *name* (e.g. ``ascii``, ``utf8mb4``, ``latin1``).
+    # Matched as its own ``character_set`` type rather than a ``naked_identifier``
+    # so that rule RF04 (keywords used as identifiers) does not flag charset names
+    # that happen to be unreserved keywords -- ``ascii`` being the common case.
+    # Reserved keywords are excluded here (so ``CHARACTER SET DEFAULT`` still
+    # parses ``DEFAULT`` as a keyword); the one reserved keyword that is a valid
+    # charset name, ``BINARY``, is offered explicitly at each usage site.
+    CharacterSetSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            CodeSegment,
+            type="character_set",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
+        )
+    ),
 )
+
+
+class CollationReferenceSegment(ansi.CollationReferenceSegment):
+    """A reference to a collation.
+
+    MySQL and MariaDB accept the reserved keyword ``BINARY`` as a collation name
+    (the ``binary`` collation), which the ANSI identifier-only grammar rejects.
+    Offering it as a keyword (rather than a naked identifier) also keeps rule RF04
+    from flagging it. Other collation names are never keywords, so they keep the
+    inherited identifier grammar.
+    """
+
+    type = "collation_reference"
+    match_grammar: Matchable = OneOf(
+        Ref.keyword("BINARY"),
+        ansi.CollationReferenceSegment.match_grammar,
+    )
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
@@ -559,6 +593,10 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("JsonValueFunctionNameSegment"),
                 Ref("JsonValueFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("ConvertFunctionNameSegment"),
+                Ref("ConvertFunctionContentsSegment"),
             ),
         ],
         at=0,
@@ -1180,6 +1218,11 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
         Sequence(
             Ref("CharsetGrammar"),
             OneOf(
+                # Bare charset name -> ``character_set`` (kept ahead of the
+                # identifier grammar so unquoted names win this type); the
+                # identifier grammar still covers back-tick-quoted names.
+                Ref("CharacterSetSegment"),
+                "BINARY",
                 Ref("SingleIdentifierGrammar"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedIdentifierSegment"),
@@ -1416,6 +1459,16 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    # The id argument of KILL.  A general ExpressionSegment would also accept
+    # `KILL HARD 5` as a typed literal, silently mis-parsing an unsupported form,
+    # so only the shapes a connection or query id takes are allowed.
+    KillIdGrammar=OneOf(
+        Ref("FunctionSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("SessionVariableNameSegment"),
+        Ref("LocalVariableNameSegment"),
+        Bracketed(Ref("ExpressionSegment")),
+    ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableAssignmentSegment=Sequence(
         Ref("SessionVariableNameSegment"),
@@ -1547,7 +1600,8 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
             ),
             allow_gaps=True,
         ),
-        "CURRENT_USER",
+        # CURRENT_USER and CURRENT_USER() both name the current account.
+        Sequence("CURRENT_USER", Bracketed(optional=True)),
     )
 
 
@@ -1651,15 +1705,11 @@ class DeclareStatement(BaseSegment):
         ),
         Sequence(
             "DECLARE",
-            Ref("LocalVariableNameSegment"),
+            Delimited(Ref("LocalVariableNameSegment")),
             Ref("DatatypeSegment"),
             Sequence(
                 Ref.keyword("DEFAULT"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("FunctionSegment"),
-                ),
+                Ref("ExpressionSegment"),
                 optional=True,
             ),
         ),
@@ -1682,6 +1732,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RepeatStatementSegment"),
             Ref("LoopStatementSegment"),
             Ref("CallStoredProcedureSegment"),
+            Ref("DoStatementSegment"),
             Ref("PrepareSegment"),
             Ref("ExecuteSegment"),
             Ref("DeallocateSegment"),
@@ -1705,6 +1756,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
             Ref("AlterDatabaseStatementSegment"),
@@ -1836,7 +1888,8 @@ class TableOptionsSegment(BaseSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("NakedIdentifierSegment"),
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     "DEFAULT",
                 ),
             ),
@@ -2399,6 +2452,27 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
+class IfStatementListSegment(BaseSegment):
+    """Statements within an IF...END IF statement."""
+
+    type = "if_statement_list"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            Ref(
+                "StatementSegment",
+                exclude=OneOf(
+                    "ELSEIF",
+                    "ELSE",
+                    Sequence("END", "IF"),
+                ),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+        min_times=1,
+    )
+
+
 class IfExpressionStatement(BaseSegment):
     """IF-THEN-ELSE-ELSEIF-END IF statement.
 
@@ -2407,21 +2481,32 @@ class IfExpressionStatement(BaseSegment):
 
     type = "if_then_statement"
 
-    match_grammar = AnyNumberOf(
-        Sequence(
-            "IF",
-            Ref("ExpressionSegment"),
-            "THEN",
-            Ref("StatementSegment"),
+    match_grammar = Sequence(
+        "IF",
+        Ref("ExpressionSegment"),
+        "THEN",
+        Indent,
+        Ref("IfStatementListSegment"),
+        Dedent,
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Indent,
+                Ref("IfStatementListSegment"),
+                Dedent,
+            ),
         ),
         Sequence(
-            "ELSEIF",
-            Ref("ExpressionSegment"),
-            "THEN",
-            Ref("StatementSegment"),
+            "ELSE",
+            Indent,
+            Ref("IfStatementListSegment"),
+            Dedent,
+            optional=True,
         ),
-        Sequence("ELSE", Ref("StatementSegment"), optional=True),
-        Sequence("END", "IF"),
+        "END",
+        "IF",
     )
 
 
@@ -2637,7 +2722,24 @@ class CallStoredProcedureSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CALL",
-        Ref("FunctionSegment"),
+        OneOf(
+            Ref("FunctionSegment"),
+            Ref("FunctionNameSegment"),
+        ),
+    )
+
+
+class DoStatementSegment(BaseSegment):
+    """A DO statement, which evaluates expressions and discards the results.
+
+    https://dev.mysql.com/doc/refman/8.0/en/do.html
+    """
+
+    type = "do_statement"
+
+    match_grammar = Sequence(
+        "DO",
+        Delimited(Ref("ExpressionSegment")),
     )
 
 
@@ -3019,6 +3121,37 @@ class JsonValueFunctionContentsSegment(BaseSegment):
     )
 
 
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CONVERT", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """CONVERT function contents.
+
+    CONVERT(expr, type)
+    CONVERT(expr USING transcoding_name)
+
+    https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_convert
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("DatatypeSegment")),
+            Sequence("USING", OneOf("BINARY", Ref("NakedIdentifierSegment"))),
+        ),
+    )
+
+
 class DropProcedureStatementSegment(BaseSegment):
     """A `DROP` statement that addresses stored procedures and functions.
 
@@ -3346,6 +3479,20 @@ class FlushStatementSegment(BaseSegment):
     )
 
 
+class KillStatementSegment(BaseSegment):
+    """A `KILL` statement, ending a connection or the statement it is running.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/kill.html
+    """
+
+    type = "kill_statement"
+    match_grammar: Matchable = Sequence(
+        "KILL",
+        OneOf("CONNECTION", "QUERY", optional=True),
+        Ref("KillIdGrammar"),
+    )
+
+
 class LoadDataSegment(BaseSegment):
     """A `LOAD DATA` statement.
 
@@ -3510,7 +3657,12 @@ class CreateOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "COLLATE",
@@ -3555,6 +3707,8 @@ class AlterOptionSegment(BaseSegment):
                 Ref("CharsetGrammar"),
                 Ref("EqualsSegment", optional=True),
                 OneOf(
+                    Ref("CharacterSetSegment"),
+                    "BINARY",
                     Ref("SingleIdentifierGrammar"),
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("DoubleQuotedIdentifierSegment"),

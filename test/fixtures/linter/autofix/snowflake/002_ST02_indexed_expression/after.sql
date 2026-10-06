@@ -1,0 +1,1 @@
+SELECT genres[0];

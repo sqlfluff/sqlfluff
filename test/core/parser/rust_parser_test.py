@@ -443,6 +443,106 @@ def test__rust_parser__rs_node_class_types_match_python():
     assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_token_getters_return_expected_container_types():
+    """RsToken collection getters return the expected Python container types.
+
+    Pins the container types (`tuple`/`frozenset`/`list`) that PR #8247's
+    direct-to-Python-object builders produce, so a future change to
+    `pyo3_helpers` can't silently swap e.g. `trim_chars` back to a `list`
+    or `class_types` back to a plain `set`.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "mysql"})
+    segments, _ = Lexer(config=config).lex("SET @errmsg = 'it''s';")
+    tokens = {
+        s.raw: s._rstoken for s in segments if getattr(s, "_rstoken", None) is not None
+    }
+
+    at_sign_token = tokens["@errmsg"]
+    assert isinstance(at_sign_token.trim_chars, tuple)
+    assert at_sign_token.trim_chars == ("@",)
+    assert isinstance(at_sign_token.class_types, frozenset)
+    assert isinstance(at_sign_token.instance_types, list)
+
+    quoted_token = tokens["'it''s'"]
+    assert isinstance(quoted_token.escape_replacements, list)
+    assert quoted_token.escape_replacements
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_handle_getters_return_expected_container_types():
+    """RsHandle collection getters return the expected Python container types.
+
+    Covers `descendant_type_set` and `class_types`, both cached behind an `Arc`,
+    and two `RsHandle` getters which now use the shared helpers.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    segments, _ = Lexer(config=config).lex("SELECT a FROM my_table\n")
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+
+    root = tree._rs_tree.root
+    assert isinstance(root.descendant_type_set(), list)
+    assert isinstance(root.class_types(), list)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_match_result_getters_return_expected_container_types():
+    """RsMatchResult collection getters return the expected container types.
+
+    Companion to the two checks above: covers `instance_types`, `trim_chars`,
+    and `escape_replacements` on the raw `RsMatchResult` returned by
+    `RsParser.parse_match_result_from_tokens`, before it's ever turned into a
+    tree. BigQuery's single-quoted literal grammar sets all three via
+    grammar-configured kwargs (as opposed to lexer-level kwargs, which are
+    deliberately not carried onto a fresh parser match), giving a real case
+    for each getter in one parse.
+
+    Note: `RsNode` (`PyNode` in Rust) has no corresponding check — no
+    `#[pymethod]` anywhere in the Rust workspace ever constructs and returns
+    one to Python, so it cannot be reached or tested from here.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "bigquery"})
+    segments, _ = Lexer(config=config).lex("SELECT 'abc'")
+    tokens = [
+        s._rstoken
+        for s in segments
+        if getattr(s, "_rstoken", None) is not None and s.is_code
+    ]
+
+    rs_match = RsParser(
+        dialect="bigquery", indent_config={}
+    ).parse_match_result_from_tokens(tokens)
+
+    def flatten(match):
+        yield match
+        for child in match.child_matches:
+            yield from flatten(child)
+
+    keyword_match = next(
+        m for m in flatten(rs_match) if m.matched_class == "KeywordSegment"
+    )
+    assert isinstance(keyword_match.instance_types, list)
+    assert "keyword" in keyword_match.instance_types
+
+    literal_match = next(
+        m for m in flatten(rs_match) if m.matched_class == "LiteralSegment"
+    )
+    assert isinstance(literal_match.instance_types, list)
+    assert isinstance(literal_match.trim_chars, tuple)
+    assert literal_match.trim_chars == ("'",)
+    assert isinstance(literal_match.escape_replacements, list)
+    assert literal_match.escape_replacements
+
+
 # ---------------------------------------------------------------------------
 # Per-stage profiling
 # ---------------------------------------------------------------------------
@@ -529,115 +629,38 @@ def test__rust_parser__profiling_accumulates_and_resets():
 # Native (fused) AST builder parity
 # ---------------------------------------------------------------------------
 
-# All dialect fixtures, parametrized as (dialect, sqlfile). Parity must hold for
-# every dialect since the flag affects all of them; covering the whole corpus
-# also exercises the fused builder's rarer branches (e.g. zero-length matches).
+# The whole-corpus three-way sweep (Python vs RustParser legacy vs fused
+# native-AST) now lives in test/core/parser/parity/corpus_test.py, which
+# captures at strictly higher strictness (position markers, stringify,
+# class_types, normalization kwargs) than a to_tuple-only comparison here
+# would - so it is not duplicated in this module.
 _FIXTURE_DIR = Path(__file__).resolve().parents[3] / "test" / "fixtures" / "dialects"
-_FIXTURE_SQL = sorted(_FIXTURE_DIR.glob("*/*.sql"))
-
-# Fixtures with a *known*, already-documented Python-vs-RustParser divergence
-# (see the dedicated regression tests in this file). Three-way parity below
-# is expected to fail on exactly these until those bugs are fixed; everywhere
-# else in the corpus, all three tree-building paths must agree. Currently
-# empty: the pivot/unpivot divergences are fixed by this branch and the
-# snowflake/tsql ones were fixed on main.
-_KNOWN_PYTHON_RUST_DIVERGENCES: set = set()
-
-
-def _fixture_param(sqlfile: Path):
-    key = (sqlfile.parent.name, sqlfile.name)
-    if key in _KNOWN_PYTHON_RUST_DIVERGENCES:
-        return pytest.param(
-            sqlfile,
-            marks=pytest.mark.xfail(
-                strict=True,
-                reason=(
-                    "Known Python-vs-RustParser divergence on this fixture; "
-                    "see the dedicated test__rust_parser__vs_python_* "
-                    "regression for this file elsewhere in this module."
-                ),
-            ),
-        )
-    return pytest.param(sqlfile)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.parametrize(
-    "sqlfile",
-    [_fixture_param(p) for p in _FIXTURE_SQL],
-    ids=[str(p.relative_to(_FIXTURE_DIR)) for p in _FIXTURE_SQL],
-)
-def test__rust_parser__native_ast_parity(sqlfile):
-    """All three tree-building paths must agree: Python, RustParser, fused.
-
-    For every dialect fixture, parse the same lexer output three ways - the
-    pure-Python Parser, RustParser's legacy convert+apply path, and
-    RustParser's fused native-AST builder - and assert the resulting
-    BaseSegment trees (or raised exceptions) are all identical. Fixtures with
-    an already-documented Python-vs-RustParser divergence are marked xfail
-    (see _KNOWN_PYTHON_RUST_DIVERGENCES); every other fixture must agree
-    across all three paths.
-    """
-    from sqlfluff.core import FluffConfig
-    from sqlfluff.core.parser import Lexer, Parser
-    from sqlfluff.core.parser.rust_parser import set_native_ast
-
-    config = FluffConfig(overrides={"dialect": sqlfile.parent.name})
-    segments, _ = Lexer(config=config).lex(sqlfile.read_text(encoding="utf-8"))
-
-    def result_for(tree):
-        return (
-            "tree",
-            tree.to_tuple(code_only=False, show_raw=True, include_meta=True)
-            if tree
-            else None,
-        )
-
-    def build_rust(native: bool):
-        set_native_ast(native)
-        try:
-            tree = RustParser(config=config).parse(segments, fname=str(sqlfile))
-            return result_for(tree)
-        except BaseException as err:  # PanicException is a BaseException
-            return ("exc", type(err).__name__)
-        finally:
-            set_native_ast(False)
-
-    def build_python():
-        try:
-            tree = Parser(config=config).parse(segments, fname=str(sqlfile))
-            return result_for(tree)
-        except BaseException as err:
-            return ("exc", type(err).__name__)
-
-    python_result = build_python()
-    rust_default = build_rust(native=False)
-    rust_native = build_rust(native=True)
-
-    assert rust_native == rust_default, "native-AST path diverges from convert+apply"
-    assert python_result == rust_default, "RustParser diverges from Python Parser"
-
-
-@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: _convert_rs_match_result (the native_ast=False tree "
-        "builder) recurses through an extra generator-expression stack frame "
-        "per nesting level that _apply_rs_match_result (the fused "
-        "native_ast=True builder) doesn't have, so the legacy path blows the "
-        "Python call stack roughly twice as early as the fused path for the "
-        "same deeply-nested input. Only reachable when max_parse_depth is "
-        "raised above its default (600): at the default, the depth guard "
-        "fires first on both paths identically, masking the divergence."
-    ),
-)
 def test__rust_parser__native_ast_recursion_depth_asymmetry():
-    """native_ast=True tolerates deeper bracket nesting than native_ast=False.
+    """native_ast=True and native_ast=False now tolerate the same bracket nesting depth.
 
-    Minimal repro for a real (if narrow) correctness divergence: with the
-    depth guard raised out of the way, the two AST-building paths do not
-    fail at the same input size for identical SQL and identical config.
+    _convert_rs_match_result (native_ast=False) and _apply_rs_match_result
+    (native_ast=True) should fail at the same input size for identical SQL
+    and config, since they should cost the same number of Python stack
+    frames per nesting level. With max_parse_depth raised well above its
+    default (600) so the depth guard doesn't mask the difference first,
+    this checks the two paths stay in parity.
+
+    NOTE: at this depth (70) both paths simply succeed - the interesting
+    parity holds deeper too, confirmed manually: from ~140 bracket levels
+    both raise a clean RecursionError (Python's own recursion-limit check,
+    inside _apply_rs_match_result/_convert_rs_match_result), and from ~400
+    both raise SQLParseError (the Rust matcher's own counted max_parse_depth
+    check). There is also a narrow band (~120-140 bracket levels, with
+    max_parse_depth raised this high) where the shared Rust grammar matcher
+    overflows its native call stack and hard-crashes the process for both
+    settings alike - unprotected by either language's recursion guard. That
+    band isn't asserted here since its exact location is native-stack-size
+    dependent (platform/OS/Rust build), not a stable cross-platform value;
+    under the shipped default max_parse_depth (600) it's unreachable, since
+    the counted guard trips at a much shallower physical depth first.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
@@ -755,32 +778,18 @@ def test__rust_parser__vs_python_stray_closing_bracket_terminator():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Known gap: greedy_match's stray-closing-bracket check "
-        "(sqlfluffrs_parser/src/parser/table_driven/match_algorithms.rs) "
-        "recognises brackets by a hardcoded raw-text match on '(', '[', "
-        "'{' and ')', ']', '}'. Python's equivalent, next_ex_bracket_match "
-        "(src/sqlfluff/core/parser/match_algorithms.py:469-529), instead "
-        "looks up the active dialect's bracket_pairs set, so it also "
-        "recognises dialect-specific bracket tokens such as Snowflake's "
-        "MATCH_RECOGNIZE exclude brackets '{-'/'-}' "
-        "(dialect_snowflake.py:128-130). On a stray '-}', Python aborts the "
-        "terminator search and claims the rest as unparsable, while Rust's "
-        "hardcoded check doesn't recognise '-}' as a bracket at all and "
-        "keeps scanning, finding the following FROM as a normal terminator. "
-        "Fixing it means threading the dialect's bracket set through "
-        "greedy_match instead of hardcoding ASCII brackets."
-    ),
-)
 def test__rust_parser__vs_python_stray_closing_bracket_hardcoded_set():
-    """RustParser's greedy_match only recognises a hardcoded ASCII bracket set.
+    """greedy_match recognises a dialect's full bracket_pairs set, not just ASCII.
 
     Snowflake's MATCH_RECOGNIZE exclude brackets ('{-'/'-}') are part of the
-    dialect's bracket_pairs set, so Python treats a stray '-}' the same way
-    as a stray ')'. RustParser's hardcoded check doesn't recognise '-}' as a
-    bracket, so it keeps scanning past it instead of aborting.
+    dialect's bracket_pairs set, so Python treats a stray '-}' the same way as
+    a stray ')'. greedy_match now threads the active dialect's bracket set
+    (Dialect::get_bracket_pairs) through its stray-closing-bracket check
+    instead of hardcoding '(', '[', '{' / ')', ']', '}', so RustParser aborts
+    the terminator search on a stray '-}' exactly like Python's
+    next_ex_bracket_match rather than scanning past it to the following FROM.
+    (The equivalent SQL is also pinned in
+    test/fixtures/parity/regressions.yml::stray_closing_bracket_dialect_bracket_set.)
     """
     rust_result, python_result = _compare_parser_vs_rust(
         "SELECT 1 -} FROM t", dialect="snowflake"
@@ -1118,31 +1127,29 @@ def test__rust_parser__vs_python_bare_class_ref_preserves_class_types(dialect, s
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Regression: for an unlexable character run, PyLexer's "
-        "violations_from_segments (src/sqlfluff/core/parser/lexer.py:"
-        "838-847) builds the SQLLexError description via "
-        "'Unable to lex characters: {!r}'.format(...) - repr()-quoting and "
-        "escaping the raw text, and truncating to 9 characters plus a "
-        "literal '...' marker when longer. The Rust lexer's equivalent "
-        "(sqlfluffrs_lexer/src/lexer.rs:420-439, violations_from_tokens) "
-        'instead does format!("Unable to lex characters: {}", '
-        "token.raw().chars().take(10).collect::<String>()) - embedding the "
-        "raw characters directly with no quoting/escaping, no truncation "
-        "marker, and a 10- vs 9-character cutoff. SQLLexError.from_rs_error "
-        "(src/sqlfluff/core/errors.py:190-200) passes the Rust description "
-        "through verbatim, so real lint/parse output can contain literal "
-        "unescaped control bytes or unicode where the Python lexer would "
-        "have produced a safely quoted repr()-style string."
-    ),
-)
 def test__rust_parser__vs_python_lexer_unlexable_error_message():
-    """PyRsLexer's SQLLexError text differs from PyLexer's for unlexable input.
+    """PyRsLexer's SQLLexError text now matches PyLexer's for unlexable input.
 
-    Uses a non-ASCII character that neither lexer can tokenize, forcing the
-    <unlexable> fallback path on both sides.
+    Regression test: for an unlexable character run, PyLexer's
+    violations_from_segments (src/sqlfluff/core/parser/lexer.py:838-847)
+    builds the SQLLexError description via
+    'Unable to lex characters: {!r}'.format(...) - repr()-quoting and
+    escaping the raw text, and truncating to 9 characters plus a literal
+    '...' marker when longer. The Rust lexer's equivalent
+    (sqlfluffrs_lexer/src/lexer.rs, violations_from_tokens) used to embed
+    the raw characters directly with no quoting/escaping, no truncation
+    marker, and a 10- vs 9-character cutoff. SQLLexError.from_rs_error
+    (src/sqlfluff/core/errors.py:190-200) passes the Rust description
+    through verbatim, so real lint/parse output could contain literal
+    unescaped control bytes or unicode where the Python lexer would have
+    produced a safely quoted repr()-style string.
+
+    Fixed by adding python_repr_str/truncate_like_python helpers in
+    lexer.rs that replicate Python's repr()-quoting (quote-character
+    selection, backslash/quote/control-character escaping) and the
+    9-character truncation-plus-"..." cutoff. Uses a non-ASCII character
+    that neither lexer can tokenize, forcing the <unlexable> fallback
+    path on both sides.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser.lexer import PyLexer, PyRsLexer

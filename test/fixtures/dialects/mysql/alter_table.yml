@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: df8a42fc85ecff13b46990c670c67d1e556e4910eca549a220059dad24c33d52
+_hash: d40b6f5b21ea0dd5576b1f74d014a3cdf91c60c0b656e37acba8bd52a49d6c85
 file:
 - statement:
     alter_table_statement:
@@ -782,7 +782,7 @@ file:
     - alter_option_segment:
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - alter_option_segment:
         keyword: COLLATE
         collation_reference:
@@ -1338,7 +1338,7 @@ file:
         naked_identifier: user
     - table_options:
         keyword: CHARSET
-        naked_identifier: utf8mb4
+        character_set: utf8mb4
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1349,7 +1349,7 @@ file:
     - table_options:
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1359,7 +1359,7 @@ file:
         naked_identifier: user
     - table_options:
       - keyword: CHARSET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
       - keyword: COLLATE
       - naked_identifier: utf8mb4_unicode_ci
 - statement_terminator: ;
@@ -1373,7 +1373,7 @@ file:
       - keyword: DEFAULT
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
       - keyword: COLLATE
       - naked_identifier: utf8mb4_general_ci
 - statement_terminator: ;
@@ -1387,7 +1387,7 @@ file:
         keyword: CHARSET
         comparison_operator:
           raw_comparison_operator: '='
-        naked_identifier: utf8mb4
+        character_set: utf8mb4
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1400,7 +1400,7 @@ file:
       - keyword: SET
       - comparison_operator:
           raw_comparison_operator: '='
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1413,7 +1413,7 @@ file:
       - keyword: CHARSET
       - comparison_operator:
           raw_comparison_operator: '='
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
       - keyword: COLLATE
       - comparison_operator:
           raw_comparison_operator: '='
@@ -1431,5 +1431,5 @@ file:
       - keyword: SET
       - comparison_operator:
           raw_comparison_operator: '='
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;

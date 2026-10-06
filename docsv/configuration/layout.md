@@ -244,6 +244,58 @@ When controlling line breaks, we are trying to achieve a few different things:
    less common cases, it may also be desirable for some elements to have both
    a line break *before and after* (e.g. a set operator such as `UNION`).
 
+### Long Lists
+
+When a comma separated list (for example the terms of a `GROUP BY`,
+or the arguments of a function) is too long for one line, *SQLFluff* puts
+each element of the list on its own line. To put as many elements on each
+line as fit within the line length instead, set `list_wrapping` in
+the `sqlfluff:indentation` section of your config file:
+
+```ini
+[sqlfluff:indentation]
+list_wrapping = fill
+```
+
+For example, with a `max_line_length` of 45, the default layout is:
+
+```sql
+SELECT a
+FROM tbl
+GROUP BY
+    long_column_name1,
+    long_column_name2,
+    long_column_name3,
+    long_column_name4
+```
+
+With `list_wrapping = fill`, it becomes:
+
+```sql
+SELECT a
+FROM tbl
+GROUP BY
+    long_column_name1, long_column_name2,
+    long_column_name3, long_column_name4
+```
+
+The configured position of commas (see
+[Configuring layout and spacing](#configuring-layout-and-spacing))
+still applies where a line is broken. Operators such as `AND`
+or `+` are not filled, and still get one line break each.
+The fill only breaks a line that is too long. It does not join
+lines, so it keeps the line breaks that are already in a list.
+[LT05](../reference/rules/layout#lt05) does not break inside a
+template tag. When one tag renders the whole list, the line stays
+too long, with either value of `list_wrapping`.
+
+::: tip NOTE
+When a select clause has more than one target,
+[LT09](../reference/rules/layout#lt09) puts each target on its own line,
+at any line length. It is one of the rules which `sqlfluff format`
+applies. To also fill the select targets, add `LT09` to `exclude_rules`.
+:::
+
 
 ## Indentation
 
@@ -272,11 +324,6 @@ FROM indented_the_same_as_select
 ```
 
 ### Comment Indents
-
-::: tip NOTE
-The notes here about block comments are not implemented prior
-to 2.0.x. They should be coming in that release or soon after.
-:::
 
 **Comments** are dealt with differently, depending on whether they're
 *block* comments (`/* like this */`), which might optionally
@@ -714,6 +761,26 @@ applies to elements of the *type* `comma`, i.e. `,`.
 spacing_before = touch
 line_position = trailing
 ```
+
+::: tip NOTE
+The available types depend on the selected dialect and the SQL being
+parsed. To discover them, parse a representative query using the same
+dialect:
+
+```bash
+$ sqlfluff parse query.sql --dialect ansi
+...
+|            select_clause:
+...
+|                comma:                                        ','
+...
+|            from_clause:
+```
+
+The labels in the parse tree, such as `select_clause`, `comma`
+and `from_clause`, are the segment types to use in
+`[sqlfluff:layout:type:<type>]` section headings.
+:::
 
 Within these configurable sections there are a few key elements which are
 available:

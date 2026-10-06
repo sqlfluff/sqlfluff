@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7e5f99b0d9bbe4f8e15aa356b0abb5965da26b9e09dab2da4f11e9fb7616e90
+_hash: b474d398df2ba827aa378dd14a7f4370e29fc15e6b2de4036de5f0d29c007136
 file:
   statement:
     select_statement:
@@ -29,16 +29,17 @@ file:
             naked_identifier: field
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: testFunction
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: a
-                end_bracket: )
+          expression:
+            function:
+              function_name:
+                function_name_identifier: testFunction
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
             semi_structured_expression:
               dot: .
               star: '*'
@@ -69,50 +70,53 @@ file:
             naked_identifier: field_with_field
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: testFunction
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: a
-                end_bracket: )
+          expression:
+            function:
+              function_name:
+                function_name_identifier: testFunction
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+              semi_structured_expression:
+                dot: .
+                naked_identifier: b
             semi_structured_expression:
-            - dot: .
-            - naked_identifier: b
-            - dot: .
-            - star: '*'
+              dot: .
+              star: '*'
           alias_expression:
             alias_operator:
               keyword: AS
             naked_identifier: field_with_wildcard
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: testFunction
-            function_contents:
-              bracketed:
-                start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: testFunction
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+              array_accessor:
+                start_square_bracket: '['
                 expression:
-                  column_reference:
-                    naked_identifier: a
-                end_bracket: )
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: OFFSET
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '0'
-                      end_bracket: )
-              end_square_bracket: ']'
+                  function:
+                    function_name:
+                      function_name_identifier: OFFSET
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '0'
+                        end_bracket: )
+                end_square_bracket: ']'
             semi_structured_expression:
               dot: .
               star: '*'
@@ -122,29 +126,30 @@ file:
             naked_identifier: field_with_offset_wildcard
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: testFunction
-            function_contents:
-              bracketed:
-                start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: testFunction
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+              array_accessor:
+                start_square_bracket: '['
                 expression:
-                  column_reference:
-                    naked_identifier: a
-                end_bracket: )
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: SAFE_OFFSET
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '0'
-                      end_bracket: )
-              end_square_bracket: ']'
+                  function:
+                    function_name:
+                      function_name_identifier: SAFE_OFFSET
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '0'
+                        end_bracket: )
+                end_square_bracket: ']'
             semi_structured_expression:
               dot: .
               star: '*'
@@ -154,29 +159,30 @@ file:
             naked_identifier: field_with_safe_offset_wildcard
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: testFunction
-            function_contents:
-              bracketed:
-                start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: testFunction
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+              array_accessor:
+                start_square_bracket: '['
                 expression:
-                  column_reference:
-                    naked_identifier: a
-                end_bracket: )
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: ORDINAL
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '1'
-                      end_bracket: )
-              end_square_bracket: ']'
+                  function:
+                    function_name:
+                      function_name_identifier: ORDINAL
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '1'
+                        end_bracket: )
+                end_square_bracket: ']'
             semi_structured_expression:
               dot: .
               star: '*'

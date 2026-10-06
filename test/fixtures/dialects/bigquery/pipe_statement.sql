@@ -163,3 +163,21 @@ WITH bar AS (
 )
 
 SELECT * FROM bar;
+
+WITH bar AS (
+    FROM foo
+)
+
+FROM bar
+|> WHERE sales >= 3
+|> SELECT item, sales;
+
+SELECT t.item
+FROM (
+    FROM foo
+    |> WHERE sales >= 3
+) AS t;
+
+(FROM foo |> WHERE sales >= 3)
+UNION ALL
+SELECT item, sales FROM bar;

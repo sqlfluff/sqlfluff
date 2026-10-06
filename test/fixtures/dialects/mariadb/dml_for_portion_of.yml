@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 542baf2961ed6adabb326b7a913da2b2ebe25a3e0a260ad70442212d71dd0807
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      for_portion_of_clause:
+      - keyword: FOR
+      - keyword: PORTION
+      - keyword: OF
+      - naked_identifier: date_period
+      - keyword: FROM
+      - expression:
+          quoted_literal: "'2001-01-01'"
+      - keyword: TO
+      - expression:
+          quoted_literal: "'2018-01-01'"
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t1
+      for_portion_of_clause:
+      - keyword: FOR
+      - keyword: PORTION
+      - keyword: OF
+      - naked_identifier: date_period
+      - keyword: FROM
+      - expression:
+          quoted_literal: "'2000-01-01'"
+      - keyword: TO
+      - expression:
+          quoted_literal: "'2018-01-01'"
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: CONCAT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'_original'"
+              - end_bracket: )
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a444e4077ce6f0fce9bb8f75083f49f244fedb5c91486f35566ce06d4d44770
+_hash: 32434b8928d0583a1aa8ccfb1bab5b5137da0449628c1dd6bfe474944768d2c9
 file:
   batch:
   - statement:
@@ -41,4 +41,18 @@ file:
           keyword: NOMAXVALUE
       - create_sequence_options_segment:
           keyword: NOCYCLE
+  - statement_terminator: ;
+  - statement:
+      create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - sequence_reference:
+          naked_identifier: MY_SEQ
+      - create_sequence_options_segment:
+          keyword: ORDER
+      - create_sequence_options_segment:
+          keyword: NOCACHE
   - statement_terminator: ;

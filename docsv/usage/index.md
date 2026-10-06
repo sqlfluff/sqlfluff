@@ -1,3 +1,11 @@
-# Production Usage
+# Production Usage & Security
 
-SQLFluff is designed to be used both as a utility for developers but also to be part of CI/CD pipelines.
+SQLFluff can run locally and in automated checks. These guides cover using it
+in CI/CD pipelines and configuring it for teams.
+
+- [Security considerations](/usage/security)
+- [CLI exit codes](/usage/cli)
+- [Diff quality](/usage/diff-quality)
+- [Pre-commit integration](/usage/pre-commit)
+- [CI/CD integration](/usage/ci-cd)
+- [Team rollout](/usage/team-rollout)

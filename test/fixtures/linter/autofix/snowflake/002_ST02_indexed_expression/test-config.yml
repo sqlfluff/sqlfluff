@@ -1,0 +1,4 @@
+test-config:
+  rules:
+    - ST01
+    - ST02

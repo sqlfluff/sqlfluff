@@ -1,0 +1,4 @@
+SELECT CASE
+    WHEN genres[0] IS NOT NULL THEN genres[0]
+    ELSE NULL
+END;

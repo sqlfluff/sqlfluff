@@ -1,0 +1,147 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c76e8491815fecbd53ab63d0360aa67d4d2fdf86d9b40b3e9d33b57cb1475efe
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        quoted_identifier: '`c`'
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        quoted_identifier: '`c`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        quoted_identifier: '`t2`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        quoted_identifier: '`c`'
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: IF
+    - keyword: EXISTS
+    - quoted_identifier: '`p1`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: IF
+    - keyword: EXISTS
+    - quoted_identifier: '`p1`'
+    - comma: ','
+    - quoted_identifier: '`p2`'
+    - comma: ','
+    - quoted_identifier: '`p3`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: PARTITION
+    - quoted_identifier: '`p1`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: DROP
+    - keyword: PARTITION
+    - quoted_identifier: '`p1`'
+    - comma: ','
+    - quoted_identifier: '`p2`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: TRUNCATE
+    - keyword: PARTITION
+    - quoted_identifier: '`p1`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`t`'
+    - keyword: COALESCE
+    - keyword: PARTITION
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: p1
+    - comma: ','
+    - naked_identifier: p2
+- statement_terminator: ;

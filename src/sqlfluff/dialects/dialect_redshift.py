@@ -2618,13 +2618,20 @@ class LockTableStatementSegment(BaseSegment):
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
-    Override to add Object unpivoting.
+    Override to add Object unpivoting and navigation into SUPER values
+    which uses array accessors, e.g. `a.topic[0].extension`.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
     """
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
             Ref("ObjectUnpivotSegment", optional=True),
             Ref("ArrayUnnestSegment", optional=True),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("AccessorGrammar"),
+            ),
         ],
         before=Ref("TableReferenceSegment"),
     )
@@ -2920,14 +2927,73 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
-    """An extension of the star expression for Redshift."""
+class SelectClauseSegment(postgres.SelectClauseSegment):
+    """A Redshift `SELECT` clause.
 
-    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+    EXCLUDE follows the full select list (not a wildcard/item suffix):
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SELECT_synopsis.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    """
+
+    # Inherit Postgres terminators via copy(). EXCLUDE terminates the select
+    # list only after the first item, so `SELECT EXCLUDE` still parses as a
+    # column while `SELECT *, a, EXCLUDE x` is rejected.
+    match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
         insert=[
-            # Optional Exclude
-            Ref("ExcludeClauseSegment", optional=True),
-        ]
+            OneOf(
+                Sequence(
+                    Delimited(
+                        Ref("SelectClauseElementSegment"),
+                        allow_trailing=False,
+                        terminators=[Ref.keyword("EXCLUDE")],
+                    ),
+                    Ref("ExcludeClauseSegment"),
+                ),
+                Sequence(
+                    Ref("SelectClauseElementSegment", optional=True),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Delimited(
+                            Ref("SelectClauseElementSegment"),
+                            optional=True,
+                            allow_trailing=True,
+                            terminators=[Ref.keyword("EXCLUDE")],
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+        ],
+        before=Dedent,
+        remove=[
+            Delimited(
+                Ref("SelectClauseElementSegment"),
+                optional=True,
+                allow_trailing=True,
+            ),
+        ],
+    )
+
+
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """Select-list element for Redshift.
+
+    Prevent bare ``EXCLUDE`` from being treated as an implicit column alias so
+    the select-clause-level ``ExcludeClauseSegment`` can match. This does not
+    restrict ``EXCLUDE(...)`` expressions or ``AS EXCLUDE`` aliases.
+    """
+
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "AliasExpressionSegment",
+                exclude=Ref.keyword("EXCLUDE"),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -2941,8 +3007,8 @@ class ExcludeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXCLUDE",
         OneOf(
-            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Ref("SingleIdentifierGrammar"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Delimited(Ref("ColumnReferenceSegment")),
         ),
     )
 
@@ -2992,6 +3058,43 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
             Ref("MergeMatchSegment"),
         ],
     )
+
+
+class MergeMatchSegment(ansi.MergeMatchSegment):
+    """Redshift's `MERGE` match grammar.
+
+    Redshift is copied from the postgres dialect, which supports the
+    PostgreSQL 17 ``WHEN NOT MATCHED BY SOURCE`` / ``BY TARGET`` clauses and
+    ``DO NOTHING`` merge actions. Redshift's documented ``MERGE`` only supports
+    ``WHEN MATCHED`` and ``WHEN NOT MATCHED`` (with ``UPDATE``/``DELETE``/
+    ``INSERT``) and ``REMOVE DUPLICATES``, so reset the match grammar and its
+    clauses to the ANSI definitions to avoid inheriting those postgres-specific
+    additions.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+    """
+
+    match_grammar = ansi.MergeMatchSegment.match_grammar.copy()
+
+
+class MergeMatchedClauseSegment(ansi.MergeMatchedClauseSegment):
+    """Redshift's ``WHEN MATCHED`` clause.
+
+    Reset to the ANSI grammar so the postgres dialect's ``DO NOTHING`` action is
+    not inherited.
+    """
+
+    match_grammar = ansi.MergeMatchedClauseSegment.match_grammar.copy()
+
+
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """Redshift's ``WHEN NOT MATCHED`` clause.
+
+    Reset to the ANSI grammar so the postgres dialect's optional ``BY TARGET``
+    qualifier and ``DO NOTHING`` action are not inherited.
+    """
+
+    match_grammar = ansi.MergeNotMatchedClauseSegment.match_grammar.copy()
 
 
 class SetOperatorSegment(ansi.SetOperatorSegment):
@@ -3065,6 +3168,33 @@ class RedshiftGroupGrantTargetSegment(BaseSegment):
     match_grammar = Sequence("GROUP", Ref("ObjectReferenceSegment"))
 
 
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """An access permission segment for Redshift."""
+
+    match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("DROP"),
+            Ref.keyword("ALTER"),
+        ],
+    )
+
+
+class ScopedAccessObjectSegment(BaseSegment):
+    """A scoped access object segment for Redshift."""
+
+    type = "access_object"
+
+    match_grammar: Matchable = OneOf(
+        "SCHEMAS",
+        "TABLES",
+        "FUNCTIONS",
+        "PROCEDURES",
+        "LANGUAGES",
+        Sequence("COPY", "JOBS"),
+        "TEMPLATES",
+    )
+
+
 class GrantStatementSegment(ansi.GrantStatementSegment):
     """A `GRANT` statement.
 
@@ -3098,6 +3228,18 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
             Sequence("ROLE", Ref("RoleReferenceSegment")),
             Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
             Ref("ObjectReferenceSegment"),
+            Sequence(
+                OneOf(
+                    Ref("AccessPermissionsSegment"),
+                    "ALL",
+                    Sequence("ALL", "PRIVILEGES"),
+                ),
+                "FOR",
+                Ref("ScopedAccessObjectSegment"),
+                "IN",
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("ObjectReferenceSegment"),
+            ),
         ),
         OneOf(
             Sequence("TO", _group_targets),

@@ -1,0 +1,138 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d9584f9e88c34969e950214774a5ac90bbc714ae355e2a1a876873eb60c04d1
+file:
+- statement:
+    create_mcp_server_statement:
+    - keyword: CREATE
+    - keyword: MCP
+    - keyword: SERVER
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_mcp_server
+    - keyword: FROM
+    - keyword: SPECIFICATION
+    - dollar_quoted_literal: "$$\n    tools:\n      - name: \"my-cortex-search\"\n\
+        \        type: \"CORTEX_SEARCH_SERVICE_QUERY\"\n        identifier: \"my_db.my_schema.my_search_service\"\
+        \n  $$"
+- statement_terminator: ;
+- statement:
+    create_mcp_server_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MCP
+    - keyword: SERVER
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_mcp_server
+    - keyword: FROM
+    - keyword: SPECIFICATION
+    - dollar_quoted_literal: "$$\n    tools:\n      - name: \"system_execute_sql\"\
+        \n        title: \"SQL Execution Tool\"\n        type: \"SYSTEM_EXECUTE_SQL\"\
+        \n        description: \"Execute read-only SQL queries.\"\n        config:\n\
+        \          read_only: true\n          query_timeout: 60\n          warehouse:\
+        \ \"MY_WH\"\n  $$"
+- statement_terminator: ;
+- statement:
+    create_mcp_server_statement:
+    - keyword: CREATE
+    - keyword: MCP
+    - keyword: SERVER
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_mcp_server
+    - keyword: FROM
+    - keyword: SPECIFICATION
+    - dollar_quoted_literal: "$$\n    tools: []\n  $$"
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+          - keyword: MCP
+          - keyword: SERVER
+          object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+          - dot: .
+          - naked_identifier: my_mcp_server
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: CREATE
+            access_schema_object:
+            - keyword: MCP
+            - keyword: SERVER
+      - keyword: 'ON'
+      - access_object:
+          keyword: SCHEMA
+          object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    drop_object_statement:
+    - keyword: DROP
+    - keyword: MCP
+    - keyword: SERVER
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_mcp_server
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: MCP
+    - keyword: SERVERS
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: MCP
+    - keyword: SERVER
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_mcp_server
+- statement_terminator: ;

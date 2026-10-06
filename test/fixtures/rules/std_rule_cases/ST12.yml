@@ -1,0 +1,40 @@
+rule: ST12
+
+test_pass_databricks_command_cell_not_terminator:
+  # A semicolon immediately before a Databricks notebook cell delimiter is not a
+  # consecutive terminator: the delimiter is its own `command_cell` segment
+  # rather than a `statement_terminator`.
+  pass_str: |
+    -- Databricks notebook source
+
+    SELECT COL1 FROM TABLE1;
+
+    -- COMMAND ----------
+
+    SELECT COL2 FROM TABLE2
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_databricks_real_consecutive_semicolons:
+  # Genuine consecutive semicolons are still flagged (and fixed) in databricks
+  # files, and the command cell delimiter is preserved untouched.
+  fail_str: |
+    -- Databricks notebook source
+
+    SELECT COL1 FROM TABLE1;;
+
+    -- COMMAND ----------
+
+    SELECT COL2 FROM TABLE2
+  fix_str: |
+    -- Databricks notebook source
+
+    SELECT COL1 FROM TABLE1;
+
+    -- COMMAND ----------
+
+    SELECT COL2 FROM TABLE2
+  configs:
+    core:
+      dialect: databricks

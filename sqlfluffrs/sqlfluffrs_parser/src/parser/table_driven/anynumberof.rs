@@ -2,9 +2,6 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     AnyNumberOfState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
-use sqlfluffrs_types::GrammarId;
 use std::sync::Arc;
 
 impl Parser<'_> {
@@ -70,21 +67,20 @@ impl Parser<'_> {
         if has_exclude {
             if let Some(exclude_id) = self.grammar_ctx.exclude(grammar_id) {
                 self.pos = start_pos;
-                if let Ok(exclude_result) =
-                    self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)
-                {
-                    if !exclude_result.is_empty() {
-                        vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
-                        return Ok(stack.complete_frame_empty(&frame));
-                    }
-                }
+                // Try matching exclude grammar, otherwise raise RuntimeError
+                let exclude_result =
+                    self.parse_table_iterative_match_result(exclude_id, &frame.table_terminators)?;
                 self.pos = start_pos; // Reset position
+                if !exclude_result.is_empty() {
+                    vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
+                    return Ok(stack.complete_frame_empty(&frame));
+                }
             }
         }
 
         // Get all element children (excludes exclude grammar via element_children)
-        let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
-        let pruned_children = self.prune_options(&element_ids);
+        let element_ids = self.grammar_ctx.element_children(grammar_id);
+        let pruned_children = self.prune_options(element_ids);
         #[cfg(feature = "verbose-debug")]
         {
             // Debug element names for easier tracing
@@ -104,17 +100,17 @@ impl Parser<'_> {
             return Ok(stack.complete_frame_empty(&frame));
         }
 
-        // Initialize option counter for max_times_per_element tracking
+        // Option counter for max_times_per_element tracking; filled lazily by
+        // increment_element_count (entry().or_insert(0)), so start empty.
         #[cfg(feature = "verbose-debug")]
         let pruned_children_count = pruned_children.len();
         let first_element = pruned_children[0];
-        let option_counter: hashbrown::HashMap<u64, usize> =
-            pruned_children.iter().map(|id| (id.0 as u64, 0)).collect();
+        let option_counter: hashbrown::HashMap<u64, usize> = hashbrown::HashMap::new();
 
         // Combine terminators (read parent terminators from frame directly)
-        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = Parser::combine_terminators(
-            &local_terminators,
+        let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
+        let all_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
@@ -172,7 +168,7 @@ impl Parser<'_> {
         frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         // Store context with max_times config and pruned element list
-        frame.context = FrameContext::AnyNumberOf(AnyNumberOfState {
+        frame.context = FrameContext::AnyNumberOf(Box::new(AnyNumberOfState {
             grammar_id,
             pruned_children,
             count: 0,
@@ -184,10 +180,19 @@ impl Parser<'_> {
             matched: Arc::new(MatchResult::empty_at(start_pos)),
             longest_match: (Arc::new(MatchResult::empty_at(start_pos)), None),
             tried_elements: 0,
-        });
+        }));
 
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
+
+        // Inline fast path: terminal candidates need no frame machinery.
+        // Feed the result straight into the shared candidate-handling logic.
+        self.pos = start_pos;
+        if let Some(mr) = self.try_terminal_inline(first_element, Some(max_idx))? {
+            let end_pos = self.pos;
+            let arc = stack.share_result(mr);
+            return self.handle_anynumberof_waiting_for_child(frame, &arc, &end_pos, stack);
+        }
 
         // Create initial child frame for the first element candidate and
         // let the WaitingForChild handler iterate remaining candidates.
@@ -227,97 +232,114 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        // Make frame mutable so we can obtain &mut references to context fields.
-        let ctx = frame
-            .context
-            .as_anynumberof_mut()
-            .expect("Expected AnyNumberOf context");
+        // Owned so the inline-terminal-candidate loop below can rebind them
+        // in place across candidates instead of recursing once per
+        // candidate - native recursion depth would otherwise be bounded
+        // only by this AnyNumberOf's candidate count (see handle_oneof_waiting_for_child).
+        let mut child_match = Arc::clone(child_match);
+        let mut child_end_pos = *child_end_pos;
 
-        // Get current candidate for tracking
-        let current_element_idx = ctx.next_candidate_idx();
-        let current_candidate = ctx
-            .pruned_children
-            .get(current_element_idx)
-            .copied()
-            .unwrap_or(ctx.pruned_children[0]);
+        loop {
+            // Make frame mutable so we can obtain &mut references to context fields.
+            let ctx = frame
+                .context
+                .as_anynumberof_mut()
+                .expect("Expected AnyNumberOf context");
 
-        #[cfg(feature = "verbose-debug")]
-        {
-            vdebug!(
-                "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
-                frame.frame_id,
-                child_match.is_empty(),
-                ctx.count,
-                ctx.matched_idx,
-                current_element_idx,
-                ctx.pruned_children.len(),
-                ctx.tried_elements
-            );
+            // Get current candidate for tracking
+            let current_element_idx = ctx.next_candidate_idx();
+            let current_candidate = ctx
+                .pruned_children
+                .get(current_element_idx)
+                .copied()
+                .unwrap_or(ctx.pruned_children[0]);
 
-            // Extra debug: show pruned_children and parent table_terminators for this frame
-            let pruned_dbg: Vec<u64> = ctx.pruned_children.iter().map(|g| g.0 as u64).collect();
-            let table_term_names: Vec<String> = frame
-                .table_terminators
-                .iter()
-                .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
-                .collect();
-            vdebug!(
-                "AnyNumberOf[table] WaitingForChild DEBUG: pruned_children_ids={:?} table_terminators_count={} names={:?}",
-                pruned_dbg,
-                frame.table_terminators.len(),
-                table_term_names
-            );
+            #[cfg(feature = "verbose-debug")]
+            {
+                vdebug!(
+                    "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
+                    frame.frame_id,
+                    child_match.is_empty(),
+                    ctx.count,
+                    ctx.matched_idx,
+                    current_element_idx,
+                    ctx.pruned_children.len(),
+                    ctx.tried_elements
+                );
+
+                // Extra debug: show pruned_children and parent table_terminators for this frame
+                let pruned_dbg: Vec<u64> = ctx.pruned_children.iter().map(|g| g.0 as u64).collect();
+                let table_term_names: Vec<String> = frame
+                    .table_terminators
+                    .iter()
+                    .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
+                    .collect();
+                vdebug!(
+                    "AnyNumberOf[table] WaitingForChild DEBUG: pruned_children_ids={:?} table_terminators_count={} names={:?}",
+                    pruned_dbg,
+                    frame.table_terminators.len(),
+                    table_term_names
+                );
+            }
+
+            // Update longest_match if this child is better
+            if !child_match.is_empty() && child_end_pos <= ctx.max_idx {
+                ctx.update_longest_match(
+                    Arc::clone(&child_match),
+                    child_end_pos,
+                    current_candidate,
+                );
+            }
+
+            ctx.tried_elements += 1;
+
+            // Try next element candidate if there are more
+            if ctx.has_more_candidates() {
+                let next_element_idx = ctx.tried_elements;
+                let next_candidate = ctx.pruned_children[next_element_idx];
+                let working_idx = ctx.working_idx;
+                let max_idx = ctx.max_idx;
+
+                vdebug!(
+                    "AnyNumberOf[table]: Trying next element candidate idx={} gid={}",
+                    next_element_idx,
+                    next_candidate.0
+                );
+
+                // Inline fast path for terminal candidates (see
+                // try_terminal_inline): loop back to the top with the new
+                // candidate's result instead of recursing, so a run of
+                // consecutive terminal candidates costs no extra native stack.
+                self.pos = working_idx;
+                if let Some(mr) = self.try_terminal_inline(next_candidate, Some(max_idx))? {
+                    child_end_pos = self.pos;
+                    child_match = stack.share_result(mr);
+                    continue;
+                }
+
+                let ctx = frame
+                    .context
+                    .as_anynumberof_mut()
+                    .expect("Expected AnyNumberOf context");
+
+                // Create and push child frame
+                let child_frame = TableParseFrame::new_child(
+                    stack.frame_id_counter,
+                    next_candidate,
+                    ctx.working_idx,
+                    &frame.table_terminators,
+                    Some(ctx.max_idx),
+                );
+
+                // Update last_child_frame_id
+                ctx.last_child_frame_id = Some(stack.frame_id_counter);
+
+                return Ok(stack.push_child_and_wait(frame, child_frame, next_element_idx));
+            }
+
+            // All candidates tried - process longest match or finalize
+            return self.process_anynumberof_longest_match(frame, stack);
         }
-
-        // Update longest_match if this child is better
-        if !child_match.is_empty() && *child_end_pos <= ctx.max_idx {
-            ctx.update_longest_match(Arc::clone(child_match), *child_end_pos, current_candidate);
-        }
-
-        ctx.tried_elements += 1;
-
-        // Try next element candidate if there are more
-        if ctx.has_more_candidates() {
-            return self.try_next_anynumberof_candidate(frame, stack);
-        }
-
-        // All candidates tried - process longest match or finalize
-        self.process_anynumberof_longest_match(frame, stack)
-    }
-
-    /// Try the next element candidate in AnyNumberOf
-    #[inline]
-    fn try_next_anynumberof_candidate(
-        &mut self,
-        mut frame: TableParseFrame,
-        stack: &mut TableParseFrameStack,
-    ) -> Result<TableFrameResult, ParseError> {
-        let ctx = frame
-            .context
-            .as_anynumberof_mut()
-            .expect("Expected AnyNumberOf context");
-        let next_element_idx = ctx.tried_elements;
-        let next_candidate = ctx.pruned_children[next_element_idx];
-
-        vdebug!(
-            "AnyNumberOf[table]: Trying next element candidate idx={} gid={}",
-            next_element_idx,
-            next_candidate.0
-        );
-
-        // Create and push child frame
-        let child_frame = TableParseFrame::new_child(
-            stack.frame_id_counter,
-            next_candidate,
-            ctx.working_idx,
-            &frame.table_terminators,
-            Some(ctx.max_idx),
-        );
-
-        // Update last_child_frame_id
-        ctx.last_child_frame_id = Some(stack.frame_id_counter);
-
-        Ok(stack.push_child_and_wait(frame, child_frame, next_element_idx))
     }
 
     /// Process the longest match after all candidates are tried
@@ -451,8 +473,8 @@ impl Parser<'_> {
         self.pos = ctx.working_idx;
 
         // Re-prune at new position
-        let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
-        let repruned_children = self.prune_options(&element_ids);
+        let element_ids = self.grammar_ctx.element_children(grammar_id);
+        let repruned_children = self.prune_options(element_ids.clone());
 
         vdebug!(
             "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
@@ -492,18 +514,18 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::AnyNumberOf(AnyNumberOfState {
+        let FrameContext::AnyNumberOf(boxed) = &frame.context else {
+            return Err(ParseError::new(
+                "Expected AnyNumberOf context in combining".to_string(),
+            ));
+        };
+        let AnyNumberOfState {
             grammar_id,
             count,
             matched_idx,
             matched,
             ..
-        }) = &frame.context
-        else {
-            return Err(ParseError::new(
-                "Expected AnyNumberOf context in combining".to_string(),
-            ));
-        };
+        } = &**boxed;
 
         let inst = self.grammar_ctx.inst(*grammar_id);
 

@@ -4,6 +4,10 @@ import redirects from '../redirects.json'
 import { normalizeBase, normalizePath, toRedirectPath } from '../path-utils'
 import ThemeLayout from './ThemeLayout.vue'
 
+// Imported after the default theme so the shared token mapping wins on cascade.
+import './design-adapter.css'
+import './params-table.css'
+
 export default {
     extends: DefaultTheme,
     Layout: ThemeLayout,

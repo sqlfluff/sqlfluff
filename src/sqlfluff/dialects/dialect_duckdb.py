@@ -69,16 +69,20 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "COMPRESSION",
         "COMPRESSION_LEVEL",
         "GLOB",
+        "INSTALL",
         "MACRO",
         "MAP",
         "OVERWRITE",
         "OVERWRITE_OR_IGNORE",
         "PARQUET_VERSION",
         "PARTITION_BY",
+        "PERCENT",
         "POSITIONAL",
         "PROGRAM",
+        "RESERVOIR",
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
+        "SAMPLE",
         "SEMI",
         "STRUCT",
         "VIRTUAL",
@@ -109,6 +113,60 @@ duckdb_dialect.sets("datetime_units").update(
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
+    # DuckDB sampling. A percentage (`10%` / `10 PERCENT`) as opposed to a fixed
+    # row count (a bare number, or `10 ROWS`). Only reservoir sampling supports a
+    # fixed row count; bernoulli and system sampling are percentage-only. Shared
+    # by the table-level `TABLESAMPLE` and the query-level `USING SAMPLE` clauses.
+    # https://duckdb.org/docs/stable/sql/samples
+    SamplePercentageGrammar=Sequence(
+        Ref("NumericLiteralSegment"), OneOf(Ref("ModuloSegment"), "PERCENT")
+    ),
+    SampleRowCountGrammar=Sequence(
+        Ref("NumericLiteralSegment"), Ref.keyword("ROWS", optional=True)
+    ),
+    SampleExpressionGrammar=Sequence(
+        OneOf(
+            # reservoir takes a percentage or a fixed row count
+            Sequence(
+                "RESERVOIR",
+                Bracketed(
+                    OneOf(Ref("SamplePercentageGrammar"), Ref("SampleRowCountGrammar"))
+                ),
+            ),
+            # bernoulli and system are percentage-only
+            Sequence(
+                OneOf("BERNOULLI", "SYSTEM"),
+                Bracketed(Ref("SamplePercentageGrammar")),
+            ),
+            # a percentage, optionally with any method (and seed)
+            Sequence(
+                Ref("SamplePercentageGrammar"),
+                Bracketed(
+                    OneOf("RESERVOIR", "BERNOULLI", "SYSTEM"),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+            # a fixed row count, optionally with reservoir (and seed)
+            Sequence(
+                Ref("SampleRowCountGrammar"),
+                Bracketed(
+                    "RESERVOIR",
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence("REPEATABLE", Bracketed(Ref("NumericLiteralSegment")), optional=True),
+    ),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
     # DuckDB math operators
@@ -314,6 +372,40 @@ duckdb_dialect.patch_lexer_matchers(
         RegexLexer("equals", r"==?", CodeSegment),
     ]
 )
+
+
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
+    """A DuckDB ``TABLESAMPLE`` expression.
+
+    ``TABLESAMPLE`` is the table-level form: it samples an individual table in
+    the ``FROM`` clause (before joins). The query-level ``USING SAMPLE`` form is
+    handled by ``UsingSampleClauseSegment``.
+
+    https://duckdb.org/docs/stable/sql/samples
+    """
+
+    match_grammar: Matchable = Sequence(
+        "TABLESAMPLE",
+        Ref("SampleExpressionGrammar"),
+    )
+
+
+class UsingSampleClauseSegment(BaseSegment):
+    """A DuckDB query-level ``USING SAMPLE`` clause.
+
+    Unlike ``TABLESAMPLE``, ``USING SAMPLE`` samples the result of the whole
+    ``FROM`` clause (after joins), so it trails the query rather than attaching
+    to a single table.
+
+    https://duckdb.org/docs/stable/sql/samples
+    """
+
+    type = "sample_expression"
+    match_grammar: Matchable = Sequence(
+        "USING",
+        "SAMPLE",
+        Ref("SampleExpressionGrammar"),
+    )
 
 
 class IntervalExpressionSegment(BaseSegment):
@@ -794,6 +886,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("WithCheckOptionSegment"),
             Ref("MetaCommandQueryBufferSegment"),
         ],
+    ).copy(
+        # `USING SAMPLE` is query-level, so it trails the whole statement.
+        insert=[Ref("UsingSampleClauseSegment", optional=True)],
     )
 
 
@@ -825,6 +920,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         Ref("HavingClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
         Ref("QualifyClauseSegment", optional=True),
+        # `USING SAMPLE` is query-level, so it also trails a `SELECT` that is a
+        # branch of a set expression (e.g. one side of a `UNION`).
+        Ref("UsingSampleClauseSegment", optional=True),
         terminators=[
             Ref("SetOperatorSegment"),
             Ref("OrderByClauseSegment"),
@@ -929,6 +1027,38 @@ class ObjectLiteralElementSegment(ansi.ObjectLiteralElementSegment):
     )
 
 
+class InstallStatementSegment(BaseSegment):
+    """An `INSTALL` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/load_and_install
+    """
+
+    type = "install_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "INSTALL",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "FROM",
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+            optional=True,
+        ),
+    )
+
+
+class LoadStatementSegment(postgres.LoadStatementSegment):
+    """A `LOAD` statement.
+
+    DuckDB names the extension, where Postgres takes a quoted file name.
+    https://duckdb.org/docs/stable/sql/statements/load_and_install
+    """
+
+    match_grammar = Sequence(
+        "LOAD",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -936,6 +1066,7 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("InstallStatementSegment"),
         ]
     )
 
@@ -1222,7 +1353,12 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         ),
                     ),
                     Sequence("COMPRESSION_LEVEL", Ref("NumericLiteralSegment")),
-                    Sequence("ROW_GROUP_SIZE_BYTES", Ref("NumericLiteralSegment")),
+                    Sequence(
+                        "ROW_GROUP_SIZE_BYTES",
+                        OneOf(
+                            Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
                     Sequence("ROW_GROUP_SIZE", Ref("NumericLiteralSegment")),
                     Sequence("PARQUET_VERSION", Ref("QuotedLiteralSegment")),
                 )

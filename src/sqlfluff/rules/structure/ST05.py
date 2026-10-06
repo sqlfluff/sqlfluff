@@ -267,10 +267,14 @@ class Rule_ST05(BaseRule):
                         or any(ps.segment.is_type(*parent_types) for ps in path_to)
                     ):
                         continue
-                    if _is_correlated_subquery(
-                        Segments(query.selectables[0].selectable),
-                        select_source_names,
-                        dialect,
+                    # A set expression has one selectable per branch.
+                    if any(
+                        _is_correlated_subquery(
+                            Segments(selectable_.selectable),
+                            select_source_names,
+                            dialect,
+                        )
+                        for selectable_ in query.selectables
                     ):
                         continue
                     yield _NestedSubQuerySummary(

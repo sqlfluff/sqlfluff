@@ -13,11 +13,13 @@ def generate_use():
         print(
             f"use crate::dialect::{dialect.label.lower()}::matcher::{{"
             f"{dialect.label.upper()}_KEYWORDS, "
-            f"{dialect.label.upper()}_LEXERS}};"
+            f"{dialect.label.upper()}_LEXERS, "
+            f"{dialect.label.upper()}_BRACKET_PAIRS}};"
         )
     print()
     print("use sqlfluffrs_types::RootGrammar;")
     print("use sqlfluffrs_types::LexMatcher;")
+    print("use sqlfluffrs_types::BracketPairSet;")
     print("use std::str::FromStr;")
 
 
@@ -35,6 +37,12 @@ def generate_dialect_enum():
     dialect_reserved_keywords = ",\n            ".join(
         [
             f"Dialect::{d.label.capitalize()} => &{d.label.upper()}_KEYWORDS"
+            for d in dialect_readout()
+        ]
+    )
+    dialect_bracket_pairs = ",\n            ".join(
+        [
+            f"Dialect::{d.label.capitalize()} => &{d.label.upper()}_BRACKET_PAIRS"
             for d in dialect_readout()
         ]
     )
@@ -85,6 +93,12 @@ impl Dialect {{
     pub fn get_lexers(&self) -> &'static Vec<LexMatcher> {{
         match self {{
             {dialect_match},
+        }}
+    }}
+
+    pub fn get_bracket_pairs(&self) -> &'static BracketPairSet {{
+        match self {{
+            {dialect_bracket_pairs},
         }}
     }}
 

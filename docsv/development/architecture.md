@@ -68,9 +68,9 @@ lifting.
       pre-defined way. For example the `OneOf` grammar will match if any
       one of its child elements match.
 
-   #. During the recursion, the parser eventually reaches segments which have
-      no children (raw segments containing a single token), and so the
-      recursion naturally finishes.
+   * During the recursion, the parser eventually reaches segments which have
+     no children (raw segments containing a single token), and so the
+     recursion naturally finishes.
 
 4. If no match is found for a segment, the contents will be wrapped in an
    `UnparsableSegment` which is picked up as a *parsing* error later.

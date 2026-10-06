@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "4.2.2"
+version = "4.4.0"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -64,6 +64,7 @@ keywords = [
     "tsql",
     "vertica",
     "dbt",
+    "sqlmesh",
 ]
 dependencies = [
     # Used for finding os-specific application config dirs
@@ -96,7 +97,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs==4.2.2"]
+rs = ["sqlfluffrs==4.4.0"]
 # Testing utilities for plugin developers
 testutils = ["pytest"]
 
@@ -135,8 +136,8 @@ sqlfluff_rules_oracle = "sqlfluff.rules.oracle"
 
 
 [tool.sqlfluff_docs]
-# NOTE: Stable version is used by docs/conf.py
-stable_version = "4.2.2"
+# Stable version used by the VitePress docs configuration.
+stable_version = "4.4.0"
 
 
 [tool.setuptools.package-data]
@@ -235,9 +236,10 @@ line-length = 88
 
 [tool.ruff.format]
 quote-style = "double"
+exclude = ["*.md"]
 
 [tool.ruff.lint]
-extend-select = ["I", "D"]
+select = ["E4", "E7", "E9", "F", "I", "D"]
 
 # D105: Missing docstring in magic method
 # D107: Missing docstring in __init__
@@ -269,11 +271,6 @@ markers = [
 ]
 
 
-[tool.doc8]
-# Ignore auto-generated docs
-ignore-path = "docs/source/_partials/"
-
-
 [tool.codespell]
 # The configuration must be kept here to ensure that
 # `codespell` can be run as a standalone program from the CLI
@@ -286,7 +283,7 @@ quiet-level = 2
 # ignore-regex = '\\[fnrstv]'
 builtin = "clear,rare,informal,names"
 
-ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment,devlop"
+ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment,devlop,TRU"
 
 # ignore-words = "dev/tools/codespell/codespell-ignore.txt"
 # exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"

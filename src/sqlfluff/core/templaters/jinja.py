@@ -6,6 +6,7 @@ import importlib.util
 import logging
 import os.path
 import pkgutil
+import re
 import sys
 from collections.abc import Iterable, Iterator
 from functools import reduce
@@ -396,6 +397,29 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=pos,
             )
 
+    def _get_jinja_env_kwargs(self, config: Optional[FluffConfig]) -> dict[str, str]:
+        """Read optional Jinja delimiter overrides from config.
+
+        Returns a dict of kwargs to splat into SandboxedEnvironment.
+        All keys are optional; absent keys fall back to Jinja defaults
+        (``{{ }}`` for variables, ``{% %}`` for blocks).
+        """
+        kwargs: dict[str, str] = {}
+        if not config:
+            return kwargs
+        for key in (
+            "variable_start_string",
+            "variable_end_string",
+            "block_start_string",
+            "block_end_string",
+            "comment_start_string",
+            "comment_end_string",
+        ):
+            val = config.get_section((self.templater_selector, self.name, key))
+            if val is not None:
+                kwargs[key] = val
+        return kwargs
+
     def _get_jinja_env(self, config: Optional[FluffConfig] = None) -> Environment:
         """Get a properly configured jinja environment.
 
@@ -456,6 +480,7 @@ class JinjaTemplater(PythonTemplater):
             autoescape=False,
             extensions=extensions,
             loader=loader,
+            **self._get_jinja_env_kwargs(config),
         )
 
     def _get_macros_path(
@@ -750,6 +775,34 @@ class JinjaTemplater(PythonTemplater):
                 "object."
             )
 
+        # Fast path: a file with no Jinja markers renders to itself, so skip
+        # environment construction, Jinja parsing, rendering and tracing
+        # entirely. The environment always uses the standard Jinja delimiters
+        # (see `_get_jinja_env`) and `keep_trailing_newline=True`, so if none
+        # of `{{`, `{%` or `{#` appear then the rendered output is exactly the
+        # input, there can be no undefined variables, and the file is a single
+        # literal slice (matching what `slice_file` would return). We only
+        # skip when no macro or library loading is configured, because
+        # loading macros (from config or from a path) and loading libraries
+        # (from `library_path`) is validated at construction time and can
+        # raise user-facing errors which we must preserve. An empty `in_str`
+        # is excluded because `TemplatedFile`'s default single-slice
+        # construction produces a zero-length literal slice, which the
+        # coverage check in `process_with_variants` treats as "uncovered" and
+        # uses to synthesise a spurious extra variant.
+        if (
+            in_str
+            and not re.search(r"\{[{%#]", in_str)
+            and not self._get_jinja_env_kwargs(config)
+            and not self._get_macros_path(config, "load_macros_from_path")
+            and not config.get_section((self.templater_selector, self.name, "macros"))
+            and not config.get("library_path")
+            and not config.get_section(
+                (self.templater_selector, self.name, "library_path")
+            )
+        ):
+            return TemplatedFile(in_str, fname=fname), []
+
         env, live_context, render_func = self.construct_render_func(
             fname=fname, config=config
         )
@@ -844,7 +897,7 @@ class JinjaTemplater(PythonTemplater):
 
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str[:80])
-        analyzer = self._get_jinja_analyzer(raw_str, self._get_jinja_env())
+        analyzer = self._get_jinja_analyzer(raw_str, self._get_jinja_env(config))
         tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=append_to_templated)
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
@@ -942,6 +995,7 @@ class JinjaTemplater(PythonTemplater):
         in_str: str,
         render_func: Callable[[str], str],
         uncovered_slices: set[int],
+        config: Optional[FluffConfig] = None,
         append_to_templated: str = "",
     ) -> Iterator[tuple[list[RawFileSlice], list[TemplatedFileSlice], str]]:
         """Address uncovered slices by tweaking the template to hit them.
@@ -954,10 +1008,13 @@ class JinjaTemplater(PythonTemplater):
                 slices we'll attempt to hit by modifying the template. NOTE: These are
                 indices in the _sequence of slices_, not _character indices_ in the
                 raw source file.
+            config (:obj:`FluffConfig`, optional): Config so the analyzer uses the
+                configured Jinja delimiters when building variants.
             append_to_templated (:obj:`str`, optional): Optional string to append
                 to the templated file.
         """
-        analyzer = self._get_jinja_analyzer(in_str, self._get_jinja_env())
+        env = self._get_jinja_env(config)
+        analyzer = self._get_jinja_analyzer(in_str, env)
         tracer_copy = analyzer.analyze(render_func)
 
         max_variants_generated = 10
@@ -988,7 +1045,10 @@ class JinjaTemplater(PythonTemplater):
                     # hardcoded value that hits the target slice in the template
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
-                    new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
+                    new_source = (
+                        f"{env.block_start_string} {raw_file_slice.tag} "
+                        f"{new_value} {env.block_end_string}"
+                    )
                     tracer_trace.raw_slice_info[
                         raw_file_slice
                     ].alternate_code = new_source
@@ -1012,9 +1072,7 @@ class JinjaTemplater(PythonTemplater):
             # those.
             variant_raw_str = "".join(variant_key)
             if variant_raw_str not in variants:
-                analyzer = self._get_jinja_analyzer(
-                    variant_raw_str, self._get_jinja_env()
-                )
+                analyzer = self._get_jinja_analyzer(variant_raw_str, env)
                 tracer_trace = analyzer.analyze(render_func)
                 try:
                     trace = tracer_trace.trace(
@@ -1113,12 +1171,19 @@ class JinjaTemplater(PythonTemplater):
             "Uncovered literals correspond to slices %s", uncovered_literal_idxs
         )
 
+        # If every literal is already covered, there's no unreached code to
+        # find, so there are no variants beyond the one already yielded above.
+        # Skip building a render function entirely in that case (e.g. a
+        # literal-only file handled by the fast path in `process()`).
+        if not uncovered_literal_idxs:
+            return
+
         # NOTE: No validation required as all validation done in the `.process()`
         # call above.
         _, _, render_func = self.construct_render_func(fname=fname, config=config)
 
         for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
-            in_str, render_func, uncovered_literal_idxs
+            in_str, render_func, uncovered_literal_idxs, config=config
         ):
             yield (
                 TemplatedFile(

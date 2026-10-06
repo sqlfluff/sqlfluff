@@ -233,3 +233,16 @@ language sql
 begin atomic
   select st_x(_pt::geometry);
 end;
+
+CREATE OR REPLACE FUNCTION time_series(
+    _from time_table.time_field % TYPE,
+    _to time_table.time_field % TYPE,
+    _buckets integer DEFAULT 200
+)
+RETURNS TABLE (pp time_table.time_field % TYPE)
+IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+-- ATTENTION: use integer to generate series, since with timestamps there are rounding issues
+SELECT time_bucket(_from, _from, _to, _buckets, g.ofs - 1)
+FROM generate_series(0, greatest((_buckets - 1), 1)) AS g (ofs);
+END;

@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from sqlfluff.cli.formatters import OutputStreamFormatter
-from sqlfluff.cli.outputstream import make_output_stream
+from sqlfluff.cli.outputstream import OutputPolicy, make_output_stream
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import (
     SQLBaseError,
@@ -355,7 +355,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     config = FluffConfig(overrides={"dialect": "ansi"})
     output_stream = make_output_stream(config, None, os.devnull)
     lntr = Linter(
-        formatter=OutputStreamFormatter(output_stream, False, verbosity=0),
+        formatter=OutputStreamFormatter(output_stream, False, OutputPolicy()),
         dialect="ansi",
     )
     result = lntr.lint_paths(
@@ -999,6 +999,15 @@ def test__linter__deduplicates_duplicate_templater_violations_in_linted_output()
                 ("LT01", 3, 39),
                 ("LT01", 3, 40),
             ],
+        ),
+        (
+            # AM04 anchors on the wildcard, which is literal even though the
+            # table reference beside it is templated, so masking templated
+            # areas should not discard the violation.
+            "test/fixtures/linter/jinja_spacing.sql",
+            "AM04",
+            True,
+            [("AM04", 3, 8)],
         ),
         (
             "test/fixtures/linter/jinja_variants/simple_CP01.sql",

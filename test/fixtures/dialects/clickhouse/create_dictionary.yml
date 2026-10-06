@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6d154272c3b76cfe94b6c47aac1aaada12c4736c349664bbf242f43b3c499f8
+_hash: fa123dc7b049b3a9d36194354afba6ad1b3e3230aec47e6657a950b1c7d9f0cc
 file:
-  statement:
+- statement:
     create_dictionary_statement:
     - keyword: CREATE
     - keyword: OR
@@ -136,4 +136,276 @@ file:
     - comment_clause:
         keyword: COMMENT
         quoted_literal: "'Country dictionary with defaults and expressions'"
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+      - naked_identifier: test_db
+      - dot: .
+      - naked_identifier: test_dict
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: id
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: id2
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: val
+      - data_type:
+          data_type_identifier: String
+      - end_bracket: )
+    - keyword: PRIMARY
+    - keyword: KEY
+    - quoted_identifier: '`id`'
+    - comma: ','
+    - naked_identifier: id2
+    - keyword: SOURCE
+    - bracketed:
+        start_bracket: (
+        keyword: 'NULL'
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: LAYOUT
+    - bracketed:
+        start_bracket: (
+        naked_identifier: COMPLEX_KEY_HASHED
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: LIFETIME
+    - bracketed:
+        start_bracket: (
+        numeric_literal: '100'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+      - naked_identifier: test_db
+      - dot: .
+      - naked_identifier: test_dict
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: id
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: id2
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: val
+      - data_type:
+          data_type_identifier: String
+      - comma: ','
+      - naked_identifier: discount_start_date
+      - data_type:
+          data_type_identifier: Date
+      - comma: ','
+      - naked_identifier: discount_end_date
+      - data_type:
+          data_type_identifier: Date
+      - end_bracket: )
+    - keyword: PRIMARY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: '`id`'
+      - comma: ','
+      - quoted_identifier: '"id2"'
+      - end_bracket: )
+    - keyword: LIFETIME
+    - bracketed:
+        start_bracket: (
+        numeric_literal: '100'
+        end_bracket: )
+    - keyword: LAYOUT
+    - bracketed:
+        start_bracket: (
+        naked_identifier: COMPLEX_KEY_RANGE_HASHED
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: SOURCE
+    - bracketed:
+        start_bracket: (
+        keyword: 'NULL'
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - keyword: MIN
+      - quoted_identifier: '"discount_start_date"'
+      - keyword: MAX
+      - naked_identifier: discount_end_date
+      - end_bracket: )
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+      - naked_identifier: test_db
+      - dot: .
+      - naked_identifier: test_dict
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: id
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: id2
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: val
+      - data_type:
+          data_type_identifier: String
+      - end_bracket: )
+    - keyword: PRIMARY
+    - keyword: KEY
+    - naked_identifier: id
+    - comma: ','
+    - naked_identifier: id2
+    - keyword: SETTINGS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: min_idle_time
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '10'
+        end_bracket: )
+    - keyword: LAYOUT
+    - bracketed:
+        start_bracket: (
+        naked_identifier: COMPLEX_KEY_HASHED
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: SOURCE
+    - bracketed:
+        start_bracket: (
+        naked_identifier: CLICKHOUSE
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: HOST
+        - quoted_literal: "'localhost'"
+        - naked_identifier: PORT
+        - numeric_literal: '9000'
+        - naked_identifier: USER
+        - quoted_literal: "'default'"
+        - naked_identifier: PASSWORD
+        - quoted_literal: "''"
+        - naked_identifier: QUERY
+        - quoted_literal: "$$\n    SELECT 1 AS id, 1 AS id2, 'test' AS val\n$$"
+        - end_bracket: )
+        end_bracket: )
+    - keyword: LIFETIME
+    - bracketed:
+        start_bracket: (
+        numeric_literal: '100'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+      - naked_identifier: test_db
+      - dot: .
+      - naked_identifier: test_dict
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: id
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: id2
+      - data_type:
+          data_type_identifier: UInt64
+      - comma: ','
+      - naked_identifier: val
+      - data_type:
+          data_type_identifier: String
+      - comma: ','
+      - naked_identifier: discount_start_date
+      - data_type:
+          data_type_identifier: Date
+      - comma: ','
+      - naked_identifier: discount_end_date
+      - data_type:
+          data_type_identifier: Date
+      - end_bracket: )
+    - keyword: PRIMARY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: id
+      - comma: ','
+      - naked_identifier: id2
+      - end_bracket: )
+    - keyword: LIFETIME
+    - bracketed:
+      - start_bracket: (
+      - keyword: MIN
+      - numeric_literal: '10'
+      - keyword: MAX
+      - numeric_literal: '100'
+      - end_bracket: )
+    - keyword: LAYOUT
+    - bracketed:
+        start_bracket: (
+        naked_identifier: COMPLEX_KEY_RANGE_HASHED
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+    - keyword: SETTINGS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: min_idle_time
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '10'
+        end_bracket: )
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - keyword: MIN
+      - quoted_identifier: '`discount_start_date`'
+      - keyword: MAX
+      - quoted_identifier: '`discount_end_date`'
+      - end_bracket: )
+    - keyword: SOURCE
+    - bracketed:
+        start_bracket: (
+        keyword: 'NULL'
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;

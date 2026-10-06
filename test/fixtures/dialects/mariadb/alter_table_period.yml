@@ -1,0 +1,72 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d52716fd7cde8b3c5dba74ea67436236b4746fb851498c693bdf9edb85777e18
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rooms
+    - keyword: ADD
+    - keyword: PERIOD
+    - keyword: FOR
+    - naked_identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: checkin
+      - comma: ','
+      - column_reference:
+          naked_identifier: checkout
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rooms
+    - keyword: ADD
+    - keyword: PERIOD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: checkin
+      - comma: ','
+      - column_reference:
+          naked_identifier: checkout
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rooms
+    - keyword: DROP
+    - keyword: PERIOD
+    - keyword: FOR
+    - naked_identifier: p
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rooms
+    - keyword: DROP
+    - keyword: PERIOD
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: p
+- statement_terminator: ;

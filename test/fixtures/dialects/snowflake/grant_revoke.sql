@@ -145,3 +145,7 @@ GRANT CREATE WORKSPACE ON SCHEMA foo TO ROLE bar;
 REVOKE CREATE WORKSPACE ON SCHEMA foo FROM ROLE bar;
 GRANT WRITE ON WORKSPACE my_workspace TO ROLE bar;
 REVOKE WRITE ON WORKSPACE my_workspace FROM ROLE bar;
+
+-- Data metric functions are addressed by their TABLE( ... ) signature
+GRANT USAGE ON FUNCTION governance.dmfs.count_positive(TABLE(NUMBER, NUMBER)) TO ROLE data_engineer;
+REVOKE USAGE ON FUNCTION governance.dmfs.count_positive(TABLE(NUMBER, NUMBER)) FROM ROLE data_engineer;

@@ -25,3 +25,13 @@ create warehouse my_wh
     comment = 'comment'
     auto_suspend = 60
 ;
+
+create warehouse my_adaptive_wh warehouse_type = adaptive;
+
+create or replace warehouse gen2_wh with warehouse_size = 'MEDIUM' generation = '2';
+
+-- Object parameters can follow the TAG clause.
+create warehouse tagged_wh
+    with warehouse_size = 'XSMALL'
+    with tag (cost_center = 'sales')
+    max_concurrency_level = 8;

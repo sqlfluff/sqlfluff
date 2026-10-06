@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e48d313c611a5c62fe32a3b2687b0858ccd9529ccd25acfc0eeeafc4cfadfae5
+_hash: e1dd9dd743f5d67fc44a3fca58402fd167010df7f1b548029da39e70c1883066
 file:
 - statement:
     select_statement:
@@ -304,10 +304,9 @@ file:
                       naked_identifier: car_model
                   end_bracket: )
             - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER
@@ -389,10 +388,9 @@ file:
                       naked_identifier: car_model
                   end_bracket: )
             - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER
@@ -475,10 +473,9 @@ file:
                       naked_identifier: car_model
                   end_bracket: )
             - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER

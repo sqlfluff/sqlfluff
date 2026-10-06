@@ -25,7 +25,7 @@ SQLFluff is a dialect-flexible SQL linter and auto-fixer supporting 25+ SQL dial
 │   ├── fixtures/              # Test data (SQL files, YAML expected outputs)
 │   ├── dialects/              # Dialect parsing tests
 │   └── rules/                 # Rule testing infrastructure
-├── docs/                      # Sphinx documentation (see docs/AGENTS.md)
+├── docsv/                     # VitePress documentation (see docsv/README.md)
 ├── plugins/                   # Pluggable extensions (dbt templater, examples)
 ├── utils/                     # Build and development utilities
 └── examples/                  # API usage examples
@@ -145,12 +145,12 @@ See `src/sqlfluff/dialects/AGENTS.md` for detailed dialect development guide.
 5. Check that changes don't break other dialects: `tox -e generate-fixture-yml`
 
 ### Documentation Updates
-1. Edit source files in `docs/source/`
-2. Build locally: `cd docs && make html`
-3. View: `open docs/build/html/index.html`
+1. Edit Markdown source files in `docsv/`
+2. Build locally: `cd docsv && pnpm run docs:build`
+3. Preview: `cd docsv && pnpm run docs:preview`
 4. Verify links and formatting
 
-See `docs/AGENTS.md` for documentation-specific guidelines.
+See `docsv/README.md` for documentation-specific guidance.
 
 ## Component-Specific Instructions
 
@@ -159,7 +159,7 @@ For detailed instructions on specific components, refer to:
 - **Dialect development**: `src/sqlfluff/dialects/AGENTS.md`
 - **Rust components**: `sqlfluffrs/AGENTS.md`
 - **Testing**: `test/AGENTS.md`
-- **Documentation**: `docs/AGENTS.md`
+- **Documentation**: `docsv/README.md`
 
 ## Common Pitfalls
 

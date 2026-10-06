@@ -152,3 +152,37 @@ def test_cast_as_float_fails():
     parsed = Linter(dialect="bigquery").parse_string(sql)
     # Parsing produces a parse error for the unsupported `FLOAT` type.
     assert parsed.violations
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT x.y.*.z FROM t",
+        "SELECT results[0].*.z FROM t",
+        # The wildcard is equally terminal when the chain hangs off a function.
+        "SELECT testFunction(a).b.*.z FROM t",
+        "SELECT testFunction(a).*.z FROM t",
+        "SELECT testFunction(a)[0].b.*.z FROM t",
+    ],
+)
+def test_semi_structured_wildcard_is_terminal(sql):
+    """A wildcard may only be the final element of an accessor chain."""
+    parsed = Linter(dialect="bigquery").parse_string(sql)
+    # Nothing may be chained after the `.*`, so these are a parse error.
+    assert parsed.violations
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT results[0].* FROM t",
+        "SELECT results[0].* EXCEPT (cola) FROM t",
+        "SELECT results[0].* REPLACE (1 AS cola) FROM t",
+        "SELECT s.arr[0].field.* EXCEPT (cola) FROM t",
+        "SELECT testFunction(a).b.* FROM t",
+    ],
+)
+def test_semi_structured_wildcard_parses(sql):
+    """A wildcard ending an accessor chain parses, with EXCEPT/REPLACE."""
+    parsed = Linter(dialect="bigquery").parse_string(sql)
+    assert not parsed.violations

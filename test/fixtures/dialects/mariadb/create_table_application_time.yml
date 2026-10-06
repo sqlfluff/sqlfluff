@@ -1,0 +1,163 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f355b37e2ba7485bb4052f2068705e99c8018b1076917e5ab4ebcfd16ec6ffcf
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '50'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: date_1
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - column_definition:
+          naked_identifier: date_2
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - table_constraint:
+          period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - naked_identifier: date_period
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: date_1
+            - comma: ','
+            - column_reference:
+                naked_identifier: date_2
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rooms
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_number
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: guest_name
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: checkin
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - column_definition:
+          naked_identifier: checkout
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - table_constraint:
+          period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - naked_identifier: p
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: checkin
+            - comma: ','
+            - column_reference:
+                naked_identifier: checkout
+            - end_bracket: )
+      - comma: ','
+      - table_constraint:
+          keyword: UNIQUE
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_number
+          - comma: ','
+          - column_reference:
+              naked_identifier: p
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_number
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: checkin
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - column_definition:
+          naked_identifier: checkout
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - table_constraint:
+          period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - naked_identifier: p
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: checkin
+            - comma: ','
+            - column_reference:
+                naked_identifier: checkout
+            - end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_number
+          - comma: ','
+          - column_reference:
+              naked_identifier: p
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

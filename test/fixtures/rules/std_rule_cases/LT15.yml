@@ -263,3 +263,481 @@ test_fail_extra_blank_in_cte_body:
     rules:
       layout.newlines:
         maximum_empty_lines_inside_statements: 0
+
+test_fail_minimum_blank_lines_between_statements:
+  # issue #6840: a minimum, mirroring maximum_empty_lines_between_statements
+  fail_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_of_two_blank_lines:
+  fail_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_pass_minimum_already_satisfied:
+  pass_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_defaults_to_zero:
+  # unset means unchanged behaviour for everyone already using this rule
+  pass_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+
+test_pass_minimum_ignores_end_of_file:
+  # no statement follows, so there is no gap to pad
+  pass_str: |
+    SELECT a FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_counts_a_whitespace_only_line_as_blank:
+  # a line of spaces is still a blank line, so the run walk steps over whitespace
+  pass_str: "SELECT a FROM tab;\n   \nSELECT b FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_leading_blank_line:
+  # no statement precedes the gap, so there is nothing to separate
+  pass_str: "\nSELECT a FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_leading_comment:
+  pass_str: |
+    -- a header comment
+    SELECT a FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_pads_a_whitespace_only_gap:
+  # the whitespace-only line counts as one blank, so one more is inserted
+  fail_str: "SELECT a FROM tab;\n   \nSELECT b FROM tab;\n"
+  fix_str: "SELECT a FROM tab;\n   \n\nSELECT b FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_fail_minimum_statements_sharing_a_line:
+  # the run-based check can only fire where a newline exists, so two statements
+  # on one line used to be accepted whatever the minimum was set to
+  fail_str: SELECT a FROM tab; SELECT b FROM tab;
+  fix_str: |-
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_two_statements_sharing_a_line_higher_minimum:
+  fail_str: SELECT a FROM tab; SELECT b FROM tab;
+  fix_str: |-
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+
+test_pass_minimum_zero_leaves_shared_line_alone:
+  # the default must stay a no-op, so a shared line is not touched
+  pass_str: SELECT a FROM tab; SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 0
+
+test_pass_minimum_trailing_terminator_at_end_of_file:
+  # nothing follows the last terminator, so there is no gap to pad
+  pass_str: |
+    SELECT a FROM tab;
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_template_block_tags:
+  # the newlines around a jinja block tag are not a gap between two statements;
+  # padding them would put blank lines around the tag instead
+  pass_str: |
+    SELECT a FROM tab;
+    {% for _ in range(2) %}
+    {% endfor %}
+    SELECT b FROM tab;
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_templated_terminator:
+  # the terminator itself comes from the template, so the break after it is not
+  # the user's line to insert
+  pass_str: |
+    {% set semi = ";" %}
+    SELECT a FROM tab{{ semi }} SELECT b FROM tab;
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_trailing_comment_does_not_hide_the_newline:
+  # the statements are already on separate lines; stopping the scan at the
+  # comment reported a shared line and tore the comment off its statement
+  pass_str: |
+    SELECT a FROM tab; -- x
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_templated_newlines_in_the_run:
+  # a jinja expression expanding to newlines leaves no placeholder behind, so
+  # the placeholder skip cannot see it; without the is_templated guard those
+  # lines are counted as part of the gap even though they are not in the source
+  pass_str: "SELECT a FROM tab;{{ \"\\n\\n\" }}\nSELECT b FROM tab;"
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 3
+
+test_pass_minimum_ignores_semicolons_inside_a_compound_statement:
+  # a semicolon delimiting inner statements of a procedural body is not a gap
+  # between top-level statements
+  pass_str: |
+    CREATE PROCEDURE p AS BEGIN SELECT 1; SELECT 2; END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_ignores_a_template_tag_between_same_line_statements:
+  # the tag is not a statement sharing the line, and the whitespace either side
+  # of it is the template's, not the user's, so it must not be rewritten
+  pass_str: |
+    SELECT a FROM tab; {% if true %}{% endif %} SELECT b FROM tab;
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_does_not_apply_between_batches_tsql:
+  # the maximum resolves three scopes and only the middle one is "between
+  # statements"; a file-level gap in a batch dialect separates batches, which
+  # maximum_empty_lines_between_batches governs, not this setting
+  pass_str: |
+    SELECT 1;
+
+    SELECT 2;
+    GO
+    SELECT 3;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_applies_between_statements_inside_a_batch_tsql:
+  # inside a batch it is still a gap between statements, so it still applies
+  fail_str: |
+    SELECT 1;
+    SELECT 2;
+    GO
+  fix_str: |
+    SELECT 1;
+
+    SELECT 2;
+    GO
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_does_not_apply_between_batches_oracle:
+  # oracle has the same batch grammar, delimited by '/'
+  pass_str: |
+    SELECT 1 FROM dual;
+
+    SELECT 2 FROM dual;
+    /
+    SELECT 3 FROM dual;
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_applies_between_statements_inside_a_batch_oracle:
+  fail_str: |
+    SELECT 1 FROM dual;
+    SELECT 2 FROM dual;
+    /
+  fix_str: |
+    SELECT 1 FROM dual;
+
+    SELECT 2 FROM dual;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_above_maximum_is_capped_not_oscillating:
+  # both settings validate independently, so a minimum above the maximum is
+  # accepted config. enforced as written the two fixers undo each other and
+  # `fix` alternates between 2 and 5 blank lines on every run without ever
+  # converging. the minimum is capped by the maximum so the file settles.
+  fail_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 5
+        maximum_empty_lines_between_statements: 2
+
+test_fail_minimum_equal_to_maximum_is_satisfiable:
+  # the boundary case: exactly at the maximum must still be reachable
+  fail_str: |
+    SELECT a FROM tab;
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 2
+        maximum_empty_lines_between_statements: 2
+
+test_fail_oracle_file_level_gap_uses_the_between_batches_maximum:
+  # oracle has batch grammar like t-sql, but the scope test was
+  # `dialect.name == "tsql"`, so a file-level gap here was measured against the
+  # between-statements maximum instead. resolving the scope structurally fixes
+  # it: with between_batches = 1 these three blank lines are a violation, where
+  # before the rule reported the file clean.
+  fail_str: |
+    SELECT a FROM tab;
+    /
+
+
+    SELECT b FROM tab;
+    /
+  fix_str: |
+    SELECT a FROM tab;
+    /
+
+    SELECT b FROM tab;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+        maximum_empty_lines_between_statements: 4
+
+test_pass_oracle_inside_batch_still_uses_the_between_statements_maximum:
+  # the control for the case above: a gap inside a batch is not a batch
+  # boundary, so the larger between-statements allowance still applies
+  pass_str: |
+    SELECT a FROM tab;
+
+
+    SELECT b FROM tab;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+        maximum_empty_lines_between_statements: 4
+
+test_pass_minimum_ignores_a_templated_anchor_newline:
+  # the newline the rule anchors on is itself templated, so there is no source
+  # line to attach a fix to and the gap is declined rather than padded
+  pass_str: 'SELECT a FROM tab;{{ "\n" }}SELECT b FROM tab;'
+  configs:
+    core:
+      templater: jinja
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_maximum_reports_only_the_final_newline_of_a_whitespace_broken_run:
+  # the maximum's windowed eligibility test suppresses the violation when the
+  # run is not purely newlines. sharing the minimum's counter here silently
+  # widened the rule, so this pins the shipped behaviour: a whitespace-only
+  # line inside the run leaves only the final newline reported
+  fail_str: "SELECT a FROM tab;\n   \n\n\nSELECT b FROM tab;\n"
+  fix_str: "SELECT a FROM tab;\n   \n\nSELECT b FROM tab;\n"
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_statements: 1
+        minimum_empty_lines_between_statements: 0
+
+test_fail_minimum_pads_a_comment_separated_gap_once:
+  # a comment splits the gap into two runs of newlines and both used to
+  # qualify, so one gap was padded twice. only the run that ends at the next
+  # statement is the anchor
+  fail_str: |
+    SELECT a FROM tab;
+    -- a note
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+    -- a note
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_counts_a_blank_line_before_an_intervening_comment:
+  # the gap spans the comment, so a blank line on the far side of it already
+  # satisfies the minimum. stopping the count at the comment hid that and
+  # padded the same gap a second time
+  pass_str: |
+    SELECT a FROM tab;
+
+    -- a note
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_fail_minimum_ignores_blank_lines_internal_to_a_multiline_comment:
+  # a multi-line /* */ comment lexes as one block_comment segment per physical
+  # line, with its own newlines between them. those newlines are part of the
+  # comment's own text, not a gap between statements, so a blank line inside
+  # the comment must not count toward the minimum even though the statements
+  # themselves are not separated by any real blank line
+  fail_str: |
+    SELECT a FROM tab;
+    /* line1
+
+    line2 */
+    SELECT b FROM tab;
+  fix_str: |
+    SELECT a FROM tab;
+    /* line1
+
+    line2 */
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_still_counts_a_blank_line_between_two_separate_comments:
+  # two adjacent -- comments with a real blank line between them: this must
+  # stay satisfied, since the blank line is a genuine gap, not comment-internal
+  pass_str: |
+    SELECT a FROM tab;
+    -- comment 1
+
+    -- comment 2
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_still_counts_a_blank_line_before_a_multiline_comment:
+  # a real blank line before a multi-line /* */ comment must still satisfy the
+  # minimum; only newlines inside the comment's own body are excluded
+  pass_str: |
+    SELECT a FROM tab;
+
+    /* line1
+    line2 */
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1
+
+test_pass_minimum_counts_a_blank_line_after_an_intervening_comment:
+  # the third permutation cubic traced alongside the other two: the blank
+  # line sits after the comment (immediately before the next statement)
+  # rather than before it. pads_a_comment_separated_gap_once pins zero blank
+  # lines either side, and counts_a_blank_line_before_an_intervening_comment
+  # pins one before; this is the one nothing else covers.
+  pass_str: |
+    SELECT a FROM tab;
+    -- a note
+
+    SELECT b FROM tab;
+  configs:
+    rules:
+      layout.newlines:
+        minimum_empty_lines_between_statements: 1

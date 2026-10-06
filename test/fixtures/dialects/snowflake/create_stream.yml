@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6b9b17076a4d8fdb468ba44e454e9d10855d7e3d71365942f1f5af97d13ebf0
+_hash: 09998d3285951115dc54e834a56ae21737a60dbf3d10440972e1b4026cacc1f8
 file:
 - statement:
     create_stream_statement:
@@ -259,4 +259,50 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: dynamic_table_stream
+    - keyword: 'ON'
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: dynamic_table_name
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'ON'
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: table_name
+    - keyword: SHOW_INITIAL_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
 - statement_terminator: ;

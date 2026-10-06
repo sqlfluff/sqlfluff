@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7da1743e6b8a4d2d629db820b6f5d6571c4b73a0011e185324a6b18ff30e46d8
+_hash: 13a1026b14253d0b8bcdd63c2099de14574103c48532a285e4528715e32a1b20
 file:
 - statement:
     select_statement:
@@ -75,17 +75,20 @@ file:
           naked_identifier: pay_by_quarter
           data_type:
             keyword: integer
-            start_square_bracket: '['
-            end_square_bracket: ']'
+            array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
       - comma: ','
       - column_definition:
           naked_identifier: schedule
           data_type:
           - keyword: text
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -100,14 +103,16 @@ file:
           naked_identifier: squares
           data_type:
           - keyword: integer
-          - start_square_bracket: '['
-          - expression:
-              numeric_literal: '3'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - expression:
-              numeric_literal: '3'
-          - end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              expression:
+                numeric_literal: '3'
+              end_square_bracket: ']'
+          - array_type_suffix:
+              start_square_bracket: '['
+              expression:
+                numeric_literal: '3'
+              end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -595,8 +600,9 @@ file:
                           casting_operator: '::'
                           data_type:
                             keyword: int
-                            start_square_bracket: '['
-                            end_square_bracket: ']'
+                            array_type_suffix:
+                              start_square_bracket: '['
+                              end_square_bracket: ']'
                       alias_expression:
                         alias_operator:
                           keyword: AS

@@ -69,6 +69,10 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
 
     match_grammar = mysql.ColumnDefinitionSegment.match_grammar.copy(
         insert=[
+            # The aggregate type comes straight after the column type and
+            # before any NULL/DEFAULT/COMMENT clauses, e.g.
+            # `v1 BIGINT SUM DEFAULT "0"`.
+            # https://doris.apache.org/docs/table-design/data-model/aggregate
             OneOf(
                 "MAX",
                 "MIN",
@@ -79,7 +83,8 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
                 "QUANTILE_UNION",
                 optional=True,
             ),
-        ]
+        ],
+        at=3,
     )
 
 
@@ -243,7 +248,10 @@ class PartitionSegment(BaseSegment):
                             OneOf(
                                 Ref("RangePartitionDefinitionSegment"),
                                 Ref("RangePartitionIntervalSegment"),
-                            )
+                            ),
+                            # The partition list might be empty for
+                            # dynamic partitioning.
+                            optional=True,
                         )
                     ),
                 ),
@@ -251,7 +259,14 @@ class PartitionSegment(BaseSegment):
                 Sequence(
                     "LIST",
                     Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    Bracketed(Delimited(Ref("ListPartitionDefinitionSegment"))),
+                    Bracketed(
+                        Delimited(
+                            Ref("ListPartitionDefinitionSegment"),
+                            # The partition list might be empty for
+                            # dynamic partitioning.
+                            optional=True,
+                        )
+                    ),
                 ),
             ),
         ),

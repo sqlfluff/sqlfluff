@@ -104,8 +104,19 @@ def set_native_ast(enabled: bool) -> None:
     _NATIVE_AST_ENABLED = enabled
 
 
+def get_native_ast() -> bool:
+    """Return whether the fused (native) BaseSegment builder is enabled."""
+    return _NATIVE_AST_ENABLED
+
+
 try:
-    from sqlfluffrs import RsMatchResult, RsParseError, RsParser, RsToken
+    from sqlfluffrs import (
+        MISSING_REF_PREFIX,
+        RsMatchResult,
+        RsParseError,
+        RsParser,
+        RsToken,
+    )
 
     _HAS_RUST_PARSER = True
 
@@ -146,15 +157,15 @@ try:
                 "dialect_obj"
             ).get_root_segment()
 
-            # Extract indentation config and convert boolean values only
+            # Extract indentation config for Conditional grammar evaluation.
+            # PYTHON PARITY: ParseContext.from_config coerces every value here
+            # with bool(), not just ones already typed as bool - the ini
+            # config layer can produce int 1 for a truthy setting like
+            # `indented_joins = 1`, and filtering by isinstance(v, bool)
+            # would silently drop it instead of coercing it.
             indent_config = self.config.get_section("indentation") or {}
             if indent_config:
-                # Only keep boolean config values for conditional evaluation
-                # Non-boolean values like "indent_unit": "space" are not needed
-                # for conditionals
-                indent_config = {
-                    k: v for k, v in indent_config.items() if isinstance(v, bool)
-                }
+                indent_config = {k: bool(v) for k, v in indent_config.items()}
 
             # Max parse depth (DoS mitigation); 0 disables the limit
             max_parse_depth = self.config.get("max_parse_depth")
@@ -191,7 +202,6 @@ try:
                 segments: Tuple of RawSegment objects from the lexer
                 fname: Optional filename for error reporting
                 parse_statistics: Whether to log parse statistics (not yet implemented)
-                tf: Optional TemplatedFile for position marker reconstruction
 
             Returns:
                 BaseSegment tree representing the parsed SQL, or None if empty
@@ -255,6 +265,23 @@ try:
                     if _prof is not None:
                         _prof["rust_core"] = time.perf_counter() - _ts
                 except RsParseError as e:
+                    # A dangling grammar ref surfaces with the MISSING_REF_PREFIX
+                    # sentinel. Re-raise via the dialect's own ref() so both
+                    # engines fail with the same RuntimeError.
+                    _rs_desc = str(e)
+                    if _rs_desc.startswith(MISSING_REF_PREFIX):
+                        ref_name = _rs_desc[len(MISSING_REF_PREFIX) :]
+                        dialect_obj = self.config.get("dialect_obj")
+                        # If ref() doesn't raise, the name exists in Python but
+                        # was dropped from Rust's codegen tables - a bug.
+                        dialect_obj.ref(ref_name)
+                        raise RuntimeError(  # pragma: no cover
+                            "Grammar refers to {!r} which is registered in "
+                            "the {} dialect's Python library but missing "
+                            "from its Rust parser tables. This is an "
+                            "internal sqlfluff bug; please raise an issue "
+                            "on GitHub.".format(ref_name, dialect_obj.name)
+                        ) from e
                     # Convert Rust parse error to SQLParseError with position info
                     raise SQLParseError.from_rs_parse_error(
                         e, segments[_start_idx:_end_idx]
@@ -365,8 +392,17 @@ try:
                     )
                     if _prof is not None:
                         _prof["apply_as_tree"] = time.perf_counter() - _ts
-                except Exception:  # pragma: no cover
-                    # Non-critical: if tree building fails, rules fall back to Python
+                except (KeyboardInterrupt, SystemExit):  # pragma: no cover
+                    # Never swallow interpreter control-flow exceptions.
+                    raise
+                except BaseException:  # noqa: BLE001  # pragma: no cover
+                    # Non-critical: if arena-tree building fails, rules fall back
+                    # to the Python-built tree. Deliberately `except
+                    # BaseException` (minus the control-flow exceptions above):
+                    # a Rust-side panic crosses pyo3 as PanicException, which is
+                    # a BaseException, NOT an Exception, so a bare `except
+                    # Exception` would let a panic abort the whole parse instead
+                    # of engaging this documented fallback.
                     parser_logger.warning(
                         f"Unable to apply match result in parse tree for {fname}, falling"
                         " back to Python. Please report this as a bug with the SQL that"
@@ -473,11 +509,11 @@ try:
                 elif rs_match.casefold == "lower":
                     segment_kwargs["casefold"] = str.lower
 
-            # Set quoted_value and escape_replacement for normalization
+            # Set quoted_value and escape_replacements for normalization
             if rs_match.quoted_value:  # pragma: no cover
                 segment_kwargs["quoted_value"] = rs_match.quoted_value
-            if rs_match.escape_replacement:  # pragma: no cover
-                segment_kwargs["escape_replacements"] = [rs_match.escape_replacement]
+            if rs_match.escape_replacements:  # pragma: no cover
+                segment_kwargs["escape_replacements"] = rs_match.escape_replacements
 
             # Extract insert_segments (Indent/Dedent meta segments).
             # rs_match.insert_segments contains (idx, seg_type, is_implicit) tuples;
@@ -523,14 +559,18 @@ try:
             # Convert child matches recursively
             # Note: Transparent grammar nodes are now flattened on the Rust side,
             # so we don't need to do it here anymore
-            child_matches = (
-                tuple(
+            #
+            # NOTE: Keep this a plain loop rather than a generator expression:
+            # a genexpr would add its own stack frame per nesting level on top
+            # of this recursive call, which halves the safe recursion depth.
+            # Matches _apply_rs_match_result's plain for loop below, so both
+            # AST-building paths tolerate the same nesting depth.
+            child_matches_list = []
+            for child in rs_match.child_matches:
+                child_matches_list.append(
                     self._convert_rs_match_result(child, segments, depth + 1)
-                    for child in rs_match.child_matches
                 )
-                if rs_match.child_matches
-                else ()
-            )
+            child_matches = tuple(child_matches_list)
 
             return MatchResult(
                 matched_slice=slice(start, stop),

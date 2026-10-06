@@ -40,8 +40,6 @@ jobs:
         job:
           [
             "linting",
-            "doclinting",
-            "docbuild",
             "yamllint",
             "mypy",
             "mypyc",
@@ -50,20 +48,17 @@ jobs:
         include:
           # Default to most recent python version
           - python-version: "3.14"
-          # As at 2024-10-10, docbuild fails on 3.13, so fall back to 3.12
-          - job: docbuild
-            python-version: "3.12"
 
     name: ${{ matrix.job }} tests
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -81,6 +76,38 @@ jobs:
     - name: Run the tests
       run: tox -e ${{ matrix.job }}
 
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install SQLFluff
+        run: pip install -e .
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: docsv/pnpm-lock.yaml
+
+      - name: Install docs dependencies
+        working-directory: docsv
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build documentation
+        working-directory: docsv
+        run: corepack pnpm run docs:build
+
   rust-lint:
     # Rust formatting, lints and unit tests for the sqlfluffrs workspace.
     # Integration tests (sqlfluffrs/tests/*.rs) are not run here; parity is
@@ -89,12 +116,12 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -133,6 +160,10 @@ jobs:
         working-directory: sqlfluffrs
         run: cargo clippy --workspace --all-targets --features python -- -D warnings
 
+      - name: Clippy (verbose-debug)
+        working-directory: sqlfluffrs
+        run: cargo clippy --workspace --all-targets --features python,verbose-debug -- -D warnings
+
       - name: Run unit tests
         working-directory: sqlfluffrs
         run: cargo test --workspace --lib
@@ -143,12 +174,12 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -183,7 +214,7 @@ jobs:
           CARGO_BUILD_JOBS: 4
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: wheels-linux-x86_64
           path: dist
@@ -199,12 +230,12 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -230,7 +261,7 @@ jobs:
           manylinux: auto
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: wheels-linux-${{ matrix.target }}
           path: dist
@@ -251,12 +282,12 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -282,7 +313,7 @@ jobs:
           manylinux: musllinux_1_2
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
@@ -298,12 +329,12 @@ jobs:
             target: x86
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
           architecture: ${{ matrix.platform.target }}
@@ -329,7 +360,7 @@ jobs:
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: wheels-windows-${{ matrix.platform.target }}
           path: dist
@@ -345,12 +376,12 @@ jobs:
             target: aarch64
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -375,7 +406,7 @@ jobs:
           args: --release --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
@@ -384,12 +415,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -414,7 +445,7 @@ jobs:
           args: --out dist --manifest-path sqlfluffrs/Cargo.toml
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: wheels-sdist
           path: dist
@@ -473,6 +504,22 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
+  sqlmesh-tests:
+    name: SQLMesh Plugin Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Default to python 3.12 for SQLMesh tests, matching the dbt plugin.
+          - python-version: "3.12"
+    permissions:
+      contents: read
+      pull-requests: write
+
+    uses: ./.github/workflows/ci-test-sqlmesh.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+
   dialect-tests:
     name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
     needs: rs-build-linux-x86_64
@@ -522,12 +569,12 @@ jobs:
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.14'
 
@@ -565,12 +612,12 @@ jobs:
     name: example tests
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.14'
 
@@ -605,12 +652,12 @@ jobs:
         git config --global core.eol lf
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.14'
 
@@ -642,7 +689,7 @@ jobs:
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
 
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
       with:
         name: coverage-data-winpy3.14
         path: ".coverage.*"
@@ -671,12 +718,12 @@ jobs:
         git config --global core.eol lf
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         # NOTE: As of 2024-10-10, dbt does not yet support python 3.13.
         python-version: '3.12'
@@ -710,12 +757,12 @@ jobs:
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.14'
 
@@ -770,12 +817,12 @@ jobs:
         git config --global core.eol lf
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.14'
 
@@ -815,12 +862,12 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -836,7 +883,7 @@ jobs:
       - run: uv pip install --system --upgrade coverage[toml]
 
       - name: Download coverage data.
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: coverage-data-*
           merge-multiple: true
@@ -853,7 +900,7 @@ jobs:
           python -m coverage report --fail-under=100 --skip-covered --skip-empty -m | tee coverage-report.txt
 
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: html-report
           path: htmlcov
@@ -870,7 +917,7 @@ jobs:
         # NOTE: We don't actually comment on the PR from here, we'll do that in
         # a more secure way by triggering a more secure workflow.
         # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: txt-report
           path: |

@@ -181,3 +181,58 @@ fail_oracle_modulo_still_spaced:
   configs:
     core:
       dialect: oracle
+
+pass_consecutive_sign_indicators:
+  # Touching these would produce "--" and comment out the rest of the line, so
+  # the gap is left alone rather than reported as an unsatisfiable violation.
+  pass_str: |
+    SELECT 1 * - -5
+
+fail_consecutive_sign_indicators_outer_spacing:
+  # Only the gap which would build the comment marker is exempt - the space
+  # between the last sign indicator and its operand is still removed.
+  fail_str: |
+    SELECT 1 * - - - 5
+  fix_str: |
+    SELECT 1 * - - -5
+
+fail_consecutive_sign_indicators_trailing_code:
+  # The code after the pair must survive the fix.
+  fail_str: |
+    SELECT 1 * - - 5 AS c, 2 AS d
+  fix_str: |
+    SELECT 1 * - -5 AS c, 2 AS d
+
+fail_consecutive_sign_indicators_across_a_newline:
+  # An `:inline` constraint strips line breaks before any whitespace check
+  # runs, so the line break itself has to be exempt too - otherwise the two
+  # sign indicators end up adjacent and comment out the rest of the line.
+  fail_str: |
+    SELECT 1 * -
+    - 5 AS c, 2 AS d
+  fix_str: |
+    SELECT 1 * -
+    -5 AS c, 2 AS d
+  configs:
+    core:
+      dialect: ansi
+    layout:
+      type:
+        sign_indicator:
+          spacing_after: touch:inline
+
+fail_sign_indicator_across_a_newline_without_a_marker:
+  # The exemption is only for the marker. A single sign indicator still has
+  # its line break stripped as the config asks.
+  fail_str: |
+    SELECT 1 * -
+    5 AS c, 2 AS d
+  fix_str: |
+    SELECT 1 * -5 AS c, 2 AS d
+  configs:
+    core:
+      dialect: ansi
+    layout:
+      type:
+        sign_indicator:
+          spacing_after: touch:inline

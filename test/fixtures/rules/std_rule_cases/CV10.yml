@@ -185,6 +185,45 @@ test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
+test_pass_single_quote_doubling_is_not_corrupted:
+  # A fix must never change a literal's value. 'O''Brien' escapes the quote by
+  # doubling it (value O'Brien); converting to double quotes would copy the
+  # doubling through unchanged and change the value, so it is left alone.
+  pass_str: |
+    SELECT "x", 'O''Brien'
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_double_quote_doubling_is_not_corrupted:
+  # The same in reverse: "say ""hi""" (value say "hi") must not be rewritten to
+  # 'say ""hi""', which would change the value.
+  pass_str: |
+    SELECT 'x', "say ""hi"""
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: single_quotes
+
+test_fail_backslash_escaped_quote_still_converts:
+  # The doubling guard is narrow: backslash-escaped quotes are re-encodable and
+  # must still convert.
+  fail_str: |
+    SELECT 'it\'s'
+  fix_str: |
+    SELECT "it's"
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
 test_pass_lots_of_quotes:
   # Test that we can handle complex quoting scenarios
   pass_str: |

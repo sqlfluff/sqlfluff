@@ -32,7 +32,7 @@ from sqlfluff.cli.commands import (
     version,
 )
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.config import clear_config_caches
+from sqlfluff.core.config import clear_config_caches, progress_bar_configuration
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
@@ -776,18 +776,6 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
-        # Test that setting --quiet with --verbose raises an error.
-        (
-            (
-                fix,
-                [
-                    "--quiet",
-                    "--verbose",
-                    "test/fixtures/cli/fail_many.sql",
-                ],
-            ),
-            2,
-        ),
         # Test machine format parse command with an unparsable file.
         (
             (
@@ -809,6 +797,318 @@ def test__cli__command_lint_parse(command):
 def test__cli__command_lint_parse_with_retcode(command, ret_code):
     """Check commands expecting a non-zero ret code."""
     invoke_assert_code(ret_code=ret_code, args=command)
+
+
+@pytest.mark.parametrize(
+    ("verbosity", "expected", "unexpected"),
+    [
+        (
+            "-v",
+            ["==== sqlfluff ====", "==== readout ====", "==== summary ===="],
+            ["== Raw Config:", "unclean rate", "LINTING"],
+        ),
+        (
+            "-vv",
+            [
+                "==== sqlfluff ====",
+                "== Raw Config:",
+                "==== readout ====",
+                "==== summary ====",
+                "unclean rate",
+                "LINTING",
+            ],
+            [],
+        ),
+    ],
+)
+def test__cli__lint_verbosity_thresholds(verbosity, expected, unexpected):
+    """Stacked verbosity should progressively enable detailed output."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                verbosity,
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ]
+    )
+    for text in expected:
+        assert text in result.stdout
+    for text in unexpected:
+        assert text not in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("args", "file_timings", "overall_timings"),
+    [
+        (["-v"], False, False),
+        (["-vv"], True, True),
+        (["--bench"], False, True),
+    ],
+)
+def test__cli__parse_verbosity_thresholds(args, file_timings, overall_timings):
+    """Parse timings should respect verbosity unless explicitly requested."""
+    result = invoke_assert_code(
+        args=[parse, [*args, "test/fixtures/cli/passing_a.sql"]]
+    )
+    assert ("==== timings ====" in result.stdout) is file_timings
+    assert ("==== overall timings ====" in result.stdout) is overall_timings
+
+
+def test__cli__verbose_machine_output_stays_serialized():
+    """Verbose logging should not contaminate machine-readable stdout."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                "-vvv",
+                "--format=json",
+                "--disable-progress-bar",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+    json.loads(result.stdout)
+    assert "==== sqlfluff ====" not in result.stdout
+    assert result.stderr
+
+
+@pytest.mark.parametrize("command", [lint, fix, cli_format])
+def test__cli__quiet_suppresses_success_output(command):
+    """The linting commands should be silent on success when quiet."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert result.stdout == ""
+    assert result.stderr == ""
+
+
+def test__cli__lint_quiet_overrides_configured_verbosity():
+    """Quiet lint should suppress verbosity loaded from configuration."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            lint,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "--config",
+                "test/fixtures/config/toml/pyproject.toml",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert result.stdout == ""
+
+
+@pytest.mark.parametrize(
+    ("extra_args", "ret_code", "paths", "expected_codes"),
+    [
+        (
+            [],
+            1,
+            ["test/fixtures/linter/indentation_error_simple.sql"],
+            ["CP01", "LT02"],
+        ),
+        (
+            ["--nofail"],
+            0,
+            ["test/fixtures/linter/indentation_error_simple.sql"],
+            ["CP01", "LT02"],
+        ),
+        (
+            ["--processes", "2"],
+            1,
+            [
+                "test/fixtures/linter/indentation_error_simple.sql",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+            ["CP01", "LT02", "TMP", "PRS"],
+        ),
+    ],
+)
+def test__cli__lint_quiet_preserves_rule_diagnostics(
+    extra_args, ret_code, paths, expected_codes
+):
+    """Quiet lint should report rule diagnostics without routine output."""
+    result = invoke_assert_code(
+        ret_code=ret_code,
+        args=[
+            lint,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                *extra_args,
+                *paths,
+            ],
+        ],
+    )
+    for code in expected_codes:
+        assert code in result.stdout
+    assert "All Finished" not in result.stdout
+
+
+def test__cli__lint_quiet_preserves_parse_diagnostics():
+    """Quiet lint should report templating and parsing diagnostics."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert "TMP" in result.stdout
+    assert "PRS" in result.stdout
+    assert "All Finished" not in result.stdout
+
+
+def test__cli__lint_quiet_preserves_warnings():
+    """Quiet lint should report warnings even when the command succeeds."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            lint,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "test/fixtures/cli/warning_a.sql",
+            ],
+        ],
+    )
+    assert "LT01 | WARNING" in result.stdout
+    assert "All Finished" not in result.stdout
+
+
+def test__cli__lint_quiet_preserves_machine_output():
+    """Quiet lint should not alter machine-readable diagnostics."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                "--quiet",
+                "--format",
+                "json",
+                "--disable-progress-bar",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+    records = json.loads(result.stdout)
+    assert {violation["code"] for violation in records[0]["violations"]} == {
+        "CP01",
+        "LT02",
+    }
+
+
+@pytest.mark.parametrize("command", [fix, cli_format])
+def test__cli__quiet_preserves_unfixable_exit_code(command, tmp_path):
+    """Quiet fix and format should still fail for unfixable violations."""
+    test_file = tmp_path / "unfixable.sql"
+    shutil.copy(
+        "test/fixtures/linter/autofix/ansi/008_looping_rules_LT02_LT04_LT05/after.sql",
+        test_file,
+    )
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "--dialect=ansi",
+                str(test_file),
+            ],
+        ],
+    )
+    assert "unfixable linting violations found" in result.stdout
+    assert "All Finished" not in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("command", "extra_args", "cli_input", "expected"),
+    [
+        (fix, ["--rules=LT02"], " select * from t", "select * from t"),
+        (
+            cli_format,
+            [],
+            "   select    *    FRoM     t    ",
+            "select * from t\n",
+        ),
+    ],
+)
+def test__cli__quiet_preserves_formatted_stdin(
+    command, extra_args, cli_input, expected
+):
+    """Quiet fix and format should preserve formatted stdin output."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "--dialect=ansi",
+                *extra_args,
+                "-",
+            ],
+        ],
+        cli_input=cli_input,
+    )
+    assert result.stdout == expected
+    assert result.stderr == ""
+
+
+@pytest.mark.parametrize("command", [fix, cli_format])
+def test__cli__quiet_preserves_fix_parse_diagnostics(command):
+    """Quiet fix and format should preserve parse diagnostics."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--disable-progress-bar",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert "TMP" in result.stderr
+    assert "PRS" in result.stderr
+    assert "All Finished" not in result.stdout
+
+
+@pytest.mark.parametrize("command", [lint, fix, cli_format])
+def test__cli__quiet_rejects_verbose(command):
+    """The linting commands should reject conflicting output options."""
+    invoke_assert_code(
+        ret_code=2,
+        args=[
+            command,
+            [
+                "--quiet",
+                "--verbose",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+        assert_stdout_contains=(
+            "ERROR: The --quiet flag can only be used if --verbose is not set."
+        ),
+    )
 
 
 def test__cli__command_lint_warning_explicit_file_ignored():
@@ -1038,6 +1338,36 @@ def test__cli__command_version():
 def test__cli__command_rules():
     """Check rules command for exceptions."""
     invoke_assert_code(args=[rules])
+
+
+@pytest.mark.parametrize("line_length", [60, 120, 999])
+def test__cli__command_rules_output_line_length(tmp_path, monkeypatch, line_length):
+    """The rules listing respects the configured output width."""
+    config_path = tmp_path / ".sqlfluff"
+    config_path.write_text(f"[sqlfluff]\noutput_line_length = {line_length}\n")
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(rules, ["--nocolor"])
+    assert result.exit_code == 0
+    lines = [line.rstrip() for line in result.stdout.splitlines()]
+    assert max(map(len, lines)) <= line_length
+    description = (
+        "CV01: [convention.not_equal] Consistent usage of '!=' or '<>' "
+        'for "not equal to" operator.'
+    )
+    assert (description in lines) == (line_length >= len(description))
+
+
+@pytest.mark.parametrize("line_length", [-1, 0, 1, 6, 7])
+def test__cli__command_rules_small_output_line_length(
+    tmp_path, monkeypatch, line_length
+):
+    """A width smaller than the rule label must not crash the listing."""
+    config_path = tmp_path / ".sqlfluff"
+    config_path.write_text(f"[sqlfluff]\noutput_line_length = {line_length}\n")
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(rules, ["--nocolor"])
+    assert result.exit_code == 0
+    assert "CV01:" in result.stdout
 
 
 def test__cli__command_dialects():
@@ -1846,6 +2176,7 @@ def test__cli__command_lint_nocolor(
         "sarif",
         "github-annotation",
         "github-annotation-native",
+        "gitlab",
         "none",
     ],
 )
@@ -1923,6 +2254,10 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
+        assert len(filepaths) == 2
+    elif serialize == "gitlab":
+        result = json.loads(result_payload)
+        filepaths = {r["location"]["path"] for r in result}
         assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
@@ -2091,6 +2426,12 @@ def test__cli__command_lint_serialize_github_annotation():
             "test/fixtures/linter/jinja_spacing.sql",
             (
                 "::group::{filename}\n"
+                # NOTE: AM04 is anchored on the wildcard, which is literal
+                # even though the table reference beside it is templated.
+                "::error title=SQLFluff,file={filename},"
+                "line=3,col=8,endLine=3,endColumn=9::AM04: "
+                "Query produces an unknown number of result columns. "
+                "[ambiguous.column_count]\n"
                 "::error title=SQLFluff,file={filename},"
                 "line=3,col=15,endLine=3,endColumn=22::JJ01: "
                 "Jinja tags should have a single whitespace on either "
@@ -2127,7 +2468,9 @@ def test__cli__command_lint_serialize_github_annotation_native(
     assert result.stdout == expected_output.format(filename=fpath_normalised)
 
 
-@pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])
+@pytest.mark.parametrize(
+    "serialize", ["github-annotation", "github-annotation-native", "gitlab"]
+)
 def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     serialize,
 ):
@@ -2164,6 +2507,203 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     )
 
     assert result_error.stdout == result_failure.stdout
+
+
+def test__cli__command_lint_serialize_gitlab():
+    """Test format of gitlab Code Quality output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "gitlab",
+                "--annotation-level",
+                "warning",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    result = json.loads(result.stdout)
+    assert result == [
+        {
+            "check_name": "RF02",
+            "description": "RF02: Unqualified reference 'foo' found in select with more than one "
+            "referenced table/view.",
+            "severity": "major",
+            "fingerprint": "ea72c87b48f117121c9dc88494e7a28c",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 3,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 3,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "LT02",
+            "description": "LT02: Expected indent of 8 spaces.",
+            "severity": "major",
+            "fingerprint": "2ff34290e123cd2433e5c99851980992",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "AL02",
+            "description": "AL02: Implicit/explicit aliasing of columns.",
+            "severity": "major",
+            "fingerprint": "2b77945fc8b2c5d3b272ca15017e7494",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "0e3b951371f88c7eba5527dc8391ca23",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 4,
+                        "column": 5,
+                    },
+                    "end": {
+                        "line": 4,
+                        "column": 8,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP01",
+            "description": "CP01: Keywords must be consistently lower case.",
+            "severity": "info",
+            "fingerprint": "5edaf68d9dfa280f4391b61343e4a6e8",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 5,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "f65871bbe27ff3bad777629aa7a97b24",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 12,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 16,
+                    },
+                },
+            },
+        },
+        {
+            "check_name": "CP02",
+            "description": "CP02: Unquoted identifiers must be consistently lower case.",
+            "severity": "major",
+            "fingerprint": "a7cbc8b53f1c7ca425770b9504d6752d",
+            "location": {
+                "path": "test/fixtures/linter/identifier_capitalisation.sql",
+                "positions": {
+                    "begin": {
+                        "line": 5,
+                        "column": 18,
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 22,
+                    },
+                },
+            },
+        },
+    ]
+
+
+def test__cli__command_lint_serialize_gitlab_parse_error():
+    """Test gitlab Code Quality output for a failed parse."""
+    fpath = "test/fixtures/linter/parse_error.sql"
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "gitlab",
+                "--annotation-level",
+                "warning",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    result = json.loads(result.stdout)
+    assert result == [
+        {
+            "check_name": "PRS",
+            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'",
+            "severity": "major",
+            "fingerprint": "9319cfff6469f2165074d8033911e5b7",
+            "location": {
+                "path": "test/fixtures/linter/parse_error.sql",
+                "positions": {
+                    "begin": {
+                        "line": 1,
+                        "column": 1,
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 7,
+                    },
+                },
+            },
+        },
+    ]
 
 
 def test___main___help():
@@ -2332,6 +2872,22 @@ def test_cli_get_config_color_override():
     assert no_color_config.get("color") is False
 
 
+def test_cli_lint_quiet_disables_progress_bar():
+    """Quiet mode should disable progress output without another flag."""
+    previous_disable_progress_bar = progress_bar_configuration.disable_progress_bar
+    try:
+        progress_bar_configuration.disable_progress_bar = False
+        result = invoke_assert_code(
+            args=[lint, ["--quiet", "test/fixtures/linter/passing.sql"]]
+        )
+
+        assert progress_bar_configuration.disable_progress_bar is True
+        assert result.stdout == ""
+        assert result.stderr == ""
+    finally:
+        progress_bar_configuration.disable_progress_bar = previous_disable_progress_bar
+
+
 @patch(
     "sqlfluff.core.linter.linter.progress_bar_configuration",
     disable_progress_bar=False,
@@ -2481,7 +3037,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
 def test__cli__fix_multiple_errors_quiet_force():
     """Test the fix --quiet option with --force."""
     invoke_assert_code(
-        ret_code=0,
+        ret_code=1,
         args=[
             fix,
             [
@@ -2502,7 +3058,7 @@ def test__cli__fix_multiple_errors_quiet_force():
 def test__cli__fix_multiple_errors_quiet_check():
     """Test the fix --quiet option without --force."""
     invoke_assert_code(
-        ret_code=0,
+        ret_code=1,
         args=[
             fix,
             [
@@ -2519,8 +3075,7 @@ def test__cli__fix_multiple_errors_quiet_check():
         assert_stdout_contains=(
             """2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
-== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-All Finished"""
+== [test/fixtures/linter/multiple_sql_errors.sql] FIXED"""
         ),
     )
 

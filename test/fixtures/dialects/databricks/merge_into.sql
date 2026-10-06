@@ -78,3 +78,13 @@ when not matched by target and src.is_valid = true then
 insert (id, file_path) values (src.id, src.file_path)
 when not matched by source and dest.is_active = true then
 update set dest.is_active = false
+;
+
+-- INSERT * EXCEPT: validates the Databricks-specific MergeInsertClauseSegment
+-- override (explicit VALUES matching) continues to support EXCEPT
+merge into t using u on (t.key = u.key)
+when matched then
+update set * except (last_updated)
+when not matched then
+insert * except (last_updated)
+;

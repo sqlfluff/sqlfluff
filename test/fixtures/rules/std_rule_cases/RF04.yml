@@ -156,3 +156,55 @@ test_fail_keyword_as_column_name_postgres:
   configs:
     core:
       dialect: postgres
+
+# --- MySQL/MariaDB charset & collation names are not user identifiers ---
+# With unquoted_identifiers_policy=all, charset/collation names that happen to be
+# keywords (e.g. `ascii`) must not be flagged: they are matched as dedicated
+# character_set / keyword segments, not naked identifiers.
+
+test_pass_mysql_column_charset_keyword_name:
+  pass_str: CREATE TABLE t (col1 TEXT CHARACTER SET ascii COLLATE ascii_bin)
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_mysql_alter_convert_charset_keyword_name:
+  pass_str: ALTER TABLE t CONVERT TO CHARACTER SET ascii
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_mysql_alter_default_charset_keyword_name:
+  pass_str: ALTER TABLE t DEFAULT CHARACTER SET ascii
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_mariadb_column_charset_keyword_name:
+  pass_str: CREATE TABLE t (col1 TEXT CHARACTER SET ascii COLLATE ascii_bin)
+  configs:
+    core:
+      dialect: mariadb
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+# Guard: a real keyword used as a column name must still be flagged, i.e. the
+# charset fix did not broaden the rule away from genuine misuse.
+test_fail_mysql_keyword_column_name_still_flagged:
+  fail_str: CREATE TABLE t (ascii TEXT)
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all

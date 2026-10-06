@@ -730,6 +730,38 @@ def test__templater_jinja_error_macro_invalid():
     assert "{% macro pkg.my_macro() %}pass{% endmacro %}" in error_string
 
 
+def test__templater_jinja_fast_path_library_path_error(tmp_path):
+    """A broken library import must still raise on a literal-only file.
+
+    The fast path added to `process()` should only skip work that cannot
+    change observable behaviour. `library_path` loading can raise (e.g. on
+    a broken import), and that must not be bypassed just because the input
+    has no Jinja markers.
+    """
+    lib_dir = tmp_path / "libs"
+    lib_dir.mkdir()
+    (lib_dir / "broken.py").write_text("import this_module_does_not_exist_at_all\n")
+
+    config = FluffConfig(
+        configs={
+            "core": {
+                "dialect": "ansi",
+                "templater": "jinja",
+            },
+            "templater": {
+                "jinja": {"library_path": str(lib_dir)},
+            },
+        }
+    )
+
+    with pytest.raises(ModuleNotFoundError):
+        JinjaTemplater().process(
+            in_str="SELECT 1\n",
+            fname="test.sql",
+            config=config,
+        )
+
+
 def test__templater_jinja_lint_empty():
     """Check that parsing a file which renders to an empty string.
 
@@ -2052,3 +2084,62 @@ def test__templater_jinja_dotted_context_config():
 
     # The template should render with the nested values
     assert str(outstr) == "SELECT * FROM `myproject.prod_test.table`"
+
+
+def test__templater_jinja_custom_variable_delimiters():
+    """Test custom variable delimiters (e.g. Snowflake CLI <% var %>)."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = snowflake\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "variable_start_string = <%\n"
+        "variable_end_string = %>\n"
+    )
+    t = JinjaTemplater(override_context=dict(table_name="my_table", identifier="42"))
+    instr = "SELECT * FROM <% table_name %> WHERE id = <% identifier %>\n"
+    outstr, vs = t.process(in_str=instr, fname="test.sql", config=config)
+    assert str(outstr) == "SELECT * FROM my_table WHERE id = 42\n"
+    assert len(vs) == 0
+
+
+def test__templater_jinja_custom_block_delimiters():
+    """Test custom block delimiters for control flow."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "block_start_string = <%\n"
+        "block_end_string = %>\n"
+        "variable_start_string = <<\n"
+        "variable_end_string = >>\n"
+    )
+    t = JinjaTemplater(override_context=dict(cols=["a", "b", "c"]))
+    instr = "<% for c in cols %> << c >><% if not loop.last %>, <% endif %><% endfor %>"
+    outstr, vs = t.process(in_str=instr, fname="test.sql", config=config)
+    assert str(outstr) == " a,  b,  c"
+    assert len(vs) == 0
+
+
+def test__templater_jinja_custom_block_delimiters_variants():
+    """Test variant generation respects custom block delimiters."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = jinja\n"
+        "[sqlfluff:templater:jinja]\n"
+        "block_start_string = <%\n"
+        "block_end_string = %>\n"
+        "variable_start_string = <<\n"
+        "variable_end_string = >>\n"
+    )
+    t = JinjaTemplater(override_context=dict(flag=False))
+    instr = "<% if flag %>SELECT 1<% else %>SELECT 2<% endif %>"
+    variants = list(
+        t.process_with_variants(in_str=instr, fname="test.sql", config=config)
+    )
+    assert str(variants[0][0]) == "SELECT 2"
+    variant_outputs = {str(v[0]) for v in variants}
+    assert "SELECT 1" in variant_outputs
+    assert "SELECT 2" in variant_outputs

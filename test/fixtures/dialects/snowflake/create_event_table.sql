@@ -13,3 +13,15 @@ CREATE OR REPLACE EVENT TABLE IF NOT EXISTS my_events
     WITH ROW ACCESS POLICY sales_policy ON (type, region)
     WITH TAG (cost_center = 'sales')
 ;
+
+-- The WITH prefixes are optional.
+CREATE EVENT TABLE my_events COMMENT = 'My events table';
+CREATE EVENT TABLE my_events
+    ROW ACCESS POLICY sales_policy ON (type, region)
+    TAG (cost_center = 'sales');
+
+CREATE EVENT TABLE my_events
+    WITH CONTACT (steward = my_steward);
+CREATE EVENT TABLE my_events
+    WITH COMMENT = 'My events table'
+    WITH CONTACT (steward = my_steward, support = my_db.my_schema.my_support);

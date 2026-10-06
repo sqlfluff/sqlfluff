@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ccf6bc5f00c697fe4ccc0dfb790d4fe997c5da83b3595b2c28583be696a103e
+_hash: 3420c515508fcf06c437727979c28ce35a5c03fc0c045d3d405df5f1be493649
 file:
 - statement:
     merge_statement:
@@ -231,8 +231,9 @@ file:
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
-            wildcard_identifier:
-              star: '*'
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -305,8 +306,9 @@ file:
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
-            wildcard_identifier:
-              star: '*'
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
 - statement_terminator: ;
 - statement:
     merge_statement:

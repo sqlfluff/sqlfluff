@@ -118,7 +118,7 @@ def test__config__glob_exclude_config_tests():
     lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
     violations = lnt.check_tuples_by_path()
     for k in violations:
-        assert ("AM04", 12, 1) in violations[k]
+        assert ("AM04", 12, 8) in violations[k]
         assert "RF02" not in [c[0] for c in violations[k]]
         assert "LT13" not in [c[0] for c in violations[k]]
         assert "AM05" not in [c[0] for c in violations[k]]
@@ -154,7 +154,7 @@ def test__config__rules_set_to_none():
     violations = lnt.check_tuples_by_path()
     for k in violations:
         assert ("LT13", 1, 1) in violations[k]
-        assert ("AM04", 12, 1) in violations[k]
+        assert ("AM04", 12, 8) in violations[k]
         assert ("CP01", 12, 10) in violations[k]
 
 
@@ -224,6 +224,14 @@ def test__config__from_string():
     # Verify we can later retrieve the config values.
     assert cfg.get("testing_val") == "foobar"
     assert cfg.get("dialect") == "mysql"
+
+
+def test__config__deprecated_max_line_length_is_applied():
+    """A deprecated `sqlfluff:rules:max_line_length` should still take effect."""
+    cfg = FluffConfig.from_string(
+        "[sqlfluff]\ndialect = ansi\n\n[sqlfluff:rules]\nmax_line_length = 30\n"
+    )
+    assert cfg.get("max_line_length") == 30
 
 
 def test__config_missing_dialect():
@@ -550,3 +558,33 @@ def test_resolve_paths_in_config_no_matches_fallback(tmp_path):
     # Should keep original pattern when no matches
     resolved_path = test_config["templater:jinja"]["load_macros_from_path"]
     assert resolved_path == "empty/*.sql, nonexistent/*.sql"
+
+
+def test_resolve_paths_in_config_skips_jinja_context(tmp_path):
+    """Test that _resolve_paths_in_config leaves the jinja context alone.
+
+    Values in the jinja context are arbitrary user data, so the `_path`/`_dir`
+    suffix heuristics must not be applied to them. The inline config route
+    already guarantees this (see the `my_path` case in
+    test_process_inline_config), and the file route should match it.
+    """
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    (tmp_path / "data").mkdir()
+
+    test_config = {
+        "templater": {
+            "jinja": {
+                "context": {
+                    "tbl_path": "data",
+                    "is_dir": True,
+                },
+            },
+        },
+    }
+
+    _resolve_paths_in_config(test_config, str(tmp_path / ".sqlfluff"))
+
+    context = test_config["templater"]["jinja"]["context"]
+    assert context["tbl_path"] == "data"
+    assert context["is_dir"] is True

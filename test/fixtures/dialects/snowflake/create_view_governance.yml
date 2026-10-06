@@ -1,0 +1,368 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ccc5b9fc3d4d01fc35109e59c8b18d3305fce3f9454be4061f3c3f71a3986e63
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_projection
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c1
+      - keyword: WITH
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pp1
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: c1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_projection_no_with
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c1
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pp1
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: c1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_column_mix
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c1
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: mp1
+      - keyword: USING
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: c1
+        - comma: ','
+        - column_reference:
+            naked_identifier: c2
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pp1
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'a column'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: c2
+      - tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+            start_bracket: (
+            tag_reference:
+              naked_identifier: my_tag
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'my value'"
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_aggregation
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: ap1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_aggregation_entity_key
+    - keyword: WITH
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: ap1
+    - keyword: ENTITY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_join
+    - keyword: WITH
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: jp1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_join_keys
+    - keyword: WITH
+    - keyword: JOIN
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: jp1
+    - keyword: ALLOWED
+    - keyword: JOIN
+    - keyword: KEYS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_copy_tags
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: COPY
+    - keyword: TAGS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_contact
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+        start_bracket: (
+        keyword: STEWARD
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: c1
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_contacts
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: STEWARD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: c1
+      - comma: ','
+      - keyword: SUPPORT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: c2
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;

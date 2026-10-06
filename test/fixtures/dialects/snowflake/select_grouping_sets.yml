@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ebb65b3bbf3f5f2924ad469ba97ad940ac89d440b90b03acd69eca3cb6b3aba
+_hash: 1992e89d371efebb0ca9bb6addfb9579dde7bb775e060796b4b0a313cdbec83d
 file:
 - statement:
     select_statement:
@@ -26,16 +26,17 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - keyword: GROUPING
-      - keyword: SETS
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: foo
-        - comma: ','
-        - column_reference:
-            naked_identifier: bar
-        - end_bracket: )
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: foo
+          - comma: ','
+          - column_reference:
+              naked_identifier: bar
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -68,16 +69,17 @@ file:
       groupby_clause:
       - keyword: group
       - keyword: by
-      - keyword: grouping
-      - keyword: sets
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: medical_license
-        - comma: ','
-        - column_reference:
-            naked_identifier: radio_license
-        - end_bracket: )
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: medical_license
+          - comma: ','
+          - column_reference:
+              naked_identifier: radio_license
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -110,14 +112,15 @@ file:
       groupby_clause:
       - keyword: group
       - keyword: by
-      - keyword: grouping
-      - keyword: sets
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: medical_license
-        - comma: ','
-        - column_reference:
-            naked_identifier: radio_license
-        - end_bracket: )
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: medical_license
+          - comma: ','
+          - column_reference:
+              naked_identifier: radio_license
+          - end_bracket: )
 - statement_terminator: ;

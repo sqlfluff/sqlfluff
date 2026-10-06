@@ -13,19 +13,6 @@ my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
 lint_result = [
     {
-        "code": "AM04",
-        "description": "Query produces an unknown number of result columns.",
-        "start_line_no": 1,
-        "start_line_pos": 1,
-        "start_file_pos": 0,
-        "end_line_no": 1,
-        "end_line_pos": 41,
-        "end_file_pos": 40,
-        "name": "ambiguous.column_count",
-        "fixes": [],
-        "warning": False,
-    },
-    {
         "code": "CP01",
         "start_line_no": 1,
         "start_line_pos": 1,
@@ -166,6 +153,19 @@ lint_result = [
                 "end_file_pos": 8,
             }
         ],
+        "warning": False,
+    },
+    {
+        "code": "AM04",
+        "description": "Query produces an unknown number of result columns.",
+        "start_line_no": 1,
+        "start_line_pos": 9,
+        "start_file_pos": 8,
+        "end_line_no": 1,
+        "end_line_pos": 10,
+        "end_file_pos": 9,
+        "name": "ambiguous.column_count",
+        "fixes": [],
         "warning": False,
     },
     {

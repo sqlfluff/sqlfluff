@@ -17,6 +17,7 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 ALLOWABLE_IMPLICIT_INDENTS_VALUES = ("forbid", "allow", "require")
+ALLOWABLE_LIST_WRAPPING_VALUES = ("one_per_line", "fill")
 
 
 def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -> None:
@@ -112,6 +113,17 @@ def _validate_indentation_config(
                 "for more details."
             )
 
+    list_wrapping = indentation_section.get("list_wrapping")
+    if list_wrapping is not None:
+        if list_wrapping not in ALLOWABLE_LIST_WRAPPING_VALUES:
+            raise SQLFluffUserError(
+                f"Config file {logging_reference!r} set an invalid value for "
+                f"`list_wrapping`: {list_wrapping!r}. "
+                f"Valid options are: {', '.join(ALLOWABLE_LIST_WRAPPING_VALUES)}. "
+                "See https://docs.sqlfluff.com/en/stable/perma/configuration.html "
+                "for more details."
+            )
+
 
 def _validate_max_parse_depth_config(
     config: ConfigMappingType, logging_reference: str
@@ -189,6 +201,39 @@ def _validate_max_parse_nodes_config(
         )
 
 
+def _validate_int_config(
+    config: ConfigMappingType, key: str, minimum: int, logging_reference: str
+) -> None:
+    """Validate that a core integer config value is a valid integer.
+
+    Unlike ``max_parse_depth``/``max_parse_nodes`` there is no ``0`` sentinel
+    for these options, so any non-integer or out-of-range value is rejected with
+    a clean ``SQLFluffUserError`` rather than being allowed to reach numeric-use
+    sites and crash with an opaque ``TypeError``.
+    """
+    core_section = config.get("core", {})
+    if not core_section:
+        return None
+
+    assert isinstance(core_section, dict)
+    if key not in core_section:
+        return None
+
+    value = core_section.get(key)
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise SQLFluffUserError(
+            f"Config file {logging_reference!r} set an invalid value for "
+            f"`{key}`: {value!r}. This value must be an integer."
+        )
+
+    if value < minimum:
+        raise SQLFluffUserError(
+            f"Config file {logging_reference!r} set an invalid value for "
+            f"`{key}`: {value!r}. This value must be an integer of at least "
+            f"{minimum}."
+        )
+
+
 def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> None:
     """Validate a config dict.
 
@@ -212,3 +257,6 @@ def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> N
     _validate_max_parse_depth_config(config, logging_reference)
     # Validate max parse nodes config
     _validate_max_parse_nodes_config(config, logging_reference)
+    # Validate other core integer limits which have no disable sentinel.
+    _validate_int_config(config, "render_variant_limit", 1, logging_reference)
+    _validate_int_config(config, "runaway_limit", 1, logging_reference)

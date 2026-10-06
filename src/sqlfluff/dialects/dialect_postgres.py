@@ -271,7 +271,7 @@ postgres_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--",)},
         ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
@@ -380,6 +380,13 @@ postgres_dialect.sets("reserved_keywords").difference_update(
 postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
+
+# `SOURCE` and `TARGET` are not PostgreSQL keywords in general, but the
+# `MERGE ... WHEN NOT MATCHED BY {SOURCE,TARGET}` clauses (added in PostgreSQL
+# 17) need them. Register them as unreserved so they remain usable as ordinary
+# identifiers (e.g. a table aliased `AS source`) while the merge grammar can
+# still match them.
+postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 
 # Add datetime units
 postgres_dialect.sets("datetime_units").update(
@@ -500,6 +507,15 @@ postgres_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     OnKeywordAsIdentifierSegment=StringParser(
         "ON", IdentifierSegment, type="naked_identifier"
+    ),
+    # A boolean option value: TRUE, ON or 1 enable the option, and FALSE, OFF
+    # or 0 disable it.
+    # https://www.postgresql.org/docs/current/sql-explain.html
+    OptionBooleanGrammar=OneOf(
+        Ref("BooleanLiteralGrammar"),
+        "ON",
+        "OFF",
+        Ref("NumericLiteralSegment"),
     ),
     DollarNumericLiteralSegment=TypedParser(
         "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
@@ -1180,11 +1196,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         ),
         # array types
         OneOf(
-            AnyNumberOf(
-                Bracketed(
-                    Ref("ExpressionSegment", optional=True), bracket_type="square"
-                )
-            ),
+            AnyNumberOf(Ref("ArrayTypeSuffixSegment")),
             Ref("ArrayTypeSegment"),
             Ref("SizedArrayTypeSegment"),
             optional=True,
@@ -1197,6 +1209,20 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class ArrayTypeSuffixSegment(BaseSegment):
+    """The ``[]`` suffix that turns a scalar type into an array type.
+
+    e.g. the ``[]`` in ``int[]``. It's its own segment so that layout rule
+    LT01 keeps it touching the preceding type name rather than spacing it
+    like a standalone square bracket (see issue #5005).
+    """
+
+    type = "array_type_suffix"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment", optional=True), bracket_type="square"
+    )
 
 
 class IndexAccessMethodSegment(BaseSegment):
@@ -1453,7 +1479,10 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
                                 Ref("DatatypeSegment"),
                                 Sequence(
                                     Ref("ColumnReferenceSegment"),
-                                    Ref("DatatypeSegment"),
+                                    OneOf(
+                                        Ref("DatatypeSegment"),
+                                        Ref("ColumnTypeReferenceSegment"),
+                                    ),
                                 ),
                             ),
                         )
@@ -1689,6 +1718,45 @@ class OffsetClauseSegment(ansi.OffsetClauseSegment):
             Ref("NumericLiteralSegment"),
             # An arbitrary expression
             Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """An `ORDER BY` clause.
+
+    Adds PostgreSQL's ``USING operator`` sort option, which selects an
+    explicit ordering operator instead of ``ASC``/``DESC``.
+    https://www.postgresql.org/docs/current/queries-order.html
+    """
+
+    type = "orderby_clause"
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    "ASC",
+                    "DESC",
+                    # PostgreSQL allows an explicit sort operator, e.g.
+                    # `ORDER BY a USING <` or `ORDER BY a USING OPERATOR(schema.<)`.
+                    Sequence("USING", Ref("ComparisonOperatorGrammar")),
+                    optional=True,
+                ),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
+            ),
+            terminators=[Ref("LimitClauseSegment"), Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -2286,13 +2354,16 @@ class ExplainOptionSegment(BaseSegment):
     VERBOSE [ boolean ]
     COSTS [ boolean ]
     SETTINGS [ boolean ]
+    GENERIC_PLAN [ boolean ]
     BUFFERS [ boolean ]
+    SERIALIZE [ { NONE | TEXT | BINARY } ]
     WAL [ boolean ]
     TIMING [ boolean ]
     SUMMARY [ boolean ]
+    MEMORY [ boolean ]
     FORMAT { TEXT | XML | JSON | YAML }
 
-    https://www.postgresql.org/docs/14/sql-explain.html
+    https://www.postgresql.org/docs/17/sql-explain.html
     """
 
     type = "explain_option"
@@ -2305,12 +2376,18 @@ class ExplainOptionSegment(BaseSegment):
                 "VERBOSE",
                 "COSTS",
                 "SETTINGS",
+                "GENERIC_PLAN",
                 "BUFFERS",
                 "WAL",
                 "TIMING",
                 "SUMMARY",
+                "MEMORY",
             ),
-            Ref("BooleanLiteralGrammar", optional=True),
+            Ref("OptionBooleanGrammar", optional=True),
+        ),
+        Sequence(
+            "SERIALIZE",
+            OneOf("NONE", "TEXT", "BINARY", optional=True),
         ),
         Sequence(
             "FORMAT",
@@ -2878,6 +2955,15 @@ class AlterTableActionSegment(BaseSegment):
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", OneOf("CLUSTER", "OIDS")),
         Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
+        # `SET ACCESS METHOD` was added in PostgreSQL 15, and accepting
+        # `DEFAULT` (meaning `default_table_access_method`) in PostgreSQL 17.
+        # https://www.postgresql.org/docs/current/sql-altertable.html
+        Sequence(
+            "SET",
+            "ACCESS",
+            "METHOD",
+            OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+        ),
         Sequence("SET", OneOf("LOGGED", "UNLOGGED")),
         Sequence("SET", Ref("RelationOptionsSegment")),
         # Documentation says you can only provide keys in RESET options, but the
@@ -3370,6 +3456,14 @@ class AlterMaterializedViewActionSegment(BaseSegment):
         ),
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", "CLUSTER"),
+        # `SET ACCESS METHOD` was added in PostgreSQL 15.
+        # https://www.postgresql.org/docs/current/sql-altermaterializedview.html
+        Sequence(
+            "SET",
+            "ACCESS",
+            "METHOD",
+            OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+        ),
         Sequence(
             "SET",
             Bracketed(
@@ -3661,7 +3755,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "ALLOW_CONNECTIONS",
                 Ref("EqualsSegment", optional=True),
-                Ref("BooleanLiteralGrammar"),
+                Ref("OptionBooleanGrammar"),
             ),
             Sequence(
                 "CONNECTION",
@@ -3672,7 +3766,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "IS_TEMPLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("BooleanLiteralGrammar"),
+                Ref("OptionBooleanGrammar"),
             ),
         ),
     )
@@ -3694,13 +3788,13 @@ class AlterDatabaseStatementSegment(BaseSegment):
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 AnyNumberOf(
-                    Sequence("ALLOW_CONNECTIONS", Ref("BooleanLiteralGrammar")),
+                    Sequence("ALLOW_CONNECTIONS", Ref("OptionBooleanGrammar")),
                     Sequence(
                         "CONNECTION",
                         "LIMIT",
                         Ref("NumericLiteralSegment"),
                     ),
-                    Sequence("IS_TEMPLATE", Ref("BooleanLiteralGrammar")),
+                    Sequence("IS_TEMPLATE", Ref("OptionBooleanGrammar")),
                     min_times=1,
                 ),
             ),
@@ -3864,7 +3958,7 @@ class DropSubscriptionStatementSegment(BaseSegment):
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
-    https://www.postgresql.org/docs/15/sql-vacuum.html
+    https://www.postgresql.org/docs/16/sql-vacuum.html
     https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L11658
     """
 
@@ -3890,9 +3984,13 @@ class VacuumStatementSegment(BaseSegment):
                             "DISABLE_PAGE_SKIPPING",
                             "SKIP_LOCKED",
                             "INDEX_CLEANUP",
+                            "PROCESS_MAIN",
                             "PROCESS_TOAST",
                             "TRUNCATE",
                             "PARALLEL",
+                            "SKIP_DATABASE_STATS",
+                            "ONLY_DATABASE_STATS",
+                            "BUFFER_USAGE_LIMIT",
                         ),
                         OneOf(
                             Ref("LiteralGrammar"),
@@ -3971,7 +4069,13 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
             Sequence(
                 "GENERATED",
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
@@ -4056,8 +4160,14 @@ class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            # GENERATED ALWAYS AS ( generation_expr ) STORED
-            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+            # GENERATED ALWAYS AS ( generation_expr ) [ STORED | VIRTUAL ]
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),
         ),
     )
 
@@ -4746,12 +4856,12 @@ class ReindexStatementSegment(BaseSegment):
         "REINDEX",
         Bracketed(
             Delimited(
-                Sequence("CONCURRENTLY", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence("CONCURRENTLY", Ref("OptionBooleanGrammar", optional=True)),
                 Sequence(
                     "TABLESPACE",
                     Ref("TablespaceReferenceSegment"),
                 ),
-                Sequence("VERBOSE", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence("VERBOSE", Ref("OptionBooleanGrammar", optional=True)),
             ),
             optional=True,
         ),
@@ -5080,13 +5190,19 @@ class DropStatisticsStatementSegment(BaseSegment):
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
-    As specified in https://www.postgresql.org/docs/13/sql-analyze.html
+    As specified in https://www.postgresql.org/docs/16/sql-analyze.html
     """
 
     type = "analyze_statement"
 
-    _option = Sequence(
-        OneOf("VERBOSE", "SKIP_LOCKED"), Ref("BooleanLiteralGrammar", optional=True)
+    _option = OneOf(
+        Sequence(
+            OneOf("VERBOSE", "SKIP_LOCKED"), Ref("OptionBooleanGrammar", optional=True)
+        ),
+        Sequence(
+            "BUFFER_USAGE_LIMIT",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+        ),
     )
 
     _tables_and_columns = Sequence(
@@ -5479,6 +5595,56 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Dedent,
             optional=True,
         ),
+    )
+
+
+class MergeMatchedClauseSegment(ansi.MergeMatchedClauseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow `DO NOTHING`, which Postgres accepts as a merge
+    action alongside `UPDATE` and `DELETE`.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    type = "merge_when_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """The `WHEN NOT MATCHED [BY TARGET]` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow the optional `BY TARGET` qualifier (a PostgreSQL 17
+    synonym for the plain `WHEN NOT MATCHED`) and `DO NOTHING`, which Postgres
+    accepts as a merge action alongside `INSERT`.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    type = "merge_when_not_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("BY", "TARGET", optional=True),
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeInsertClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
     )
 
 
@@ -5883,7 +6049,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
 class CopyStatementSegment(BaseSegment):
     """A `COPY` statement.
 
-    As Specified in https://www.postgresql.org/docs/14/sql-copy.html
+    As Specified in https://www.postgresql.org/docs/current/sql-copy.html
     """
 
     type = "copy_statement"
@@ -5908,10 +6074,15 @@ class CopyStatementSegment(BaseSegment):
             Delimited(
                 AnySetOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
-                    Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("FREEZE", Ref("OptionBooleanGrammar", optional=True)),
                     Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
                     Sequence("NULL", Ref("QuotedLiteralSegment")),
-                    Sequence("HEADER", Ref("BooleanLiteralGrammar", optional=True)),
+                    # PostgreSQL 16+
+                    Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
+                    Sequence(
+                        "HEADER",
+                        OneOf(Ref("OptionBooleanGrammar"), "MATCH", optional=True),
+                    ),
                     Sequence("QUOTE", Ref("QuotedLiteralSegment")),
                     Sequence("ESCAPE", Ref("QuotedLiteralSegment")),
                     Sequence(
@@ -5923,13 +6094,25 @@ class CopyStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "FORCE_NOT_NULL",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
                     ),
                     Sequence(
                         "FORCE_NULL",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
                     ),
+                    # PostgreSQL 17+
+                    Sequence("ON_ERROR", OneOf("STOP", "IGNORE")),
+                    # PostgreSQL 18+
+                    Sequence("REJECT_LIMIT", Ref("NumericLiteralSegment")),
                     Sequence("ENCODING", Ref("QuotedLiteralSegment")),
+                    # PostgreSQL 17+ (SILENT added in 18)
+                    Sequence("LOG_VERBOSITY", OneOf("DEFAULT", "VERBOSE", "SILENT")),
                 )
             )
         ),
@@ -6587,7 +6770,7 @@ class CreateCollationStatementSegment(BaseSegment):
                     Sequence(
                         "DETERMINISTIC",
                         Ref("EqualsSegment"),
-                        Ref("BooleanLiteralGrammar"),
+                        Ref("OptionBooleanGrammar"),
                     ),
                     Sequence(
                         "VERSION",
@@ -7338,6 +7521,51 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class MergeMatchSegment(ansi.MergeMatchSegment):
+    """Contains PostgreSQL specific merge operations.
+
+    PostgreSQL 17 added a ``WHEN NOT MATCHED BY SOURCE`` clause (and made
+    ``BY TARGET`` an accepted synonym for the plain ``WHEN NOT MATCHED``) in
+    addition to the standard matched / not matched clauses.
+
+    https://www.postgresql.org/docs/17/sql-merge.html
+    """
+
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedClauseSegment"),
+        Ref("MergeNotMatchedBySourceClauseSegment"),
+        min_times=1,
+    )
+
+
+class MergeNotMatchedBySourceClauseSegment(BaseSegment):
+    """The ``WHEN NOT MATCHED BY SOURCE`` clause within a ``MERGE`` statement.
+
+    A ``NOT MATCHED BY SOURCE`` clause combines with an ``UPDATE``, ``DELETE`` or
+    ``DO NOTHING`` rather than an ``INSERT``, so it is closer to a matched clause
+    than to the standard not matched clause.
+    """
+
+    type = "merge_when_not_matched_by_source_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        "BY",
+        "SOURCE",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+            Sequence("DO", "NOTHING"),
+        ),
+        Dedent,
+    )
+
+
 class FileSegment(BaseFileSegment):
     r"""A segment representing a whole file or script.
 
@@ -7359,4 +7587,36 @@ class FileSegment(BaseFileSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
+    )
+
+
+class MergeStatementSegment(ansi.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    https://www.postgresql.org/docs/17/sql-merge.html
+
+    PostgreSQL 17 added a `RETURNING` clause to `MERGE`, matching the one
+    already supported on `INSERT`, `UPDATE` and `DELETE`. Output expressions
+    may use the `merge_action()` function to report which action produced a
+    given row.
+    """
+
+    match_grammar = ansi.MergeStatementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "RETURNING",
+                Indent,
+                OneOf(
+                    Ref("StarSegment"),
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
+                ),
+                Dedent,
+                optional=True,
+            ),
+        ],
     )

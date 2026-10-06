@@ -15,9 +15,15 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             ),
         },
         "select_clause_trailing_comma": {
-            "validation": ["forbid", "require"],
+            "validation": [
+                "forbid",
+                "require",
+                "require_multiline_forbid_single_line",
+            ],
             "definition": (
-                "Should trailing commas within select clauses be required or forbidden?"
+                "Should trailing commas within select clauses be required, forbidden, "
+                "or required only for multiline clauses and forbidden for single-line "
+                "clauses?"
             ),
         },
         "prefer_count_1": {
@@ -78,6 +84,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.convention.CV10 import Rule_CV10
     from sqlfluff.rules.convention.CV11 import Rule_CV11
     from sqlfluff.rules.convention.CV12 import Rule_CV12
+    from sqlfluff.rules.convention.CV13 import Rule_CV13
 
     return [
         Rule_CV01,
@@ -92,4 +99,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_CV10,
         Rule_CV11,
         Rule_CV12,
+        Rule_CV13,
     ]

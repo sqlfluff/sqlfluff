@@ -182,7 +182,7 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.add(
-    CommandCellSegment=TypedParser("command", CodeSegment, type="statement_terminator"),
+    CommandCellSegment=TypedParser("command", CodeSegment, type="command_cell"),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
@@ -373,6 +373,28 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
+    # visible inside the pipeline but not published to the catalog:
+    #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
+    # Materialized views already accept it; streaming tables are defined by
+    # the shared SparkSQL TableDefinitionSegment, so Databricks widens it here
+    # rather than adding Databricks-only syntax to SparkSQL.
+    #
+    # PRIVATE is bound to STREAMING rather than inserted as a separate
+    # optional keyword: STREAMING is itself optional, so an independent
+    # PRIVATE would also accept `CREATE PRIVATE TABLE`, which is not valid.
+    # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
+        insert=[
+            OneOf(
+                Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                Ref.keyword("STREAMING"),
+                optional=True,
+            )
+        ],
+        before=Ref.keyword("STREAMING", optional=True),
+        remove=[Ref.keyword("STREAMING", optional=True)],
+    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
     DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
         insert=[
@@ -683,6 +705,42 @@ class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
     type = "volume_reference"
 
 
+class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
+    """A securable object that lives inside a schema.
+
+    Unity Catalog lists VOLUME among the securable objects a privilege can be
+    granted on, and `CREATE VOLUME` among the privileges grantable on a schema.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessSchemaObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("VOLUME"),
+        ],
+    )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A Unity Catalog privilege.
+
+    READ VOLUME and WRITE VOLUME are the two privileges governing volume
+    contents. Neither is a bare READ or WRITE, so they are matched as
+    sequences rather than as the single keywords ANSI already carries.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                OneOf("READ", "WRITE"),
+                "VOLUME",
+            ),
+        ],
+    )
+
+
 class AlterCatalogStatementSegment(BaseSegment):
     """An `ALTER CATALOG` statement.
 
@@ -715,7 +773,16 @@ class CreateCatalogStatementSegment(BaseSegment):
         "CATALOG",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("CatalogReferenceSegment"),
-        Ref("CommentGrammar", optional=True),
+        # The reference gives these as a bracketed alternation followed by
+        # `[...]`, so they may appear in either order.
+        AnySetOf(
+            Sequence(
+                "MANAGED",
+                "LOCATION",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("CommentGrammar"),
+        ),
     )
 
 
@@ -857,6 +924,20 @@ class DropVolumeStatementSegment(BaseSegment):
     )
 
 
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    Databricks documents an optional MATERIALIZED keyword:
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-view
+    """
+
+    match_grammar = ansi.DropViewStatementSegment.match_grammar.copy(
+        insert=[Ref.keyword("MATERIALIZED", optional=True)],
+        before=Ref.keyword("VIEW"),
+    )
+
+
 class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
@@ -948,6 +1029,28 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
+class MaterializedViewExpectationConstraintSegment(BaseSegment):
+    """A data quality expectation for a materialized view."""
+
+    type = "constraint_statement"
+
+    match_grammar = Sequence(
+        "CONSTRAINT",
+        Ref("ObjectReferenceSegment"),
+        "EXPECT",
+        Bracketed(Ref("ExpressionSegment")),
+        Sequence(
+            "ON",
+            "VIOLATION",
+            OneOf(
+                Sequence("FAIL", "UPDATE"),
+                Sequence("DROP", "ROW"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateMaterializedViewStatementSegment(BaseSegment):
     """A `CREATE MATERIALIZED VIEW` Statement.
 
@@ -1023,10 +1126,53 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            Delimited(
-                OneOf(
+            # The two branches differ only in what may come first, and their
+            # trailing expectation and table-constraint loops must stay in
+            # step. They are written out rather than shared: referencing one
+            # grammar instance from both branches, or building one per branch
+            # from a factory, both stop the column list parsing at all.
+            OneOf(
+                Sequence(
                     Ref("ColumnFieldDefinitionSegment"),
-                    Ref("TableConstraintSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("ColumnFieldDefinitionSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("MaterializedViewExpectationConstraintSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableConstraintSegment"),
+                        ),
+                    ),
+                ),
+                # A DLT materialized view may declare no columns at all,
+                # letting their types come from the query, and list only
+                # expectations. The documented syntax writes the column group
+                # as required, but Databricks' own published pipelines use
+                # this form, so the column group is optional here. The order
+                # of the three groups is otherwise unchanged.
+                Sequence(
+                    Ref("MaterializedViewExpectationConstraintSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("MaterializedViewExpectationConstraintSegment"),
+                        ),
+                    ),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableConstraintSegment"),
+                        ),
+                    ),
                 ),
             ),
             optional=True,
@@ -1563,7 +1709,7 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     match_grammar: Matchable = Sequence(
         "INSERT",
         OneOf(
-            Ref("WildcardIdentifierSegment"),
+            Ref("WildcardExpressionSegment"),
             Sequence(
                 Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
@@ -2102,10 +2248,18 @@ class MagicCellStatementSegment(BaseSegment):
         Ref("NotebookStart", optional=True),
         OneOf(
             Sequence(
-                Ref("MagicStartGrammar", optional=True),
+                # A cell opens with the magic directive either alone on its
+                # line (`-- MAGIC %md`) or with content after it
+                # (`-- MAGIC %md # Title`). Both may be followed by further
+                # `-- MAGIC` lines: the directive only names the language, it
+                # does not say how many lines the cell has.
+                OneOf(
+                    Ref("MagicStartGrammar"),
+                    Ref("MagicSingleLineGrammar"),
+                    optional=True,
+                ),
                 AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
             ),
-            Ref("MagicSingleLineGrammar", optional=True),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
                 OneOf(
@@ -2306,14 +2460,78 @@ class CreateFlowStatementSegment(BaseSegment):
             "FLOW",
         ),
         Ref("FlowReferenceSegment"),
-        Sequence(
-            "AS",
-            "AUTO",
-            "CDC",
-            "INTO",
+        Ref("CommentGrammar", optional=True),
+        "AS",
+        OneOf(
+            # AUTO CDC [ONCE] INTO target <cdc spec>
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref.keyword("ONCE", optional=True),
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Dedent,
+                Ref("CDCSpecificationSegment"),
+            ),
+            # INSERT [ONCE] INTO [ONCE] target BY NAME
+            # [REPLACE USING (...) SEQUENCE BY col]
+            # query -- an append flow, which is how a pipeline points several
+            # sources at one streaming table.
+            #
+            # The reference page writes `INSERT [ONCE] INTO`, while the flow
+            # examples and backfill pages write `INSERT INTO ONCE`. Both
+            # spellings are in the Databricks documentation, so both parse.
+            Sequence(
+                "INSERT",
+                # The target is spelled out in each alternative rather than
+                # factored out after an optional ONCE. A table may itself be
+                # named `once`, and a trailing optional keyword would consume
+                # it before the target was tried, making a valid append flow
+                # unparsable.
+                # BY NAME is repeated inside each alternative rather than
+                # factored out after the OneOf. OneOf takes the longest local
+                # match, so for a target named `once` the INTO ONCE branch
+                # would otherwise win by consuming one token more and then
+                # strand the rest of the statement.
+                OneOf(
+                    Sequence(
+                        "ONCE",
+                        "INTO",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                    Sequence(
+                        "INTO",
+                        "ONCE",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                    Sequence(
+                        "INTO",
+                        Indent,
+                        Ref("TableReferenceSegment"),
+                        Dedent,
+                        "BY",
+                        "NAME",
+                    ),
+                ),
+                Sequence(
+                    "REPLACE",
+                    "USING",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    "SEQUENCE",
+                    "BY",
+                    Ref("ColumnReferenceSegment"),
+                    optional=True,
+                ),
+                Ref("SelectableGrammar"),
+            ),
         ),
-        Indent,
-        Ref("TableReferenceSegment"),
-        Dedent,
-        Ref("CDCSpecificationSegment"),
     )

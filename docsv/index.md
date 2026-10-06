@@ -8,7 +8,7 @@ hero:
   text: The SQL Linter for Humans
   tagline: Dialect-flexible and configurable SQL linter
   image:
-    src: /sqlfluff-lrg.png
+    src: /sqlfluff-design/img/sqlfluff-lrg.png
     alt: SQLFluff Logo
   actions:
     - theme: brand

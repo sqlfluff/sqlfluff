@@ -1,0 +1,219 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b9edb957422a5a50c979382caaaf1642372bd75ba8d40a86e32531d6d4baedbf
+file:
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: RESTRICTED
+    - keyword: CALLER
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: SET
+    - metric_level_equals:
+      - keyword: METRIC_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: SET
+    - metric_level_equals:
+        keyword: METRIC_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'ALL'"
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - auto_event_logging_equals:
+        keyword: AUTO_EVENT_LOGGING
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'TRACING'"
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - auto_event_logging_equals:
+      - keyword: AUTO_EVENT_LOGGING
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: SET
+    - log_level_equals:
+        keyword: LOG_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'INFO'"
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: SET
+    - trace_level_equals:
+        keyword: TRACE_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'ON_EVENT'"
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: SET
+    - log_level_equals:
+        keyword: LOG_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'INFO'"
+    - comma: ','
+    - trace_level_equals:
+        keyword: TRACE_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'ALWAYS'"
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+        function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Manitoba'"
+        - comma: ','
+        - expression:
+            numeric_literal: '127.4'
+        - end_bracket: )
+    - keyword: INTO
+    - bind_variable:
+        colon_prefix: ':'
+        variable: ret1
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: INTO
+    - bind_variable:
+        colon_prefix: ':'
+        variable: result
+- statement_terminator: ;
+- statement:
+    call_statement:
+    - keyword: CALL
+    - function_name:
+        function_name_identifier: sv_proc1
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - snowflake_keyword_expression:
+            parameter: a
+            parameter_assigner: =>
+            numeric_literal: '1'
+        - comma: ','
+        - snowflake_keyword_expression:
+            parameter: b
+            parameter_assigner: =>
+            quoted_literal: "'x'"
+        - end_bracket: )
+    - keyword: INTO
+    - bind_variable:
+        colon_prefix: ':'
+        variable: ret1
+- statement_terminator: ;

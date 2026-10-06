@@ -41,6 +41,30 @@ my_where_dict = {"field_1": 1, "field_2": 2}
 a_macro_def = {% macro my_macro(n) %}{{ n }} + {{ n * 2 }}{% endmacro %}
 ```
 
+## Custom Jinja Delimiters
+
+By default, Jinja uses `{{ }}` for variables, `{% %}` for blocks, and
+`{# #}` for comments. Some tools use different delimiters — for example,
+[Snowflake CLI](https://docs.snowflake.com/en/developer-guide/snowflake-cli/project-definitions/use-sql-variables)
+uses `<% varname %>` for variable substitution.
+
+SQLFluff exposes Jinja's delimiter config options so you can lint files
+that use non-standard delimiters:
+
+```ini
+[sqlfluff:templater:jinja]
+variable_start_string = <%
+variable_end_string = %>
+```
+
+All six Jinja delimiter options are supported:
+
+- `variable_start_string` / `variable_end_string` (default: `{{ }}`)
+- `block_start_string` / `block_end_string` (default: `{% %}`)
+- `comment_start_string` / `comment_end_string` (default: `{# #}`)
+
+Each can be set independently. Unset options fall back to Jinja defaults.
+
 ## Complex Jinja Variable Templating
 
 Apart from the Generic variable templating that is supported for all

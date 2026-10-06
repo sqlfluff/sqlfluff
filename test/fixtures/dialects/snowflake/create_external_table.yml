@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4cfacc5f961f683b2ce39ebb46725ef077de9a28e53e748eb50e7589daae3ab8
+_hash: 2a05bcff4cb0c0b6441515708d341eb4ce0907562b46ef06b0de3cb0f9398eda
 file:
 - statement:
     create_external_table_statement:
@@ -601,4 +601,188 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: delta_ext
+    - keyword: PARTITION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        naked_identifier: date_part
+        end_bracket: )
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@stage.delta_stage'
+    - keyword: PARTITION_TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: USER_SPECIFIED
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: PARQUET
+          end_bracket: )
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: protected_ext
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: external_table_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: VALUE
+        end_bracket: )
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@mystage'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+          naked_identifier: my_parquet_format
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: inferred_ext
+    - keyword: USING
+    - keyword: TEMPLATE
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: array_agg
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: object_construct
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            star: '*'
+                            end_bracket: )
+                    end_bracket: )
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: TABLE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: INFER_SCHEMA
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - snowflake_keyword_expression:
+                                  parameter: LOCATION
+                                  parameter_assigner: =>
+                                  quoted_literal: "'@mystage'"
+                              - comma: ','
+                              - snowflake_keyword_expression:
+                                  parameter: FILE_FORMAT
+                                  parameter_assigner: =>
+                                  quoted_literal: "'my_parquet_format'"
+                              - end_bracket: )
+                        end_bracket: )
+        end_bracket: )
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@mystage'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+          naked_identifier: my_parquet_format
+    - keyword: AUTO_REFRESH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: contact_ext
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@mystage'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+          naked_identifier: my_parquet_format
+    - keyword: WITH
+    - keyword: CONTACT
+    - bracketed:
+      - start_bracket: (
+      - keyword: steward
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: my_steward
+      - comma: ','
+      - keyword: access_approval
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_approver
+      - end_bracket: )
 - statement_terminator: ;

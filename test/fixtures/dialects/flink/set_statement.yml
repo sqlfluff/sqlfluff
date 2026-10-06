@@ -3,13 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b02299a0ea6a8e3138f2a1061ce1da66ae963f83e16210a23aefeb2a8c3d774
+_hash: 3a6f40ce338ac2d0946bf1204bb9cbc3f2008d55557c5c015d884bce4db1e82b
 file:
-  statement:
+- statement:
     set_statement:
     - keyword: SET
     - quoted_literal: "'table.exec.state.ttl'"
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'10d'"
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - naked_identifier: execution
+    - dot: .
+    - naked_identifier: runtime
+    - binary_operator: '-'
+    - naked_identifier: mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: streaming
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - naked_identifier: pipeline
+    - dot: .
+    - naked_identifier: name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - naked_identifier: execution
+    - dot: .
+    - naked_identifier: checkpointing
+    - dot: .
+    - naked_identifier: mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: EXACTLY_ONCE
+- statement_terminator: ;

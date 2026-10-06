@@ -247,6 +247,7 @@ UNRESERVED_KEYWORDS = [
     "MODIFIES",
     "MONTH",
     "MONTHS",
+    "MOVEMENT",
     "NAN",
     "NEW",
     "NEW_TABLE",

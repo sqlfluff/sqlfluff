@@ -20,6 +20,11 @@ from sqlfluff.dialects.dialect_ansi import (
 )
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
+# MySQL spells this CONVERT(expr, type), the opposite way round from the
+# T-SQL CONVERT(type, expr) that this rule assumes. mariadb, doris and
+# starrocks all inherit the mysql dialect and so inherit the order too.
+_REVERSED_CONVERT_DIALECTS = ("mysql", "mariadb", "doris", "starrocks")
+
 
 class Rule_CV11(BaseRule):
     """Enforce consistent type casting style.
@@ -31,6 +36,14 @@ class Rule_CV11(BaseRule):
         This rule is disabled by default for Teradata because it supports different
         type casting apart from CONVERT and ::
         e.g DATE '2007-01-01', '9999-12-31' (DATE).
+
+    .. note::
+        MySQL and the dialects that inherit it (MariaDB, Doris, StarRocks) take
+        ``CONVERT(expr, type)``, the opposite way round from the
+        ``CONVERT(type, expr)`` in T-SQL. The rule handles this dialect-specific
+        order appropriately when converting between styles.
+        ``CONVERT(expr USING transcoding_name)`` is character set transcoding,
+        not a type cast, and is left untouched.
 
     **Anti-pattern**
 
@@ -88,6 +101,28 @@ class Rule_CV11(BaseRule):
                     sp.is_type("literal"),
                 ),
             )
+        )
+
+    @staticmethod
+    def _split_shorthand_cast(
+        expression_datatype_segment: Segments,
+    ) -> tuple[Segments, BaseSegment, Segments]:
+        """Split a ``::`` shorthand cast into value, datatype and later casts.
+
+        The value being cast can span more than one segment: an array subscript
+        such as ``a[1]`` parses as a ``column_reference`` followed by one or
+        more ``array_accessor`` children. Locate the target type by finding the
+        first ``data_type`` child rather than assuming it sits at a fixed index,
+        so the whole left-hand operand is kept intact. Anything after that first
+        ``data_type`` is a chained cast (e.g. the ``text`` in ``1::int::text``).
+        """
+        for data_type_idx, seg in enumerate(expression_datatype_segment):
+            if seg.is_type("data_type"):
+                break
+        return (
+            expression_datatype_segment[:data_type_idx],
+            expression_datatype_segment[data_type_idx],
+            expression_datatype_segment[data_type_idx + 1 :],
         )
 
     @staticmethod
@@ -168,31 +203,55 @@ class Rule_CV11(BaseRule):
         cls,
         context: RuleContext,
         convert_arg_1: BaseSegment,
-        convert_arg_2: BaseSegment,
+        convert_arg_2: Iterable[BaseSegment],
         later_types=None,
     ) -> list[LintFix]:
-        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
-        convert_function = cls._build_function(
-            "convert",
-            [
-                convert_arg_1,
-                SymbolSegment(",", type="comma"),
-                WhitespaceSegment(),
-                convert_arg_2,
-            ],
-        )
+        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT.
 
-        if later_types:
-            for _type in later_types:
-                convert_function = cls._build_function(
-                    "convert",
-                    [
-                        _type,
-                        SymbolSegment(",", type="comma"),
-                        WhitespaceSegment(),
-                        convert_function,
-                    ],
-                )
+        Handles both T-SQL CONVERT(type, expr) and MySQL-family CONVERT(expr, type).
+        """
+        if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+            convert_function = cls._build_function(
+                "convert",
+                [
+                    *convert_arg_2,
+                    SymbolSegment(",", type="comma"),
+                    WhitespaceSegment(),
+                    convert_arg_1,
+                ],
+            )
+            if later_types:
+                for _type in later_types:
+                    convert_function = cls._build_function(
+                        "convert",
+                        [
+                            convert_function,
+                            SymbolSegment(",", type="comma"),
+                            WhitespaceSegment(),
+                            _type,
+                        ],
+                    )
+        else:
+            convert_function = cls._build_function(
+                "convert",
+                [
+                    convert_arg_1,
+                    SymbolSegment(",", type="comma"),
+                    WhitespaceSegment(),
+                    *convert_arg_2,
+                ],
+            )
+            if later_types:
+                for _type in later_types:
+                    convert_function = cls._build_function(
+                        "convert",
+                        [
+                            _type,
+                            SymbolSegment(",", type="comma"),
+                            WhitespaceSegment(),
+                            convert_function,
+                        ],
+                    )
 
         fixes = [
             LintFix.replace(
@@ -250,6 +309,8 @@ class Rule_CV11(BaseRule):
             if not context.segment.pos_marker.is_literal():
                 return None
 
+        functional_context = FunctionalContext(context)
+
         # Construct segment type casting
         if context.segment.is_type("function"):
             function_name = context.segment.get_child("function_name")
@@ -260,6 +321,13 @@ class Rule_CV11(BaseRule):
             elif function_name.raw_upper == "CAST":
                 current_type_casting_style = "cast"
             elif function_name.raw_upper == "CONVERT":
+                # CONVERT(... USING transcoding_name) is character set transcoding,
+                # not a type cast. Leave it alone.
+                bracketed = functional_context.segment.children(
+                    sp.is_type("function_contents")
+                ).children(sp.is_type("bracketed"))
+                if bracketed.children(sp.is_keyword("using")):
+                    return None
                 current_type_casting_style = "convert"
             else:
                 current_type_casting_style = None
@@ -274,8 +342,6 @@ class Rule_CV11(BaseRule):
             current_type_casting_style = "shorthand"
         else:  # pragma: no cover
             current_type_casting_style = None
-
-        functional_context = FunctionalContext(context)
 
         # If casting style is set to consistent,
         # we use the casting style of the first segment we encounter.
@@ -307,24 +373,33 @@ class Rule_CV11(BaseRule):
                             memory["previous_skipped"] = True
                         return None
 
-                    fixes = self._cast_fix_list(
-                        context,
-                        [convert_content[1]],
-                        convert_content[0],
-                    )
+                    if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                        fixes = self._cast_fix_list(
+                            context,
+                            [convert_content[0]],
+                            convert_content[1],
+                        )
+                    else:
+                        fixes = self._cast_fix_list(
+                            context,
+                            [convert_content[1]],
+                            convert_content[0],
+                        )
                 elif current_type_casting_style == "shorthand":
                     # Get the expression and the datatype segment
                     expression_datatype_segment = self._get_children(
                         functional_context.segment
                     )
-
+                    # We can have multiple shorthandcast e.g 1::int::text
+                    # in that case, we need to introduce nested CAST().
+                    value, data_type, later_types = self._split_shorthand_cast(
+                        expression_datatype_segment
+                    )
                     fixes = self._cast_fix_list(
                         context,
-                        [expression_datatype_segment[0]],
-                        expression_datatype_segment[1],
-                        # We can have multiple shorthandcast e.g 1::int::text
-                        # in that case, we need to introduce nested CAST()
-                        expression_datatype_segment[2:],
+                        value,
+                        data_type,
+                        later_types,
                     )
 
             elif prior_type_casting_style == "convert":
@@ -339,17 +414,20 @@ class Rule_CV11(BaseRule):
                     fixes = self._convert_fix_list(
                         context,
                         cast_content[1],
-                        cast_content[0],
+                        [cast_content[0]],
                     )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
                         functional_context.segment
                     )
+                    value, data_type, later_types = self._split_shorthand_cast(
+                        expression_datatype_segment
+                    )
                     fixes = self._convert_fix_list(
                         context,
-                        expression_datatype_segment[1],
-                        expression_datatype_segment[0],
-                        expression_datatype_segment[2:],
+                        data_type,
+                        value,
+                        later_types,
                     )
             elif prior_type_casting_style == "shorthand":
                 bracketed = functional_context.segment.children(
@@ -371,11 +449,18 @@ class Rule_CV11(BaseRule):
                     if len(convert_content) > 2:
                         return None
 
-                    fixes = self._shorthand_fix_list(
-                        context,
-                        convert_content[1],
-                        convert_content[0],
-                    )
+                    if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                        fixes = self._shorthand_fix_list(
+                            context,
+                            convert_content[0],
+                            convert_content[1],
+                        )
+                    else:
+                        fixes = self._shorthand_fix_list(
+                            context,
+                            convert_content[1],
+                            convert_content[0],
+                        )
 
             if (
                 prior_type_casting_style
@@ -406,25 +491,30 @@ class Rule_CV11(BaseRule):
                     ).children(sp.is_type("bracketed"))
                     convert_content = self._get_children(bracketed)
 
-                    fixes = self._cast_fix_list(
-                        context,
-                        [convert_content[1]],
-                        convert_content[0],
-                    )
+                    if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                        fixes = self._cast_fix_list(
+                            context,
+                            [convert_content[0]],
+                            convert_content[1],
+                        )
+                    else:
+                        fixes = self._cast_fix_list(
+                            context,
+                            [convert_content[1]],
+                            convert_content[0],
+                        )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
                         functional_context.segment
                     )
-
-                    for data_type_idx, seg in enumerate(expression_datatype_segment):
-                        if seg.is_type("data_type"):
-                            break
-
+                    value, data_type, later_types = self._split_shorthand_cast(
+                        expression_datatype_segment
+                    )
                     fixes = self._cast_fix_list(
                         context,
-                        expression_datatype_segment[:data_type_idx],
-                        expression_datatype_segment[data_type_idx],
-                        expression_datatype_segment[data_type_idx + 1 :],
+                        value,
+                        data_type,
+                        later_types,
                     )
 
             elif self.preferred_type_casting_style == "convert":
@@ -436,17 +526,20 @@ class Rule_CV11(BaseRule):
                     fixes = self._convert_fix_list(
                         context,
                         cast_content[1],
-                        cast_content[0],
+                        [cast_content[0]],
                     )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
                         functional_context.segment
                     )
+                    value, data_type, later_types = self._split_shorthand_cast(
+                        expression_datatype_segment
+                    )
                     fixes = self._convert_fix_list(
                         context,
-                        expression_datatype_segment[1],
-                        expression_datatype_segment[0],
-                        expression_datatype_segment[2:],
+                        data_type,
+                        value,
+                        later_types,
                     )
             elif self.preferred_type_casting_style == "shorthand":
                 bracketed = functional_context.segment.children(
@@ -461,11 +554,18 @@ class Rule_CV11(BaseRule):
                     )
                 elif current_type_casting_style == "convert":
                     convert_content = self._get_children(bracketed)
-                    fixes = self._shorthand_fix_list(
-                        context,
-                        convert_content[1],
-                        convert_content[0],
-                    )
+                    if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                        fixes = self._shorthand_fix_list(
+                            context,
+                            convert_content[0],
+                            convert_content[1],
+                        )
+                    else:
+                        fixes = self._shorthand_fix_list(
+                            context,
+                            convert_content[1],
+                            convert_content[0],
+                        )
 
             # Don't fix if there's too much content.
             if (convert_content and len(convert_content) > 2) or (

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b374d03f02f5c7eb800e9262fd5075764b7775db085d5eb2fe21e78c8d5ab96d
+_hash: f994973c259616b721927dc9374c5ebed1e0137928600f736d5a6650fce885eb
 file:
 - statement:
     if_then_statement:
@@ -19,12 +19,49 @@ file:
             numeric_literal: '0'
           end_bracket: )
     - keyword: then
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              numeric_literal: '0'
+    - if_statement_list:
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '0'
+      - statement_terminator: ;
+      - statement:
+          if_then_statement:
+          - keyword: if
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+                end_bracket: )
+          - keyword: then
+          - if_statement_list:
+            - statement:
+                set_statement:
+                  keyword: set
+                  variable: '@errmsg'
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "''"
+            - statement_terminator: ;
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      numeric_literal: '1'
+            - statement_terminator: ;
+          - keyword: end
+          - keyword: if
+      - statement_terminator: ;
+    - keyword: end
+    - keyword: if
 - statement_terminator: ;
 - statement:
     if_then_statement:
@@ -34,34 +71,38 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              naked_identifier: y
+              naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '1'
+            numeric_literal: '0'
           end_bracket: )
     - keyword: then
-    - statement:
-        set_statement:
-          keyword: set
-          variable: '@errmsg'
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "''"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    if_then_statement:
-    - keyword: end
-    - keyword: if
-- statement_terminator: ;
-- statement:
-    if_then_statement:
+    - if_statement_list:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                expression:
+                  case_expression:
+                  - keyword: case
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                        column_reference:
+                          naked_identifier: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '1'
+                    - keyword: then
+                    - expression:
+                        numeric_literal: '1'
+                  - else_clause:
+                      keyword: else
+                      expression:
+                        numeric_literal: '2'
+                  - keyword: end
+        statement_terminator: ;
     - keyword: end
     - keyword: if
 - statement_terminator: ;

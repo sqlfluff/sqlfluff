@@ -1,0 +1,217 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4a8a8ec5e2edb7178ec9a9371be9df56a2f72f30ff1d50766c496e374eddf80a
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: VIEW1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: COL1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: SCHEMA1
+                - dot: .
+                - naked_identifier: TABLE1
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+      - naked_identifier: schema1
+      - dot: .
+      - naked_identifier: view2
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: schema1
+                - dot: .
+                - naked_identifier: table1
+    - row_movement_clause:
+      - keyword: with
+      - keyword: 'no'
+      - keyword: row
+      - keyword: movement
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: VIEW3
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: COL1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: SCHEMA1
+                - dot: .
+                - naked_identifier: TABLE1
+    - row_movement_clause:
+      - keyword: WITH
+      - keyword: ROW
+      - keyword: MOVEMENT
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: VIEW4
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: COL1
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: COL1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: SCHEMA1
+                - dot: .
+                - naked_identifier: TABLE1
+    - check_option_clause:
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: VIEW5
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: COL1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: SCHEMA1
+                - dot: .
+                - naked_identifier: TABLE1
+    - check_option_clause:
+      - keyword: WITH
+      - keyword: CASCADED
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: VIEW6
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: COL1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: SCHEMA1
+                - dot: .
+                - naked_identifier: TABLE1
+    - check_option_clause:
+      - keyword: WITH
+      - keyword: LOCAL
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: VIEW7
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: COL1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: SCHEMA1
+                - dot: .
+                - naked_identifier: TABLE1
+    - row_movement_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: ROW
+      - keyword: MOVEMENT
+- statement_terminator: ;

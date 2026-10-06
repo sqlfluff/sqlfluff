@@ -263,8 +263,10 @@ tsql_dialect.insert_lexer_matchers(
             (
                 r"([xX]'([\da-fA-F][\da-fA-F])+'"
                 r"|0[xX][\da-fA-F]*"
-                r"|[+-]*[" + "".join(tsql_dialect.sets("currency_symbols")) + r"]"
-                r"[" + "".join(tsql_dialect.sets("currency_symbols")) + r"+-]*"
+                r"|[+-]*["
+                + "".join(sorted(tsql_dialect.sets("currency_symbols")))
+                + r"]"
+                r"[" + "".join(sorted(tsql_dialect.sets("currency_symbols"))) + r"+-]*"
                 r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+))"
             ),
             LiteralSegment,
@@ -296,7 +298,7 @@ tsql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--",)},
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -2079,6 +2081,32 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
             Ref("BaseExpressionElementGrammar"),
             Ref("LabelSafeAliasExpressionGrammar", optional=True),
         ),
+    )
+
+
+class AliasColumnListSegment(BaseSegment):
+    """A bracketed column list belonging to a T-SQL table alias."""
+
+    type = "alias_column_list"
+    match_grammar: Matchable = Bracketed(Ref("SingleIdentifierListSegment"))
+
+
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A T-SQL alias, optionally followed by a column alias list."""
+
+    # Mirrors ANSI's alias grammar except for the typed column-list segment.
+    # Keep this override synchronized with ansi.AliasExpressionSegment.
+    match_grammar: Matchable = Sequence(
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("AliasColumnListSegment", optional=True),
+            ),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Dedent,
     )
 
 

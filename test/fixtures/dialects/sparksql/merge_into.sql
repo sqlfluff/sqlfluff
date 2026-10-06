@@ -55,3 +55,30 @@ WHEN NOT MATCHED BY TARGET AND a < b THEN
 INSERT (a, c) VALUES (b, d)
 WHEN NOT MATCHED BY SOURCE AND c < d THEN
 DELETE;
+
+-- Merge with UPDATE SET * EXCEPT (...)
+MERGE INTO t USING u ON (a = b)
+WHEN MATCHED THEN
+UPDATE SET * EXCEPT (col1);
+
+-- Merge with UPDATE SET * EXCEPT multiple columns
+MERGE INTO t USING u ON (a = b)
+WHEN MATCHED THEN
+UPDATE SET * EXCEPT (col1, col2, col3);
+
+-- Merge with INSERT * EXCEPT (...)
+MERGE INTO t USING u ON (a = b)
+WHEN NOT MATCHED THEN
+INSERT * EXCEPT (col1);
+
+-- Merge with INSERT * EXCEPT multiple columns
+MERGE INTO t USING u ON (a = b)
+WHEN NOT MATCHED THEN
+INSERT * EXCEPT (col1, col2, col3);
+
+-- Merge with both UPDATE SET * EXCEPT and INSERT * EXCEPT
+MERGE INTO t USING u ON (t.key = u.key)
+WHEN MATCHED THEN
+UPDATE SET * EXCEPT (last_updated)
+WHEN NOT MATCHED THEN
+INSERT * EXCEPT (last_updated);

@@ -524,3 +524,21 @@ test_fail_tsql_single_quoted_alias_special_chars:
   configs:
     core:
       dialect: tsql
+
+test_pass_underscore_only_identifier_redshift:
+  # Stripping the allowed underscores leaves an empty string. On redshift the
+  # temporary table check then indexed that empty string and raised IndexError.
+  pass_str: |
+    SELECT _ FROM t
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_underscore_only_identifier_postgres:
+  # The same empty string reached the alphanumeric test, which reported special
+  # characters for an identifier that holds none.
+  pass_str: |
+    SELECT _ FROM t
+  configs:
+    core:
+      dialect: postgres

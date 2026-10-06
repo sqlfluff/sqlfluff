@@ -74,11 +74,11 @@ the other).
 
 The effect of this is that we recommend one of two approaches:
 
-#. Simply only use `rules`. This has the upshot of each area of
+1. Simply only use `rules`. This has the upshot of each area of
     your project being very explicit in which rules are enabled. When
     that changes for part of your project you just reset the whole list
     of applicable rules for that part of the project.
-#. Set a single `rules` value in your master project config file
+2. Set a single `rules` value in your master project config file
     and then only use `exclude_rules` in sub-configuration files
     to *turn off* specific rules for parts of the project where those
     rules are inappropriate. This keeps the simplicity of only having

@@ -23,15 +23,19 @@ FROM t""",
 FROM t""",
         ),
         (
+            # ST06 does not reorder this one: the comment is not bound to the
+            # target it follows, so moving the targets would leave it behind
+            # annotating a different column. LT04 still rebreaks the commas,
+            # placing the comma before the comment.
             """SELECT COALESCE(a, 0) AS b--comment
 
     , COALESCE(c, 0) AS d
     , e
 FROM t""",
-            """SELECT e,--comment
+            """SELECT COALESCE(a, 0) AS b,--comment
 
-    COALESCE(a, 0) AS b,
-    COALESCE(c, 0) AS d
+    COALESCE(c, 0) AS d,
+    e
 FROM t""",
         ),
         (

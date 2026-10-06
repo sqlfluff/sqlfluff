@@ -8,7 +8,11 @@ from functools import cached_property
 from typing import Generic, NamedTuple, Optional, TypeVar, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo, is_qualified
+from sqlfluff.core.dialects.common import (
+    AliasInfo,
+    get_from_clause_aliases,
+    is_qualified,
+)
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.select import (
@@ -84,22 +88,53 @@ class Selectable:
             # source), see the "Examples" section of the Postgres docs page:
             # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
-            alias_expression = values.children().first(sp.is_type("alias_expression"))
-            name = alias_expression.children().first(
-                sp.is_type("naked_identifier", "quoted_identifier")
-            )
-            alias_info = AliasInfo(
-                name[0].raw if name else "",
-                name[0] if name else None,
-                bool(name),
-                self.selectable,
-                alias_expression[0] if alias_expression else None,
-                None,
-            )
+            alias_expressions = values.children(sp.is_type("alias_expression"))
+            table_aliases: list[AliasInfo] = []
+            if alias_expressions:
+                # A VALUES clause carries its alias as a direct child.
+                for alias_expression in alias_expressions:
+                    name = (
+                        Segments(alias_expression)
+                        .children()
+                        .first(sp.is_type("naked_identifier", "quoted_identifier"))
+                    )
+                    table_aliases.append(
+                        AliasInfo(
+                            name[0].raw if name else "",
+                            name[0] if name else None,
+                            bool(name),
+                            self.selectable,
+                            alias_expression,
+                            None,
+                        )
+                    )
+            elif values.children(sp.is_type("from_expression")):
+                # In some dialects (e.g. MySQL) the target table(s) of an
+                # UPDATE are parsed as from_expression(s), so their aliases live
+                # inside from_expression_elements (and join clauses, for
+                # multi-table updates) rather than as direct children. Reuse the
+                # canonical from-clause alias resolution instead of re-deriving
+                # aliases here, so joined and nested targets resolve exactly as
+                # they do in a SELECT.
+                # https://github.com/sqlfluff/sqlfluff/issues/6147
+                dialect_name = self.dialect.name if self.dialect else None
+                table_aliases = [
+                    alias
+                    for _, alias in get_from_clause_aliases(
+                        self.selectable, dialect_name
+                    )
+                ]
+
+            if not table_aliases:
+                # Preserve the longstanding behavior of always registering
+                # one (possibly anonymous) alias for the DML target.
+                table_aliases = [
+                    AliasInfo("", None, False, self.selectable, None, None)
+                ]
 
             return SelectStatementColumnsAndTables(
                 select_statement=self.selectable,
-                table_aliases=[alias_info],
+                table_aliases=table_aliases,
                 standalone_aliases=[],
                 reference_buffer=[],
                 select_targets=[],
