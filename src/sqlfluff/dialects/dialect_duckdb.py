@@ -85,6 +85,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "SAMPLE",
         "SEMI",
         "STRUCT",
+        "SUMMARIZE",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
     ]
@@ -1059,6 +1060,79 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     )
 
 
+class AttachStatementSegment(BaseSegment):
+    """An `ATTACH` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/attach
+    """
+
+    type = "attach_statement"
+
+    # Options are free-form `NAME [value]` pairs, since extensions (e.g. sqlite,
+    # postgres, ducklake) add their own on top of the core ones.
+    _attach_option = Sequence(
+        Ref("ParameterNameSegment"),
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+    match_grammar = Sequence(
+        "ATTACH",
+        OneOf(
+            Sequence("OR", "REPLACE"),
+            Ref("IfNotExistsGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("DATABASE", optional=True),
+        Ref("QuotedLiteralSegment"),
+        Sequence("AS", Ref("DatabaseReferenceSegment"), optional=True),
+        Bracketed(Delimited(_attach_option), optional=True),
+    )
+
+
+class DetachStatementSegment(BaseSegment):
+    """A `DETACH` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/attach
+    """
+
+    type = "detach_statement"
+
+    match_grammar = Sequence(
+        "DETACH",
+        Sequence(
+            "DATABASE",
+            Ref("IfExistsGrammar", optional=True),
+            optional=True,
+        ),
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
+class SummarizeStatementSegment(BaseSegment):
+    """A `SUMMARIZE` statement.
+
+    https://duckdb.org/docs/stable/guides/meta/summarize
+    """
+
+    type = "summarize_statement"
+
+    # A table reference also covers single quoted file names and URLs here.
+    match_grammar = Sequence(
+        "SUMMARIZE",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1067,6 +1141,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
+            Ref("AttachStatementSegment"),
+            Ref("DetachStatementSegment"),
+            Ref("SummarizeStatementSegment"),
         ]
     )
 

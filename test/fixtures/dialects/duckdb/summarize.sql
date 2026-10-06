@@ -1,0 +1,21 @@
+SUMMARIZE tbl;
+
+SUMMARIZE my_schema.tbl;
+
+SUMMARIZE TABLE tbl;
+
+SUMMARIZE TABLE 'https://blobs.duckdb.org/data/Star_Trek-Season_1.csv';
+
+SUMMARIZE 'data.csv';
+
+SUMMARIZE SELECT * FROM tbl;
+
+SUMMARIZE SELECT a, b FROM tbl WHERE a > 1;
+
+SUMMARIZE (SELECT 1 AS a);
+
+SUMMARIZE FROM tbl;
+
+SUMMARIZE WITH x AS (SELECT 1 AS a) SELECT * FROM x;
+
+SUMMARIZE VALUES (1), (2);
