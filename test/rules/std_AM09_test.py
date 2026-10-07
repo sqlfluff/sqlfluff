@@ -65,8 +65,8 @@ def test__rules__std_AM09_eval_short_circuit_on_non_select_segment() -> None:
     """Directly cover the guard that returns None for non-SELECT segments."""
 
     class FakeSegment:
-        def is_type(self, _type: str) -> bool:
-            return False  # not a select_statement
+        def is_type(self, *_types: str) -> bool:
+            return False  # neither a select_statement nor a set_expression
 
     fake_context = SimpleNamespace(segment=FakeSegment())
 
