@@ -2090,6 +2090,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("CreateStorageLifecyclePolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("CreateSessionPolicyStatementSegment"),
             Ref("AlterSessionPolicyStatementSegment"),
@@ -12343,6 +12344,49 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         Ref(
             "CommentEqualsClauseSegment",
             optional=True,
+        ),
+    )
+
+
+class CreateStorageLifecyclePolicyStatementSegment(BaseSegment):
+    """Create Storage Lifecycle Policy.
+
+    As per
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-lifecycle-policy
+    """
+
+    type = "create_storage_lifecycle_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "STORAGE",
+        "LIFECYCLE",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")),
+        "AS",
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        "BOOLEAN",
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+        AnyNumberOf(
+            Sequence(
+                "ARCHIVE_TIER",
+                Ref("EqualsSegment"),
+                OneOf("COOL", "COLD"),
+            ),
+            Sequence(
+                "ARCHIVE_FOR_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                Ref("TagBracketedEqualsSegment"),
+            ),
         ),
     )
 
