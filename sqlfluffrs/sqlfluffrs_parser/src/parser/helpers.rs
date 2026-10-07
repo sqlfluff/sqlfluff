@@ -7,9 +7,7 @@ use smallvec::SmallVec;
 
 use super::core::Parser;
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
-
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
+use std::sync::Arc;
 
 impl<'a> Parser<'a> {
     /// Print cache statistics
@@ -239,18 +237,36 @@ impl<'a> Parser<'a> {
     /// and parent terminators are combined. Mirrors Python's terminator handling.
     #[inline]
     pub(crate) fn combine_terminators(
-        local_terminators: &[GrammarId],
-        parent_terminators: &[GrammarId],
+        &mut self,
+        local_terminators: &[u32],
+        parent_terminators: &Arc<[GrammarId]>,
         reset_terminators: bool,
-    ) -> SmallVec<[GrammarId; 4]> {
+    ) -> Arc<[GrammarId]> {
+        if local_terminators.is_empty() {
+            return if reset_terminators {
+                Arc::clone(&self.empty_terminators)
+            } else {
+                Arc::clone(parent_terminators)
+            };
+        }
+        let local = local_terminators.iter().map(|&id| GrammarId::new(id));
         if reset_terminators {
-            SmallVec::from_slice(local_terminators)
+            local.collect()
         } else {
-            local_terminators
-                .iter()
-                .copied()
-                .chain(parent_terminators.iter().copied())
-                .collect()
+            local.chain(parent_terminators.iter().copied()).collect()
+        }
+    }
+
+    /// `terminators` as a shared set, reusing the empty or last-built one when equal.
+    #[inline]
+    pub(crate) fn terminators_arc(&mut self, terminators: &[GrammarId]) -> Arc<[GrammarId]> {
+        if terminators.is_empty() {
+            Arc::clone(&self.empty_terminators)
+        } else if *self.last_terminators == *terminators {
+            Arc::clone(&self.last_terminators)
+        } else {
+            self.last_terminators = Arc::from(terminators);
+            Arc::clone(&self.last_terminators)
         }
     }
 
@@ -293,7 +309,10 @@ impl<'a> Parser<'a> {
     /// Prune options for table-driven parsing based on simple hints.
     ///
     /// This is the table-driven equivalent of prune_options().
-    pub(crate) fn prune_options(&mut self, options: &[GrammarId]) -> SmallVec<[GrammarId; 8]> {
+    pub(crate) fn prune_options(
+        &mut self,
+        options: impl ExactSizeIterator<Item = GrammarId> + Clone,
+    ) -> SmallVec<[GrammarId; 8]> {
         // Track stats
         self.metrics
             .pruning_calls
@@ -310,7 +329,7 @@ impl<'a> Parser<'a> {
             self.metrics
                 .pruning_kept
                 .set(self.metrics.pruning_kept.get() + options.len());
-            return SmallVec::from_slice(options);
+            return options.collect();
         };
 
         // Get token properties for matching
@@ -328,7 +347,7 @@ impl<'a> Parser<'a> {
         // Get grammar tables if available
         let tables = Some(self.grammar_ctx.tables());
 
-        for &opt_id in options {
+        for opt_id in options.clone() {
             // Skip the NONCODE sentinel (not a real grammar id; handled by
             // `is_terminated`). Indexing the grammar tables with it would panic.
             if opt_id == GrammarId::NONCODE {
@@ -377,7 +396,7 @@ impl<'a> Parser<'a> {
             let ctx = &self.grammar_ctx;
             let mut kept_names: Vec<String> = Vec::new();
             let mut dropped_names: Vec<String> = Vec::new();
-            for &opt_id in options {
+            for opt_id in options.clone() {
                 let var = ctx.variant(opt_id);
                 let name = match var {
                     sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(opt_id).to_string(),
@@ -625,7 +644,7 @@ impl<'a> Parser<'a> {
     /// This is the table-driven equivalent of prune_terminators().
     fn prune_terminators(&mut self, terminators: &[GrammarId]) -> SmallVec<[GrammarId; 8]> {
         // Reuse the same pruning logic as prune_options
-        self.prune_options(terminators)
+        self.prune_options(terminators.iter().copied())
     }
 
     pub(crate) fn trim_to_terminator(
@@ -645,7 +664,7 @@ impl<'a> Parser<'a> {
             return Ok(segments.len());
         }
 
-        let pruned_terms = self.prune_options(terminators);
+        let pruned_terms = self.prune_options(terminators.iter().copied());
         vdebug!(
             "[TRIM_TO_TERM_TABLE] Scanning for terminators from idx={}, pruned_terms={:?}",
             start_idx,

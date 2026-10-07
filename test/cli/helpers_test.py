@@ -75,3 +75,12 @@ def test_cli__helpers__lazy_sequence():
 
     # Check other methods work
     assert len(seq) == 3
+
+
+@pytest.mark.parametrize("width", [-1, 0, 1, 6, 7])
+def test__cli__helpers__wrap_field_small_width(width):
+    """Keep space for a value when the label exhausts the requested width."""
+    result = wrap_field("CV01", "abc", width=width)
+    assert result["val_list"] == ["a", "b", "c"]
+    assert result["val_width"] == 1
+    assert result["lines"] == 3

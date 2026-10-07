@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8993b24f7be39ce1cab2f7ccaa6837a5c1091a99df9c9f5d3df1aecb5c9b03f
+_hash: c71fc9cff6ded8dda2df411198d35399f62655de5551db475c858995d29f2fee
 file:
 - statement:
     copy_statement:
@@ -186,6 +186,59 @@ file:
       - comma: ','
       - keyword: ROW_GROUP_SIZE
       - numeric_literal: '100000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '42'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: value
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: ROW_GROUP_SIZE_BYTES
+      - quoted_literal: "'2MB'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '42'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: value
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: ROW_GROUP_SIZE_BYTES
+      - numeric_literal: '2097152'
       - end_bracket: )
 - statement_terminator: ;
 - statement:

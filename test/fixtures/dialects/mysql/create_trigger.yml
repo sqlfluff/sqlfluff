@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12dee21fcf99ef3e3f088755a81789325e2979c98c98d67269233660a7c700b5
+_hash: 67ec5f86c8a5fa8f91ee7d47ab26fdbb295f31b5fb1eee63fab1889907df1e36
 file:
 - statement:
     create_trigger:
@@ -75,30 +75,27 @@ file:
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
-    - statement:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            delete_statement:
-              keyword: DELETE
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: some_table
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: some_table
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: END
+    - compound_statement:
+      - keyword: BEGIN
+      - statement:
+          delete_statement:
+            keyword: DELETE
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: some_table
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: some_table
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -444,31 +441,28 @@ file:
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
-    - statement:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            set_statement:
-            - keyword: SET
-            - keyword: NEW
-            - dot: .
-            - variable: createdate
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - function:
-                function_name:
-                  function_name_identifier: UNIX_TIMESTAMP
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: NEW
-                      - dot: .
-                      - naked_identifier: createdate_m
-                    end_bracket: )
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: END
+    - compound_statement:
+      - keyword: BEGIN
+      - statement:
+          set_statement:
+          - keyword: SET
+          - keyword: NEW
+          - dot: .
+          - variable: createdate
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: UNIX_TIMESTAMP
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: NEW
+                    - dot: .
+                    - naked_identifier: createdate_m
+                  end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;

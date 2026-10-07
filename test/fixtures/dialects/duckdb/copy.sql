@@ -23,6 +23,18 @@ COPY (SELECT * FROM large_table) TO 'output.parquet' (
     ROW_GROUP_SIZE 100000
 );
 
+-- COPY TO with ROW_GROUP_SIZE_BYTES as a human-readable size
+COPY (SELECT 42 AS value) TO 'output.parquet' (
+    FORMAT parquet,
+    ROW_GROUP_SIZE_BYTES '2MB'
+);
+
+-- COPY TO with ROW_GROUP_SIZE_BYTES as a byte count
+COPY (SELECT 42 AS value) TO 'output.parquet' WITH (
+    FORMAT parquet,
+    ROW_GROUP_SIZE_BYTES 2097152
+);
+
 -- COPY TO with PARQUET_VERSION
 COPY (SELECT * FROM data) TO 'output.parquet' (
     FORMAT parquet,

@@ -46,6 +46,11 @@ class Rule_RF01(BaseRule):
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
 
+       For Trino, single-source SELECTs are exempt by default because dotted
+       references may access ROW fields. SELECTs with multiple sources are
+       still checked. Use ``force_enable = True`` for strict checking of
+       single-source SELECTs too.
+
     **Anti-pattern**
 
     In this example, the reference ``vee`` has not been declared.
@@ -274,6 +279,8 @@ class Rule_RF01(BaseRule):
         tbl_refs: list[tuple[ObjectReferencePart, tuple[str, ...]]],
         dml_target_table: Optional[list[tuple[str, ...]]],
         query: RF01Query,
+        *,
+        is_parent_lookup: bool = False,
     ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
@@ -285,13 +292,24 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
 
-        if self._dialect_supports_dot_access(query.dialect):
+        # Trino's single-source exemption belongs to the reference's own scope,
+        # not a parent visited while resolving a correlated reference.
+        if self._dialect_supports_dot_access(query.dialect) and not (
+            query.dialect.name == "trino" and is_parent_lookup
+        ):
             # BigQuery supports having multiple aliases in the FROM statement
             # SparkSQL supports directly accessing values in nested array columns
-            if len(distinct_targets) == 1 or query.dialect.name in [
-                "bigquery",
-                "sparksql",
-            ]:
+            if (
+                len(distinct_targets) == 1
+                # An aliased Trino table contributes both its name and alias
+                # to targets, but is still one source for ROW field access.
+                or (
+                    query.dialect.name == "trino"
+                    and len(query.aliases) == 1
+                    and not query.standalone_aliases
+                )
+                or query.dialect.name in ["bigquery", "sparksql"]
+            ):
                 self.force_enable: bool
                 if self.force_enable:
                     # Backwards compatibility.
@@ -303,11 +321,23 @@ class Rule_RF01(BaseRule):
 
         targets += self._get_implicit_targets(query)
 
+        if query.dialect.name == "trino" and not self.force_enable:
+            # ROW access starts with a visible table or alias, followed by a
+            # column and its fields. Do not match an alias in the field suffix.
+            for reference in self._table_ref_as_tuple(r, query.dialect):
+                for end in range(1, len(reference) - 1):
+                    if any(reference[:end] == target[-end:] for target in targets):
+                        return None
+
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
-                    r, tbl_refs, dml_target_table, cast(RF01Query, query.parent)
+                    r,
+                    tbl_refs,
+                    dml_target_table,
+                    cast(RF01Query, query.parent),
+                    is_parent_lookup=True,
                 )
             # No parent query. If there's a DML statement at the root, check its
             # target table or alias.
@@ -371,6 +401,8 @@ class Rule_RF01(BaseRule):
         # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
         # Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+        # Trino:
+        # https://trino.io/docs/current/language/types.html#row
         # TODO: all doc links to all referenced dialects
         return dialect.name in (
             "athena",
@@ -381,4 +413,5 @@ class Rule_RF01(BaseRule):
             "redshift",
             "soql",
             "sparksql",
+            "trino",
         )

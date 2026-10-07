@@ -1,0 +1,28 @@
+CREATE TABLE t_recharge_detail4
+(
+    id BIGINT,
+    city VARCHAR(20) NOT NULL,
+    dt VARCHAR(20) NOT NULL
+)
+ENGINE=OLAP
+DUPLICATE KEY(id)
+PARTITION BY LIST (dt, city)
+(
+    PARTITION p1 VALUES IN (("2022-04-01", "Los Angeles"), ("2022-04-02", "Los Angeles")),
+    PARTITION p2 VALUES IN (("2022-04-01", "Houston"), ("2022-04-02", "Houston"))
+)
+DISTRIBUTED BY HASH(id);
+
+CREATE TABLE t_recharge_detail1
+(
+    id BIGINT,
+    dt DATE NOT NULL
+)
+ENGINE=OLAP
+DUPLICATE KEY(id)
+PARTITION BY LIST (dt)
+(
+    PARTITION p1 VALUES IN ("2022-04-01", "2022-04-02"),
+    PARTITION p2 VALUES IN ("2022-04-03")
+)
+DISTRIBUTED BY HASH(id);
