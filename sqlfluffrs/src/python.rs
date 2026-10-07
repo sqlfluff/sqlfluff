@@ -36,6 +36,15 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     sqlfluffrs_rules::python::register(m)?;
     // Add custom exception
     m.add("RsParseError", m.py().get_type::<RsParseError>())?;
+    // Rust-driven orchestration entrypoints (discover → render → lex → parse).
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_parse_paths,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_render_string,
+        m
+    )?)?;
     // Sentinel prefix for missing-ref errors, shared with rust_parser.py so
     // the two sides of the pyo3 boundary can't drift on the literal.
     m.add("MISSING_REF_PREFIX", MISSING_REF_PREFIX)?;
