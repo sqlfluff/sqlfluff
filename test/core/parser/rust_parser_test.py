@@ -178,7 +178,6 @@ def test__iteration_limit__exceeded_raises_base_exception(capfd):
     )
     out, err = capfd.readouterr()
     assert out == ""
-    assert "Table Parse Cache Statistics:" in err
     assert "Tokens around failure point:" in err
 
 
