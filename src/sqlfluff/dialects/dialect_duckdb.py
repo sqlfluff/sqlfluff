@@ -858,6 +858,11 @@ class ListComprehensionExpressionSegment(BaseSegment):
         Ref("ExpressionSegment"),
         "FOR",
         Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
         "IN",
         Ref("ExpressionSegment"),
         Sequence("IF", Ref("ExpressionSegment"), optional=True),
