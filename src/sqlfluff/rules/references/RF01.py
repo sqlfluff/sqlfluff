@@ -38,8 +38,6 @@ class RF01Query(Query):
 
 def _normalize_ref_part(part: ObjectReferencePart) -> str:
     """Normalize a reference part, taking dialect casefolding into account."""
-    if not part.segments:
-        return part.part
     seg = part.segments[0]
     norm = seg.normalize(part.part)
     return seg.casefold(norm) if seg.casefold else norm
