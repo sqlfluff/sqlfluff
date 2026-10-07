@@ -4,8 +4,6 @@
 //! including the main entry point for parsing with grammar.
 
 use crate::parser::match_result::{self, MatchedClass, SegmentKwargs};
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 use std::borrow::Cow;
 use std::sync::Arc;
 
@@ -167,10 +165,6 @@ pub struct Parser<'a> {
     /// Indentation configuration (key -> enabled)
     /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
     pub(crate) indent_config: hashbrown::HashMap<&'static str, bool>,
-    // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
-    // Keyed by (pattern, case_insensitive): a RegexParser with `ignore_case=False`
-    // compiles the same pattern case-sensitively.
-    regex_cache: hashbrown::HashMap<(String, bool), std::sync::Arc<RegexMode>>,
     /// Memoizes a Ref's resolved child grammar (ref grammar_id -> child grammar_id).
     /// The resolution (element children / by-name dialect lookup) depends only on
     /// the Ref's grammar_id, but the same Ref is hit thousands of times per parse,
@@ -187,6 +181,14 @@ pub struct Parser<'a> {
     pub(crate) max_parse_depth: usize,
     /// Maximum parse nodes in the accepted parse tree. 0 = no limit.
     pub(crate) max_parse_nodes: usize,
+    /// Frame-stack buffers reused across (re-entrant) iterative parses, so
+    /// terminator probes don't regrow a fresh stack each time.
+    pub(crate) frame_stack_pool: Vec<Vec<TableParseFrame>>,
+    /// Shared empty terminator set (avoids allocating an empty `Arc<[_]>`).
+    pub(crate) empty_terminators: Arc<[GrammarId]>,
+    /// Last terminator set built from a slice, reused while the same slice
+    /// recurs (e.g. greedy_match probing one set at many positions).
+    pub(crate) last_terminators: Arc<[GrammarId]>,
 }
 
 impl<'a> Parser<'a> {
@@ -230,12 +232,14 @@ impl<'a> Parser<'a> {
             cache_enabled: true,
             grammar_ctx,
             indent_config,
-            regex_cache: hashbrown::HashMap::new(),
             ref_child_cache: hashbrown::HashMap::new(),
             max_parser_iterations: 3_000_000,
             parser_warn_threshold: 2_000_000,
             max_parse_depth,
             max_parse_nodes: 0,
+            frame_stack_pool: Vec::new(),
+            empty_terminators: Arc::from([]),
+            last_terminators: Arc::from([]),
         }
     }
 
@@ -1190,29 +1194,11 @@ impl<'a> Parser<'a> {
         // anti-template share the parser's case mode.
         let case_insensitive = !self.grammar_ctx.inst(grammar_id).flags.case_sensitive();
 
-        let pattern = {
-            let comp_key = normalize_for_compile(&pattern_str).to_string();
-            self.regex_cache
-                .entry((comp_key.clone(), case_insensitive))
-                .or_insert_with(|| {
-                    std::sync::Arc::new(RegexMode::new_with_flags(&comp_key, case_insensitive))
-                })
-                .clone()
-        };
-
-        let anti_pattern = if let Some(anti_str) = anti_opt.as_ref() {
-            let comp_key = normalize_for_compile(anti_str).to_string();
-            Some(
-                self.regex_cache
-                    .entry((comp_key.clone(), case_insensitive))
-                    .or_insert_with(|| {
-                        std::sync::Arc::new(RegexMode::new_with_flags(&comp_key, case_insensitive))
-                    })
-                    .clone(),
-            )
-        } else {
-            None
-        };
+        let pattern =
+            RegexMode::cached_with_flags(normalize_for_compile(&pattern_str), case_insensitive);
+        let anti_pattern = anti_opt.as_ref().map(|anti_str| {
+            RegexMode::cached_with_flags(normalize_for_compile(anti_str), case_insensitive)
+        });
 
         vdebug!(
             "RegexParser[table]: pos={}, pattern='{}', anti='{}', token_type='{}'",
@@ -1542,7 +1528,7 @@ impl<'a> Parser<'a> {
             #[cfg(feature = "verbose-debug")]
             let typ = tok.get_type();
             #[cfg(feature = "verbose-debug")]
-            let raw = tok.raw();
+            let raw = tok.raw().to_string();
             self.bump();
             count += 1;
 
@@ -1673,7 +1659,8 @@ impl<'a> Parser<'a> {
         parent_max_idx: Option<usize>,
     ) -> Result<MatchResult, ParseError> {
         // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
-        let frame = TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators, None);
+        let terms = self.terminators_arc(parent_terminators);
+        let frame = TableParseFrame::new_child(0, grammar_id, self.pos, &terms, None);
 
         match self.handle_anything_initial(frame, grammar_id, parent_terminators, parent_max_idx)? {
             TableFrameResult::Push(f) => {

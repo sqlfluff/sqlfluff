@@ -49,7 +49,7 @@ AS INSERT ONCE INTO target BY NAME
 SELECT * FROM archive_2024;
 
 CREATE FLOW append_flow_replace_using AS INSERT INTO target BY NAME
-REPLACE USING (event_date)
+REPLACE USING (event_date) SEQUENCE BY event_time
 SELECT * FROM STREAM source_b;
 
 -- ONCE is unreserved, so it stays usable as an identifier: as a column, an

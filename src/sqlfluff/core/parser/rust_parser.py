@@ -202,7 +202,6 @@ try:
                 segments: Tuple of RawSegment objects from the lexer
                 fname: Optional filename for error reporting
                 parse_statistics: Whether to log parse statistics (not yet implemented)
-                tf: Optional TemplatedFile for position marker reconstruction
 
             Returns:
                 BaseSegment tree representing the parsed SQL, or None if empty

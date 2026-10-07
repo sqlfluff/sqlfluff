@@ -1225,6 +1225,14 @@ class StructTypeSchemaSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColonSegment", optional=True),
                 Ref("DatatypeSegment"),
+                # complexColType allows NOT NULL before the comment, the same
+                # way colType does for a top-level column.
+                Sequence("NOT", "NULL", optional=True),
+                # ANSI leaves CollateGrammar as Nothing(), and sparksql does
+                # not define it, so this slot is inert here. Databricks does
+                # define it, and documents a per-field COLLATE in exactly
+                # this position.
+                Ref("CollateGrammar", optional=True),
                 Ref("CommentGrammar", optional=True),
             ),
             bracket_pairs_set="angle_bracket_pairs",
@@ -3062,6 +3070,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
+            Ref("ExecuteImmediateStatementSegment"),
             Ref("RestoreTableStatementSegment"),
             # Databricks - Delta Live Tables
             Ref("ConstraintStatementSegment"),
@@ -3251,6 +3260,14 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         ),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
+        # The Delta introspection statements double as relations, e.g.
+        # SELECT location FROM (DESCRIBE DETAIL my_table);
+        Bracketed(
+            OneOf(
+                Ref("DescribeHistoryStatementSegment"),
+                Ref("DescribeDetailStatementSegment"),
+            ),
+        ),
     )
 
 
@@ -3561,6 +3578,48 @@ class GenerateManifestFileStatementSegment(BaseSegment):
     )
 
 
+class ExecuteImmediateStatementSegment(BaseSegment):
+    """An `EXECUTE IMMEDIATE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-exec-imm.html
+    """
+
+    type = "execute_immediate_statement"
+
+    # arg_expr [ AS ] [ alias ] -- the reference makes AS optional, and the
+    # alias only matters when the SQL string uses named parameter markers.
+    _argument = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        # The reference describes sql_string as a constant expression, which
+        # already covers a literal or a variable.
+        Ref("ExpressionSegment"),
+        Sequence(
+            "INTO",
+            # Spark parses these as multipart identifiers, so a session
+            # variable may be qualified (`session.v1`, `system.session.v1`).
+            Delimited(Ref("ObjectReferenceSegment"), terminators=["USING"]),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            # The bracketed form is offered "for compatibility with other SQL
+            # dialects" and appears in published Databricks notebooks.
+            OptionallyBracketed(Delimited(_argument)),
+            optional=True,
+        ),
+    )
+
+
 class ConvertToDeltaStatementSegment(BaseSegment):
     """A statement to convert other file formats to Delta.
 
@@ -3574,7 +3633,12 @@ class ConvertToDeltaStatementSegment(BaseSegment):
         "CONVERT",
         "TO",
         "DELTA",
-        Ref("FileReferenceSegment"),
+        # "Either an optionally qualified table identifier or a path to a
+        # parquet or iceberg file directory."
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
         Sequence("NO", "STATISTICS", optional=True),
         Ref("PartitionSpecGrammar", optional=True),
     )

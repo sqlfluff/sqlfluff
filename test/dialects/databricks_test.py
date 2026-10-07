@@ -65,40 +65,69 @@ def test_private_requires_streaming_table(sql: str) -> None:
     "sql",
     [
         pytest.param(
-            "CREATE OR REFRESH STREAMING TABLE t FLOW INSERT SELECT * FROM STREAM s;",
-            id="flow_insert_without_by_name",
-        ),
-        pytest.param(
-            "CREATE OR REFRESH STREAMING TABLE t "
-            "FLOW REPLACE USING (c) BY NAME SELECT * FROM STREAM s;",
-            id="flow_replace_using_without_sequence_by",
-        ),
-        pytest.param(
-            "CREATE OR REFRESH STREAMING TABLE t "
-            "FLOW REPLACE USING (c) SEQUENCE BY d SELECT * FROM STREAM s;",
-            id="flow_replace_using_without_by_name",
-        ),
-        pytest.param(
-            "CREATE OR REFRESH STREAMING TABLE t "
-            "FLOW SEQUENCE BY d BY NAME SELECT * FROM STREAM s;",
-            id="flow_sequence_by_without_replace_using",
-        ),
-        pytest.param(
-            "CREATE TABLE t FLOW INSERT BY NAME SELECT * FROM STREAM s;",
-            id="flow_without_streaming",
-        ),
-        pytest.param(
-            "CREATE PRIVATE TABLE t FLOW INSERT BY NAME SELECT * FROM STREAM s;",
-            id="flow_with_private_without_streaming",
+            "CREATE FLOW f AS INSERT INTO t BY NAME "
+            "REPLACE USING (a) SELECT * FROM STREAM s;",
+            id="replace_using_without_sequence_by",
         ),
     ],
 )
-def test_inline_flow_requires_streaming_and_a_bound_spec(sql: str) -> None:
-    """An inline FLOW is only valid on a streaming table, and its spec binds.
+def test_replace_using_requires_sequence_by(sql: str) -> None:
+    """replace_using_spec is REPLACE USING (...) SEQUENCE BY col, as documented."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
 
-    `REPLACE USING (...)` and `SEQUENCE BY` are required together, and the
-    append form takes `BY NAME`. These are the boundaries #8509 missed for the
-    standalone statement, so they are asserted here rather than left to the
-    fixture, which cannot express a rejection.
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param("CREATE OR REFRESH VIEW v AS SELECT 1;\n", id="plain_view"),
+        pytest.param("CREATE OR REFRESH LIVE VIEW v AS SELECT 1;\n", id="live_view"),
+        pytest.param(
+            "CREATE OR REFRESH TEMPORARY STREAMING LIVE VIEW v AS SELECT 1;\n",
+            id="streaming_live_view",
+        ),
+    ],
+)
+def test_or_refresh_is_not_a_view_clause(sql: str) -> None:
+    """OR REFRESH belongs to streaming tables and materialized views.
+
+    The corpus of published Databricks SQL uses it with MATERIALIZED VIEW,
+    STREAMING TABLE and LIVE TABLE, and with no VIEW form at all. Both of
+    those statements have their own segments here, so CREATE VIEW does not
+    need it.
+    """
+    assert _violations(sql), f"Expected a parse failure for:\n{sql}"
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE TEMPORARY VIEW v USING;\n",
+            id="using_without_data_source",
+        ),
+        pytest.param(
+            "CREATE VIEW v USING csv OPTIONS (path '/data');\n",
+            id="using_without_temporary",
+        ),
+        pytest.param(
+            "CREATE TEMPORARY VIEW v USING csv OPTIONS ();\n",
+            id="empty_options",
+        ),
+        pytest.param(
+            "CREATE TEMPORARY VIEW v USING csv OPTIONS (path);\n",
+            id="options_without_value",
+        ),
+        pytest.param(
+            "CREATE VIEW v WITH AS SELECT a FROM t;\n",
+            id="with_without_clause",
+        ),
+    ],
+)
+def test_view_requires_bound_clauses(sql: str) -> None:
+    """The data-source production and the with_clause bind their tokens.
+
+    `USING` needs a data source, the data-source production is only for a
+    TEMPORARY view, `OPTIONS` needs at least one name-value pair, and `WITH`
+    needs a clause.
     """
     assert _violations(sql), f"Expected violations but got none for:\n{sql}"

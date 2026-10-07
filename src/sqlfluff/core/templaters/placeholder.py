@@ -25,7 +25,7 @@ KNOWN_STYLES = {
     "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)", regex.UNICODE),
     # e.g. SELECT :"column" FROM :table WHERE bla = :'name'
     "colon_optional_quotes": regex.compile(
-        r"(?<!:):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)\1", regex.UNICODE
+        r"(?<![:\w\x5c]):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)\1", regex.UNICODE
     ),
     # e.g. WHERE bla = table:name - use with caution as more prone to false positives
     "colon_nospaces": regex.compile(r"(?<!:):(?P<param_name>\w+)", regex.UNICODE),
