@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 463592a1df4173b659f0873a41197f264d9c84f711d54c653b0d1cfb22d878c5
+_hash: 1f363b9255c657b71a3498a672d34200639a0cb2197a59ac9a1d096ffc779c49
 file:
 - statement:
     create_event_statement:
@@ -123,53 +123,39 @@ file:
         quoted_literal: "'Saves total number of sessions then clears the table each\
           \ day'"
     - keyword: DO
-    - statement:
-        compound_statement:
-        - keyword: BEGIN
-        - statement:
-            insert_statement:
-            - keyword: INSERT
-            - keyword: INTO
-            - table_reference:
-              - naked_identifier: site_activity
-              - dot: .
-              - naked_identifier: totals
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                  naked_identifier: time
+    - compound_statement:
+      - keyword: BEGIN
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: site_activity
+            - dot: .
+            - naked_identifier: totals
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: time
+            - comma: ','
+            - column_reference:
+                naked_identifier: total
+            - end_bracket: )
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  bare_function: CURRENT_TIMESTAMP
               - comma: ','
-              - column_reference:
-                  naked_identifier: total
-              - end_bracket: )
-            - select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    bare_function: CURRENT_TIMESTAMP
-                - comma: ','
-                - select_clause_element:
-                    function:
-                      function_name:
-                        function_name_identifier: COUNT
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          star: '*'
-                          end_bracket: )
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - naked_identifier: site_activity
-                        - dot: .
-                        - naked_identifier: sessions
-        - statement_terminator: ;
-        - statement:
-            delete_statement:
-              keyword: DELETE
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: COUNT
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
               from_clause:
                 keyword: FROM
                 from_expression:
@@ -179,8 +165,21 @@ file:
                       - naked_identifier: site_activity
                       - dot: .
                       - naked_identifier: sessions
-        - statement_terminator: ;
-        - keyword: END
+      - statement_terminator: ;
+      - statement:
+          delete_statement:
+            keyword: DELETE
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: site_activity
+                    - dot: .
+                    - naked_identifier: sessions
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
     create_event_statement:
