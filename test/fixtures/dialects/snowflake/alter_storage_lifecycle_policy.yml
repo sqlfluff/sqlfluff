@@ -1,0 +1,142 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 36710a223e3b6f827b52ead732af21ad52ceb11008728a232c3faaa201235074
+file:
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: my_renamed_slp
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: my_new_slp
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: SET
+    - keyword: BODY
+    - function_assigner: ->
+    - expression:
+        column_reference:
+          naked_identifier: event_ts
+        comparison_operator:
+          raw_comparison_operator: <
+        function:
+          function_name:
+            function_name_identifier: DATEADD
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - date_part: DAY
+            - comma: ','
+            - expression:
+                numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '30'
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_TIMESTAMP
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: SET
+    - keyword: ARCHIVE_TIER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COOL
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: SET
+    - keyword: ARCHIVE_FOR_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '180'
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_slp
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Updated retention policy'"
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: UNSET
+    - keyword: ARCHIVE_FOR_DAYS
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
