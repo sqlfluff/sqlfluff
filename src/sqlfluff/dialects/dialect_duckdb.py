@@ -1059,6 +1059,20 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     )
 
 
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/checkpoint
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "CHECKPOINT",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1067,6 +1081,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
+            Ref("CheckpointStatementSegment"),
         ]
     )
 
