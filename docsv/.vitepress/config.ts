@@ -201,6 +201,7 @@ export default defineConfig({
         // text carries the accessible name for the home link, since the site
         // title below is hidden.
         logo: { src: '/sqlfluff-design/img/sqlfluff-wide.png', alt: 'SQLFluff' },
+        logoLink: 'https://sqlfluff.com/',
 
         // The wordmark already reads "SQLfluff", so the adjacent title would
         // repeat it. sqlfluff.com shows the mark alone for the same reason.
