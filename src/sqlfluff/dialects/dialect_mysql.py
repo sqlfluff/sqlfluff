@@ -1838,12 +1838,7 @@ class CompoundStatementSegment(BaseSegment):
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "BEGIN",
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Ref("StatementListSegment", optional=True),
         Dedent,
         "END",
         Ref("SingleIdentifierGrammar", optional=True),
@@ -2482,21 +2477,24 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-class IfStatementListSegment(BaseSegment):
-    """Statements within an IF...END IF statement."""
+class StatementListSegment(BaseSegment):
+    """The statements in a block, loop or IF branch.
 
-    type = "if_statement_list"
+    One or more statements, each followed by its delimiter (`sp_proc_stmts1`
+    in the server's grammar). A `BEGIN ... END` block may be empty, so it makes
+    the list optional (`sp_proc_stmts`).
+
+    The list needs no exclusions. It ends where the next word cannot start a
+    statement (`END`, `UNTIL`, `ELSEIF`, `ELSE`, all reserved), and what may
+    follow it is up to the enclosing construct: for example, the order of
+    `ELSEIF` and `ELSE` branches is enforced by `IfExpressionStatement`.
+    """
+
+    type = "statement_list"
 
     match_grammar = AnyNumberOf(
         Sequence(
-            Ref(
-                "StatementSegment",
-                exclude=OneOf(
-                    "ELSEIF",
-                    "ELSE",
-                    Sequence("END", "IF"),
-                ),
-            ),
+            Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
         min_times=1,
@@ -2519,7 +2517,7 @@ class IfExpressionStatement(BaseSegment):
         Dedent,
         "THEN",
         Indent,
-        Ref("IfStatementListSegment"),
+        Ref("StatementListSegment"),
         Dedent,
         AnyNumberOf(
             Sequence(
@@ -2529,14 +2527,14 @@ class IfExpressionStatement(BaseSegment):
                 Dedent,
                 "THEN",
                 Indent,
-                Ref("IfStatementListSegment"),
+                Ref("StatementListSegment"),
                 Dedent,
             ),
         ),
         Sequence(
             "ELSE",
             Indent,
-            Ref("IfStatementListSegment"),
+            Ref("StatementListSegment"),
             Dedent,
             optional=True,
         ),
@@ -2805,12 +2803,7 @@ class WhileStatementSegment(BaseSegment):
         Dedent,
         "DO",
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Ref("StatementListSegment"),
         Dedent,
         "END",
         "WHILE",
@@ -2905,12 +2898,7 @@ class LoopStatementSegment(BaseSegment):
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "LOOP",
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Ref("StatementListSegment"),
         Dedent,
         "END",
         "LOOP",
@@ -2991,12 +2979,7 @@ class RepeatStatementSegment(BaseSegment):
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "REPEAT",
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("UNTIL", "END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Ref("StatementListSegment"),
         Dedent,
         "UNTIL",
         ImplicitIndent,

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f363b9255c657b71a3498a672d34200639a0cb2197a59ac9a1d096ffc779c49
+_hash: a5ea6c60d339101aa993eb1824b4bba0d60b9300fbe0806556eabcefb45c236f
 file:
 - statement:
     create_event_statement:
@@ -125,37 +125,51 @@ file:
     - keyword: DO
     - compound_statement:
       - keyword: BEGIN
-      - statement:
-          insert_statement:
-          - keyword: INSERT
-          - keyword: INTO
-          - table_reference:
-            - naked_identifier: site_activity
-            - dot: .
-            - naked_identifier: totals
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-                naked_identifier: time
-            - comma: ','
-            - column_reference:
-                naked_identifier: total
-            - end_bracket: )
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  bare_function: CURRENT_TIMESTAMP
+      - statement_list:
+        - statement:
+            insert_statement:
+            - keyword: INSERT
+            - keyword: INTO
+            - table_reference:
+              - naked_identifier: site_activity
+              - dot: .
+              - naked_identifier: totals
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: time
               - comma: ','
-              - select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: COUNT
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        star: '*'
-                        end_bracket: )
+              - column_reference:
+                  naked_identifier: total
+              - end_bracket: )
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    bare_function: CURRENT_TIMESTAMP
+                - comma: ','
+                - select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: COUNT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: site_activity
+                        - dot: .
+                        - naked_identifier: sessions
+        - statement_terminator: ;
+        - statement:
+            delete_statement:
+              keyword: DELETE
               from_clause:
                 keyword: FROM
                 from_expression:
@@ -165,20 +179,7 @@ file:
                       - naked_identifier: site_activity
                       - dot: .
                       - naked_identifier: sessions
-      - statement_terminator: ;
-      - statement:
-          delete_statement:
-            keyword: DELETE
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: site_activity
-                    - dot: .
-                    - naked_identifier: sessions
-      - statement_terminator: ;
+        - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
 - statement:

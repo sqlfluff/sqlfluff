@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e92d75931f4436c495a8e0379acfb7cd210fe8a436da9672deb0d92e2a7b34b5
+_hash: 5142fd637950ce12359d914ae51d1faa090ab3d6a44b6a3f6d72ada5e6699fa6
 file:
   statement:
     declare_statement:
@@ -14,12 +14,13 @@ file:
     - keyword: sqlwarning
     - compound_statement:
       - keyword: begin
-      - statement:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: '1'
-      - statement_terminator: ;
+      - statement_list:
+          statement:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  numeric_literal: '1'
+          statement_terminator: ;
       - keyword: end
   statement_terminator: ;
