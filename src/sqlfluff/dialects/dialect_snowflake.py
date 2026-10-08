@@ -12364,7 +12364,7 @@ class CreateStorageLifecyclePolicyStatementSegment(BaseSegment):
         "LIFECYCLE",
         "POLICY",
         Ref("IfNotExistsGrammar", optional=True),
-        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")),
+        Ref("ObjectReferenceSegment"),
         "AS",
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
