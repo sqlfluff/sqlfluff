@@ -74,3 +74,51 @@ def test_mysql_loop_and_if_bodies_are_not_empty(raw: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize("dialect", ["mysql", "mariadb"])
+def test_mysql_source_ends_at_end_of_line(dialect: str) -> None:
+    """Test that a SOURCE file name doesn't run on to the next line."""
+    parsed = Linter(dialect=dialect).parse_string(
+        "SOURCE a.sql\nSELECT 1;\n\\. b.sql\nSELECT 2;\n"
+    )
+
+    assert not parsed.violations
+    assert parsed.tree
+    sources = list(parsed.tree.recursive_crawl("source_statement"))
+    assert [s.raw for s in sources] == ["SOURCE a.sql", "\\. b.sql"]
+    assert len(list(parsed.tree.recursive_crawl("select_statement"))) == 2
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Only SOURCE may omit the delimiter. Other statements still need one.
+        "SELECT 1\nSELECT 2;\n",
+        "DELETE FROM t\nSELECT 1;\n",
+        # SOURCE is only a client command at the start of a statement.
+        "SELECT 1\nSOURCE a.sql\n",
+        # The file name is required, and must be on the same line.
+        "SOURCE\na.sql\n",
+        # The command and file name must be separated by whitespace.
+        "\\.a.sql\n",
+    ],
+)
+def test_mysql_source_invalid_syntax(raw: str) -> None:
+    """Test that invalid uses of SOURCE, or missing delimiters, don't parse."""
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+def test_mysql_source_file_name_is_not_respaced() -> None:
+    """Test that layout rules leave the spacing inside a SOURCE file name alone.
+
+    The client reads the file name verbatim, so respacing it would change it.
+    """
+    linted = Linter(dialect="mysql", rules=["LT01"]).lint_string(
+        "SOURCE ../my-dir/v1.2/file name.sql\n\\. C:/db/a+b.sql\n"
+    )
+
+    assert not linted.violations
