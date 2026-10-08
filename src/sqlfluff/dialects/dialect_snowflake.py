@@ -12470,23 +12470,15 @@ class AlterStorageLifecyclePolicyStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
                     ),
-                    Sequence(
-                        "TAG",
-                        Delimited(
-                            Sequence(
-                                Ref("TagReferenceSegment"),
-                                Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                        ),
-                    ),
+                    Ref("TagEqualsSegment"),
                 ),
             ),
             Sequence(
                 "UNSET",
                 OneOf(
-                    "ARCHIVE_FOR_DAYS",
-                    "COMMENT",
+                    Delimited(
+                        OneOf("ARCHIVE_FOR_DAYS", "COMMENT"),
+                    ),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
             ),

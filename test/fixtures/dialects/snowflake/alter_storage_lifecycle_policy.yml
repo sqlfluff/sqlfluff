@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36710a223e3b6f827b52ead732af21ad52ceb11008728a232c3faaa201235074
+_hash: 8019dae4604bfec66c250b00ce662e7a878c89bb3c2b6cafc36634f6ef0623a7
 file:
 - statement:
     alter_storage_lifecycle_policy_statement:
@@ -139,4 +139,56 @@ file:
         naked_identifier: my_slp
     - keyword: UNSET
     - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: UNSET
+    - keyword: COMMENT
+    - comma: ','
+    - keyword: ARCHIVE_FOR_DAYS
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: team
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'data-engineering'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: env
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'prod'"
+- statement_terminator: ;
+- statement:
+    alter_storage_lifecycle_policy_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_slp
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: team
+    - comma: ','
+    - tag_reference:
+        naked_identifier: env
 - statement_terminator: ;

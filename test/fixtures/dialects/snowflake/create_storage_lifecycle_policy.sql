@@ -47,3 +47,20 @@ CREATE STORAGE LIFECYCLE POLICY cold_archive_slp
   ARCHIVE_TIER = COLD
   ARCHIVE_FOR_DAYS = 365
   COMMENT = 'Archive to cold tier for 1 year before expiry';
+
+-- With TAG (bracketed)
+CREATE STORAGE LIFECYCLE POLICY tagged_slp
+  AS (reference_col DATE)
+  RETURNS BOOLEAN ->
+    reference_col < DATEADD(DAY, -90, CURRENT_DATE())
+  TAG (team = 'data-engineering', env = 'prod');
+
+-- With all options including WITH TAG
+CREATE STORAGE LIFECYCLE POLICY full_options_slp
+  AS (reference_col DATE)
+  RETURNS BOOLEAN ->
+    reference_col < DATEADD(DAY, -180, CURRENT_DATE())
+  ARCHIVE_TIER = COOL
+  ARCHIVE_FOR_DAYS = 90
+  COMMENT = 'Full options policy'
+  WITH TAG (team = 'analytics');

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8c376524ac8b21d977a203af9adcaa4df195ef1ad1eb7853ad65914acc7ab83
+_hash: 44190d2fe68d390b47f2e10b6953635af176efba2de54a2c54e1b9e33755bcec
 file:
 - statement:
     create_storage_lifecycle_policy_statement:
@@ -372,4 +372,138 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'Archive to cold tier for 1 year before expiry'"
+- statement_terminator: ;
+- statement:
+    create_storage_lifecycle_policy_statement:
+    - keyword: CREATE
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: tagged_slp
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: reference_col
+          data_type:
+            data_type_identifier: DATE
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+        column_reference:
+          naked_identifier: reference_col
+        comparison_operator:
+          raw_comparison_operator: <
+        function:
+          function_name:
+            function_name_identifier: DATEADD
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - date_part: DAY
+            - comma: ','
+            - expression:
+                numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '90'
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_DATE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - end_bracket: )
+    - tag_bracketed_equals:
+        keyword: TAG
+        bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: team
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'data-engineering'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'prod'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_storage_lifecycle_policy_statement:
+    - keyword: CREATE
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: full_options_slp
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: reference_col
+          data_type:
+            data_type_identifier: DATE
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+        column_reference:
+          naked_identifier: reference_col
+        comparison_operator:
+          raw_comparison_operator: <
+        function:
+          function_name:
+            function_name_identifier: DATEADD
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - date_part: DAY
+            - comma: ','
+            - expression:
+                numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '180'
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_DATE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - end_bracket: )
+    - keyword: ARCHIVE_TIER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COOL
+    - keyword: ARCHIVE_FOR_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '90'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Full options policy'"
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+          start_bracket: (
+          tag_reference:
+            naked_identifier: team
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'analytics'"
+          end_bracket: )
 - statement_terminator: ;
