@@ -1804,10 +1804,27 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     match_grammar: Matchable = OneOf(
         Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            "TABLE",
-            Ref("IfNotExistsGrammar", optional=True),
+            OneOf(
+                # CREATE [OR REPLACE] TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "CREATE",
+                    Ref("OrReplaceGrammar", optional=True),
+                    "TABLE",
+                ),
+                # REPLACE TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "REPLACE",
+                    "TABLE",
+                ),
+                # CREATE TABLE IF NOT EXISTS
+                Sequence(
+                    "CREATE",
+                    "TABLE",
+                    Ref("IfNotExistsGrammar"),
+                ),
+            ),
             Ref("TableReferenceSegment"),
             Ref("OnClusterClauseSegment", optional=True),
             OneOf(
@@ -1835,6 +1852,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
                 # CREATE TABLE AS other_table:
                 Sequence(
+                    # https://clickhouse.com/docs/reference/statements/create/table#with-a-schema-and-data-cloned-from-another-table
+                    Ref.keyword("CLONE", optional=True),
                     "AS",
                     Ref("TableReferenceSegment"),
                     Ref("TableEngineSegment", optional=True),
@@ -1860,10 +1879,30 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
         # CREATE TEMPORARY TABLE
         Sequence(
-            "CREATE",
-            Ref.keyword("TEMPORARY"),
-            "TABLE",
-            Ref("IfNotExistsGrammar", optional=True),
+            OneOf(
+                # CREATE [OR REPLACE] TEMPORARY TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "CREATE",
+                    Ref("OrReplaceGrammar", optional=True),
+                    "TEMPORARY",
+                    "TABLE",
+                ),
+                # REPLACE TEMPORARY TABLE
+                # https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                Sequence(
+                    "REPLACE",
+                    "TEMPORARY",
+                    "TABLE",
+                ),
+                # CREATE TEMPORARY TABLE IF NOT EXISTS
+                Sequence(
+                    "CREATE",
+                    "TEMPORARY",
+                    "TABLE",
+                    Ref("IfNotExistsGrammar"),
+                ),
+            ),
             Ref("TableReferenceSegment"),
             OneOf(
                 # CREATE TEMPORARY TABLE (...):
@@ -1880,7 +1919,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         # Column definition may be missing if using AS SELECT
                         optional=True,
                     ),
-                    Ref("TableEngineSegment"),
+                    Ref("TableEngineSegment", optional=True),
                     # CREATE TEMPORARY TABLE (...) AS SELECT:
                     Sequence(
                         "AS",
@@ -1890,6 +1929,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
                 # CREATE TEMPORARY TABLE AS other_table:
                 Sequence(
+                    # https://clickhouse.com/docs/reference/statements/create/table#with-a-schema-and-data-cloned-from-another-table
+                    Ref.keyword("CLONE", optional=True),
                     "AS",
                     Ref("TableReferenceSegment"),
                     Ref("TableEngineSegment", optional=True),
@@ -1898,12 +1939,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence(
                     "AS",
                     Ref("FunctionSegment"),
-                ),
-                # CREATE TEMPORARY TABLE AS
-                Sequence(
-                    "AS",
-                    Ref("SelectableGrammar"),
-                    optional=True,
                 ),
             ),
             AnySetOf(

@@ -5,6 +5,8 @@ from typing import Callable
 import pytest
 from _pytest.logging import LogCaptureFixture
 
+from sqlfluff.core import Linter
+
 
 @pytest.mark.parametrize(
     "raw",
@@ -28,3 +30,47 @@ def test_mysql_if_statement_does_not_match_invalid_syntax(
 ) -> None:
     """Test that invalid IF statements do not match."""
     dialect_specific_segment_not_match("mysql", "IfExpressionStatement", raw, caplog)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "KILL HARD 5",
+        "KILL SOFT CONNECTION 5",
+        "KILL QUERY ID 5",
+        "KILL USER 'u'@'h'",
+    ],
+)
+def test_mysql_kill_rejects_mariadb_only_forms(raw: str) -> None:
+    """Test that the MariaDB-only KILL forms do not parse as MySQL.
+
+    MySQL has no HARD/SOFT, QUERY ID or USER forms. The MariaDB keyword is
+    read as a variable holding the id, so it is the argument that follows
+    it which fails to parse.
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "CREATE PROCEDURE p() BEGIN WHILE 0 DO END WHILE; END",
+        "CREATE PROCEDURE p() BEGIN LOOP END LOOP; END",
+        "CREATE PROCEDURE p() BEGIN REPEAT UNTIL 1 END REPEAT; END",
+        "CREATE PROCEDURE p() BEGIN IF 1 THEN END IF; END",
+    ],
+)
+def test_mysql_loop_and_if_bodies_are_not_empty(raw: str) -> None:
+    """Test that a loop body or IF branch must contain a statement.
+
+    The server's grammar uses `sp_proc_stmts1` (one or more) for these, and
+    `sp_proc_stmts` (zero or more) only for `BEGIN ... END`. Each of these is
+    a syntax error on the server.
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors

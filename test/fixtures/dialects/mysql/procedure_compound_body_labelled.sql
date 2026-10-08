@@ -1,0 +1,4 @@
+CREATE PROCEDURE p5()
+b1: BEGIN
+  SET @v1 = 1;
+END b1;

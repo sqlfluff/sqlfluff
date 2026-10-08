@@ -9,11 +9,18 @@ import json
 import os
 import re
 import shutil
+from datetime import date
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from textwrap import dedent
 from typing import Any
+from xml.sax.saxutils import escape as xml_escape
 
 SHARED_ASSETS = Path(__file__).resolve().parent.parent / "shared"
+PRODUCTION_ORIGIN = "https://docs.sqlfluff.com"
+DOMAIN_ALIASES = (
+    "docs.beta.sqlfluff.com",
+    "unique-mooncake-626ae6.netlify.app",
+)
 DEFAULT_REDIRECTS = (
     Path(__file__).resolve().parent.parent / ".vitepress" / "redirects.json"
 )
@@ -549,11 +556,20 @@ def build_redirects(
 ) -> str:
     """Build the Netlify redirects file from the assembled manifest."""
     target = f"/{language}/{default_channel(manifest)}/"
-    lines = [
-        f"/ {target} 302",
-        f"/{language} {target} 302",
-        f"/{language}/ {target} 302",
-    ]
+    lines = []
+    if production_indexing():
+        lines.extend(
+            f"https://{domain}/* {PRODUCTION_ORIGIN}/:splat 301!"
+            for domain in DOMAIN_ALIASES
+        )
+        lines.append("")
+    lines.extend(
+        [
+            f"/ {target} 302",
+            f"/{language} {target} 302",
+            f"/{language}/ {target} 302",
+        ]
+    )
 
     if redirects:
         lines.append("")
@@ -562,7 +578,12 @@ def build_redirects(
     return "\n".join(lines) + "\n"
 
 
-def build_global_headers(language: str) -> str:
+def production_indexing() -> bool:
+    """Whether the production hostname is ready to be indexed."""
+    return os.environ.get("SQLFLUFF_DOCS_INDEXING_MODE") == "production"
+
+
+def build_global_headers(language: str, manifest: dict[str, Any] | None = None) -> str:
     """Build generic cache-control headers for mutable channels and version assets.
 
     The shared assets get a short cache rather than an immutable one. They are
@@ -571,7 +592,7 @@ def build_global_headers(language: str) -> str:
     there is no fingerprint to change, and a long cache would mean a picker fix
     reaching frozen versions only once browsers expired it.
     """
-    return dedent(
+    headers = dedent(
         f"""
         /{language}/latest/
             Cache-Control: public, max-age=0, must-revalidate
@@ -601,6 +622,69 @@ def build_global_headers(language: str) -> str:
             Cache-Control: public, max-age=300, must-revalidate
         """
     )
+    if production_indexing():
+        # Only stable is search-facing. Keep release snapshots accessible from
+        # direct links and the picker without filling search with old guidance.
+        versions = (manifest or {}).get("versions", [])
+        for entry in versions:
+            key = str(entry.get("key") or "")
+            if not key or key == "stable":
+                continue
+            headers += (
+                f"/{language}/{key}/\n    X-Robots-Tag: noindex, follow\n"
+                f"/{language}/{key}/*\n    X-Robots-Tag: noindex, follow\n"
+            )
+    elif os.environ.get("SQLFLUFF_DOCS_NOINDEX") == "1":
+        headers += f"/{language}/*\n    X-Robots-Tag: noindex, nofollow\n"
+    return headers
+
+
+def stable_page_url(page: Path, stable_dir: Path, language: str) -> str:
+    """Return the public URL for a stable HTML page."""
+    relative = page.relative_to(stable_dir)
+    if page.name == "index.html":
+        directory = relative.parent.as_posix()
+        suffix = "" if directory == "." else f"{directory}/"
+    else:
+        suffix = relative.as_posix()
+    return f"{PRODUCTION_ORIGIN}/{language}/stable/{suffix}"
+
+
+def build_sitemap(site_dir: Path, language: str) -> str:
+    """List only canonical stable pages and the versions directory."""
+    stable_dir = site_dir / language / "stable"
+    locations = [f"{PRODUCTION_ORIGIN}/{language}/versions.html"]
+    for page in sorted(stable_dir.rglob("*.html")):
+        if page.name == "404.html":
+            continue
+        locations.append(stable_page_url(page, stable_dir, language))
+    body = "\n".join(f"  <url><loc>{xml_escape(url)}</loc></url>" for url in locations)
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{body}\n</urlset>\n"
+    )
+
+
+def prepare_stable_html_for_indexing(stable_dir: Path, language: str) -> None:
+    """Clear beta robots tags and add canonicals to a copied release build."""
+    for page in stable_dir.rglob("*.html"):
+        if page.name == "404.html":
+            continue
+        content = page.read_text(encoding="utf-8")
+        content = re.sub(
+            r'<meta name="robots" content="noindex,nofollow">',
+            "",
+            content,
+        )
+        if 'rel="canonical"' not in content:
+            canonical = stable_page_url(page, stable_dir, language)
+            content = content.replace(
+                "</head>",
+                f'<link rel="canonical" href="{html.escape(canonical, quote=True)}">\n</head>',
+                1,
+            )
+        page.write_text(content, encoding="utf-8")
 
 
 VERSIONS_PAGE_STYLE = """
@@ -637,6 +721,7 @@ VERSIONS_PAGE_STYLE = """
     li a:hover { text-decoration: underline; }
     .version { font-variant-numeric: tabular-nums; }
     .meta { color: #57606a; font-size: 0.85rem; }
+    .date { min-width: 6.2rem; font-variant-numeric: tabular-nums; }
     .tag {
         padding: 0 0.35rem;
         font-size: 0.75rem;
@@ -687,15 +772,22 @@ def render_version_item(entry: dict[str, Any], stable_key: str | None) -> str:
         tags.append("current release")
     if entry.get("prerelease"):
         tags.append("pre-release")
-    if entry.get("builder") == "sphinx":
-        tags.append("archived")
-
-    parts = [f'<a class="version" href="{path}">{label}</a>']
-    parts += [f'<span class="tag">{html.escape(tag)}</span>' for tag in tags]
-
+    parts = []
     if entry.get("published_at"):
-        published = html.escape(str(entry["published_at"]))
-        parts.append(f'<span class="meta">{published}</span>')
+        try:
+            published = date.fromisoformat(str(entry["published_at"])[:10]).isoformat()
+        except ValueError:
+            print(
+                f"Warning: ignoring invalid published_at for {entry['key']}: "
+                f"{entry['published_at']!r}"
+            )
+        else:
+            parts.append(
+                f'<time class="meta date" datetime="{published}">{published}</time>'
+            )
+
+    parts.append(f'<a class="version" href="{path}">{label}</a>')
+    parts += [f'<span class="tag">{html.escape(tag)}</span>' for tag in tags]
 
     return "<li>" + "".join(parts) + "</li>"
 
@@ -733,6 +825,12 @@ def build_versions_page(language: str, manifest: dict[str, Any]) -> str:
 
     body = "\n".join(sections) or '<p class="lede">No versions published yet.</p>'
     root = f"/{html.escape(language)}/"
+    if production_indexing():
+        indexing_head = (
+            f'<link rel="canonical" href="{PRODUCTION_ORIGIN}{root}versions.html">'
+        )
+    else:
+        indexing_head = '<meta name="robots" content="noindex, follow">'
 
     return f"""<!doctype html>
 <html lang="en">
@@ -740,7 +838,7 @@ def build_versions_page(language: str, manifest: dict[str, Any]) -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SQLFluff documentation versions</title>
-<meta name="robots" content="noindex, follow">
+{indexing_head}
 <style>{VERSIONS_PAGE_STYLE}</style>
 </head>
 <body>
@@ -851,7 +949,6 @@ def assemble_site(
         shutil.rmtree(target_dir)
 
     shutil.copytree(dist, target_dir)
-
     permalinks = load_redirect_map(redirects) if redirects else {}
 
     # Checked against the build that owns these permalinks. A Sphinx archive has
@@ -873,6 +970,12 @@ def assemble_site(
         published_at=published_at,
         stable_release=stable_release,
     )
+    keys = {entry.get("key") for entry in manifest["versions"]}
+    manifest["default"] = "stable" if "stable" in keys else "latest"
+    if production_indexing() and "stable" in keys:
+        # A normal main deploy may be the first after cutover. Its stable tree
+        # came from R2, so clear the beta robots tag there as well.
+        prepare_stable_html_for_indexing(language_dir / "stable", language)
     write_text(manifest_path, json.dumps(manifest, indent=2))
     write_text(language_dir / "versions.html", build_versions_page(language, manifest))
     publish_shared_assets(shared_dir, language_dir)
@@ -880,7 +983,15 @@ def assemble_site(
     write_text(
         output_dir / "_redirects", build_redirects(language, manifest, permalinks)
     )
-    write_text(output_dir / "_headers", build_global_headers(language))
+    write_text(output_dir / "_headers", build_global_headers(language, manifest))
+    sitemap_path = output_dir / "sitemap.xml"
+    robots_path = output_dir / "robots.txt"
+    if production_indexing() and "stable" in keys:
+        write_text(sitemap_path, build_sitemap(output_dir, language))
+        write_text(robots_path, f"Sitemap: {PRODUCTION_ORIGIN}/sitemap.xml\n")
+    else:
+        sitemap_path.unlink(missing_ok=True)
+        robots_path.unlink(missing_ok=True)
 
 
 def main() -> int:

@@ -7,8 +7,6 @@
 //! This eliminates the need for global state tracking of collected whitespace positions,
 //! and makes the parser more functional and composable.
 
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 use std::borrow::Cow;
 use std::fmt::Display;
 use std::ops::Range;
