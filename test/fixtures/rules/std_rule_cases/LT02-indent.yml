@@ -3095,3 +3095,62 @@ test_fail_snowflake_exception_block_nested:
   configs:
     core:
       dialect: snowflake
+
+test_pass_snowflake_scripting_case_statement:
+  # Issue 8690: the WHEN/ELSE branches of a Snowflake Scripting CASE
+  # statement sit one level below CASE and their bodies one level below
+  # that, with END CASE back at the CASE column.
+  pass_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_scripting_case_searched:
+  # The searched form (no case value) indents the same way.
+  pass_str: |
+    BEGIN
+        CASE
+            WHEN x < 3 THEN
+                result := 'small';
+            WHEN x < 10 THEN
+                result := 'medium';
+            ELSE
+                result := 'large';
+        END;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_scripting_case_statement:
+  # Issue 8690: WHEN/ELSE pulled back to the CASE column must be
+  # re-indented one level below CASE, with their bodies one level below.
+  fail_str: |
+    BEGIN
+        CASE (v)
+        WHEN 1 THEN
+        x := 2;
+        ELSE
+        x := 3;
+        END CASE;
+    END;
+  fix_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
