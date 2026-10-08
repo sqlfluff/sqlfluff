@@ -1042,3 +1042,24 @@ def test_reflow__indent_compensation_skipped_at_level_zero(default_config):
 
     result = seq.reindent()
     assert result is not None
+
+
+@pytest.mark.parametrize("dialect", ["ansi", "tsql"])
+@pytest.mark.parametrize("terminator", [";", ""])
+@pytest.mark.parametrize("trailing_newline", ["\n", ""])
+def test_reflow_long_order_by_terminator(dialect, terminator, trailing_newline):
+    """A trailing semicolon must not prevent comma-based long-line fixes."""
+    columns = (
+        "one, two, three, four, five, six, seven, eight, nine, ten, eleven, "
+        "twelve, thirteen"
+    )
+    wrapped_columns = columns.replace(", ", ",\n    ")
+    prefix = f"select\n    {wrapped_columns}\nfrom example\norder by\n    "
+    sql = prefix + columns + terminator + trailing_newline
+    expected = prefix + wrapped_columns + terminator + trailing_newline
+    linter = Linter(dialect=dialect, rules=["LT05"])
+
+    fixed = linter.lint_string(sql, fix=True).fix_string()[0]
+    assert fixed == expected
+    assert not linter.lint_string(fixed).check_tuples()
+    assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed

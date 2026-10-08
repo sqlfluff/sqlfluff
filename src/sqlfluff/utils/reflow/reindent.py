@@ -2167,6 +2167,7 @@ def _match_indents(
     balance = 0
     matched_indents: MatchedIndentsType = defaultdict(list)
     implicit_indent_dict: dict[int, tuple[int, ...]] = {}
+    unbreakable_indices = {newline_idx}
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
@@ -2183,6 +2184,14 @@ def _match_indents(
         if indent_stats.implicit_indents:
             implicit_indent_dict[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
+        # A semicolon stays on the preceding line: the integer-target fixer
+        # skips this dedent. Do not let it hide usable comma break points.
+        if (
+            indent_stats.impulse < 0
+            and idx + 1 < len(line_elements)
+            and "statement_terminator" in line_elements[idx + 1].class_types
+        ):
+            unbreakable_indices.add(e_idx)
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
             matched_indents[b].extend(indices)
@@ -2205,13 +2214,14 @@ def _match_indents(
             continue
 
     # Before working out the lowest option, we purge any which contain
-    # ONLY the final point. That's because adding indents there won't
-    # actually help the line length. There's *already* a newline there.
+    # ONLY the final point or dedents before semicolons. Neither can
+    # shorten the line: the former already has a newline, and the latter
+    # is deliberately skipped by _fix_long_line_with_integer_targets.
     for indent_level in list(matched_indents.keys()):
-        if matched_indents[indent_level] == [newline_idx]:
+        if not set(matched_indents[indent_level]).difference(unbreakable_indices):
             matched_indents.pop(indent_level)
             reflow_logger.debug(
-                "    purging balance of %s, it references only the final element.",
+                "    purging balance of %s, it references only unbreakable points.",
                 indent_level,
             )
 

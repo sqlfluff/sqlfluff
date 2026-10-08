@@ -1193,3 +1193,95 @@ test_fail_no_fix_list_wrapping_fill_jinja:
       max_line_length: 45
     indentation:
       list_wrapping: fill
+
+test_fail_order_by_semicolon_ansi_one_per_line:
+  # https://github.com/sqlfluff/sqlfluff/issues/8685
+  fail_str: |
+    select a
+    from example
+    order by
+        one, two, three, four, five, six, seven, eight;
+  fix_str: |
+    select a
+    from example
+    order by
+        one,
+        two,
+        three,
+        four,
+        five,
+        six,
+        seven,
+        eight;
+  configs:
+    core:
+      dialect: ansi
+      max_line_length: 40
+    indentation:
+      list_wrapping: one_per_line
+
+test_fail_order_by_semicolon_ansi_fill:
+  # https://github.com/sqlfluff/sqlfluff/issues/8685
+  fail_str: |
+    select a
+    from example
+    order by
+        one, two, three, four, five, six, seven, eight;
+  fix_str: |
+    select a
+    from example
+    order by
+        one, two, three, four, five, six,
+        seven, eight;
+  configs:
+    core:
+      dialect: ansi
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
+
+test_fail_order_by_semicolon_tsql_one_per_line:
+  # https://github.com/sqlfluff/sqlfluff/issues/8685
+  fail_str: |
+    select a
+    from example
+    order by
+        one, two, three, four, five, six, seven, eight;
+  fix_str: |
+    select a
+    from example
+    order by
+        one,
+        two,
+        three,
+        four,
+        five,
+        six,
+        seven,
+        eight;
+  configs:
+    core:
+      dialect: tsql
+      max_line_length: 40
+    indentation:
+      list_wrapping: one_per_line
+
+test_fail_order_by_semicolon_tsql_fill:
+  # https://github.com/sqlfluff/sqlfluff/issues/8685
+  fail_str: |
+    select a
+    from example
+    order by
+        one, two, three, four, five, six, seven, eight;
+  fix_str: |
+    select a
+    from example
+    order by
+        one, two, three, four, five, six,
+        seven, eight;
+  configs:
+    core:
+      dialect: tsql
+      max_line_length: 40
+    indentation:
+      list_wrapping: fill
