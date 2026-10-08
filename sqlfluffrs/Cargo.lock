@@ -1005,7 +1005,6 @@ dependencies = [
  "criterion",
  "env_logger",
  "hashbrown 0.16.1",
- "log",
  "pyo3",
  "serde_yaml_ng",
  "sqlfluffrs_dialects",
@@ -1094,6 +1093,7 @@ dependencies = [
 name = "sqlfluffrs_types"
 version = "4.4.0"
 dependencies = [
+ "env_logger",
  "fancy-regex",
  "hashbrown 0.16.1",
  "log",
