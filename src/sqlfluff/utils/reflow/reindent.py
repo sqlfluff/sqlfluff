@@ -2153,6 +2153,22 @@ def _increment_balance(
     return balance, matched_indents
 
 
+def _is_point_before_final_statement_terminator(
+    elements: ReflowSequenceType, point_idx: int
+) -> bool:
+    """Whether a point is followed only by a final statement terminator."""
+    found_terminator = False
+    for element in elements[point_idx + 1 :]:
+        for segment in element.segments:
+            if segment.is_type("statement_terminator"):
+                found_terminator = True
+            elif segment.is_type("newline"):
+                return found_terminator
+            elif segment.is_code:
+                return False
+    return False
+
+
 def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: dict[int, int],
@@ -2183,6 +2199,8 @@ def _match_indents(
         if indent_stats.implicit_indents:
             implicit_indent_dict[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
+        if _is_point_before_final_statement_terminator(line_elements, idx):
+            continue
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
             matched_indents[b].extend(indices)
