@@ -19,3 +19,16 @@ SET GLOBAL threads = 4;
 
 -- SET LOCAL parameter = value
 SET LOCAL sort_order = 'desc';
+
+-- SET VARIABLE accepts expressions and scalar subqueries.
+SET VARIABLE total = 1 + 2;
+SET VARIABLE greeting TO upper('hello');
+SET VARIABLE answer = (SELECT 42);
+SET VARIABLE files = (
+    SELECT list(file)
+    FROM (VALUES ('a.csv'), ('b.csv')) AS input_files(file)
+);
+
+-- Existing literal assignments remain supported.
+SET VARIABLE filenames = ['a.csv', 'b.csv'];
+SET VARIABLE start_date = DATE '2026-01-01';
