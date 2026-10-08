@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     KeywordSegment,
     LiteralSegment,
@@ -1076,7 +1077,9 @@ class UpsertClauseListSegment(BaseSegment):
         "DUPLICATE",
         "KEY",
         "UPDATE",
+        Indent,
         Delimited(Ref("SetClauseSegment")),
+        Dedent,
     )
 
 
@@ -1469,6 +1472,13 @@ mysql_dialect.add(
         Ref("LocalVariableNameSegment"),
         Bracketed(Ref("ExpressionSegment")),
     ),
+    # The body of a routine, trigger, event or handler: a BEGIN ... END block,
+    # which keeps BEGIN at the header's level and indents its own contents, or
+    # a single statement, indented under the header.
+    ProceduralBodyGrammar=OneOf(
+        Ref("CompoundStatementSegment"),
+        Sequence(Indent, Ref("StatementSegment"), Dedent),
+    ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableAssignmentSegment=Sequence(
         Ref("SessionVariableNameSegment"),
@@ -1694,7 +1704,7 @@ class DeclareStatement(BaseSegment):
                     Ref("NakedIdentifierSegment"),
                 ),
             ),
-            Sequence(Ref("StatementSegment")),
+            Ref("ProceduralBodyGrammar"),
         ),
         Sequence(
             "DECLARE",
@@ -1809,10 +1819,7 @@ class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
     type = "function_definition"
-    match_grammar = OneOf(
-        Ref("CompoundStatementSegment"),
-        Ref("StatementSegment"),
-    )
+    match_grammar = Ref("ProceduralBodyGrammar")
 
 
 class CompoundStatementSegment(BaseSegment):
@@ -1830,12 +1837,9 @@ class CompoundStatementSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "BEGIN",
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Indent,
+        Ref("StatementListSegment", optional=True),
+        Dedent,
         "END",
         Ref("SingleIdentifierGrammar", optional=True),
     )
@@ -2119,6 +2123,7 @@ class AlterTableStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
+        Indent,
         Delimited(
             OneOf(
                 # Table options
@@ -2308,6 +2313,7 @@ class AlterTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
     )
 
 
@@ -2471,21 +2477,24 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-class IfStatementListSegment(BaseSegment):
-    """Statements within an IF...END IF statement."""
+class StatementListSegment(BaseSegment):
+    """The statements in a block, loop or IF branch.
 
-    type = "if_statement_list"
+    One or more statements, each followed by its delimiter (`sp_proc_stmts1`
+    in the server's grammar). A `BEGIN ... END` block may be empty, so it makes
+    the list optional (`sp_proc_stmts`).
+
+    The list needs no exclusions. It ends where the next word cannot start a
+    statement (`END`, `UNTIL`, `ELSEIF`, `ELSE`, all reserved), and what may
+    follow it is up to the enclosing construct: for example, the order of
+    `ELSEIF` and `ELSE` branches is enforced by `IfExpressionStatement`.
+    """
+
+    type = "statement_list"
 
     match_grammar = AnyNumberOf(
         Sequence(
-            Ref(
-                "StatementSegment",
-                exclude=OneOf(
-                    "ELSEIF",
-                    "ELSE",
-                    Sequence("END", "IF"),
-                ),
-            ),
+            Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
         min_times=1,
@@ -2502,25 +2511,30 @@ class IfExpressionStatement(BaseSegment):
 
     match_grammar = Sequence(
         "IF",
+        # Each condition takes an implicit indent, as a WHERE clause does.
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
         "THEN",
         Indent,
-        Ref("IfStatementListSegment"),
+        Ref("StatementListSegment"),
         Dedent,
         AnyNumberOf(
             Sequence(
                 "ELSEIF",
+                ImplicitIndent,
                 Ref("ExpressionSegment"),
+                Dedent,
                 "THEN",
                 Indent,
-                Ref("IfStatementListSegment"),
+                Ref("StatementListSegment"),
                 Dedent,
             ),
         ),
         Sequence(
             "ELSE",
             Indent,
-            Ref("IfStatementListSegment"),
+            Ref("StatementListSegment"),
             Dedent,
             optional=True,
         ),
@@ -2784,14 +2798,13 @@ class WhileStatementSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "WHILE",
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
         "DO",
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
         "END",
         "WHILE",
         Ref("SingleIdentifierGrammar", optional=True),
@@ -2884,12 +2897,9 @@ class LoopStatementSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "LOOP",
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
         "END",
         "LOOP",
         Ref("SingleIdentifierGrammar", optional=True),
@@ -2968,14 +2978,13 @@ class RepeatStatementSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
         "REPEAT",
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment", exclude=OneOf("UNTIL", "END")),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
         "UNTIL",
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
         "END",
         "REPEAT",
         Ref("SingleIdentifierGrammar", optional=True),
@@ -3627,10 +3636,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         Sequence(
             OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
         ),
-        OneOf(
-            Ref("CompoundStatementSegment"),
-            Ref("StatementSegment"),
-        ),
+        Ref("ProceduralBodyGrammar"),
     )
 
 
@@ -3855,7 +3861,7 @@ class CreateEventStatementSegment(BaseSegment):
         ),
         Ref("CommentClauseSegment", optional=True),
         "DO",
-        Ref("StatementSegment"),
+        Ref("ProceduralBodyGrammar"),
     )
 
 
@@ -3902,7 +3908,7 @@ class AlterEventStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("CommentClauseSegment", optional=True),
-        Sequence("DO", Ref("StatementSegment"), optional=True),
+        Sequence("DO", Ref("ProceduralBodyGrammar"), optional=True),
     )
 
 

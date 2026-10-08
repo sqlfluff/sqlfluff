@@ -52,3 +52,25 @@ def test_mysql_kill_rejects_mariadb_only_forms(raw: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "CREATE PROCEDURE p() BEGIN WHILE 0 DO END WHILE; END",
+        "CREATE PROCEDURE p() BEGIN LOOP END LOOP; END",
+        "CREATE PROCEDURE p() BEGIN REPEAT UNTIL 1 END REPEAT; END",
+        "CREATE PROCEDURE p() BEGIN IF 1 THEN END IF; END",
+    ],
+)
+def test_mysql_loop_and_if_bodies_are_not_empty(raw: str) -> None:
+    """Test that a loop body or IF branch must contain a statement.
+
+    The server's grammar uses `sp_proc_stmts1` (one or more) for these, and
+    `sp_proc_stmts` (zero or more) only for `BEGIN ... END`. Each of these is
+    a syntax error on the server.
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors

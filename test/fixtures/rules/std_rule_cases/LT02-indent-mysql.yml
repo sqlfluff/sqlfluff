@@ -1,0 +1,448 @@
+rule: LT02
+
+# The contents of a BEGIN ... END block are indented; BEGIN and END stay
+# at the level of the statement they belong to.
+test_fail_mysql_compound_statement_body:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    SET v = v + 1;
+    SELECT v;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        SET v = v + 1;
+        SELECT v;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# Each nested block, labelled or not, adds one level.
+test_fail_mysql_nested_compound_statements:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    outer_block: BEGIN
+    SET v = 1;
+    BEGIN
+    SET v = 2;
+    END;
+    END outer_block;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        outer_block: BEGIN
+            SET v = 1;
+            BEGIN
+                SET v = 2;
+            END;
+        END outer_block;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_while_body:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    WHILE v < 10 DO
+    SET v = v + 1;
+    END WHILE;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        WHILE v < 10 DO
+            SET v = v + 1;
+        END WHILE;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_loop_body:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    counter: LOOP
+    SET v = v + 1;
+    IF v >= 10 THEN
+    LEAVE counter;
+    END IF;
+    END LOOP counter;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        counter: LOOP
+            SET v = v + 1;
+            IF v >= 10 THEN
+                LEAVE counter;
+            END IF;
+        END LOOP counter;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# UNTIL lines up with REPEAT, outside the body.
+test_fail_mysql_repeat_body:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    REPEAT
+    SET v = v + 1;
+    UNTIL v >= 10
+    END REPEAT;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        REPEAT
+            SET v = v + 1;
+        UNTIL v >= 10
+        END REPEAT;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A condition that runs onto more lines takes an implicit indent, as a
+# WHERE clause does. By default that means a line break after the keyword.
+test_fail_mysql_if_condition:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        IF v = 1
+        OR v = 2 THEN
+            SET v = 3;
+        ELSEIF v = 4
+        OR v = 5 THEN
+            SET v = 6;
+        END IF;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        IF
+            v = 1
+            OR v = 2 THEN
+            SET v = 3;
+        ELSEIF
+            v = 4
+            OR v = 5 THEN
+            SET v = 6;
+        END IF;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_loop_conditions:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        WHILE v < 10
+        AND v != 5 DO
+            SET v = v + 1;
+        END WHILE;
+        REPEAT
+            SET v = v + 1;
+        UNTIL v >= 10
+        OR v = 5
+        END REPEAT;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        WHILE
+            v < 10
+            AND v != 5 DO
+            SET v = v + 1;
+        END WHILE;
+        REPEAT
+            SET v = v + 1;
+        UNTIL
+            v >= 10
+            OR v = 5
+        END REPEAT;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# With implicit indents allowed, the condition may start on the keyword's line.
+test_fail_mysql_conditions_implicit_indents:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        IF v = 1
+        OR v = 2 THEN
+            SET v = 3;
+        ELSEIF v = 4
+        OR v = 5 THEN
+            SET v = 6;
+        END IF;
+        WHILE v < 10
+        AND v != 5 DO
+            SET v = v + 1;
+        END WHILE;
+        REPEAT
+            SET v = v + 1;
+        UNTIL v >= 10
+        OR v = 5
+        END REPEAT;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        IF v = 1
+            OR v = 2 THEN
+            SET v = 3;
+        ELSEIF v = 4
+            OR v = 5 THEN
+            SET v = 6;
+        END IF;
+        WHILE v < 10
+            AND v != 5 DO
+            SET v = v + 1;
+        END WHILE;
+        REPEAT
+            SET v = v + 1;
+        UNTIL v >= 10
+            OR v = 5
+        END REPEAT;
+    END
+  configs:
+    core:
+      dialect: mysql
+    indentation:
+      implicit_indents: allow
+
+# THEN and DO may go on their own line, at the keyword's level.
+test_pass_mysql_condition_then_on_own_line:
+  pass_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        IF
+            v = 1
+            OR v = 2
+        THEN
+            SET v = 3;
+        END IF;
+        WHILE
+            v < 10
+            AND v != 5
+        DO
+            SET v = v + 1;
+        END WHILE;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A body written as a single statement is indented under its header.
+test_fail_mysql_routine_single_statement_body:
+  fail_str: |
+    CREATE PROCEDURE p()
+    SELECT a
+    FROM t;
+  fix_str: |
+    CREATE PROCEDURE p()
+        SELECT a
+        FROM t;
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_trigger_single_statement_body:
+  fail_str: |
+    CREATE TRIGGER tr BEFORE INSERT ON t FOR EACH ROW
+    SET NEW.a = 1;
+  fix_str: |
+    CREATE TRIGGER tr BEFORE INSERT ON t FOR EACH ROW
+        SET NEW.a = 1;
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_event_single_statement_body:
+  fail_str: |
+    CREATE EVENT e ON SCHEDULE EVERY 1 DAY DO
+    DELETE FROM t
+    WHERE a < 0;
+  fix_str: |
+    CREATE EVENT e ON SCHEDULE EVERY 1 DAY DO
+        DELETE FROM t
+        WHERE a < 0;
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_handler_single_statement_action:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND
+    SET done = 1;
+    SELECT done;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE done INT DEFAULT 0;
+        DECLARE CONTINUE HANDLER FOR NOT FOUND
+            SET done = 1;
+        SELECT done;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# Assignments are indented, as in UPDATE ... SET.
+test_fail_mysql_on_duplicate_key_update:
+  fail_str: |
+    INSERT INTO t (a, b)
+    VALUES (1, 2)
+    ON DUPLICATE KEY UPDATE
+    a = VALUES(a),
+    b = VALUES(b);
+  fix_str: |
+    INSERT INTO t (a, b)
+    VALUES (1, 2)
+    ON DUPLICATE KEY UPDATE
+        a = VALUES(a),
+        b = VALUES(b);
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_alter_table_actions:
+  fail_str: |
+    ALTER TABLE t
+    ADD COLUMN c INT,
+    DROP COLUMN d;
+  fix_str: |
+    ALTER TABLE t
+        ADD COLUMN c INT,
+        DROP COLUMN d;
+  configs:
+    core:
+      dialect: mysql
+
+# MariaDB inherits the MySQL behaviour.
+test_fail_mariadb_compound_statement_body:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    SET v = v + 1;
+    SELECT v;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        SET v = v + 1;
+        SELECT v;
+    END
+  configs:
+    core:
+      dialect: mariadb
+
+# An indented BEGIN ... END body is pulled back to the header's level.
+test_fail_mysql_block_body_not_indented:
+  fail_str: |
+    CREATE PROCEDURE p()
+        BEGIN
+            SELECT 1;
+        END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        SELECT 1;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A BEGIN ... END body keeps BEGIN at the header's level: only a single
+# statement body is indented under the header.
+test_pass_mysql_trigger_block_body:
+  pass_str: |
+    CREATE TRIGGER tr BEFORE INSERT ON t FOR EACH ROW
+    BEGIN
+        SET NEW.a = 1;
+        SET NEW.b = 2;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_event_block_body:
+  pass_str: |
+    CREATE EVENT e ON SCHEDULE EVERY 1 DAY DO
+    BEGIN
+        DELETE FROM t WHERE a < 0;
+        DELETE FROM u WHERE b < 0;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_handler_block_action:
+  pass_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            RESIGNAL;
+        END;
+        START TRANSACTION;
+        COMMIT;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# Nothing changes when the body is on the header's line.
+test_pass_mysql_one_line_forms:
+  pass_str: |
+    CREATE PROCEDURE p() SELECT 1;
+
+    CREATE TRIGGER tr BEFORE INSERT ON t FOR EACH ROW SET NEW.a = 1;
+
+    CREATE PROCEDURE q()
+    BEGIN
+        DECLARE done INT DEFAULT 0;
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+        SELECT done;
+    END;
+
+    ALTER TABLE t ADD COLUMN c INT;
+  configs:
+    core:
+      dialect: mysql
