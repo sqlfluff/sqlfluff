@@ -65,9 +65,7 @@ python = [
 ]
 
 [dependencies]
-env_logger.workspace = true
 hashbrown.workspace = true
-log.workspace = true
 pyo3 = { workspace = true, optional = true }
 serde_yaml_ng.workspace = true
 blake2 = "0.10.6"

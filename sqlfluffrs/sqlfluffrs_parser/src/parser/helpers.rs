@@ -10,18 +10,17 @@ use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 use std::sync::Arc;
 
 impl<'a> Parser<'a> {
-    /// Print cache statistics
+    /// Log cache statistics at debug level
     pub fn print_cache_stats(&self) {
-        // Print table cache stats
         let (table_hits, table_misses, table_hit_rate) = self.table_cache.stats();
-        println!("Table Parse Cache Statistics:");
-        println!("  Hits: {}", table_hits);
-        println!("  Misses: {}", table_misses);
-        println!("  Entries: {}", self.table_cache.len());
-        println!("  Hit Rate: {:.2}%", table_hit_rate * 100.0);
-        println!();
+        log::debug!(
+            "Table Parse Cache Statistics:\n  Hits: {}\n  Misses: {}\n  Entries: {}\n  Hit Rate: {:.2}%",
+            table_hits,
+            table_misses,
+            self.table_cache.len(),
+            table_hit_rate * 100.0
+        );
 
-        // Print pruning stats
         let calls = self.metrics.pruning_calls.get();
         let total = self.metrics.pruning_total.get();
         let kept = self.metrics.pruning_kept.get();
@@ -30,38 +29,32 @@ impl<'a> Parser<'a> {
         let complex = self.metrics.pruning_complex.get();
 
         if calls > 0 {
-            println!("SimpleHint Pruning Statistics:");
-            println!("  Pruning calls: {}", calls);
-            println!("  Total options: {}", total);
-            println!(
-                "  Options with hints: {} ({:.1}%)",
-                hinted,
-                100.0 * hinted as f64 / total as f64
-            );
-            println!(
-                "  Complex options (no hint): {} ({:.1}%)",
-                complex,
-                100.0 * complex as f64 / total as f64
-            );
-            println!(
-                "  Options kept: {} ({:.1}%)",
-                kept,
-                100.0 * kept as f64 / total as f64
-            );
-            println!(
-                "  Options pruned: {} ({:.1}%)",
-                pruned,
-                100.0 * pruned as f64 / total as f64
-            );
-            println!(
-                "  Pruning effectiveness: {:.1}% of hinted options pruned",
-                if hinted > 0 {
-                    100.0 * pruned as f64 / hinted as f64
+            let pct = |n: usize, d: usize| {
+                if d > 0 {
+                    100.0 * n as f64 / d as f64
                 } else {
                     0.0
                 }
+            };
+            log::debug!(
+                "SimpleHint Pruning Statistics:\n  Pruning calls: {}\n  Total options: {}\n  \
+                 Options with hints: {} ({:.1}%)\n  Complex options (no hint): {} ({:.1}%)\n  \
+                 Options kept: {} ({:.1}%)\n  Options pruned: {} ({:.1}%)\n  \
+                 Pruning effectiveness: {:.1}% of hinted options pruned\n  \
+                 Avg options per call: {:.1}",
+                calls,
+                total,
+                hinted,
+                pct(hinted, total),
+                complex,
+                pct(complex, total),
+                kept,
+                pct(kept, total),
+                pruned,
+                pct(pruned, total),
+                pct(pruned, hinted),
+                total as f64 / calls as f64
             );
-            println!("  Avg options per call: {:.1}", total as f64 / calls as f64);
         }
     }
 

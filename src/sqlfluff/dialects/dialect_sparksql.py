@@ -3070,6 +3070,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
+            Ref("ExecuteImmediateStatementSegment"),
             Ref("RestoreTableStatementSegment"),
             # Databricks - Delta Live Tables
             Ref("ConstraintStatementSegment"),
@@ -3573,6 +3574,48 @@ class GenerateManifestFileStatementSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class ExecuteImmediateStatementSegment(BaseSegment):
+    """An `EXECUTE IMMEDIATE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-exec-imm.html
+    """
+
+    type = "execute_immediate_statement"
+
+    # arg_expr [ AS ] [ alias ] -- the reference makes AS optional, and the
+    # alias only matters when the SQL string uses named parameter markers.
+    _argument = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        # The reference describes sql_string as a constant expression, which
+        # already covers a literal or a variable.
+        Ref("ExpressionSegment"),
+        Sequence(
+            "INTO",
+            # Spark parses these as multipart identifiers, so a session
+            # variable may be qualified (`session.v1`, `system.session.v1`).
+            Delimited(Ref("ObjectReferenceSegment"), terminators=["USING"]),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            # The bracketed form is offered "for compatibility with other SQL
+            # dialects" and appears in published Databricks notebooks.
+            OptionallyBracketed(Delimited(_argument)),
+            optional=True,
         ),
     )
 
