@@ -253,3 +253,23 @@ def test_sqlite_targetless_upsert_must_be_last(source: str, clauses: str) -> Non
         f"INSERT INTO t1 (a, b) {source} {clauses};"
     )
     assert any(v.rule_code() == "PRS" for v in parsed.violations)
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        "ARCHIVE_TIER = COOL ARCHIVE_TIER = COLD",
+        "ARCHIVE_FOR_DAYS = 30 ARCHIVE_FOR_DAYS = 60",
+        "COMMENT = 'a' COMMENT = 'b'",
+        "TAG (t = 'v') TAG (u = 'w')",
+    ],
+)
+def test_snowflake_storage_lifecycle_policy_options_are_not_repeatable(
+    options: str,
+) -> None:
+    """Each CREATE STORAGE LIFECYCLE POLICY option may appear at most once."""
+    parsed = Linter(dialect="snowflake").parse_string(
+        "CREATE STORAGE LIFECYCLE POLICY p AS (f STRING) "
+        f"RETURNS BOOLEAN -> TRUE {options};"
+    )
+    assert any(v.rule_code() == "PRS" for v in parsed.violations)

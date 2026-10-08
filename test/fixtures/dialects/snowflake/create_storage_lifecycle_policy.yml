@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c2223e42a3880c8535b8241ef75c0c143060e1c2346c327118a436443c7f509
+_hash: 504c527a5bf2c06da1a97c5fd1b39166d569d6c273427eec04cfcf96fa7deeaa
 file:
 - statement:
     create_storage_lifecycle_policy_statement:
@@ -11,7 +11,8 @@ file:
     - keyword: STORAGE
     - keyword: LIFECYCLE
     - keyword: POLICY
-    - naked_identifier: my_policy
+    - object_reference:
+        naked_identifier: my_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -74,7 +75,8 @@ file:
     - keyword: STORAGE
     - keyword: LIFECYCLE
     - keyword: POLICY
-    - naked_identifier: example_policy
+    - object_reference:
+        naked_identifier: example_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -160,7 +162,8 @@ file:
     - keyword: STORAGE
     - keyword: LIFECYCLE
     - keyword: POLICY
-    - quoted_identifier: '"My Policy"'
+    - object_reference:
+        quoted_identifier: '"My Policy"'
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -208,7 +211,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - naked_identifier: minimal_policy
+    - object_reference:
+        naked_identifier: minimal_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -229,7 +233,8 @@ file:
     - keyword: STORAGE
     - keyword: LIFECYCLE
     - keyword: POLICY
-    - naked_identifier: tagged_without_with
+    - object_reference:
+        naked_identifier: tagged_without_with
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -253,4 +258,30 @@ file:
             raw_comparison_operator: '='
           quoted_literal: "'data'"
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_storage_lifecycle_policy_statement:
+    - keyword: CREATE
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: qualified_policy
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: file_path
+          data_type:
+            data_type_identifier: STRING
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+        boolean_literal: 'TRUE'
 - statement_terminator: ;

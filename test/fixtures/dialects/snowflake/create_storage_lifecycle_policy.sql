@@ -31,3 +31,8 @@ CREATE STORAGE LIFECYCLE POLICY tagged_without_with
 AS (file_path STRING)
 RETURNS BOOLEAN -> TRUE
 TAG (team = 'data');
+-- A policy name may be schema- or database-qualified; the docs say the policy is
+-- created "in the current or specified schema".
+CREATE STORAGE LIFECYCLE POLICY my_db.my_schema.qualified_policy
+AS (file_path STRING)
+RETURNS BOOLEAN -> TRUE;
