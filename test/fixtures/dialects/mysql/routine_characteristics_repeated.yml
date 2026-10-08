@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 852885dfa9a3936bb26d6355de8394f833a07785b8930413eceebea5760c85a1
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'first'"
+      - keyword: 'NO'
+      - keyword: SQL
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'second'"
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - characteristic_statement:
+      - keyword: NOT
+      - keyword: DETERMINISTIC
+      - keyword: CONTAINS
+      - keyword: SQL
+      - keyword: DETERMINISTIC
+      - keyword: SQL
+      - keyword: SECURITY
+      - keyword: INVOKER
+      - keyword: SQL
+      - keyword: SECURITY
+      - keyword: DEFINER
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;

@@ -74,3 +74,50 @@ def test_mysql_loop_and_if_bodies_are_not_empty(raw: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # In MySQL only procedure parameters take a direction; MariaDB also
+        # allows one on function parameters.
+        "CREATE FUNCTION f(IN a INT) RETURNS INT RETURN a",
+        "CREATE FUNCTION f(OUT a INT) RETURNS INT RETURN 1",
+        "CREATE FUNCTION f(INOUT a INT) RETURNS INT RETURN a",
+        # A characteristic counts only when complete: READS SQL needs DATA,
+        # SQL SECURITY needs DEFINER or INVOKER, NOT needs DETERMINISTIC.
+        "CREATE FUNCTION f() RETURNS INT READS SQL RETURN 1",
+        "CREATE FUNCTION f() RETURNS INT SQL SECURITY OWNER RETURN 1",
+        "CREATE PROCEDURE p() NOT SELECT 1",
+        # A parameter needs a name as well as a type.
+        "CREATE PROCEDURE p(INT) SELECT 1",
+        "CREATE FUNCTION f(INT) RETURNS INT RETURN 1",
+        # A cursor is declared for a query, not any statement.
+        "CREATE PROCEDURE p() BEGIN DECLARE c CURSOR FOR DELETE FROM t; END",
+        # The brackets are required even when there are no parameters.
+        "CREATE PROCEDURE p SELECT 1",
+        "CREATE FUNCTION f RETURNS INT RETURN 1",
+        # The header order is fixed: CREATE [DEFINER = user]
+        # {FUNCTION | PROCEDURE} [IF NOT EXISTS] name (params)
+        # [RETURNS type] [characteristics]. Each of these moves one part.
+        "CREATE FUNCTION f() DETERMINISTIC RETURNS INT RETURN 1",
+        "CREATE FUNCTION DEFINER = CURRENT_USER f() RETURNS INT RETURN 1",
+        "CREATE IF NOT EXISTS FUNCTION f() RETURNS INT RETURN 1",
+        # MariaDB only: OR REPLACE, parameter defaults, AGGREGATE and
+        # CURRENT_ROLE. MySQL reads a bare CURRENT_ROLE as a user name, so only
+        # CURRENT_ROLE() is an error.
+        "CREATE OR REPLACE FUNCTION f() RETURNS INT RETURN 1",
+        "CREATE FUNCTION f(a INT DEFAULT 1) RETURNS INT RETURN a",
+        "CREATE AGGREGATE FUNCTION f(x INT) RETURNS INT RETURN x",
+        "CREATE DEFINER = CURRENT_ROLE() PROCEDURE p() SELECT 1",
+    ],
+)
+def test_mysql_routine_header_does_not_match_invalid_syntax(raw: str) -> None:
+    """Test that invalid routine headers are rejected.
+
+    Each of these is a syntax error on the server.
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors

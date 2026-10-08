@@ -1,0 +1,234 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0eb2ea02492243a65be798583d0acbda88dd62f7d7fa447b5e881cc62be51ad7
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          keyword: CURRENT_USER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: IN
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+        - quoted_identifier: "'u'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+        - quoted_identifier: "'u'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'%'"
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: f2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: IN
+          parameter: x
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+          - statement:
+              declare_statement:
+              - keyword: DECLARE
+              - variable: total
+              - data_type:
+                  data_type_identifier: INT
+              - keyword: DEFAULT
+              - expression:
+                  numeric_literal: '0'
+          - statement_terminator: ;
+          - statement:
+              declare_statement:
+              - keyword: DECLARE
+              - keyword: CONTINUE
+              - keyword: HANDLER
+              - keyword: FOR
+              - keyword: NOT
+              - keyword: FOUND
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                      column_reference:
+                        naked_identifier: total
+          - statement_terminator: ;
+          - statement:
+              loop_statement:
+              - keyword: LOOP
+              - statement_list:
+                - statement:
+                    cursor_fetch_segment:
+                    - keyword: FETCH
+                    - keyword: GROUP
+                    - keyword: NEXT
+                    - keyword: ROW
+                - statement_terminator: ;
+                - statement:
+                    set_statement:
+                      keyword: SET
+                      variable: total
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      expression:
+                      - column_reference:
+                          naked_identifier: total
+                      - binary_operator: +
+                      - column_reference:
+                          naked_identifier: x
+                - statement_terminator: ;
+              - keyword: END
+              - keyword: LOOP
+          - statement_terminator: ;
+        - keyword: END
+- statement_terminator: ;
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          keyword: CURRENT_USER
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: e1
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - expression:
+        numeric_literal: '1'
+    - date_part: DAY
+    - keyword: DO
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          keyword: CURRENT_ROLE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p2
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          keyword: CURRENT_ROLE
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p3
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;

@@ -262,6 +262,162 @@ test_pass_mysql_condition_then_on_own_line:
     core:
       dialect: mysql
 
+# A labelled body block stays at the header's level like an unlabelled one.
+test_fail_mysql_labelled_routine_body:
+  fail_str: |
+    CREATE FUNCTION f(a INT)
+    RETURNS INT
+    DETERMINISTIC
+    fbody: BEGIN
+    IF a < 0 THEN
+    RETURN 0;
+    END IF;
+    RETURN a;
+    END fbody
+  fix_str: |
+    CREATE FUNCTION f(a INT)
+    RETURNS INT
+    DETERMINISTIC
+    fbody: BEGIN
+        IF a < 0 THEN
+            RETURN 0;
+        END IF;
+        RETURN a;
+    END fbody
+  configs:
+    core:
+      dialect: mysql
+
+# Parameters, one per line, are indented under the header; the closing
+# bracket goes back to the header's level.
+test_fail_mysql_routine_parameters:
+  fail_str: |
+    CREATE PROCEDURE p(
+    IN a INT,
+    OUT b VARCHAR(10) CHARACTER SET utf8mb4,
+    INOUT c INT
+    )
+    BEGIN
+        SET b = 'x';
+    END
+  fix_str: |
+    CREATE PROCEDURE p(
+        IN a INT,
+        OUT b VARCHAR(10) CHARACTER SET utf8mb4,
+        INOUT c INT
+    )
+    BEGIN
+        SET b = 'x';
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A hanging list, with the first parameter on the bracket's line, becomes one
+# parameter per line, as for any bracketed list.
+test_fail_mysql_function_parameters_hanging:
+  fail_str: |
+    CREATE FUNCTION f(a INT,
+                      b INT)
+    RETURNS INT
+    DETERMINISTIC
+    RETURN a + b
+  fix_str: |
+    CREATE FUNCTION f(
+        a INT,
+        b INT
+    )
+    RETURNS INT
+    DETERMINISTIC
+        RETURN a + b
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_function_parameters_leading_commas:
+  pass_str: |
+    CREATE FUNCTION f(
+        search_word VARCHAR(255) CHARACTER SET utf8mb4
+        , words TEXT CHARACTER SET utf8mb4
+        , max_ratio FLOAT
+    )
+    RETURNS FLOAT
+    DETERMINISTIC
+    BEGIN
+        RETURN max_ratio;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A value on the line after RETURN takes an implicit indent, as a WHERE
+# condition does.
+test_fail_mysql_return_value_on_next_line:
+  fail_str: |
+    CREATE FUNCTION f(a INT) RETURNS INT
+        RETURN
+        a + 1;
+  fix_str: |
+    CREATE FUNCTION f(a INT) RETURNS INT
+        RETURN
+            a + 1;
+  configs:
+    core:
+      dialect: mysql
+
+# The SET clause of SIGNAL or RESIGNAL, on its own line, is indented under it.
+test_fail_mysql_signal_set_clause:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'bad', MYSQL_ERRNO = 1234;
+        RESIGNAL
+        SET MESSAGE_TEXT = 'again';
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'bad', MYSQL_ERRNO = 1234;
+        RESIGNAL
+            SET MESSAGE_TEXT = 'again';
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A cursor's query is indented under the declaration, as a handler's
+# statement is.
+test_fail_mysql_cursor_query:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE c1 CURSOR FOR
+        SELECT x
+        FROM t
+        WHERE x > 0;
+        DECLARE c2 CURSOR FOR
+        WITH q AS (SELECT x FROM t)
+        SELECT x FROM q;
+        OPEN c1;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE c1 CURSOR FOR
+            SELECT x
+            FROM t
+            WHERE x > 0;
+        DECLARE c2 CURSOR FOR
+            WITH q AS (SELECT x FROM t)
+            SELECT x FROM q;
+        OPEN c1;
+    END
+  configs:
+    core:
+      dialect: mysql
+
 # A body written as a single statement is indented under its header.
 test_fail_mysql_routine_single_statement_body:
   fail_str: |
@@ -443,6 +599,14 @@ test_pass_mysql_one_line_forms:
     END;
 
     ALTER TABLE t ADD COLUMN c INT;
+
+    CREATE PROCEDURE r()
+    BEGIN
+        DECLARE c CURSOR FOR SELECT x FROM t;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'x';
+    END;
+
+    CREATE FUNCTION g(a INT) RETURNS INT RETURN a + 1;
   configs:
     core:
       dialect: mysql
