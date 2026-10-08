@@ -12371,7 +12371,7 @@ class CreateStorageLifecyclePolicyStatementSegment(BaseSegment):
         "BOOLEAN",
         Ref("FunctionAssignerSegment"),
         Ref("ExpressionSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Sequence(
                 "ARCHIVE_TIER",
                 Ref("EqualsSegment"),
@@ -12383,10 +12383,7 @@ class CreateStorageLifecyclePolicyStatementSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
             Ref("CommentEqualsClauseSegment"),
-            Sequence(
-                Ref.keyword("WITH", optional=True),
-                Ref("TagBracketedEqualsSegment"),
-            ),
+            Ref("TagBracketedEqualsSegment"),
         ),
     )
 

@@ -6,13 +6,24 @@ ARCHIVE_TIER = COLD
 ARCHIVE_FOR_DAYS = 90
 COMMENT = 'archive old files';
 
-CREATE OR REPLACE STORAGE LIFECYCLE POLICY IF NOT EXISTS "My Policy"
+-- The example from the docs, whose body is a compound expression.
+CREATE STORAGE LIFECYCLE POLICY example_policy
+AS (event_ts TIMESTAMP, account_id NUMBER)
+RETURNS BOOLEAN ->
+    event_ts < DATEADD(DAY, -60, CURRENT_TIMESTAMP())
+    AND EXISTS (SELECT 1 FROM closed_accounts WHERE id = account_id)
+ARCHIVE_TIER = COOL
+ARCHIVE_FOR_DAYS = 180;
+
+-- OR REPLACE and IF NOT EXISTS are mutually exclusive, so they are covered
+-- separately.
+CREATE OR REPLACE STORAGE LIFECYCLE POLICY "My Policy"
 AS (file_path STRING)
 RETURNS BOOLEAN -> file_path LIKE '%.log'
 ARCHIVE_TIER = COOL
 WITH TAG (governance = 'retention', owner = 'platform');
 
-CREATE STORAGE LIFECYCLE POLICY minimal_policy
+CREATE STORAGE LIFECYCLE POLICY IF NOT EXISTS minimal_policy
 AS (file_path STRING)
 RETURNS BOOLEAN -> TRUE;
 

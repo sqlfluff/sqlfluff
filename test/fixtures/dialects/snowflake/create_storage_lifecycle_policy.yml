@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e93308a2a849654e2acbcd93ee0d4aff6bc522fc1ec75b0a35170bec3fa1a96
+_hash: 0c2223e42a3880c8535b8241ef75c0c143060e1c2346c327118a436443c7f509
 file:
 - statement:
     create_storage_lifecycle_policy_statement:
@@ -71,14 +71,95 @@ file:
 - statement:
     create_storage_lifecycle_policy_statement:
     - keyword: CREATE
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICY
+    - naked_identifier: example_policy
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: event_ts
+        - data_type:
+            keyword: TIMESTAMP
+        - comma: ','
+        - parameter: account_id
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+        column_reference:
+          naked_identifier: event_ts
+        comparison_operator:
+          raw_comparison_operator: <
+        function:
+          function_name:
+            function_name_identifier: DATEADD
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - date_part: DAY
+            - comma: ','
+            - expression:
+                numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '60'
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_TIMESTAMP
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - end_bracket: )
+        binary_operator: AND
+        keyword: EXISTS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: closed_accounts
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: account_id
+          end_bracket: )
+    - keyword: ARCHIVE_TIER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COOL
+    - keyword: ARCHIVE_FOR_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '180'
+- statement_terminator: ;
+- statement:
+    create_storage_lifecycle_policy_statement:
+    - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
     - keyword: STORAGE
     - keyword: LIFECYCLE
     - keyword: POLICY
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
     - quoted_identifier: '"My Policy"'
     - keyword: AS
     - function_parameter_list:
@@ -100,10 +181,10 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: COOL
-    - keyword: WITH
     - tag_bracketed_equals:
-        keyword: TAG
-        bracketed:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
         - start_bracket: (
         - tag_reference:
             naked_identifier: governance
@@ -124,6 +205,9 @@ file:
     - keyword: STORAGE
     - keyword: LIFECYCLE
     - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
     - naked_identifier: minimal_policy
     - keyword: AS
     - function_parameter_list:
