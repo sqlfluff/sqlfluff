@@ -2166,7 +2166,7 @@ def _is_point_before_final_statement_terminator(
                 return found_terminator
             elif segment.is_code:
                 return False
-    return False
+    return found_terminator
 
 
 def _match_indents(
