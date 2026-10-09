@@ -123,3 +123,26 @@ def test_mysql_routine_header_does_not_match_invalid_syntax(raw: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "CREATE PROCEDURE p() @lbl: BEGIN END",
+        "CREATE FUNCTION f() RETURNS VARCHAR(10) COLLATE @c RETURN 'x'",
+        "CREATE TABLE t (a TEXT CHARACTER SET @cs)",
+        "CREATE TABLE t (a TEXT COLLATE @c)",
+        "CREATE PROCEDURE p() BEGIN DECLARE c CURSOR FOR SELECT 1; OPEN @c; END",
+    ],
+)
+@pytest.mark.parametrize("dialect", ["mysql", "mariadb"])
+def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
+    """Test that a user variable is not accepted where a name is required.
+
+    Labels, collations, character sets and cursor names are names on the
+    server; each of these is a syntax error there.
+    """
+    parsed = Linter(dialect=dialect).parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors

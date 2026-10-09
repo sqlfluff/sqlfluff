@@ -291,9 +291,6 @@ mysql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
     ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
-    ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", BinaryOperatorSegment),
         StringParser("&&", BinaryOperatorSegment),
@@ -3609,7 +3606,15 @@ class LoadDataSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            # Each target is a column or a user variable (`col_name_or_user_var`).
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("SessionVariableNameSegment"),
+                    )
+                )
+            ),
             optional=True,
         ),
         Sequence(

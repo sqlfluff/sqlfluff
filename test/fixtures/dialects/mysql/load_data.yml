@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f068e4f34b1a5b03afb39dd77f1cf1dfdaa97fefef25d35dbd6c3e7288ed55b
+_hash: 8807016cd6a0a04fbb14dd9df83fa3581ff0d79447a60f0ec009bad88df9163c
 file:
 - statement:
     load_data_statement:
@@ -194,13 +194,12 @@ file:
     - table_reference:
         naked_identifier: t1
     - bracketed:
-      - start_bracket: (
-      - column_reference:
+        start_bracket: (
+        column_reference:
           naked_identifier: column1
-      - comma: ','
-      - column_reference:
-          variable: '@var1'
-      - end_bracket: )
+        comma: ','
+        variable: '@var1'
+        end_bracket: )
     - keyword: SET
     - column_reference:
         naked_identifier: column2
@@ -250,14 +249,12 @@ file:
       - column_reference:
           naked_identifier: column1
       - comma: ','
-      - column_reference:
-          variable: '@dummy'
+      - variable: '@dummy'
       - comma: ','
       - column_reference:
           naked_identifier: column2
       - comma: ','
-      - column_reference:
-          variable: '@dummy'
+      - variable: '@dummy'
       - comma: ','
       - column_reference:
           naked_identifier: column3
