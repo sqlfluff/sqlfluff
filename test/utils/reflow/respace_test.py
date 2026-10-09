@@ -11,7 +11,7 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.respace import process_spacing
+from sqlfluff.utils.reflow.respace import _find_alignment_siblings, process_spacing
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
@@ -233,3 +233,49 @@ def test_reflow__point_respace_point(
     assert {
         (fix.edit_type, fix.anchor.raw) for fix in fixes_from_results(results)
     } == fixes_out
+
+
+@pytest.mark.parametrize(
+    "raw_sql",
+    [
+        "SELECT a AS x, b AS y, (SELECT c AS z FROM t2) AS w FROM t1\n",
+        "CREATE TABLE t (a INT, b VARCHAR(10), c DECIMAL(18, 5))\n",
+        "SELECT\n    a AS x,\n    (b + c) AS y,\n    COALESCE(d, (e)) AS z\nFROM t\n",
+        "SELECT ((a + (b)) * (c)) AS x, ((d)) AS y FROM t\n",
+    ],
+)
+@pytest.mark.parametrize(
+    "segment_type,align_within",
+    [
+        ("alias_expression", "select_clause"),
+        ("alias_expression", "statement"),
+        ("data_type", "statement"),
+        ("data_type", "bracketed"),
+        # The parent can itself be a candidate, and candidates can be nested.
+        ("bracketed", "bracketed"),
+        ("bracketed", "select_clause"),
+    ],
+)
+@pytest.mark.parametrize("align_scope", [None, "bracketed", "file"])
+def test_reflow__find_alignment_siblings_matches_path_to(
+    raw_sql, segment_type, align_within, align_scope, default_config
+):
+    """The single walk finds the same siblings as a `path_to()` per candidate.
+
+    `_find_alignment_siblings` replaced a `path_to()` call for every candidate,
+    which made alignment quadratic in the number of candidates. Results, and
+    their order, must match the previous approach.
+    """
+    root = parse_ansi_string(raw_sql, default_config)
+    # Not every combination has a parent of `align_within`, that's fine.
+    for parent in root.recursive_crawl(align_within):
+        expected = [
+            sibling
+            for sibling in parent.recursive_crawl(segment_type)
+            if not align_scope
+            or not any(
+                step.segment.is_type(align_scope) for step in parent.path_to(sibling)
+            )
+        ]
+        actual = _find_alignment_siblings(parent, segment_type, align_scope)
+        assert [id(s) for s in actual] == [id(s) for s in expected]
