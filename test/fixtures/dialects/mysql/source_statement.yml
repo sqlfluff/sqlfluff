@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f24f69288d350284bfc0ebc22cad609eb24b4362c20b53f469031a5ca4d0f3e2
+_hash: b3eeb68e79b6a0db31de2d69fded281ca4d91975479fdf039767e15b6b5ae7ea
 file:
 - source_statement:
     keyword: SOURCE
@@ -71,6 +71,44 @@ file:
     - source_file_name_part: spaces
     - source_file_name_part: /
     - source_file_name_part: file
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: '~'
+    - source_file_name_part: /
+    - source_file_name_part: sql
+    - source_file_name_part: /
+    - source_file_name_part: v
+    - source_file_name_part: (
+    - source_file_name_part: '2'
+    - source_file_name_part: )
+    - source_file_name_part: /
+    - source_file_name_part: a
+    - source_file_name_part: ','
+    - source_file_name_part: b
+    - source_file_name_part: '='
+    - source_file_name_part: c
+    - source_file_name_part: '@d.sql'
+- source_statement:
+    source_shorthand: \.
+    source_file_name:
+    - source_file_name_part: '['
+    - source_file_name_part: x
+    - source_file_name_part: ']'
+    - source_file_name_part: '{'
+    - source_file_name_part: y
+    - source_file_name_part: '}'
+    - source_file_name_part: '!'
+    - source_file_name_part: '%'
+    - source_file_name_part: ^
+    - source_file_name_part: '&'
+    - source_file_name_part: '*'
+    - source_file_name_part: '|'
+    - source_file_name_part: <
+    - source_file_name_part: '>'
+    - source_file_name_part: '?'
     - source_file_name_part: .
     - source_file_name_part: sql
 - source_statement:

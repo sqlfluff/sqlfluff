@@ -23,7 +23,6 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     LiteralSegment,
     Matchable,
-    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -1828,14 +1827,19 @@ class SourceFileNameSegment(BaseSegment):
 
     type = "source_file_name"
 
-    _part = OneOf(
-        TypedParser("word", CodeSegment, type="source_file_name_part"),
-        TypedParser("numeric_literal", CodeSegment, type="source_file_name_part"),
-        MultiStringParser(
-            [".", "/", "-", "+", ":"], CodeSegment, type="source_file_name_part"
-        ),
-        # A part never starts after a gap, not even the newline ending the line.
-        allow_gaps=False,
+    # Any token on the line is part of the file name, whatever it lexed as (a
+    # word, number, operator, bracket, `@` variable...), except for:
+    # - whitespace and newlines, which are handled by `match_grammar` below,
+    # - `;`, which ends the command,
+    # - comments (`#`, `--` and `/*`),
+    # - quotes, `$` and `\`, which start a quoted literal or don't lex.
+    # This is a regex on the raw token rather than a list of token types, so
+    # brackets are taken one token at a time and don't need to be balanced.
+    _part = RegexParser(
+        r"""[^\s;#'"`$\\]+""",
+        CodeSegment,
+        type="source_file_name_part",
+        anti_template=r"(--|/\*).*",
     )
 
     match_grammar = Sequence(
