@@ -1178,6 +1178,225 @@ def test_normalise_newlines():
     assert out_str == Linter._normalise_newlines(in_str)
 
 
+def _unrendered_multiline_linter(context, render_variant_limit, rules="LT02"):
+    """Configure real Jinja rendering without legacy rule aliases."""
+    return Linter(
+        config=FluffConfig(
+            configs={
+                "core": {
+                    "dialect": "bigquery",
+                    "rules": rules,
+                    "render_variant_limit": render_variant_limit,
+                },
+                "indentation": {"tab_space_size": 2},
+                "templater": {"jinja": {"context": context}},
+            }
+        )
+    )
+
+
+def _assert_unrendered_multiline_fix(linter, sql, expected):
+    """Check exact source and second-fix stability, including parse health."""
+    result = linter.lint_string(sql, fix=True)
+    assert not any(
+        v.rule_code() in {"TMP", "PRS"}
+        for v in result.get_violations(filter_ignore=False)
+    )
+    fixed, _ = result.fix_string()
+    second = linter.lint_string(fixed, fix=True)
+    assert not any(
+        v.rule_code() in {"TMP", "PRS"}
+        for v in second.get_violations(filter_ignore=False)
+    )
+    second_fixed, _ = second.fix_string()
+    assert fixed == expected
+    assert second_fixed == fixed
+    return fixed
+
+
+@pytest.mark.parametrize("allow_self_recs", [True, False])
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_indent_stable(
+    allow_self_recs, render_variant_limit
+):
+    """A collapsed block must not lose only its opening tag's indent (#5410)."""
+    sql = """SELECT
+  context_category_code
+FROM category_pairs
+WHERE
+  {% if not allow_self_recs %}
+    context_category_code != target_category_code AND
+  {% endif %}
+  instances > 1
+"""
+    linter = _unrendered_multiline_linter(
+        {"allow_self_recs": allow_self_recs}, render_variant_limit
+    )
+    fixed = _assert_unrendered_multiline_fix(linter, sql, sql)
+    assert [line for line in fixed.splitlines() if "{%" in line] == [
+        "  {% if not allow_self_recs %}",
+        "  {% endif %}",
+    ]
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"], ids=["lf", "crlf"])
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_nested(newline, render_variant_limit):
+    """Preserve an entirely skipped nested block, allowing only LF normalization."""
+    expected = """SELECT
+  1
+WHERE
+  {% if outer %}
+    {% if inner %}
+      1 = 2 AND
+    {% endif %}
+  {% endif %}
+  1 = 1
+"""
+    linter = _unrendered_multiline_linter(
+        {"outer": False, "inner": True}, render_variant_limit
+    )
+    _assert_unrendered_multiline_fix(linter, expected.replace("\n", newline), expected)
+
+
+@pytest.mark.parametrize("inner", [False, True])
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_nested_entered(inner, render_variant_limit):
+    """An entered outer block with a skipped inner body must preserve its tags."""
+    sql = """SELECT
+  1
+WHERE
+  {% if outer %}
+    {% if inner %}
+      1 = 2 AND
+    {% endif %}
+  {% endif %}
+  1 = 1
+"""
+    linter = _unrendered_multiline_linter(
+        {"outer": True, "inner": inner}, render_variant_limit
+    )
+    _assert_unrendered_multiline_fix(linter, sql, sql)
+
+
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_nested_visible_correction(
+    render_variant_limit,
+):
+    """Nested rendered SQL still receives its six-space LT02 correction."""
+    sql = """SELECT
+  1
+WHERE
+  {% if outer %}
+    {% if inner %}
+1 = 2 AND
+    {% endif %}
+  {% endif %}
+  1 = 1
+"""
+    expected = """SELECT
+  1
+WHERE
+  {% if outer %}
+    {% if inner %}
+      1 = 2 AND
+    {% endif %}
+  {% endif %}
+  1 = 1
+"""
+    linter = _unrendered_multiline_linter(
+        {"outer": True, "inner": True}, render_variant_limit
+    )
+    _assert_unrendered_multiline_fix(linter, sql, expected)
+
+
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_rendered_correction(render_variant_limit):
+    """Excluding hidden occurrences must not disable real LT02 corrections."""
+    sql = """SELECT
+  1
+WHERE
+  {% if visible %}
+1 = 2 AND
+  {% endif %}
+  1 = 1
+"""
+    expected = """SELECT
+  1
+WHERE
+  {% if visible %}
+    1 = 2 AND
+  {% endif %}
+  1 = 1
+"""
+    linter = _unrendered_multiline_linter({"visible": True}, render_variant_limit)
+    _assert_unrendered_multiline_fix(linter, sql, expected)
+
+
+@pytest.mark.parametrize("condition", [True, False])
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_else(condition, render_variant_limit):
+    """A real block_mid with visible SQL must retain its normal indentation."""
+    sql = """SELECT
+  1
+WHERE
+  {% if condition %}
+    1 = 2
+  {% else %}
+    1 = 1
+  {% endif %}
+"""
+    linter = _unrendered_multiline_linter(
+        {"condition": condition}, render_variant_limit
+    )
+    _assert_unrendered_multiline_fix(linter, sql, sql)
+
+
+@pytest.mark.parametrize("allow_self_recs", [True, False])
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_mixed_rules(
+    allow_self_recs, render_variant_limit
+):
+    """Protect Jinja indentation without suppressing independent LT09 fixes."""
+    sql = """SELECT
+  context_category_code
+FROM category_pairs
+WHERE
+  {% if not allow_self_recs %}
+    context_category_code != target_category_code AND
+  {% endif %}
+  instances > 1
+"""
+    expected = """SELECT context_category_code
+FROM category_pairs
+WHERE
+  {% if not allow_self_recs %}
+    context_category_code != target_category_code AND
+  {% endif %}
+  instances > 1
+"""
+    linter = _unrendered_multiline_linter(
+        {"allow_self_recs": allow_self_recs}, render_variant_limit, rules="LT02,LT09"
+    )
+    _assert_unrendered_multiline_fix(linter, sql, expected)
+
+
+@pytest.mark.parametrize("render_variant_limit", [1, 10])
+def test_linter_unrendered_multiline_block_loop(render_variant_limit):
+    """Keep a shared source stable when only one loop occurrence renders its body."""
+    sql = """SELECT
+  {% for i in range(1, 3) %}
+    1
+    {% if not loop.last %}
+      ,
+    {% endif %}
+  {% endfor %}
+FROM foo
+"""
+    linter = _unrendered_multiline_linter({}, render_variant_limit)
+    _assert_unrendered_multiline_fix(linter, sql, sql)
+
+
 @pytest.mark.parametrize(
     "fix_even_unparsable",
     [False, True],

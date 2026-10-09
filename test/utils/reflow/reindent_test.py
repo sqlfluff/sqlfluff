@@ -8,12 +8,15 @@ Specifically:
 
 import logging
 import sys
+from dataclasses import replace
 from typing import Callable
+from uuid import uuid4
 
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
+from sqlfluff.core.parser.segments.meta import TemplateSegment
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
 from sqlfluff.core.templaters import RawTemplater
@@ -24,6 +27,8 @@ from sqlfluff.utils.reflow.reindent import (
     _crawl_indent_points,
     _IndentLine,
     _IndentPoint,
+    _map_line_buffers,
+    _revise_skipped_source_lines,
     lint_indent_points,
 )
 from sqlfluff.utils.reflow.sequence import ReflowSequence
@@ -33,6 +38,283 @@ def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)
     return linter.parse_string(sql).tree
+
+
+def _collapsed_multiline_lines(sql):
+    """Get actual parsed reflow lines for the primary, unrendered variant."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi", "render_variant_limit": 1},
+            "templater": {"jinja": {"context": {"hidden": False}}},
+        }
+    )
+    parsed = Linter(config=config).parse_string(sql)
+    assert parsed.tree is not None
+    assert not parsed.violations
+    sequence = ReflowSequence.from_root(parsed.tree, config=config)
+    lines, _, _ = _map_line_buffers(sequence.elements)
+    return lines, sequence.elements
+
+
+@pytest.mark.parametrize(
+    "sql,removed_line_indices",
+    [
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if hidden %}\n    1 = 2 AND\n  {% endif %}\n  1 = 1\n",
+            (3,),
+            id="complete-multiline",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if hidden %}{% if hidden %}\n    1 = 2 AND\n"
+            "  {% endif %}{% endif %}\n  1 = 1\n",
+            (3,),
+            id="nested-complete-multiline",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n  {% if hidden %}1 = 2 AND{% endif %}\n  1 = 1\n",
+            (),
+            id="same-source-line",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if hidden %}\n    1 = 2 AND\n  {% endif %} 1 = 1\n",
+            (),
+            id="visible-sql-after-end",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if not hidden %}\n    1 = 2 AND\n  {% endif %}\n  1 = 1\n",
+            (),
+            id="rendered-body",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% set value = 1 %}{% if hidden %}\n"
+            "    1 = 2 AND\n  {% endif %}\n  1 = 1\n",
+            (),
+            id="first-placeholder-not-block-start",
+        ),
+    ],
+)
+def test_reflow_collapsed_multiline_source_lines(sql, removed_line_indices):
+    """Exclude complete hidden multiline occurrences, never visible or inline SQL."""
+    lines, elements = _collapsed_multiline_lines(sql)
+    original_lines = lines[:]
+    expected = [
+        line
+        for idx, line in enumerate(original_lines)
+        if idx not in removed_line_indices
+    ]
+    _revise_skipped_source_lines(lines, elements)
+    # Identity matters: equal counts could hide removal of a different occurrence.
+    assert [id(line) for line in lines] == [id(line) for line in expected]
+
+
+@pytest.mark.parametrize(
+    "boundary",
+    ["missing-start-uuid", "unmatched-end", "missing-end", "no-skipped-source"],
+)
+def test_reflow_collapsed_multiline_incomplete_blocks(boundary):
+    """Do not treat a partial or mismatched source block as a complete occurrence."""
+    lines, elements = _collapsed_multiline_lines(
+        "SELECT\n  1\nWHERE\n  {% if hidden %}\n    1 = 2 AND\n  {% endif %}\n  1 = 1\n"
+    )
+    target = lines[3]
+    elements = list(elements)
+    if boundary == "missing-end":
+        # End this line buffer before its closing placeholder, retaining the
+        # opening/skipped-source elements and their original position markers.
+        lines[3] = replace(target, indent_points=target.indent_points[:-1])
+    else:
+        block_type = {
+            "missing-start-uuid": "block_start",
+            "unmatched-end": "block_end",
+            "no-skipped-source": "skipped_source",
+        }[boundary]
+        block = next(
+            block
+            for block in target.iter_blocks(elements)
+            if block.segments[0].block_type == block_type
+        )
+        segment = block.segments[0]
+        # Legal Jinja cannot emit an unmatched end. Use a real placeholder copy
+        # to exercise that boundary without mocking parsing or line iteration.
+        replacement = TemplateSegment(
+            pos_marker=segment.pos_marker,
+            source_str=segment.source_str,
+            block_type="comment" if boundary == "no-skipped-source" else block_type,
+            block_uuid=(
+                None
+                if boundary == "missing-start-uuid"
+                else uuid4()
+                if boundary == "unmatched-end"
+                else segment.block_uuid
+            ),
+        )
+        elements[elements.index(block)] = replace(block, segments=(replacement,))
+    expected = lines[:]
+    _revise_skipped_source_lines(lines, elements)
+    assert [id(line) for line in lines] == [id(line) for line in expected]
+
+
+def test_reflow_collapsed_multiline_occurrence_isolation():
+    """A coincident position must not cause another, incomplete line to be removed."""
+    lines, elements = _collapsed_multiline_lines(
+        "SELECT\n  1\nWHERE\n  {% if hidden %}\n    1 = 2 AND\n  {% endif %}\n  1 = 1\n"
+    )
+    collapsed = lines[3]
+    incomplete = replace(collapsed, indent_points=collapsed.indent_points[:-1])
+    # These are distinct line occurrences starting at exactly the same source
+    # and templated positions. Only the complete occurrence qualifies.
+    opening = next(collapsed.iter_block_segments(elements))
+    other_opening = next(incomplete.iter_block_segments(elements))
+    assert (
+        opening.pos_marker.source_position()
+        == other_opening.pos_marker.source_position()
+    )
+    assert (
+        opening.pos_marker.templated_position()
+        == other_opening.pos_marker.templated_position()
+    )
+    expected = lines[:3] + [incomplete] + lines[4:]
+    lines.insert(3, incomplete)
+    _revise_skipped_source_lines(lines, elements)
+    assert [id(line) for line in lines] == [id(line) for line in expected]
+
+
+@pytest.mark.parametrize(
+    "sql,removed_line_indices",
+    [
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if not hidden %}\n    {% if hidden %}\n"
+            "      1 = 2 AND\n    {% endif %}\n  {% endif %}\n  1 = 1\n",
+            (3, 4, 5),
+            id="complete-span",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if not hidden %}\n    1 = 3 AND\n    {% if hidden %}\n"
+            "      1 = 2 AND\n    {% endif %}\n  {% endif %}\n  1 = 1\n",
+            (5,),
+            id="visible-sql-interrupts-outer-not-hidden-inner",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% set value = 1 %}{% if not hidden %}\n    {% if hidden %}\n"
+            "      1 = 2 AND\n    {% endif %}\n  {% endif %}\n  1 = 1\n",
+            (4,),
+            id="source-only-prefix",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if not hidden %}\n    {% if hidden %}\n"
+            "      1 = 2 AND\n    {% endif %}\n"
+            "  {% endif %}{% set value = 1 %}\n  1 = 1\n",
+            (4,),
+            id="source-only-suffix",
+        ),
+        pytest.param(
+            "SELECT\n  1\nWHERE\n"
+            "  {% if hidden %}\n    1 = 2 AND\n"
+            "  {% endif %}{% set value = 1 %}\n  1 = 1\n",
+            (),
+            id="collapsed-line-source-only-suffix",
+        ),
+    ],
+)
+def test_reflow_collapsed_multiline_span_boundaries(sql, removed_line_indices):
+    """Only a complete SQL-empty span can remove its exact boundary lines."""
+    lines, elements = _collapsed_multiline_lines(sql)
+    original = lines[:]
+    original_balances = [line.initial_indent_balance for line in lines]
+    expected = [
+        line for idx, line in enumerate(original) if idx not in removed_line_indices
+    ]
+    _revise_skipped_source_lines(lines, elements)
+    assert [id(line) for line in lines] == [id(line) for line in expected]
+    assert [line.initial_indent_balance for line in original] == original_balances
+    # In the complete-span case this is the original real-SQL line 6, balance 1.
+    assert lines[-1] is original[-1]
+    assert not lines[-1].is_all_templates(elements)
+
+
+@pytest.mark.parametrize("boundary", ["incomplete-outer", "mismatched-inner-end"])
+def test_reflow_collapsed_multiline_span_incomplete(boundary):
+    """Neither an absent outer end nor a malformed inner end closes a span."""
+    lines, elements = _collapsed_multiline_lines(
+        "SELECT\n  1\nWHERE\n"
+        "  {% if not hidden %}\n    {% if hidden %}\n"
+        "      1 = 2 AND\n    {% endif %}\n  {% endif %}\n  1 = 1\n"
+    )
+    elements = list(elements)
+    outer_start = next(lines[3].iter_block_segments(elements))
+    target = lines[5] if boundary == "incomplete-outer" else lines[4]
+    block = next(
+        block
+        for block in target.iter_blocks(elements)
+        if block.segments[0].block_type == "block_end"
+    )
+    segment = block.segments[0]
+    replacement = TemplateSegment(
+        pos_marker=segment.pos_marker,
+        source_str=segment.source_str,
+        block_type="comment" if boundary == "incomplete-outer" else "block_end",
+        block_uuid=outer_start.block_uuid,
+    )
+    elements[elements.index(block)] = replace(block, segments=(replacement,))
+    original = lines[:]
+    # A complete inner block still qualifies when only the outer end is absent.
+    # A malformed inner end instead leaves both incomplete occurrences intact.
+    expected = (
+        original[:4] + original[5:] if boundary == "incomplete-outer" else original
+    )
+    _revise_skipped_source_lines(lines, elements)
+    assert [id(line) for line in lines] == [id(line) for line in expected]
+
+
+def test_reflow_collapsed_multiline_span_repeated_uuid():
+    """Separate loop occurrences sharing a UUID must each be matched in order."""
+    lines, elements = _collapsed_multiline_lines(
+        "SELECT\n{% for i in range(2) %}\n"
+        "  {% if not hidden %}\n    {% if hidden %}\n"
+        "      1,\n    {% endif %}\n  {% endif %}\n"
+        "  1{% if not loop.last %},{% endif %}\n{% endfor %}\n"
+    )
+    first = next(lines[2].iter_block_segments(elements))
+    second = next(lines[7].iter_block_segments(elements))
+    assert first.block_uuid == second.block_uuid
+    assert first.pos_marker.source_position() == second.pos_marker.source_position()
+    assert (
+        first.pos_marker.templated_position() != second.pos_marker.templated_position()
+    )
+    original = lines[:]
+    balances = [line.initial_indent_balance for line in lines]
+    expected = [original[idx] for idx in (0, 1, 5, 6, 10, 11)]
+    _revise_skipped_source_lines(lines, elements)
+    assert [id(line) for line in lines] == [id(line) for line in expected]
+    assert [line.initial_indent_balance for line in original] == balances
+
+
+def test_reflow_collapsed_multiline_span_coincident_incomplete_occurrence():
+    """A complete span must not consume an earlier coincident incomplete start."""
+    lines, elements = _collapsed_multiline_lines(
+        "SELECT\n  1\nWHERE\n"
+        "  {% if not hidden %}\n    {% if hidden %}\n"
+        "      1 = 2 AND\n    {% endif %}\n  {% endif %}\n  1 = 1\n"
+    )
+    original = lines[:]
+    incomplete = replace(lines[3], indent_points=list(lines[3].indent_points))
+    # Same elements, UUID and positions, but a distinct line occurrence whose
+    # start is never closed. The following occurrence has its own matching end.
+    assert incomplete is not lines[3]
+    assert incomplete == lines[3]
+    lines.insert(3, incomplete)
+    expected = original[:3] + [incomplete] + original[6:]
+    _revise_skipped_source_lines(lines, elements)
+    assert [id(line) for line in lines] == [id(line) for line in expected]
 
 
 class SpecialMarkerInserter(JinjaTemplater):
