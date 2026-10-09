@@ -1081,6 +1081,46 @@ class CheckpointStatementSegment(BaseSegment):
     )
 
 
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """A `DESCRIBE` statement.
+
+    DuckDB accepts `DESCRIBE`, `DESC` and `SHOW` interchangeably, followed by
+    a table, a query, `ALL TABLES` or `TABLES FROM`, or by nothing at all.
+    https://duckdb.org/docs/stable/guides/meta/describe
+    https://duckdb.org/docs/stable/guides/meta/list_tables
+    """
+
+    _describe_target = OneOf(
+        Sequence("ALL", Ref.keyword("TABLES", optional=True)),
+        Sequence("TABLES", "FROM", Ref("SchemaReferenceSegment")),
+        Ref("SelectableGrammar"),
+        Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+    )
+
+    match_grammar = Sequence(
+        OneOf("DESCRIBE", "DESC"),
+        Sequence(_describe_target, optional=True),
+    )
+
+
+class ShowStatementSegment(postgres.ShowStatementSegment):
+    """A `SHOW` statement.
+
+    In DuckDB this is an alias of `DESCRIBE`. A single name such as
+    `SHOW TABLES` still parses as a parameter, as it does in Postgres.
+    https://duckdb.org/docs/stable/guides/meta/list_tables
+    """
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            Ref("ParameterNameSegment"),
+            DescribeStatementSegment._describe_target,
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
