@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30641e531ae5e59117438fdac37eee5d5c60f04f52ad7ded0a49982cfd6c10af
+_hash: cd244f064d770049928fde2a17a4ae8f4bd54dc47b2211f045b27a67fedbb567
 file:
 - statement:
     create_function_statement:
@@ -44,9 +44,9 @@ file:
             function_contents:
               bracketed:
                 start_bracket: (
+                keyword: VARIADIC
                 expression:
                   typed_array_literal:
-                    keyword: VARIADIC
                     array_type:
                       keyword: ARRAY
                     array_literal:
@@ -74,10 +74,10 @@ file:
             function_contents:
               bracketed:
                 start_bracket: (
+                keyword: VARIADIC
                 expression:
                   cast_expression:
                     typed_array_literal:
-                      keyword: VARIADIC
                       array_type:
                         keyword: ARRAY
                       array_literal:
@@ -102,25 +102,26 @@ file:
             function_contents:
               bracketed:
                 start_bracket: (
-                expression:
-                  typed_array_literal:
-                    keyword: VARIADIC
-                    naked_identifier: arr
-                    assignment_operator: :=
-                    array_type:
-                      keyword: ARRAY
-                    array_literal:
-                    - start_square_bracket: '['
-                    - numeric_literal: '10'
-                    - comma: ','
-                    - numeric_literal:
-                        sign_indicator: '-'
-                        numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '5'
-                    - comma: ','
-                    - numeric_literal: '4.4'
-                    - end_square_bracket: ']'
+                keyword: VARIADIC
+                named_argument:
+                  naked_identifier: arr
+                  assignment_operator: :=
+                  expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '10'
+                      - comma: ','
+                      - numeric_literal:
+                          sign_indicator: '-'
+                          numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '5'
+                      - comma: ','
+                      - numeric_literal: '4.4'
+                      - end_square_bracket: ']'
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -281,9 +282,9 @@ file:
                     data_type:
                       keyword: json
               - comma: ','
+              - keyword: VARIADIC
               - expression:
                   typed_array_literal:
-                    keyword: VARIADIC
                     array_type:
                       keyword: ARRAY
                     array_literal:
@@ -315,9 +316,9 @@ file:
             function_contents:
               bracketed:
                 start_bracket: (
+                keyword: VARIADIC
                 expression:
                   typed_array_literal:
-                    keyword: VARIADIC
                     array_type:
                       keyword: ARRAY
                     array_literal:
