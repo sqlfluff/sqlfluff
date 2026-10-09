@@ -1702,7 +1702,8 @@ class DeclareStatement(BaseSegment):
             "CURSOR",
             "FOR",
             # The query is indented under the declaration, as a handler's
-            # statement is. Only a query is allowed here.
+            # statement is. Only a query is allowed here: `select_stmt` in
+            # MySQL, `select` in MariaDB. Both include VALUES.
             Indent,
             OneOf(
                 OptionallyBracketed(Ref("WithCompoundStatementSegment")),
