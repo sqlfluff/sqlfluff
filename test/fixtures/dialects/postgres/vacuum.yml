@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e23137cece0932c33d77afb23c60c54c0a2f6b879237f40e373301c5316ed2c
+_hash: 3f94b44493bd776a5f43386571d31648cfc90329236c83a14794a0b33e4001f1
 file:
 - statement:
     vacuum_statement:
@@ -287,4 +287,48 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - bracketed:
+        start_bracket: (
+        keyword: ANALYZE
+        end_bracket: )
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: tbl1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - comma: ','
+    - table_reference:
+        naked_identifier: tbl2
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: ANALYZE
+    - keyword: ONLY
+    - table_reference:
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: tbl1
+    - comma: ','
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: tbl2
 - statement_terminator: ;
