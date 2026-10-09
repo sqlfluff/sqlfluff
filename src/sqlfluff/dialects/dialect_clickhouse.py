@@ -2812,6 +2812,49 @@ class SystemStatementSegment(BaseSegment):
     )
 
 
+class ProjectionBodySegment(BaseSegment):
+    """A projection body, can either be a query or an index."""
+
+    type = "projection_body"
+
+    match_grammar: Matchable = OneOf(
+        # Projection query
+        Bracketed(
+            # Common Scalar Expressions are supported in the projection query definition,
+            # even though it is not stated explicitly in the docs.
+            # For more info look here:
+            # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserProjectionSelectQuery.cpp#L34-L42
+            Sequence(
+                "WITH",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        "AS",
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Ref("SelectClauseSegment"),
+            Ref("WhereClauseSegment", optional=True),
+            OneOf(
+                Ref("OrderByClauseSegment"),
+                Ref("GroupByClauseSegment"),
+            ),
+        ),
+        # Projection index
+        Sequence(
+            "INDEX",
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            "TYPE",
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class ProjectionDefinitionSegment(BaseSegment):
     """A Projection definition.
 
@@ -2825,42 +2868,7 @@ class ProjectionDefinitionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "PROJECTION",
         Ref("SingleIdentifierGrammar"),
-        OneOf(
-            # Projection query
-            Bracketed(
-                # Common Scalar Expressions are supported in the projection query definition,
-                # even though it is not stated explicitly in the docs.
-                # For more info look here:
-                # https://github.com/ClickHouse/ClickHouse/blob/b3c71468cee00c7bcd7d5dc995eaffa8b0f69a8c/src/Parsers/ParserProjectionSelectQuery.cpp#L34-L42
-                Sequence(
-                    "WITH",
-                    Delimited(
-                        Sequence(
-                            Ref("ExpressionSegment"),
-                            "AS",
-                            Ref("SingleIdentifierGrammar"),
-                        ),
-                    ),
-                    optional=True,
-                ),
-                Ref("SelectClauseSegment"),
-                Ref("WhereClauseSegment", optional=True),
-                OneOf(
-                    Ref("OrderByClauseSegment"),
-                    Ref("GroupByClauseSegment"),
-                ),
-            ),
-            # Projection index
-            Sequence(
-                "INDEX",
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("ExpressionSegment"),
-                ),
-                "TYPE",
-                Ref("SingleIdentifierGrammar"),
-            ),
-        ),
+        Ref("ProjectionBodySegment"),
         Sequence(
             "WITH",
             Ref("ProjectionDefinitionStatementSettingsClauseSegment"),
@@ -2906,6 +2914,70 @@ class ProjectionDefinitionStatementSettingsClauseSegment(SettingsClauseSegment):
             SettingsClauseSegment.match_grammar.copy(remove=[Ref.keyword("SETTINGS")]),
         ),
     )
+
+
+class ProjectionDefinitionCreateHypotheticalProjectionSegment(
+    ProjectionDefinitionSegment
+):
+    """A helper projection definition used in CREATE HYPOTHETICAL PROJECTION."""
+
+    type = "projection_definition"
+
+    match_grammar: Matchable = ProjectionDefinitionSegment.match_grammar.copy(
+        insert=[Ref("IfNotExistsGrammar", optional=True)],
+        before=Ref("SingleIdentifierGrammar"),
+    ).copy(
+        insert=[Sequence("ON", Ref("TableReferenceSegment"))],
+        before=Ref("ProjectionBodySegment"),
+    )
+
+
+class CreateHypotheticalProjectionStatementSegment(BaseSegment):
+    """A `CREATE HYPOTHETICAL PROJECTION` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/hypothetical-projection#create-hypothetical-projection
+    """
+
+    type = "create_hypothetical_projection_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "HYPOTHETICAL",
+        Ref("ProjectionDefinitionCreateHypotheticalProjectionSegment"),
+    )
+
+
+class DropHypotheticalProjectionStatementSegment(BaseSegment):
+    """A `DROP HYPOTHETICAL PROJECTION` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/hypothetical-projection#drop-hypothetical-projection
+    """
+
+    type = "drop_hypothetical_projection_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "HYPOTHETICAL",
+        "PROJECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        "ON",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class DropAllHypotheticalProjectionsStatementSegment(BaseSegment):
+    """A `DROP ALL HYPOTHETICAL PROJECTIONS` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/reference/statements/hypothetical-projection#drop-all-hypothetical-projections
+    """
+
+    type = "drop_all_hypothetical_projections_statement"
+
+    match_grammar: Matchable = Sequence("DROP", "ALL", "HYPOTHETICAL", "PROJECTIONS")
 
 
 class AlterTableStatementSegment(BaseSegment):
@@ -3280,6 +3352,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
             Ref("TruncateTablesStatementSegment"),
+            Ref("CreateHypotheticalProjectionStatementSegment"),
+            Ref("DropHypotheticalProjectionStatementSegment"),
+            Ref("DropAllHypotheticalProjectionsStatementSegment"),
         ]
     )
 

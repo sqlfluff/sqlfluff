@@ -418,6 +418,189 @@ test_fail_mysql_cursor_query:
     core:
       dialect: mysql
 
+# A CASE statement indents its WHEN and ELSE branches under CASE, and each
+# branch's statements one level further. END CASE lines up with CASE.
+test_fail_mysql_case_statement_simple:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    CASE v
+    WHEN 1 THEN
+    SET v = 2;
+    WHEN 2 THEN
+    SET v = 3;
+    SET v = 4;
+    WHEN 3 THEN
+    SET v = 5;
+    ELSE
+    SET v = 6;
+    END CASE;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE v
+            WHEN 1 THEN
+                SET v = 2;
+            WHEN 2 THEN
+                SET v = 3;
+                SET v = 4;
+            WHEN 3 THEN
+                SET v = 5;
+            ELSE
+                SET v = 6;
+        END CASE;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_case_statement_searched:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+    DECLARE v INT DEFAULT 0;
+    CASE
+    WHEN v = 1 THEN
+    SET v = 2;
+    WHEN v = 2 THEN
+    SET v = 3;
+    SET v = 4;
+    WHEN v = 3 THEN
+    SET v = 5;
+    END CASE;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE
+            WHEN v = 1 THEN
+                SET v = 2;
+            WHEN v = 2 THEN
+                SET v = 3;
+                SET v = 4;
+            WHEN v = 3 THEN
+                SET v = 5;
+        END CASE;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+# A WHEN condition or value takes an implicit indent, as in IF.
+test_fail_mysql_case_statement_when_condition:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE
+            WHEN v = 1 THEN
+                SET v = 2;
+            WHEN v = 2
+            OR v = 3 THEN
+                SET v = 4;
+        END CASE;
+        CASE v
+            WHEN 1 THEN
+                SET v = 2;
+            WHEN 2
+            + 1 THEN
+                SET v = 4;
+        END CASE;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE
+            WHEN v = 1 THEN
+                SET v = 2;
+            WHEN
+                v = 2
+                OR v = 3 THEN
+                SET v = 4;
+        END CASE;
+        CASE v
+            WHEN 1 THEN
+                SET v = 2;
+            WHEN
+                2
+                + 1 THEN
+                SET v = 4;
+        END CASE;
+    END
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_mysql_case_statement_when_condition_implicit_indents:
+  fail_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE
+            WHEN v = 1 THEN
+                SET v = 2;
+            WHEN v = 2
+            OR v = 3 THEN
+                SET v = 4;
+        END CASE;
+        CASE v
+            WHEN 1 THEN
+                SET v = 2;
+            WHEN 2
+            + 1 THEN
+                SET v = 4;
+        END CASE;
+    END
+  fix_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE
+            WHEN v = 1 THEN
+                SET v = 2;
+            WHEN v = 2
+                OR v = 3 THEN
+                SET v = 4;
+        END CASE;
+        CASE v
+            WHEN 1 THEN
+                SET v = 2;
+            WHEN 2
+                + 1 THEN
+                SET v = 4;
+        END CASE;
+    END
+  configs:
+    core:
+      dialect: mysql
+    indentation:
+      implicit_indents: allow
+
+test_pass_mysql_case_statement_one_line_branches:
+  pass_str: |
+    CREATE PROCEDURE p()
+    BEGIN
+        DECLARE v INT DEFAULT 0;
+        CASE v
+            WHEN 1 THEN SET v = 2;
+            WHEN 2 THEN SET v = 3;
+            ELSE SET v = 4;
+        END CASE;
+        CASE
+            WHEN v = 1 THEN SET v = 2;
+            WHEN v = 2 THEN SET v = 3;
+            ELSE SET v = 4;
+        END CASE;
+    END
+  configs:
+    core:
+      dialect: mysql
+
 # A body written as a single statement is indented under its header.
 test_fail_mysql_routine_single_statement_body:
   fail_str: |
