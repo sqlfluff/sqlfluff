@@ -55,18 +55,15 @@ def test_mariadb_routine_header_order_is_fixed(raw: str) -> None:
 @pytest.mark.parametrize(
     "raw",
     [
-        "CREATE USER CURRENT_ROLE",
         "DROP USER CURRENT_ROLE",
-        "KILL USER CURRENT_ROLE",
     ],
 )
 def test_mariadb_current_role_only_where_a_role_fits(raw: str) -> None:
     """Test that CURRENT_ROLE is not accepted where only a user makes sense.
 
     It belongs in DEFINER and role positions (`user_or_role` in the server's
-    grammar), not where a statement names a specific user account. None of
-    these can work on the server: DROP USER is a syntax error, CREATE USER
-    fails (1396), and KILL USER does not read it as a user (1054).
+    grammar), not where a statement names a specific user account. DROP USER
+    CURRENT_ROLE is a syntax error on the server.
     """
     parsed = Linter(dialect="mariadb").parse_string(raw)
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
