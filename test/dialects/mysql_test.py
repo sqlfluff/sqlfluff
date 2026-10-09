@@ -89,6 +89,8 @@ def test_mysql_loop_and_if_bodies_are_not_empty(raw: str) -> None:
         "CREATE FUNCTION f() RETURNS INT READS SQL RETURN 1",
         "CREATE FUNCTION f() RETURNS INT SQL SECURITY OWNER RETURN 1",
         "CREATE PROCEDURE p() NOT SELECT 1",
+        # A character set is a name, not a variable.
+        "CREATE FUNCTION f() RETURNS VARCHAR(10) CHARACTER SET @cs RETURN 'x'",
         # A parameter needs a name as well as a type.
         "CREATE PROCEDURE p(INT) SELECT 1",
         "CREATE FUNCTION f(INT) RETURNS INT RETURN 1",
