@@ -1461,12 +1461,10 @@ mysql_dialect.add(
         Ref("DatatypeSegment"),
         Sequence(
             Ref("CharsetGrammar"),
-            # A charset name (`charset_name`: ident_or_text, or BINARY): bare,
-            # back-ticked or a string. Not a session variable.
             OneOf(
                 Ref("CharacterSetSegment"),
                 "BINARY",
-                Ref("QuotedIdentifierSegment"),
+                Ref("SingleIdentifierGrammar"),
                 Ref("QuotedLiteralSegment"),
             ),
             optional=True,
