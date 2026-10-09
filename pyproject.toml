@@ -71,7 +71,7 @@ dependencies = [
     "platformdirs",
     # To get the encoding of files.
     "chardet",
-    # Click can include breaking changes in minor releases.
+    # Click is not restricted to a specific version.
     "click",
     "colorama>=0.3",
     # Used for diffcover plugin
