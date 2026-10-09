@@ -126,3 +126,42 @@ def test_mysql_loop_and_if_bodies_are_not_empty(raw: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        # A branch must contain a statement (`sp_proc_stmts1`), wherever it is.
+        "WHEN {a} THEN SET @x = 1; WHEN {b} THEN END CASE",
+        "WHEN {a} THEN SET @x = 1; WHEN {b} THEN SET @x = 2; ELSE END CASE",
+        # At least one WHEN is required.
+        "ELSE SET @x = 1; END CASE",
+        # The statement ends with END CASE; a plain END ends the expression.
+        "WHEN {a} THEN SET @x = 1; WHEN {b} THEN SET @x = 2; END",
+    ],
+)
+@pytest.mark.parametrize(
+    "head, a, b",
+    [
+        # Simple form: a case value, then values.
+        ("CASE @v", "1", "2"),
+        # Searched form: conditions.
+        ("CASE", "@v = 1", "@v = 2"),
+    ],
+)
+def test_mysql_case_statement_does_not_match_invalid_syntax(
+    body: str,
+    head: str,
+    a: str,
+    b: str,
+) -> None:
+    """Test that invalid CASE statements are rejected, in both forms.
+
+    Each of these is a syntax error on the server.
+    """
+    case = head + " " + body.format(a=a, b=b)
+    raw = "CREATE PROCEDURE p() BEGIN " + case + "; END"
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
