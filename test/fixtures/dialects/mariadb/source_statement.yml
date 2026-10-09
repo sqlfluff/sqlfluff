@@ -1,0 +1,201 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b3eeb68e79b6a0db31de2d69fded281ca4d91975479fdf039767e15b6b5ae7ea
+file:
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: setup
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: schema
+    - source_file_name_part: /
+    - source_file_name_part: tables
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- statement_terminator: ;
+- source_statement:
+    keyword: source
+    source_file_name:
+    - source_file_name_part: .
+    - source_file_name_part: .
+    - source_file_name_part: /
+    - source_file_name_part: lib
+    - source_file_name_part: /
+    - source_file_name_part: my
+    - source_file_name_part: '-'
+    - source_file_name_part: file
+    - source_file_name_part: .
+    - source_file_name_part: v2
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: Source
+    source_file_name:
+    - source_file_name_part: /
+    - source_file_name_part: var
+    - source_file_name_part: /
+    - source_file_name_part: lib
+    - source_file_name_part: /
+    - source_file_name_part: mysql
+    - source_file_name_part: '-'
+    - source_file_name_part: files
+    - source_file_name_part: /
+    - source_file_name_part: 001_init
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- statement_terminator: ;
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: C
+    - source_file_name_part: ':'
+    - source_file_name_part: /
+    - source_file_name_part: db
+    - source_file_name_part: /
+    - source_file_name_part: x
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: path
+    - source_file_name_part: /
+    - source_file_name_part: with
+    - source_file_name_part: spaces
+    - source_file_name_part: /
+    - source_file_name_part: file
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: '~'
+    - source_file_name_part: /
+    - source_file_name_part: sql
+    - source_file_name_part: /
+    - source_file_name_part: v
+    - source_file_name_part: (
+    - source_file_name_part: '2'
+    - source_file_name_part: )
+    - source_file_name_part: /
+    - source_file_name_part: a
+    - source_file_name_part: ','
+    - source_file_name_part: b
+    - source_file_name_part: '='
+    - source_file_name_part: c
+    - source_file_name_part: '@d.sql'
+- source_statement:
+    source_shorthand: \.
+    source_file_name:
+    - source_file_name_part: '['
+    - source_file_name_part: x
+    - source_file_name_part: ']'
+    - source_file_name_part: '{'
+    - source_file_name_part: y
+    - source_file_name_part: '}'
+    - source_file_name_part: '!'
+    - source_file_name_part: '%'
+    - source_file_name_part: ^
+    - source_file_name_part: '&'
+    - source_file_name_part: '*'
+    - source_file_name_part: '|'
+    - source_file_name_part: <
+    - source_file_name_part: '>'
+    - source_file_name_part: '?'
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: tab_separated
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    source_shorthand: \.
+    source_file_name:
+    - source_file_name_part: schema
+    - source_file_name_part: /
+    - source_file_name_part: tables
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '2'
+- statement_terminator: ;
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: same_line
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: source
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: source
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: source
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: last
+    - source_file_name_part: .
+    - source_file_name_part: sql

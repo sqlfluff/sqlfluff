@@ -37,6 +37,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -346,6 +347,13 @@ mysql_dialect.add(
         "at_sign_literal",
         LiteralSegment,
         type="at_sign_literal",
+    ),
+    SourceShorthandSegment=StringParser("\\.", SymbolSegment, type="source_shorthand"),
+    # Whitespace within a line, but not a newline. The `SOURCE` client command
+    # ends at the end of its line, so its file name may contain spaces but must
+    # not run on to the next line.
+    InlineWhitespaceSegment=TypedParser(
+        "whitespace", WhitespaceSegment, type="whitespace"
     ),
     SystemVariableSegment=RegexParser(
         r"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+",
@@ -1568,6 +1576,16 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
+# `\.` is the short form of the `SOURCE` client command. A backslash is not
+# otherwise valid outside a quoted string, so this can't clash with SQL.
+mysql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("source_shorthand", r"\\\.", SymbolSegment),
+    ],
+    before="word",
+)
+
+
 class IndexColumnPrefixLengthSegment(BaseSegment):
     """A column prefix length in an index key part, e.g. `col(10)`.
 
@@ -1792,6 +1810,115 @@ class DelimiterStatement(BaseSegment):
     type = "delimiter_statement"
 
     match_grammar = Ref.keyword("DELIMITER")
+
+
+class SourceFileNameSegment(BaseSegment):
+    """The file name of a `SOURCE` client command.
+
+    The client reads the file name verbatim to the end of the line (or up to a
+    `;`), so it isn't a single token: it is made of whatever it happens to lex
+    as, and may contain spaces. Gaps are not allowed so that it stays on one
+    line. Quote characters would be taken as part of the file name, so quoted
+    literals aren't accepted.
+
+    The parts get their own type rather than being identifiers or operators, so
+    that rules don't recapitalise or respace a file name.
+    """
+
+    type = "source_file_name"
+
+    # Any token on the line is part of the file name, whatever it lexed as (a
+    # word, number, operator, bracket, `@` variable...), except for:
+    # - whitespace and newlines, which are handled by `match_grammar` below,
+    # - `;`, which ends the command,
+    # - comments (`#`, `--` and `/*`),
+    # - quotes, `$` and `\`, which start a quoted literal or don't lex.
+    # This is a regex on the raw token rather than a list of token types, so
+    # brackets are taken one token at a time and don't need to be balanced.
+    _part = RegexParser(
+        r"""[^\s;#'"`$\\]+""",
+        CodeSegment,
+        type="source_file_name_part",
+        anti_template=r"(--|/\*).*",
+    )
+
+    match_grammar = Sequence(
+        _part,
+        AnyNumberOf(
+            # The whitespace is optional within the sequence, rather than being
+            # its own option, because options are pruned on the next code
+            # segment and so one starting with whitespace would never match.
+            Sequence(
+                Ref("InlineWhitespaceSegment", optional=True),
+                _part,
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
+    )
+
+
+class SourceStatementSegment(BaseSegment):
+    r"""A `SOURCE file_name` (or `\. file_name`) client command.
+
+    This is a command of the `mysql` / `mariadb` command-line client rather than
+    SQL. It is only recognised at the start of a statement, and is terminated by
+    the end of the line or an optional `;`. See `FileSegment`.
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+    https://mariadb.com/docs/server/clients-and-utilities/mariadb-client/mariadb-command-line-client
+    """
+
+    type = "source_statement"
+
+    match_grammar = Sequence(
+        OneOf("SOURCE", Ref("SourceShorthandSegment")),
+        Ref("InlineWhitespaceSegment"),
+        Ref("SourceFileNameSegment"),
+        allow_gaps=False,
+    )
+
+
+class FileSegment(ansi.FileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+
+    Overrides ANSI to allow the `SOURCE` client command between statements.
+    Unlike a SQL statement it ends at the end of its line, so the `;` after it
+    is optional. Every other statement still needs a delimiter before the next
+    one, and as in ANSI the final statement in the file may omit it.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        AnyNumberOf(
+            # The delimiter after `SOURCE` is optional.
+            Sequence(
+                Ref("SourceStatementSegment"),
+                AnyNumberOf(Ref("DelimiterGrammar")),
+            ),
+            # Any other run of statements must end with a delimiter here...
+            Sequence(
+                Delimited(
+                    Ref("StatementSegment"),
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_gaps=True,
+                ),
+                AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            ),
+        ),
+        # ...unless it is at the end of the file.
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            optional=True,
+        ),
+    )
 
 
 class CreateProcedureStatementSegment(BaseSegment):
