@@ -1472,6 +1472,18 @@ mysql_dialect.add(
         Ref("LocalVariableNameSegment"),
         Bracketed(Ref("ExpressionSegment")),
     ),
+    # The branches of a CASE statement, shared by its simple and searched forms.
+    CaseStatementBranchesGrammar=Sequence(
+        Indent,
+        AnyNumberOf(
+            Ref("CaseStatementWhenClauseSegment"),
+            min_times=1,
+        ),
+        Ref("CaseStatementElseClauseSegment", optional=True),
+        Dedent,
+        "END",
+        "CASE",
+    ),
     # The body of a routine, trigger, event or handler: a BEGIN ... END block,
     # which keeps BEGIN at the header's level and indents its own contents, or
     # a single statement, indented under the header.
@@ -1738,6 +1750,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetTransactionStatementSegment"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("CaseStatementSegment"),
             Ref("WhileStatementSegment"),
             Ref("LeaveStatementSegment"),
             Ref("IterateStatementSegment"),
@@ -2540,6 +2553,74 @@ class IfExpressionStatement(BaseSegment):
         ),
         "END",
         "IF",
+    )
+
+
+class CaseStatementSegment(BaseSegment):
+    """A `CASE ... END CASE` statement, the procedural form of `CASE`.
+
+    Unlike the `CASE` expression, which ends with a plain `END` and evaluates to
+    a value, each branch here holds statements. The two forms are written out
+    as in the server's grammar (`simple_case_stmt` and `searched_case_stmt`)
+    and in the `CASE` expression: the simple form compares a case value with
+    each `WHEN` value, the searched form tests each `WHEN` condition.
+
+    https://dev.mysql.com/doc/refman/8.4/en/case.html
+    """
+
+    type = "case_statement"
+
+    match_grammar = OneOf(
+        # Searched form: CASE WHEN search_condition THEN ...
+        Sequence(
+            "CASE",
+            Ref("CaseStatementBranchesGrammar"),
+        ),
+        # Simple form: CASE case_value WHEN when_value THEN ...
+        Sequence(
+            "CASE",
+            Ref("ExpressionSegment"),
+            Ref("CaseStatementBranchesGrammar"),
+        ),
+    )
+
+
+class CaseStatementWhenClauseSegment(BaseSegment):
+    """A `WHEN ... THEN` branch of a `CASE` statement.
+
+    Shares its type with the `CASE` expression's branch, so that a rule can
+    treat both alike. Rules written for `CASE` expressions only look inside
+    `case_expression`, so they do not reach these.
+    """
+
+    type = "when_clause"
+
+    match_grammar = Sequence(
+        "WHEN",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+        Dedent,
+        "THEN",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
+    )
+
+
+class CaseStatementElseClauseSegment(BaseSegment):
+    """The `ELSE` branch of a `CASE` statement.
+
+    Shares its type with the `CASE` expression's `ELSE`, as
+    `CaseStatementWhenClauseSegment` does.
+    """
+
+    type = "else_clause"
+
+    match_grammar = Sequence(
+        "ELSE",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
     )
 
 
