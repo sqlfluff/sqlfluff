@@ -1067,6 +1067,145 @@ def test__linter__mask_templated_violations(
 
 
 @pytest.mark.parametrize(
+    "sql,check_tuples",
+    [
+        # The root variant does not render the `if` block. The other
+        # variant renders it and fixes the line.
+        (
+            "SELECT a{% if false %}, " + "b" * 65 + "{% endif %} FROM t\n",
+            [("LT05", 1, 1)],
+        ),
+        # The second pass of the loop does not render the `if` block. The
+        # first pass renders it and fixes the line.
+        (
+            "{% for x in [1, 2] %}\n"
+            "select a from t where b = {{ x }}"
+            "{% if loop.first %} and some_really_long_column_name = 1{% endif %}\n"
+            "{% if not loop.last %}union all{% endif %}\n"
+            "{% endfor %}\n",
+            [("LT05", 2, 1)],
+        ),
+        # The `if` block starts the line, after a `{% set %}` block.
+        (
+            "{% set x = 1 %}{% if false %}select "
+            + "a" * 65
+            + " union all {% endif %}select 1\n",
+            [("LT05", 1, 1)],
+        ),
+        # The two variants measure the line with a different length.
+        (
+            "select a, b, c from tbl  -- trailing comment here"
+            "{% if false %} " + "x" * 23 + "{% endif %}\n",
+            [("LT05", 1, 1)],
+        ),
+    ],
+    ids=["skipped_if", "loop_first", "set_block", "trailing_comment"],
+)
+def test__linter__dedupe_unfixable_copy_of_fixable_violation(sql, check_tuples):
+    """A line which another rendering can fix is reported once.
+
+    LT05 reports the line with no fix where the block is not rendered, and
+    with a fix where it is.
+    """
+    lntr = Linter(dialect="ansi", rules=["LT05"])
+    linted = lntr.lint_string(sql, fix=True)
+    assert linted.check_tuples() == check_tuples
+    assert linted.get_violations(fixable=False) == []
+
+
+def test__linter__dedupe_deferred_copy_of_unfixable_violation():
+    """A comment line which every variant reports is reported once.
+
+    The variant which renders the `if` block can't fix the comment, so the
+    line stays unfixable.
+    """
+    sql = (
+        "select\n    -- a comment which is quite long {% if false %}"
+        + "x" * 37
+        + "{% endif %}\n    a\nfrom t\n"
+    )
+    lntr = Linter(dialect="ansi", rules=["LT05"])
+    linted = lntr.lint_string(sql, fix=True)
+    assert [(v.rule_code(), v.line_no, v.fixable) for v in linted.get_violations()] == [
+        ("LT05", 2, False)
+    ]
+
+
+@pytest.mark.parametrize(
+    "rules,sql,violations",
+    [
+        # Only the macro definition makes line 1 too long, so no variant fixes
+        # it. The long line 2 must not hide it.
+        (
+            ["LT05"],
+            "{% macro m() %}" + "b" * 70 + "{% endmacro %}select 1 from t;\n"
+            "select " + ", ".join(f"column_{i}" for i in range(12)) + " from t;\n",
+            [("LT05", 1, False), ("LT05", 2, True)],
+        ),
+        # The CP01 violation on line 1 must not hide the LT05 one.
+        (
+            ["LT05", "CP01"],
+            "{% macro m() %}" + "b" * 70 + "{% endmacro %}SELECT 1 from t\n",
+            [("LT05", 1, False), ("CP01", 1, True)],
+        ),
+    ],
+    ids=["other_line", "other_rule"],
+)
+def test__linter__dedupe_deferred_needs_same_rule_and_line(rules, sql, violations):
+    """A deferred violation is only dropped for the same rule on the same line."""
+    lntr = Linter(dialect="ansi", rules=rules)
+    linted = lntr.lint_string(sql, fix=True)
+    assert [
+        (v.rule_code(), v.line_no, v.fixable) for v in linted.get_violations()
+    ] == violations
+
+
+@pytest.mark.parametrize(
+    "rule,sql,line_no,line_pos",
+    [
+        # Moving the comma in the loop would span two template blocks, so
+        # one pass has its fix discarded.
+        (
+            "LT04",
+            'select\n    a\n    {% for c in ["b", "c"] %}\n    , {{ c }}\n'
+            "    {% endfor %}\nfrom t\n",
+            4,
+            5,
+        ),
+        # The variant which skips the `if` block can't move the comma safely,
+        # so its fix is discarded. The other variant moves it into the block.
+        (
+            "LT04",
+            "select\n    a{% if false %}, b{% endif %}\n    , c\nfrom t\n",
+            3,
+            5,
+        ),
+        # The comment line is too long in every variant, so the fix from the
+        # variant which renders the `if` block does not shorten it.
+        (
+            "LT05",
+            "select\n    -- " + "x" * 80 + "{% if false %}\n    b,{% endif %}\n"
+            "    c\nfrom t\n",
+            2,
+            5,
+        ),
+    ],
+    ids=["unsafe_loop_fix", "unsafe_variant_fix", "long_comment_line"],
+)
+def test__linter__dedupe_keeps_unfixable_copy(rule, sql, line_no, line_pos):
+    """An unfixable copy of a fixable violation is still reported.
+
+    That copy keeps `fix` from reporting success.
+    """
+    lntr = Linter(dialect="ansi", rules=[rule])
+    linted = lntr.lint_string(sql, fix=True)
+    assert sorted(
+        (v.rule_code(), v.line_no, v.line_pos, v.fixable)
+        for v in linted.get_violations()
+    ) == [(rule, line_no, line_pos, False), (rule, line_no, line_pos, True)]
+
+
+@pytest.mark.parametrize(
     "fname,config_encoding,lexerror",
     [
         (

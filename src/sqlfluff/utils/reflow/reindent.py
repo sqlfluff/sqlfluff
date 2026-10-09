@@ -1982,8 +1982,14 @@ def _calculate_indent_compensation(
     return 0
 
 
-def _source_char_len(elements: ReflowSequenceType) -> int:
+def _source_char_len(
+    elements: ReflowSequenceType, include_unrendered: bool = False
+) -> int:
     """Calculate length in the source file.
+
+    Literal source which this variant does not render (e.g. a skipped
+    branch or a macro body) has no raw. It only counts towards the
+    length if `include_unrendered` is True.
 
     NOTE: This relies heavily on the sequence already being
     split appropriately. It will raise errors if not.
@@ -2037,6 +2043,12 @@ def _source_char_len(elements: ReflowSequenceType) -> int:
                 # If it's not got a raw and no length, it's
                 # irrelevant. Ignore it. It's probably a meta.
                 continue
+            # Literal source which this variant does not render has
+            # no raw, but it still takes up space on the source line.
+            elif seg.pos_marker.is_literal() and not seg.raw:
+                if include_unrendered:
+                    char_len += slice_len
+                last_source_slice = source_slice
             # Otherwise if we're literal, use the raw length
             # because it might be an edit.
             elif seg.pos_marker.is_literal():
@@ -2603,7 +2615,7 @@ def lint_line_length(
         # Get the length of all the elements on the line (other than the indent).
         # NOTE: This is the length in the _source_, because that's the line
         # length that the reader is actually looking at.
-        char_len = _source_char_len(line_buffer)
+        char_len = _source_char_len(line_buffer, include_unrendered=True)
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
@@ -2667,13 +2679,28 @@ def lint_line_length(
             # If we don't have any matched_indents, we don't have any options.
             # This could be for things like comment lines.
             desc = f"Line is too long ({line_len} > {line_length_limit})."
+            defer_to_fix = False
+            # If the line is only too long because of literal source which
+            # this variant does not render (e.g. a skipped branch or a macro
+            # body), report it but don't fix it here. A break next to that
+            # source can land inside the block, and it can conflict with the
+            # layout from a variant which renders the block. That variant
+            # supplies its own fix if its rendered line is too long.
+            if (
+                len(current_indent)
+                + _source_char_len(line_buffer, include_unrendered=False)
+                <= line_length_limit
+            ):
+                reflow_logger.debug("    Handling as long in unrendered source.")
+                fixes = []
+                defer_to_fix = True
             # Easiest option are lines ending with comments, but that aren't *all*
             # comments and the comment itself is shorter than the limit.
             # The reason for that last clause is that if the comment (plus an indent)
             # is already longer than the limit, then there's no point just putting it
             # on a new line - it will still fail - so it doesn't actually fix the issue.
             # Deal with them first.
-            if (
+            elif (
                 len(line_buffer) > 1
                 # We can only fix _inline_ comments in this way. Others should
                 # just be flagged as issues.
@@ -2792,6 +2819,7 @@ def lint_line_length(
                     fixes=fixes,
                     description=desc,
                     source="reflow.long_line",
+                    defer_to_fix=defer_to_fix,
                 )
             )
 
