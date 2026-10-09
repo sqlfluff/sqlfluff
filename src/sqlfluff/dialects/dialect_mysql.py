@@ -177,6 +177,11 @@ mysql_dialect.sets("bare_functions").update(
 )
 
 mysql_dialect.replace(
+    # A function parameter: name type, with no direction (`sp_fdparam`).
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment"),
+        Ref("RoutineDatatypeGrammar"),
+    ),
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
@@ -285,9 +290,6 @@ mysql_dialect.replace(
     TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
-    ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", BinaryOperatorSegment),
@@ -1439,18 +1441,35 @@ mysql_dialect.add(
     InputOutputParameterSegment=StringParser(
         "INOUT", SymbolSegment, type="parameter_direction"
     ),
-    ProcedureParameterGrammar=OneOf(
-        Sequence(
-            OneOf(
-                Ref("OutputParameterSegment"),
-                Ref("InputParameterSegment"),
-                Ref("InputOutputParameterSegment"),
-                optional=True,
-            ),
-            Ref("ParameterNameSegment", optional=True),
-            Ref("DatatypeSegment"),
+    # A routine parameter: [IN | OUT | INOUT] name type. The name is required,
+    # as on the server (`sp_pdparam`); MySQL allows a direction only on
+    # procedure parameters.
+    ProcedureParameterGrammar=Sequence(
+        OneOf(
+            Ref("OutputParameterSegment"),
+            Ref("InputParameterSegment"),
+            Ref("InputOutputParameterSegment"),
+            optional=True,
         ),
+        Ref("ParameterNameSegment"),
+        Ref("RoutineDatatypeGrammar"),
+    ),
+    # The type of a routine parameter, return value or local variable: a data
+    # type, which may carry a character set, then an optional collation
+    # (`type opt_collate` in the server's grammar).
+    RoutineDatatypeGrammar=Sequence(
         Ref("DatatypeSegment"),
+        Sequence(
+            Ref("CharsetGrammar"),
+            OneOf(
+                Ref("CharacterSetSegment"),
+                "BINARY",
+                Ref("SingleIdentifierGrammar"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("CollateGrammar", optional=True),
     ),
     LocalVariableNameSegment=RegexParser(
         r"`?[a-zA-Z0-9_$]*`?",
@@ -1694,7 +1713,15 @@ class DeclareStatement(BaseSegment):
             Ref("NakedIdentifierSegment"),
             "CURSOR",
             "FOR",
-            Ref("StatementSegment"),
+            # The query is indented under the declaration, as a handler's
+            # statement is. Only a query is allowed here: `select_stmt` in
+            # MySQL, `select` in MariaDB. Both include VALUES.
+            Indent,
+            OneOf(
+                OptionallyBracketed(Ref("WithCompoundStatementSegment")),
+                Ref("NonWithSelectableGrammar"),
+            ),
+            Dedent,
         ),
         Sequence(
             "DECLARE",
@@ -1728,7 +1755,7 @@ class DeclareStatement(BaseSegment):
         Sequence(
             "DECLARE",
             Delimited(Ref("LocalVariableNameSegment")),
-            Ref("DatatypeSegment"),
+            Ref("RoutineDatatypeGrammar"),
             Sequence(
                 Ref.keyword("DEFAULT"),
                 Ref("ExpressionSegment"),
@@ -1821,8 +1848,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("ProcedureParameterListGrammar", optional=True),
-        Ref("CommentClauseSegment", optional=True),
+        Ref("ProcedureParameterListGrammar"),
         Ref("CharacteristicStatement", optional=True),
         Ref("FunctionDefinitionGrammar"),
     )
@@ -1859,21 +1885,27 @@ class CompoundStatementSegment(BaseSegment):
 
 
 class CharacteristicStatement(BaseSegment):
-    """A Characteristics statement for functions/procedures."""
+    """The characteristics of a function or procedure.
+
+    Any number of them, in any order, including `COMMENT`, as in the server's
+    grammar (`sp_c_chistics`, a list of `sp_c_chistic`). Repeats are allowed;
+    the server keeps the last.
+
+    https://dev.mysql.com/doc/refman/8.4/en/create-procedure.html
+    """
 
     type = "characteristic_statement"
 
-    match_grammar = Sequence(
-        OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
-        Sequence("LANGUAGE", "SQL", optional=True),
-        OneOf(
-            Sequence("CONTAINS", "SQL", optional=True),
-            Sequence("NO", "SQL", optional=True),
-            Sequence("READS", "SQL", "DATA", optional=True),
-            Sequence("MODIFIES", "SQL", "DATA", optional=True),
-            optional=True,
-        ),
-        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+    match_grammar = AnyNumberOf(
+        Ref("CommentClauseSegment"),
+        Sequence("LANGUAGE", "SQL"),
+        Sequence(Ref.keyword("NOT", optional=True), "DETERMINISTIC"),
+        Sequence("CONTAINS", "SQL"),
+        Sequence("NO", "SQL"),
+        Sequence("READS", "SQL", "DATA"),
+        Sequence("MODIFIES", "SQL", "DATA"),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER")),
+        min_times=1,
     )
 
 
@@ -1889,14 +1921,14 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Ref("DefinerSegment", optional=True),
         "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("FunctionParameterListGrammar"),
         Sequence(
             "RETURNS",
-            Ref("DatatypeSegment"),
+            Ref("RoutineDatatypeGrammar"),
         ),
-        Ref("CommentClauseSegment", optional=True),
-        Ref("CharacteristicStatement"),
+        Ref("CharacteristicStatement", optional=True),
         Ref("FunctionDefinitionGrammar"),
     )
 
@@ -3105,6 +3137,9 @@ class ResignalSegment(BaseSegment):
             Ref("NakedIdentifierSegment"),
             optional=True,
         ),
+        # The SET clause takes an implicit indent: on its own line it is
+        # indented under SIGNAL.
+        ImplicitIndent,
         Sequence(
             "SET",
             Delimited(
@@ -3134,6 +3169,7 @@ class ResignalSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
     )
 
 
@@ -3145,7 +3181,7 @@ class CursorFetchSegment(BaseSegment):
 
     type = "cursor_fetch_segment"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "FETCH",
         Sequence(Ref.keyword("NEXT", optional=True), "FROM", optional=True),
         Ref("NakedIdentifierSegment"),
@@ -3650,7 +3686,15 @@ class LoadDataSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            # Each target is a column or a user variable (`col_name_or_user_var`).
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("SessionVariableNameSegment"),
+                    )
+                )
+            ),
             optional=True,
         ),
         Sequence(
@@ -3853,7 +3897,10 @@ class ReturnStatementSegment(BaseSegment):
     type = "return_statement"
     match_grammar = Sequence(
         "RETURN",
+        # The value takes an implicit indent, as a WHERE condition does.
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
     )
 
 

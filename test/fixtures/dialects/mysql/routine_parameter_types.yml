@@ -1,0 +1,220 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 289da27a988319b0e0b6977c89480766e4aa7232b9d2b54ba6344775eeb8ddd6
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter_direction: IN
+        - parameter: a
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        - keyword: CHARACTER
+        - keyword: SET
+        - character_set: utf8mb4
+        - comma: ','
+        - parameter_direction: OUT
+        - parameter: b
+        - data_type:
+            data_type_identifier: TEXT
+        - keyword: CHARSET
+        - character_set: latin1
+        - keyword: COLLATE
+        - collation_reference:
+            naked_identifier: latin1_bin
+        - comma: ','
+        - parameter: c
+        - data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+        - keyword: CHARACTER
+        - keyword: SET
+        - character_set: utf8mb4
+        - keyword: COLLATE
+        - collation_reference:
+            naked_identifier: utf8mb4_bin
+        - end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: a
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: c
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+        - keyword: CHARACTER
+        - keyword: SET
+        - character_set: utf8mb4
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '255'
+            end_bracket: )
+    - keyword: CHARACTER
+    - keyword: SET
+    - character_set: utf8mb4
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: zz
+        dot: .
+        function_name_identifier: p2
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - quoted_identifier: '`zz`'
+      - dot: .
+      - quoted_identifier: '`f2`'
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+            keyword: UNSIGNED
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: DECIMAL
+        bracketed_arguments:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p3
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+          - statement:
+              declare_statement:
+              - keyword: DECLARE
+              - variable: a
+              - data_type:
+                  data_type_identifier: CHAR
+              - keyword: CHARACTER
+              - keyword: SET
+              - character_set: utf8mb4
+          - statement_terminator: ;
+          - statement:
+              declare_statement:
+              - keyword: DECLARE
+              - variable: b
+              - data_type:
+                  data_type_identifier: VARCHAR
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '5'
+                      end_bracket: )
+              - keyword: CHARACTER
+              - keyword: SET
+              - character_set: utf8mb4
+              - keyword: COLLATE
+              - collation_reference:
+                  naked_identifier: utf8mb4_bin
+              - keyword: DEFAULT
+              - expression:
+                  quoted_literal: "'x'"
+          - statement_terminator: ;
+          - statement:
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: a
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: b
+          - statement_terminator: ;
+        - keyword: END
+- statement_terminator: ;
