@@ -670,6 +670,81 @@ def test__templater_jinja_dbt_builtin_function():
     assert len(vs) == 0
 
 
+@pytest.mark.parametrize(
+    "tag,macro_name,languages",
+    [
+        # Without supported_languages, dbt defaults it to ['sql'].
+        (
+            "{% materialization my_mat, default %}",
+            "materialization_my_mat_default",
+            "sql",
+        ),
+        (
+            "{% materialization my_mat, adapter='snowflake' %}",
+            "materialization_my_mat_snowflake",
+            "sql",
+        ),
+        (
+            "{% materialization my_mat, adapter = 'bigquery',"
+            " supported_languages=['sql', 'python'] %}",
+            "materialization_my_mat_bigquery",
+            "sql,python",
+        ),
+        (
+            "{% materialization my_mat, supported_languages=['python'], default %}",
+            "materialization_my_mat_default",
+            "python",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_materialization(tag, macro_name, languages):
+    """Test that dbt's `materialization` block is defined like dbt does it."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    body = (
+        "{% if supported_languages is defined %}"
+        "{{ supported_languages | join(',') }}"
+        "{% endif %}"
+    )
+    instr = f"{tag}{body}{{% endmaterialization %}}\nSELECT 1\n"
+    outstr, vs = JinjaTemplater().process(in_str=instr, fname="test.sql", config=config)
+    # The block only defines a macro, so it renders to nothing.
+    assert str(outstr) == "\nSELECT 1\n"
+    assert len(vs) == 0
+    # The macro gets the name and the supported_languages default dbt gives it.
+    env = JinjaTemplater()._get_jinja_env(config)
+    module = env.from_string(instr).module
+    assert str(getattr(module, macro_name)()) == languages
+
+
+@pytest.mark.parametrize(
+    "instr,error",
+    [
+        (
+            "{% materialization my_mat, foo='bar' %}{% endmaterialization %}",
+            "Unexpected argument 'foo' for materialization 'my_mat'.",
+        ),
+        (
+            "{% materialization my_mat, adapter=foo %}{% endmaterialization %}",
+            "The adapter of a materialization must be a literal.",
+        ),
+        (
+            "{% materialization my_mat, default %}SELECT 1",
+            "Unexpected end of template",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_materialization_invalid(instr, error):
+    """Test that invalid `materialization` arguments are reported."""
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        JinjaTemplater().process(
+            in_str=instr,
+            fname="test.sql",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    assert excinfo.value.rule_code() == "TMP"
+    assert error in str(excinfo.value)
+
+
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
@@ -808,6 +883,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_c_dbt/dbt_builtins_this_callable", True, False),
         ("jinja_c_dbt/dbt_builtins_var_default", True, False),
         ("jinja_c_dbt/dbt_builtins_test", True, False),
+        ("jinja_c_dbt/dbt_builtins_materialization", True, False),
         ("jinja_c_dbt/dbt_builtins_zip", True, False),
         ("jinja_c_dbt/dbt_builtins_zip_strict", True, False),
         ("jinja_c_dbt/dbt_builtins_return", True, False),
