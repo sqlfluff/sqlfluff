@@ -98,6 +98,8 @@ class Rule_CV06(BaseRule):
 
         We don't want to move inline comments that are on the same line
         as the preceding code segment as they could contain noqa instructions.
+        A block comment that starts and ends on that line is kept with it
+        in the same way. One that spans lines is not.
         """
         # See if we have a preceding inline comment on the same line as the preceding
         # segment.
@@ -106,7 +108,18 @@ class Rule_CV06(BaseRule):
                 s
                 for s in before_segment
                 if s.is_comment
-                and not s.is_type("block_comment")
+                and (
+                    not s.is_type("block_comment")
+                    # A block comment spanning lines is lexed one piece per
+                    # line, so only a piece that opens and closes is whole.
+                    # Where comments nest, the first line of one that spans
+                    # lines can also end in "*/", so every opening must close.
+                    or (
+                        s.raw.startswith("/*")
+                        and s.raw.endswith("*/")
+                        and s.raw.count("/*") == s.raw.count("*/")
+                    )
+                )
                 and s.pos_marker
                 and s.pos_marker.working_line_no
                 # We don't need to handle the case where raw_segments is empty
