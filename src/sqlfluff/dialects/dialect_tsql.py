@@ -3213,6 +3213,10 @@ class TableOptionSegment(BaseSegment):
                                     ),
                                 ),
                             ),
+                            # SQL Server auto-names the history table when this
+                            # is left out, so plain `SYSTEM_VERSIONING = ON`
+                            # with no options is valid on its own.
+                            optional=True,
                         ),
                     ),
                     Sequence(
