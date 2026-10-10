@@ -62,7 +62,19 @@ class Rule_ST01(BaseRule):
         if else_clause and else_clause.children(
             lambda child: child.raw_upper == "NULL"
         ):
-            # Found ELSE with NULL. Delete the whole else clause as well as
+            # Found ELSE with NULL. Preserve any comments nested in the ELSE
+            # clause (e.g. ``else /* keep default */ null``) so autofix does
+            # not silently drop them.
+            comments = list(else_clause[0].recursive_crawl("comment"))
+            if comments:
+                # Re-home the comment(s) in place of the else clause. Keep the
+                # preceding newline/indent so the comment stays on its own
+                # line between the last WHEN clause and END.
+                return LintResult(
+                    anchor=context.segment,
+                    fixes=[LintFix.replace(else_clause[0], comments)],
+                )
+            # No comments: delete the whole else clause as well as
             # indents/whitespaces/meta preceding the ELSE. :TRICKY: Note
             # the use of reversed() to make select() effectively search in
             # reverse.
