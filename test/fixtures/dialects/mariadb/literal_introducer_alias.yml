@@ -1,0 +1,251 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 40481f1f480d7a6e1d5db19887fda1fb07905086e1c4333e904980b32dae0f7e
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: foo
+          alias_expression:
+            quoted_identifier: "'x'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: foo
+          alias_expression:
+            quoted_identifier: '"x"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          keyword: DATE
+          date_constructor_literal: "'2020-01-01'"
+      - comma: ','
+      - select_clause_element:
+          keyword: TIME
+          date_constructor_literal: "'10:00'"
+      - comma: ','
+      - select_clause_element:
+          keyword: TIMESTAMP
+          date_constructor_literal: "'2020-01-01 10:00'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _utf8mb4
+            quoted_literal: "'x'"
+      - comma: ','
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _utf8mb4
+            quoted_literal: "'x'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            introduced_literal:
+              character_set_introducer: _latin1
+              quoted_literal: "'x'"
+            keyword: COLLATE
+            collation_reference:
+              naked_identifier: latin1_bin
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _binary
+            quoted_literal: "'x'"
+      - comma: ','
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _utf8mb4
+            numeric_literal: "X'41'"
+      - comma: ','
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _utf8mb4
+            numeric_literal: '0x41'
+      - comma: ','
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _latin1
+            numeric_literal: "b'1000001'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          quoted_literal: "N'x'"
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "n'x'"
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "N'it''s'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: N
+          alias_expression:
+            quoted_identifier: '"x"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _utf8mb4
+            quoted_literal: '"x"'
+      - comma: ','
+      - select_clause_element:
+          introduced_literal:
+            character_set_introducer: _UTF8MB4
+            quoted_literal: "'x'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: _gb18030
+          alias_expression:
+            quoted_identifier: "'x'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: _nosuchcs
+          alias_expression:
+            quoted_identifier: "'x'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: N
+          alias_expression:
+            quoted_identifier: "'x'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - keyword: BINARY
+          - quoted_literal: "'a'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'A'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            keyword: BINARY
+            column_reference:
+              naked_identifier: col
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          keyword: BINARY
+          quoted_literal: "'x'"
+- statement_terminator: ;
