@@ -521,7 +521,16 @@ databricks_dialect.replace(
                     Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
-            )
+            ),
+            # SHOW GRANTS [ principal ] ON securable_object
+            # GRANT is accepted as an alternative spelling of GRANTS.
+            # https://docs.databricks.com/aws/en/sql/language-manual/security-show-grant
+            Sequence(
+                OneOf("GRANTS", "GRANT"),
+                Ref("RoleReferenceSegment", optional=True),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
         ],
     ),
     NotNullGrammar=Sequence(
