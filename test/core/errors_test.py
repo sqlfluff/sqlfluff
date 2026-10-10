@@ -9,6 +9,7 @@ from sqlfluff.core.errors import SQLBaseError, SQLLexError, SQLLintError, SQLPar
 from sqlfluff.core.parser import PositionMarker, RawSegment
 from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 
 
 class Rule_T078(BaseRule):
@@ -18,6 +19,43 @@ class Rule_T078(BaseRule):
 
     def _eval(self, context):
         pass
+
+
+@pytest.mark.parametrize("error_class", [SQLParseError, SQLLintError])
+@pytest.mark.parametrize("slice_type", ["literal", "templated"])
+@pytest.mark.parametrize("source_slice", [slice(2, 7), slice(2, 2)])
+def test__error_source_positions(error_class, slice_type, source_slice):
+    """Serialize source coordinates regardless of whether a span is literal."""
+    source = "a\nbc\ndef"
+    template = TemplatedFile(
+        source,
+        fname="<string>",
+        sliced_file=[TemplatedFileSlice(slice_type, slice(0, 8), slice(0, 8))],
+        raw_sliced=[RawFileSlice(source, slice_type, 0)],
+    )
+    segment = RawSegment(
+        source[source_slice], PositionMarker(source_slice, source_slice, template)
+    )
+    kwargs = {"rule": Rule_T078} if error_class is SQLLintError else {}
+    result = error_class("Foo", segment=segment, **kwargs).to_dict()
+    expected = {
+        "start_line_no": 2,
+        "start_line_pos": 1,
+        "start_file_pos": 2,
+        "end_line_no": 3 if source_slice.stop == 7 else 2,
+        "end_line_pos": 3 if source_slice.stop == 7 else 1,
+        "end_file_pos": source_slice.stop,
+    }
+    assert {key: result[key] for key in expected} == expected
+
+
+def test__parse_error_without_segment_positions():
+    """Errors without a source segment retain their supplied start position."""
+    result = SQLParseError("Foo", line_no=2, line_pos=3).to_dict()
+    assert result["start_line_no"] == 2
+    assert result["start_line_pos"] == 3
+    assert "start_file_pos" not in result
+    assert "end_file_pos" not in result
 
 
 def assert_pickle_robust(err: SQLBaseError):
