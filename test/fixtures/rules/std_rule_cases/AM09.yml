@@ -57,3 +57,20 @@ test_pass_limit_with_order_by_in_subquery:
         ORDER BY id
         LIMIT 10
     ) subquery;
+
+test_fail_limit_in_set_expression_without_order_by:
+  # LIMIT applied to a UNION (set expression) without ORDER BY is just as
+  # non-deterministic as on a plain SELECT, but was previously missed.
+  fail_str: |
+    SELECT a FROM foo
+    UNION ALL
+    SELECT a FROM bar
+    LIMIT 10;
+
+test_pass_limit_in_set_expression_with_order_by:
+  pass_str: |
+    SELECT a FROM foo
+    UNION ALL
+    SELECT a FROM bar
+    ORDER BY a
+    LIMIT 10;

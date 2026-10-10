@@ -38,14 +38,16 @@ class Rule_AM09(BaseRule):
     name = "ambiguous.order_by_limit"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "ambiguous")
-    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement", "set_expression"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Check if LIMIT and OFFSET are used without ORDER BY."""
         segment = context.segment
 
-        # Ensure it's a SELECT statement
-        if not segment.is_type("select_statement"):
+        # A LIMIT/OFFSET applied to a set expression (e.g. UNION) attaches to
+        # the set expression itself rather than to any inner SELECT, so both
+        # segment types need checking to avoid missing that case.
+        if not segment.is_type("select_statement", "set_expression"):
             return None
 
         # Detect presence of LIMIT and OFFSET
