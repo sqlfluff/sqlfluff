@@ -1,5 +1,54 @@
 rule: CP02
 
+test_pass_bigquery_chained_datetime_dateparts:
+  pass_str: |
+    SELECT
+        (year).REGEXP_EXTRACT(month),
+        (year).DATE_ADD(INTERVAL 5 YEAR),
+        (year).DATE_DIFF(month, YEAR),
+        (day).DATETIME_DIFF(hour, DAY),
+        (minute).TIME_DIFF(second, MINUTE),
+        (hour).TIMESTAMP_DIFF(minute, HOUR),
+        (year).DATE_TRUNC(MONTH),
+        (day).DATETIME_TRUNC(HOUR, month),
+        (hour).TIME_TRUNC(MINUTE),
+        (year).TIMESTAMP_TRUNC(DAY, month),
+        (year).LAST_DAY(WEEK(MONDAY)),
+        (month).LAST_DAY()
+    FROM foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_bigquery_datepart_named_function_arguments:
+  fail_str: |
+    SELECT
+        REGEXP_EXTRACT(YEAR, r'[0-9]{4}'),
+        DATE_ADD(YEAR, INTERVAL 5 YEAR),
+        DATE_DIFF(YEAR, MONTH, YEAR),
+        SAFE.DATE_DIFF(YEAR, MONTH, YEAR),
+        LAST_DAY(YEAR, MONTH),
+        TIMESTAMP_TRUNC(YEAR, HOUR, MONTH)
+    FROM foo;
+  fix_str: |
+    SELECT
+        REGEXP_EXTRACT(year, r'[0-9]{4}'),
+        DATE_ADD(year, INTERVAL 5 YEAR),
+        DATE_DIFF(year, month, YEAR),
+        SAFE.DATE_DIFF(year, month, YEAR),
+        LAST_DAY(year, MONTH),
+        TIMESTAMP_TRUNC(year, HOUR, month)
+    FROM foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
 test_pass_consistent_capitalisation_1:
   pass_str: SELECT a, b
 

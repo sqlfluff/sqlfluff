@@ -258,6 +258,36 @@ bigquery_dialect.add(
             type="date_part",
         )
     ),
+    DatePartGrammar=OneOf(
+        Ref("DatetimeUnitSegment"),
+        Ref("DatePartWeekSegment"),
+    ),
+    DateTimeDiffFunctionNameIdentifierSegment=MultiStringParser(
+        ["DATE_DIFF", "DATETIME_DIFF", "TIME_DIFF", "TIMESTAMP_DIFF"],
+        CodeSegment,
+        type="function_name_identifier",
+    ),
+    DateTimeTruncFunctionNameIdentifierSegment=MultiStringParser(
+        ["DATE_TRUNC", "DATETIME_TRUNC", "TIMESTAMP_TRUNC"],
+        CodeSegment,
+        type="function_name_identifier",
+    ),
+    TimeTruncFunctionNameIdentifierSegment=StringParser(
+        "TIME_TRUNC", CodeSegment, type="function_name_identifier"
+    ),
+    LastDayFunctionNameIdentifierSegment=StringParser(
+        "LAST_DAY", CodeSegment, type="function_name_identifier"
+    ),
+    # Arguments after the first expression, shared with chained function calls.
+    DateTimeDiffFunctionContentsGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("DatePartGrammar"),
+    ),
+    DateTimeTruncFunctionContentsGrammar=Sequence(
+        Ref("DatePartGrammar"),
+        Sequence(Ref("CommaSegment"), Ref("ExpressionSegment"), optional=True),
+    ),
     ProcedureNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
         RegexParser(
@@ -345,8 +375,6 @@ bigquery_dialect.replace(
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
-        Ref("DatetimeUnitSegment"),
-        Ref("DatePartWeekSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -1190,17 +1218,95 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     )
 
 
-class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
-    """Datetime function contents segment."""
+class DatePartFunctionNameSegment(ansi.DatePartFunctionNameSegment):
+    """Datetime function names, including the optional SAFE prefix."""
 
     match_grammar = Sequence(
-        Bracketed(
-            Delimited(
-                Ref("DatetimeUnitSegment"),
-                Ref("DatePartWeekSegment"),
-                Ref("FunctionContentsGrammar"),
-            ),
-        )
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        Ref("DatePartFunctionName"),
+    )
+
+
+class DateTimeDiffFunctionNameSegment(BaseSegment):
+    """Date or time difference function names."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        Ref("DateTimeDiffFunctionNameIdentifierSegment"),
+    )
+
+
+class DateTimeDiffFunctionContentsSegment(BaseSegment):
+    """Difference arguments: two expressions followed by a date part."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("DateTimeDiffFunctionContentsGrammar"),
+    )
+
+
+class DateTimeTruncFunctionNameSegment(BaseSegment):
+    """Truncation function names which support a timestamp overload."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        Ref("DateTimeTruncFunctionNameIdentifierSegment"),
+    )
+
+
+class DateTimeTruncFunctionContentsSegment(BaseSegment):
+    """Truncation arguments: expression, date part, optional time zone."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("DateTimeTruncFunctionContentsGrammar"),
+    )
+
+
+class TimeTruncFunctionNameSegment(BaseSegment):
+    """TIME_TRUNC function name."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        Ref("TimeTruncFunctionNameIdentifierSegment"),
+    )
+
+
+class TimeTruncFunctionContentsSegment(BaseSegment):
+    """TIME_TRUNC arguments: an expression followed by a date part."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("DatePartGrammar"),
+    )
+
+
+class LastDayFunctionNameSegment(BaseSegment):
+    """LAST_DAY function name."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        Ref("LastDayFunctionNameIdentifierSegment"),
+    )
+
+
+class LastDayFunctionContentsSegment(BaseSegment):
+    """LAST_DAY arguments: an expression followed by an optional date part."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),
+        Sequence(Ref("CommaSegment"), Ref("DatePartGrammar"), optional=True),
     )
 
 
@@ -1278,19 +1384,22 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("NormalizeFunctionContentsSegment"),
             ),
             Sequence(
-                # Treat functions which take date parts separately
-                # So those functions parse date parts as DatetimeUnitSegment
-                # rather than identifiers.
-                Ref(
-                    "DatePartFunctionNameSegment",
-                    exclude=OneOf(
-                        Ref("ExtractFunctionNameSegment"),
-                        Ref("ArrayAggFunctionNameSegment"),
-                        Ref("ArrayConcatAggFunctionNameSegment"),
-                        Ref("StringAggFunctionNameSegment"),
-                    ),
-                ),
-                Ref("DateTimeFunctionContentsSegment"),
+                # Date parts only occur at specific argument positions. The other
+                # arguments may contain columns named year, month, etc.
+                Ref("DateTimeDiffFunctionNameSegment"),
+                Ref("DateTimeDiffFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("DateTimeTruncFunctionNameSegment"),
+                Ref("DateTimeTruncFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("TimeTruncFunctionNameSegment"),
+                Ref("TimeTruncFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("LastDayFunctionNameSegment"),
+                Ref("LastDayFunctionContentsSegment"),
             ),
             Sequence(
                 Sequence(
@@ -3934,8 +4043,30 @@ class ChainedFunctionCallSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("DotSegment"),
-        Ref("FunctionNameIdentifierSegment"),
-        Bracketed(
-            Ref("FunctionContentsGrammar", optional=True),
+        OneOf(
+            # The chained input supplies the first expression argument.
+            Sequence(
+                Ref("DateTimeDiffFunctionNameIdentifierSegment"),
+                Bracketed(Ref("DateTimeDiffFunctionContentsGrammar")),
+            ),
+            Sequence(
+                Ref("DateTimeTruncFunctionNameIdentifierSegment"),
+                Bracketed(Ref("DateTimeTruncFunctionContentsGrammar")),
+            ),
+            Sequence(
+                Ref("TimeTruncFunctionNameIdentifierSegment"),
+                Bracketed(Ref("DatePartGrammar")),
+            ),
+            Sequence(
+                Ref("LastDayFunctionNameIdentifierSegment"),
+                Bracketed(Ref("DatePartGrammar", optional=True)),
+            ),
+            Sequence(
+                Ref(
+                    "FunctionNameIdentifierSegment",
+                    exclude=Ref("DatePartFunctionName"),
+                ),
+                Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            ),
         ),
     )
