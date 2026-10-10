@@ -1314,6 +1314,7 @@ class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "TYPE",
         Ref("DatatypeSegment"),
         "AS",
