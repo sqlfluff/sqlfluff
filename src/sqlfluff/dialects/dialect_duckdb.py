@@ -987,7 +987,11 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://duckdb.org/docs/stable/sql/query_syntax/groupby
+    https://duckdb.org/docs/stable/sql/query_syntax/grouping_sets
+    """
 
     match_grammar: Matchable = Sequence(
         "GROUP",
@@ -998,7 +1002,11 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 "ALL",
                 Ref("ColumnReferenceSegment"),
                 Ref("NumericLiteralSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 Ref("ExpressionSegment"),
+                # Empty grouping set: `GROUP BY ()`
+                Bracketed(),
             ),
             allow_trailing=True,
             terminators=[Ref("GroupByClauseTerminatorGrammar")],
