@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -71,8 +72,22 @@ trino_dialect.insert_lexer_matchers(
     [
         StringLexer("right_arrow", "->", CodeSegment),
         StringLexer("fat_right_arrow", "=>", CodeSegment),
+        # MATCH_RECOGNIZE PATTERN: the `$` end anchor (no other Trino construct
+        # uses a bare `$`, unlike `^`, which ansi already lexes), the
+        # reluctant-quantifier `?`, and the `{- -}` exclusion brackets.
+        # https://trino.io/docs/current/sql/match-recognize.html
+        StringLexer("dollar", "$", CodeSegment),
+        StringLexer("question_mark", "?", CodeSegment),
+        StringLexer("exclude_bracket_open", "{-", CodeSegment),
+        StringLexer("exclude_bracket_close", "-}", CodeSegment),
     ],
     before="like_operator",
+)
+
+trino_dialect.bracket_sets("bracket_pairs").update(
+    [
+        ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True),
+    ]
 )
 
 trino_dialect.add(
@@ -87,6 +102,85 @@ trino_dialect.add(
         "FORMAT",
         "JSON",
         Sequence("ENCODING", OneOf("UTF8", "UTF16", "UTF32"), optional=True),
+    ),
+    # MATCH_RECOGNIZE PATTERN symbols. https://trino.io/docs/current/sql/match-recognize.html
+    CaretSegment=StringParser("^", SymbolSegment, type="caret"),
+    DollarSegment=StringParser("$", SymbolSegment, type="dollar"),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    StartExcludeBracketSegment=StringParser(
+        "{-", SymbolSegment, type="start_exclude_bracket"
+    ),
+    EndExcludeBracketSegment=StringParser(
+        "-}", SymbolSegment, type="end_exclude_bracket"
+    ),
+    PatternQuantifierGrammar=Sequence(
+        OneOf(
+            Ref("PositiveSegment"),
+            Ref("StarSegment"),
+            Ref("QuestionMarkSegment"),
+            Bracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(Ref("NumericLiteralSegment"), Ref("CommaSegment")),
+                    Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment")),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                bracket_type="curly",
+                bracket_pairs_set="bracket_pairs",
+            ),
+        ),
+        # A trailing `?` puts the quantifier into reluctant mode, e.g. `{3,5}?`.
+        Ref("QuestionMarkSegment", optional=True),
+        allow_gaps=False,
+    ),
+    PatternSymbolGrammar=Sequence(
+        # Pattern variables are their own namespace, scoped to PATTERN/DEFINE/
+        # MEASURES: a reserved keyword like END is a valid variable name (it's
+        # used as one in trino's own docs example), so this can't just be
+        # SingleIdentifierGrammar, which excludes reserved keywords.
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            TypedParser("word", WordSegment, type="pattern_variable_identifier"),
+        ),
+        Ref("PatternQuantifierGrammar", optional=True),
+        allow_gaps=False,
+    ),
+    PatternOperatorGrammar=OneOf(
+        Ref("PatternSymbolGrammar"),
+        Sequence(
+            OneOf(
+                # `{- ... -}`: exclude the matched portion from ALL ROWS output.
+                Bracketed(
+                    # One or more `|`-delimited alternatives, each itself a
+                    # concatenation of one or more operators (not a bare OneOf
+                    # of "all concatenation" vs "all alternation": that can't
+                    # represent `a b | c`, a concatenation on one side of `|`).
+                    Delimited(
+                        AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+                        delimiter=Ref("PipeSegment"),
+                    ),
+                    bracket_type="exclude",
+                    bracket_pairs_set="bracket_pairs",
+                ),
+                # A parenthesised group, concatenation or `|`-delimited alternation.
+                Bracketed(
+                    Delimited(
+                        AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+                        delimiter=Ref("PipeSegment"),
+                    ),
+                ),
+                Sequence(
+                    "PERMUTE",
+                    Bracketed(Delimited(Ref("PatternSymbolGrammar"))),
+                ),
+            ),
+            Ref("PatternQuantifierGrammar", optional=True),
+            allow_gaps=False,
+        ),
     ),
 )
 
@@ -123,6 +217,7 @@ trino_dialect.replace(
     LikeGrammar=Sequence("LIKE"),
     # TODO: There are no custom SQL functions in Trino! How to handle this?
     MLTableExpressionSegment=Nothing(),
+    JoinLikeClauseGrammar=Ref("MatchRecognizeClauseSegment"),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -1266,5 +1361,108 @@ class MapTypeSchemaSegment(BaseSegment):
             ),
             bracket_pairs_set="bracket_pairs",
             bracket_type="round",
+        ),
+    )
+
+
+class PatternSegment(BaseSegment):
+    """A `PATTERN` row-pattern expression inside `MATCH_RECOGNIZE`.
+
+    https://trino.io/docs/current/sql/match-recognize.html
+    """
+
+    type = "pattern_expression"
+    match_grammar = Sequence(
+        Ref("CaretSegment", optional=True),
+        # One or more `|`-delimited alternatives, each itself a concatenation
+        # of one or more operators, e.g. `A B+ C+ D+ | X Y` (a bare OneOf of
+        # "all concatenation" vs "all alternation" can't parse a concatenation
+        # on one side of a `|`).
+        Delimited(
+            AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+            delimiter=Ref("PipeSegment"),
+        ),
+        Ref("DollarSegment", optional=True),
+    )
+
+
+class MatchRecognizeClauseSegment(BaseSegment):
+    """A `MATCH_RECOGNIZE` clause.
+
+    https://trino.io/docs/current/sql/match-recognize.html
+    """
+
+    type = "match_recognize_clause"
+    match_grammar = Sequence(
+        "MATCH_RECOGNIZE",
+        Bracketed(
+            Ref("PartitionClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Sequence(
+                "MEASURES",
+                Delimited(
+                    Sequence(
+                        OneOf("FINAL", "RUNNING", optional=True),
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence("ONE", "ROW", "PER", "MATCH"),
+                Sequence(
+                    "ALL",
+                    "ROWS",
+                    "PER",
+                    "MATCH",
+                    OneOf(
+                        Sequence("SHOW", "EMPTY", "MATCHES"),
+                        Sequence("OMIT", "EMPTY", "MATCHES"),
+                        Sequence("WITH", "UNMATCHED", "ROWS"),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AFTER",
+                "MATCH",
+                "SKIP",
+                OneOf(
+                    Sequence("PAST", "LAST", "ROW"),
+                    Sequence("TO", "NEXT", "ROW"),
+                    Sequence(
+                        "TO",
+                        OneOf("FIRST", "LAST", optional=True),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+                optional=True,
+            ),
+            "PATTERN",
+            Bracketed(Ref("PatternSegment")),
+            # SUBSET names a union of pattern variables for use in DEFINE/MEASURES,
+            # e.g. `SUBSET U = (C, D)`. Trino has this; it isn't in the standard
+            # MATCH_RECOGNIZE clause other dialects here implement.
+            Sequence(
+                "SUBSET",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                    ),
+                ),
+                optional=True,
+            ),
+            "DEFINE",
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "AS",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
         ),
     )
