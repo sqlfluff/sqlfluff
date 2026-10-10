@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -137,7 +138,14 @@ trino_dialect.add(
         allow_gaps=False,
     ),
     PatternSymbolGrammar=Sequence(
-        Ref("SingleIdentifierGrammar"),
+        # Pattern variables are their own namespace, scoped to PATTERN/DEFINE/
+        # MEASURES: a reserved keyword like END is a valid variable name (it's
+        # used as one in trino's own docs example), so this can't just be
+        # SingleIdentifierGrammar, which excludes reserved keywords.
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            TypedParser("word", WordSegment, type="pattern_variable_identifier"),
+        ),
         Ref("PatternQuantifierGrammar", optional=True),
         allow_gaps=False,
     ),
@@ -147,24 +155,22 @@ trino_dialect.add(
             OneOf(
                 # `{- ... -}`: exclude the matched portion from ALL ROWS output.
                 Bracketed(
-                    OneOf(
-                        AnyNumberOf(Ref("PatternOperatorGrammar")),
-                        Delimited(
-                            Ref("PatternOperatorGrammar"),
-                            delimiter=Ref("PipeSegment"),
-                        ),
+                    # One or more `|`-delimited alternatives, each itself a
+                    # concatenation of one or more operators (not a bare OneOf
+                    # of "all concatenation" vs "all alternation": that can't
+                    # represent `a b | c`, a concatenation on one side of `|`).
+                    Delimited(
+                        AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+                        delimiter=Ref("PipeSegment"),
                     ),
                     bracket_type="exclude",
                     bracket_pairs_set="bracket_pairs",
                 ),
                 # A parenthesised group, concatenation or `|`-delimited alternation.
                 Bracketed(
-                    OneOf(
-                        AnyNumberOf(Ref("PatternOperatorGrammar")),
-                        Delimited(
-                            Ref("PatternOperatorGrammar"),
-                            delimiter=Ref("PipeSegment"),
-                        ),
+                    Delimited(
+                        AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+                        delimiter=Ref("PipeSegment"),
                     ),
                 ),
                 Sequence(
@@ -1368,12 +1374,13 @@ class PatternSegment(BaseSegment):
     type = "pattern_expression"
     match_grammar = Sequence(
         Ref("CaretSegment", optional=True),
-        OneOf(
-            AnyNumberOf(Ref("PatternOperatorGrammar")),
-            Delimited(
-                Ref("PatternOperatorGrammar"),
-                delimiter=Ref("PipeSegment"),
-            ),
+        # One or more `|`-delimited alternatives, each itself a concatenation
+        # of one or more operators, e.g. `A B+ C+ D+ | X Y` (a bare OneOf of
+        # "all concatenation" vs "all alternation" can't parse a concatenation
+        # on one side of a `|`).
+        Delimited(
+            AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+            delimiter=Ref("PipeSegment"),
         ),
         Ref("DollarSegment", optional=True),
     )
