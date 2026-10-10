@@ -1,0 +1,201 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ab22800e79719d5eecbdea012fb00d06322979ff9c0e74d4063fe138501f9c4f
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: message_events
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: guild_id
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: raw_data
+                  binary_operator: ->>
+                  quoted_literal: "'guild_id'"
+                end_bracket: )
+              casting_operator: '::'
+              data_type:
+                keyword: BIGINT
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: message_events
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: guild_id
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: COALESCE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    cast_expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: additional_data
+                          binary_operator: '#>>'
+                          quoted_literal: "'{guild_id}'"
+                        end_bracket: )
+                      casting_operator: '::'
+                      data_type:
+                        keyword: BIGINT
+                - comma: ','
+                - expression:
+                    cast_expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: raw_data
+                          binary_operator: ->>
+                          quoted_literal: "'guild_id'"
+                        end_bracket: )
+                      casting_operator: '::'
+                      data_type:
+                        keyword: BIGINT
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurements
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: area
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: width
+          - binary_operator: '*'
+          - column_reference:
+              naked_identifier: height
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: public
+        dot: .
+        quoted_identifier: '"Measurements"'
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          quoted_identifier: '"Area"'
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              quoted_identifier: '"Width"'
+          - binary_operator: '*'
+          - column_reference:
+              quoted_identifier: '"Height"'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurements
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: area
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: width
+          - binary_operator: '*'
+          - column_reference:
+              naked_identifier: height
+          end_bracket: )
+    - comma: ','
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: perimeter
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+            binary_operator: '*'
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: width
+              - binary_operator: +
+              - column_reference:
+                  naked_identifier: height
+              end_bracket: )
+          end_bracket: )
+    - comma: ','
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: volume
+      - keyword: DROP
+      - keyword: EXPRESSION
+      - keyword: IF
+      - keyword: EXISTS
+- statement_terminator: ;
