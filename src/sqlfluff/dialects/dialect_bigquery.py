@@ -2908,8 +2908,10 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         Ref("SelectableGrammar"),
     )
 
@@ -3016,8 +3018,10 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DELETE",
         Ref.keyword("FROM", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Ref("WhereClauseSegment", optional=True),
     )
 

@@ -614,6 +614,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     type = "values_clause"
     match_grammar: Matchable = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Sequence(
                 Bracketed(
@@ -625,6 +626,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -754,8 +756,10 @@ class InsertStatementSegment(BaseSegment):
             "REPLACE",
         ),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         OneOf(
             Sequence(
                 Ref("ValuesClauseSegment"),

@@ -505,7 +505,9 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(Ref("ExpressionSegment")),
+        Dedent,
     )
 
 
@@ -1088,11 +1090,15 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     match_grammar: Matchable = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             Ref("SelectableGrammar"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
                 Ref("SelectableGrammar"),
             ),
             Ref("DefaultValuesGrammar"),
