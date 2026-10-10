@@ -20,3 +20,4 @@
   - Other.
 - Added appropriate documentation for the change.
 - Created GitHub issues for any relevant followup/future enhancements if appropriate.
+- Followed the [AI Contribution Policy](https://github.com/sqlfluff/sqlfluff/blob/main/AI_POLICY.md): this description is in my own words, and I understand and can explain every change.
