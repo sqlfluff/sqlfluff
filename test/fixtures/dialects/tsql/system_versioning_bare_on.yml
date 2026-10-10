@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5cc7f1482bbcb43a8845ccb603b94b57e9751b3fda01ab3411bbea14c9efd1fc
+_hash: 7f15596cad6537397348a58a8cd2d1a33d3d9d1fc74d750582d7b7c559860333
 file:
   batch:
   - statement:
@@ -28,6 +28,55 @@ file:
               raw_comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: a
+            data_type:
+              keyword: int
+        - comma: ','
+        - column_definition:
+            naked_identifier: ValidFrom
+            data_type:
+              keyword: datetime2
+            column_constraint_segment:
+            - keyword: GENERATED
+            - keyword: ALWAYS
+            - keyword: AS
+            - keyword: ROW
+            - keyword: START
+        - comma: ','
+        - column_definition:
+            naked_identifier: ValidTo
+            data_type:
+              keyword: datetime2
+            column_constraint_segment:
+            - keyword: GENERATED
+            - keyword: ALWAYS
+            - keyword: AS
+            - keyword: ROW
+            - keyword: END
+        - comma: ','
+        - period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - keyword: SYSTEM_TIME
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: ValidFrom
+            - comma: ','
+            - column_reference:
+                naked_identifier: ValidTo
+            - end_bracket: )
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
       create_table_statement:

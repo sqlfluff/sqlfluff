@@ -5,6 +5,13 @@ CREATE TABLE t (
     ValidFrom datetime2 GENERATED ALWAYS AS ROW START,
     ValidTo datetime2 GENERATED ALWAYS AS ROW END,
     PERIOD FOR SYSTEM_TIME (ValidFrom, ValidTo)
+);
+
+CREATE TABLE t (
+    a int,
+    ValidFrom datetime2 GENERATED ALWAYS AS ROW START,
+    ValidTo datetime2 GENERATED ALWAYS AS ROW END,
+    PERIOD FOR SYSTEM_TIME (ValidFrom, ValidTo)
 ) WITH (SYSTEM_VERSIONING = ON);
 
 CREATE TABLE t (
