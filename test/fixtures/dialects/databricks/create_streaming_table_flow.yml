@@ -1,0 +1,184 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f8f0347fd79fe1c0e3dd3d4206168e008e4f01a916156f6524d5890a5c116d5f
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: events
+    - flow_clause:
+      - keyword: FLOW
+      - keyword: INSERT
+      - keyword: BY
+      - keyword: NAME
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                keyword: STREAM
+                table_expression:
+                  table_reference:
+                    naked_identifier: raw_events
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: archive_events
+    - flow_clause:
+      - keyword: FLOW
+      - keyword: INSERT
+      - keyword: ONCE
+      - keyword: BY
+      - keyword: NAME
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: backfill_events
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cdc_target
+    - flow_clause:
+      - keyword: FLOW
+      - keyword: AUTO
+      - keyword: CDC
+      - cdc_specification_segment:
+        - from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                keyword: STREAM
+                table_expression:
+                  table_reference:
+                    naked_identifier: cdc_source
+        - keyword: KEYS
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: SEQUENCE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: sequence_num
+        - keyword: STORED
+        - keyword: AS
+        - keyword: SCD
+        - keyword: TYPE
+        - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: current_events
+    - flow_clause:
+      - keyword: FLOW
+      - keyword: REPLACE
+      - keyword: WHERE
+      - expression:
+          column_reference:
+            naked_identifier: event_date
+          comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
+          quoted_literal: "'2024-01-01'"
+      - keyword: BY
+      - keyword: NAME
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                keyword: STREAM
+                table_expression:
+                  table_reference:
+                    naked_identifier: partial_snapshots
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: payments
+    - flow_clause:
+      - keyword: FLOW
+      - keyword: REPLACE
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: payment_id
+          end_bracket: )
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: payment_date
+      - keyword: BY
+      - keyword: NAME
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                keyword: STREAM
+                table_expression:
+                  table_reference:
+                    naked_identifier: payments_snapshot
+- statement_terminator: ;
