@@ -1,0 +1,680 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8a3f94ecc7c68f75b426ef05d8d590bbd6aa5ed679bc5ba5b83ffab87b4bd2c2
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: REGEXP_EXTRACT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  quoted_literal: "r'[0-9]{4}'"
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_ADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '5'
+                    date_part: YEAR
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - comma: ','
+              - date_part: YEAR
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATETIME_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: hour
+              - comma: ','
+              - date_part: DAY
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIME_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: minute
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: second
+              - comma: ','
+              - date_part: MINUTE
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMP_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: hour
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: minute
+              - comma: ','
+              - date_part: HOUR
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part: MONTH
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATETIME_TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - date_part: HOUR
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIME_TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: hour
+                comma: ','
+                date_part: MINUTE
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMP_TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part: MONTH
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: DATE_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - comma: ','
+              - date_part_week:
+                  keyword: WEEK
+                  bracketed:
+                    start_bracket: (
+                    keyword: MONDAY
+                    end_bracket: )
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: DATETIME_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: hour
+              - comma: ','
+              - date_part: DAY
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: TIME_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: minute
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: second
+              - comma: ','
+              - date_part: MINUTE
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: TIMESTAMP_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: hour
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: minute
+              - comma: ','
+              - date_part: HOUR
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: DATE_TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part_week:
+                  keyword: WEEK
+                  bracketed:
+                    start_bracket: (
+                    keyword: MONDAY
+                    end_bracket: )
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: DATETIME_TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - date_part: HOUR
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: TIME_TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: hour
+                comma: ','
+                date_part: MINUTE
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: TIMESTAMP_TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part: MONTH
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: YEAR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              naked_identifier: my_dataset
+              dot: .
+              function_name_identifier: DATE_DIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: year
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: REGEXP_EXTRACT
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: year
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: DATE_ADD
+              bracketed:
+                start_bracket: (
+                expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '5'
+                    date_part: YEAR
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: year
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: DATE_DIFF
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                comma: ','
+                date_part: YEAR
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: day
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: DATETIME_DIFF
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: hour
+                comma: ','
+                date_part: DAY
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: minute
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: TIME_DIFF
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: second
+                comma: ','
+                date_part: MINUTE
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: hour
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: TIMESTAMP_DIFF
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: minute
+                comma: ','
+                date_part: HOUR
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: year
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: DATE_TRUNC
+              bracketed:
+                start_bracket: (
+                date_part: MONTH
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: day
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: DATETIME_TRUNC
+              bracketed:
+                start_bracket: (
+                date_part: HOUR
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: hour
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: TIME_TRUNC
+              bracketed:
+                start_bracket: (
+                date_part: MINUTE
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: year
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: TIMESTAMP_TRUNC
+              bracketed:
+                start_bracket: (
+                date_part: DAY
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: year
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: LAST_DAY
+              bracketed:
+                start_bracket: (
+                date_part_week:
+                  keyword: WEEK
+                  bracketed:
+                    start_bracket: (
+                    keyword: MONDAY
+                    end_bracket: )
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: month
+              end_bracket: )
+            chained_function_call:
+              dot: .
+              function_name_identifier: LAST_DAY
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+- statement_terminator: ;
