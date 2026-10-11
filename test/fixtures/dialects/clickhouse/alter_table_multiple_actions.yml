@@ -1,0 +1,134 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 87cb0374f74003796db847ccba154933d6157143b6300c63997b187f7167ca44
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt64
+    - keyword: AFTER
+    - naked_identifier: y
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: Nullable
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: String
+            end_bracket: )
+    - keyword: AFTER
+    - naked_identifier: a
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: a
+    - comma: ','
+    - keyword: RENAME
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: TO
+    - naked_identifier: c
+    - comma: ','
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: d
+    - data_type:
+        data_type_identifier: String
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: UPDATE
+    - naked_identifier: a
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - naked_identifier: b
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        numeric_literal: '2'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: b
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: mutations_sync
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '2'
+- statement_terminator: ;
