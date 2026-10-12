@@ -149,3 +149,102 @@ test_pass_tsql_compound_assignment_operators:
   configs:
     core:
       dialect: tsql
+
+
+test_union_aliases_required_by_default:
+  fail_str: SELECT 1 AS a UNION ALL SELECT 2
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+
+test_union_allow_unaliased_later_branches:
+  pass_str: |
+    SELECT sum(a) AS a, sum(b) AS b FROM foo
+    UNION ALL
+    SELECT sum(c), sum(d) FROM bar
+    UNION DISTINCT
+    SELECT sum(e), sum(f) FROM baz
+  configs:
+    rules:
+      aliasing.expression:
+        allow_unaliased_union: true
+
+test_union_allow_unaliased_parenthesized_branches:
+  pass_str: (SELECT 1 AS a) UNION ALL (SELECT 2)
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_first_branch_still_requires_alias:
+  fail_str: SELECT 1 UNION ALL SELECT 2 AS a
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_option_does_not_affect_plain_select:
+  fail_str: SELECT sum(a), sum(b) FROM foo
+  configs:
+    rules:
+      aliasing.expression:
+        allow_unaliased_union: true
+
+test_union_nested_subquery_still_requires_alias:
+  fail_str: |
+    SELECT 1 AS a
+    UNION ALL
+    SELECT (SELECT sum(a) FROM foo)
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_nested_cte_still_requires_alias:
+  fail_str: |
+    SELECT 1 AS a
+    UNION ALL
+    (WITH cte AS (SELECT sum(a) FROM foo) SELECT a FROM cte)
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_by_name_still_requires_aliases:
+  fail_str: SELECT 1 AS a UNION ALL BY NAME SELECT 2
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_option_does_not_affect_intersect:
+  fail_str: SELECT 1 AS a INTERSECT SELECT 2
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_option_does_not_affect_except:
+  fail_str: SELECT 1 AS a EXCEPT SELECT 2
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true
+
+test_union_mixed_set_operators_still_require_aliases:
+  fail_str: SELECT 1 AS a UNION SELECT 2 INTERSECT SELECT 3 AS a
+  configs:
+    rules:
+      aliasing.expression:
+        allow_scalar: false
+        allow_unaliased_union: true

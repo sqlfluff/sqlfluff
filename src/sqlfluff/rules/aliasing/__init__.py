@@ -21,6 +21,13 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 " select clause to be without an alias."
             ),
         },
+        "allow_unaliased_union": {
+            "validation": [True, False],
+            "definition": (
+                "Allow unaliased expressions in later branches of a positional UNION. "
+                "The first branch, nested queries and UNION BY NAME are unaffected."
+            ),
+        },
         "alias_case_check": {
             "validation": [
                 "dialect",

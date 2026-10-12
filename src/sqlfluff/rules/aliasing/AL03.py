@@ -32,13 +32,25 @@ class Rule_AL03(BaseRule):
             sum(b) AS b_sum
         FROM foo
 
+    When ``allow_unaliased_union`` is enabled, aliases may be omitted from
+    later branches of a positional ``UNION``. The first branch still defines
+    the output column names. This does not apply to ``UNION BY NAME``, other
+    set operators, or nested queries.
+
+    .. code-block:: sql
+
+        SELECT sum(a) AS total FROM foo
+        UNION ALL
+        SELECT sum(b) FROM bar
+
     """
 
     name = "aliasing.expression"
     aliases = ("L013",)
     groups = ("all", "core", "aliasing")
-    config_keywords = ["allow_scalar"]
+    config_keywords = ["allow_scalar", "allow_unaliased_union"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause_element"})
+    allow_unaliased_union: bool
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Column expression without alias. Use explicit `AS` clause.
@@ -80,6 +92,9 @@ class Rule_AL03(BaseRule):
 
         parent_stack = functional_context.parent_stack
 
+        if self.allow_unaliased_union and self._is_later_union_branch(context):
+            return None
+
         # Ignore if it is part of a CTE with column names
         if (
             parent_stack.last(sp.is_type("common_table_expression"))
@@ -112,6 +127,43 @@ class Rule_AL03(BaseRule):
             return None
 
         return LintResult(anchor=context.segment)
+
+    @staticmethod
+    def _is_later_union_branch(context: RuleContext) -> bool:
+        """Check the containing SELECT without exempting nested queries."""
+        select_statement = next(
+            (
+                s
+                for s in reversed(context.parent_stack)
+                if s.is_type("select_statement")
+            ),
+            None,
+        )
+        set_expression = next(
+            (s for s in reversed(context.parent_stack) if s.is_type("set_expression")),
+            None,
+        )
+        if select_statement is None or set_expression is None:
+            return False
+
+        # Matching by name requires aliases in every branch. Keep mixed set
+        # expressions unchanged as well, rather than relaxing other operators.
+        operators = set_expression.get_children("set_operator")
+        if not operators or any(
+            [s.raw_upper for s in operator.raw_segments if s.is_code]
+            not in (["UNION"], ["UNION", "ALL"], ["UNION", "DISTINCT"])
+            for operator in operators
+        ):
+            return False
+
+        branches = list(
+            set_expression.recursive_crawl(
+                "select_statement",
+                recurse_into=False,
+                no_recursive_seg_type=["with_compound_statement", "set_expression"],
+            )
+        )
+        return select_statement in branches[1:]
 
 
 def _recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bool:
