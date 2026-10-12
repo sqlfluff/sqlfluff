@@ -300,9 +300,9 @@ def _references_outer_table(
     A reference qualified with ``orders`` or ``public.orders`` names the
     ``public.orders`` table. An inner table shadows an outer table with the
     same name, so references which name an inner table point at that one.
-    A longer table name wins over a shorter one, e.g. ``public.orders.id``
-    names the outer ``public.orders`` even if an inner table is called
-    ``public``. When it isn't clear which table a reference names, assume
+    The longest qualifier which names a table wins, e.g. ``public.orders.id``
+    names the outer ``orders`` or ``public.orders`` even if an inner table is
+    called ``public``. When it isn't clear which table a reference names, assume
     the outer one, as that keeps the fixes safe.
     """
     inner_names = [_table_names(t, dialect_name) for t in inner_aliases]
@@ -315,15 +315,17 @@ def _references_outer_table(
         # Unqualified references have no table name: they resolve to the
         # inner table first.
         qualifiers = [parts[:i] for i in range(1, len(parts))]
-        for q in reversed(qualifiers):
-            if any(_is_suffix(q, name) for name in inner_names):
+        for qualifier in reversed(qualifiers):
+            if any(_is_suffix(qualifier, name) for name in inner_names):
                 break
-            if any(_is_suffix(q, name) for name in outer_names):
-                return True
-        else:
-            # No table name matches. The reference may still add a schema
-            # to an outer table name, e.g. `public.orders` for `orders`.
-            if any(_is_suffix(name, q) for q in qualifiers for name in outer_names):
+            # The reference may also add a schema to an outer table name,
+            # e.g. `public.orders` for `orders`. Inner names don't get this
+            # check: an inner alias `orders` can't be written as
+            # `public.orders`, so it mustn't hide an outer `public.orders`.
+            if any(
+                _is_suffix(qualifier, name) or _is_suffix(name, qualifier)
+                for name in outer_names
+            ):
                 return True
     return False
 

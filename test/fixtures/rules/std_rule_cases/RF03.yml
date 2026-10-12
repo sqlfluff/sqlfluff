@@ -1448,3 +1448,65 @@ test_pass_postgres_lateral_schema_added_to_outer_table_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_postgres_lateral_inner_alias_matches_schema_of_unqualified_outer_8626:
+  # Like the case with the outer `public.orders`, but the outer table has no
+  # schema. `public.orders.id` adds a schema to the outer `orders`, so the
+  # inner alias `public` mustn't hide it. Removing the qualifiers would turn
+  # it into `orders.id`, which then refers to the middle query's `orders`
+  # alias.
+  pass_str: |
+    select s.x
+    from orders
+    cross join lateral (
+        select t.x
+        from lines as orders
+        cross join lateral (
+            select public.x
+            from lines as public
+            where public.id = public.orders.id
+        ) as t
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_lateral_inner_alias_matches_table_of_outer_8626:
+  # The inner alias `orders` can't be written as `public.orders`, so
+  # `public.orders.id` refers to the outer `public.orders`. Removing the
+  # qualifiers would turn the predicate into `id = id`.
+  pass_str: |
+    select s.x
+    from public.orders
+    cross join lateral (
+        select orders.x
+        from lines as orders
+        where orders.id = public.orders.id
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_where_exists_outer_table_variable_unqualified_8626:
+  # An unaliased table variable counts as an outer table for WHERE subqueries
+  # too, the same as a named outer table, so RF03 leaves the qualifiers alone.
+  pass_str: |
+    declare @orders table (id int);
+
+    select id
+    from @orders
+    where exists (
+        select l.x from dbo.lines as l where l.id = 1
+    );
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
