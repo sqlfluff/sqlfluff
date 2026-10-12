@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08784526d9797394597f2aaff9b1ac51d7b6401e3853035713585c55c178a202
+_hash: f62c10d5ecb21f1e63006d9667a98f59a96057413414c00bd0a03f14209a3eac
 file:
   statement:
     create_function_statement:
@@ -21,10 +21,10 @@ file:
     - keyword: RETURNS
     - data_type:
         data_type_identifier: longtext
-    - comment_clause:
-        keyword: COMMENT
-        quoted_literal: "'this is a comment'"
     - characteristic_statement:
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'this is a comment'"
         keyword: DETERMINISTIC
     - function_definition:
         compound_statement:
