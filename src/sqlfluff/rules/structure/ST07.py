@@ -22,7 +22,7 @@ class Rule_ST07(BaseRule):
 
     .. note::
        This rule was originally taken from the `dbt Style Guide
-       <https://github.com/dbt-labs/corp/blob/ main/dbt_style_guide.md>`_.
+       <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_.
 
        In fact `dbt removed it from their style guide in February 2022
        <https://github.com/dbt-labs/corp/pull/58>`_. However, some like the
