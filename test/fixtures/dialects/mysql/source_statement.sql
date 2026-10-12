@@ -4,6 +4,10 @@ SOURCE schema/tables.sql;
 source ../lib/my-file.v2.sql
 Source /var/lib/mysql-files/001_init.sql;
 SOURCE C:/db/x.sql
+SOURCE C:\db\x.sql
+SOURCE C:\Program Files\My App\x.sql
+SOURCE \\server\share\x.sql
+\. C:\games\x.sql
 SOURCE path/with spaces/file.sql
 SOURCE ~/sql/v(2)/a,b=c@d.sql
 \. [x]{y}!%^&*|<>?.sql

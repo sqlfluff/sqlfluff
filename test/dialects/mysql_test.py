@@ -100,6 +100,15 @@ def test_mysql_source_ends_at_end_of_line(dialect: str) -> None:
         "SOURCE\na.sql\n",
         # The command and file name must be separated by whitespace.
         "\\.a.sql\n",
+        # Outside a SOURCE file name, a stray backslash is a parse error.
+        "SELECT a\\b FROM t;\n",
+        "SELECT 2 \\ 3;\n",
+        # With a backslash in the file name, the client only reads the line as
+        # it is if it has no `;` and no `\g`. Otherwise it runs the backslashes
+        # as client commands, e.g. `\d` changes the delimiter.
+        "SOURCE C:\\db\\x.sql;\n",
+        "SOURCE C:\\games\\x.sql\n",
+        "SOURCE \\\\gitserver\\share\\x.sql\n",
     ],
 )
 def test_mysql_source_invalid_syntax(raw: str) -> None:

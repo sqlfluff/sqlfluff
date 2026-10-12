@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3eeb68e79b6a0db31de2d69fded281ca4d91975479fdf039767e15b6b5ae7ea
+_hash: 3061f1fcd6b693136ab729872c0d10a59c524d4ccefe29980ec8b33c124b1c52
 file:
 - source_statement:
     keyword: SOURCE
@@ -59,6 +59,55 @@ file:
     - source_file_name_part: /
     - source_file_name_part: db
     - source_file_name_part: /
+    - source_file_name_part: x
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: C
+    - source_file_name_part: ':'
+    - source_file_name_part: \
+    - source_file_name_part: db
+    - source_file_name_part: \
+    - source_file_name_part: x
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: C
+    - source_file_name_part: ':'
+    - source_file_name_part: \
+    - source_file_name_part: Program
+    - source_file_name_part: Files
+    - source_file_name_part: \
+    - source_file_name_part: My
+    - source_file_name_part: App
+    - source_file_name_part: \
+    - source_file_name_part: x
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name:
+    - source_file_name_part: \
+    - source_file_name_part: \
+    - source_file_name_part: server
+    - source_file_name_part: \
+    - source_file_name_part: share
+    - source_file_name_part: \
+    - source_file_name_part: x
+    - source_file_name_part: .
+    - source_file_name_part: sql
+- source_statement:
+    source_shorthand: \.
+    source_file_name:
+    - source_file_name_part: C
+    - source_file_name_part: ':'
+    - source_file_name_part: \g
+    - source_file_name_part: ames
+    - source_file_name_part: \
     - source_file_name_part: x
     - source_file_name_part: .
     - source_file_name_part: sql
