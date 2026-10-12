@@ -127,13 +127,19 @@ class Rule_RF03(BaseRule):
                         continue
                     # Tables without a name (e.g. unaliased T-SQL table
                     # variables) can't qualify references, but a subquery can
-                    # still see their columns. This only matters when adding
-                    # qualifiers: removing them is safe, as unqualified names
-                    # resolve to the inner table first.
-                    if alias.ref_str or (
-                        subquery and self.single_table_references != "unqualified"
-                    ):
+                    # still see their columns.
+                    if alias.ref_str or (subquery and self._may_add_qualifiers):
                         yield alias
+
+    @property
+    def _may_add_qualifiers(self) -> bool:
+        """Whether fixes may add qualifiers to references.
+
+        Only adding qualifiers needs to know about the tables of enclosing
+        queries. Removing them is safe, as unqualified names resolve to the
+        inner table first.
+        """
+        return self.single_table_references != "unqualified"
 
     def _outer_visible_aliases(self, query: Query) -> list[AliasInfo]:
         """Get the aliases visible from all queries enclosing this subquery.
@@ -177,8 +183,7 @@ class Rule_RF03(BaseRule):
                     outer_aliases = self._outer_visible_aliases(query)
                     # An unqualified column may also belong to an outer table,
                     # so adding a qualifier is unsafe even without references
-                    # to the outer tables. Removing qualifiers is still safe:
-                    # unqualified names resolve to the inner table first.
+                    # to the outer tables.
                     if outer_aliases and (
                         _references_outer_table(
                             select_info.reference_buffer,
@@ -187,7 +192,7 @@ class Rule_RF03(BaseRule):
                             query.dialect.name,
                         )
                         or (
-                            self.single_table_references != "unqualified"
+                            self._may_add_qualifiers
                             and _sees_outer_columns(query.selectables[0].selectable)
                         )
                     ):
@@ -238,34 +243,45 @@ def _sees_outer_columns(selectable: BaseSegment) -> bool:
     defines it. Any subquery can also see the columns which its enclosing
     query can see, e.g. a derived table nested in a LATERAL subquery.
     """
-    parent = selectable.get_parent()
+    parent = _parent_segment(selectable)
     while parent:
-        segment = parent[0]
-        if segment.is_type("select_statement"):
+        if parent.is_type("select_statement"):
             return True
-        if segment.is_type("from_expression_element"):
-            if _is_lateral_element(segment):
+        if parent.is_type("from_expression_element"):
+            if _is_lateral_element(parent):
                 return True
             # A plain derived table can't see the columns of the query whose
             # FROM clause holds it, so skip that query.
-            parent = segment.get_parent()
-            while parent and not parent[0].is_type("select_statement"):
-                parent = parent[0].get_parent()
+            parent = _enclosing_select(parent)
             if not parent:  # pragma: no cover
                 return False
-        parent = parent[0].get_parent()
+        parent = _parent_segment(parent)
     return False
+
+
+def _parent_segment(segment: BaseSegment) -> Optional[BaseSegment]:
+    """Get the parent of a segment, if it has one."""
+    parent = segment.get_parent()
+    return parent[0] if parent else None
+
+
+def _enclosing_select(segment: BaseSegment) -> Optional[BaseSegment]:
+    """Get the nearest select statement which contains a segment."""
+    parent = _parent_segment(segment)
+    while parent and not parent.is_type("select_statement"):
+        parent = _parent_segment(parent)
+    return parent
 
 
 def _is_lateral_element(element: BaseSegment) -> bool:
     """Check whether a FROM expression element is a LATERAL or APPLY join."""
     if any(seg.raw_upper == "LATERAL" for seg in element.get_children("keyword")):
         return True
-    parent = element.get_parent()
+    parent = _parent_segment(element)
     return bool(
         parent
-        and parent[0].is_type("join_clause")
-        and any(seg.raw_upper == "APPLY" for seg in parent[0].get_children("keyword"))
+        and parent.is_type("join_clause")
+        and any(seg.raw_upper == "APPLY" for seg in parent.get_children("keyword"))
     )
 
 
