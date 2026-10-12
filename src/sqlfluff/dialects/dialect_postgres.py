@@ -2867,6 +2867,12 @@ class AlterTableActionSegment(BaseSegment):
                 ),
                 Sequence("DROP", "DEFAULT"),
                 Sequence(OneOf("SET", "DROP", optional=True), "NOT", "NULL"),
+                Sequence(
+                    "SET",
+                    "EXPRESSION",
+                    "AS",
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
                 Sequence("DROP", "EXPRESSION", Ref("IfExistsGrammar", optional=True)),
                 Sequence(
                     "ADD",
