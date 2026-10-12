@@ -225,18 +225,29 @@ class Rule_RF03(BaseRule):
 def _sees_outer_columns(selectable: BaseSegment) -> bool:
     """Check whether a selectable can see the columns of the enclosing query.
 
-    A subquery in the FROM clause can only see them if it is a LATERAL or
-    APPLY subquery. Other subqueries (e.g. in the WHERE clause) always can.
-    A CTE takes the position of the WITH statement which defines it.
+    A subquery in the FROM clause can see the columns of its own query only
+    if it is a LATERAL or APPLY subquery. Other subqueries (e.g. in the WHERE
+    clause) always can. A CTE takes the position of the WITH statement which
+    defines it. Any subquery can also see the columns which its enclosing
+    query can see, e.g. a derived table nested in a LATERAL subquery.
     """
     parent = selectable.get_parent()
-    while parent and not parent[0].is_type(
-        "from_expression_element", "select_statement"
-    ):
+    while parent:
+        segment = parent[0]
+        if segment.is_type("select_statement"):
+            return True
+        if segment.is_type("from_expression_element"):
+            if _is_lateral_element(segment):
+                return True
+            # A plain derived table can't see the columns of the query whose
+            # FROM clause holds it, so skip that query.
+            parent = segment.get_parent()
+            while parent and not parent[0].is_type("select_statement"):
+                parent = parent[0].get_parent()
+            if not parent:  # pragma: no cover
+                return False
         parent = parent[0].get_parent()
-    return parent is not None and (
-        parent[0].is_type("select_statement") or _is_lateral_element(parent[0])
-    )
+    return False
 
 
 def _is_lateral_element(element: BaseSegment) -> bool:

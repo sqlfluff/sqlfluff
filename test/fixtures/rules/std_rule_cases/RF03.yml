@@ -1294,3 +1294,94 @@ test_fail_postgres_where_subquery_column_named_like_outer_table_consistent_8626:
     rules:
       references.consistent:
         single_table_references: consistent
+
+test_fail_no_fix_postgres_lateral_nested_derived_table_whole_row_qualified_8626:
+  # A derived table inside a LATERAL subquery can see the columns of the
+  # queries enclosing the LATERAL subquery. `o` is the whole row of the outer
+  # `orders` table, so qualifying it as `l.o` is unsafe.
+  fail_str: |
+    select s.j
+    from orders as o
+    cross join lateral (
+        select d.j
+        from (
+            select to_jsonb(o) as j from lines as l
+        ) as d
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_postgres_nested_derived_table_qualified_8626:
+  # Derived tables which aren't LATERAL, nested in each other, can't see the
+  # columns of the outer query, so the inner one is still a single table
+  # select and can be fixed.
+  fail_str: |
+    select s.j
+    from orders as o
+    inner join (
+        select d.j
+        from (
+            select x as j from lines as l
+        ) as d
+    ) as s on o.id = s.j
+  fix_str: |
+    select s.j
+    from orders as o
+    inner join (
+        select d.j
+        from (
+            select l.x as j from lines as l
+        ) as d
+    ) as s on o.id = s.j
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_postgres_where_subquery_derived_table_whole_row_qualified_8626:
+  # A derived table inside a WHERE subquery can see the columns of the outer
+  # query. `o` is the whole row of the outer `orders` table, so qualifying it
+  # as `l.o` is unsafe.
+  fail_str: |
+    select o.id
+    from orders as o
+    where exists (
+        select 1
+        from (
+            select to_jsonb(o) as j from lines as l
+        ) as d
+    )
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_postgres_where_subquery_derived_table_cte_whole_row_qualified_8626:
+  # A CTE inside a derived table inside a WHERE subquery can also see the
+  # columns of the outer query, so qualifying `o` as `l.o` is unsafe.
+  fail_str: |
+    select o.id
+    from orders as o
+    where exists (
+        select 1
+        from (
+            with c as (
+                select to_jsonb(o) as j from lines as l
+            )
+            select c.j from c
+        ) as d
+    )
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
