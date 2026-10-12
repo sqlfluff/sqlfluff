@@ -1388,9 +1388,13 @@ test_fail_no_fix_postgres_where_subquery_derived_table_cte_whole_row_qualified_8
 
 test_pass_postgres_lateral_inner_alias_matches_outer_schema_8626:
   # The inner alias `public` matches only the schema part of the outer
-  # `public.orders`. `public.orders.id` names the whole outer table, so it
-  # refers to the outer query. Removing the qualifiers would turn it into
-  # `orders.id`, which then refers to the middle query's `orders` alias.
+  # `public.orders`. PostgreSQL reads a three-part column reference as
+  # `schema.table.column` (field access needs parentheses, e.g.
+  # `(public.orders).id`), and only an unaliased table matches a schema
+  # qualified name. So `public.orders.id` refers to the outer query, not to
+  # the inner alias `public` or the middle alias `orders`. Removing the
+  # qualifiers would turn it into `orders.id`, which then refers to the
+  # middle query's `orders` alias.
   pass_str: |
     select s.x
     from public.orders
@@ -1451,10 +1455,12 @@ test_pass_postgres_lateral_schema_added_to_outer_table_8626:
 
 test_pass_postgres_lateral_inner_alias_matches_schema_of_unqualified_outer_8626:
   # Like the case with the outer `public.orders`, but the outer table has no
-  # schema. `public.orders.id` adds a schema to the outer `orders`, so the
-  # inner alias `public` mustn't hide it. Removing the qualifiers would turn
-  # it into `orders.id`, which then refers to the middle query's `orders`
-  # alias.
+  # schema. If `orders` is found in the `public` schema, `public.orders.id`
+  # refers to the outer `orders`. RF03 can't know the search path, so it
+  # assumes the outer table, which keeps the fixes safe. Either way the inner
+  # alias `public` can't match a three-part reference. Removing the
+  # qualifiers would turn it into `orders.id`, which then refers to the
+  # middle query's `orders` alias.
   pass_str: |
     select s.x
     from orders
@@ -1493,16 +1499,25 @@ test_pass_postgres_lateral_inner_alias_matches_table_of_outer_8626:
       references.consistent:
         single_table_references: unqualified
 
-test_pass_tsql_where_exists_outer_table_variable_unqualified_8626:
-  # An unaliased table variable counts as an outer table for WHERE subqueries
-  # too, the same as a named outer table, so RF03 leaves the qualifiers alone.
-  pass_str: |
+test_fail_tsql_where_exists_outer_table_variable_unqualified_8626:
+  # An unaliased table variable can't qualify references, so it can't make
+  # removing the qualifiers in the subquery unsafe: unqualified names resolve
+  # to the inner table first. Only adding qualifiers must count it.
+  fail_str: |
     declare @orders table (id int);
 
     select id
     from @orders
     where exists (
         select l.x from dbo.lines as l where l.id = 1
+    );
+  fix_str: |
+    declare @orders table (id int);
+
+    select id
+    from @orders
+    where exists (
+        select x from dbo.lines as l where id = 1
     );
   configs:
     core:

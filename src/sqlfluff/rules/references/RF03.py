@@ -127,8 +127,12 @@ class Rule_RF03(BaseRule):
                         continue
                     # Tables without a name (e.g. unaliased T-SQL table
                     # variables) can't qualify references, but a subquery can
-                    # still see their columns, so count them for subqueries.
-                    if subquery or alias.ref_str:
+                    # still see their columns. This only matters when adding
+                    # qualifiers: removing them is safe, as unqualified names
+                    # resolve to the inner table first.
+                    if alias.ref_str or (
+                        subquery and self.single_table_references != "unqualified"
+                    ):
                         yield alias
 
     def _outer_visible_aliases(self, query: Query) -> list[AliasInfo]:
