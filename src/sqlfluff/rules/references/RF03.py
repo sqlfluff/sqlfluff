@@ -125,7 +125,10 @@ class Rule_RF03(BaseRule):
                     ):
                         # Skip the subquery alias itself
                         continue
-                    if (subquery and not alias.object_reference) or alias.ref_str:
+                    # Tables without a name (e.g. unaliased T-SQL table
+                    # variables) can't qualify references, but a subquery can
+                    # still see their columns, so count them for subqueries.
+                    if subquery or alias.ref_str:
                         yield alias
 
     def _outer_visible_aliases(self, query: Query) -> list[AliasInfo]:
@@ -297,8 +300,10 @@ def _references_outer_table(
     A reference qualified with ``orders`` or ``public.orders`` names the
     ``public.orders`` table. An inner table shadows an outer table with the
     same name, so references which name an inner table point at that one.
-    When it isn't clear which table a reference names, assume the outer one,
-    as that keeps the fixes safe.
+    A longer table name wins over a shorter one, e.g. ``public.orders.id``
+    names the outer ``public.orders`` even if an inner table is called
+    ``public``. When it isn't clear which table a reference names, assume
+    the outer one, as that keeps the fixes safe.
     """
     inner_names = [_table_names(t, dialect_name) for t in inner_aliases]
     outer_names = [_table_names(t, dialect_name) for t in outer_aliases]
@@ -306,17 +311,20 @@ def _references_outer_table(
         parts = _normalized_parts(ref, dialect_name)
         # The leading parts of a column reference name the table, but it
         # isn't clear how many (e.g. `schema.table.column` or
-        # `table.column.struct_field`), so try all of them. Unqualified
-        # references have no table name: they resolve to the inner table first.
+        # `table.column.struct_field`), so try all of them, longest first.
+        # Unqualified references have no table name: they resolve to the
+        # inner table first.
         qualifiers = [parts[:i] for i in range(1, len(parts))]
-        if any(_is_suffix(q, name) for q in qualifiers for name in inner_names):
-            continue
-        if any(
-            _is_suffix(q, name) or _is_suffix(name, q)
-            for q in qualifiers
-            for name in outer_names
-        ):
-            return True
+        for q in reversed(qualifiers):
+            if any(_is_suffix(q, name) for name in inner_names):
+                break
+            if any(_is_suffix(q, name) for name in outer_names):
+                return True
+        else:
+            # No table name matches. The reference may still add a schema
+            # to an outer table name, e.g. `public.orders` for `orders`.
+            if any(_is_suffix(name, q) for q in qualifiers for name in outer_names):
+                return True
     return False
 
 

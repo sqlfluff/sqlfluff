@@ -1385,3 +1385,66 @@ test_fail_no_fix_postgres_where_subquery_derived_table_cte_whole_row_qualified_8
     rules:
       references.consistent:
         single_table_references: qualified
+
+test_pass_postgres_lateral_inner_alias_matches_outer_schema_8626:
+  # The inner alias `public` matches only the schema part of the outer
+  # `public.orders`. `public.orders.id` names the whole outer table, so it
+  # refers to the outer query. Removing the qualifiers would turn it into
+  # `orders.id`, which then refers to the middle query's `orders` alias.
+  pass_str: |
+    select s.x
+    from public.orders
+    cross join lateral (
+        select t.x
+        from lines as orders
+        cross join lateral (
+            select public.x
+            from lines as public
+            where public.id = public.orders.id
+        ) as t
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_no_fix_tsql_cross_apply_outer_table_variable_qualified_8626:
+  # An unaliased table variable can't qualify references, but its columns are
+  # still visible in the APPLY subquery. `order_id` belongs to `@orders`, so
+  # qualifying it as `l.order_id` is unsafe.
+  fail_str: |
+    declare @orders table (order_id int);
+    declare @lines table (id int, x int);
+
+    select s.x
+    from @orders
+    cross apply (
+        select l.x from @lines as l where l.id = order_id
+    ) as s;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_postgres_lateral_schema_added_to_outer_table_8626:
+  # The outer `orders` has no schema, but `public.orders.id` can still refer
+  # to it. It doesn't refer to the inner `other.orders`, so removing the
+  # qualifiers would turn the predicate into `id = id`.
+  pass_str: |
+    select s.x
+    from orders
+    cross join lateral (
+        select orders.x
+        from other.orders
+        where orders.id = public.orders.id
+    ) as s
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
