@@ -1500,9 +1500,10 @@ test_pass_postgres_lateral_inner_alias_matches_table_of_outer_8626:
         single_table_references: unqualified
 
 test_fail_tsql_where_exists_outer_table_variable_unqualified_8626:
-  # An unaliased table variable can't qualify references, so it can't make
-  # removing the qualifiers in the subquery unsafe: unqualified names resolve
-  # to the inner table first. Only adding qualifiers must count it.
+  # An unaliased table variable has no alias to qualify references with. If
+  # no reference names it, it can't make removing the qualifiers in the
+  # subquery unsafe: unqualified names resolve to the inner table first. Only
+  # adding qualifiers must count it.
   fail_str: |
     declare @orders table (id int);
 
@@ -1519,6 +1520,43 @@ test_fail_tsql_where_exists_outer_table_variable_unqualified_8626:
     where exists (
         select x from dbo.lines as l where id = 1
     );
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_where_exists_outer_table_variable_named_unqualified_8626:
+  # A reference can name an unaliased table variable in brackets, e.g.
+  # `[@orders].id`. Removing the qualifiers would turn it into `id`, which
+  # then refers to the inner `l.id`.
+  pass_str: |
+    declare @orders table (id int);
+
+    select id
+    from @orders
+    where exists (
+        select l.x from dbo.lines as l where l.id = [@orders].id
+    );
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_cross_apply_outer_table_variable_named_unqualified_8626:
+  # Like the WHERE subquery case, but in a CROSS APPLY subquery, which only
+  # counts the outer tables if a reference names one of them.
+  pass_str: |
+    declare @orders table (id int);
+
+    select s.x
+    from @orders
+    cross apply (
+        select l.x from dbo.lines as l where l.id = [@orders].id
+    ) as s;
   configs:
     core:
       dialect: tsql

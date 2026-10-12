@@ -125,10 +125,11 @@ class Rule_RF03(BaseRule):
                     ):
                         # Skip the subquery alias itself
                         continue
-                    # Tables without a name (e.g. unaliased T-SQL table
-                    # variables) can't qualify references, but a subquery can
-                    # still see their columns.
-                    if alias.ref_str or (subquery and self._may_add_qualifiers):
+                    # Tables without an alias name (e.g. unaliased T-SQL table
+                    # variables) can't be targets for added qualifiers, but a
+                    # subquery can still see their columns, and reference them
+                    # by their bracketed name (e.g. `[@orders].id`).
+                    if alias.ref_str or subquery:
                         yield alias
 
     @property
@@ -171,32 +172,36 @@ class Rule_RF03(BaseRule):
                 # parent. Nested subqueries can see the tables of all enclosing
                 # queries, which matters if the parent has no tables of its own.
                 possible_ref_tables = list(self._iter_available_targets(query))
+                # Top level queries have no outer aliases.
+                outer_aliases = self._outer_visible_aliases(query)
+                references_outer_table = bool(outer_aliases) and (
+                    _references_outer_table(
+                        select_info.reference_buffer,
+                        select_info.table_aliases,
+                        outer_aliases,
+                        query.dialect.name,
+                    )
+                )
                 if query.parent and query.is_subquery:
-                    possible_ref_tables += self._outer_visible_aliases(query)
-                else:
-                    # Subqueries in the FROM clause and CTEs normally can't see
-                    # the tables of the enclosing queries. Correlated ones can
-                    # (e.g. T-SQL CROSS/OUTER APPLY or LATERAL joins), so count
-                    # the outer tables if any reference uses one of them. In
-                    # valid SQL only correlated subqueries do that. Top level
-                    # queries have no outer aliases.
-                    outer_aliases = self._outer_visible_aliases(query)
-                    # An unqualified column may also belong to an outer table,
-                    # so adding a qualifier is unsafe even without references
-                    # to the outer tables.
-                    if outer_aliases and (
-                        _references_outer_table(
-                            select_info.reference_buffer,
-                            select_info.table_aliases,
-                            outer_aliases,
-                            query.dialect.name,
-                        )
-                        or (
-                            self._may_add_qualifiers
-                            and _sees_outer_columns(query.selectables[0].selectable)
-                        )
-                    ):
+                    if self._may_add_qualifiers or references_outer_table:
                         possible_ref_tables += outer_aliases
+                    else:
+                        # Outer tables without an alias name only matter when
+                        # adding qualifiers, or when a reference names them.
+                        possible_ref_tables += [a for a in outer_aliases if a.ref_str]
+                # Subqueries in the FROM clause and CTEs normally can't see the
+                # tables of the enclosing queries. Correlated ones can (e.g.
+                # T-SQL CROSS/OUTER APPLY or LATERAL joins), so count the outer
+                # tables if any reference uses one of them. In valid SQL only
+                # correlated subqueries do that. An unqualified column may also
+                # belong to an outer table, so adding a qualifier is unsafe even
+                # without references to the outer tables.
+                elif references_outer_table or (
+                    outer_aliases
+                    and self._may_add_qualifiers
+                    and _sees_outer_columns(query.selectables[0].selectable)
+                ):
+                    possible_ref_tables += outer_aliases
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
                     # potential lint warnings, but don't generate fixes, because
@@ -300,7 +305,13 @@ def _table_names(alias: AliasInfo, dialect_name: str) -> tuple[str, ...]:
     known by their schema qualified name, e.g. ``public.orders``.
     """
     if not alias.aliased and alias.object_reference:
-        return _normalized_parts(alias.object_reference, dialect_name)
+        parts = _normalized_parts(alias.object_reference, dialect_name)
+        if parts:
+            return parts
+        # Table variables (e.g. T-SQL `@orders`) aren't identifiers, but
+        # references can still name them, e.g. `[@orders].id`. T-SQL
+        # normalizes identifiers to upper case.
+        return (alias.object_reference.raw_normalized().upper(),)
     # Aliases without a segment have no name (e.g. an unaliased subquery).
     return (alias.segment.raw_normalized(),) if alias.segment else ()
 
