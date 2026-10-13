@@ -203,3 +203,12 @@ ALTER TABLE many_options ADD EXCLUDE
 -- Compression settings
 ALTER TABLE mytable ALTER COLUMN mycolumn SET COMPRESSION LZ4;
 ALTER TABLE mytable ALTER mycolumn SET COMPRESSION LZ4;
+
+-- Expression settings (Postgres 17+)
+ALTER TABLE message_events ALTER COLUMN guild_id SET EXPRESSION AS (COALESCE((additional_data #>> '{guild_id}')::BIGINT, (raw_data ->> 'guild_id')::BIGINT));
+ALTER TABLE message_events ALTER COLUMN guild_id SET EXPRESSION AS ((raw_data ->> 'guild_id')::BIGINT);
+ALTER TABLE mytable ALTER COLUMN mycolumn SET EXPRESSION AS (a + 1);
+ALTER TABLE mytable ALTER mycolumn SET EXPRESSION AS (b * 2);
+ALTER TABLE mytable ALTER COLUMN mycolumn DROP EXPRESSION;
+ALTER TABLE mytable ALTER mycolumn DROP EXPRESSION IF EXISTS;
+
