@@ -861,9 +861,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not self._parent:
             return None
         _parent = self._parent()
-        if not _parent or self not in _parent.segments:
+        if not _parent:
             return None
         assert self._parent_idx is not None
+        # NOTE: Check identity at the stored index first. The membership
+        # test below calls `__eq__` on every earlier sibling, which makes
+        # walking up through wide segments (e.g. a long select clause)
+        # quadratic in their width.
+        siblings = _parent.segments
+        if self._parent_idx < len(siblings) and siblings[self._parent_idx] is self:
+            return _parent, self._parent_idx
+        if self not in siblings:
+            return None
         return _parent, self._parent_idx
 
     def get_type(self) -> str:

@@ -312,6 +312,25 @@ def test__parser__base_segments_raw_segment_index(DummySegment):
             seg.raw_segment_index(probe)
 
 
+def test__parser__base_segments_select_children(DummySegment):
+    """Test the .select_children() method."""
+    template = TemplatedFile.from_string("abcde")
+    a, b, c, d, e = (
+        RawSegment(raw, PositionMarker(slice(i, i + 1), slice(i, i + 1), template))
+        for i, raw in enumerate("abcde")
+    )
+    seg = DummySegment([a, b, c, d, e])
+    # Between the start and stop segments, excluding both.
+    assert seg.select_children(start_seg=a, stop_seg=e) == [b, c, d]
+    # Only the segments which pass select_if.
+    assert seg.select_children(select_if=lambda s: s.raw != "c") == [a, b, d, e]
+    # Stops at the first segment which fails loop_while.
+    assert seg.select_children(start_seg=a, loop_while=lambda s: s.raw != "d") == [
+        b,
+        c,
+    ]
+
+
 def test__parser__base_segments_pickle_safe(raw_segments):
     """Test pickling and unpickling of BaseSegment."""
     test_seg = BaseSegment([BaseSegment(raw_segments)])
