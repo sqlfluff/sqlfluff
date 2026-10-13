@@ -62,12 +62,6 @@ repos:
         # ensure we don't get conflicting  results from the pre-commit hook and from the
         # CI job.
         args: []
-  - repo: https://github.com/pycqa/doc8
-    rev: v2.0.0
-    hooks:
-      - id: doc8
-        args: [--file-encoding, utf8]
-        files: docs/source/.*\.rst$
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.38.0
     hooks:

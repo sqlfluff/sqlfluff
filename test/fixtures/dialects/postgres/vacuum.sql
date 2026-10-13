@@ -35,3 +35,9 @@ VACUUM (
 );
 VACUUM (INDEX_CLEANUP off);
 VACUUM (INDEX_CLEANUP auto);
+VACUUM (PROCESS_MAIN FALSE, BUFFER_USAGE_LIMIT 256) tbl1;
+VACUUM (BUFFER_USAGE_LIMIT '1MB') tbl1;
+VACUUM (SKIP_DATABASE_STATS);
+VACUUM (ONLY_DATABASE_STATS);
+SELECT process_main, skip_database_stats, only_database_stats, buffer_usage_limit
+FROM tbl1;
