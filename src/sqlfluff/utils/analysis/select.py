@@ -129,15 +129,16 @@ def _get_with_expression_refs(segment: BaseSegment) -> set[int]:
         for child in bracketed.get_children(
             "naked_identifier", "quoted_identifier", "expression"
         ):
+            # BigQuery reads `a` and a as the same name.
             if not child.is_type("expression"):
-                variable = child.raw_upper
+                variable = child.raw_upper.strip("`")
                 continue
             for ref in child.recursive_crawl(
                 "object_reference",
                 no_recursive_seg_type=["select_statement", "merge_statement"],
             ):
                 name = ref.get_child("naked_identifier", "quoted_identifier")
-                if name and name.raw_upper in declared:
+                if name and name.raw_upper.strip("`") in declared:
                     with_ref_ids.add(ref.uuid)
             # A variable is in scope only after its own assignment.
             if variable:
@@ -196,14 +197,8 @@ def get_select_statement_info(
     # Also identify object references inside a query hint (e.g.
     # ``/*+ BROADCAST(t1) */``); those name tables/aliases for the planner, not
     # columns in the select. See: https://github.com/sqlfluff/sqlfluff/issues/6771
-    # Also identify references to the variables of a BigQuery WITH expression,
-    # which can appear in any clause. See:
-    # https://github.com/sqlfluff/sqlfluff/issues/8608
     exclude_ref_ids = (
-        _get_struct_alias_refs(sc)
-        | _get_select_except_refs(sc)
-        | _get_hint_refs(sc)
-        | _get_with_expression_refs(segment)
+        _get_struct_alias_refs(sc) | _get_select_except_refs(sc) | _get_hint_refs(sc)
     )
     reference_buffer = _get_object_references(sc, exclude_ids=exclude_ref_ids)
     table_reference_buffer = []
@@ -216,9 +211,7 @@ def get_select_statement_info(
     ):
         clause = segment.get_child(potential_clause)
         if clause:
-            reference_buffer += _get_object_references(
-                clause, exclude_ids=exclude_ref_ids
-            )
+            reference_buffer += _get_object_references(clause)
 
     # Get all select targets.
     _select_clause = segment.get_child("select_clause")
@@ -282,6 +275,14 @@ def get_select_statement_info(
                         if subseg.is_type("identifier"):
                             using_cols.append(subseg)
                     seen_using = False
+
+    # References to the variables of a BigQuery WITH expression name a variable,
+    # not a column, and can appear in any clause. See:
+    # https://github.com/sqlfluff/sqlfluff/issues/8608
+    with_expression_ref_ids = _get_with_expression_refs(segment)
+    reference_buffer = [
+        ref for ref in reference_buffer if ref.uuid not in with_expression_ref_ids
+    ]
 
     return SelectStatementColumnsAndTables(
         select_statement=segment,

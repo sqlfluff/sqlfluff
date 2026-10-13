@@ -1328,7 +1328,8 @@ test_pass_bigquery_with_expression_variables:
   pass_str: |
     SELECT
         WITH(a AS t.x, a + 1) AS y,
-        WITH(s AS STRUCT(1 AS f), s.f) AS z
+        WITH(s AS STRUCT(1 AS f), s.f) AS z,
+        WITH(`v` AS STRUCT(1 AS f), v.f) AS w
     FROM t
   configs:
     core:
