@@ -264,8 +264,8 @@ class ReflowSequence:
 
         target_raws = target_segment.raw_segments
         assert target_raws
-        pre_idx = all_raws.index(target_raws[0])
-        post_idx = all_raws.index(target_raws[-1]) + 1
+        pre_idx = root_segment.raw_segment_index(target_raws[0])
+        post_idx = root_segment.raw_segment_index(target_raws[-1]) + 1
         initial_idx = (pre_idx, post_idx)
         if sides in ("both", "before"):
             # Catch at least the previous segment

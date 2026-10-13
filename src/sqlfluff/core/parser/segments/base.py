@@ -456,6 +456,26 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return result
 
     @cached_property
+    def _raw_segment_indices(
+        self,
+    ) -> tuple[dict[int, int], dict[tuple[str, str, tuple[int, int]], int]]:
+        """The first index in `raw_segments` for each uuid and each position key.
+
+        Segments are equal (see `__eq__`) if their uuids match, or if they
+        share a class name, raw and working location. These map each of those
+        keys to the first raw segment which has it.
+        """
+        by_uuid: dict[int, int] = {}
+        by_position: dict[tuple[str, str, tuple[int, int]], int] = {}
+        for idx, seg in enumerate(self.raw_segments):
+            by_uuid.setdefault(seg.uuid, idx)
+            if seg.pos_marker is not None:
+                by_position.setdefault(
+                    (seg.__class__.__name__, seg.raw, seg.pos_marker.working_loc), idx
+                )
+        return by_uuid, by_position
+
+    @cached_property
     def raw_segments_with_ancestors(
         self,
     ) -> list[tuple[RawSegment, list[PathStep]]]:
@@ -1079,6 +1099,33 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cached as a side effect, same as before.
         """
         return self.raw_segments
+
+    def raw_segment_index(self, raw_segment: BaseSegment) -> int:
+        """Return the index of a raw segment within `raw_segments`.
+
+        Gives the same answer as `self.raw_segments.index(raw_segment)`: the
+        index of the first raw segment which is equal (see `__eq__`), which
+        may be an earlier copy rather than `raw_segment` itself. That compares
+        every raw segment before the target, so using it for many segments of
+        a large tree is quadratic. Instead we look up the first match for each
+        of the ways to be equal.
+        """
+        by_uuid, by_position = self._raw_segment_indices
+        idx = by_uuid.get(raw_segment.uuid)
+        if raw_segment.pos_marker is not None:
+            position_idx = by_position.get(
+                (
+                    raw_segment.__class__.__name__,
+                    raw_segment.raw,
+                    raw_segment.pos_marker.working_loc,
+                )
+            )
+            if position_idx is not None and (idx is None or position_idx < idx):
+                idx = position_idx
+        if idx is None:
+            # Not found. Let `list.index()` raise its usual error.
+            return self.raw_segments.index(cast("RawSegment", raw_segment))
+        return idx
 
     def raw_normalized(self, casefold: bool = True) -> str:
         """Iterate raw segments, return normalized value."""

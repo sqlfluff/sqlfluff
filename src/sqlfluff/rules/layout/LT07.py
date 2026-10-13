@@ -99,13 +99,16 @@ class Rule_LT07(BaseRule):
                 # Otherwise add to the ones to check.
                 cte_end_brackets.add(cast(RawSegment, cte_end_bracket[0]))
 
+        raw_segments = context.segment.raw_segments
         for seg in cte_end_brackets:
             contains_non_whitespace = False
-            idx = context.segment.raw_segments.index(seg)
+            idx = context.segment.raw_segment_index(seg)
             self.logger.debug("End bracket %s has idx %s", seg, idx)
             # Search backward through the raw segments from just before
-            # the location of the bracket.
-            for elem in context.segment.raw_segments[idx - 1 :: -1]:
+            # the location of the bracket. We index rather than slice, as
+            # the search usually stops within a few segments.
+            for elem_idx in range(idx - 1, -1, -1):
+                elem = raw_segments[elem_idx]
                 # If there's a literal newline, stop.
                 if elem.is_type("newline"):
                     break
