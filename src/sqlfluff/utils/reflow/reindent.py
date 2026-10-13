@@ -1797,11 +1797,7 @@ def _convert_newlines_to_spaces(
                     # delete the rest
                     fixes.append(LintFix.replace(elem.segments[0], replacement_segs))
                     for seg in elem.segments[1:]:
-                        # The point may already contain segments created by the
-                        # per-line indent fixes. They aren't in the tree yet, so
-                        # there's nothing to delete (and no position to anchor on).
-                        if seg.pos_marker:
-                            fixes.append(LintFix.delete(seg))
+                        fixes.append(LintFix.delete(seg))
 
                 # Add the lint result if we have fixes
                 if fixes:
@@ -1946,8 +1942,11 @@ def lint_indent_points(
 
         # Convert remaining newlines to spaces at tracked positions.
         if implicit_indent_locs:
+            # NOTE: Use the original `elements` rather than the working copy.
+            # The line pass above may have swapped points in `elem_buffer` for
+            # ones holding newly created segments, which can't be fix anchors.
             implicit_results = _convert_newlines_to_spaces(
-                elem_buffer, implicit_indent_locs
+                elements, implicit_indent_locs
             )
             # The line break is being removed, so drop any indent results for
             # the same point. Otherwise they would be conflicting fixes on the

@@ -3116,3 +3116,24 @@ test_implicit_indents_require_bracketed_subquery_on_next_line:
   configs:
     indentation:
       implicit_indents: require
+
+test_implicit_indents_require_indented_bracketed_subquery_on_next_line:
+  # As above, but the bracket line already has leading whitespace, which the
+  # indent fix replaces. The collapse must remove the original whitespace and
+  # not leave it behind after `FROM`.
+  fail_str: |
+    SELECT 1 AS u
+    FROM
+      (
+        SELECT 1 AS c
+        FROM t
+      ) p
+  fix_str: |
+    SELECT 1 AS u
+    FROM (
+        SELECT 1 AS c
+        FROM t
+    ) p
+  configs:
+    indentation:
+      implicit_indents: require
