@@ -109,6 +109,43 @@ def _get_hint_refs(segment: BaseSegment) -> set[int]:
     return hint_ref_ids
 
 
+def _get_with_expression_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references to the variables of a WITH expression.
+
+    BigQuery's ``WITH(a AS 1, b AS a + 1, a + b)`` declares ``a`` and ``b`` in
+    place. Each expression can use the variables declared before it, so those
+    references name a variable, not a column of a table in the FROM clause.
+    See: https://github.com/sqlfluff/sqlfluff/issues/8608
+    """
+    with_ref_ids: set[int] = set()
+    for with_expression in segment.recursive_crawl(
+        "with_expression",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        bracketed = with_expression.get_child("bracketed")
+        assert bracketed
+        declared: set[str] = set()
+        variable: Optional[str] = None
+        for child in bracketed.get_children(
+            "naked_identifier", "quoted_identifier", "expression"
+        ):
+            if not child.is_type("expression"):
+                variable = child.raw_upper
+                continue
+            for ref in child.recursive_crawl(
+                "object_reference",
+                no_recursive_seg_type=["select_statement", "merge_statement"],
+            ):
+                name = ref.get_child("naked_identifier", "quoted_identifier")
+                if name and name.raw_upper in declared:
+                    with_ref_ids.add(ref.uuid)
+            # A variable is in scope only after its own assignment.
+            if variable:
+                declared.add(variable)
+                variable = None
+    return with_ref_ids
+
+
 def _get_object_references(
     segment: BaseSegment,
     # Segment uuids to exclude (hint/struct-alias/except refs). Keyed by uuid,
@@ -159,8 +196,14 @@ def get_select_statement_info(
     # Also identify object references inside a query hint (e.g.
     # ``/*+ BROADCAST(t1) */``); those name tables/aliases for the planner, not
     # columns in the select. See: https://github.com/sqlfluff/sqlfluff/issues/6771
+    # Also identify references to the variables of a BigQuery WITH expression,
+    # which can appear in any clause. See:
+    # https://github.com/sqlfluff/sqlfluff/issues/8608
     exclude_ref_ids = (
-        _get_struct_alias_refs(sc) | _get_select_except_refs(sc) | _get_hint_refs(sc)
+        _get_struct_alias_refs(sc)
+        | _get_select_except_refs(sc)
+        | _get_hint_refs(sc)
+        | _get_with_expression_refs(segment)
     )
     reference_buffer = _get_object_references(sc, exclude_ids=exclude_ref_ids)
     table_reference_buffer = []
@@ -173,7 +216,9 @@ def get_select_statement_info(
     ):
         clause = segment.get_child(potential_clause)
         if clause:
-            reference_buffer += _get_object_references(clause)
+            reference_buffer += _get_object_references(
+                clause, exclude_ids=exclude_ref_ids
+            )
 
     # Get all select targets.
     _select_clause = segment.get_child("select_clause")
@@ -259,13 +304,10 @@ def get_aliases_from_select(
     - Table aliases
     - Value table function aliases
     """
-    # A WITH expression declares its variables in place, so a select with no
-    # FROM clause can still have them.
-    with_expression_variables = _get_with_expression_variables(segment)
     fc = segment.get_child("from_clause")
     if not fc:
         # If there's no from clause then just abort.
-        return None, with_expression_variables or None
+        return None, None
     # Duck-type-safe check: works for both a native ``BaseSegment`` and the
     # Rust-arena ``RsSegment`` façade (which is not an instance of these classes).
     assert fc.is_type(FromClauseSegment.type, JoinClauseSegment.type)
@@ -278,7 +320,6 @@ def get_aliases_from_select(
     standalone_aliases += _get_pivot_table_aliases(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
     standalone_aliases += _get_unpivot_table_aliases(segment, dialect)
-    standalone_aliases += with_expression_variables
 
     table_aliases = []
     for table_expr, alias_info in aliases:
@@ -309,20 +350,6 @@ def _has_value_table_function(
         if function_name.raw.upper().strip() in dialect.sets("value_table_functions"):
             return True
     return False
-
-
-# The variables of a BigQuery WITH expression, e.g. `a` in `WITH(a AS 1, a + 1)`,
-# are declared in place, like lambda arguments. They do not reference a column
-# of a table in the FROM clause.
-def _get_with_expression_variables(segment: BaseSegment) -> list[BaseSegment]:
-    if "with_expression" not in segment.descendant_type_set:
-        return []
-    variables: list[BaseSegment] = []
-    for with_expression in segment.recursive_crawl("with_expression"):
-        bracketed = with_expression.get_child("bracketed")
-        assert bracketed
-        variables += bracketed.get_children("naked_identifier", "quoted_identifier")
-    return variables
 
 
 def _get_pivot_table_aliases(

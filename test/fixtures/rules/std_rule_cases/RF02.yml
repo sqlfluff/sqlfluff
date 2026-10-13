@@ -941,6 +941,7 @@ test_allow_unqualified_references_in_bigquery_with_expression:
     SELECT WITH(a AS t1.x, a + t2.y) AS z
     FROM t1
     INNER JOIN t2 ON t1.id = t2.id
+    WHERE WITH(b AS t1.x, b) > 0
   configs:
     core:
       dialect: bigquery
@@ -948,6 +949,28 @@ test_allow_unqualified_references_in_bigquery_with_expression:
 test_fail_unqualified_reference_in_bigquery_with_expression:
   fail_str: |
     SELECT WITH(a AS t1.x, a + y) AS z
+    FROM t1
+    INNER JOIN t2 ON t1.id = t2.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_with_expression_variable_before_assignment:
+  # A WITH variable is in scope only after its own assignment.
+  fail_str: |
+    SELECT WITH(a AS a + 1, a) AS z
+    FROM t1
+    INNER JOIN t2 ON t1.id = t2.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_with_expression_variable_outside_subquery:
+  # A WITH variable in a subquery does not hide a column of the outer select.
+  fail_str: |
+    SELECT
+        a,
+        (SELECT WITH(a AS 1, a)) AS z
     FROM t1
     INNER JOIN t2 ON t1.id = t2.id
   configs:
