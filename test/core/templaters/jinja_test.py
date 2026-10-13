@@ -13,7 +13,7 @@ from typing import NamedTuple, Union
 
 import pytest
 from jinja2 import Environment, nodes
-from jinja2.exceptions import UndefinedError
+from jinja2.exceptions import SecurityError, UndefinedError
 from jinja2.ext import Extension
 from jinja2.nodes import Node
 from jinja2.parser import Parser
@@ -631,6 +631,120 @@ def test__templater_jinja_macro_path_configured_encoding(
     )
     macros = JinjaTemplater()._extract_macros(config, env=Environment(), ctx={})
     assert "square" in macros
+
+
+@pytest.mark.parametrize("dialect", ["ansi", "bigquery"])
+@pytest.mark.parametrize("separate_files", [False, True])
+@pytest.mark.parametrize("depth", [1, 3])
+@pytest.mark.parametrize(
+    "return_tag", ["{% do return(value) %}", "{{ return(value) }}"]
+)
+@pytest.mark.parametrize(
+    "value, iteration",
+    [
+        ("{'a': 'x', 'b': 'y'}", "nested_value.items()"),
+        ("[['a', 'x'], ['b', 'y']]", "nested_value"),
+    ],
+    ids=["dict", "list"],
+)
+def test__templater_jinja_nested_macro_return(
+    tmp_path, dialect, separate_files, depth, return_tag, value, iteration
+):
+    """Nested returns preserve the outer SQL, including in one file (#8729)."""
+    macros = [
+        "{% macro nested_0() %}"
+        "discarded output"
+        "{% set value = " + value + " %}"
+        + return_tag
+        # Returning must skip the remaining body, not just suppress output.
+        + "{{ 1 / 0 }}{% endmacro %}"
+    ]
+    for level in range(1, depth):
+        macros.append(
+            "{% macro nested_" + str(level) + "() %}"
+            "{% set value = nested_" + str(level - 1) + "() %}"
+            + return_tag
+            + "{{ 1 / 0 }}{% endmacro %}"
+        )
+    macros.append(
+        "{% macro outer(in_col, out_col) %}"
+        "{% set nested_value = nested_" + str(depth - 1) + "() %}"
+        "CASE {{ in_col }}"
+        "{% for when, then in " + iteration + " %}"
+        " WHEN {{ when }} THEN {{ then }}"
+        "{% endfor %}"
+        " END AS {{ out_col }}"
+        "{% endmacro %}"
+    )
+    if separate_files:
+        for index, macro in enumerate(macros):
+            (tmp_path / f"macro_{index}.sql").write_text(macro, encoding="utf-8")
+    else:
+        (tmp_path / "macros.sql").write_text("\n".join(macros), encoding="utf-8")
+
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": dialect, "templater": "jinja"},
+            "templater": {
+                "jinja": {
+                    "apply_dbt_builtins": True,
+                    "load_macros_from_path": str(tmp_path),
+                }
+            },
+        }
+    )
+    source = "SELECT {{ outer('input_col', out_col='output_col') }} FROM my_table;"
+    expected = (
+        "SELECT CASE input_col WHEN a THEN x WHEN b THEN y"
+        " END AS output_col FROM my_table;"
+    )
+    parsed = Linter(config=config).parse_string(source)
+    assert parsed.violations == []
+    assert parsed.tree is not None
+    assert parsed.tree.raw == expected
+    templated_file = parsed.parsed_variants[0].templated_file
+    assert templated_file.source_str == source
+    assert templated_file.templated_str == expected
+
+
+@pytest.mark.parametrize("apply_dbt_builtins", [False, True])
+def test__templater_jinja_macro_call_keywords(apply_dbt_builtins):
+    """Environment argument names must not collide with macro keyword arguments."""
+    config = FluffConfig(
+        configs={"templater": {"jinja": {"apply_dbt_builtins": apply_dbt_builtins}}},
+        overrides={"dialect": "ansi"},
+    )
+    _, _, render = JinjaTemplater().construct_render_func(config=config)
+    assert (
+        render(
+            "{% macro inner(context, obj) %}{{ context }} + {{ obj }}{% endmacro %}"
+            "{% macro outer() %}{{ inner(context=1, obj=2) }}{% endmacro %}"
+            "SELECT {{ outer() }}"
+        )
+        == "SELECT 1 + 2"
+    )
+
+
+def test__templater_jinja_dbt_macro_call_sandbox():
+    """Handling macro returns must retain Jinja's callable safety checks."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    env = JinjaTemplater()._get_jinja_env(config)
+    macro = env.from_string("{% macro inner() %}1{% endmacro %}").module.inner
+    macro.unsafe_callable = True
+    with pytest.raises(SecurityError, match="not safely callable"):
+        env.from_string("{{ inner() }}").render(inner=macro)
+
+
+def test__templater_jinja_dbt_macro_call_exception():
+    """Ordinary exceptions still propagate through nested macro calls."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    _, _, render = JinjaTemplater().construct_render_func(config=config)
+    with pytest.raises(ZeroDivisionError):
+        render(
+            "{% macro inner() %}{{ 1 / 0 }}{% endmacro %}"
+            "{% macro outer() %}{{ inner() }}{% endmacro %}"
+            "{{ outer() }}"
+        )
 
 
 def test__templater_jinja_dynamic_variable_no_violations():

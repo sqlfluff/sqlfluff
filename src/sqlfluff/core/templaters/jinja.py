@@ -29,6 +29,7 @@ from jinja2 import (
 )
 from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
+from jinja2.runtime import Context, Macro
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
@@ -42,7 +43,11 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
     large_file_check,
 )
-from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS, DbtMacroWrapper
+from sqlfluff.core.templaters.builtins.dbt import (
+    DBT_BUILTINS,
+    DbtMacroWrapper,
+    MacroReturn,
+)
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
@@ -88,6 +93,22 @@ class UndefinedRecorder:
         """Don't fail when iterated, remember instead."""
         self.undefined_set.add(self.name)
         yield UndefinedRecorder(f"iter({self.name})", self.undefined_set)
+
+
+class DbtSandboxedEnvironment(SandboxedEnvironment):
+    """Handle dbt returns at each Jinja macro invocation boundary."""
+
+    def call(self, context: Context, obj: Any, /, *args: Any, **kwargs: Any) -> Any:
+        """Catch returns from macros, preserving sandbox checks for all calls."""
+        if not isinstance(obj, Macro):
+            # In particular, return() itself must raise through to its macro.
+            return super().call(context, obj, *args, **kwargs)
+        try:
+            # Same-file calls use local Macro objects, bypassing the wrappers
+            # installed in the exported context by _extract_macros_from_template.
+            return super().call(context, obj, *args, **kwargs)
+        except MacroReturn as exc:
+            return exc.value
 
 
 class JinjaTemplater(PythonTemplater):
@@ -139,8 +160,6 @@ class JinjaTemplater(PythonTemplater):
                 syntax. We assume that outer functions will catch this
                 exception and handle it appropriately.
         """
-        from jinja2.runtime import Macro
-
         # Iterate through keys exported from the loaded template string
         context: dict[str, DbtMacroWrapper] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
@@ -470,10 +489,12 @@ class JinjaTemplater(PythonTemplater):
         else:
             loader = FileSystemLoader(final_search_path) if final_search_path else None
         extensions: list[Union[str, type[Extension]]] = ["jinja2.ext.do"]
+        environment_class: type[SandboxedEnvironment] = SandboxedEnvironment
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
+            environment_class = DbtSandboxedEnvironment
 
-        return SandboxedEnvironment(
+        return environment_class(
             # We explicitly want to preserve newlines.
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
