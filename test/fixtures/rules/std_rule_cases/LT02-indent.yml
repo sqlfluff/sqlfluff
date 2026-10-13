@@ -3095,3 +3095,50 @@ test_fail_snowflake_exception_block_nested:
   configs:
     core:
       dialect: snowflake
+
+# https://github.com/sqlfluff/sqlfluff/issues/3881
+test_pass_snowflake_create_file_format_indent:
+  pass_str: |
+    CREATE OR REPLACE FILE FORMAT my_csv_format
+        TYPE = CSV
+        FIELD_DELIMITER = '|'
+        SKIP_HEADER = 1
+        NULL_IF = ('NULL', 'null')
+        EMPTY_FIELD_AS_NULL = TRUE
+        COMPRESSION = GZIP;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_alter_file_format_indent:
+  pass_str: |
+    ALTER FILE FORMAT IF EXISTS my_csv_format SET
+        TYPE = CSV
+        FIELD_DELIMITER = '|'
+        SKIP_HEADER = 1
+        COMMENT = 'updated format';
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_create_file_format_indent_fix:
+  fail_str: |
+    CREATE OR REPLACE FILE FORMAT my_csv_format
+    TYPE = CSV
+    FIELD_DELIMITER = '|'
+    SKIP_HEADER = 1;
+  fix_str: |
+    CREATE OR REPLACE FILE FORMAT my_csv_format
+        TYPE = CSV
+        FIELD_DELIMITER = '|'
+        SKIP_HEADER = 1;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_create_file_format_single_line:
+  pass_str: |
+    CREATE FILE FORMAT my_csv_format TYPE = CSV FIELD_DELIMITER = '|';
+  configs:
+    core:
+      dialect: snowflake
