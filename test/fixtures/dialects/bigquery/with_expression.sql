@@ -37,3 +37,8 @@ SELECT WITH (a AS 1, a);
 
 -- Quoted WITH names remain function calls.
 SELECT `with`(1);
+
+-- Accessors apply to the value of a WITH expression.
+SELECT WITH(a AS [1, 2], a)[OFFSET(0)];
+
+SELECT WITH(a AS STRUCT(1 AS x), a).x;

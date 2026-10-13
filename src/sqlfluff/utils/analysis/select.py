@@ -259,10 +259,13 @@ def get_aliases_from_select(
     - Table aliases
     - Value table function aliases
     """
+    # A WITH expression declares its variables in place, so a select with no
+    # FROM clause can still have them.
+    with_expression_variables = _get_with_expression_variables(segment)
     fc = segment.get_child("from_clause")
     if not fc:
         # If there's no from clause then just abort.
-        return None, None
+        return None, with_expression_variables or None
     # Duck-type-safe check: works for both a native ``BaseSegment`` and the
     # Rust-arena ``RsSegment`` façade (which is not an instance of these classes).
     assert fc.is_type(FromClauseSegment.type, JoinClauseSegment.type)
@@ -275,6 +278,7 @@ def get_aliases_from_select(
     standalone_aliases += _get_pivot_table_aliases(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
     standalone_aliases += _get_unpivot_table_aliases(segment, dialect)
+    standalone_aliases += with_expression_variables
 
     table_aliases = []
     for table_expr, alias_info in aliases:
@@ -305,6 +309,20 @@ def _has_value_table_function(
         if function_name.raw.upper().strip() in dialect.sets("value_table_functions"):
             return True
     return False
+
+
+# The variables of a BigQuery WITH expression, e.g. `a` in `WITH(a AS 1, a + 1)`,
+# are declared in place, like lambda arguments. They do not reference a column
+# of a table in the FROM clause.
+def _get_with_expression_variables(segment: BaseSegment) -> list[BaseSegment]:
+    if "with_expression" not in segment.descendant_type_set:
+        return []
+    variables: list[BaseSegment] = []
+    for with_expression in segment.recursive_crawl("with_expression"):
+        bracketed = with_expression.get_child("bracketed")
+        assert bracketed
+        variables += bracketed.get_children("naked_identifier", "quoted_identifier")
+    return variables
 
 
 def _get_pivot_table_aliases(

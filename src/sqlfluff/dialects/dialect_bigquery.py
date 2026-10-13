@@ -1054,9 +1054,11 @@ class WithExpressionSegment(BaseSegment):
 
 
 bigquery_dialect.replace(
-    Expression_C_Grammar=ansi_dialect.get_grammar("Expression_C_Grammar").copy(
-        insert=[Ref("WithExpressionSegment")]
-    ),
+    # This grammar sits in the inner OneOf of Expression_D_Grammar, so a WITH
+    # expression takes the accessors after it, as in WITH(a AS [1], a)[OFFSET(0)].
+    Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets"
+    ).copy(insert=[Ref("WithExpressionSegment")]),
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed3c0138c56dc3270d0ac7a1cdb9f301d7f41057e2705408d9a1485857bd7a77
+_hash: 54b6b1a4f5d0bd11114fadf751bf49cf7bc8cd41b6c72ff6617310fda99e590a
 file:
 - statement:
     select_statement:
@@ -490,4 +490,76 @@ file:
                 expression:
                   numeric_literal: '1'
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            with_expression:
+              keyword: WITH
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - keyword: AS
+              - expression:
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: a
+              - end_bracket: )
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: OFFSET
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '0'
+                      end_bracket: )
+              end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            with_expression:
+              keyword: WITH
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - keyword: AS
+              - expression:
+                  typed_struct_literal:
+                    data_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '1'
+                        alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: x
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: a
+              - end_bracket: )
+            semi_structured_expression:
+              dot: .
+              naked_identifier: x
 - statement_terminator: ;
