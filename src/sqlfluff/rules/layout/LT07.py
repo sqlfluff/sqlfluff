@@ -41,9 +41,7 @@ class Rule_LT07(BaseRule):
     name = "layout.cte_bracket"
     aliases = ("L018",)
     groups = ("all", "core", "layout")
-    crawl_behaviour = SegmentSeekerCrawler(
-        {"with_compound_statement"}, provide_raw_stack=True
-    )
+    crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
