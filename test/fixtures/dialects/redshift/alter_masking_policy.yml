@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6ba9e5359ae8364a7b0dd5da4ae33ae80fed29ea76df9a36d5174f52a0ab9459
+file:
+- statement:
+    alter_masking_policy_statement:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: test_policy
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          cast_expression:
+            quoted_literal: "'XXXX'"
+            casting_operator: '::'
+            data_type:
+              keyword: TEXT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_masking_policy_statement:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: mask_email
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+        - function:
+            function_name:
+              function_name_identifier: LEFT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: SPLIT_PART
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: email
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'@'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - quoted_literal: "'****@'"
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - function:
+            function_name:
+              function_name_identifier: SPLIT_PART
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: email
+              - comma: ','
+              - expression:
+                  quoted_literal: "'@'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;

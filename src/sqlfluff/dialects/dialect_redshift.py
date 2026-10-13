@@ -2219,6 +2219,123 @@ class DropRlsPolicyStatementSegment(BaseSegment):
     )
 
 
+class CreateMaskingPolicyStatementSegment(BaseSegment):
+    """A `CREATE MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MASKING_POLICY.html
+    """
+
+    type = "create_masking_policy_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MASKING",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("IfNotExistsGrammar", optional=True),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+        "USING",
+        OptionallyBracketed(Ref("ExpressionSegment")),
+    )
+
+
+class AlterMaskingPolicyStatementSegment(BaseSegment):
+    """An `ALTER MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_MASKING_POLICY.html
+    """
+
+    type = "alter_masking_policy_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "USING",
+        OptionallyBracketed(Ref("ExpressionSegment")),
+    )
+
+
+class DropMaskingPolicyStatementSegment(BaseSegment):
+    """A `DROP MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_MASKING_POLICY.html
+    """
+
+    type = "drop_masking_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MASKING",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
+class AttachMaskingPolicyStatementSegment(BaseSegment):
+    """An `ATTACH MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ATTACH_MASKING_POLICY.html
+    """
+
+    type = "attach_masking_policy_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        "TO",
+        Ref("RedshiftGrantTargetSegment"),
+        Sequence(
+            "PRIORITY",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class DetachMaskingPolicyStatementSegment(BaseSegment):
+    """A `DETACH MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DETACH_MASKING_POLICY.html
+    """
+
+    type = "detach_masking_policy_statement"
+    match_grammar = Sequence(
+        "DETACH",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "FROM",
+        Ref("RedshiftGrantTargetSegment"),
+    )
+
+
+
 class AnalyzeCompressionStatementSegment(BaseSegment):
     """An `ANALYZE COMPRESSION` statement.
 
@@ -2312,6 +2429,11 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateRlsPolicyStatementSegment"),
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
+            Ref("CreateMaskingPolicyStatementSegment"),
+            Ref("AlterMaskingPolicyStatementSegment"),
+            Ref("DropMaskingPolicyStatementSegment"),
+            Ref("AttachMaskingPolicyStatementSegment"),
+            Ref("DetachMaskingPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
         ],

@@ -1,0 +1,166 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 79db21fcfd68e276db4088dc185155e4b85917dacc18a47c170c6e393ce87821
+file:
+- statement:
+    create_masking_policy_statement:
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: test_policy
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        data_type:
+          keyword: varchar
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          cast_expression:
+            quoted_literal: "'***'"
+            casting_operator: '::'
+            data_type:
+              keyword: TEXT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_masking_policy_statement:
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mask_email
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: email
+        data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+        - function:
+            function_name:
+              function_name_identifier: LEFT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: SPLIT_PART
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: email
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'@'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - quoted_literal: "'---@'"
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - function:
+            function_name:
+              function_name_identifier: SPLIT_PART
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: email
+              - comma: ','
+              - expression:
+                  quoted_literal: "'@'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_masking_policy_statement:
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: hash_credit
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: credit_card
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '256'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: salt
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '64'
+              end_bracket: )
+      - end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          function:
+            function_name:
+              function_name_identifier: sha2
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    naked_identifier: credit_card
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: salt
+              - comma: ','
+              - expression:
+                  numeric_literal: '256'
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;

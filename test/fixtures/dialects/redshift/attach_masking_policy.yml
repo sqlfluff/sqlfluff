@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bdb285bd965e3e06c519c7874f150824f9cab7835519fe0290d7f1393d7c29bf
+file:
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_credit_card
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: credit_cards
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: credit_card
+        end_bracket: )
+    - keyword: TO
+    - access_target:
+        role_reference:
+          naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_credit_card
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: credit_cards
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: credit_card
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: credit_card
+        end_bracket: )
+    - keyword: TO
+    - access_target:
+        keyword: ROLE
+        role_reference:
+          naked_identifier: analytics_role
+    - keyword: PRIORITY
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: mask_policy
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: sch1
+      - dot: .
+      - naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - access_target:
+        keyword: USER
+        user_reference:
+          naked_identifier: user1
+- statement_terminator: ;
