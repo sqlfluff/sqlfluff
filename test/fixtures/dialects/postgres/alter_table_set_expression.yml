@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: de735c85c4d0db8b57b3a6488c74141e1ecc15b62128aaf7cd57ed7cec322959
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: message_events
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: guild_id
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: raw_data
+                  binary_operator: ->>
+                  quoted_literal: "'guild_id'"
+                end_bracket: )
+              casting_operator: '::'
+              data_type:
+                keyword: BIGINT
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: message_events
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: guild_id
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: COALESCE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    cast_expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: additional_data
+                          binary_operator: '#>>'
+                          quoted_literal: "'{guild_id}'"
+                        end_bracket: )
+                      casting_operator: '::'
+                      data_type:
+                        keyword: BIGINT
+                - comma: ','
+                - expression:
+                    cast_expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: raw_data
+                          binary_operator: ->>
+                          quoted_literal: "'guild_id'"
+                        end_bracket: )
+                      casting_operator: '::'
+                      data_type:
+                        keyword: BIGINT
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
