@@ -3095,3 +3095,24 @@ test_fail_snowflake_exception_block_nested:
   configs:
     core:
       dialect: snowflake
+
+test_implicit_indents_require_bracketed_subquery_on_next_line:
+  # Collapsing the line break after FROM used to produce a fix that deleted
+  # whitespace created by the indent fix for the bracket line, which crashed
+  # the linter with "has no PositionMarker".
+  fail_str: |
+    SELECT 1 AS u
+    FROM
+    (
+        SELECT 1 AS c
+        FROM t
+    ) p
+  fix_str: |
+    SELECT 1 AS u
+    FROM (
+        SELECT 1 AS c
+        FROM t
+    ) p
+  configs:
+    indentation:
+      implicit_indents: require
