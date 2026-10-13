@@ -802,6 +802,21 @@ test_fail_clickhouse_table_function_in_from_unused_alias:
     core:
       dialect: clickhouse
 
+test_fail_clickhouse_joined_table_unused_alias:
+  # Only the table function needs its alias in a join; an unused alias on a
+  # plain table is still flagged.
+  fail_str: |
+    SELECT b.number
+    FROM system.one AS t
+    INNER JOIN numbers(2) AS b ON 1 = 1
+  fix_str: |
+    SELECT b.number
+    FROM system.one
+    INNER JOIN numbers(2) AS b ON 1 = 1
+  configs:
+    core:
+      dialect: clickhouse
+
 test_fail_clickhouse_table_function_with_nested_select_unused_alias:
   # A FROM clause inside a table function's query is not another table source
   # of the outer FROM clause.
