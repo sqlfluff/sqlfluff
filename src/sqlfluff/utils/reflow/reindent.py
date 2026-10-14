@@ -1942,9 +1942,23 @@ def lint_indent_points(
 
         # Convert remaining newlines to spaces at tracked positions.
         if implicit_indent_locs:
+            # NOTE: Use the original `elements` rather than the working copy.
+            # The line pass above may have swapped points in `elem_buffer` for
+            # ones holding newly created segments, which can't be fix anchors.
             implicit_results = _convert_newlines_to_spaces(
-                elem_buffer, implicit_indent_locs
+                elements, implicit_indent_locs
             )
+            # The line break is being removed, so drop any indent results for
+            # the same point. Otherwise they would be conflicting fixes on the
+            # same anchor, and neither would be applied.
+            collapsed_anchors = {
+                fix.anchor.uuid for res in implicit_results for fix in res.fixes
+            }
+            results = [
+                res
+                for res in results
+                if not any(fix.anchor.uuid in collapsed_anchors for fix in res.fixes)
+            ]
             results = implicit_results + results
 
     return elem_buffer, results
