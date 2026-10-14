@@ -6465,6 +6465,29 @@ class TableExpressionSegment(BaseSegment):
     )
 
 
+tsql_dialect.replace(
+    # ANSI's terminator includes QUALIFY, which is not a T-SQL keyword.
+    # Reuse the same followers as the T-SQL GROUP BY list below.
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "WINDOW",
+        "OPTION",
+        "FOR",
+        "UNION",
+        "INTERSECT",
+        "EXCEPT",
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "MERGE",
+        "WITH",
+        Ref("DelimiterGrammar"),
+    ),
+)
+
+
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
@@ -6477,35 +6500,42 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        Delimited(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
+        OneOf(
+            # ANSI already parses these. The T-SQL override only listed plain
+            # expressions, so GROUPING SETS with more than one set was left
+            # unparsable (#8738).
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            Delimited(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                ),
+                terminators=[
+                    # Clauses that can follow GROUP BY
+                    "HAVING",
+                    "WINDOW",
+                    Sequence("ORDER", "BY"),
+                    "OPTION",
+                    "FOR",
+                    # Set operators
+                    "UNION",
+                    "INTERSECT",
+                    "EXCEPT",
+                    # Statement-level keywords that start new statements
+                    "SELECT",
+                    "INSERT",
+                    "UPDATE",
+                    "DELETE",
+                    "MERGE",
+                    "WITH",
+                    # T-SQL specific: semicolons and statement terminators
+                    Ref("DelimiterGrammar"),
+                ],
             ),
-            terminators=[
-                # Clauses that can follow GROUP BY
-                "HAVING",
-                "WINDOW",
-                Sequence("ORDER", "BY"),
-                "OPTION",
-                "FOR",
-                # Set operators
-                "UNION",
-                "INTERSECT",
-                "EXCEPT",
-                # Statement-level keywords that start new statements
-                "SELECT",
-                "INSERT",
-                "UPDATE",
-                "DELETE",
-                "MERGE",
-                "WITH",
-                # T-SQL specific: semicolons and statement terminators
-                Ref("DelimiterGrammar"),
-            ],
         ),
         Ref("WithRollupClauseSegment", optional=True),
         Dedent,
