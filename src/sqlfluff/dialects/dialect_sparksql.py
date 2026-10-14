@@ -330,7 +330,6 @@ sparksql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
-        "KEYS",
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
@@ -2338,7 +2337,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE` and `ROLLUP`.
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP` and `ALL`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
@@ -2348,6 +2347,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         "BY",
         Indent,
         OneOf(
+            "ALL",
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
@@ -3176,7 +3176,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
-                "KEYS",
                 "FROM",
             ),
         ),
