@@ -1882,6 +1882,7 @@ def render(
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Render SQL files and just spit out the result.
@@ -1917,6 +1918,10 @@ def render(
             raw_sql = sys.stdin.read()
             fname = "stdin"
             file_config = lnt.config
+            if stdin_filename:
+                file_config = file_config.make_child_from_path(
+                    stdin_filename, require_dialect=False
+                )
         else:
             raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
             fname = path

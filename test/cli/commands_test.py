@@ -448,6 +448,34 @@ def test__cli__command_render_stdin():
 
 
 @pytest.mark.parametrize(
+    ("stdin_filename", "ret_code", "stdout"),
+    [
+        ("sub/foo.sql", 0, "SELECT 123"),
+        (None, 1, "Undefined jinja template variable: 'myvar'"),
+    ],
+)
+def test__cli__command_render_stdin_filename_config(
+    tmp_path, monkeypatch, stdin_filename, ret_code, stdout
+):
+    """Check render loads the Jinja context from the indicated stdin path."""
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff:templater:jinja:context]\nmyvar = 123\n"
+    )
+    monkeypatch.chdir(tmp_path)
+    args = ["--dialect=ansi", "-"]
+    if stdin_filename:
+        args.extend(["--stdin-filename", stdin_filename])
+    invoke_assert_code(
+        ret_code=ret_code,
+        args=[render, args],
+        cli_input="SELECT {{ myvar }}",
+        assert_stdout_contains=stdout,
+    )
+
+
+@pytest.mark.parametrize(
     "command",
     [
         # Test basic linting
