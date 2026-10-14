@@ -1,0 +1,163 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9dda2c06feb9e966c7c740b4ae242830a3e267efc97e1dcb5bd916bb648c9dc4
+file:
+- batch:
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+  - statement_terminator: ;
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+      - keyword: WITH
+      - keyword: CLEANUP
+  - statement_terminator: ;
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+      - keyword: WITH
+      - keyword: ERROR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1234'
+      - keyword: DESCRIPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'The submitted data is not valid.'"
+  - statement_terminator: ;
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+      - keyword: WITH
+      - keyword: CLEANUP
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+      - keyword: WITH
+      - keyword: ERROR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@error_code'
+      - keyword: DESCRIPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@error_description'
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+      - keyword: WITH
+      - keyword: ERROR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@error_code'
+      - keyword: DESCRIPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'An error has occurred.'"
+  - statement_terminator: ;
+  - statement:
+      end_conversation_statement:
+      - keyword: END
+      - keyword: CONVERSATION
+      - parameter: '@dialog_handle'
+      - keyword: WITH
+      - keyword: ERROR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1234'
+      - keyword: DESCRIPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@error_description'
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: EndDialog
+      - procedure_parameter_list:
+        - parameter: '@dialog_handle'
+        - data_type:
+            keyword: UNIQUEIDENTIFIER
+        - comma: ','
+        - parameter: '@error_code'
+        - data_type:
+            keyword: INT
+        - comma: ','
+        - parameter: '@error_description'
+        - data_type:
+            keyword: NVARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '3000'
+                end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                end_conversation_statement:
+                - keyword: END
+                - keyword: CONVERSATION
+                - parameter: '@dialog_handle'
+            - statement_terminator: ;
+            - statement:
+                begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                    end_conversation_statement:
+                    - keyword: END
+                    - keyword: CONVERSATION
+                    - parameter: '@dialog_handle'
+                    - keyword: WITH
+                    - keyword: CLEANUP
+                - keyword: END
+            - statement_terminator: ;
+            - statement:
+                end_conversation_statement:
+                - keyword: END
+                - keyword: CONVERSATION
+                - parameter: '@dialog_handle'
+                - keyword: WITH
+                - keyword: ERROR
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - parameter: '@error_code'
+                - keyword: DESCRIPTION
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - parameter: '@error_description'
+            - keyword: END
+          statement_terminator: ;
+    go_statement:
+      keyword: GO

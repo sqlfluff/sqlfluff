@@ -938,6 +938,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CloseCursorStatementSegment"),
             Ref("DeallocateCursorStatementSegment"),
             # Other statements
+            Ref("EndConversationStatementSegment"),
             Ref("PrintStatementSegment"),
             Ref("RaiserrorStatementSegment"),
             Ref("DeclareStatementSegment"),
@@ -6083,6 +6084,38 @@ class TransactionStatementSegment(BaseSegment):
             "SAVE",
             Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
+        ),
+    )
+
+
+class EndConversationStatementSegment(BaseSegment):
+    """An END CONVERSATION statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/end-conversation-transact-sql
+    """
+
+    type = "end_conversation_statement"
+    match_grammar = Sequence(
+        "END",
+        "CONVERSATION",
+        Ref("ParameterNameSegment"),
+        Sequence(
+            "WITH",
+            OneOf(
+                "CLEANUP",
+                Sequence(
+                    "ERROR",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("NumericLiteralSegment"), Ref("ParameterNameSegment")),
+                    "DESCRIPTION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                        Ref("ParameterNameSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
         ),
     )
 
