@@ -939,6 +939,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeallocateCursorStatementSegment"),
             # Other statements
             Ref("PrintStatementSegment"),
+            Ref("LinenoStatementSegment"),
             Ref("RaiserrorStatementSegment"),
             Ref("DeclareStatementSegment"),
             Ref("ExecuteScriptSegment"),
@@ -6713,6 +6714,19 @@ class PrintStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "PRINT",
         Ref("ExpressionSegment"),
+    )
+
+
+class LinenoStatementSegment(BaseSegment):
+    """A `LINENO` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
+    """
+
+    type = "lineno_statement"
+    match_grammar = Sequence(
+        "LINENO",
+        Ref("NumericLiteralSegment"),
     )
 
 
