@@ -692,6 +692,27 @@ tsql_dialect.replace(
         Ref("DelimiterGrammar"),
         "WINDOW",
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        # Clauses that can follow GROUP BY
+        "HAVING",
+        "WINDOW",
+        Sequence("ORDER", "BY"),
+        "OPTION",
+        "FOR",
+        # Set operators
+        "UNION",
+        "INTERSECT",
+        "EXCEPT",
+        # Statement-level keywords that start new statements
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "MERGE",
+        "WITH",
+        # T-SQL specific: semicolons and statement terminators
+        Ref("DelimiterGrammar"),
+    ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
     LikeGrammar=Sequence(
         "LIKE",
@@ -6477,35 +6498,19 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
+        Ref.keyword("ALL", optional=True),
         Delimited(
             OneOf(
+                Ref("GroupingSetsClauseSegment"),
+                Ref("CubeRollupClauseSegment"),
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
+                Bracketed(),
             ),
-            terminators=[
-                # Clauses that can follow GROUP BY
-                "HAVING",
-                "WINDOW",
-                Sequence("ORDER", "BY"),
-                "OPTION",
-                "FOR",
-                # Set operators
-                "UNION",
-                "INTERSECT",
-                "EXCEPT",
-                # Statement-level keywords that start new statements
-                "SELECT",
-                "INSERT",
-                "UPDATE",
-                "DELETE",
-                "MERGE",
-                "WITH",
-                # T-SQL specific: semicolons and statement terminators
-                Ref("DelimiterGrammar"),
-            ],
+            terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
         Ref("WithRollupClauseSegment", optional=True),
         Dedent,
