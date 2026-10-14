@@ -68,23 +68,31 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ASOF",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
+        "DATEFORMAT",
+        "DELIM",
         "GLOB",
         "INSTALL",
         "MACRO",
         "MAP",
+        "NEW_LINE",
+        "NULLSTR",
         "OVERWRITE",
         "OVERWRITE_OR_IGNORE",
         "PARQUET_VERSION",
         "PARTITION_BY",
         "PERCENT",
         "POSITIONAL",
+        "PREFIX",
         "PROGRAM",
         "RESERVOIR",
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
         "SAMPLE",
         "SEMI",
+        "SEP",
         "STRUCT",
+        "SUFFIX",
+        "TIMESTAMPFORMAT",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
     ]
@@ -858,6 +866,11 @@ class ListComprehensionExpressionSegment(BaseSegment):
         Ref("ExpressionSegment"),
         "FOR",
         Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
         "IN",
         Ref("ExpressionSegment"),
         Sequence("IF", Ref("ExpressionSegment"), optional=True),
@@ -1059,6 +1072,20 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     )
 
 
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/checkpoint
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "CHECKPOINT",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1067,6 +1094,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
+            Ref("CheckpointStatementSegment"),
         ]
     )
 
@@ -1291,6 +1319,7 @@ class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "TYPE",
         Ref("DatatypeSegment"),
         "AS",
@@ -1328,6 +1357,39 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Delimited(
                 OneOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
+                    Sequence(
+                        "HEADER",
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "DATEFORMAT",
+                            "DELIMITER",
+                            "DELIM",
+                            "SEP",
+                            "NULL",
+                            "NULLSTR",
+                            "QUOTE",
+                            "ESCAPE",
+                            "NEW_LINE",
+                            "PREFIX",
+                            "SUFFIX",
+                            "TIMESTAMPFORMAT",
+                        ),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE_QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
                     Sequence(
                         "OVERWRITE_OR_IGNORE",
                         Ref("BooleanLiteralGrammar", optional=True),
@@ -1406,11 +1468,7 @@ class SetStatementSegment(postgres.SetStatementSegment):
                 "VARIABLE",
                 Ref("NakedIdentifierSegment"),  # variable_name
                 OneOf("TO", Ref("EqualsSegment")),
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
+                Ref("ExpressionSegment"),
             ),
             Sequence(
                 OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),

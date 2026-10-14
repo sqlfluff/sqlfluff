@@ -178,8 +178,10 @@ class Rule_LT09(BaseRule):
     ) -> Optional[LintResult]:
         """Multiple select targets. Ensure each is on a separate line."""
         fixes = []
-        previous_code = None
         select_clause_raws = Segments(segment).raw_segments
+        # Each search starts just after the previous code, not at the start of
+        # the clause, so that wide select clauses take linear time.
+        search_start = 0
         for i, select_target in enumerate(select_targets_info.select_targets):
             assert select_target.pos_marker
             target_start_line = select_target.pos_marker.working_line_no
@@ -187,17 +189,15 @@ class Rule_LT09(BaseRule):
                 Segments(select_target).raw_segments.first(sp.is_code()).get()
             )
             assert target_initial_code
+            target_idx = select_clause_raws.index(target_initial_code, search_start)
+            # Get the last code before the target that isn't a comma.
             previous_code = (
-                select_clause_raws.select(
-                    # Get the first code that isn't a comma.
-                    select_if=sp.and_(sp.is_code(), sp.not_(sp.raw_is(","))),
-                    start_seg=previous_code,
-                    stop_seg=target_initial_code,
-                )
-                .last()
+                select_clause_raws[search_start:target_idx]
+                .last(sp.and_(sp.is_code(), sp.not_(sp.raw_is(","))))
                 .get()
             )
             assert previous_code
+            search_start = select_clause_raws.index(previous_code, search_start) + 1
             assert previous_code.pos_marker
             previous_end_line = previous_code.pos_marker.working_line_no
             self.logger.debug(
@@ -411,7 +411,12 @@ class Rule_LT09(BaseRule):
                     # _eval_single_select_target_element() leave leftover
                     # child segments that need to be moved to become
                     # *siblings* of the select_clause.
+                    # NOTE: Exclude meta segments. Some dialects place the
+                    # select clause's `Indent` after the leading whitespace,
+                    # i.e. inside this range. Moving it would insert a
+                    # zero-width segment and orphan its `Dedent`.
                     move_after_select_clause = select_children.select(
+                        select_if=sp.not_(sp.is_meta()),
                         start_seg=start_seg,
                         stop_seg=to_delete[-1],
                     )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c71fc9cff6ded8dda2df411198d35399f62655de5551db475c858995d29f2fee
+_hash: b73fbc3ddc4d024e7e311cc13c74b94e0c5b4776176689ae0d20f1535943c7a3
 file:
 - statement:
     copy_statement:
@@ -577,5 +577,230 @@ file:
       - comma: ','
       - keyword: HEADER
       - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '42'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: value
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'|'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: HEADER
+      - boolean_literal: 'false'
+      - comma: ','
+      - keyword: DELIM
+      - quoted_literal: "'|'"
+      - comma: ','
+      - keyword: NULLSTR
+      - quoted_literal: "'NULL'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: SEP
+      - quoted_literal: "'|'"
+      - comma: ','
+      - keyword: 'NULL'
+      - quoted_literal: "'NULL'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: HEADER
+        boolean_literal: 'false'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: HEADER
+        numeric_literal: '1'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: HEADER
+        numeric_literal: '0'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: HEADER
+        quoted_literal: "'false'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: QUOTE
+      - quoted_literal: "'\"'"
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\"'"
+      - comma: ','
+      - keyword: FORCE_QUOTE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '"Column Two"'
+        - end_bracket: )
+      - comma: ','
+      - keyword: NEW_LINE
+      - quoted_literal: "E'\\r\\n'"
+      - comma: ','
+      - keyword: COMPRESSION
+      - quoted_literal: "'gzip'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: FORCE_QUOTE
+        star: '*'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: DATEFORMAT
+      - quoted_literal: "'%d/%m/%Y'"
+      - comma: ','
+      - keyword: TIMESTAMPFORMAT
+      - quoted_literal: "'%d/%m/%Y %H:%M:%S'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '42'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: value
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: HEADER
+      - boolean_literal: 'false'
+      - comma: ','
+      - keyword: PREFIX
+      - quoted_literal: "'['"
+      - comma: ','
+      - keyword: SUFFIX
+      - quoted_literal: "']'"
       - end_bracket: )
 - statement_terminator: ;

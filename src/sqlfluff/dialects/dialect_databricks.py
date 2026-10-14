@@ -373,6 +373,11 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # `KEYS` follows the source table in `APPLY CHANGES INTO` and
+    # `AUTO CDC INTO`, so it must end the FROM clause.
+    FromClauseTerminatorGrammar=databricks_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref.keyword("KEYS")]),
     # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
     # visible inside the pipeline but not published to the catalog:
     #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
@@ -971,21 +976,28 @@ class CreateViewStatementSegment(BaseSegment):
 
     type = "create_view_statement"
 
-    _schema_binding_clause = Sequence(
-        "WITH",
-        OneOf(
-            "METRICS",
-            Sequence(
-                "SCHEMA",
-                OneOf(
-                    "BINDING",
-                    "COMPENSATION",
-                    Sequence(
-                        Ref.keyword("TYPE", optional=True),
-                        "EVOLUTION",
-                    ),
+    _schema_binding = OneOf(
+        "METRICS",
+        Sequence(
+            "SCHEMA",
+            OneOf(
+                "BINDING",
+                "COMPENSATION",
+                Sequence(
+                    Ref.keyword("TYPE", optional=True),
+                    "EVOLUTION",
                 ),
             ),
+        ),
+    )
+
+    # with_clause: WITH { schema_binding | METRICS | ( ... ) }. The
+    # parenthesised list is the same production in brackets.
+    _with_clause = Sequence(
+        "WITH",
+        OneOf(
+            _schema_binding,
+            Bracketed(Delimited(_schema_binding)),
         ),
     )
 
@@ -998,33 +1010,61 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         Ref("TablePropertiesGrammar"),
         Sequence("LANGUAGE", "YAML"),
-        _schema_binding_clause,
+        _with_clause,
     )
 
-    match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "VIEW",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("CommentClauseSegment", optional=True),
-                    ),
-                ),
+    _column_list = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("CommentClauseSegment", optional=True),
             ),
-            optional=True,
+            # Pipeline expectations, e.g.
+            # CONSTRAINT valid_a EXPECT (a IS NOT NULL)
+            Ref("ConstraintStatementSegment", optional=True),
         ),
-        _view_clauses,
-        "AS",
-        OneOf(
-            OptionallyBracketed(Ref("SelectableGrammar")),
-            # YAML metric view definition: $$ yaml_string $$
-            Ref("DollarQuotedUDFBody"),
+    )
+
+    match_grammar = OneOf(
+        # The query-backed or metric view.
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            Ref("TemporaryGrammar", optional=True),
+            # A pipeline view declared against the legacy LIVE schema.
+            # STREAMING is bound to LIVE rather than being independently
+            # optional, because there is no `CREATE STREAMING VIEW`.
+            Sequence(
+                Ref.keyword("STREAMING", optional=True),
+                "LIVE",
+                optional=True,
+            ),
+            "VIEW",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence(_column_list, optional=True),
+            _view_clauses,
+            "AS",
+            OneOf(
+                OptionallyBracketed(Ref("SelectableGrammar")),
+                # YAML metric view definition: $$ yaml_string $$
+                Ref("DollarQuotedUDFBody"),
+            ),
+        ),
+        # The temporary view backed by a data source. Unlike the query-backed
+        # production, TEMPORARY is not bracketed here and there is no AS, so
+        # `CREATE VIEW v USING csv` stays rejected.
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            Ref("TemporaryGrammar"),
+            "VIEW",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence(_column_list, optional=True),
+            "USING",
+            Ref("DataSourceFormatSegment"),
+            Ref("OptionsGrammar", optional=True),
         ),
     )
 
@@ -1925,45 +1965,6 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "KEYS",
                 "FROM",
                 "FOR",
-            ),
-        ),
-        Dedent,
-    )
-
-
-class GroupByClauseSegment(sparksql.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    match_grammar = Sequence(
-        "GROUP",
-        "BY",
-        Indent,
-        OneOf(
-            "ALL",
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `GROUP BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can `GROUP BY coalesce(col, 1)`
-                    Ref("ExpressionSegment"),
-                ),
-                OneOf(
-                    Ref("WithCubeRollupClauseSegment"),
-                    Ref("GroupingSetsClauseSegment"),
-                ),
             ),
         ),
         Dedent,

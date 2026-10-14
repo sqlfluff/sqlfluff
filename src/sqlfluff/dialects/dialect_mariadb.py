@@ -88,6 +88,31 @@ mariadb_dialect.replace(
         Bracketed(Ref("SequenceValueForSegment")),
         mysql_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
     ),
+    # MariaDB gives function parameters the same form as procedure parameters,
+    # including a direction (IN, OUT or INOUT), which MySQL forbids on
+    # functions. The two-word IN OUT is Oracle mode only, so not accepted here.
+    # https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
+    FunctionParameterGrammar=Ref("ProcedureParameterGrammar"),
+    # A parameter may have a default value (`sp_opt_default`), used when the
+    # caller leaves it out. MySQL has no parameter defaults.
+    # https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-procedure
+    ProcedureParameterGrammar=mysql_dialect.get_grammar(
+        "ProcedureParameterGrammar"
+    ).copy(
+        insert=[Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True)],
+    ),
+)
+
+mariadb_dialect.add(
+    # A user or a role (`user_or_role` in the server's grammar): any account
+    # reference, or CURRENT_ROLE. It belongs in DEFINER, GRANT and REVOKE
+    # lists, role grants and SHOW GRANTS FOR, not where a statement names a
+    # specific user account (CREATE USER, DROP USER, KILL USER), where
+    # CURRENT_ROLE can never work.
+    UserOrRoleGrammar=OneOf(
+        Ref("RoleReferenceSegment"),
+        Ref("CurrentRoleSegment"),
+    ),
 )
 
 
@@ -1101,15 +1126,42 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
     )
 
 
+class CurrentRoleSegment(BaseSegment):
+    """`CURRENT_ROLE`, with or without brackets: the session's active role.
+
+    Typed like an account reference, as `CURRENT_USER` is.
+    https://mariadb.com/docs/server/reference/sql-functions/secondary-functions/information-functions/current_role
+    """
+
+    type = "role_reference"
+    match_grammar: Matchable = Sequence("CURRENT_ROLE", Bracketed(optional=True))
+
+
+class DefinerSegment(mysql.DefinerSegment):
+    """`DEFINER = user_or_role`.
+
+    As in MySQL, a user or a role is named like any account. MariaDB also
+    accepts CURRENT_ROLE here; in MySQL, CURRENT_ROLE() is only a function.
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-procedure
+    """
+
+    match_grammar = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        Ref("UserOrRoleGrammar"),
+    )
+
+
 class CreateProcedureStatementSegment(mysql.CreateProcedureStatementSegment):
     """A `CREATE PROCEDURE` statement.
 
     https://mariadb.com/docs/server/server-usage/stored-routines/stored-procedures/create-procedure
     """
 
+    # OR REPLACE comes straight after CREATE, before any DEFINER.
     match_grammar = mysql.CreateProcedureStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
-        before=Ref("ProcedureKeywordSegment"),
+        before=Ref("DefinerSegment", optional=True),
     )
 
 
@@ -1119,9 +1171,41 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
     """
 
+    # OR REPLACE comes straight after CREATE, before any DEFINER; AGGREGATE
+    # comes just before FUNCTION.
     match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("DefinerSegment", optional=True),
+    ).copy(
+        insert=[Ref.keyword("AGGREGATE", optional=True)],
         before=Ref("FunctionKeywordSegment"),
+    )
+
+
+class CreateEventStatementSegment(mysql.CreateEventStatementSegment):
+    """A `CREATE EVENT` statement.
+
+    MariaDB adds `OR REPLACE`, straight after `CREATE`.
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-event
+    """
+
+    match_grammar = mysql.CreateEventStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("DefinerSegment", optional=True),
+    )
+
+
+class CursorFetchSegment(mysql.CursorFetchSegment):
+    """A `FETCH` statement.
+
+    MariaDB adds `FETCH GROUP NEXT ROW`, which an aggregate function uses to
+    read its next row.
+    https://mariadb.com/docs/server/server-usage/stored-routines/stored-functions/stored-aggregate-functions
+    """
+
+    match_grammar = OneOf(
+        Sequence("FETCH", "GROUP", "NEXT", "ROW"),
+        mysql.CursorFetchSegment.match_grammar,
     )
 
 
