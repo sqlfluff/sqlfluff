@@ -1355,3 +1355,23 @@ test_fail_bigquery_with_expression_unknown_table:
     rules:
       references.from:
         force_enable: true
+
+test_pass_bigquery_with_expression_variable_in_subquery:
+  # A subquery inside a WITH expression can use the variables before it.
+  pass_str: SELECT WITH(s AS STRUCT(1 AS f), (SELECT s.f FROM t)) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_bigquery_with_expression_variable_in_own_subquery:
+  # A subquery in the assignment of a variable cannot use that variable.
+  fail_str: SELECT WITH(s AS (SELECT s.f FROM t), s) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true

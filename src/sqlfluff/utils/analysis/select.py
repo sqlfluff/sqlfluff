@@ -110,7 +110,7 @@ def _get_hint_refs(segment: BaseSegment) -> set[int]:
     return hint_ref_ids
 
 
-def iter_with_expression_scopes(
+def _iter_with_expression_scopes(
     with_expression: BaseSegment,
 ) -> Iterator[tuple[BaseSegment, frozenset[str]]]:
     """Yield each expression of a WITH expression and the variables it can use.
@@ -138,21 +138,49 @@ def iter_with_expression_scopes(
             variable = None
 
 
+def _get_enclosing_with_expression_variables(segment: BaseSegment) -> frozenset[str]:
+    """Get the variables of the WITH expressions around a select.
+
+    In ``WITH(a AS 1, (SELECT a FROM t1 JOIN t2 ON t1.id = t2.id))`` the
+    subquery uses the variable ``a``, which the WITH expression around it
+    declares.
+    """
+    variables: set[str] = set()
+    branch: Optional[BaseSegment] = None
+    below = segment
+    parent = segment.get_parent()
+    while parent:
+        ancestor = parent[0]
+        # The path from a WITH expression to the select goes through its
+        # brackets, then through the expression that holds the select.
+        if ancestor.is_type("with_expression"):
+            for expression, declared in _iter_with_expression_scopes(ancestor):
+                if expression is branch:
+                    variables |= declared
+        branch, below = below, ancestor
+        parent = ancestor.get_parent()
+    return frozenset(variables)
+
+
 def _get_with_expression_refs(segment: BaseSegment) -> set[int]:
     """Get the ids of object references to the variables of a WITH expression."""
     with_ref_ids: set[int] = set()
+    scopes = [(segment, _get_enclosing_with_expression_variables(segment))]
     for with_expression in segment.recursive_crawl(
         "with_expression",
         no_recursive_seg_type=["select_statement", "merge_statement"],
     ):
-        for expression, declared in iter_with_expression_scopes(with_expression):
-            for ref in expression.recursive_crawl(
-                "object_reference",
-                no_recursive_seg_type=["select_statement", "merge_statement"],
-            ):
-                name = ref.get_child("naked_identifier", "quoted_identifier")
-                if name and name.raw_upper.strip("`") in declared:
-                    with_ref_ids.add(ref.uuid)
+        scopes.extend(_iter_with_expression_scopes(with_expression))
+    for scope, declared in scopes:
+        if not declared:
+            continue
+        for ref in scope.recursive_crawl(
+            "object_reference",
+            no_recursive_seg_type=["select_statement", "merge_statement"],
+        ):
+            name = ref.get_child("naked_identifier", "quoted_identifier")
+            if name and name.raw_upper.strip("`") in declared:
+                with_ref_ids.add(ref.uuid)
     return with_ref_ids
 
 
