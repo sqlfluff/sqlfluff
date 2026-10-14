@@ -910,7 +910,9 @@ class PyLexer:
 try:
     from sqlfluffrs import RsLexer, RsToken
 
-    def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
+    def get_segment_type_map(
+        base_class: type[RawSegment],
+    ) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""
         segment_map = {}
         for subclass in base_class.__subclasses__():

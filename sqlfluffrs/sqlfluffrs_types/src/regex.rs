@@ -1,5 +1,5 @@
 use std::fmt::Display;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashMap;
@@ -9,13 +9,12 @@ use regex::{Regex, RegexBuilder};
 /// Process-global cache of compiled `RegexMode`s, keyed by `(pattern, case_insensitive)`.
 ///
 /// Compiling a regex is orders of magnitude more expensive than matching one, and
-/// the same handful of dialect patterns (quoted-value / escape-replacement) are
-/// reused across thousands of tokens. Cache the compiled form so each distinct
-/// pattern is built at most once.
-///
-/// Note: the parser keeps its own instance-scoped cache for grammar patterns.
-static REGEX_CACHE: Lazy<RwLock<HashMap<(String, bool), RegexMode>>> =
-    Lazy::new(|| RwLock::new(HashMap::new()));
+/// the same patterns (quoted-value / escape-replacement, grammar `RegexParser`s)
+/// are reused across thousands of tokens and every file. Cache the compiled form
+/// so each distinct pattern is built at most once per process.
+static REGEX_CACHE: Lazy<RwLock<RegexCache>> = Lazy::new(|| RwLock::new(HashMap::new()));
+
+type RegexCache = HashMap<(String, bool), Arc<RegexMode>>;
 
 #[derive(Debug, Clone)]
 pub enum RegexModeGroup {
@@ -54,13 +53,13 @@ impl RegexMode {
 
     /// Like [`RegexMode::new`], but returns a cached compiled regex, only
     /// compiling on the first request for a given pattern.
-    pub fn cached(pattern: &str) -> Self {
+    pub fn cached(pattern: &str) -> Arc<Self> {
         Self::cached_with_flags(pattern, true)
     }
 
     /// Like [`RegexMode::new_with_flags`], but returns a cached compiled regex,
     /// only compiling on the first request for a given `(pattern, flags)`.
-    pub fn cached_with_flags(pattern: &str, case_insensitive: bool) -> Self {
+    pub fn cached_with_flags(pattern: &str, case_insensitive: bool) -> Arc<Self> {
         let key = (pattern.to_string(), case_insensitive);
         // Fast path: shared read lock for the common (already-cached) case.
         if let Some(re) = REGEX_CACHE
@@ -76,7 +75,7 @@ impl RegexMode {
             .write()
             .unwrap_or_else(|p| p.into_inner())
             .entry(key)
-            .or_insert_with(|| Self::new_with_flags(pattern, case_insensitive))
+            .or_insert_with(|| Arc::new(Self::new_with_flags(pattern, case_insensitive)))
             .clone()
     }
 
@@ -145,5 +144,25 @@ impl Display for RegexMode {
             RegexMode::Regex(_, _) => write!(f, "Regex"),
             RegexMode::FancyRegex(_, _) => write!(f, "FancyRegex"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cached_shares_one_compiled_regex_per_pattern_and_flags() {
+        let a = RegexMode::cached_with_flags("[a-z_]+", true);
+        // Same instance, not a clone.
+        assert!(Arc::ptr_eq(
+            &a,
+            &RegexMode::cached_with_flags("[a-z_]+", true)
+        ));
+        // Case sensitivity is part of the key.
+        let sensitive = RegexMode::cached_with_flags("[a-z_]+", false);
+        assert!(!Arc::ptr_eq(&a, &sensitive));
+        assert!(a.is_match("ABC"));
+        assert!(!sensitive.is_match("ABC"));
     }
 }

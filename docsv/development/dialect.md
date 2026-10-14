@@ -172,6 +172,25 @@ clause needs to overridden so the dialect file will be very small. For some of
 the other dialects where there's lots of differences ([Microsoft T-SQL](../reference/dialects/tsql)!)
 you may be overriding a lot more.
 
+### Choosing a parent dialect
+
+Inheritance is a way to reuse SQLFluff's grammar, not a claim that two database
+engines support the same SQL. For example, Redshift inherits from PostgreSQL
+because its grammar is a useful starting point; a PostgreSQL feature should
+not automatically be accepted in Redshift. The [dialect reference](../reference/dialects/)
+shows the current parent of each dialect.
+
+When adding or changing syntax, consider:
+
+- Is the syntax valid for every dialect that inherits from this one? If so,
+  add it to their common parent. Otherwise, add or override it in the specific
+  dialect.
+- If creating a dialect, which existing grammar is the closest starting point?
+  Choose for the syntax SQLFluff needs to parse, rather than the database's
+  product lineage.
+- Which downstream dialects inherit the segment or grammar you are changing?
+  Check their fixtures and tests too, especially when changing a shared parent.
+
 ## Lexing
 
 I kind of skipped this part, but before a piece of SQL can be *parsed*, it is

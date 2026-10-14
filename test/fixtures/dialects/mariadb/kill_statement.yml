@@ -1,0 +1,104 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bcfd8ea7262102e59356c4f1b39b250cb6c0b46576ec92693805823c42087d6d
+file:
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - keyword: QUERY
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - keyword: ID
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: QUERY
+    - keyword: ID
+    - variable: '@query_id'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - keyword: USER
+    - role_reference:
+        naked_identifier: u1
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+        keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+        keyword: CURRENT_USER
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: CONNECTION
+    - keyword: USER
+    - role_reference:
+        keyword: CURRENT_USER
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
