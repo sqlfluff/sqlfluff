@@ -678,7 +678,11 @@ tsql_dialect.replace(
         ),
         OneOf(
             "CLUSTERED",
-            "NONCLUSTERED",
+            Sequence(
+                "NONCLUSTERED",
+                Ref.keyword("HASH", optional=True),
+            ),
+            "HASH",
             optional=True,
         ),
     ),
@@ -3427,6 +3431,7 @@ class RelationalIndexOptionsSegment(BaseSegment):
                             "ALLOW_PAGE_LOCKS",
                             "OPTIMIZE_FOR_SEQUENTIAL_KEY",
                             "MAXDOP",
+                            "BUCKET_COUNT",
                         ),
                         Ref("EqualsSegment"),
                         OneOf(
@@ -4202,7 +4207,15 @@ class ColumnConstraintSegment(BaseSegment):
                 Sequence(
                     "INDEX",
                     Ref("ObjectReferenceSegment"),  # index name
-                    OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                    OneOf(
+                        "CLUSTERED",
+                        Sequence(
+                            "NONCLUSTERED",
+                            Ref.keyword("HASH", optional=True),
+                        ),
+                        "HASH",
+                        optional=True,
+                    ),
                     # other optional blocks (RelationalIndexOptionsSegment,
                     # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned
                     # above
@@ -5657,7 +5670,15 @@ class TableIndexSegment(BaseSegment):
         OneOf(
             Sequence(
                 Sequence("UNIQUE", optional=True),
-                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                OneOf(
+                    "CLUSTERED",
+                    Sequence(
+                        "NONCLUSTERED",
+                        Ref.keyword("HASH", optional=True),
+                    ),
+                    "HASH",
+                    optional=True,
+                ),
                 Ref("BracketedIndexColumnListGrammar"),
             ),
             Sequence("CLUSTERED", "COLUMNSTORE"),

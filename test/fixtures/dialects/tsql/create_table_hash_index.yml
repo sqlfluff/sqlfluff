@@ -1,0 +1,292 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f8efa6423dc0e9b8a8557e0eb64605884de95d6f0110186749d5d1c38090c492
+file:
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: UserSession
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: SessionId
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: UserId
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: LoginTime
+            data_type:
+              keyword: DATETIME2
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: PK_UserSession
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: NONCLUSTERED
+          - keyword: HASH
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: SessionId
+                end_bracket: )
+          - relational_index_options:
+              keyword: WITH
+              bracketed:
+                start_bracket: (
+                keyword: BUCKET_COUNT
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '1000000'
+                end_bracket: )
+        - end_bracket: )
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MEMORY_OPTIMIZED
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - comma: ','
+          - keyword: DURABILITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SCHEMA_AND_DATA
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: UserSession2
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: SessionId
+          - data_type:
+              keyword: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: NONCLUSTERED
+            - keyword: HASH
+          - column_constraint_segment:
+              relational_index_options:
+                keyword: WITH
+                bracketed:
+                  start_bracket: (
+                  keyword: BUCKET_COUNT
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  integer_literal: '1000000'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: UserId
+          - data_type:
+              keyword: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: INDEX
+            - object_reference:
+                naked_identifier: IX_UserId
+            - keyword: NONCLUSTERED
+            - keyword: HASH
+          - column_constraint_segment:
+              relational_index_options:
+                keyword: WITH
+                bracketed:
+                  start_bracket: (
+                  keyword: BUCKET_COUNT
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  integer_literal: '500000'
+                  end_bracket: )
+        - end_bracket: )
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MEMORY_OPTIMIZED
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: UserSession3
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: SessionId
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: UserId
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_index_segment:
+          - keyword: INDEX
+          - object_reference:
+              naked_identifier: IX_UserSession_UserId
+          - keyword: NONCLUSTERED
+          - keyword: HASH
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: UserId
+                end_bracket: )
+          - relational_index_options:
+              keyword: WITH
+              bracketed:
+                start_bracket: (
+                keyword: BUCKET_COUNT
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '1000000'
+                end_bracket: )
+        - comma: ','
+        - table_index_segment:
+          - keyword: INDEX
+          - object_reference:
+              naked_identifier: IX_UserSession_Hash
+          - keyword: HASH
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: SessionId
+                end_bracket: )
+          - relational_index_options:
+              keyword: WITH
+              bracketed:
+                start_bracket: (
+                keyword: BUCKET_COUNT
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '500000'
+                end_bracket: )
+        - end_bracket: )
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MEMORY_OPTIMIZED
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: UserSession4
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: SessionId
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: UserCode
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: UQ_UserSession4
+          - keyword: UNIQUE
+          - keyword: NONCLUSTERED
+          - keyword: HASH
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: UserCode
+                end_bracket: )
+          - relational_index_options:
+              keyword: WITH
+              bracketed:
+                start_bracket: (
+                keyword: BUCKET_COUNT
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '65536'
+                end_bracket: )
+        - end_bracket: )
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MEMORY_OPTIMIZED
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - end_bracket: )
+  - statement_terminator: ;
