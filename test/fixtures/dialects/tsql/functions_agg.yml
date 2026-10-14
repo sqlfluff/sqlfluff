@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 102e9fea8252a04908e718f0118a2e808e3a98e472652e0fb9ac2b46f92c7db8
+_hash: 25810c75cd3b8b4a13a811fa3c553fa89385ddf24f19b77f337d5d0ec6f5965e
 file:
   batch:
   - statement:
@@ -164,4 +164,92 @@ file:
       - keyword: TABLE
       - table_reference:
           hash_identifier: '#Mercury'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: PERCENTILE_CONT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0.5'
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: Rate
+                  end_bracket: )
+              - keyword: OVER
+              - bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: MedianCont2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                keyword: PERCENTILE_DISC
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0.5'
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: Rate
+                  end_bracket: )
+              - keyword: OVER
+              - bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: MedianDisc2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
   - statement_terminator: ;

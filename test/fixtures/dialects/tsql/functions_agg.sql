@@ -11,3 +11,7 @@ group by
 HAVING MIN([ArrivalDt]) <= MAX([DischargeDt])
 
 DROP TABLE #Mercury;
+
+SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY t.Rate) OVER () AS MedianCont2 FROM t;
+
+SELECT PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY t.Rate) OVER () AS MedianDisc2 FROM t;

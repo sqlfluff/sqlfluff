@@ -4887,7 +4887,10 @@ class WithinGroupClause(BaseSegment):
         ),
         Sequence(
             "OVER",
-            Bracketed(Ref("PartitionClauseSegment")),
+            Bracketed(
+                Ref("PartitionClauseSegment", optional=True),
+                parse_mode=ParseMode.GREEDY,
+            ),
             optional=True,
         ),
     )
