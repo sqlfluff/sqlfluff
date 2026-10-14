@@ -411,7 +411,12 @@ class Rule_LT09(BaseRule):
                     # _eval_single_select_target_element() leave leftover
                     # child segments that need to be moved to become
                     # *siblings* of the select_clause.
+                    # NOTE: Exclude meta segments. Some dialects place the
+                    # select clause's `Indent` after the leading whitespace,
+                    # i.e. inside this range. Moving it would insert a
+                    # zero-width segment and orphan its `Dedent`.
                     move_after_select_clause = select_children.select(
+                        select_if=sp.not_(sp.is_meta()),
                         start_seg=start_seg,
                         stop_seg=to_delete[-1],
                     )
