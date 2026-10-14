@@ -8,7 +8,10 @@ from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo, qualificat
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04
-from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select import (
+    get_select_statement_info,
+    iter_with_expression_scopes,
+)
 
 
 class Rule_RF02(Rule_AL04):
@@ -100,6 +103,7 @@ class Rule_RF02(Rule_AL04):
             ignore_words_list = self._init_ignore_words_list()
 
         sql_variables = self._find_sql_variables(rule_context)
+        with_variables = self._find_with_expression_variables(rule_context)
         row_reference_aliases = (
             {alias.segment.raw_normalized() for alias in table_aliases if alias.segment}
             if rule_context.dialect.name in self._dialects_with_row_references
@@ -116,6 +120,11 @@ class Rule_RF02(Rule_AL04):
 
             # Skip if a sql variable name inside the file
             if r.raw.lower() in sql_variables:
+                continue
+
+            # Skip if a variable of a WITH expression around this select
+            name = r.get_child("naked_identifier", "quoted_identifier")
+            if name and name.raw_upper.strip("`") in with_variables:
                 continue
 
             # Skip if matches ignore regex
@@ -204,3 +213,24 @@ class Rule_RF02(Rule_AL04):
         # TODO: Add any additional dialect specific variable names
 
         return sql_variables
+
+    def _find_with_expression_variables(self, rule_context: RuleContext) -> set[str]:
+        """Get the variables of the BigQuery WITH expressions around this select.
+
+        In ``WITH(a AS 1, (SELECT a FROM t1 JOIN t2 ON t1.id = t2.id))`` the
+        subquery uses the variable ``a``. The select analysis sees only the
+        subquery, so take the variables from the WITH expressions around it.
+        """
+        variables: set[str] = set()
+        path = (*rule_context.parent_stack, rule_context.segment)
+        for idx, seg in enumerate(path):
+            if not seg.is_type("with_expression"):
+                continue
+            # The path goes from the WITH expression through its brackets to
+            # the expression that holds this select.
+            branch = path[idx + 2]
+            for expression, declared in iter_with_expression_scopes(seg):
+                if expression.uuid == branch.uuid:
+                    variables |= declared
+                    break
+        return variables

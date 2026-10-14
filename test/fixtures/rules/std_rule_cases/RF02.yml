@@ -976,3 +976,19 @@ test_fail_bigquery_with_expression_variable_outside_subquery:
   configs:
     core:
       dialect: bigquery
+
+test_allow_bigquery_with_expression_variable_in_subquery:
+  # A subquery inside a WITH expression can use the variables before it.
+  pass_str: |
+    SELECT WITH(a AS 1, (SELECT a FROM t1 INNER JOIN t2 ON t1.id = t2.id)) AS z
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_with_expression_variable_in_own_subquery:
+  # A subquery in the assignment of a variable cannot use that variable.
+  fail_str: |
+    SELECT WITH(a AS (SELECT a FROM t1 INNER JOIN t2 ON t1.id = t2.id), a) AS z
+  configs:
+    core:
+      dialect: bigquery

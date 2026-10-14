@@ -1,5 +1,6 @@
 """Basic code analysis tools for SELECT statements."""
 
+from collections.abc import Iterator
 from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
@@ -109,41 +110,49 @@ def _get_hint_refs(segment: BaseSegment) -> set[int]:
     return hint_ref_ids
 
 
-def _get_with_expression_refs(segment: BaseSegment) -> set[int]:
-    """Get the ids of object references to the variables of a WITH expression.
+def iter_with_expression_scopes(
+    with_expression: BaseSegment,
+) -> Iterator[tuple[BaseSegment, frozenset[str]]]:
+    """Yield each expression of a WITH expression and the variables it can use.
 
     BigQuery's ``WITH(a AS 1, b AS a + 1, a + b)`` declares ``a`` and ``b`` in
     place. Each expression can use the variables declared before it, so those
     references name a variable, not a column of a table in the FROM clause.
     See: https://github.com/sqlfluff/sqlfluff/issues/8608
     """
+    bracketed = with_expression.get_child("bracketed")
+    assert bracketed
+    declared: set[str] = set()
+    variable: Optional[str] = None
+    for child in bracketed.get_children(
+        "naked_identifier", "quoted_identifier", "expression"
+    ):
+        # BigQuery reads `a` and a as the same name.
+        if not child.is_type("expression"):
+            variable = child.raw_upper.strip("`")
+            continue
+        yield child, frozenset(declared)
+        # A variable is in scope only after its own assignment.
+        if variable:
+            declared.add(variable)
+            variable = None
+
+
+def _get_with_expression_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references to the variables of a WITH expression."""
     with_ref_ids: set[int] = set()
     for with_expression in segment.recursive_crawl(
         "with_expression",
         no_recursive_seg_type=["select_statement", "merge_statement"],
     ):
-        bracketed = with_expression.get_child("bracketed")
-        assert bracketed
-        declared: set[str] = set()
-        variable: Optional[str] = None
-        for child in bracketed.get_children(
-            "naked_identifier", "quoted_identifier", "expression"
-        ):
-            # BigQuery reads `a` and a as the same name.
-            if not child.is_type("expression"):
-                variable = child.raw_upper.strip("`")
-                continue
-            for ref in child.recursive_crawl(
+        for expression, declared in iter_with_expression_scopes(with_expression):
+            for ref in expression.recursive_crawl(
                 "object_reference",
                 no_recursive_seg_type=["select_statement", "merge_statement"],
             ):
                 name = ref.get_child("naked_identifier", "quoted_identifier")
                 if name and name.raw_upper.strip("`") in declared:
                     with_ref_ids.add(ref.uuid)
-            # A variable is in scope only after its own assignment.
-            if variable:
-                declared.add(variable)
-                variable = None
     return with_ref_ids
 
 
