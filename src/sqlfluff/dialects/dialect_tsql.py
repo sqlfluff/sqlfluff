@@ -590,9 +590,12 @@ tsql_dialect.replace(
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
     ).copy(
+        insert=[
+            Ref("ActionParameterSegment"),
+        ],
         remove=[
             Ref("IntervalExpressionSegment"),
-        ]
+        ],
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -796,6 +799,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
             "DEFAULT",
+            Ref("ActionParameterSegment"),
         ),
         Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
