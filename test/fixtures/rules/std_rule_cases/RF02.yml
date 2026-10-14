@@ -996,7 +996,7 @@ test_fail_bigquery_with_expression_variable_in_own_subquery:
 test_allow_bigquery_nested_with_expression_variables_in_subquery:
   # A subquery can use the variables of every WITH expression around it.
   pass_str: |
-    SELECT WITH(a AS 1, WITH(b AS 2, (SELECT a, b FROM t1 INNER JOIN t2 ON t1.id = t2.id))) AS z
+    SELECT WITH(a AS 1, WITH(b AS 2, (SELECT a + b FROM t1 INNER JOIN t2 ON t1.id = t2.id))) AS z
   configs:
     core:
       dialect: bigquery
