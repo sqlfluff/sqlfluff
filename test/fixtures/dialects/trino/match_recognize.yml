@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac5c3d5bbb7efbc3261c829d2826dc6ba8ffa032b93bfd60d33e5727a8c3e954
+_hash: 6e40aef2205d33580957f921eb58e2b14e32b38bf6e7a7b999ea9505cd00f92a
 file:
 - statement:
     select_statement:
@@ -760,7 +760,7 @@ file:
             - keyword: MEASURES
             - expression:
                 column_reference:
-                - naked_identifier: A
+                - naked_identifier: START
                 - dot: .
                 - naked_identifier: totalprice
             - alias_expression:
@@ -819,5 +819,85 @@ file:
                         column_reference:
                           naked_identifier: totalprice
                       end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+            - keyword: MEASURES
+            - keyword: FINAL
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: LAST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: A
+                        - dot: .
+                        - naked_identifier: totalprice
+                      end_bracket: )
+            - alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: p
+            - comma: ','
+            - keyword: RUNNING
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: LAST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: A
+                        - dot: .
+                        - naked_identifier: totalprice
+                      end_bracket: )
+            - alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: q
+            - keyword: ALL
+            - keyword: ROWS
+            - keyword: PER
+            - keyword: MATCH
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  naked_identifier: A
+                  sign_indicator: +
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'true'
             - end_bracket: )
 - statement_terminator: ;

@@ -52,9 +52,11 @@ SELECT
     *
 FROM orders MATCH_RECOGNIZE (
     ORDER BY orderdate
-    MEASURES A.totalprice AS starting_price
+    MEASURES START.totalprice AS starting_price
     PATTERN (START DOWN+ UP+ | DOWN+ UP+ END)
     DEFINE
         DOWN AS totalprice < PREV(totalprice),
         UP AS totalprice > PREV(totalprice)
 );
+
+SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a MEASURES FINAL LAST(A.totalprice) AS p, RUNNING LAST(A.totalprice) AS q ALL ROWS PER MATCH PATTERN (A+) DEFINE A AS true);
