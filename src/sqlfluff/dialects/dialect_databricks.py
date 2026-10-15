@@ -1797,7 +1797,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("ApplyChangesIntoStatementSegment"),
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
-        ]
+        ],
     )
 
 
