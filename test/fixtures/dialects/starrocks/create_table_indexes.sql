@@ -13,7 +13,7 @@ CREATE TABLE indexed_values (
     description STRING,
     INDEX category_idx (category) USING BITMAP,
     INDEX description_idx (description) USING NGRAMBF (
-        "bf_size" = "1024",
+        "bloom_filter_fpp" = "0.05",
         "gram_num" = "3",
         "case_sensitive" = "false"
     )

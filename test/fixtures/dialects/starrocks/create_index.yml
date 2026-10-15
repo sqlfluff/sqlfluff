@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 696e41f9c49a67fe574f4f33a2a6d97ad22c066ca217bdc6cab4dd356f0a5856
+_hash: ed8244298e0ee6d6e3b75ca7ec4fd0df40303afdb6db668884ded14c24be1a87
 file:
 - statement:
     create_index_statement:
@@ -73,10 +73,10 @@ file:
         - keyword: NGRAMBF
         - bracketed:
           - start_bracket: (
-          - quoted_literal: '"bf_size"'
+          - quoted_literal: '"bloom_filter_fpp"'
           - comparison_operator:
               raw_comparison_operator: '='
-          - quoted_literal: '"1024"'
+          - quoted_literal: '"0.05"'
           - comma: ','
           - quoted_literal: '"gram_num"'
           - comparison_operator:

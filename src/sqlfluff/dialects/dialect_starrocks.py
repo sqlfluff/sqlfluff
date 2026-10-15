@@ -161,7 +161,6 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                         OneOf(
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
-                            Ref("IndexDefinitionSegment"),
                         ),
                     )
                 ),
@@ -379,24 +378,11 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-class IndexDefinitionSegment(BaseSegment):
-    """An inline StarRocks index definition.
+class IndexTypeGrammar(BaseSegment):
+    """StarRocks index type and optional properties.
 
     https://docs.starrocks.io/docs/sql-reference/sql-statements/table_bucket_part_index/CREATE_INDEX/
     """
-
-    type = "index_definition"
-    match_grammar = Sequence(
-        "INDEX",
-        Ref("IndexReferenceSegment"),
-        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-        Ref("IndexTypeGrammar", optional=True),
-        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
-    )
-
-
-class IndexTypeGrammar(BaseSegment):
-    """StarRocks index type and optional properties."""
 
     type = "index_type"
     match_grammar = Sequence(
