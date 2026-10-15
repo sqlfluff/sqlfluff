@@ -410,12 +410,6 @@ databricks_dialect.replace(
         ],
         at=0,
     ),
-    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
-    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[
-            Ref("ParameterizedSegment"),
-        ]
-    ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
@@ -1717,25 +1711,6 @@ class OptimizeTableStatementSegment(BaseSegment):
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             optional=True,
         ),
-    )
-
-
-class LimitClauseSegment(sparksql.LimitClauseSegment):
-    """A `LIMIT` clause like in `SELECT`.
-
-    Enhanced from SparkSQL to support parameterized values.
-    """
-
-    match_grammar = Sequence(
-        "LIMIT",
-        Indent,
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            "ALL",
-            Ref("FunctionSegment"),
-            Ref("ParameterizedSegment"),  # Add support for parameters
-        ),
-        Dedent,
     )
 
 

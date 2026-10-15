@@ -343,6 +343,7 @@ sparksql_dialect.replace(
         insert=[
             Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
+            Ref("ParameterizedSegment"),
         ]
     ),
     NaturalJoinKeywordsGrammar=Sequence(
@@ -1703,6 +1704,22 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
+class ParameterizedSegment(BaseSegment):
+    """A named parameter marker, e.g. `:start_date`.
+
+    The value is bound when the statement is executed.
+
+    https://spark.apache.org/docs/latest/sql-ref-parameter-markers.html
+    """
+
+    type = "parameterized_expression"
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        Ref("NakedIdentifierSegment"),
+        allow_gaps=False,
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement using a Data Source or Like.
 
@@ -2241,6 +2258,7 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             Ref("NumericLiteralSegment"),
             "ALL",
             Ref("FunctionSegment"),
+            Ref("ParameterizedSegment"),
         ),
         Dedent,
     )
