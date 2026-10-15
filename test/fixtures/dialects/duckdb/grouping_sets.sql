@@ -27,3 +27,15 @@ GROUP BY country, ROLLUP (city, street_name);
 SELECT count(*)
 FROM addresses
 GROUP BY ();
+
+SELECT a, b, c, count(*)
+FROM t
+GROUP BY CUBE (a), ROLLUP (b, c);
+
+SELECT a, b, c, count(*)
+FROM t
+GROUP BY ROLLUP ((a, b), c);
+
+SELECT a, b, count(*)
+FROM t
+GROUP BY a, GROUPING SETS ((b), ());
