@@ -2919,6 +2919,8 @@ class AlterTableActionSegment(BaseSegment):
                 Sequence("INITIALLY", "IMMEDIATE"),
                 optional=True,
             ),
+            # [ ENFORCED | NOT ENFORCED ] (PostgreSQL 18)
+            OneOf("ENFORCED", Sequence("NOT", "ENFORCED"), optional=True),
         ),
         Sequence("VALIDATE", "CONSTRAINT", Ref("ParameterNameSegment")),
         Sequence(
@@ -4125,6 +4127,8 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Sequence("INITIALLY", "IMMEDIATE"),
             optional=True,
         ),
+        # [ ENFORCED | NOT ENFORCED ] (PostgreSQL 18)
+        OneOf("ENFORCED", Sequence("NOT", "ENFORCED"), optional=True),
     )
 
 
@@ -4272,6 +4276,8 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
             OneOf(
                 Sequence("INITIALLY", "DEFERRED"), Sequence("INITIALLY", "IMMEDIATE")
             ),
+            # [ ENFORCED | NOT ENFORCED ] (PostgreSQL 18)
+            OneOf("ENFORCED", Sequence("NOT", "ENFORCED")),
             Sequence("NOT", "VALID"),
             Sequence("NO", "INHERIT"),
         ),
