@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 973b46602ff1876c74730e2244391986be7eb9d4fe7acddd0fd171f5370350bb
+_hash: 7a7a2f8320fac36648d9a4330d4c68229b2e79ea5147103a94a447ac95d032b4
 file:
 - statement:
     select_statement:
@@ -108,4 +108,87 @@ file:
           - naked_identifier: pos
           - comma: ','
           - naked_identifier: val
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+              function_name:
+                function_name_identifier: EXPLODE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: a
+                  end_bracket: )
+          - naked_identifier: b
+          - keyword: AS
+          - naked_identifier: lateral
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+              function_name:
+                function_name_identifier: EXPLODE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: a
+                  end_bracket: )
+          - naked_identifier: b
+          - naked_identifier: lateral
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+              function_name:
+                function_name_identifier: EXPLODE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: c
+                  end_bracket: )
+          - naked_identifier: d
 - statement_terminator: ;

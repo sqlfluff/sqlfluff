@@ -2481,7 +2481,7 @@ class LateralViewClauseSegment(BaseSegment):
                     Delimited(
                         Ref("SingleIdentifierGrammar"),
                         # Don't mistake a following `LATERAL VIEW` for aliases.
-                        terminators=[Ref.keyword("LATERAL")],
+                        terminators=[Sequence("LATERAL", "VIEW")],
                     ),
                     optional=True,
                 ),
