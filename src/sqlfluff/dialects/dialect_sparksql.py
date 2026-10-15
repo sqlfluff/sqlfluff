@@ -2478,7 +2478,11 @@ class LateralViewClauseSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Sequence(
                     Ref.keyword("AS", optional=True),
-                    Delimited(Ref("SingleIdentifierGrammar")),
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                        # Don't mistake a following `LATERAL VIEW` for aliases.
+                        terminators=[Ref.keyword("LATERAL")],
+                    ),
                     optional=True,
                 ),
             ),
