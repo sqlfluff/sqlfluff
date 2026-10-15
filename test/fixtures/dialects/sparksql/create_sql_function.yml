@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 44ab822cc895f40e9fcb400b09ae9df77d70791a6a19381e241baa7ca60570d7
+_hash: a2dcf50930327d9986b8b47f51b19510859e3a9ac3ca8eb000fcaaf4c9a36a8d
 file:
 - statement:
     create_sql_function_statement:
@@ -244,4 +244,107 @@ file:
     - expression:
         column_reference:
           naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: NOT
+    - keyword: DETERMINISTIC
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'adds nothing'"
+    - keyword: CONTAINS
+    - keyword: SQL
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: x
+      - data_type:
+          primitive_type:
+            keyword: INT
+      - keyword: COMMENT
+      - quoted_literal: "'x'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: y
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - end_bracket: )
+    - keyword: READS
+    - keyword: SQL
+    - keyword: DATA
+    - keyword: RETURN
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "'b'"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - keyword: RETURN
+    - expression:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
 - statement_terminator: ;

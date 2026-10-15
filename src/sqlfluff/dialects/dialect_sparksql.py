@@ -1719,7 +1719,32 @@ class CreateSqlFunctionStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammarWithComments"),
-        Sequence("RETURNS", Ref("DatatypeSegment"), optional=True),
+        Sequence(
+            "RETURNS",
+            OneOf(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Ref("DatatypeSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence("LANGUAGE", "SQL"),
+            Sequence(Ref.keyword("NOT", optional=True), "DETERMINISTIC"),
+            Ref("CommentClauseSegment"),
+            OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
+        ),
         "RETURN",
         OneOf(
             Ref("ExpressionSegment"),
