@@ -307,17 +307,11 @@ sparksql_dialect.replace(
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
-    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
-    #  - "PRIOR" keyword removed, as SparkSQL has no CONNECT BY. Otherwise
-    #    `prior` can't be used as a table alias in an expression.
-    Expression_A_Unary_Operator_Grammar=OneOf(
-        Ref(
-            "SignedSegmentGrammar",
-            exclude=Sequence(Ref("QualifiedNumericLiteralSegment")),
-        ),
-        Ref("TildeSegment"),
-        Ref("NotOperatorGrammar"),
-    ),
+    # SparkSQL has no CONNECT BY, so `PRIOR` is not an operator and must stay
+    # usable as an identifier (e.g. `prior.x`).
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(remove=[Ref.keyword("PRIOR")]),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
