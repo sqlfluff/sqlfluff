@@ -3958,7 +3958,7 @@ class DropSubscriptionStatementSegment(BaseSegment):
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
-    https://www.postgresql.org/docs/16/sql-vacuum.html
+    https://www.postgresql.org/docs/18/sql-vacuum.html
     https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L11658
     """
 
@@ -4006,7 +4006,10 @@ class VacuumStatementSegment(BaseSegment):
         ),
         Delimited(
             Sequence(
+                # ONLY and * are PostgreSQL 18+.
+                Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
+                Ref("StarSegment", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
             optional=True,
@@ -5190,7 +5193,7 @@ class DropStatisticsStatementSegment(BaseSegment):
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
-    As specified in https://www.postgresql.org/docs/16/sql-analyze.html
+    As specified in https://www.postgresql.org/docs/18/sql-analyze.html
     """
 
     type = "analyze_statement"
@@ -5206,7 +5209,10 @@ class AnalyzeStatementSegment(BaseSegment):
     )
 
     _tables_and_columns = Sequence(
+        # ONLY and * are PostgreSQL 18+.
+        Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("StarSegment", optional=True),
         Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
     )
 
