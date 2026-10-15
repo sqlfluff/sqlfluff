@@ -2102,6 +2102,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropIcebergTableStatementSegment"),
             Ref("CreateAuthenticationPolicySegment"),
             Ref("DropResourceMonitorStatementSegment"),
+            Ref("CreateSecretStatementSegment"),
+            Ref("AlterSecretStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -3995,6 +3997,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         "PROCEDURE",
         "ROUTINE",
         "SEQUENCE",
+        "SECRET",
         "STREAM",
         "STREAMLIT",
         "TASK",
@@ -4029,6 +4032,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         "PROCEDURES",
         "ROUTINES",
         "SEQUENCES",
+        "SECRETS",
         "STREAMS",
         "STREAMLITS",
         "TASKS",
@@ -9695,6 +9699,7 @@ class ShowStatementSegment(BaseSegment):
         "COLUMNS",
         Sequence("FILE", "FORMATS"),
         "SEQUENCES",
+        "SECRETS",
         "STAGES",
         "PIPES",
         "STREAMS",
@@ -10574,6 +10579,11 @@ class DescribeStatementSegment(BaseSegment):
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-secret
+            Sequence(
+                "SECRET",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-session-policy.html
             Sequence(
                 "SESSION",
@@ -11166,6 +11176,7 @@ class DropObjectStatementSegment(BaseSegment):
                     ),
                     "PIPE",
                     Sequence("ROW", "ACCESS", "POLICY"),
+                    "SECRET",
                     Sequence("STORAGE", "LIFECYCLE", "POLICY"),
                     "STAGE",
                     "STREAM",
@@ -12218,6 +12229,87 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("PasswordPolicyReferenceSegment"),
+    )
+
+
+class SecretOptionsSegment(BaseSegment):
+    """Secret Options.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-secret
+    """
+
+    type = "secret_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "API_AUTHENTICATION",
+            Ref("EqualsSegment"),
+            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "OAUTH_SCOPES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Sequence(
+            "OAUTH_REFRESH_TOKEN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+        ),
+        Sequence(
+            "OAUTH_REFRESH_TOKEN_EXPIRY_TIME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("USERNAME", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence("PASSWORD", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence("SECRET_STRING", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence("ALGORITHM", Ref("EqualsSegment"), "GENERIC"),
+        Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class CreateSecretStatementSegment(BaseSegment):
+    """Create Secret Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-secret
+    """
+
+    type = "create_secret_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SECRET",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "TYPE",
+        Ref("EqualsSegment"),
+        OneOf(
+            "OAUTH2",
+            "CLOUD_PROVIDER_TOKEN",
+            "PASSWORD",
+            "GENERIC_STRING",
+            "SYMMETRIC_KEY",
+        ),
+        Ref("SecretOptionsSegment", optional=True),
+    )
+
+
+class AlterSecretStatementSegment(BaseSegment):
+    """Alter Secret Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-secret
+    """
+
+    type = "alter_secret_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SECRET",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "SET",
+        Ref("SecretOptionsSegment"),
     )
 
 
