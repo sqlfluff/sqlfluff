@@ -54,6 +54,9 @@ tsql_dialect = ansi_dialect.copy_as(
     formatted_name="Microsoft T-SQL",
     docstring="""The dialect for `T-SQL`_ (aka Transact-SQL).
 
+Service Broker ``END CONVERSATION`` statements support normal completion,
+``WITH CLEANUP``, and ``WITH ERROR ... DESCRIPTION ...``.
+
 .. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference""",
 )
 
@@ -937,6 +940,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("FetchCursorStatementSegment"),
             Ref("CloseCursorStatementSegment"),
             Ref("DeallocateCursorStatementSegment"),
+            # Service Broker statements
+            Ref("EndConversationStatementSegment"),
             # Other statements
             Ref("PrintStatementSegment"),
             Ref("RaiserrorStatementSegment"),
@@ -4113,6 +4118,36 @@ class ContinueStatement(BaseSegment):
 
     match_grammar = Sequence(
         "CONTINUE",
+    )
+
+
+class EndConversationStatementSegment(BaseSegment):
+    """End a Service Broker conversation.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/end-conversation-transact-sql
+    """
+
+    type = "end_conversation_statement"
+
+    match_grammar = Sequence(
+        "END",
+        "CONVERSATION",
+        OneOf(Ref("ParameterNameSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "WITH",
+            OneOf(
+                "CLEANUP",
+                Sequence(
+                    "ERROR",
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                    "DESCRIPTION",
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
