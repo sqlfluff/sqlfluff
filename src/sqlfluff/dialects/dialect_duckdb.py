@@ -68,6 +68,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ASOF",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
+        "DATABASES",
         "DATEFORMAT",
         "DELIM",
         "GLOB",
@@ -93,6 +94,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "STRUCT",
         "SUFFIX",
         "TIMESTAMPFORMAT",
+        "VARIABLES",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
     ]
@@ -186,6 +188,23 @@ duckdb_dialect.add(
     ),
     FactorialOperatorSegment=TypedParser(
         "not", SymbolSegment, type="factorial_operator"
+    ),
+    # What follows `DESCRIBE`, `DESC` or `SHOW`, which DuckDB treats as the
+    # same statement. `TABLES`, `DATABASES`, `SCHEMAS` and `VARIABLES` list
+    # catalog objects; any other name is a table to describe.
+    # https://duckdb.org/docs/stable/guides/meta/describe
+    # https://duckdb.org/docs/stable/guides/meta/list_tables
+    DescribeTargetGrammar=OneOf(
+        Sequence("ALL", Ref.keyword("TABLES", optional=True)),
+        Sequence(
+            "TABLES",
+            Sequence("FROM", Ref("SchemaReferenceSegment"), optional=True),
+        ),
+        "DATABASES",
+        "SCHEMAS",
+        "VARIABLES",
+        Ref("SelectableGrammar"),
+        Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
     ),
 )
 
@@ -1087,37 +1106,25 @@ class DescribeStatementSegment(ansi.DescribeStatementSegment):
     DuckDB accepts `DESCRIBE`, `DESC` and `SHOW` interchangeably, followed by
     a table, a query, `ALL TABLES` or `TABLES FROM`, or by nothing at all.
     https://duckdb.org/docs/stable/guides/meta/describe
-    https://duckdb.org/docs/stable/guides/meta/list_tables
     """
-
-    _describe_target = OneOf(
-        Sequence("ALL", Ref.keyword("TABLES", optional=True)),
-        Sequence("TABLES", "FROM", Ref("SchemaReferenceSegment")),
-        Ref("SelectableGrammar"),
-        Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
-    )
 
     match_grammar = Sequence(
         OneOf("DESCRIBE", "DESC"),
-        Sequence(_describe_target, optional=True),
+        Ref("DescribeTargetGrammar", optional=True),
     )
 
 
 class ShowStatementSegment(postgres.ShowStatementSegment):
     """A `SHOW` statement.
 
-    In DuckDB this is an alias of `DESCRIBE`. A single name such as
-    `SHOW TABLES` still parses as a parameter, as it does in Postgres.
+    In DuckDB this is an alias of `DESCRIBE`, so it takes the same targets and
+    `SHOW tbl` describes the table `tbl` rather than a setting.
     https://duckdb.org/docs/stable/guides/meta/list_tables
     """
 
     match_grammar = Sequence(
         "SHOW",
-        OneOf(
-            Ref("ParameterNameSegment"),
-            DescribeStatementSegment._describe_target,
-            optional=True,
-        ),
+        Ref("DescribeTargetGrammar", optional=True),
     )
 
 

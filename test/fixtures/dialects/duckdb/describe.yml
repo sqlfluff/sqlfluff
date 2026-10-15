@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bab6a70d7cc1c256f52fdfa1e45e463cb1d5ba68493a82688332c1354295d08d
+_hash: b6763dbd8476773ec3d904abc7467810bb1400b0d114f1cc534241cbe87fdde3
 file:
 - statement:
     describe_statement:
@@ -77,12 +77,26 @@ file:
 - statement_terminator: ;
 - statement:
     describe_statement:
+    - keyword: DESCRIBE
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLES
+    - keyword: FROM
+    - schema_reference:
+        naked_identifier: x
+- statement_terminator: ;
+- statement:
+    describe_statement:
       keyword: DESCRIBE
 - statement_terminator: ;
 - statement:
     show_statement:
       keyword: SHOW
-      parameter: tbl
+      table_reference:
+        naked_identifier: tbl
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -94,8 +108,8 @@ file:
 - statement_terminator: ;
 - statement:
     show_statement:
-      keyword: SHOW
-      parameter: TABLES
+    - keyword: SHOW
+    - keyword: TABLES
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -123,6 +137,21 @@ file:
 - statement_terminator: ;
 - statement:
     show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VARIABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
       keyword: SHOW
       select_statement:
         select_clause:
@@ -131,6 +160,18 @@ file:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      select_statement:
         from_clause:
           keyword: FROM
           from_expression:
