@@ -1220,6 +1220,13 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class GeometryArgumentsSegment(BaseSegment):
+    """Arguments for GEOMETRY(SRID)."""
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(OneOf(Ref("NumericLiteralSegment"), "ANY"))
+
+
 class DatatypeSegment(sparksql.DatatypeSegment):
     """Databricks data types including GEOMETRY."""
 
@@ -1227,10 +1234,7 @@ class DatatypeSegment(sparksql.DatatypeSegment):
         insert=[
             Sequence(
                 "GEOMETRY",
-                Bracketed(
-                    OneOf(Ref("IntegerLiteralSegment"), "ANY"),
-                    optional=False,
-                ),
+                Ref("GeometryArgumentsSegment"),
             ),
         ]
     )

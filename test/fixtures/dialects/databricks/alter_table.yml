@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f64e9819772286614e3cb40af5cd4f0b1d3c33b0bf394801fbad43bef0b1f82
+_hash: 25f91ee37426d1bb4670ba10a38494816961f544920e725cca31041e462711a0
 file:
 - statement:
     alter_table_statement:
@@ -922,10 +922,11 @@ file:
           naked_identifier: geom_any
         data_type:
           keyword: GEOMETRY
-          bracketed:
-            start_bracket: (
-            keyword: ANY
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: ANY
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -940,8 +941,9 @@ file:
     - keyword: TYPE
     - data_type:
         keyword: GEOMETRY
-        bracketed:
-          start_bracket: (
-          integer_literal: '4326'
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '4326'
+            end_bracket: )
 - statement_terminator: ;
