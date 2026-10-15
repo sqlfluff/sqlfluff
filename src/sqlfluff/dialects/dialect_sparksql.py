@@ -1703,6 +1703,31 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
+class CreateSqlFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement with a SQL body.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-sql-function.html
+    """
+
+    type = "create_sql_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammarWithComments"),
+        Sequence("RETURNS", Ref("DatatypeSegment"), optional=True),
+        "RETURN",
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement using a Data Source or Like.
 
@@ -3041,6 +3066,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("CreateSqlFunctionStatementSegment"),
             Ref("CreateTableStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
