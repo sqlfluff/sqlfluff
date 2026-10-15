@@ -925,6 +925,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
             Ref("GotoStatement"),
+            Ref("LineNoStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("ReturnStatementSegment"),
             Ref("ThrowStatementSegment"),
@@ -7652,6 +7653,13 @@ class GotoStatement(BaseSegment):
 
     type = "goto_statement"
     match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
+
+
+class LineNoStatementSegment(BaseSegment):
+    """LINENO statement."""
+
+    type = "lineno_statement"
+    match_grammar = Sequence("LINENO", Ref("NumericLiteralSegment"))
 
 
 class ExecuteAsClause(BaseSegment):
