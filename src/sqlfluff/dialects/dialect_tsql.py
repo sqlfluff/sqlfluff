@@ -55,7 +55,8 @@ tsql_dialect = ansi_dialect.copy_as(
     docstring="""The dialect for `T-SQL`_ (aka Transact-SQL).
 
 Service Broker ``END CONVERSATION`` statements support normal completion,
-``WITH CLEANUP``, and ``WITH ERROR ... DESCRIPTION ...``.
+``WITH CLEANUP``, and ``WITH ERROR ... DESCRIPTION ...``. Handles can be
+variables, ordinary string literals, or Unicode (``N'...'``) string literals.
 
 .. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference""",
 )
@@ -4132,7 +4133,7 @@ class EndConversationStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "END",
         "CONVERSATION",
-        OneOf(Ref("ParameterNameSegment"), Ref("QuotedLiteralSegment")),
+        OneOf(Ref("ParameterNameSegment"), Ref("QuotedLiteralSegmentOptWithN")),
         Sequence(
             "WITH",
             OneOf(
