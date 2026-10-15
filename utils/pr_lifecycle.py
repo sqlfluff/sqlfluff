@@ -5,7 +5,7 @@ labels on pull requests (CI state, whose turn it is, open AI feedback, etc.).
 It is intentionally state-based rather than event-based: given a PR, it
 works out from the GitHub API which lifecycle labels *should* be present and
 then applies the difference. Events (a push, a review, a CI run finishing)
-only decide *which* PRs get reconciled; a nightly sweep reconciles every open
+only decide *which* PRs get reconciled; a scheduled sweep reconciles every open
 PR so nothing can get stuck.
 
 It only ever adds or removes the labels listed in ``MANAGED_LABELS`` (plus the

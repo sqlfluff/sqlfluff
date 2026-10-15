@@ -6,7 +6,7 @@
 #
 # All the logic lives in utils/pr_lifecycle.py, which recomputes the correct
 # labels for a PR from the GitHub API and applies the difference. The events
-# below only decide *which* PRs to recompute; the nightly sweep recomputes all
+# below only decide *which* PRs to recompute; the scheduled sweep recomputes all
 # open PRs so nothing gets stuck.
 #
 # SAFETY: this uses pull_request_target so that it has a write token for PRs
@@ -27,16 +27,15 @@ on:
     types: [submitted, dismissed]
   pull_request_review_comment:
     types: [created]
-  pull_request_review_thread:
-    types: [resolved, unresolved]
   issue_comment:
-    types: [created]
+    types: [created, deleted]
   workflow_run:
     workflows: [CI, pre-commit]
     types: [requested, in_progress, completed]
   schedule:
-    # Nightly sweep of every open PR.
-    - cron: '23 3 * * *'
+    # Sweep of every open PR. This also catches anything the events above
+    # don't trigger on, such as review threads being resolved.
+    - cron: '23 */3 * * *'
   workflow_dispatch:
     inputs:
       pr:
@@ -83,10 +82,10 @@ jobs:
       - name: Reconcile labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLY: ${{ (vars.PR_LIFECYCLE_APPLY == 'true' || inputs.apply == true) && '--apply' || '' }}
+          APPLY: ${{ ((github.event_name == 'workflow_dispatch' && inputs.apply == true) || (github.event_name != 'workflow_dispatch' && vars.PR_LIFECYCLE_APPLY == 'true')) && '--apply' || '' }}
           PR_NUMBER: ${{ inputs.pr }}
         run: |
-          # Only create missing labels on the nightly sweep / manual run, not on every event.
+          # Only create missing labels on the scheduled sweep / manual run, not on every event.
           EXTRA=""
           if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             EXTRA="--ensure-labels"

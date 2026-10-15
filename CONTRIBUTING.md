@@ -121,9 +121,8 @@ correctness, and maintainability bar as any other contribution.
 ### Pull Request Labels
 
 Some labels on pull requests are applied automatically and describe where the
-pull request is in its lifecycle. They are recomputed whenever something
-happens on the pull request (and nightly), so there is no need to add or
-remove them by hand:
+pull request is in its lifecycle. They are recomputed on selected events and
+every few hours, so there is no need to add or remove them by hand:
 
 - `ci: needs approval`, `ci: passing`, `ci: failing` - the state of the
   automated checks on the latest commit. For first-time contributors, a
@@ -131,7 +130,8 @@ remove them by hand:
 - `review: awaiting author` / `review: awaiting maintainer` - whose turn it
   is. Pushing a commit or replying moves it back to the maintainers.
 - `review: ai feedback open` - there are unresolved review threads from an
-  automated reviewer. Resolve them (or push a fix) and the label goes away.
+  automated reviewer. The label clears when those threads are resolved or
+  become outdated.
 - `pr: first-time contributor` and `pr: stale` (waiting on the author for more
   than 30 days).
 
