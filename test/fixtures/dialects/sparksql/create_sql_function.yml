@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8506b84a45328b81a34af5d30b9c7664710ea9e755b88836f9a4c62b450be37d
+_hash: 44ab822cc895f40e9fcb400b09ae9df77d70791a6a19381e241baa7ca60570d7
 file:
 - statement:
     create_sql_function_statement:
@@ -194,4 +194,54 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - keyword: DEFAULT
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+        - comma: ','
+        - parameter: b
+        - data_type:
+            primitive_type:
+              keyword: STRING
+        - keyword: DEFAULT
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: CONCAT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'x'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'y'"
+                - end_bracket: )
+        - comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'c'"
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: a
 - statement_terminator: ;
