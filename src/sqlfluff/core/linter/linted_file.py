@@ -106,15 +106,30 @@ class LintedFile(NamedTuple):
         output *and* and more efficient fixing routine (by handling
         fewer fixes).
         """
+        # A violation which defers to a fix is also a duplicate of a violation
+        # without the flag for the same rule on the same line. This happens
+        # when one variant (or loop pass) does not render a block, so it can't
+        # fix the line, but another one renders the block. The two can give a
+        # different position and length. The other violation either carries
+        # the fix or keeps the line reported.
+        reported = {
+            (v.rule_code(), v.line_no)
+            for v in violations
+            if not (isinstance(v, SQLLintError) and v.defer_to_fix)
+        }
         new_violations = []
         dedupe_buffer = set()
         for v in violations:
             signature = v.source_signature()
-            if signature not in dedupe_buffer:
+            if signature in dedupe_buffer or (
+                isinstance(v, SQLLintError)
+                and v.defer_to_fix
+                and (v.rule_code(), v.line_no) in reported
+            ):
+                linter_logger.debug("Removing duplicate source violation: %r", v)
+            else:
                 new_violations.append(v)
                 dedupe_buffer.add(signature)
-            else:
-                linter_logger.debug("Removing duplicate source violation: %r", v)
         # Sort on return so that if any are out of order, they're now ordered
         # appropriately. This happens most often when linting multiple variants.
         return sorted(new_violations, key=lambda v: (v.line_no, v.line_pos))

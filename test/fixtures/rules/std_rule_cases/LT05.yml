@@ -812,6 +812,90 @@ test_fail_no_fix_long_templated:
     select
         '{{ "', '".join(["foo", "bar", "whatever", "whatever", "whatever", "whatever"]) }}'
 
+test_fail_no_fix_long_jinja_macro_definition:
+  # A macro body renders to nothing where it is defined, but it still takes
+  # up space on the line. The line is only too long because of the macro
+  # body, so it is reported but not fixed.
+  fail_str: |
+    {% macro suffix() %}_orders_archive_table_for_reporting_purposes_only{% endmacro %}
+    SELECT * FROM raw{{ suffix() }}
+  violations:
+    - code: LT05
+      description: Line is too long (83 > 80).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 1
+
+test_fail_no_fix_long_line_after_jinja_macro_definition:
+  # The macro body counts towards the line length. Without the macro body
+  # the line is within the limit, so it is reported but not fixed.
+  fail_str: |
+    {% macro m() %}select aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa{% endmacro %}SELECT a, b FROM t
+  violations:
+    - code: LT05
+      description: Line is too long (94 > 80).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 1
+
+test_fail_no_fix_long_line_with_skipped_jinja_branch:
+  # Each variant renders only one branch, but both branches take up space on
+  # the source line. The line is only too long because of the branch which
+  # the variant skips, so no variant fixes it.
+  fail_str: |
+    SELECT a FROM t
+    {% if flag %}WHERE b_column_with_a_long_name = 1{% else %}WHERE c_column_with_a_long_name = 2{% endif %}
+  violations:
+    - code: LT05
+      description: Line is too long (104 > 80).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 1
+
+test_fail_no_fix_long_jinja_loop_with_no_iterations:
+  # A loop over an empty list renders nothing, but its body still takes up
+  # space on the line. The line is only too long because of the loop body,
+  # so it is reported but not fixed.
+  fail_str: |
+    SELECT a
+    {% for x in [] %}, b_column_with_a_long_name, c_column_with_a_long_name, d_column{% endfor %}
+    FROM t
+  violations:
+    - code: LT05
+      description: Line is too long (93 > 80).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 1
+
+test_fail_no_fix_long_line_with_jinja_whitespace_control:
+  # Whitespace which `{%-` strips does not render, but it still takes up
+  # space on the line. The line is only too long because of that
+  # whitespace, so it is reported but not fixed.
+  fail_str: |
+    select
+        id,    {%- if true %} first_long_column_name, second_long_column_name{% endif %}
+    from t
+  violations:
+    - code: LT05
+      description: Line is too long (84 > 80).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 5
+      start_file_pos: 11
+      end_line_no: 2
+      end_line_pos: 7
+      end_file_pos: 13
+
 test_fail_no_fix_jinja_macro_with_brackets:
   # Test that LT05 doesn't attempt to fix within template-expanded content
   # that contains brackets (creating indent/dedent pairs). Without the guard,

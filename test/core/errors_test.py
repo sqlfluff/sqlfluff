@@ -64,11 +64,17 @@ def test__parse_error_pickle(ignore):
     "ignore",
     [True, False],
 )
-def test__lint_error_pickle(ignore):
+@pytest.mark.parametrize(
+    "defer_to_fix",
+    [True, False],
+)
+def test__lint_error_pickle(ignore, defer_to_fix):
     """Test lint error pickling."""
     template = TemplatedFile.from_string("foobar")
     segment = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
-    err = SQLLintError("Foo", segment=segment, rule=Rule_T078)
+    err = SQLLintError(
+        "Foo", segment=segment, rule=Rule_T078, defer_to_fix=defer_to_fix
+    )
     # Set ignore to true if configured.
     # NOTE: This not copying was one of the reasons for this test.
     err.ignore = ignore
