@@ -307,6 +307,11 @@ sparksql_dialect.replace(
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
+    # SparkSQL has no CONNECT BY, so `PRIOR` is not an operator and must stay
+    # usable as an identifier (e.g. `prior.x`).
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(remove=[Ref.keyword("PRIOR")]),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
