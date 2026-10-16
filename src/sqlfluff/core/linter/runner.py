@@ -13,13 +13,15 @@ import logging
 import multiprocessing
 import multiprocessing.dummy
 import multiprocessing.pool
+import pickle
 import signal
 import sys
 import traceback
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator
+from contextvars import ContextVar
 from types import TracebackType
-from typing import Callable, Optional, Union
+from typing import Callable, NamedTuple, Optional, Union
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
@@ -30,6 +32,24 @@ from sqlfluff.core.plugin.host import is_main_process
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 PartialLintCallable = Callable[[], LintedFile]
+
+
+class _WorkerState(NamedTuple):
+    """What each parallel worker receives once, when its pool starts."""
+
+    # The pickled root config, for templaters which render in the worker.
+    pickled_root_config: Optional[bytes]
+    # Whether the caller keeps each LintedFile. If not, workers can leave
+    # out parse trees which the main process won't read.
+    retain_files: bool
+    # The root config, unpickled when the worker renders its first file.
+    root_config: Optional[FluffConfig] = None
+
+
+# Set in each worker by ParallelRunner._init_worker.
+_worker_state: ContextVar[_WorkerState] = ContextVar(
+    "_worker_state", default=_WorkerState(None, True)
+)
 
 
 class BaseRunner(ABC):
@@ -120,9 +140,7 @@ class SequentialRunner(BaseRunner):
                     # DeferredRenderTask is normally only emitted by
                     # ParallelRunner.iter_partials.  Handle it here as a
                     # safety net: render + lint in one step in the main process.
-                    rendered = self.linter.render_file(
-                        partial.fname, partial.root_config
-                    )
+                    rendered = self.linter.render_file(partial.fname, self.config)
                     rule_pack = self.linter.get_rulepack(config=rendered.config)
                     yield self.linter.lint_rendered(
                         rendered, rule_pack, partial.fix, self.linter.formatter
@@ -143,9 +161,16 @@ class ParallelRunner(BaseRunner):
     # don't pickle well.
     pass_formatter = False
 
-    def __init__(self, linter: Linter, config: FluffConfig, processes: int) -> None:
+    def __init__(
+        self,
+        linter: Linter,
+        config: FluffConfig,
+        processes: int,
+        retain_files: bool = True,
+    ) -> None:
         super().__init__(linter, config)
         self.processes = processes
+        self.retain_files = retain_files
 
     def iter_partials(
         self,
@@ -156,9 +181,10 @@ class ParallelRunner(BaseRunner):
 
         When the active templater supports worker-side rendering
         (``templates_in_worker = True``), we emit a lightweight
-        ``DeferredRenderTask`` containing only the filename and root config.
-        The worker process calls ``render_file`` itself, keeping the full
-        ``RenderedFile`` off the IPC boundary.
+        ``DeferredRenderTask`` containing only the filename. The worker
+        process calls ``render_file`` itself, with the root config it got
+        when the pool started, keeping the full ``RenderedFile`` off the IPC
+        boundary.
 
         For templaters that require main-process state (e.g. dbt), we fall
         back to the base-class behaviour and template in the main process.
@@ -167,7 +193,7 @@ class ParallelRunner(BaseRunner):
             for fname in self.linter.templater.sequence_files(
                 fnames, config=self.config, formatter=None
             ):
-                yield fname, DeferredRenderTask(fname, self.config, fix)
+                yield fname, DeferredRenderTask(fname, fix)
         else:
             yield from super().iter_partials(fnames, fix=fix)
 
@@ -186,7 +212,10 @@ class ParallelRunner(BaseRunner):
         # POSIX semaphores used by the pool's internal SimpleQueue locks.
         pool = self._create_pool(
             self.processes,
-            self._init_global,
+            # Send each worker the root config once, rather than with every file.
+            functools.partial(
+                self._init_worker, self._root_config_for_workers(), self.retain_files
+            ),
         )
         try:
             for lint_result in self._map(
@@ -229,31 +258,90 @@ class ParallelRunner(BaseRunner):
             finally:
                 pool.join()
 
+    def _root_config_for_workers(self) -> Optional[bytes]:
+        """The pickled root config to send each worker, so it can render files.
+
+        Templaters which render in the main process (e.g. dbt) don't need it.
+        """
+        if not self.linter.templater.templates_in_worker:
+            return None
+        config = self.config.copy()
+        # Workers build each file's config, with its own dialect, from the
+        # file's path, so they never use the root config's expanded dialect.
+        # Leave it out: it's most of a pickled config, and the main process
+        # waits for each new worker to read a large start-up message before
+        # starting the next one.
+        config._configs["core"]["dialect_obj"] = None
+        return pickle.dumps(config)
+
+    @classmethod
+    def _init_worker(
+        cls, pickled_root_config: Optional[bytes], retain_files: bool
+    ) -> None:
+        """Set up a pool worker, and keep what it needs for every file."""
+        cls._init_global()
+        _worker_state.set(_WorkerState(pickled_root_config, retain_files))
+
     @staticmethod
     def _apply(
         partial_tuple: tuple[str, Union[PartialLintCallable, DeferredRenderTask]],
     ) -> Union["DelayedException", LintedFile]:
         """Shim function used in parallel mode."""
         fname, task = partial_tuple
+        state = _worker_state.get()
         try:
             if isinstance(task, DeferredRenderTask):
+                root_config = state.root_config
+                if root_config is None:
+                    # Unpickle the root config here, on the worker's first
+                    # file, rather than in its initializer: an error is then
+                    # reported for the file instead of killing the worker, and
+                    # any plugins it loads see that this isn't the main process.
+                    assert state.pickled_root_config, "Worker has no root config."
+                    root_config = pickle.loads(state.pickled_root_config)
+                    _worker_state.set(state._replace(root_config=root_config))
                 # Worker-side rendering: reconstruct a Linter from the root
                 # config and do render + lint in one step, keeping the full
                 # RenderedFile off the IPC boundary.
-                linter = Linter(config=task.root_config)
+                linter = Linter(config=root_config)
                 # FluffConfig.__getstate__ strips templater_obj to None before
                 # pickling (it's designed for main-process use only). Since we
                 # are deliberately rendering here in the worker, re-instantiate
                 # the templater from the config's templater name.
-                linter.templater = task.root_config.get_templater()
-                rendered = linter.render_file(task.fname, task.root_config)
+                linter.templater = root_config.get_templater()
+                rendered = linter.render_file(task.fname, root_config)
                 rule_pack = linter.get_rulepack(config=rendered.config)
-                return Linter.lint_rendered(rendered, rule_pack, task.fix, None)
-            return task()
+                linted_file = Linter.lint_rendered(rendered, rule_pack, task.fix, None)
+            else:
+                linted_file = task()
+            if state.retain_files:
+                return linted_file
+            return ParallelRunner._without_unused_tree(linted_file)
         # Capture any exceptions and return as delayed exception to handle
         # in the main thread.
         except Exception as e:
             return DelayedException(e, fname=fname)
+
+    @staticmethod
+    def _without_unused_tree(linted_file: LintedFile) -> LintedFile:
+        """Leave out a parse tree which the main process won't read.
+
+        When files aren't retained, the main process only reads a file's
+        tree to write its fixes and to count its segments. Large trees are
+        slow to send between processes, so we keep the tree only when the
+        file has fixable violations, and otherwise send the counts instead.
+        """
+        if not linted_file.tree or linted_file.num_violations(
+            fixable=True, filter_warning=False
+        ):
+            return linted_file
+        return linted_file._replace(
+            tree=None,
+            segment_counts=(
+                linted_file.tree.count_segments(raw_only=False),
+                linted_file.tree.count_segments(raw_only=True),
+            ),
+        )
 
     @classmethod
     def _init_global(cls) -> None:  # pragma: no cover
@@ -372,6 +460,7 @@ def get_runner(
     config: FluffConfig,
     processes: int,
     allow_process_parallelism: bool = True,
+    retain_files: bool = True,
 ) -> tuple[BaseRunner, int]:
     """Generate a runner instance based on parallel and system configuration.
 
@@ -384,6 +473,8 @@ def get_runner(
     0 = all cpus
     1 = 1 cpu
 
+    The retain_files argument tells parallel runners whether the caller keeps
+    each LintedFile (see `Linter.lint_paths`).
     """
     if processes <= 0:
         processes = max(multiprocessing.cpu_count() + processes, 1)
@@ -393,8 +484,18 @@ def get_runner(
         # so this flag allows us to fall back to a threaded runner
         # in those cases.
         if allow_process_parallelism:
-            return MultiProcessRunner(linter, config, processes=processes), processes
+            return (
+                MultiProcessRunner(
+                    linter, config, processes=processes, retain_files=retain_files
+                ),
+                processes,
+            )
         else:
-            return MultiThreadRunner(linter, config, processes=processes), processes
+            return (
+                MultiThreadRunner(
+                    linter, config, processes=processes, retain_files=retain_files
+                ),
+                processes,
+            )
     else:
         return SequentialRunner(linter, config), processes
