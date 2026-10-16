@@ -1190,6 +1190,7 @@ class Linter:
             self.config,
             processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
+            retain_files=retain_files,
         )
 
         if self.formatter and effective_processes != 1:
