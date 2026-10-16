@@ -2817,7 +2817,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
 class AlterTableActionSegment(BaseSegment):
     """Alter Table Action Segment.
 
-    https://www.postgresql.org/docs/13/sql-altertable.html
+    https://www.postgresql.org/docs/18/sql-altertable.html
     """
 
     type = "alter_table_action_segment"
@@ -2867,6 +2867,12 @@ class AlterTableActionSegment(BaseSegment):
                 ),
                 Sequence("DROP", "DEFAULT"),
                 Sequence(OneOf("SET", "DROP", optional=True), "NOT", "NULL"),
+                Sequence(
+                    "SET",
+                    "EXPRESSION",
+                    "AS",
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
                 Sequence("DROP", "EXPRESSION", Ref("IfExistsGrammar", optional=True)),
                 Sequence(
                     "ADD",
