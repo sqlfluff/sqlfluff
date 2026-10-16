@@ -434,6 +434,86 @@ test_fail_newline_block_comment_semi_colon_after:
       convention.terminator:
         multiline_newline: true
 
+test_pass_newline_single_line_block_comment:
+  # https://github.com/sqlfluff/sqlfluff/issues/8642
+  # A block comment that ends on the code's line stays with it, as an inline
+  # comment does.
+  pass_str: |
+    SELECT a
+    FROM foo /* block comment */
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_single_line_block_comment:
+  fail_str: |
+    SELECT a
+    FROM foo /* block comment */
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo /* block comment */
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_final_semi_colon_newline_single_line_block_comment_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo /* block comment */
+  fix_str: |
+    SELECT a
+    FROM foo /* block comment */
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_newline_nested_block_comment_custom_multiline_postgres:
+  # The first line of a nested block comment that spans lines also ends in
+  # "*/", but the comment goes on, so it moves like any multiline comment.
+  fail_str: |
+    SELECT foo
+    FROM bar /* outer /* inner */
+    still outer */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* outer /* inner */
+    still outer */
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_nested_block_comment_custom_multiline_tsql:
+  fail_str: |
+    SELECT foo
+    FROM bar /* outer /* inner */
+    still outer */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* outer /* inner */
+    still outer */
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
 test_fail_newline_create_table:
   # https://github.com/sqlfluff/sqlfluff/issues/2268
   fail_str: |
