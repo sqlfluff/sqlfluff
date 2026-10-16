@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6e40aef2205d33580957f921eb58e2b14e32b38bf6e7a7b999ea9505cd00f92a
+_hash: 6bfc2b9023ce0da95888308b591378da0294b6e9abf96d7e155fe2743607ea38
 file:
 - statement:
     select_statement:
@@ -781,7 +781,7 @@ file:
                 - sign_indicator: +
                 - naked_identifier: UP
                 - sign_indicator: +
-                - pattern_variable_identifier: END
+                - naked_identifier: LAST_UP
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: DOWN
@@ -803,6 +803,24 @@ file:
                       end_bracket: )
             - comma: ','
             - naked_identifier: UP
+            - keyword: AS
+            - expression:
+                column_reference:
+                  naked_identifier: totalprice
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                function:
+                  function_name:
+                    function_name_identifier: PREV
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: totalprice
+                      end_bracket: )
+            - comma: ','
+            - naked_identifier: LAST_UP
             - keyword: AS
             - expression:
                 column_reference:
@@ -900,4 +918,212 @@ file:
             - expression:
                 boolean_literal: 'true'
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'true'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  naked_identifier: A
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'true'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  naked_identifier: A
+                  start_curly_bracket: '{'
+                  comma: ','
+                  end_curly_bracket: '}'
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'true'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  naked_identifier: A
+                  sign_indicator: +
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'true'
+            - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: m
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  naked_identifier: A
+                  sign_indicator: +
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'true'
+            - end_bracket: )
+            alias_expression:
+              naked_identifier: m
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: x
+                - comma: ','
+                - naked_identifier: y
+                end_bracket: )
 - statement_terminator: ;

@@ -27,7 +27,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
-    WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -121,6 +120,8 @@ trino_dialect.add(
             Bracketed(
                 OneOf(
                     Ref("NumericLiteralSegment"),
+                    # `{,}` is the same as `*`.
+                    Ref("CommaSegment"),
                     Sequence(Ref("NumericLiteralSegment"), Ref("CommaSegment")),
                     Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment")),
                     Sequence(
@@ -138,14 +139,7 @@ trino_dialect.add(
         allow_gaps=False,
     ),
     PatternSymbolGrammar=Sequence(
-        # Pattern variables are their own namespace, scoped to PATTERN/DEFINE/
-        # MEASURES: a reserved keyword like END is a valid variable name (it's
-        # used as one in trino's own docs example), so this can't just be
-        # SingleIdentifierGrammar, which excludes reserved keywords.
-        OneOf(
-            Ref("SingleIdentifierGrammar"),
-            TypedParser("word", WordSegment, type="pattern_variable_identifier"),
-        ),
+        Ref("SingleIdentifierGrammar"),
         Ref("PatternQuantifierGrammar", optional=True),
         allow_gaps=False,
     ),
@@ -167,10 +161,12 @@ trino_dialect.add(
                     bracket_pairs_set="bracket_pairs",
                 ),
                 # A parenthesised group, concatenation or `|`-delimited alternation.
+                # `()` on its own is the empty pattern.
                 Bracketed(
                     Delimited(
                         AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
                         delimiter=Ref("PipeSegment"),
+                        optional=True,
                     ),
                 ),
                 Sequence(
@@ -1465,4 +1461,6 @@ class MatchRecognizeClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        # `MATCH_RECOGNIZE (...) AS m` or `MATCH_RECOGNIZE (...) m (x, y)`.
+        Ref("AliasExpressionSegment", optional=True),
     )

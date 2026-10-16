@@ -53,10 +53,21 @@ SELECT
 FROM orders MATCH_RECOGNIZE (
     ORDER BY orderdate
     MEASURES START.totalprice AS starting_price
-    PATTERN (START DOWN+ UP+ | DOWN+ UP+ END)
+    PATTERN (START DOWN+ UP+ | DOWN+ UP+ LAST_UP)
     DEFINE
         DOWN AS totalprice < PREV(totalprice),
-        UP AS totalprice > PREV(totalprice)
+        UP AS totalprice > PREV(totalprice),
+        LAST_UP AS totalprice > PREV(totalprice)
 );
 
 SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a MEASURES FINAL LAST(A.totalprice) AS p, RUNNING LAST(A.totalprice) AS q ALL ROWS PER MATCH PATTERN (A+) DEFINE A AS true);
+
+SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a PATTERN (()) DEFINE A AS true);
+
+SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a PATTERN (A ()) DEFINE A AS true);
+
+SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a PATTERN (A{,}) DEFINE A AS true);
+
+SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a PATTERN (A+) DEFINE A AS true) AS m;
+
+SELECT * FROM t MATCH_RECOGNIZE (ORDER BY a PATTERN (A+) DEFINE A AS true) m (x, y);
