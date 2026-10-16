@@ -236,3 +236,48 @@ fail_sign_indicator_across_a_newline_without_a_marker:
       type:
         sign_indicator:
           spacing_after: touch:inline
+
+pass_consecutive_tildes:
+  # Touching these would produce "~~", which is the LIKE operator in Postgres
+  # and DuckDB, so the fixed query would no longer run.
+  pass_str: |
+    SELECT 8 | ~ ~4
+  configs:
+    core:
+      dialect: postgres
+
+fail_consecutive_tildes_outer_spacing:
+  # Only the gap between the two operators is exempt - the space between the
+  # last tilde and its operand is still removed.
+  fail_str: |
+    SELECT 8 | ~ ~ 4 AS c, 2 AS d
+  fix_str: |
+    SELECT 8 | ~ ~4 AS c, 2 AS d
+  configs:
+    core:
+      dialect: postgres
+
+fail_consecutive_tildes_across_a_newline:
+  # As with sign indicators, the line break is the only thing keeping the two
+  # tildes apart, so it isn't stripped.
+  fail_str: |
+    SELECT 8 | ~
+    ~ 4 AS c, 2 AS d
+  fix_str: |
+    SELECT 8 | ~
+    ~4 AS c, 2 AS d
+  configs:
+    core:
+      dialect: postgres
+    layout:
+      type:
+        tilde:
+          spacing_after: touch:inline
+
+fail_sign_indicator_before_other_prefix_operators:
+  # A prefix operator is never glued onto another operator, whichever of
+  # them comes first.
+  fail_str: |
+    SELECT 1 * - ~ 5, 1 * ~ - 5, 1 * + + 5
+  fix_str: |
+    SELECT 1 * - ~5, 1 * ~ -5, 1 * + +5

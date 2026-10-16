@@ -32,28 +32,43 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 # so no dialect lookup is needed to know that building one changes meaning.
 _INLINE_COMMENT_MARKER = "--"
 
+# Characters which dialects combine into multi-character operators, e.g. the
+# Postgres and DuckDB LIKE operator "~~", or "@@", "!!", "||" and "<<".
+_OPERATOR_CHARS = frozenset("+-*/<>=~!@#%^&|`?")
 
-def _would_start_comment(
+# Prefix operators whose default spacing pulls them onto the following
+# segment, which may itself be an operator.
+_PREFIX_OPERATOR_TYPES = ("sign_indicator", "tilde")
+
+
+def _would_fuse_tokens(
     prev_block: Optional["ReflowBlock"], next_block: Optional["ReflowBlock"]
 ) -> bool:
-    """Would removing the whitespace between these blocks start a comment?
+    """Would removing the whitespace between these blocks change the tokens?
 
     Spacing configs such as ``touch`` are resolved against segments, but the
     fix they produce is applied to the raw file. Deleting the whitespace in
     ``1 * - - 5`` glues the two sign indicators into ``--``, which the lexer
     then reads as an inline comment - so the rest of the line disappears
-    without the file ever becoming unparsable.
+    without the file ever becoming unparsable. In the same way ``8 | ~ ~ 4``
+    becomes ``8 | ~~4``, and ``~~`` is the LIKE operator in Postgres and
+    DuckDB, so the fixed query no longer runs.
     """
     if not prev_block or not next_block:  # pragma: no cover
         # A point at the very start or end of the file has nothing to fuse with.
         return False
-    prev_raw = prev_block.segments[-1].raw
+    prev_seg = prev_block.segments[-1]
+    prev_raw = prev_seg.raw
     next_raw = next_block.segments[0].raw
     if not prev_raw or not next_raw:
         # Zero length blocks (e.g. templated placeholders) have no characters
         # to fuse, so they can't build a marker on their own.
         return False
-    return prev_raw[-1] + next_raw[0] == _INLINE_COMMENT_MARKER
+    if prev_raw[-1] + next_raw[0] == _INLINE_COMMENT_MARKER:
+        return True
+    # A prefix operator touching another operator would be lexed together
+    # with it as a different operator in some dialects.
+    return prev_seg.is_type(*_PREFIX_OPERATOR_TYPES) and next_raw[0] in _OPERATOR_CHARS
 
 
 def _construct_alignment_whitespace(width: int, indent_unit: str) -> str:
@@ -241,15 +256,15 @@ def determine_constraints(
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
 
-    # Prohibit stripping a newline which is the only thing keeping an inline
-    # comment marker apart. Both "touch" and "any" leave a point with no
-    # whitespace alone, so once the newline goes there is nothing between the
-    # blocks and `-` `-` fuses into `--`. Keeping the line break is the only
+    # Prohibit stripping a newline which is the only thing keeping two tokens
+    # apart. Both "touch" and "any" leave a point with no whitespace alone, so
+    # once the newline goes there is nothing between the blocks and `-` `-`
+    # fuses into `--` (or `~` `~` into `~~`). Keeping the line break is the only
     # outcome here which preserves the meaning of the file.
     if (
         strip_newlines
         and {"touch", "any"}.intersection((pre_constraint, post_constraint))
-        and _would_start_comment(prev_block, next_block)
+        and _would_fuse_tokens(prev_block, next_block)
     ):
         strip_newlines = False
 
@@ -695,9 +710,9 @@ def handle_respace__inline_with_space(
 
     # Do we have either side set to "touch"?
     if "touch" in [pre_constraint, post_constraint]:
-        if _would_start_comment(prev_block, next_block):
-            # Removing the whitespace would comment out the rest of the line.
-            # Leave it alone and don't raise a violation - there is no edit the
+        if _would_fuse_tokens(prev_block, next_block):
+            # Removing the whitespace would comment out the rest of the line,
+            # or build a different operator. Leave it alone and don't raise a violation - there is no edit the
             # user could make here which would satisfy the constraint.
             return segment_buffer, []
         # In this instance - no whitespace is correct, This
