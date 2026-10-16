@@ -16,6 +16,7 @@ from utils.pr_lifecycle import (
     LABEL_STALE,
     PRState,
     WorkflowRun,
+    _ci_runs_for_sha,
     compute_desired_labels,
     ensure_labels,
     label_diff,
@@ -58,6 +59,17 @@ def _runs(ci: Optional[str], precommit: Optional[str] = "success") -> list[Workf
             _state(
                 author_association="FIRST_TIME_CONTRIBUTOR",
                 ci_runs=_runs("action_required", "action_required"),
+            ),
+            {LABEL_FIRST_TIME, LABEL_CI_NEEDS_APPROVAL, LABEL_AWAITING_MAINTAINER},
+        ),
+        # Approval-gated runs can also report it as their status.
+        (
+            _state(
+                author_association="FIRST_TIME_CONTRIBUTOR",
+                ci_runs=[
+                    WorkflowRun("CI", "action_required", None),
+                    WorkflowRun("pre-commit", "completed", "success"),
+                ],
             ),
             {LABEL_FIRST_TIME, LABEL_CI_NEEDS_APPROVAL, LABEL_AWAITING_MAINTAINER},
         ),
@@ -178,6 +190,8 @@ class _FakeClient:
         self.calls: list[tuple[str, str, Any]] = []
 
     def paginate(self, path: str, params: Any = None, key: str = "") -> Any:
+        if path == "pulls":
+            assert params == {"state": "open"}
         return iter(self.pages[path])
 
     def rest(self, method: str, path: str, body: Any = None, params: Any = None) -> Any:
@@ -231,3 +245,40 @@ def test_ensure_labels() -> None:
     assert all(
         method == "POST" and path == "labels" for method, path, _ in client.calls
     )
+
+
+def test_ci_runs_for_sha_reports_first_run_time() -> None:
+    """The earliest CI run's creation is the push time; re-runs don't move it."""
+
+    class _Client:
+        def rest(self, method: str, path: str, params: Any = None) -> Any:
+            assert params["head_sha"] == "abc"
+            return {
+                "workflow_runs": [  # Newest first.
+                    {
+                        "name": "CI",
+                        "event": "pull_request",
+                        "status": "completed",
+                        "conclusion": "success",
+                        "created_at": "2026-10-16T10:00:00Z",
+                    },
+                    {
+                        "name": "CI",
+                        "event": "pull_request",
+                        "status": "completed",
+                        "conclusion": "failure",
+                        "created_at": "2026-10-16T09:00:00Z",
+                    },
+                    {
+                        "name": "Other",
+                        "event": "pull_request",
+                        "status": "completed",
+                        "conclusion": "success",
+                        "created_at": "2026-10-16T08:00:00Z",
+                    },
+                ]
+            }
+
+    runs, pushed_at = _ci_runs_for_sha(_Client(), "abc")  # type: ignore[arg-type]
+    assert runs == [WorkflowRun("CI", "completed", "success")]
+    assert pushed_at == datetime(2026, 10, 16, 9, 0, tzinfo=timezone.utc)

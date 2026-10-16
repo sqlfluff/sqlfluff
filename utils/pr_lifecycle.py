@@ -136,7 +136,10 @@ def _ci_labels(state: PRState) -> set[str]:
     runs = [run for run in state.ci_runs if run.name in CI_WORKFLOWS]
     if not runs:
         return set()
-    if any(run.conclusion == "action_required" for run in runs):
+    if any(
+        run.conclusion == "action_required" or run.status == "action_required"
+        for run in runs
+    ):
         return {LABEL_CI_NEEDS_APPROVAL}
     if any(run.status != "completed" for run in runs):
         # Still running: no claim either way.
@@ -307,6 +310,16 @@ def _latest(current: Optional[datetime], new: Optional[datetime]) -> Optional[da
     return current
 
 
+def _earliest(
+    current: Optional[datetime], new: Optional[datetime]
+) -> Optional[datetime]:
+    if new is None:
+        return current
+    if current is None or new < current:
+        return new
+    return current
+
+
 _THREADS_QUERY = """
 query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
   repository(owner: $owner, name: $repo) {
@@ -347,20 +360,28 @@ def _count_open_bot_threads(client: GitHubClient, number: int) -> int:
         cursor = threads["pageInfo"]["endCursor"]
 
 
-def _ci_runs_for_sha(client: GitHubClient, sha: str) -> list[WorkflowRun]:
-    """Latest run of each CI workflow for a commit."""
+def _ci_runs_for_sha(
+    client: GitHubClient, sha: str
+) -> tuple[list[WorkflowRun], Optional[datetime]]:
+    """Latest run of each CI workflow for a commit, and when the first started.
+
+    The first run is created when the commit is pushed, so its start time is the
+    push time, unlike the commit's own date which is when it was made.
+    """
     runs = client.rest(
         "GET", "actions/runs", params={"head_sha": sha, "per_page": 100}
     )["workflow_runs"]
     latest: dict[str, dict[str, Any]] = {}
+    first_created: Optional[datetime] = None
     for run in runs:  # Newest first.
         if run["event"] != "pull_request" or run["name"] not in CI_WORKFLOWS:
             continue
         latest.setdefault(run["name"], run)
+        first_created = _earliest(first_created, _parse_dt(run["created_at"]))
 
     return [
         WorkflowRun(r["name"], r["status"], r["conclusion"]) for r in latest.values()
-    ]
+    ], first_created
 
 
 def gather_state(client: GitHubClient, number: int) -> PRState:
@@ -377,11 +398,15 @@ def gather_state(client: GitHubClient, number: int) -> PRState:
     if not state.is_open:
         return state
 
-    state.ci_runs = _ci_runs_for_sha(client, pr["head"]["sha"])
+    state.ci_runs, pushed_at = _ci_runs_for_sha(client, pr["head"]["sha"])
 
     # The head commit is the author's most recent push (whoever committed it).
+    # The commit date is when it was made, which can be well before it was
+    # pushed, so prefer the time its first CI run started.
     head = client.rest("GET", f"commits/{pr['head']['sha']}")
-    state.last_author_activity = _parse_dt(head["commit"]["committer"]["date"])
+    state.last_author_activity = _latest(
+        _parse_dt(head["commit"]["committer"]["date"]), pushed_at
+    )
 
     activity: Iterable[tuple[dict[str, Any], str, Optional[str]]] = (
         *(
