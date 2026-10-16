@@ -1188,7 +1188,6 @@ snowflake_dialect.replace(
     ),
     PreTableFunctionKeywordsGrammar=OneOf(Ref("LateralKeywordSegment")),
     FunctionContentsExpressionGrammar=OneOf(
-        Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
         Ref("ReferencedVariableNameSegment"),
         Ref("LambdaExpressionSegment"),
@@ -1568,6 +1567,99 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
             ),
         ),
         allow_gaps=False,
+    )
+
+
+class FirstDatePartFunctionNameSegment(BaseSegment):
+    """Unqualified built-ins with a date unit in the first argument.
+
+    https://docs.snowflake.com/en/sql-reference/functions-date-time
+    """
+
+    type = "function_name"
+    match_grammar = MultiStringParser(
+        [
+            "DATEADD",
+            "TIMEADD",
+            "TIMESTAMPADD",
+            "DATEDIFF",
+            "TIMEDIFF",
+            "TIMESTAMPDIFF",
+            "DATE_TRUNC",
+            "DATE_PART",
+            "EXTRACT",
+        ],
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class FirstDatePartFunctionContentsSegment(BaseSegment):
+    """Recognize only the leading date unit, including extraction's FROM form."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        OneOf(Ref("DatetimeUnitSegment"), Ref("FunctionContentsExpressionGrammar")),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("FunctionContentsGrammar")),
+            Sequence("FROM", Ref("ExpressionSegment")),
+        ),
+    )
+
+
+class SecondDatePartFunctionNameSegment(BaseSegment):
+    """Built-ins with a date unit in the second argument."""
+
+    type = "function_name"
+    match_grammar = MultiStringParser(
+        ["LAST_DAY", "TRUNC", "TRUNCATE"],
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class SecondDatePartFunctionContentsSegment(BaseSegment):
+    """An expression followed by an optional date unit.
+
+    https://docs.snowflake.com/en/sql-reference/functions/last_day
+    https://docs.snowflake.com/en/sql-reference/functions/trunc2
+
+    TRUNC/TRUNCATE also accept a numeric scale expression in the second slot.
+    Without type information, retain their existing date-part interpretation of
+    bare unit words in that slot; other scale expressions use expression grammar.
+    """
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        Ref("FunctionContentsExpressionGrammar"),
+        Sequence(
+            Ref("CommaSegment"),
+            OneOf(Ref("DatetimeUnitSegment"), Ref("FunctionContentsExpressionGrammar")),
+            optional=True,
+        ),
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """Dispatch bare date units by function and argument position.
+
+    Generic, quoted and qualified function names retain expression arguments.
+    """
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("FirstDatePartFunctionNameSegment"),
+                Ref("FirstDatePartFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("SecondDatePartFunctionNameSegment"),
+                Ref("SecondDatePartFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
+            ),
+        ],
+        at=0,
     )
 
 
