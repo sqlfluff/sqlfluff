@@ -37,6 +37,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -348,6 +349,13 @@ mysql_dialect.add(
         "at_sign_literal",
         LiteralSegment,
         type="at_sign_literal",
+    ),
+    SourceShorthandSegment=StringParser("\\.", SymbolSegment, type="source_shorthand"),
+    # Whitespace within a line, but not a newline. The `SOURCE` client command
+    # ends at the end of its line, so its file name may contain spaces but must
+    # not run on to the next line.
+    InlineWhitespaceSegment=TypedParser(
+        "whitespace", WhitespaceSegment, type="whitespace"
     ),
     SystemVariableSegment=RegexParser(
         r"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+",
@@ -1599,6 +1607,21 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
+# `\.` is the short form of the `SOURCE` client command. A lone backslash, and
+# `\g`, get their own tokens so that they can be part of a `SOURCE` file name,
+# such as a Windows path. Anywhere else they are a parse error. Other uses of a
+# backslash outside a quoted string, such as MariaDB's `\N` for NULL or client
+# commands like `\G`, aren't supported.
+mysql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("source_shorthand", r"\\\.", SymbolSegment),
+        RegexLexer("client_go", r"\\g", CodeSegment),
+        RegexLexer("backslash", r"\\", CodeSegment),
+    ],
+    before="word",
+)
+
+
 class IndexColumnPrefixLengthSegment(BaseSegment):
     """A column prefix length in an index key part, e.g. `col(10)`.
 
@@ -1832,6 +1855,195 @@ class DelimiterStatement(BaseSegment):
     type = "delimiter_statement"
 
     match_grammar = Ref.keyword("DELIMITER")
+
+
+def _source_file_name_grammar(part: Matchable) -> Matchable:
+    """A `SOURCE` file name made of `part`s, on one line.
+
+    Gaps are not allowed so that it stays on one line, but the parts may be
+    separated by spaces. A `OneOf` passed as `part` needs `allow_gaps=False`
+    too: the Rust parser skips any newlines before a `OneOf` that allows gaps,
+    which would let the file name run on to the next line.
+    """
+    return Sequence(
+        part,
+        AnyNumberOf(
+            # The whitespace is optional within the sequence, rather than being
+            # its own option, because options are pruned on the next code
+            # segment and so one starting with whitespace would never match.
+            Sequence(
+                Ref("InlineWhitespaceSegment", optional=True),
+                part,
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
+    )
+
+
+class SourceFileNameSegment(BaseSegment):
+    """The file name of a `SOURCE` client command.
+
+    The client reads the file name verbatim to the end of the line (or up to a
+    `;`), so it isn't a single token: it is made of whatever it happens to lex
+    as, and may contain spaces. Quote characters would be taken as part of the
+    file name, so quoted literals aren't accepted.
+
+    This is the file name of `SOURCE` without a backslash. See
+    `SourceBackslashFileNameSegment` and `SourceShorthandFileNameSegment` for
+    the others.
+
+    The parts get their own type rather than being identifiers or operators, so
+    that rules don't recapitalise or respace a file name.
+    """
+
+    type = "source_file_name"
+
+    # Any token on the line is part of the file name, whatever it lexed as (a
+    # word, number, operator, bracket, `@` variable...), except for:
+    # - whitespace and newlines, which are handled by `match_grammar` below,
+    # - `;`, which ends the command,
+    # - comments (`#`, `--` and `/*`),
+    # - quotes and `$`, which start a quoted literal or don't lex,
+    # - backslashes, which are handled by the other file name segments.
+    # This is a regex on the raw token rather than a list of token types, so
+    # brackets are taken one token at a time and don't need to be balanced.
+    _part = RegexParser(
+        r"""[^\s;#'"`$\\]+""",
+        CodeSegment,
+        type="source_file_name_part",
+        anti_template=r"(--|/\*).*",
+    )
+    _backslash = OneOf(
+        StringParser("\\", CodeSegment, type="source_file_name_part"),
+        StringParser("\\.", CodeSegment, type="source_file_name_part"),
+        allow_gaps=False,
+    )
+    _client_go = StringParser("\\g", CodeSegment, type="source_file_name_part")
+
+    match_grammar = _source_file_name_grammar(_part)
+
+
+class SourceBackslashFileNameSegment(SourceFileNameSegment):
+    r"""The file name of `SOURCE` when it has a backslash, such as `C:\db\x.sql`.
+
+    The client only reads the line verbatim when it has no `;` and no `\g`.
+    Otherwise it treats each backslash as a client command, so `C:\db;` runs
+    `\d` and changes the delimiter. So `\g` isn't accepted here, and
+    `FileSegment` doesn't accept a `;` after it.
+    """
+
+    match_grammar = _source_file_name_grammar(
+        OneOf(
+            SourceFileNameSegment._part,
+            SourceFileNameSegment._backslash,
+            allow_gaps=False,
+        )
+    )
+
+
+class SourceShorthandFileNameSegment(SourceFileNameSegment):
+    r"""The file name of `\.`, which the client always reads verbatim."""
+
+    match_grammar = _source_file_name_grammar(
+        OneOf(
+            SourceFileNameSegment._part,
+            SourceFileNameSegment._backslash,
+            SourceFileNameSegment._client_go,
+            allow_gaps=False,
+        )
+    )
+
+
+class SourceStatementSegment(BaseSegment):
+    r"""A `SOURCE file_name` (or `\. file_name`) client command.
+
+    This is a command of the `mysql` / `mariadb` command-line client rather than
+    SQL. It is only recognised at the start of a statement, and is terminated by
+    the end of the line or an optional `;`. See `FileSegment`.
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+    https://mariadb.com/docs/server/clients-and-utilities/mariadb-client/mariadb-command-line-client
+    """
+
+    type = "source_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            "SOURCE",
+            Ref("InlineWhitespaceSegment"),
+            Ref("SourceFileNameSegment"),
+            allow_gaps=False,
+        ),
+        Sequence(
+            Ref("SourceShorthandSegment"),
+            Ref("InlineWhitespaceSegment"),
+            Ref("SourceShorthandFileNameSegment"),
+            allow_gaps=False,
+        ),
+    )
+
+
+class SourceBackslashStatementSegment(BaseSegment):
+    r"""A `SOURCE` client command whose file name has a backslash.
+
+    Unlike `SourceStatementSegment` it can't be followed by a `;`. See
+    `SourceBackslashFileNameSegment`.
+    """
+
+    type = "source_statement"
+
+    match_grammar = Sequence(
+        "SOURCE",
+        Ref("InlineWhitespaceSegment"),
+        Ref("SourceBackslashFileNameSegment"),
+        allow_gaps=False,
+    )
+
+
+class FileSegment(ansi.FileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+
+    Overrides ANSI to allow the `SOURCE` client command between statements.
+    Unlike a SQL statement it ends at the end of its line, so the `;` after it
+    is optional. Every other statement still needs a delimiter before the next
+    one, and as in ANSI the final statement in the file may omit it.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        AnyNumberOf(
+            # The delimiter after `SOURCE` is optional...
+            Sequence(
+                Ref("SourceStatementSegment"),
+                AnyNumberOf(Ref("DelimiterGrammar")),
+            ),
+            # ...except with a backslash in the file name, where it isn't
+            # allowed.
+            Ref("SourceBackslashStatementSegment"),
+            # Any other run of statements must end with a delimiter here...
+            Sequence(
+                Delimited(
+                    Ref("StatementSegment"),
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_gaps=True,
+                ),
+                AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            ),
+        ),
+        # ...unless it is at the end of the file.
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            optional=True,
+        ),
+    )
 
 
 class CreateProcedureStatementSegment(BaseSegment):
