@@ -204,7 +204,7 @@ class _FakeClient:
     [
         ("pull_request_target", {"pull_request": {"number": 7}}, [7]),
         ("pull_request_review", {"pull_request": {"number": 8}}, [8]),
-        ("pull_request_review_thread", {"pull_request": {"number": 9}}, [9]),
+        ("pull_request_review_comment", {"pull_request": {"number": 9}}, [9]),
         # Comment on a PR vs comment on a plain issue.
         ("issue_comment", {"issue": {"number": 10, "pull_request": {}}}, [10]),
         ("issue_comment", {"issue": {"number": 11}}, []),
