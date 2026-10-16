@@ -416,10 +416,9 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
-    FunctionContentsExpressionGrammar=OneOf(
-        Ref("ExpressionSegment"),
-        Ref("NamedArgumentSegment"),
-    ),
+    FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
+        "FunctionContentsExpressionGrammar"
+    ).copy(insert=[Ref("NamedArgumentSegment")]),
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
         IdentifierSegment,

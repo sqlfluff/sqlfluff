@@ -485,6 +485,7 @@ sparksql_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
+        Ref("WildcardIdentifierSegment"),
     ),
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
