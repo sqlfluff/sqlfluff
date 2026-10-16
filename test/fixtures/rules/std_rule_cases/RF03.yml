@@ -768,3 +768,13 @@ test_fail_athena_struct_field_access_qualified_config:
       references.consistent:
         single_table_references: qualified
         force_enable: true
+
+test_pass_bigquery_with_expression_variable_in_subquery:
+  # A subquery inside a WITH expression can use the variables before it.
+  pass_str: SELECT WITH(a AS 1, (SELECT a + t.b FROM t)) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.consistent:
+        force_enable: true
