@@ -712,8 +712,9 @@ def handle_respace__inline_with_space(
     if "touch" in [pre_constraint, post_constraint]:
         if _would_fuse_tokens(prev_block, next_block):
             # Removing the whitespace would comment out the rest of the line,
-            # or build a different operator. Leave it alone and don't raise a violation - there is no edit the
-            # user could make here which would satisfy the constraint.
+            # or build a different operator. Leave it alone and don't raise a
+            # violation - there is no edit the user could make here which
+            # would satisfy the constraint.
             return segment_buffer, []
         # In this instance - no whitespace is correct, This
         # means we should delete it.
