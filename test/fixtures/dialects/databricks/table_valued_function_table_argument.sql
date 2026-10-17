@@ -1,0 +1,3 @@
+SELECT * FROM f(TABLE(SELECT a, b FROM t));
+
+SELECT * FROM f(TABLE(SELECT a, b FROM t), 1);
