@@ -71,9 +71,8 @@ dependencies = [
     "platformdirs",
     # To get the encoding of files.
     "chardet",
-    # Click can include breaking changes in minor releases. Make sure to test
-    # well before updating upper bound.
-    "click<8.5.0",
+    # Click supports compatible versions without an upper bound.
+    "click",
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",
