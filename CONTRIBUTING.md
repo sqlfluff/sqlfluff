@@ -105,7 +105,8 @@ accept, and merge.
 ### AI-Assisted Contributions
 
 AI-assisted contributions are welcome when they meet the same quality,
-correctness, and maintainability bar as any other contribution.
+correctness, and maintainability bar as any other contribution. Please read
+our [AI Contribution Policy](AI_POLICY.md) before contributing.
 
 - The contributor remains responsible for the final pull request, including
   correctness, tests, and maintainability.
