@@ -9,6 +9,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.rules.context import RuleContext
 
 if TYPE_CHECKING:
@@ -66,8 +67,9 @@ def contents(*arguments: SegmentFake) -> SegmentFake:
 
 
 def recognize(segment: SegmentFake) -> FunctionCall | None:
-    """Load rule metadata normally before using the isolated recognizer."""
-    FluffConfig(overrides={"dialect": "bigquery"})
+    """Initialize plugins before importing the rule module for recognition."""
+    # The rule metaclass validates config metadata during module import.
+    get_plugin_manager()
     from sqlfluff.rules.convention.CV14 import function_call
 
     return function_call(cast(BaseSegment, segment))
