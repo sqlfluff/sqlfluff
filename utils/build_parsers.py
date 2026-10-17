@@ -441,6 +441,12 @@ class TableBuilder:
         elif isinstance(grammar, PrecededByMatcher):
             return self._handle_preceded_by(grammar, parse_context)
 
+        # Oracle-specific: _StandaloneSlashTerminator. Detected by class
+        # name to avoid a top-level import of a dialect-specific class in a
+        # generator that walks every dialect's grammar.
+        elif type(grammar).__name__ == "_StandaloneSlashTerminator":
+            return self._handle_standalone_slash_terminator(grammar, parse_context)
+
         # MetaSegment
         elif isinstance(grammar, type) and issubclass(grammar, MetaSegment):
             return self._handle_meta(grammar, parse_context)
@@ -1271,6 +1277,32 @@ class TableBuilder:
             aux_data_offset=type_id,
             simple_hint_idx=0,
             comment=f'Meta("{type_name}")',
+        )
+
+    def _handle_standalone_slash_terminator(
+        self, grammar, parse_context
+    ) -> GrammarInstData:
+        """Convert Oracle's _StandaloneSlashTerminator to a StandaloneSlashTerminator instruction.
+
+        The Rust runtime does the newline/EOF neighbour check itself, so we
+        emit a bare instruction with no aux data or children — the variant
+        alone is enough to identify it. The simple hint (``{"/"}``) is
+        preserved so ``next_match`` can still fast-scan for candidate ``/``
+        positions before invoking the matcher.
+        """
+        hint_id = self._add_simple_hint(grammar, parse_context)
+        return GrammarInstData(
+            variant="StandaloneSlashTerminator",
+            flags=0,
+            parse_mode="Strict",
+            first_child_idx=len(self.child_ids),
+            child_count=0,
+            min_times=0,
+            first_terminator_idx=len(self.terminators),
+            terminator_count=0,
+            aux_data_offset=0,
+            simple_hint_idx=hint_id,
+            comment="StandaloneSlashTerminator()",
         )
 
     def _handle_preceded_by(self, grammar, parse_context) -> GrammarInstData:
