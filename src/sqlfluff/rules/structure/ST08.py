@@ -62,7 +62,7 @@ class Rule_ST08(BaseRule):
                 if (
                     len(expression[0].segments) == 1
                     and not bracketed.recursive_crawl(
-                        "select_statement", recurse_into=False
+                        "select_statement", "values_clause", recurse_into=False
                     )
                     and not bracketed.children(sp.is_type("comma"))
                 ):
