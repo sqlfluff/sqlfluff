@@ -1186,6 +1186,11 @@ class CreateVirtualTableStatementSegment(BaseSegment):
                             Ref("ObjectReferenceSegment"),
                         ),
                     ),
+                    # FTS5 column declarations may include the UNINDEXED option.
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "UNINDEXED",
+                    ),
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),
                     Ref("SingleIdentifierGrammar"),
