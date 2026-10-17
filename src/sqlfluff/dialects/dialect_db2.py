@@ -830,6 +830,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     type = "values_clause"
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -841,6 +842,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             "DEFAULT",
             Ref("ExpressionSegment"),
         ),
+        Dedent,
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
     )

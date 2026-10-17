@@ -2215,15 +2215,20 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref("TopPercentGrammar", optional=True),
+        Ref.keyword("INTO", optional=True),
+        Indent,
         OneOf(
-            Sequence(
-                Ref.keyword("INTO", optional=True),
-                Ref("TableReferenceSegment"),
-            ),
+            Ref("TableReferenceSegment"),
             Ref("OpenQuerySegment"),
         ),
         Ref("PostTableExpressionGrammar", optional=True),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Sequence(
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+            optional=True,
+        ),
         Ref("OutputClauseSegment", optional=True),
         OneOf(
             Ref("SelectableGrammar"),
@@ -2243,7 +2248,9 @@ class BulkInsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "BULK",
         "INSERT",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         "FROM",
         Ref("QuotedLiteralSegment"),
         Ref("BulkInsertStatementWithSegment", optional=True),
@@ -6384,6 +6391,7 @@ class DeleteStatementSegment(BaseSegment):
             Sequence(
                 Ref("TopPercentGrammar", optional=True),
                 Ref.keyword("FROM", optional=True),
+                Indent,
                 OneOf(
                     Sequence(
                         Sequence(
@@ -6409,6 +6417,7 @@ class DeleteStatementSegment(BaseSegment):
                     ),
                     Ref("OpenRowSetSegment"),
                 ),
+                Dedent,
                 Ref("OutputClauseSegment", optional=True),
                 Ref("FromClauseSegment", optional=True),
                 OneOf(
@@ -6420,9 +6429,13 @@ class DeleteStatementSegment(BaseSegment):
             # Azure Synapse Analytics-specific
             Sequence(
                 "FROM",
+                Indent,
                 Ref("TableReferenceSegment"),
+                Dedent,
                 "JOIN",
+                Indent,
                 Ref("TableReferenceSegment"),
+                Dedent,
                 Ref("JoinOnConditionSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
@@ -7032,6 +7045,7 @@ class ForClauseSegment(BaseSegment):
             "BROWSE",
             Sequence(
                 "JSON",
+                Indent,
                 Delimited(
                     OneOf(
                         "AUTO",
@@ -7048,9 +7062,11 @@ class ForClauseSegment(BaseSegment):
                     Ref.keyword("INCLUDE_NULL_VALUES", optional=True),
                     Ref.keyword("WITHOUT_ARRAY_WRAPPER", optional=True),
                 ),
+                Dedent,
             ),
             Sequence(
                 "XML",
+                Indent,
                 OneOf(
                     Delimited(
                         Sequence(
@@ -7096,6 +7112,7 @@ class ForClauseSegment(BaseSegment):
                         ),
                     ),
                 ),
+                Dedent,
             ),
         ),
     )
@@ -7113,6 +7130,7 @@ class CursorForClauseSegment(BaseSegment):
         OneOf(
             Sequence(
                 "JSON",
+                Indent,
                 Delimited(
                     OneOf(
                         "AUTO",
@@ -7129,9 +7147,11 @@ class CursorForClauseSegment(BaseSegment):
                     Ref.keyword("INCLUDE_NULL_VALUES", optional=True),
                     Ref.keyword("WITHOUT_ARRAY_WRAPPER", optional=True),
                 ),
+                Dedent,
             ),
             Sequence(
                 "XML",
+                Indent,
                 OneOf(
                     Delimited(
                         Sequence(
@@ -7177,6 +7197,7 @@ class CursorForClauseSegment(BaseSegment):
                         ),
                     ),
                 ),
+                Dedent,
             ),
         ),
     )
@@ -8200,8 +8221,16 @@ class FetchCursorStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref.keyword("FROM", optional=True),
+        Indent,
         Ref("CursorNameGrammar"),
-        Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+        Dedent,
+        Sequence(
+            "INTO",
+            Indent,
+            Delimited(Ref("ParameterNameSegment")),
+            Dedent,
+            optional=True,
+        ),
     )
 
 

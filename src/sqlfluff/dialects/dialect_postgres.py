@@ -1982,7 +1982,9 @@ class IntoClauseSegment(BaseSegment):
         "INTO",
         OneOf("TEMPORARY", "TEMP", "UNLOGGED", optional=True),
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 
@@ -2005,9 +2007,11 @@ class ForClauseSegment(BaseSegment):
         ),
         Sequence(
             "OF",
+            Indent,
             Delimited(
                 Ref("TableReferenceSegment"),
             ),
+            Dedent,
             optional=True,
         ),
         OneOf(
@@ -5577,9 +5581,11 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     match_grammar = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
@@ -6034,6 +6040,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Delimited(
             OneOf(
                 Sequence(
@@ -6046,6 +6053,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
                 ),
             ),
         ),
+        Dedent,
         Sequence(
             OneOf("RESTART", "CONTINUE"),
             "IDENTITY",
@@ -6342,6 +6350,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -6353,6 +6362,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 parse_mode=ParseMode.GREEDY,
             ),
         ),
+        Dedent,
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -6369,9 +6379,11 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         "DELETE",
         "FROM",
         Ref.keyword("ONLY", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("StarSegment", optional=True),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Sequence(
             "USING",
             Indent,
