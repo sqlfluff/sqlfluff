@@ -143,6 +143,14 @@ class Rule_AM04(BaseRule):
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
                                 self._analyze_result_columns(cte, wildcard_anchor)
+                                # NOTE: lookup_cte() pops the CTE from the
+                                # scope which owns it (see AM07 for the
+                                # recursion-guard rationale). Restore it now
+                                # that its resolution has finished, so a
+                                # later selectable in the same set expression
+                                # can still resolve the same reference.
+                                assert cte.parent is not None
+                                cte.parent.ctes[wildcard_table.upper()] = cte
                             else:
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
