@@ -1,0 +1,187 @@
+rule: CV14
+configs:
+  core:
+    dialect: bigquery
+  rules:
+    convention.prefer_chained_functions:
+      force_enable: true
+test_issue_traditional:
+  fail_str: |
+    SELECT
+        REPLACE(REPLACE(REPLACE(foo, 'a', '0'), 'b', '1'), 'c', '2') AS foo
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo).REPLACE('a', '0').REPLACE('b', '1').REPLACE('c', '2') AS foo
+    FROM t;
+test_issue_multiline_before:
+  fail_str: |
+    SELECT
+      -- Before
+      REPLACE(
+        REPLACE(
+          REPLACE(
+            REPLACE(
+              LOWER(
+                TRIM(
+                  adresse
+                )
+              ),
+              'ch',
+              'chemin'
+            ),
+            'av',
+            'avenue'
+          ),
+          'bd',
+          'boulevard'
+        ),
+        'bvd',
+        'boulevard'
+      ) AS adresse_clean
+    FROM t;
+  fix_str: |
+    SELECT
+      -- Before
+      (adresse).TRIM().LOWER().REPLACE('ch', 'chemin').REPLACE('av', 'avenue').REPLACE('bd', 'boulevard').REPLACE('bvd', 'boulevard') AS adresse_clean
+    FROM t;
+test_single_call:
+  pass_str: |
+    SELECT LOWER(foo) AS foo FROM t;
+test_existing_chain:
+  pass_str: |
+    SELECT (foo).LOWER().TRIM() AS foo FROM t;
+test_argument_order:
+  fail_str: |
+    SELECT REPLACE(SUBSTR(LOWER(foo), 2, 4), 'a,b', 'c') AS result FROM t;
+  fix_str: |
+    SELECT (foo).LOWER().SUBSTR(2, 4).REPLACE('a,b', 'c') AS result FROM t;
+test_preserve_case:
+  fail_str: |
+    SELECT lower(Trim(foo)) FROM t;
+  fix_str: |
+    SELECT (foo).Trim().lower() FROM t;
+test_expression_input:
+  fail_str: |
+    SELECT LOWER(TRIM(a || b)) AS result FROM t;
+  fix_str: |
+    SELECT (a || b).TRIM().LOWER() AS result FROM t;
+test_other_argument_stays_in_place:
+  fail_str: |
+    SELECT REPLACE(LOWER(foo), UPPER(bar), 'x') FROM t;
+  fix_str: |
+    SELECT (foo).LOWER().REPLACE(UPPER(bar), 'x') FROM t;
+test_comment_inside:
+  pass_str: |
+    SELECT LOWER(/* preserve me */ TRIM(foo)) FROM t;
+test_line_comment_inside:
+  pass_str: |
+    SELECT LOWER(
+        -- preserve me
+        TRIM(foo)
+    ) FROM t;
+test_cast_is_not_a_chain_step:
+  pass_str: |
+    SELECT LOWER(CAST(foo AS STRING)) FROM t;
+test_named_first_argument:
+  pass_str: |
+    SELECT custom_function(value => LOWER(foo)) FROM t;
+test_grouping:
+  pass_str: |
+    SELECT GROUPING(LOWER(foo)) FROM t GROUP BY LOWER(foo);
+test_multi_part_name:
+  pass_str: |
+    SELECT SAFE.SQRT(ABS(foo)) FROM t;
+test_aggregate_modifier:
+  pass_str: |
+    SELECT SUM(DISTINCT ABS(foo)) FROM t;
+test_window_suffix:
+  pass_str: |
+    SELECT SUM(ABS(foo)) OVER () FROM t;
+test_zero_arguments:
+  pass_str: |
+    SELECT ABS(RAND());
+test_grouping_parentheses:
+  fail_str: |
+    SELECT LOWER((TRIM(foo))) FROM t;
+  fix_str: |
+    SELECT (foo).TRIM().LOWER() FROM t;
+test_keep_operator_grouping:
+  fail_str: |
+    SELECT 2 * ABS(ROUND(a + b, 1)) + 3 FROM t;
+  fix_str: |
+    SELECT 2 * (a + b).ROUND(1).ABS() + 3 FROM t;
+test_chain_following_nested_calls:
+  fail_str: |
+    SELECT (LOWER(TRIM(foo))).REPLACE('a', 'b') FROM t;
+  fix_str: |
+    SELECT ((foo).TRIM().LOWER()).REPLACE('a', 'b') FROM t;
+test_other_argument_has_its_own_chain:
+  fail_str: |
+    SELECT REPLACE(LOWER(foo), LOWER(TRIM(bar)), 'x') FROM t;
+  fix_str: |
+    SELECT (foo).LOWER().REPLACE((bar).TRIM().LOWER(), 'x') FROM t;
+test_unsupported_function_as_input:
+  fail_str: |
+    SELECT LOWER(TRIM(CAST(foo AS STRING))) FROM t;
+  fix_str: |
+    SELECT (CAST(foo AS STRING)).TRIM().LOWER() FROM t;
+test_multiple_independent_expressions:
+  fail_str: |
+    SELECT
+        LOWER(TRIM(foo)) AS x,
+        UPPER(TRIM(bar)) AS y
+    FROM t
+    WHERE LENGTH(TRIM(foo)) > 0;
+  fix_str: |
+    SELECT
+        (foo).TRIM().LOWER() AS x,
+        (bar).TRIM().UPPER() AS y
+    FROM t
+    WHERE (foo).TRIM().LENGTH() > 0;
+test_named_later_argument:
+  fail_str: |
+    SELECT custom_function(LOWER(foo), suffix => 'x') FROM t;
+  fix_str: |
+    SELECT (foo).LOWER().custom_function(suffix => 'x') FROM t;
+test_comment_in_another_argument:
+  pass_str: |
+    SELECT REPLACE(LOWER(foo), /* keep */ 'a', 'b') FROM t;
+test_conditional_expression:
+  pass_str: |
+    SELECT COALESCE(LOWER(foo), 'fallback') FROM t;
+test_first_argument_is_not_just_a_function:
+  pass_str: |
+    SELECT LOWER(TRIM(foo) || TRIM(bar)) FROM t;
+test_line_comment_surrounding_expression:
+  fail_str: |
+    SELECT
+        -- clean address
+        LOWER(TRIM(foo)) AS clean -- keep alias comment
+    FROM t;
+  fix_str: |
+    SELECT
+        -- clean address
+        (foo).TRIM().LOWER() AS clean -- keep alias comment
+    FROM t;
+test_array_input:
+  fail_str: |
+    SELECT LOWER(TRIM(addresses[OFFSET(0)])) FROM t;
+  fix_str: |
+    SELECT (addresses[OFFSET(0)]).TRIM().LOWER() FROM t;
+test_null_input:
+  fail_str: |
+    SELECT LOWER(TRIM(NULL));
+  fix_str: |
+    SELECT (NULL).TRIM().LOWER();
+test_quoted_identifier_and_literal:
+  fail_str: |
+    SELECT REPLACE(LOWER(`address field`), 'a,b', 'x.y') FROM t;
+  fix_str: |
+    SELECT (`address field`).LOWER().REPLACE('a,b', 'x.y') FROM t;
+test_noqa_disables_conversion:
+  pass_str: |
+    SELECT LOWER(TRIM(foo)) FROM t; -- noqa: CV14
+test_quoted_function_name:
+  pass_str: |
+    SELECT `my_dataset.my_function`(LOWER(foo)) FROM t;

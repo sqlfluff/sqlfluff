@@ -8,6 +8,13 @@ from sqlfluff.core.rules import BaseRule, ConfigInfo
 def get_configs_info() -> dict[str, ConfigInfo]:
     """Get additional rule config validations and descriptions."""
     return {
+        "writing_style": {
+            "validation": ["consistent", "one_liner", "aligned", "indented"],
+            "definition": (
+                "Layout of chained function calls. With consistent, infer the style "
+                "from the first chain and enforce it throughout the file."
+            ),
+        },
         "ignore_comment_lines": {
             "validation": [True, False],
             "definition": (
@@ -89,6 +96,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.layout.LT13 import Rule_LT13
     from sqlfluff.rules.layout.LT14 import Rule_LT14
     from sqlfluff.rules.layout.LT15 import Rule_LT15
+    from sqlfluff.rules.layout.LT16 import Rule_LT16
 
     return [
         Rule_LT01,
@@ -106,4 +114,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_LT13,
         Rule_LT14,
         Rule_LT15,
+        Rule_LT16,
     ]

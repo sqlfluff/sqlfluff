@@ -8,6 +8,8 @@ from typing import Literal, Optional, cast
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
+from sqlfluff.utils.reflow.chained_indent_model import model_chained_indents
+from sqlfluff.utils.reflow.chained_layout import style_for_tree
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 from sqlfluff.utils.reflow.elements import (
@@ -217,12 +219,24 @@ class ReflowSequence:
             config (:obj:`FluffConfig`): A config object from which
                 to load the spacing behaviours of different segments.
         """
-        return cls.from_raw_segments(
+        sequence = cls.from_raw_segments(
             root_segment.raw_segments,
             root_segment,
             config=config,
             # This is the efficient route. We use it here because we can.
             depth_map=DepthMap.from_parent(root_segment),
+        )
+        if (
+            "chained_function_call" not in root_segment.descendant_type_set
+            or style_for_tree(root_segment, config) != "indented"
+        ):
+            return sequence
+        return cls(
+            elements=model_chained_indents(sequence.elements, root_segment),
+            root_segment=root_segment,
+            reflow_config=sequence.reflow_config,
+            depth_map=sequence.depth_map,
+            lint_results=sequence.get_results(),
         )
 
     @classmethod

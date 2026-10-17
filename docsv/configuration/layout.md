@@ -296,6 +296,45 @@ at any line length. It is one of the rules which `sqlfluff format`
 applies. To also fill the select targets, add `LT09` to `exclude_rules`.
 :::
 
+### Chained function calls
+
+The `layout.chained_functions` rule (LT16) controls boundaries between chained
+calls, including BigQuery's `(value).TRIM().LOWER()` syntax:
+
+| `writing_style` | Behavior |
+| --- | --- |
+| `consistent` (default) | Infer the style from the first chain and apply it throughout the file. |
+| `one_liner` | Keep each call adjacent to its preceding expression. |
+| `aligned` | Start each call on a new line, aligned with the input expression. |
+| `indented` | Start each call on a new line, one configured indentation unit beyond the input. |
+
+```ini
+[sqlfluff:rules:layout.chained_functions]
+writing_style = indented
+```
+
+For a mixed first chain, its first call boundary determines the consistent style.
+The rule preserves multiline arguments. Line length rules can still wrap long
+argument lists, and comments can prevent an automatic fix across a boundary.
+LT02 uses the same style setting when calculating indentation.
+
+Formatting existing chains is independent of converting traditional nested calls.
+The BigQuery-only `convention.prefer_chained_functions` rule (CV14) is disabled
+by default. Enable it explicitly to prefer `(foo).TRIM().LOWER()` over
+`LOWER(TRIM(foo))`:
+
+```ini
+[sqlfluff:rules:convention.prefer_chained_functions]
+force_enable = True
+```
+
+Conversion uses the same layout setting. In consistent mode, it follows the
+first existing chain in the file, or uses one_liner if no chain exists.
+It converts at least two ordinary calls nested through their first positional
+argument. It leaves expressions containing comments or template expansions
+unchanged, and skips special syntax, multipart/quoted function names, aggregate
+modifiers, window clauses and conditional expressions.
+
 
 ## Indentation
 
