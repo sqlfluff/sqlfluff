@@ -809,6 +809,58 @@ def test__templater_jinja_macro_error_raised_every_time(tmp_path):
             )
 
 
+_RETURN_MAPPING_MACRO = (
+    "{% macro mapping() %}"
+    "{% do return({'a': 'x', 'b': 'y'}) %}"
+    "{{ 'not rendered' }}"
+    "{% endmacro %}"
+)
+_RETURN_CALLER_MACROS = (
+    "{% macro case_of(col) %}"
+    "{% set values = mapping() %}"
+    "CASE {{ col }}"
+    "{% for k, v in values.items() %} WHEN '{{ k }}' THEN '{{ v }}'{% endfor %}"
+    " END"
+    "{% endmacro %}"
+    "{% macro mapping_values() %}"
+    "{% do return(mapping().values() | list) %}"
+    "{% endmacro %}"
+)
+
+
+@pytest.mark.parametrize("same_file", [True, False])
+def test__templater_jinja_dbt_return_from_nested_macro(tmp_path, same_file):
+    """A dbt ``return`` only ends the macro it is called in.
+
+    This includes a macro called by another macro in the same file (#8729).
+    """
+    if same_file:
+        (tmp_path / "macros.sql").write_text(
+            _RETURN_MAPPING_MACRO + _RETURN_CALLER_MACROS
+        )
+    else:
+        (tmp_path / "mapping.sql").write_text(_RETURN_MAPPING_MACRO)
+        (tmp_path / "callers.sql").write_text(_RETURN_CALLER_MACROS)
+    outstr, _ = JinjaTemplater().process(
+        in_str="SELECT {{ case_of('c') }} AS {{ mapping_values() | join('_') }}\n",
+        fname="test.sql",
+        config=_macro_path_config(tmp_path),
+    )
+    assert str(outstr) == (
+        "SELECT CASE c WHEN 'a' THEN 'x' WHEN 'b' THEN 'y' END AS x_y\n"
+    )
+
+
+def test__templater_jinja_dbt_return_from_macro_in_file():
+    """A dbt ``return`` works in a macro defined in the file being rendered."""
+    outstr, _ = JinjaTemplater().process(
+        in_str="{% macro one() %}{% do return(1) %}{% endmacro %}SELECT {{ one() }}\n",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT 1\n"
+
+
 class _CountExtension(Extension):
     """Outputs the result of calling the ``count`` global while parsing."""
 

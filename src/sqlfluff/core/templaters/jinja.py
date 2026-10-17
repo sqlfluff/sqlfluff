@@ -46,7 +46,11 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
     large_file_check,
 )
-from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS, DbtMacroWrapper
+from sqlfluff.core.templaters.builtins.dbt import (
+    DBT_BUILTINS,
+    DbtMacroWrapper,
+    DbtSandboxedEnvironment,
+)
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
@@ -99,7 +103,7 @@ def _compile_macro_template(template: str, env: Environment) -> CodeType:
         # A nested config section under `macros` is not a string. Leave it to
         # Jinja, which raises its own error for it.
         isinstance(template, str)
-        and type(env) in (Environment, SandboxedEnvironment)
+        and type(env) in (Environment, SandboxedEnvironment, DbtSandboxedEnvironment)
         and vars(env).keys() <= _JINJA_ENV_ATTRIBUTES
         and all(t in (ExprStmtExtension, DBTTestExtension) for t in extension_types)
         and _holds_same_objects(env.filters, _JINJA_FILTERS)
@@ -562,10 +566,12 @@ class JinjaTemplater(PythonTemplater):
         else:
             loader = FileSystemLoader(final_search_path) if final_search_path else None
         extensions: list[Union[str, type[Extension]]] = ["jinja2.ext.do"]
+        env_class = SandboxedEnvironment
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
+            env_class = DbtSandboxedEnvironment
 
-        return SandboxedEnvironment(
+        return env_class(
             # We explicitly want to preserve newlines.
             keep_trailing_newline=True,
             # The do extension allows the "do" directive

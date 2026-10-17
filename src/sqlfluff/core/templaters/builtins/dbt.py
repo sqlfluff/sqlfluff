@@ -2,6 +2,9 @@
 
 from typing import Any, Callable, Union
 
+from jinja2.runtime import Context, Macro
+from jinja2.sandbox import SandboxedEnvironment
+
 from sqlfluff.core.templaters.builtins.common import FunctionWrapper
 
 
@@ -83,6 +86,26 @@ class DbtMacroWrapper:
             return self.macro(*args, **kwargs)
         except MacroReturn as e:
             return e.value
+
+
+class DbtSandboxedEnvironment(SandboxedEnvironment):
+    """A sandboxed environment in which dbt's `return` ends the macro it is in.
+
+    `DbtMacroWrapper` only wraps the macros loaded into the context. A macro
+    calling another macro from the same file, or a macro defined in the file
+    being rendered, calls the macro itself, so the return is caught here.
+    """
+
+    def call(self, context: Context, obj: Any, /, *args: Any, **kwargs: Any) -> Any:
+        """Call an object from sandboxed code, returning any macro's return value."""
+        try:
+            return super().call(context, obj, *args, **kwargs)
+        except MacroReturn as e:
+            # Only a macro call returns. When `obj` is `return` itself, the
+            # exception must reach the macro which called it.
+            if isinstance(obj, Macro):
+                return e.value
+            raise
 
 
 # NOTE: we use `FunctionWrapper` on all of the callable builtins here
