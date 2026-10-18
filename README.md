@@ -14,6 +14,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/sqlfluff/sqlfluff?logo=docker&style=flat-square)](https://hub.docker.com/r/sqlfluff/sqlfluff)
 [![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20SQLFluff%20Guru-006BFF?style=flat-square)](https://gurubase.io/g/sqlfluff)
 
+<p align="center"><b>English</b> | <a href="./README.zh-CN.md">简体中文</a></p>
+
 **SQLFluff** is a dialect-flexible and configurable SQL linter. Designed
 with [ELT](https://www.techtarget.com/searchdatamanagement/definition/Extract-Load-Transform-ELT) applications in mind, **SQLFluff** also works with Jinja templating
 and dbt. **SQLFluff** will auto-fix most linting errors, allowing you to focus
