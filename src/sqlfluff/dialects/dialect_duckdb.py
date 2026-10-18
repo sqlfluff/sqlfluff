@@ -1277,18 +1277,10 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        OneOf(
-            Sequence(
-                Ref("OrReplaceGrammar"),
-                Ref("TemporaryGrammar", optional=True),
-                OneOf("MACRO", "FUNCTION"),
-            ),
-            Sequence(
-                Ref("TemporaryGrammar", optional=True),
-                OneOf("MACRO", "FUNCTION"),
-                Ref("IfNotExistsGrammar", optional=True),
-            ),
-        ),
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        OneOf("MACRO", "FUNCTION"),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "AS",
