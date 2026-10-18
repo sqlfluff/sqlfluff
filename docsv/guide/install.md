@@ -12,10 +12,9 @@ you're using. In any case, the python wiki provides up to date
 
 There's a chance that you'll be offered the choice between `python`
 versions. Support for python 2 was dropped in early 2020, so you
-should always opt for a version number starting with a 3. As for
-more specific options beyond that, *SQLFluff* aims to be compatible
-with all current python versions, and so it's best to pick the most
-recent.
+should always opt for a version number starting with a 3. *SQLFluff*
+requires Python 3.10 or newer. If you're unsure which version to choose,
+use the latest stable version.
 
 You can confirm that python is working as expected by heading to
 your terminal or console of choice and typing `python --version`
@@ -23,7 +22,7 @@ which should give you a sensible read out and not an error.
 
 ```bash
 python --version
-Python 3.9.1
+Python 3.10.0
 ```
 
 For most people, their installation of python will come with
