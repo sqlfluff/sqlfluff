@@ -150,11 +150,26 @@ class Rule_AL05(BaseRule):
             for a in query.aliases
             if a.object_reference and a.object_reference.segments
         )
+        # ClickHouse requires an alias on every table function in a FROM clause
+        # with more than one table source (a join or a comma list), so collect
+        # the sources of such a FROM clause.
+        multi_source_elements: set[BaseSegment] = set()
+        from_clause = context.segment.get_child("from_clause")
+        if context.dialect.name == "clickhouse" and from_clause:
+            sources = list(
+                from_clause.recursive_crawl(
+                    "from_expression_element", no_recursive_seg_type="select_statement"
+                )
+            )
+            if len(sources) > 1:
+                multi_source_elements = set(sources)
         for alias in query.aliases:
             # Skip alias if it's required (some dialects require aliases for
             # VALUES clauses).
             if alias.from_expression_element and self._is_alias_required(
-                alias.from_expression_element, context.dialect.name
+                alias.from_expression_element,
+                context.dialect.name,
+                alias.from_expression_element in multi_source_elements,
             ):
                 continue
             # Skip alias if the table is referenced more than once, some dialects
@@ -235,7 +250,10 @@ class Rule_AL05(BaseRule):
         return False
 
     def _is_alias_required(
-        self, from_expression_element: BaseSegment, dialect_name: str
+        self,
+        from_expression_element: BaseSegment,
+        dialect_name: str,
+        in_multi_source_from: bool,
     ) -> bool:
         """Given an alias, is it REQUIRED to be present?
 
@@ -247,6 +265,10 @@ class Rule_AL05(BaseRule):
 
         * In the case of a nested SELECT, all dialect checked (MySQL, Postgres,
           T-SQL) require an alias.
+
+        * ClickHouse requires an alias on a table function when the FROM
+          clause has more than one table source (``in_multi_source_from`` is
+          only set for ClickHouse).
         """
         # Look for a table_expression (i.e. VALUES clause) as a descendant of
         # the FROM expression, potentially nested inside brackets. The reason we
@@ -273,6 +295,12 @@ class Rule_AL05(BaseRule):
                             and name.raw.lower() in self._tsql_rowset_datatype_methods
                         ):
                             return True
+                # ClickHouse rejects a table function without an alias on
+                # either side of a join, or in a comma list, while the
+                # `joined_subquery_requires_alias` setting is on (the default).
+                # The rule cannot see server settings, so it assumes the default.
+                if in_multi_source_from and segment.get_child("function"):
+                    return True
                 # Found a table expression. Does it have a VALUES clause?
                 if segment.get_child("values_clause"):
                     # Found a VALUES clause. Is this a dialect that requires
