@@ -236,3 +236,16 @@ fail_sign_indicator_across_a_newline_without_a_marker:
       type:
         sign_indicator:
           spacing_after: touch:inline
+
+pass_consecutive_tildes:
+  # Touching these would produce "~~" (LIKE operator), so the gap is left alone.
+  pass_str: |
+    SELECT 8 | ~ ~4
+
+fail_consecutive_tildes_outer_spacing:
+  # The space between the last tilde and operand is removed, but ~ ~ is kept apart.
+  fail_str: |
+    SELECT 8 | ~ ~ 4
+  fix_str: |
+    SELECT 8 | ~ ~4
+

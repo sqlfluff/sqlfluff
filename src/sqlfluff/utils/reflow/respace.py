@@ -28,21 +28,21 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 # Small helper functions
 # ---------------------------
 
-# The inline comment marker. Every dialect SQLFluff ships lexes "--" this way,
-# so no dialect lookup is needed to know that building one changes meaning.
+# The inline comment marker and compound operator tokens that must not be created
+# by deleting whitespace between adjacent tokens (e.g. "--" inline comment, "~~" LIKE operator).
+_PROHIBITED_FUSED_TOKENS = {"--", "~~"}
 _INLINE_COMMENT_MARKER = "--"
 
 
 def _would_start_comment(
     prev_block: Optional["ReflowBlock"], next_block: Optional["ReflowBlock"]
 ) -> bool:
-    """Would removing the whitespace between these blocks start a comment?
+    """Would removing the whitespace between these blocks fuse tokens into a comment or compound operator?
 
     Spacing configs such as ``touch`` are resolved against segments, but the
     fix they produce is applied to the raw file. Deleting the whitespace in
-    ``1 * - - 5`` glues the two sign indicators into ``--``, which the lexer
-    then reads as an inline comment - so the rest of the line disappears
-    without the file ever becoming unparsable.
+    ``1 * - - 5`` glues the two sign indicators into ``--`` (inline comment),
+    and ``~ ~ 4`` into ``~~`` (LIKE operator), which changes query meaning.
     """
     if not prev_block or not next_block:  # pragma: no cover
         # A point at the very start or end of the file has nothing to fuse with.
@@ -53,7 +53,8 @@ def _would_start_comment(
         # Zero length blocks (e.g. templated placeholders) have no characters
         # to fuse, so they can't build a marker on their own.
         return False
-    return prev_raw[-1] + next_raw[0] == _INLINE_COMMENT_MARKER
+    return prev_raw[-1] + next_raw[0] in _PROHIBITED_FUSED_TOKENS
+
 
 
 def _construct_alignment_whitespace(width: int, indent_unit: str) -> str:
