@@ -33,3 +33,23 @@ test_nulls_last:
 
 test_comment:
   pass_str: SELECT * FROM t ORDER BY a /* Comment */ DESC, b ASC
+
+
+test_expression_unspecified_desc:
+  # An expression term with no direction is just as ambiguous as a bare column.
+  fail_str: SELECT * FROM t ORDER BY length(a), b DESC
+  fix_str: SELECT * FROM t ORDER BY length(a) ASC, b DESC
+
+
+test_unspecified_expression_desc:
+  fail_str: SELECT * FROM t ORDER BY a, length(b) DESC
+  fix_str: SELECT * FROM t ORDER BY a ASC, length(b) DESC
+
+
+test_expression_asc_desc:
+  pass_str: SELECT * FROM t ORDER BY length(a) ASC, b DESC
+
+
+test_positional_unspecified_desc:
+  fail_str: SELECT * FROM t ORDER BY 1, 2 DESC
+  fix_str: SELECT * FROM t ORDER BY 1 ASC, 2 DESC

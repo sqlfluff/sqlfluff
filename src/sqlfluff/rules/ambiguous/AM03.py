@@ -53,13 +53,21 @@ class Rule_AM03(BaseRule):
         column_reference = None
         ordering_reference = None
         for child_segment in segment.segments:
-            if child_segment.is_type("column_reference"):
-                column_reference = child_segment
-            elif child_segment.is_type("keyword") and child_segment.raw_upper in (
+            if child_segment.is_type("keyword") and child_segment.raw_upper in (
                 "ASC",
                 "DESC",
             ):
                 ordering_reference = child_segment.raw_upper
+            elif (
+                child_segment.is_code
+                and not child_segment.is_type("keyword")
+                and child_segment.raw != ","
+            ):
+                # Capture any ORDER BY term, not just bare column references.
+                # Expressions (e.g. ``LENGTH(b)``) and positional literals
+                # (e.g. ``ORDER BY 1``) are equally subject to ambiguous
+                # ordering directions and must be considered too.
+                column_reference = child_segment
             if column_reference and child_segment.raw == ",":
                 result.append(
                     OrderByColumnInfo(
