@@ -696,6 +696,15 @@ tsql_dialect.replace(
         Ref("DelimiterGrammar"),
         "WINDOW",
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "WINDOW",
+        "OPTION",
+        "FOR",
+        Ref("SetOperatorSegment"),
+        Ref("DelimiterGrammar"),
+    ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
     LikeGrammar=Sequence(
         "LIKE",
@@ -6513,14 +6522,18 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
+        Ref.keyword("ALL", optional=True),
         Indent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
+                Bracketed(),
             ),
             terminators=[
                 # Clauses that can follow GROUP BY
@@ -6550,13 +6563,17 @@ class GroupByClauseSegment(BaseSegment):
 
 
 class WithRollupClauseSegment(BaseSegment):
-    """A `WITH ROLLUP` clause after the `GROUP BY` clause."""
+    """A `WITH ROLLUP` or `WITH CUBE` clause after the `GROUP BY` clause.
+
+    Legacy T-SQL syntax allowing either `WITH ROLLUP` or `WITH CUBE`
+    following a `GROUP BY` clause.
+    """
 
     type = "with_rollup_clause"
 
     match_grammar = Sequence(
         "WITH",
-        "ROLLUP",
+        OneOf("ROLLUP", "CUBE"),
     )
 
 
