@@ -51,7 +51,7 @@ def get_json_segment(
     """Recursively search JSON parse result for specified segment type.
 
     Args:
-        parse_result (Dict[str, Any]): JSON parse result from `sqlfluff.fix`.
+        parse_result (Dict[str, Any]): JSON parse result from `sqlfluff.parse`.
         segment_type (str): The segment type to search for.
 
     Yields:
@@ -72,10 +72,12 @@ def get_json_segment(
 # e.g. Retrieve array of JSON for table references.
 table_references = list(get_json_segment(parse_result, "table_reference"))
 print(table_references)
-# [[{'identifier': 'mySchema'}, {'dot': '.'}, {'identifier': 'myTable'}]]
+# [[{'naked_identifier': 'mySchema'}, {'dot': '.'}, {'naked_identifier': 'myTable'}]]
 
 # Retrieve raw table name from last identifier in the table reference.
 for table_reference in table_references:
-    table_name = list(get_json_segment(parse_result, "naked_identifier"))[-1]
+    table_name = list(
+        get_json_segment({"table_reference": table_reference}, "naked_identifier")
+    )[-1]
     print(f"table_name: {table_name}")
 # table_name: myTable
