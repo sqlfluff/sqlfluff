@@ -946,6 +946,7 @@ class StatementSegment(ansi.StatementSegment):
             # Other statements
             Ref("PrintStatementSegment"),
             Ref("RaiserrorStatementSegment"),
+            Ref("LinenoStatementSegment"),
             Ref("DeclareStatementSegment"),
             Ref("ExecuteScriptSegment"),
             # Ref("PermissionStatementSegment"),
@@ -6749,6 +6750,19 @@ class PrintStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "PRINT",
         Ref("ExpressionSegment"),
+    )
+
+
+class LinenoStatementSegment(BaseSegment):
+    """LINENO statement segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/lineno-transact-sql
+    """
+
+    type = "lineno_statement"
+    match_grammar = Sequence(
+        "LINENO",
+        Ref("NumericLiteralSegment"),
     )
 
 
