@@ -3096,6 +3096,228 @@ test_fail_snowflake_exception_block_nested:
     core:
       dialect: snowflake
 
+test_snowflake_scripting_case_simple:
+  pass_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  fail_str: |
+    BEGIN
+        CASE (v)
+        WHEN 1 THEN
+            x := 2;
+        ELSE
+            x := 3;
+        END CASE;
+    END;
+  fix_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_snowflake_scripting_case_searched:
+  pass_str: |
+    BEGIN
+        CASE
+            WHEN v = 1 THEN
+                x := 2;
+                y := 3;
+            WHEN v = 2 THEN
+                x := 4;
+            ELSE
+                x := 3;
+                y := 4;
+        END CASE;
+    END;
+  fail_str: |
+    BEGIN
+        CASE
+        WHEN v = 1 THEN
+            x := 2;
+            y := 3;
+        WHEN v = 2 THEN
+            x := 4;
+        ELSE
+            x := 3;
+            y := 4;
+        END CASE;
+    END;
+  fix_str: |
+    BEGIN
+        CASE
+            WHEN v = 1 THEN
+                x := 2;
+                y := 3;
+            WHEN v = 2 THEN
+                x := 4;
+            ELSE
+                x := 3;
+                y := 4;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_snowflake_scripting_case_without_else:
+  pass_str: |
+    BEGIN
+        CASE v
+            WHEN 1 THEN
+                x := 2;
+        END CASE;
+        x := 3;
+    END;
+  fail_str: |
+    BEGIN
+        CASE v
+        WHEN 1 THEN
+            x := 2;
+        END CASE;
+        x := 3;
+    END;
+  fix_str: |
+    BEGIN
+        CASE v
+            WHEN 1 THEN
+                x := 2;
+        END CASE;
+        x := 3;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_snowflake_scripting_case_nested:
+  pass_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                CASE (w)
+                    WHEN 2 THEN
+                        x := 3;
+                    ELSE
+                        x := 4;
+                END CASE;
+            ELSE
+                x := 5;
+        END CASE;
+        x := 6;
+    END;
+  fail_str: |
+    BEGIN
+        CASE (v)
+        WHEN 1 THEN
+            CASE (w)
+            WHEN 2 THEN
+                x := 3;
+            ELSE
+                x := 4;
+            END CASE;
+        ELSE
+            x := 5;
+        END CASE;
+        x := 6;
+    END;
+  fix_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                CASE (w)
+                    WHEN 2 THEN
+                        x := 3;
+                    ELSE
+                        x := 4;
+                END CASE;
+            ELSE
+                x := 5;
+        END CASE;
+        x := 6;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_snowflake_scripting_case_comments_two_space:
+  pass_str: |
+    BEGIN
+      CASE (v)
+        -- First branch.
+        WHEN 1 THEN
+          x := 2; -- Branch body.
+        -- Fallback branch.
+        ELSE
+          x := 3;
+      END CASE;
+      x := 4;
+    END;
+  fail_str: |
+    BEGIN
+      CASE (v)
+      -- First branch.
+      WHEN 1 THEN
+        x := 2; -- Branch body.
+      -- Fallback branch.
+      ELSE
+        x := 3;
+      END CASE;
+      x := 4;
+    END;
+  fix_str: |
+    BEGIN
+      CASE (v)
+      -- First branch.
+        WHEN 1 THEN
+          x := 2; -- Branch body.
+        -- Fallback branch.
+        ELSE
+          x := 3;
+      END CASE;
+      x := 4;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      tab_space_size: 2
+
+test_snowflake_scripting_case_if_control:
+  pass_str: |
+    BEGIN
+        IF (v = 1) THEN
+            x := 2;
+        ELSE
+            x := 3;
+        END IF;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_snowflake_scripting_case_expression_control:
+  pass_str: |
+    SELECT
+        CASE
+            WHEN v = 1 THEN 2
+            ELSE 3
+        END AS x;
+  configs:
+    core:
+      dialect: snowflake
+
 test_implicit_indents_require_bracketed_subquery_on_next_line:
   # Collapsing the line break after FROM used to produce a fix that deleted
   # whitespace created by the indent fix for the bracket line, which crashed
