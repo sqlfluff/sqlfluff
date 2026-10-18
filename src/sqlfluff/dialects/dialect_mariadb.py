@@ -1051,6 +1051,7 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
                         # Rename column
                         Sequence(
                             "COLUMN",
+                            Ref("IfExistsGrammar", optional=True),
                             Ref("ColumnReferenceSegment"),
                             "TO",
                             Ref("ColumnReferenceSegment"),
