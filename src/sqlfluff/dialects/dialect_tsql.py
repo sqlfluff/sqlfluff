@@ -6562,7 +6562,11 @@ class GroupByClauseSegment(BaseSegment):
 
 
 class WithRollupClauseSegment(BaseSegment):
-    """A `WITH ROLLUP` clause after the `GROUP BY` clause."""
+    """A `WITH ROLLUP` or `WITH CUBE` clause after the `GROUP BY` clause.
+
+    Legacy T-SQL syntax allowing either `WITH ROLLUP` or `WITH CUBE`
+    following a `GROUP BY` clause.
+    """
 
     type = "with_rollup_clause"
 
