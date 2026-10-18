@@ -121,7 +121,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hexadecimal_literal",
-            r"0x[\da-fA-F]+",
+            r"0[xX][\da-fA-F]+",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
