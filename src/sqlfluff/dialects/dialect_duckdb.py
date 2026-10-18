@@ -1340,6 +1340,7 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         OneOf("MACRO", "FUNCTION"),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "AS",
