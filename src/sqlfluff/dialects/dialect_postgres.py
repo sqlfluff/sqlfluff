@@ -571,6 +571,20 @@ postgres_dialect.add(
         Ref("JsonTypeGrammar", optional=True),
         Ref("JsonUniqueKeysGrammar", optional=True),
     ),
+    # PostgreSQL 18 allows RETURNING to rename the OLD and NEW row references.
+    # https://www.postgresql.org/docs/18/sql-update.html
+    ReturningOldNewAliasesGrammar=Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("OLD", "NEW"),
+                    "AS",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -5594,6 +5608,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6392,6 +6407,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6498,6 +6514,7 @@ class UpdateStatementSegment(BaseSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -7597,6 +7614,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
         insert=[
             Sequence(
                 "RETURNING",
+                Ref("ReturningOldNewAliasesGrammar", optional=True),
                 Indent,
                 OneOf(
                     Ref("StarSegment"),
