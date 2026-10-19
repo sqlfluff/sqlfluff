@@ -726,10 +726,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @classmethod
     def class_is_type(cls, *seg_type: str) -> bool:
         """Is this segment class (or its parent) of the given type."""
-        # Use set intersection
-        if cls._class_types.intersection(seg_type):
-            return True
-        return False
+        # NOTE: This is one of the most called functions in sqlfluff.
+        return not cls._class_types.isdisjoint(seg_type)
 
     @classmethod
     def structural_simplify(
