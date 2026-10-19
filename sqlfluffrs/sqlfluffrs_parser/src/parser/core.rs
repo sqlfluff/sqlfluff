@@ -77,6 +77,15 @@ fn aux_block_bounds(
     (aux_start, aux_end)
 }
 
+/// Whether a parser that matches by text may match `token`.
+///
+/// Text a command-line client reads itself is matched by type only (see
+/// `Token::client_text_token`).
+#[inline]
+fn matches_by_text(token: &Token) -> bool {
+    !token.is_type(&["client_text"])
+}
+
 /// Diagnostic counters accumulated during a parse.
 ///
 /// Pure instrumentation: nothing here affects parse results, so every field is a
@@ -549,7 +558,11 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.raw().eq_ignore_ascii_case(template) && tok.is_code() => {
+            Some(tok)
+                if tok.raw().eq_ignore_ascii_case(template)
+                    && tok.is_code()
+                    && matches_by_text(tok) =>
+            {
                 let token_pos = self.pos;
                 let configured_instance_types = configured_instance_type_ids
                     .iter()
@@ -927,7 +940,8 @@ impl<'a> Parser<'a> {
                 if tok.is_code()
                     && template_ids
                         .iter()
-                        .any(|id| tok.raw().eq_ignore_ascii_case(tables.get_string(*id))) =>
+                        .any(|id| tok.raw().eq_ignore_ascii_case(tables.get_string(*id)))
+                    && matches_by_text(tok) =>
             {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
@@ -1231,7 +1245,7 @@ impl<'a> Parser<'a> {
                 }
 
                 // Check main pattern
-                if pattern.is_match(raw) {
+                if pattern.is_match(raw) && matches_by_text(tok) {
                     let token_pos = self.pos;
 
                     vdebug!(

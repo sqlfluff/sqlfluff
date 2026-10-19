@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
+    ClientTextSegment,
     CodeSegment,
     CommentSegment,
     CompositeComparisonOperatorSegment,
@@ -497,15 +498,26 @@ mysql_dialect.replace(
     ).copy(insert=[Ref("NullSafeEqualsSegment")]),
 )
 
+
+class ClientDelimiterSymbolSegment(ClientTextSegment, SymbolSegment):
+    """The client's delimiter, as a statement terminator.
+
+    A symbol like `;`, and still client text, so that a reparse never reads
+    `$$` as a name.
+    """
+
+    type = "client_delimiter_symbol"
+
+
 mysql_dialect.add(
     ClientDelimiterSegment=TypedParser(
-        "client_delimiter", SymbolSegment, type="statement_terminator"
+        "client_delimiter", ClientDelimiterSymbolSegment, type="statement_terminator"
     ),
     # `\g` and `\G` (raw_upper of both).
     ClientGoSegment=StringParser("\\G", SymbolSegment, type="statement_terminator"),
     # A client command ends with its line, so needs no delimiter after it.
     ClientCommandIgnoredSegment=TypedParser(
-        "client_command_ignored", CodeSegment, type="client_command_ignored"
+        "client_command_ignored", ClientTextSegment, type="client_command_ignored"
     ),
     ClientCommandGrammar=OneOf(
         Ref("DelimiterStatement"),
@@ -2050,7 +2062,7 @@ class DelimiterStatement(BaseSegment):
             "DELIMITER",
             StringParser("\\D", SymbolSegment, type="client_command_shorthand"),
         ),
-        TypedParser("delimiter_argument", CodeSegment, type="delimiter_argument"),
+        TypedParser("delimiter_argument", ClientTextSegment, type="delimiter_argument"),
         Ref("ClientCommandIgnoredSegment", optional=True),
     )
 
@@ -2071,7 +2083,7 @@ class SourceStatementSegment(BaseSegment):
             "SOURCE",
             StringParser("\\.", SymbolSegment, type="client_command_shorthand"),
         ),
-        TypedParser("source_file_name", CodeSegment, type="source_file_name"),
+        TypedParser("source_file_name", ClientTextSegment, type="source_file_name"),
         Ref("ClientCommandIgnoredSegment", optional=True),
     )
 

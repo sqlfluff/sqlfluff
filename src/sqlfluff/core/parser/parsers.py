@@ -17,6 +17,15 @@ from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.parser.types import SimpleHintType
 
 
+def _matches_by_text(segment: BaseSegment) -> bool:
+    """Whether a parser that matches by text may match `segment`.
+
+    Text a command-line client reads itself is matched by type only (see
+    `ClientTextSegment`).
+    """
+    return not segment.is_type("client_text")
+
+
 class BaseParser(Matchable):
     """An abstract class from which other Parsers should inherit."""
 
@@ -216,7 +225,11 @@ class StringParser(BaseParser):
         NOTE: We check that the segment is also code to avoid matching
         unexpected comments.
         """
-        if segments[idx].raw_upper == self.template and segments[idx].is_code:
+        if (
+            segments[idx].raw_upper == self.template
+            and segments[idx].is_code
+            and _matches_by_text(segments[idx])
+        ):
             return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
@@ -268,7 +281,11 @@ class MultiStringParser(BaseParser):
         NOTE: We check that the segment is also code to avoid matching
         unexpected comments.
         """
-        if segments[idx].is_code and segments[idx].raw_upper in self.templates:
+        if (
+            segments[idx].is_code
+            and segments[idx].raw_upper in self.templates
+            and _matches_by_text(segments[idx])
+        ):
             return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
@@ -331,7 +348,7 @@ class RegexParser(BaseParser):
         if result:
             result_string = result.group(0)
             # Check that we've fully matched
-            if result_string == _raw:
+            if result_string == _raw and _matches_by_text(segments[idx]):
                 # Check that the anti_template (if set) hasn't also matched
                 if not self.anti_template or not self._anti_template.match(_raw):
                     return self._match_at(idx)

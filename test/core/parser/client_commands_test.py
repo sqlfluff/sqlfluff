@@ -7,7 +7,7 @@ Every case was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients.
 import pytest
 
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.parser import PyLexer
+from sqlfluff.core.parser import ClientTextSegment, PyLexer
 from sqlfluff.core.parser.client_commands import (
     ClientCommand,
     ClientCommandRules,
@@ -37,7 +37,7 @@ def test_client_commands_long_forms_match_in_any_case():
 def test_client_commands_emitted_tokens_never_match():
     """An emitted token kind isn't a matcher."""
     with pytest.raises(NotImplementedError):
-        EmittedToken("delimiter_argument").match("anything")
+        EmittedToken("delimiter_argument", ClientTextSegment).match("anything")
 
 
 def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:

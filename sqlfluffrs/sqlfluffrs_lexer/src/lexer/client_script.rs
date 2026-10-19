@@ -22,23 +22,23 @@ use super::Lexer;
 
 /// The active delimiter, when it isn't the default one.
 static CLIENT_DELIMITER: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("client_delimiter", Token::code_token));
+    LazyLock::new(|| LexMatcher::emitted("client_delimiter", Token::client_text_token));
 /// The short form of a command, such as `\d`, `\.` or `\g`.
 static CLIENT_COMMAND_SHORTHAND: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_command_shorthand", Token::code_token));
 /// The new delimiter in `DELIMITER $$`, as written.
 static DELIMITER_ARGUMENT: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("delimiter_argument", Token::code_token));
+    LazyLock::new(|| LexMatcher::emitted("delimiter_argument", Token::client_text_token));
 /// The file name in `SOURCE file.sql`, as the client reads it.
 static SOURCE_FILE_NAME: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("source_file_name", Token::code_token));
+    LazyLock::new(|| LexMatcher::emitted("source_file_name", Token::client_text_token));
 /// Text on a command's line that the client reads past without using.
 static CLIENT_COMMAND_IGNORED: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("client_command_ignored", Token::code_token));
+    LazyLock::new(|| LexMatcher::emitted("client_command_ignored", Token::client_text_token));
 /// Command text the client doesn't read the way it looks. No grammar accepts
 /// it, so it is reported as a parse error.
 static CLIENT_COMMAND_MISREAD: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("client_command_misread", Token::code_token));
+    LazyLock::new(|| LexMatcher::emitted("client_command_misread", Token::client_text_token));
 
 // Standard matcher names, which every dialect has.
 const WORD: &str = "word";

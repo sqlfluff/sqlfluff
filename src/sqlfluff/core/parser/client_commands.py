@@ -22,7 +22,7 @@ from typing import NamedTuple, Optional
 
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.parser.lexer import LexedElement, LexerType, StringLexer
-from sqlfluff.core.parser.segments import CodeSegment
+from sqlfluff.core.parser.segments import ClientTextSegment, CodeSegment, RawSegment
 
 
 class CommandEffect(Enum):
@@ -97,8 +97,8 @@ class EmittedToken(StringLexer):
     their type and segment class.
     """
 
-    def __init__(self, name: str) -> None:
-        super().__init__(name, "", CodeSegment)
+    def __init__(self, name: str, segment_class: type[RawSegment]) -> None:
+        super().__init__(name, "", segment_class)
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         raise NotImplementedError(f"{self!r} is emitted, never matched.")
@@ -108,17 +108,17 @@ class EmittedToken(StringLexer):
         raise NotImplementedError(f"{self!r} is emitted, never searched for.")
 
 
-CLIENT_DELIMITER = EmittedToken("client_delimiter")
+CLIENT_DELIMITER = EmittedToken("client_delimiter", ClientTextSegment)
 """The active delimiter, when it isn't the default one."""
-CLIENT_COMMAND_SHORTHAND = EmittedToken("client_command_shorthand")
+CLIENT_COMMAND_SHORTHAND = EmittedToken("client_command_shorthand", CodeSegment)
 """The short form of a command, such as `\\d`, `\\.` or `\\g`."""
-DELIMITER_ARGUMENT = EmittedToken("delimiter_argument")
+DELIMITER_ARGUMENT = EmittedToken("delimiter_argument", ClientTextSegment)
 """The new delimiter in `DELIMITER $$`, as written."""
-SOURCE_FILE_NAME = EmittedToken("source_file_name")
+SOURCE_FILE_NAME = EmittedToken("source_file_name", ClientTextSegment)
 """The file name in `SOURCE file.sql`, as the client reads it."""
-CLIENT_COMMAND_IGNORED = EmittedToken("client_command_ignored")
+CLIENT_COMMAND_IGNORED = EmittedToken("client_command_ignored", ClientTextSegment)
 """Text on a command's line that the client reads past without using."""
-CLIENT_COMMAND_MISREAD = EmittedToken("client_command_misread")
+CLIENT_COMMAND_MISREAD = EmittedToken("client_command_misread", ClientTextSegment)
 """Command text the client doesn't read the way it looks. No grammar accepts
 it, so it is reported as a parse error."""
 
