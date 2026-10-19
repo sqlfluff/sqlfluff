@@ -121,7 +121,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hexadecimal_literal",
-            r"0x[\da-fA-F]+",
+            r"0[xX][\da-fA-F]+",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -1185,6 +1185,11 @@ class CreateVirtualTableStatementSegment(BaseSegment):
                             Ref("NumericLiteralSegment"),
                             Ref("ObjectReferenceSegment"),
                         ),
+                    ),
+                    # FTS5 column declarations may include the UNINDEXED option.
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "UNINDEXED",
                     ),
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),

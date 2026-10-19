@@ -12,11 +12,14 @@ from pathlib import Path
 from typing import NamedTuple, Union
 
 import pytest
-from jinja2 import Environment, nodes
-from jinja2.exceptions import UndefinedError
+from jinja2 import Environment, TemplateSyntaxError, Undefined, nodes
+from jinja2.compiler import CodeGenerator
+from jinja2.defaults import DEFAULT_FILTERS, DEFAULT_POLICIES
+from jinja2.exceptions import SecurityError, UndefinedError
 from jinja2.ext import Extension
 from jinja2.nodes import Node
 from jinja2.parser import Parser
+from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
@@ -745,6 +748,54 @@ def test__templater_jinja_dbt_materialization_invalid(instr, error):
     assert error in str(excinfo.value)
 
 
+@pytest.mark.parametrize("macro_source", ["path", "config", "inline"])
+@pytest.mark.parametrize(
+    "return_tag", ["{{ return(value) }}", "{% do return(value) %}"]
+)
+def test__templater_jinja_nested_macro_return(tmp_path, macro_source, return_tag):
+    """Returning from a same-file macro must not return from its caller (#8729)."""
+    macros = (
+        "{% macro inner(value, context, obj) %}"
+        + return_tag
+        + "unreachable{% endmacro %}"
+        "{% macro middle(value) %}"
+        "{% do return(inner(value, context='context', obj='obj')) %}"
+        "unreachable{% endmacro %}"
+        "{% macro outer() %}"
+        "{% set values = middle({'a': 'x', 'b': 'y'}) %}"
+        "CASE input_col"
+        "{% for key, value in values.items() %}"
+        " WHEN '{{ key }}' THEN '{{ value }}'"
+        "{% endfor %} END AS output_col"
+        "{% endmacro %}"
+    )
+    jinja_config = {"apply_dbt_builtins": True}
+    query = "SELECT {{ outer() }} FROM my_table\n"
+    if macro_source == "path":
+        macro_file = tmp_path / "macros.sql"
+        macro_file.write_text(macros, encoding="utf-8")
+        jinja_config["load_macros_from_path"] = str(macro_file)
+    elif macro_source == "config":
+        jinja_config["macros"] = {"nested_macros": macros}
+    else:
+        query = macros + query
+
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi", "templater": "jinja"},
+            "templater": {"jinja": jinja_config},
+        }
+    )
+    rendered, violations = JinjaTemplater().process(
+        in_str=query, fname="test.sql", config=config
+    )
+    assert not violations
+    assert str(rendered) == (
+        "SELECT CASE input_col WHEN 'a' THEN 'x' WHEN 'b' THEN 'y'"
+        " END AS output_col FROM my_table\n"
+    )
+
+
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
@@ -835,6 +886,273 @@ def test__templater_jinja_fast_path_library_path_error(tmp_path):
             fname="test.sql",
             config=config,
         )
+
+
+def _macro_path_config(macro_file: Path) -> FluffConfig:
+    return FluffConfig(
+        configs={
+            "core": {"dialect": "ansi", "templater": "jinja"},
+            "templater": {"jinja": {"load_macros_from_path": str(macro_file)}},
+        }
+    )
+
+
+def test__templater_jinja_macro_compiled_once(tmp_path, monkeypatch):
+    """A macro file is compiled once, then reused for every rendered file."""
+    macro_file = tmp_path / "macros.sql"
+    macro_file.write_text("{% macro double(n) %}{{ n * 2 }}{% endmacro %}")
+    config = _macro_path_config(macro_file)
+
+    compiled = []
+    real_compile = Environment.compile
+
+    def recording_compile(self, source, *args, **kwargs):
+        compiled.append(source)
+        return real_compile(self, source, *args, **kwargs)
+
+    monkeypatch.setattr("sqlfluff.core.templaters.jinja._MACRO_CODE_CACHE", {})
+    monkeypatch.setattr(Environment, "compile", recording_compile)
+    for _ in range(3):
+        outstr, _ = JinjaTemplater().process(
+            in_str="SELECT {{ double(21) }}\n", fname="test.sql", config=config
+        )
+        assert str(outstr) == "SELECT 42\n"
+    assert compiled.count(macro_file.read_text()) == 1
+
+
+def test__templater_jinja_macro_error_raised_every_time(tmp_path):
+    """An invalid macro file fails every file that loads it, not just the first."""
+    macro_file = tmp_path / "macros.sql"
+    macro_file.write_text("{% macro broken( %}{% endmacro %}")
+    config = _macro_path_config(macro_file)
+    for _ in range(2):
+        with pytest.raises(SQLTemplaterError, match="Error in Jinja macro file"):
+            JinjaTemplater().process(
+                in_str="SELECT 1\n", fname="test.sql", config=config
+            )
+
+
+class _CountExtension(Extension):
+    """Outputs the result of calling the ``count`` global while parsing."""
+
+    tags = {"count"}
+
+    def parse(self, parser: Parser) -> Node:
+        """Parse the count tag."""
+        lineno = next(parser.stream).lineno
+        count = self.environment.globals["count"]()
+        return nodes.Output([nodes.Const(count)], lineno=lineno)
+
+
+class _CountEnvironment(Environment):
+    """Replaces COUNT with the result of calling the ``count`` global."""
+
+    def preprocess(self, source, name=None, filename=None):
+        """Preprocess the template text before lexing."""
+        return source.replace("COUNT", str(self.globals["count"]()))
+
+
+class _CountUndefined(Undefined):
+    """Renders as the result of calling the class's ``count`` function."""
+
+    def __str__(self):
+        return str(type(self).count())
+
+
+class _CountGenerator(CodeGenerator):
+    """Calls the ``count`` global each time it generates code for a template."""
+
+    def visit_Template(self, node, frame=None):
+        """Generate the code for a template."""
+        self.environment.globals["count"]()
+        super().visit_Template(node, frame)
+
+
+def _count_env(kind, count):
+    """Make an environment that calls ``count`` while compiling."""
+    if kind == "environment":
+        env = _CountEnvironment()
+    elif kind == "code_generator":
+        env = Environment()
+        env.code_generator_class = _CountGenerator
+    elif kind == "extension":
+        env = Environment(extensions=[_CountExtension])
+    elif kind == "undefined":
+        _CountUndefined.count = count
+        env = Environment(undefined=_CountUndefined)
+    elif kind in ("finalize", "autoescape"):
+        env = Environment(**{kind: count})
+    else:
+        env = Environment()
+        getattr(env, f"{kind}s")["count"] = count
+    env.globals["count"] = count
+    return env
+
+
+@pytest.mark.parametrize(
+    ("kind", "body"),
+    [
+        ("filter", "{{ 'x' | count }}"),
+        ("test", "{{ 'x' is count }}"),
+        ("finalize", "{{ 'x' }}"),
+        ("autoescape", "{{ '<' }}"),
+        ("undefined", "{{ [] | first }}"),
+        ("extension", "{% count %}"),
+        ("environment", "COUNT"),
+        ("code_generator", "x"),
+    ],
+)
+def test__templater_jinja_macro_recompiled_with_custom_code(kind, body):
+    """Macros are compiled every time if compiling them runs custom code.
+
+    Jinja runs filters, tests, ``finalize``, ``autoescape`` and the ``undefined``
+    class to fold constants, extensions to parse tags, environment methods to
+    read the template and the code generator to write the code. Loading a macro
+    twice must run that code as often, and give the same output, as compiling it
+    from scratch both times.
+    """
+    calls = []
+
+    def count(*args):
+        calls.append(args)
+        return len(calls)
+
+    template = "{% macro counted() %}" + body + "{% endmacro %}"
+    results = []
+    for load in (
+        lambda env: JinjaTemplater._extract_macros_from_template(template, env, {}),
+        lambda env: env.from_string(template).module.__dict__,
+    ):
+        calls.clear()
+        outputs = [load(_count_env(kind, count))["counted"]() for _ in range(2)]
+        results.append((outputs, len(calls)))
+    assert results[0] == results[1]
+    # Check that compiling alone runs the custom code, so the comparison counts.
+    calls.clear()
+    _count_env(kind, count).compile(template)
+    assert calls
+
+
+@pytest.mark.parametrize(
+    ("mapping", "key", "value"),
+    [
+        (DEFAULT_FILTERS, "upper", str.title),
+        (DEFAULT_POLICIES["json.dumps_kwargs"], "sort_keys", False),
+    ],
+)
+def test__templater_jinja_macro_code_not_shared_after_jinja_defaults_change(
+    monkeypatch, mapping, key, value
+):
+    """Macro code is not reused after Jinja's own defaults change in place."""
+    template = (
+        "{% macro m() %}{{ 'abc' | upper }} {{ {'b': 1, 'a': 2} | tojson }}"
+        "{% endmacro %}"
+    )
+    macros = JinjaTemplater._extract_macros_from_template(template, Environment(), {})
+    before = macros["m"]()
+    monkeypatch.setitem(mapping, key, value)
+    after = JinjaTemplater._extract_macros_from_template(template, Environment(), {})
+    expected = Environment().from_string(template).module.m()
+    assert after["m"]() == expected != before
+
+
+def test__templater_jinja_macro_config_section_error():
+    """A nested section under the macros config raises Jinja's own error."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi", "templater": "jinja"},
+            "templater": {"jinja": {"macros": {"nested": {"a": "b"}}}},
+        }
+    )
+    with pytest.raises(TypeError, match="Can't compile non template nodes"):
+        JinjaTemplater().construct_render_func(config=config)
+
+
+def test__templater_jinja_macro_code_not_shared_across_policies():
+    """Macro code is not reused when policies differ, because filters read them."""
+    template = "{% macro dump() %}{{ {'b': 1, 'a': 2} | tojson }}{% endmacro %}"
+    outputs = []
+    for sort_keys in (True, False):
+        env = Environment()
+        env.policies["json.dumps_kwargs"] = {"sort_keys": sort_keys}
+        macros = JinjaTemplater._extract_macros_from_template(template, env, {})
+        outputs.append(macros["dump"]())
+    assert outputs == ['{"a": 2, "b": 1}', '{"b": 1, "a": 2}']
+
+
+@pytest.mark.parametrize(
+    "env_kwargs",
+    [
+        {"block_start_string": "<%", "block_end_string": "%>"},
+        {"variable_start_string": "<<", "variable_end_string": ">>"},
+        {"comment_start_string": "<#", "comment_end_string": "#>"},
+        {"trim_blocks": True},
+        {"lstrip_blocks": True},
+        {"newline_sequence": "\r\n"},
+        {"line_statement_prefix": "%"},
+        {"line_comment_prefix": "##"},
+        {"autoescape": True},
+    ],
+)
+def test__templater_jinja_macro_code_not_shared_across_settings(env_kwargs):
+    """Macro code is only reused by environments that compile it the same way."""
+    template = (
+        "{% macro show() %}\n"
+        "  {% if true %}\n"
+        "    {{ '<b>' }} << 'x' >> <# c #>\n"
+        "% if true\n"
+        "    y\n"
+        "% endif\n"
+        "    ## note\n"
+        "  {% endif %}\n"
+        "{% endmacro %}\n"
+        "<% macro show() %>other delimiters<% endmacro %>\n"
+    )
+    default = JinjaTemplater._extract_macros_from_template(template, Environment(), {})
+    custom = JinjaTemplater._extract_macros_from_template(
+        template, Environment(**env_kwargs), {}
+    )
+    expected = Environment(**env_kwargs).from_string(template).module.show()
+    assert expected != default["show"]()
+    assert custom["show"]() == expected
+
+
+def test__templater_jinja_macro_code_not_shared_across_extensions():
+    """Macro code compiled with an extension is not reused without it."""
+    template = "{% macro add(items) %}{% do items.append(1) %}{% endmacro %}"
+    env = Environment(extensions=["jinja2.ext.do"])
+    assert "add" in JinjaTemplater._extract_macros_from_template(template, env, {})
+    with pytest.raises(TemplateSyntaxError):
+        JinjaTemplater._extract_macros_from_template(template, Environment(), {})
+
+
+def test__templater_jinja_macro_code_not_shared_with_sandbox():
+    """Macro code compiled outside a sandbox is not reused inside one."""
+
+    def unsafe():
+        return "ran"
+
+    unsafe.unsafe_callable = True
+    template = "{% macro run(f) %}{{ f() }}{% endmacro %}"
+    macros = JinjaTemplater._extract_macros_from_template(template, Environment(), {})
+    assert macros["run"](unsafe) == "ran"
+    macros = JinjaTemplater._extract_macros_from_template(
+        template, SandboxedEnvironment(), {}
+    )
+    with pytest.raises(SecurityError):
+        macros["run"](unsafe)
+
+
+def test__templater_jinja_macro_code_cache_is_capped(monkeypatch):
+    """The macro code cache is cleared when it is full."""
+    cache = {}
+    monkeypatch.setattr("sqlfluff.core.templaters.jinja._MACRO_CODE_CACHE", cache)
+    monkeypatch.setattr("sqlfluff.core.templaters.jinja._MACRO_CODE_CACHE_MAX_SIZE", 2)
+    for name in ("a", "b", "c"):
+        JinjaTemplater._extract_macros_from_template(
+            f"{{% macro {name}() %}}{{% endmacro %}}", Environment(), {}
+        )
+    assert len(cache) == 1
 
 
 def test__templater_jinja_lint_empty():

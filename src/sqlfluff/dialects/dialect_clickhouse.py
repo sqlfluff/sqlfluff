@@ -1427,6 +1427,37 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     )
 
 
+class SamplingExpressionSegment(BaseSegment):
+    """A ClickHouse `SAMPLE` clause.
+
+    Overridden from ANSI: ClickHouse's own SAMPLE syntax is a bare numeric
+    factor (or ratio), not ANSI's `TABLESAMPLE (BERNOULLI|SYSTEM) (n)`.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/sample
+    """
+
+    type = "sample_expression"
+
+    _coefficient = Sequence(
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            Ref("DivideSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "SAMPLE",
+        _coefficient,
+        Sequence(
+            "OFFSET",
+            _coefficient,
+            optional=True,
+        ),
+    )
+
+
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression.
 
