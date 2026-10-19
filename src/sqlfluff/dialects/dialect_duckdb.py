@@ -1544,6 +1544,20 @@ class SetStatementSegment(postgres.SetStatementSegment):
     )
 
 
+class ResetStatementSegment(BaseSegment):
+    """A `RESET` or `RESET VARIABLE` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/set_variable#reset-variable
+    """
+
+    type = "reset_statement"
+
+    match_grammar = OneOf(
+        Sequence("RESET", "VARIABLE", Ref("SingleIdentifierGrammar")),
+        postgres.ResetStatementSegment.match_grammar,
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
 
