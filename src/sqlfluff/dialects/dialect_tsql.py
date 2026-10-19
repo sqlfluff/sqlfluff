@@ -809,6 +809,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
             "DEFAULT",
+            Ref("ActionParameterSegment"),
         ),
         Ref("AccessorGrammar", optional=True),
         allow_gaps=True,

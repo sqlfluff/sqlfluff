@@ -205,3 +205,16 @@ MERGE INTO SomeTable t
 USING dbo.SomeFunction() s ON s.Id = t.Id
 WHEN MATCHED THEN UPDATE SET t.data = s.data;
 GO
+
+MERGE dbo.Inventory AS tgt
+USING dbo.Staging AS src
+    ON tgt.ProductId = src.ProductId
+WHEN MATCHED THEN
+    UPDATE SET tgt.Quantity = src.Quantity
+WHEN NOT MATCHED THEN
+    INSERT (ProductId, Quantity) VALUES (src.ProductId, src.Quantity)
+OUTPUT
+    CASE $action WHEN 'INSERT' THEN 'Added' ELSE 'Updated' END AS ChangeType,
+    IIF($action = 'INSERT', 'Added', 'Updated') AS ActionFlag
+INTO @changes;
+GO
