@@ -676,3 +676,170 @@ test_fail_fix_standalone_comment_between_unchanged_targets:
 test_fail_fix_at_end_of_file:
   fail_str: SELECT (a - b) AS calc, name
   fix_str: SELECT name, (a - b) AS calc
+
+test_pass_cte_with_explicit_column_list:
+  pass_str: |
+    WITH c (x, y) AS (SELECT a + 1, b FROM t)
+    SELECT x, y FROM c
+
+test_pass_cte_with_single_explicit_column:
+  pass_str: |
+    WITH c (x) AS (SELECT a + 1 FROM t) SELECT x FROM c
+
+test_pass_cte_with_explicit_column_list_snowflake:
+  configs:
+    core:
+      dialect: snowflake
+  pass_str: |
+    WITH c (x, y) AS (SELECT a + 1, b FROM t)
+    SELECT x, y FROM c
+
+test_pass_derived_table_with_explicit_column_list_postgres:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT s.x, s.y FROM (SELECT a + 1, b FROM t) AS s (x, y)
+
+test_pass_lateral_with_explicit_column_list_postgres:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT s.x, s.y FROM LATERAL (SELECT a + 1, b FROM t) AS s (x, y)
+
+test_pass_create_table_as_select_postgres:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    CREATE TABLE t2 (x, y) AS SELECT a + 1, b FROM t
+
+test_fail_cte_without_explicit_column_list:
+  fail_str: |
+    WITH c AS (SELECT a + 1 AS x, b AS y FROM t) SELECT x, y FROM c
+  fix_str: |
+    WITH c AS (SELECT b AS y, a + 1 AS x FROM t) SELECT x, y FROM c
+
+test_fail_derived_table_without_explicit_column_list_postgres:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT s.x, s.y FROM (SELECT a + 1 AS x, b AS y FROM t) AS s
+  fix_str: |
+    SELECT s.x, s.y FROM (SELECT b AS y, a + 1 AS x FROM t) AS s
+
+test_fail_cte_without_column_list_before_insert_unchanged:
+  fail_str: |
+    WITH c AS (SELECT a + 1 AS x, b AS y FROM t) INSERT INTO t2 SELECT x, y FROM c
+  fix_str: |
+    WITH c AS (SELECT b AS y, a + 1 AS x FROM t) INSERT INTO t2 SELECT x, y FROM c
+
+test_fail_nested_derived_table_named_projection_in_bound_cte:
+  fail_str: |
+    WITH c (x, y) AS (
+        SELECT s.p, s.q
+        FROM (SELECT a + 1 AS p, b AS q FROM t) AS s
+    )
+    SELECT x, y FROM c
+  fix_str: |
+    WITH c (x, y) AS (
+        SELECT s.p, s.q
+        FROM (SELECT b AS q, a + 1 AS p FROM t) AS s
+    )
+    SELECT x, y FROM c
+
+test_fail_nested_derived_table_named_projection_in_bound_derived_table:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT d.x, d.y
+    FROM (
+        SELECT s.p, s.q
+        FROM (SELECT a + 1 AS p, b AS q FROM t) AS s
+    ) AS d (x, y);
+  fix_str: |
+    SELECT d.x, d.y
+    FROM (
+        SELECT s.p, s.q
+        FROM (SELECT b AS q, a + 1 AS p FROM t) AS s
+    ) AS d (x, y);
+
+test_fail_nested_cte_named_projection_in_bound_cte:
+  fail_str: |
+    WITH c (x, y) AS (
+        WITH d AS (SELECT a + 1 AS p, b AS q FROM t)
+        SELECT p, q FROM d
+    )
+    SELECT x, y FROM c;
+  fix_str: |
+    WITH c (x, y) AS (
+        WITH d AS (SELECT b AS q, a + 1 AS p FROM t)
+        SELECT p, q FROM d
+    )
+    SELECT x, y FROM c;
+
+test_pass_create_table_as_select_postgres_without_column_list:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    CREATE TABLE t2 AS SELECT a + 1, b FROM t
+
+test_pass_create_table_as_select_redshift_with_column_list:
+  configs:
+    core:
+      dialect: redshift
+  pass_str: |
+    CREATE TABLE t2 (x, y) AS SELECT a + 1, b FROM t
+
+test_pass_create_table_as_select_redshift_without_column_list:
+  configs:
+    core:
+      dialect: redshift
+  pass_str: |
+    CREATE TABLE t2 AS SELECT a + 1, b FROM t
+
+test_pass_create_table_as_select_vertica_with_column_list:
+  configs:
+    core:
+      dialect: vertica
+  pass_str: |
+    CREATE TABLE t2 (x, y) AS SELECT a + 1, b FROM t
+
+test_pass_create_table_as_select_vertica_without_column_list:
+  configs:
+    core:
+      dialect: vertica
+  pass_str: |
+    CREATE TABLE t2 AS SELECT a + 1, b FROM t
+
+test_pass_cte_column_list_set_expression:
+  pass_str: |
+    WITH c (x, y) AS (
+        SELECT a + 1, b FROM t
+        UNION ALL
+        SELECT a + 2, b FROM t
+    )
+    SELECT x, y FROM c
+
+test_pass_cte_column_list_with_compound_output:
+  pass_str: |
+    WITH c (x, y) AS (
+        WITH d AS (SELECT a, b FROM t)
+        SELECT a + 1, b FROM d
+    )
+    SELECT x, y FROM c
+
+test_pass_derived_table_column_list_set_expression_postgres:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT s.x, s.y FROM (
+        SELECT a + 1, b FROM t
+        UNION ALL
+        SELECT a + 2, b FROM t
+    ) AS s (x, y)
