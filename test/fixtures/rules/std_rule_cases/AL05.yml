@@ -1477,3 +1477,115 @@ test_pass_tsql_nodes_method_requires_alias_unreferenced:
   configs:
     core:
       dialect: tsql
+
+test_pass_alias_used_only_in_named_window:
+  pass_str: |
+    SELECT x, SUM(y) OVER w AS s
+    FROM a AS t
+    WINDOW w AS (PARTITION BY t.k ORDER BY t.ts)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_alias_used_only_in_named_window_bigquery:
+  pass_str: |
+    SELECT x, SUM(y) OVER w AS s
+    FROM a AS t
+    WINDOW w AS (PARTITION BY t.k ORDER BY t.ts)
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_alias_used_only_in_for_update_of:
+  pass_str: |
+    SELECT x
+    FROM a AS t
+    FOR UPDATE OF t
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_alias_used_only_in_connect_by:
+  pass_str: |
+    SELECT x
+    FROM a AS t
+    START WITH t.pid IS NULL
+    CONNECT BY PRIOR t.id = t.pid
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_alias_used_only_in_lateral_view:
+  pass_str: |
+    SELECT x, e
+    FROM a AS t
+    LATERAL VIEW EXPLODE(t.arr) v AS e
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_alias_used_only_in_distribute_by:
+  pass_str: |
+    SELECT x
+    FROM a AS t
+    DISTRIBUTE BY t.k
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_alias_used_only_in_prewhere:
+  pass_str: |
+    SELECT x
+    FROM a AS t
+    PREWHERE t.k = 1
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_alias_used_only_in_array_join:
+  pass_str: |
+    SELECT x, e
+    FROM a AS t
+    ARRAY JOIN t.arr AS e
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_alias_unused_next_to_named_window:
+  fail_str: |
+    SELECT SUM(y) OVER w FROM a AS t
+    WINDOW w AS (PARTITION BY k ORDER BY ts)
+  fix_str: |
+    SELECT SUM(y) OVER w FROM a
+    WINDOW w AS (PARTITION BY k ORDER BY ts)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_alias_shadowed_in_nested_named_window:
+  fail_str: |
+    SELECT x FROM a AS t WHERE EXISTS (
+      SELECT SUM(y) OVER w FROM t
+      WINDOW w AS (PARTITION BY t.k ORDER BY t.ts)
+    )
+  fix_str: |
+    SELECT x FROM a WHERE EXISTS (
+      SELECT SUM(y) OVER w FROM t
+      WINDOW w AS (PARTITION BY t.k ORDER BY t.ts)
+    )
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_alias_matches_collation_in_named_window:
+  fail_str: |
+    SELECT SUM(y) OVER w
+    FROM a AS "C"
+    WINDOW w AS (ORDER BY x COLLATE "C")
+  fix_str: |
+    SELECT SUM(y) OVER w
+    FROM a
+    WINDOW w AS (ORDER BY x COLLATE "C")
+  configs:
+    core:
+      dialect: postgres
