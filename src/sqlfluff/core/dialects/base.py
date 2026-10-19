@@ -31,12 +31,12 @@ class Dialect:
         name: str,
         root_segment_name: str,
         lexer_matchers: Optional[list[LexerType]] = None,
-        client_commands: Optional[ClientCommandRules] = None,
         library: Optional[dict[str, DialectElementType]] = None,
         sets: Optional[dict[str, set[Union[str, BracketPairTuple]]]] = None,
         inherits_from: Optional[str] = None,
         formatted_name: Optional[str] = None,
         docstring: Optional[str] = None,
+        client_commands: Optional[ClientCommandRules] = None,
     ) -> None:
         self._library = library or {}
         self.name = name
