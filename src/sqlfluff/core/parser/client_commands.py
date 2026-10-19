@@ -7,12 +7,12 @@ of the script is split (the statement delimiter), commands that take raw text
 arguments (a file to read), and comment forms that depend on where they
 appear. Lexing such a script correctly needs the same state the client keeps.
 
-`ClientCommandRules` describes a client, and `ClientScriptScanner` lexes with
+`ClientCommandRules` describes a client, and `ClientScriptLexer` lexes with
 that state. The MySQL/MariaDB rules live with those dialects. Nothing here is
 specific to that client except what the rules say, so another client's
-terminator command could reuse the scanner with rules of its own.
+terminator command could reuse the lexer with rules of its own.
 
-The Rust lexer has the same scanner (`sqlfluffrs_lexer::client_script`), and the
+The Rust side has the same lexer (`sqlfluffrs_lexer::client_script`), and the
 two must emit identical tokens.
 """
 
@@ -91,9 +91,9 @@ class ClientCommandRules:
 
 
 class EmittedToken(StringLexer):
-    """A kind of token the scanner emits itself, rather than a matcher.
+    """A kind of token the client script lexer emits itself, not a matcher.
 
-    It is never in a dialect's matcher list. It only gives the scanner's tokens
+    It is never in a dialect's matcher list. It only gives that lexer's tokens
     their type and segment class.
     """
 
@@ -167,7 +167,7 @@ class _NextPlace:
         return self._at
 
 
-class ClientScriptScanner:
+class ClientScriptLexer:
     """Lexes a script with the state of the client that runs it.
 
     The state is the active delimiter, whether the client is at the start of a

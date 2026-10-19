@@ -98,7 +98,7 @@ pub enum LexerMode {
     Regex(Regex, fn(&str) -> bool),           // Match using a regex
     FancyRegex(FancyRegex, fn(&str) -> bool), // Match using a regex
     Function(fn(&str) -> Option<&str>),
-    /// Never matches: a kind of token that a stateful scanner emits itself
+    /// Never matches: a kind of token that a stateful lexer emits itself
     /// (see `sqlfluffrs_lexer`'s `client_script`). It only gives those tokens
     /// their type and token class.
     Emitted,
@@ -274,7 +274,7 @@ impl LexMatcher {
         )
     }
 
-    /// A kind of token a scanner emits itself, which never matches input.
+    /// A kind of token a stateful lexer emits itself, which never matches input.
     pub fn emitted(name: &str, token_class_func: TokenGenerator) -> Self {
         let config = LexMatcherConfig::default();
         Self {

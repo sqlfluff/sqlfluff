@@ -4,11 +4,11 @@
 //! statements itself and handles some of the text before anything reaches the
 //! server: commands that change the statement delimiter, commands that take
 //! raw text arguments, and comment forms that depend on where they appear.
-//! [`ClientScriptScanner`] lexes with the same state the client keeps, as
+//! [`ClientScriptLexer`] lexes with the same state the client keeps, as
 //! described by a dialect's [`ClientCommandRules`]. Nothing here is specific to
 //! one client except what the rules say.
 //!
-//! This is the same scanner as `sqlfluff.core.parser.client_commands` in
+//! This is the same lexer as `sqlfluff.core.parser.client_commands` in
 //! Python, method for method. The two must emit identical tokens.
 
 use std::sync::LazyLock;
@@ -102,7 +102,7 @@ impl NextPlace {
 /// other text is lexed by the dialect's matchers, from the text the server
 /// gets: the statement ends where the client finds the delimiter or a short
 /// command.
-pub(super) struct ClientScriptScanner<'a> {
+pub(super) struct ClientScriptLexer<'a> {
     rules: &'static ClientCommandRules,
     lexer: &'a Lexer,
     word_matcher: &'a LexMatcher,
@@ -118,7 +118,7 @@ pub(super) struct ClientScriptScanner<'a> {
     line_start: bool,
 }
 
-impl<'a> ClientScriptScanner<'a> {
+impl<'a> ClientScriptLexer<'a> {
     pub(super) fn new(lexer: &'a Lexer, rules: &'static ClientCommandRules, text: &'a str) -> Self {
         let matcher = |name: &str| {
             lexer

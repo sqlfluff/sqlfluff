@@ -147,7 +147,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
     ],
 )
 def test_client_commands_lexing(raw: str, expected: list[tuple[str, str]]):
-    """Test the tokens the client command scanner makes."""
+    """Test the tokens the client script lexer makes."""
     assert _tokens(raw) == expected
 
 

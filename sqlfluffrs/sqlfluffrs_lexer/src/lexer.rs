@@ -24,7 +24,7 @@ use uuid::Uuid;
 use itertools::multipeek;
 
 mod client_script;
-use client_script::ClientScriptScanner;
+use client_script::ClientScriptLexer;
 
 pub struct BlockTracker {
     stack: Vec<Uuid>,
@@ -311,7 +311,7 @@ impl Lexer {
 
     pub fn lex_string<'a>(&'a self, mut input: &'a str) -> Vec<LexedElement<'a>> {
         if let Some(rules) = self.client_commands {
-            return ClientScriptScanner::new(self, rules, input).lex();
+            return ClientScriptLexer::new(self, rules, input).lex();
         }
 
         let mut element_buffer = Vec::with_capacity(input.len());

@@ -808,12 +808,12 @@ class PyLexer:
         rules = self.config.get("dialect_obj").client_commands
         if rules:
             # Imported here: the module imports this one.
-            from sqlfluff.core.parser.client_commands import ClientScriptScanner
+            from sqlfluff.core.parser.client_commands import ClientScriptLexer
 
-            scanner = ClientScriptScanner(
+            client_lexer = ClientScriptLexer(
                 rules, self.lexer_matchers, self.last_resort_lexer
             )
-            return scanner.lex(str_buff)
+            return client_lexer.lex(str_buff)
 
         element_buffer: list[LexedElement] = []
         while True:
