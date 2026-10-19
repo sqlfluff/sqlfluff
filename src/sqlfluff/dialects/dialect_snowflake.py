@@ -11803,6 +11803,7 @@ class ScriptingCaseStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CASE",
         OptionallyBracketed(Ref("ExpressionSegment"), optional=True),
+        Indent,
         AnyNumberOf(
             Sequence(
                 "WHEN",
@@ -11846,6 +11847,7 @@ class ScriptingCaseStatementSegment(BaseSegment):
             Dedent,
             optional=True,
         ),
+        Dedent,
         "END",
         Ref.keyword("CASE", optional=True),
         reset_terminators=True,
