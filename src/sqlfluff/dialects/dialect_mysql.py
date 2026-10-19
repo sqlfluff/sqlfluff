@@ -159,15 +159,17 @@ mysql_dialect.client_commands = mysql_client_commands
 
 mysql_dialect.insert_lexer_matchers(
     [
+        # `0x1F` and `0b101` end only where no identifier character follows:
+        # `0x1Fg` and `0b1$` are names, as digits followed by a letter are.
         RegexLexer(
             "hexadecimal_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+(?![\w$]))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
         RegexLexer(
             "bit_value_literal",
-            r"([bB]'[01]+'|0b[01]+)",
+            r"([bB]'[01]+'|0b[01]+(?![\w$]))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
