@@ -62,7 +62,7 @@ mariadb_dialect.client_commands = replace(
     mysql.mysql_client_commands,
     opaque_token_names=mysql.mysql_client_commands.opaque_token_names
     - {"dollar_quote", "dollar_quote_opener"},
-    command_after_block_comment=False,
+    line_command_after_block_comment=False,
     dash_dash_comment_at_statement_start=True,
 )
 

@@ -64,12 +64,18 @@ class ClientCommandRules:
     opaque_token_names: frozenset[str]
     """Lexer matchers whose text the client doesn't scan: strings, quoted
     identifiers and comments. The delimiter isn't found inside these."""
-    command_after_block_comment: bool
-    """Whether a `/* ... */` comment may come before a command on its line."""
+    line_command_after_block_comment: bool
+    """Whether a `/* ... */` comment may come before a long-form command that
+    takes its line. A command the client collects as a statement may follow a
+    comment either way."""
     dash_dash_comment_at_statement_start: bool
     """Whether `--` starts a comment at the start of a statement even with no
     whitespace after it. Elsewhere `--` needs whitespace or the end of the line
     after it, which is the dialect's comment matcher's job."""
+    collected_line_marker: Optional[str]
+    """A long-form command never takes a line that holds this text: the client
+    collects the line as a statement instead. The mysql client's `find_command`
+    checks for a lower-case `\\g`, so `\\G` doesn't count."""
     default_delimiter: str = ";"
     max_delimiter_bytes: int = 15
     """Longer delimiters are cut to this many bytes, as the client does."""
@@ -128,6 +134,17 @@ _WHITESPACE = "whitespace"
 _NEWLINE = "newline"
 _INLINE_COMMENT = "inline_comment"
 _BLOCK_COMMENT = "block_comment"
+
+# Tokens the client reads itself, which add nothing to the statement it is
+# collecting: a command at the start of a statement leaves it at the start.
+_CLIENT_READ_TOKEN_NAMES = frozenset(
+    {
+        CLIENT_COMMAND_SHORTHAND.name,
+        DELIMITER_ARGUMENT.name,
+        SOURCE_FILE_NAME.name,
+        CLIENT_COMMAND_IGNORED.name,
+    }
+)
 
 # What the client's `my_isspace` accepts within a line.
 _SPACE = " \t\v\f\r"
@@ -288,23 +305,18 @@ class ClientScriptLexer:
     def _peek(self) -> _Next:
         r"""What comes next, checked in the order the client checks.
 
-        Long-form commands count only at the start of a statement. A command
-        that reads a file takes its line only if the line holds neither the
-        delimiter nor `\g`; otherwise the client collects it as a statement
-        first. Short forms count anywhere outside comments and strings.
+        Long-form commands count only at the start of a statement, and take
+        their line unless the client collects it as a statement first (see
+        `_line_is_collected`). Short forms count anywhere outside comments and
+        strings.
         """
         long = None
         if self._statement_start:
             long = self._long_command(self._rest_of_line())
-        if long is not None and self._line_start:
-            line = self._rest_of_line()
+        if long is not None and self._line_start and not self._line_is_collected(long):
             if long.command.effect is CommandEffect.SET_DELIMITER:
                 return _DelimiterCommand(long)
-            if (
-                long.command.effect is CommandEffect.READ_FILE
-                and self._delimiter not in line
-                and "\\g" not in line
-            ):
+            if long.command.effect is CommandEffect.READ_FILE:
                 return _SourceLine(long)
         if self._text.startswith(self._delimiter, self._pos):
             return _ActiveDelimiter()
@@ -320,6 +332,20 @@ class ClientScriptLexer:
         ):
             return _StatementStartComment()
         return _Token()
+
+    def _line_is_collected(self, found: _CommandWord) -> bool:
+        """Whether the client collects this line as a statement, not as `found`.
+
+        As the client's `find_command`, it does when the line holds the
+        collected-line marker, or holds the delimiter and `found` doesn't set
+        the delimiter (`DELIMITER ;` holds the delimiter it replaces).
+        """
+        line = self._rest_of_line()
+        marker = self._rules.collected_line_marker
+        if marker is not None and marker in line:
+            return True
+        sets_delimiter = found.command.effect is CommandEffect.SET_DELIMITER
+        return not sets_delimiter and self._delimiter in line
 
     def _lex_delimiter_command(self, found: _CommandWord) -> None:
         """`DELIMITER` and its argument. The rest of the line is ignored."""
@@ -368,19 +394,14 @@ class ClientScriptLexer:
         """A short-form command and its argument."""
         argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, CLIENT_COMMAND_SHORTHAND)
-
-        statement_start = self._statement_start
         if found.command.effect is CommandEffect.END_STATEMENT:
-            statement_start = True
+            self._statement_start = True
         elif found.command.effect is CommandEffect.SET_DELIMITER:
             self._shorthand_delimiter_argument(argument)
         elif found.command.effect is CommandEffect.READ_FILE:
             # `\.` reads the rest of its line as the file name, delimiter and
             # all.
             self._file_name(argument)
-        # Other than `\g` and `\G`, the command adds nothing to the statement
-        # the client is collecting, so leaves it where it was.
-        self._statement_start = statement_start
 
     def _lex_active_delimiter(self) -> None:
         """The active delimiter, which ends the statement."""
@@ -532,11 +553,13 @@ class ClientScriptLexer:
         if matcher.name == _NEWLINE:
             self._line_start = True
         elif matcher.name == _BLOCK_COMMENT:
-            if not self._rules.command_after_block_comment:
+            if not self._rules.line_command_after_block_comment:
                 self._line_start = False
         elif matcher.name not in (_WHITESPACE, _INLINE_COMMENT):
-            self._statement_start = False
             self._line_start = False
+            if matcher.name not in _CLIENT_READ_TOKEN_NAMES:
+                # The client adds this to the statement it is collecting.
+                self._statement_start = False
 
     def _emit_ignored(self, text: str) -> None:
         """Text the client reads past, between any whitespace around it."""

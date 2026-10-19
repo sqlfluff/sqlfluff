@@ -21,8 +21,9 @@ RULES = ClientCommandRules(
         ClientCommand(CommandEffect.END_STATEMENT, shorthand="\\g"),
     ),
     opaque_token_names=frozenset(),
-    command_after_block_comment=True,
+    line_command_after_block_comment=True,
     dash_dash_comment_at_statement_start=False,
+    collected_line_marker="\\g",
 )
 
 
@@ -92,6 +93,17 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("client_delimiter", "ééééééé"),
             ],
         ),
+        # A short command adds nothing to the statement, so a command can
+        # follow it.
+        (
+            "\\d $$\nDELIMITER ;\n",
+            [
+                ("client_command_shorthand", "\\d"),
+                ("delimiter_argument", "$$"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", ";"),
+            ],
+        ),
         # `\d` with no argument is refused, and the delimiter kept.
         (
             "\\d\nSELECT 1;\n",
@@ -111,6 +123,20 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("client_delimiter", "ab"),
+            ],
+        ),
+        # A line that holds `\g` is collected as a statement, even DELIMITER's:
+        # this one is SQL, not a command. `\G` doesn't count, so SOURCE takes
+        # its line and the file name ends in `\G`.
+        (
+            "DELIMITER // \\g\nSOURCE a.sql \\G\n",
+            [
+                ("word", "DELIMITER"),
+                ("divide", "/"),
+                ("divide", "/"),
+                ("client_command_shorthand", "\\g"),
+                ("word", "SOURCE"),
+                ("source_file_name", "a.sql \\G"),
             ],
         ),
         # `\g` right after SOURCE sends `SOURCE` alone to the server.
@@ -194,6 +220,20 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
 def test_client_commands_lexing(raw: str, expected: list[tuple[str, str]]):
     """Test the tokens the client script lexer makes."""
     assert _tokens(raw) == expected
+
+
+def test_client_commands_mariadb_collected_command_after_a_comment():
+    """A comment can come before a command the client collects as a statement.
+
+    The mariadb client doesn't take a command after a comment on its line,
+    but it does check a collected statement for one.
+    """
+    assert _tokens("/* c */ SOURCE a.sql;\n", "mariadb") == [
+        ("block_comment", "/* c */"),
+        ("word", "SOURCE"),
+        ("source_file_name", "a.sql"),
+        ("semicolon", ";"),
+    ]
 
 
 def test_client_commands_unlexable_text():

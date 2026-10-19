@@ -25,20 +25,27 @@ static CLIENT_DELIMITER: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_delimiter", Token::client_text_token));
 /// The short form of a command, such as `\d`, `\.` or `\g`.
 static CLIENT_COMMAND_SHORTHAND: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("client_command_shorthand", Token::code_token));
+    LazyLock::new(|| LexMatcher::emitted(CLIENT_COMMAND_SHORTHAND_NAME, Token::code_token));
 /// The new delimiter in `DELIMITER $$`, as written.
 static DELIMITER_ARGUMENT: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("delimiter_argument", Token::client_text_token));
+    LazyLock::new(|| LexMatcher::emitted(DELIMITER_ARGUMENT_NAME, Token::client_text_token));
 /// The file name in `SOURCE file.sql`, as the client reads it.
 static SOURCE_FILE_NAME: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("source_file_name", Token::client_text_token));
+    LazyLock::new(|| LexMatcher::emitted(SOURCE_FILE_NAME_NAME, Token::client_text_token));
 /// Text on a command's line that the client reads past without using.
 static CLIENT_COMMAND_IGNORED: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted("client_command_ignored", Token::client_text_token));
+    LazyLock::new(|| LexMatcher::emitted(CLIENT_COMMAND_IGNORED_NAME, Token::client_text_token));
 /// Command text the client doesn't read the way it looks. No grammar accepts
 /// it, so it is reported as a parse error.
 static CLIENT_COMMAND_MISREAD: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_command_misread", Token::client_text_token));
+
+// Tokens the client reads itself, which add nothing to the statement it is
+// collecting: a command at the start of a statement leaves it at the start.
+const CLIENT_COMMAND_SHORTHAND_NAME: &str = "client_command_shorthand";
+const DELIMITER_ARGUMENT_NAME: &str = "delimiter_argument";
+const SOURCE_FILE_NAME_NAME: &str = "source_file_name";
+const CLIENT_COMMAND_IGNORED_NAME: &str = "client_command_ignored";
 
 // Standard matcher names, which every dialect has.
 const WORD: &str = "word";
@@ -190,26 +197,22 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// What comes next, checked in the order the client checks.
     ///
-    /// Long-form commands count only at the start of a statement. A command
-    /// that reads a file takes its line only if the line holds neither the
-    /// delimiter nor `\g`; otherwise the client collects it as a statement
-    /// first. Short forms count anywhere outside comments and strings.
+    /// Long-form commands count only at the start of a statement, and take
+    /// their line unless the client collects it as a statement first (see
+    /// [`Self::line_is_collected`]). Short forms count anywhere outside
+    /// comments and strings.
     fn peek(&self) -> Next<'a> {
         let long = if self.statement_start {
             self.long_command(self.rest_of_line())
         } else {
             None
         };
-        if let Some(found) = long.filter(|_| self.line_start) {
-            let line = self.rest_of_line();
+        if let Some(found) = long.filter(|found| self.line_start && !self.line_is_collected(found))
+        {
             match found.command.effect {
                 CommandEffect::SetDelimiter => return Next::DelimiterCommand(found),
-                CommandEffect::ReadFile
-                    if !line.contains(self.delimiter.as_str()) && !line.contains("\\g") =>
-                {
-                    return Next::SourceLine(found);
-                }
-                CommandEffect::ReadFile | CommandEffect::EndStatement => {}
+                CommandEffect::ReadFile => return Next::SourceLine(found),
+                CommandEffect::EndStatement => {}
             }
         }
         if self.text[self.pos..].starts_with(self.delimiter.as_str()) {
@@ -232,6 +235,24 @@ impl<'a> ClientScriptLexer<'a> {
             return Next::StatementStartComment;
         }
         Next::Token
+    }
+
+    /// Whether the client collects this line as a statement, not as `found`.
+    ///
+    /// As the client's `find_command`, it does when the line holds the
+    /// collected-line marker, or holds the delimiter and `found` doesn't set
+    /// the delimiter (`DELIMITER ;` holds the delimiter it replaces).
+    fn line_is_collected(&self, found: &CommandWord<'a>) -> bool {
+        let line = self.rest_of_line();
+        if self
+            .rules
+            .collected_line_marker
+            .is_some_and(|marker| line.contains(marker))
+        {
+            return true;
+        }
+        let sets_delimiter = found.command.effect == CommandEffect::SetDelimiter;
+        !sets_delimiter && line.contains(self.delimiter.as_str())
     }
 
     /// `DELIMITER` and its argument. The rest of the line is ignored.
@@ -286,18 +307,13 @@ impl<'a> ClientScriptLexer<'a> {
     fn lex_shorthand(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, &CLIENT_COMMAND_SHORTHAND);
-
-        let mut statement_start = self.statement_start;
         match found.command.effect {
-            CommandEffect::EndStatement => statement_start = true,
+            CommandEffect::EndStatement => self.statement_start = true,
             CommandEffect::SetDelimiter => self.shorthand_delimiter_argument(argument),
             // `\.` reads the rest of its line as the file name, delimiter and
             // all.
             CommandEffect::ReadFile => self.file_name(argument),
         }
-        // Other than `\g` and `\G`, the command adds nothing to the statement
-        // the client is collecting, so leaves it where it was.
-        self.statement_start = statement_start;
     }
 
     /// The active delimiter, which ends the statement.
@@ -470,11 +486,16 @@ impl<'a> ClientScriptLexer<'a> {
         match matcher.name.as_str() {
             NEWLINE => self.line_start = true,
             BLOCK_COMMENT => {
-                if !self.rules.command_after_block_comment {
+                if !self.rules.line_command_after_block_comment {
                     self.line_start = false;
                 }
             }
             WHITESPACE | INLINE_COMMENT => {}
+            CLIENT_COMMAND_SHORTHAND_NAME
+            | DELIMITER_ARGUMENT_NAME
+            | SOURCE_FILE_NAME_NAME
+            | CLIENT_COMMAND_IGNORED_NAME => self.line_start = false,
+            // The client adds this to the statement it is collecting.
             _ => {
                 self.statement_start = false;
                 self.line_start = false;

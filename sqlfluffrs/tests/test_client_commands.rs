@@ -164,6 +164,19 @@ fn test_dash_dash_at_mariadb_statement_start() {
 }
 
 #[test]
+fn test_command_after_a_shorthand_command() {
+    assert_tokens(
+        "\\d $$\nDELIMITER ;\n",
+        &[
+            ("client_command_shorthand", "\\d"),
+            ("delimiter_argument", "$$"),
+            ("word", "DELIMITER"),
+            ("delimiter_argument", ";"),
+        ],
+    );
+}
+
+#[test]
 fn test_shorthand_delimiter_with_no_argument_is_refused() {
     assert_tokens(
         "\\d\nSELECT 1;\n",
@@ -187,6 +200,38 @@ fn test_unclosed_quoted_argument_runs_to_the_end_of_the_line() {
             ("numeric_literal", "1"),
             ("client_delimiter", "ab"),
         ],
+    );
+}
+
+#[test]
+fn test_line_with_lower_case_g_is_collected() {
+    assert_tokens(
+        "DELIMITER // \\g\nSOURCE a.sql \\G\n",
+        &[
+            ("word", "DELIMITER"),
+            ("divide", "/"),
+            ("divide", "/"),
+            ("client_command_shorthand", "\\g"),
+            ("word", "SOURCE"),
+            ("source_file_name", "a.sql \\G"),
+        ],
+    );
+}
+
+#[test]
+fn test_mariadb_collected_command_after_a_comment() {
+    let expected: Vec<(String, String)> = [
+        ("block_comment", "/* c */"),
+        ("word", "SOURCE"),
+        ("source_file_name", "a.sql"),
+        ("semicolon", ";"),
+    ]
+    .iter()
+    .map(|(kind, raw)| (kind.to_string(), raw.to_string()))
+    .collect();
+    assert_eq!(
+        tokens("/* c */ SOURCE a.sql;\n", Dialect::Mariadb),
+        expected
     );
 }
 

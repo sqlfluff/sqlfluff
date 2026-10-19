@@ -154,8 +154,9 @@ mysql_client_commands = ClientCommandRules(
             "dollar_quote_opener",
         }
     ),
-    command_after_block_comment=True,
+    line_command_after_block_comment=True,
     dash_dash_comment_at_statement_start=False,
+    collected_line_marker="\\g",
 )
 mysql_dialect.client_commands = mysql_client_commands
 

@@ -43,12 +43,18 @@ pub struct ClientCommandRules {
     /// Lexer matchers whose text the client doesn't scan: strings, quoted
     /// identifiers and comments. The delimiter isn't found inside these.
     pub opaque_token_names: &'static [&'static str],
-    /// Whether a `/* ... */` comment may come before a command on its line.
-    pub command_after_block_comment: bool,
+    /// Whether a `/* ... */` comment may come before a long-form command that
+    /// takes its line. A command the client collects as a statement may follow
+    /// a comment either way.
+    pub line_command_after_block_comment: bool,
     /// Whether `--` starts a comment at the start of a statement even with no
     /// whitespace after it. Elsewhere `--` needs whitespace or the end of the
     /// line after it, which is the dialect's comment matcher's job.
     pub dash_dash_comment_at_statement_start: bool,
+    /// A long-form command never takes a line that holds this text: the client
+    /// collects the line as a statement instead. The mysql client's
+    /// `find_command` checks for a lower-case `\g`, so `\G` doesn't count.
+    pub collected_line_marker: Option<&'static str>,
     pub default_delimiter: &'static str,
     /// Longer delimiters are cut to this many bytes, as the client does.
     pub max_delimiter_bytes: usize,
