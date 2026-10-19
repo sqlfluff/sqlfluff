@@ -264,8 +264,8 @@ class ReflowSequence:
 
         target_raws = target_segment.raw_segments
         assert target_raws
-        pre_idx = all_raws.index(target_raws[0])
-        post_idx = all_raws.index(target_raws[-1]) + 1
+        pre_idx = root_segment.raw_segment_index(target_raws[0])
+        post_idx = root_segment.raw_segment_index(target_raws[-1]) + 1
         initial_idx = (pre_idx, post_idx)
         if sides in ("both", "before"):
             # Catch at least the previous segment
@@ -676,6 +676,7 @@ class ReflowSequence:
             line_length_limit=self.reflow_config.max_line_length,
             implicit_indents=self.reflow_config.implicit_indents,
             trailing_comments=self.reflow_config.trailing_comments,
+            list_wrapping=self.reflow_config.list_wrapping,
         )
 
         return ReflowSequence(

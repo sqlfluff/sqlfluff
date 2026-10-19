@@ -68,23 +68,33 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ASOF",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
+        "DATABASES",
+        "DATEFORMAT",
+        "DELIM",
         "GLOB",
         "INSTALL",
         "MACRO",
         "MAP",
+        "NEW_LINE",
+        "NULLSTR",
         "OVERWRITE",
         "OVERWRITE_OR_IGNORE",
         "PARQUET_VERSION",
         "PARTITION_BY",
         "PERCENT",
         "POSITIONAL",
+        "PREFIX",
         "PROGRAM",
         "RESERVOIR",
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
         "SAMPLE",
         "SEMI",
+        "SEP",
         "STRUCT",
+        "SUFFIX",
+        "TIMESTAMPFORMAT",
+        "VARIABLES",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
     ]
@@ -178,6 +188,23 @@ duckdb_dialect.add(
     ),
     FactorialOperatorSegment=TypedParser(
         "not", SymbolSegment, type="factorial_operator"
+    ),
+    # What follows `DESCRIBE`, `DESC` or `SHOW`, which DuckDB treats as the
+    # same statement. `TABLES`, `DATABASES`, `SCHEMAS` and `VARIABLES` list
+    # catalog objects; any other name is a table to describe.
+    # https://duckdb.org/docs/stable/guides/meta/describe
+    # https://duckdb.org/docs/stable/guides/meta/list_tables
+    DescribeTargetGrammar=OneOf(
+        Sequence("ALL", Ref.keyword("TABLES", optional=True)),
+        Sequence(
+            "TABLES",
+            Sequence("FROM", Ref("SchemaReferenceSegment"), optional=True),
+        ),
+        "DATABASES",
+        "SCHEMAS",
+        "VARIABLES",
+        Ref("SelectableGrammar"),
+        Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
     ),
 )
 
@@ -858,6 +885,11 @@ class ListComprehensionExpressionSegment(BaseSegment):
         Ref("ExpressionSegment"),
         "FOR",
         Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
         "IN",
         Ref("ExpressionSegment"),
         Sequence("IF", Ref("ExpressionSegment"), optional=True),
@@ -979,7 +1011,11 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://duckdb.org/docs/stable/sql/query_syntax/groupby
+    https://duckdb.org/docs/stable/sql/query_syntax/grouping_sets
+    """
 
     match_grammar: Matchable = Sequence(
         "GROUP",
@@ -990,7 +1026,11 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 "ALL",
                 Ref("ColumnReferenceSegment"),
                 Ref("NumericLiteralSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 Ref("ExpressionSegment"),
+                # Empty grouping set: `GROUP BY ()`
+                Bracketed(),
             ),
             allow_trailing=True,
             terminators=[Ref("GroupByClauseTerminatorGrammar")],
@@ -1059,6 +1099,48 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     )
 
 
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/checkpoint
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "CHECKPOINT",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """A `DESCRIBE` statement.
+
+    DuckDB accepts `DESCRIBE`, `DESC` and `SHOW` interchangeably, followed by
+    a table, a query, `ALL TABLES` or `TABLES FROM`, or by nothing at all.
+    https://duckdb.org/docs/stable/guides/meta/describe
+    """
+
+    match_grammar = Sequence(
+        OneOf("DESCRIBE", "DESC"),
+        Ref("DescribeTargetGrammar", optional=True),
+    )
+
+
+class ShowStatementSegment(postgres.ShowStatementSegment):
+    """A `SHOW` statement.
+
+    In DuckDB this is an alias of `DESCRIBE`, so it takes the same targets and
+    `SHOW tbl` describes the table `tbl` rather than a setting.
+    https://duckdb.org/docs/stable/guides/meta/list_tables
+    """
+
+    match_grammar = Sequence(
+        "SHOW",
+        Ref("DescribeTargetGrammar", optional=True),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1067,6 +1149,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
+            Ref("CheckpointStatementSegment"),
         ]
     )
 
@@ -1257,6 +1340,7 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         OneOf("MACRO", "FUNCTION"),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "AS",
@@ -1291,6 +1375,7 @@ class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "TYPE",
         Ref("DatatypeSegment"),
         "AS",
@@ -1329,6 +1414,39 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 OneOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
                     Sequence(
+                        "HEADER",
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "DATEFORMAT",
+                            "DELIMITER",
+                            "DELIM",
+                            "SEP",
+                            "NULL",
+                            "NULLSTR",
+                            "QUOTE",
+                            "ESCAPE",
+                            "NEW_LINE",
+                            "PREFIX",
+                            "SUFFIX",
+                            "TIMESTAMPFORMAT",
+                        ),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE_QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    Sequence(
                         "OVERWRITE_OR_IGNORE",
                         Ref("BooleanLiteralGrammar", optional=True),
                     ),
@@ -1353,7 +1471,12 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         ),
                     ),
                     Sequence("COMPRESSION_LEVEL", Ref("NumericLiteralSegment")),
-                    Sequence("ROW_GROUP_SIZE_BYTES", Ref("NumericLiteralSegment")),
+                    Sequence(
+                        "ROW_GROUP_SIZE_BYTES",
+                        OneOf(
+                            Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
                     Sequence("ROW_GROUP_SIZE", Ref("NumericLiteralSegment")),
                     Sequence("PARQUET_VERSION", Ref("QuotedLiteralSegment")),
                 )
@@ -1401,11 +1524,7 @@ class SetStatementSegment(postgres.SetStatementSegment):
                 "VARIABLE",
                 Ref("NakedIdentifierSegment"),  # variable_name
                 OneOf("TO", Ref("EqualsSegment")),
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
+                Ref("ExpressionSegment"),
             ),
             Sequence(
                 OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),

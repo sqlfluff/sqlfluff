@@ -176,7 +176,15 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
 
     if lexer_class == "StringLexer":
         rust_fn = "string_lexer"
-        template = f'"{lexer_matcher.template}"'
+        # Escape controls too: Rust source normalizes literal CRLF to LF.
+        template = lexer_matcher.template.translate(
+            {
+                **{char: rf"\u{{{char:x}}}" for char in (*range(0x20), 0x7F)},
+                ord("\\"): r"\\",
+                ord('"'): r"\"",
+            }
+        )
+        template = f'"{template}"'
         fallback = ""
         is_match_valid = ""
     elif lexer_class == "RegexLexer":

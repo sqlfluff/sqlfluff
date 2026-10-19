@@ -2618,13 +2618,20 @@ class LockTableStatementSegment(BaseSegment):
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
-    Override to add Object unpivoting.
+    Override to add Object unpivoting and navigation into SUPER values
+    which uses array accessors, e.g. `a.topic[0].extension`.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
     """
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
             Ref("ObjectUnpivotSegment", optional=True),
             Ref("ArrayUnnestSegment", optional=True),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("AccessorGrammar"),
+            ),
         ],
         before=Ref("TableReferenceSegment"),
     )
@@ -3000,8 +3007,8 @@ class ExcludeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXCLUDE",
         OneOf(
-            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Delimited(Ref("SingleIdentifierGrammar")),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Delimited(Ref("ColumnReferenceSegment")),
         ),
     )
 

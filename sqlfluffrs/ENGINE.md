@@ -56,11 +56,10 @@ Bracketed and Delimited additionally dispatch their `WaitingForChild` resume on 
 sub-state enum (`BracketedPhase` / `DelimitedPhase`) to one method per phase.
 
 **Results hand-off.** A frame doesn't return to its parent directly. When a child reaches
-`Complete`, the loop writes `(Arc<MatchResult>, end_pos, element_key)` into
+`Complete`, the loop writes `(Arc<MatchResult>, end_pos)` into
 `TableParseFrameStack.results` keyed by the child's `frame_id`. The parent — parked in
 `WaitingForChild` — reclaims it on resume via its own `last_child_frame_id`. The `Arc` keeps
-the hand-off clone-free; `element_key` carries OneOf's per-element identity to AnyNumberOf
-(for `max_times_per_element`) and is `None` otherwise.
+the hand-off clone-free.
 
 **MatchResult.** A match is described, not materialised: a `MatchResult` carries the matched
 token span, optional `matched_class` (the segment type to create), `insert_segments` (meta
