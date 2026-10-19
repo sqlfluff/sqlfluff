@@ -673,6 +673,54 @@ def test__templater_jinja_dbt_builtin_function():
     assert len(vs) == 0
 
 
+@pytest.mark.parametrize("macro_source", ["path", "config", "inline"])
+@pytest.mark.parametrize(
+    "return_tag", ["{{ return(value) }}", "{% do return(value) %}"]
+)
+def test__templater_jinja_nested_macro_return(tmp_path, macro_source, return_tag):
+    """Returning from a same-file macro must not return from its caller (#8729)."""
+    macros = (
+        "{% macro inner(value, context, obj) %}"
+        + return_tag
+        + "unreachable{% endmacro %}"
+        "{% macro middle(value) %}"
+        "{% do return(inner(value, context='context', obj='obj')) %}"
+        "unreachable{% endmacro %}"
+        "{% macro outer() %}"
+        "{% set values = middle({'a': 'x', 'b': 'y'}) %}"
+        "CASE input_col"
+        "{% for key, value in values.items() %}"
+        " WHEN '{{ key }}' THEN '{{ value }}'"
+        "{% endfor %} END AS output_col"
+        "{% endmacro %}"
+    )
+    jinja_config = {"apply_dbt_builtins": True}
+    query = "SELECT {{ outer() }} FROM my_table\n"
+    if macro_source == "path":
+        macro_file = tmp_path / "macros.sql"
+        macro_file.write_text(macros, encoding="utf-8")
+        jinja_config["load_macros_from_path"] = str(macro_file)
+    elif macro_source == "config":
+        jinja_config["macros"] = {"nested_macros": macros}
+    else:
+        query = macros + query
+
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi", "templater": "jinja"},
+            "templater": {"jinja": jinja_config},
+        }
+    )
+    rendered, violations = JinjaTemplater().process(
+        in_str=query, fname="test.sql", config=config
+    )
+    assert not violations
+    assert str(rendered) == (
+        "SELECT CASE input_col WHEN 'a' THEN 'x' WHEN 'b' THEN 'y'"
+        " END AS output_col FROM my_table\n"
+    )
+
+
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
