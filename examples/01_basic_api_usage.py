@@ -46,13 +46,13 @@ parse_result = sqlfluff.parse(my_bad_query)
 
 
 def get_json_segment(
-    parse_result: dict[str, Any], segment_type: str
+    parse_result: dict[str, Any], *segment_types: str
 ) -> Iterator[Union[str, dict[str, Any], list[dict[str, Any]]]]:
-    """Recursively search JSON parse result for specified segment type.
+    """Recursively search JSON parse result for specified segment types.
 
     Args:
         parse_result (Dict[str, Any]): JSON parse result from `sqlfluff.parse`.
-        segment_type (str): The segment type to search for.
+        *segment_types (str): The segment types to search for.
 
     Yields:
         Iterator[Union[str, dict[str, Any], list[dict[str, Any]]]]:
@@ -60,13 +60,13 @@ def get_json_segment(
         segment or as JSON or an array of JSON for non-raw segments.
     """
     for k, v in parse_result.items():
-        if k == segment_type:
+        if k in segment_types:
             yield v
         elif isinstance(v, dict):
-            yield from get_json_segment(v, segment_type)
+            yield from get_json_segment(v, *segment_types)
         elif isinstance(v, list):
             for s in v:
-                yield from get_json_segment(s, segment_type)
+                yield from get_json_segment(s, *segment_types)
 
 
 # e.g. Retrieve array of JSON for table references.
@@ -77,7 +77,11 @@ print(table_references)
 # Retrieve raw table name from last identifier in the table reference.
 for table_reference in table_references:
     table_name = list(
-        get_json_segment({"table_reference": table_reference}, "naked_identifier")
+        get_json_segment(
+            {"table_reference": table_reference},
+            "naked_identifier",
+            "quoted_identifier",
+        )
     )[-1]
     print(f"table_name: {table_name}")
 # table_name: myTable
