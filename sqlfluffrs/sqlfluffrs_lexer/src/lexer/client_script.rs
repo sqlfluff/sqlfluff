@@ -50,11 +50,34 @@ const BLOCK_COMMENT: &str = "block_comment";
 /// What the client's `my_isspace` accepts within a line.
 const SPACE: &[char] = &[' ', '\t', '\u{b}', '\u{c}', '\r'];
 
-/// A long-form command name at the start of a line.
+/// A command, and its name or short form as written.
+#[derive(Clone, Copy)]
 struct CommandWord<'t> {
     command: &'static ClientCommand,
-    /// The name as written.
     word: &'t str,
+}
+
+/// What comes next in the script, as the client reads it.
+enum Next<'t> {
+    /// A command that sets the delimiter (`DELIMITER`), at the start of a
+    /// line. It takes the line.
+    DelimiterCommand(CommandWord<'t>),
+    /// A command that reads a file (`SOURCE`), at the start of a line that
+    /// holds neither the delimiter nor `\g`. The rest of the line is the file
+    /// name.
+    SourceLine(CommandWord<'t>),
+    /// A command that reads a file, which the client collects as a statement
+    /// before reading it.
+    SourceStatement(CommandWord<'t>),
+    /// The short form of a command, such as `\d`, `\.` or `\g`.
+    Shorthand(CommandWord<'t>),
+    /// The active delimiter, which ends the statement.
+    ActiveDelimiter,
+    /// `--` with no whitespace after it, at the start of a statement, where
+    /// the client takes it as a comment.
+    StatementStartComment,
+    /// Anything else, for the dialect's matchers.
+    Token,
 }
 
 /// A command argument: its text as written, and the value the client reads.
@@ -152,57 +175,84 @@ impl<'a> ClientScriptLexer<'a> {
     /// Lex the whole text into elements.
     pub(super) fn lex(mut self) -> Vec<LexedElement<'a>> {
         while self.pos < self.text.len() {
-            if self.statement_start && self.line_start && self.line_command() {
-                continue;
+            match self.peek() {
+                Next::DelimiterCommand(found) => self.lex_delimiter_command(found),
+                Next::SourceLine(found) => self.lex_source_line(found),
+                Next::SourceStatement(found) => self.lex_source_statement(found),
+                Next::Shorthand(found) => self.lex_shorthand(found),
+                Next::ActiveDelimiter => self.lex_active_delimiter(),
+                Next::StatementStartComment => self.lex_statement_start_comment(),
+                Next::Token => self.lex_token(),
             }
-            if self.active_delimiter() {
-                continue;
-            }
-            if self.shorthand_command() {
-                continue;
-            }
-            if self.statement_start && self.statement_command() {
-                continue;
-            }
-            if self.statement_start && self.statement_start_comment() {
-                continue;
-            }
-            self.ordinary_token();
         }
         self.elements
     }
 
-    /// A long-form command at the start of a line, which takes the line.
+    /// What comes next, checked in the order the client checks.
     ///
-    /// `DELIMITER` is taken whatever else is on the line. Other commands are
-    /// taken here only if the line holds neither the delimiter nor `\g`.
-    /// Otherwise the client collects them as a statement first (see
-    /// [`Self::statement_command`]).
-    fn line_command(&mut self) -> bool {
-        let line = self.rest_of_line();
-        let Some(CommandWord { command, word }) = self.long_command(line) else {
-            return false;
+    /// Long-form commands count only at the start of a statement. A command
+    /// that reads a file takes its line only if the line holds neither the
+    /// delimiter nor `\g`; otherwise the client collects it as a statement
+    /// first. Short forms count anywhere outside comments and strings.
+    fn peek(&self) -> Next<'a> {
+        let long = if self.statement_start {
+            self.long_command(self.rest_of_line())
+        } else {
+            None
         };
-        let argument = &line[word.len()..];
-        match command.effect {
-            CommandEffect::SetDelimiter => {
-                self.emit(word, self.word_matcher);
-                let rest = self.delimiter_argument(argument);
-                self.emit_ignored(rest);
-            }
-            CommandEffect::ReadFile => {
-                if line.contains(self.delimiter.as_str()) || line.contains("\\g") {
-                    return false;
+        if let Some(found) = long.filter(|_| self.line_start) {
+            let line = self.rest_of_line();
+            match found.command.effect {
+                CommandEffect::SetDelimiter => return Next::DelimiterCommand(found),
+                CommandEffect::ReadFile
+                    if !line.contains(self.delimiter.as_str()) && !line.contains("\\g") =>
+                {
+                    return Next::SourceLine(found);
                 }
-                self.emit(word, self.word_matcher);
-                self.file_name(argument);
+                CommandEffect::ReadFile | CommandEffect::EndStatement => {}
             }
-            CommandEffect::EndStatement => return false,
         }
+        if self.text[self.pos..].starts_with(self.delimiter.as_str()) {
+            return Next::ActiveDelimiter;
+        }
+        let shorthand = self
+            .rules
+            .command_starting(&self.text[self.pos..])
+            .and_then(|command| command.shorthand.map(|word| CommandWord { command, word }));
+        if let Some(found) = shorthand {
+            return Next::Shorthand(found);
+        }
+        if let Some(found) = long.filter(|found| found.command.effect == CommandEffect::ReadFile) {
+            return Next::SourceStatement(found);
+        }
+        if self.statement_start
+            && self.rules.dash_dash_comment_at_statement_start
+            && self.text[self.pos..].starts_with("--")
+        {
+            return Next::StatementStartComment;
+        }
+        Next::Token
+    }
+
+    /// `DELIMITER` and its argument. The rest of the line is ignored.
+    fn lex_delimiter_command(&mut self, found: CommandWord<'a>) {
+        let argument = &self.rest_of_line()[found.word.len()..];
+        self.emit(found.word, self.word_matcher);
+        let rest = self.delimiter_argument(argument);
+        self.emit_ignored(rest);
         // The command took its line, and added nothing to the statement the
         // client is collecting.
         self.statement_start = true;
-        true
+    }
+
+    /// `SOURCE` and the file name that is the rest of its line.
+    fn lex_source_line(&mut self, found: CommandWord<'a>) {
+        let argument = &self.rest_of_line()[found.word.len()..];
+        self.emit(found.word, self.word_matcher);
+        self.file_name(argument);
+        // The command took its line, and added nothing to the statement the
+        // client is collecting.
+        self.statement_start = true;
     }
 
     /// `SOURCE` that the client collects as a statement before reading it.
@@ -210,16 +260,9 @@ impl<'a> ClientScriptLexer<'a> {
     /// That happens when its line holds the delimiter or `\g`, or when it
     /// follows a delimiter earlier on the line. The statement runs to the
     /// delimiter, and any backslash in it runs as a client command first.
-    fn statement_command(&mut self) -> bool {
-        let line = self.rest_of_line();
-        let Some(CommandWord { command, word }) = self.long_command(line) else {
-            return false;
-        };
-        if command.effect != CommandEffect::ReadFile {
-            return false;
-        }
-        self.emit(word, self.word_matcher);
-        let argument = &line[word.len()..];
+    fn lex_source_statement(&mut self, found: CommandWord<'a>) {
+        let argument = &self.rest_of_line()[found.word.len()..];
+        self.emit(found.word, self.word_matcher);
         match argument.find(self.delimiter.as_str()) {
             Some(end) if !argument[..end].contains('\\') => self.file_name(&argument[..end]),
             // A backslash in the statement ran as a command: the client
@@ -228,23 +271,15 @@ impl<'a> ClientScriptLexer<'a> {
             // The statement runs on past this line.
             None => self.emit_misread(argument),
         }
-        true
     }
 
-    /// A short-form command, which counts anywhere outside comments and strings.
-    fn shorthand_command(&mut self) -> bool {
-        let Some(command) = self.rules.command_starting(&self.text[self.pos..]) else {
-            return false;
-        };
-        let Some(shorthand) = command.shorthand else {
-            return false;
-        };
-        let line = self.rest_of_line();
-        self.emit(shorthand, &CLIENT_COMMAND_SHORTHAND);
-        let argument = &line[shorthand.len()..];
+    /// A short-form command and its argument.
+    fn lex_shorthand(&mut self, found: CommandWord<'a>) {
+        let argument = &self.rest_of_line()[found.word.len()..];
+        self.emit(found.word, &CLIENT_COMMAND_SHORTHAND);
 
         let mut statement_start = self.statement_start;
-        match command.effect {
+        match found.command.effect {
             CommandEffect::EndStatement => statement_start = true,
             CommandEffect::SetDelimiter => self.shorthand_delimiter_argument(argument),
             // `\.` reads the rest of its line as the file name, delimiter and
@@ -254,38 +289,26 @@ impl<'a> ClientScriptLexer<'a> {
         // Other than `\g` and `\G`, the command adds nothing to the statement
         // the client is collecting, so leaves it where it was.
         self.statement_start = statement_start;
-        true
     }
 
     /// The active delimiter, which ends the statement.
-    fn active_delimiter(&mut self) -> bool {
-        if !self.text[self.pos..].starts_with(self.delimiter.as_str()) {
-            return false;
-        }
+    fn lex_active_delimiter(&mut self) {
         if self.delimiter == self.rules.default_delimiter {
             // The default delimiter keeps the dialect's own token for it.
-            self.ordinary_token();
+            self.lex_token();
         } else {
             let delimiter = &self.text[self.pos..self.pos + self.delimiter.len()];
             self.emit(delimiter, &CLIENT_DELIMITER);
         }
         self.statement_start = true;
-        true
     }
 
-    /// `--` with no whitespace after it, where the client takes it as a comment.
-    fn statement_start_comment(&mut self) -> bool {
-        if !self.rules.dash_dash_comment_at_statement_start {
-            return false;
-        }
-        let rest = &self.text[self.pos..];
-        if !rest.starts_with("--") {
-            return false;
-        }
+    /// `--` with no whitespace after it, as a comment.
+    fn lex_statement_start_comment(&mut self) {
         // Up to the newline, as the comment matcher's `[^\n]*` would take it.
+        let rest = &self.text[self.pos..];
         let end = rest.find('\n').unwrap_or(rest.len());
         self.emit(&rest[..end], self.inline_comment_matcher);
-        true
     }
 
     /// One token, lexed by the dialect's matchers.
@@ -296,7 +319,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// next one of those. So `1.go` with `go` active is `1.`, and `--$$`
     /// with `$$` active is a comment, as `--` at the end of the server's
     /// input is.
-    fn ordinary_token(&mut self) {
+    fn lex_token(&mut self) {
         let rest = &self.text[self.pos..];
         let mut elements = self.match_text(rest);
         if !self.rules.is_opaque(&elements[0].matcher.name) {

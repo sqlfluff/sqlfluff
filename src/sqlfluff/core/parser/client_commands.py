@@ -18,7 +18,7 @@ two must emit identical tokens.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Union
 
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.parser.lexer import LexedElement, LexerType, StringLexer
@@ -134,11 +134,71 @@ _SPACE = " \t\v\f\r"
 
 
 class _CommandWord(NamedTuple):
-    """A long-form command name at the start of a line."""
+    """A command, and its name or short form as written."""
 
     command: ClientCommand
     word: str
-    """The name as written."""
+
+
+# What comes next in the script, as the client reads it: one of the classes
+# below, as `_Next`.
+
+
+class _DelimiterCommand(NamedTuple):
+    """A command that sets the delimiter (`DELIMITER`), at the start of a line.
+
+    It takes the line.
+    """
+
+    found: _CommandWord
+
+
+class _SourceLine(NamedTuple):
+    r"""A command that reads a file (`SOURCE`), at the start of a line.
+
+    The line holds neither the delimiter nor `\g`. The rest of it is the file
+    name.
+    """
+
+    found: _CommandWord
+
+
+class _SourceStatement(NamedTuple):
+    """A command that reads a file, which the client collects as a statement first."""
+
+    found: _CommandWord
+
+
+class _Shorthand(NamedTuple):
+    r"""The short form of a command, such as `\d`, `\.` or `\g`."""
+
+    found: _CommandWord
+
+
+class _ActiveDelimiter(NamedTuple):
+    """The active delimiter, which ends the statement."""
+
+
+class _StatementStartComment(NamedTuple):
+    """`--` with no whitespace after it, at the start of a statement.
+
+    The client takes it as a comment.
+    """
+
+
+class _Token(NamedTuple):
+    """Anything else, for the dialect's matchers."""
+
+
+_Next = Union[
+    _DelimiterCommand,
+    _SourceLine,
+    _SourceStatement,
+    _Shorthand,
+    _ActiveDelimiter,
+    _StatementStartComment,
+    _Token,
+]
 
 
 class _Argument(NamedTuple):
@@ -208,61 +268,87 @@ class ClientScriptLexer:
         self._line_start = True
 
         while self._pos < len(text):
-            if self._statement_start and self._line_start and self._line_command():
-                continue
-            if self._active_delimiter():
-                continue
-            if self._shorthand_command():
-                continue
-            if self._statement_start and self._statement_command():
-                continue
-            if self._statement_start and self._statement_start_comment():
-                continue
-            self._ordinary_token()
+            match self._peek():
+                case _DelimiterCommand(found):
+                    self._lex_delimiter_command(found)
+                case _SourceLine(found):
+                    self._lex_source_line(found)
+                case _SourceStatement(found):
+                    self._lex_source_statement(found)
+                case _Shorthand(found):
+                    self._lex_shorthand(found)
+                case _ActiveDelimiter():
+                    self._lex_active_delimiter()
+                case _StatementStartComment():
+                    self._lex_statement_start_comment()
+                case _Token():
+                    self._lex_token()
         return self._elements
 
-    def _line_command(self) -> bool:
-        r"""A long-form command at the start of a line, which takes the line.
+    def _peek(self) -> _Next:
+        r"""What comes next, checked in the order the client checks.
 
-        `DELIMITER` is taken whatever else is on the line. Other commands are
-        taken here only if the line holds neither the delimiter nor `\g`.
-        Otherwise the client collects them as a statement first (see
-        `_statement_command`).
+        Long-form commands count only at the start of a statement. A command
+        that reads a file takes its line only if the line holds neither the
+        delimiter nor `\g`; otherwise the client collects it as a statement
+        first. Short forms count anywhere outside comments and strings.
         """
-        line = self._rest_of_line()
-        found = self._long_command(line)
-        if found is None:
-            return False
-        argument = line[len(found.word) :]
-        if found.command.effect is CommandEffect.SET_DELIMITER:
-            self._emit(found.word, self._word_matcher)
-            rest = self._delimiter_argument(argument)
-            self._emit_ignored(rest)
-        elif found.command.effect is CommandEffect.READ_FILE:
-            if self._delimiter in line or "\\g" in line:
-                return False
-            self._emit(found.word, self._word_matcher)
-            self._file_name(argument)
-        else:
-            return False
+        long = None
+        if self._statement_start:
+            long = self._long_command(self._rest_of_line())
+        if long is not None and self._line_start:
+            line = self._rest_of_line()
+            if long.command.effect is CommandEffect.SET_DELIMITER:
+                return _DelimiterCommand(long)
+            if (
+                long.command.effect is CommandEffect.READ_FILE
+                and self._delimiter not in line
+                and "\\g" not in line
+            ):
+                return _SourceLine(long)
+        if self._text.startswith(self._delimiter, self._pos):
+            return _ActiveDelimiter()
+        command = self._rules.command_starting(self._text, self._pos)
+        if command is not None and command.shorthand is not None:
+            return _Shorthand(_CommandWord(command, command.shorthand))
+        if long is not None and long.command.effect is CommandEffect.READ_FILE:
+            return _SourceStatement(long)
+        if (
+            self._statement_start
+            and self._rules.dash_dash_comment_at_statement_start
+            and self._text.startswith("--", self._pos)
+        ):
+            return _StatementStartComment()
+        return _Token()
+
+    def _lex_delimiter_command(self, found: _CommandWord) -> None:
+        """`DELIMITER` and its argument. The rest of the line is ignored."""
+        argument = self._rest_of_line()[len(found.word) :]
+        self._emit(found.word, self._word_matcher)
+        rest = self._delimiter_argument(argument)
+        self._emit_ignored(rest)
         # The command took its line, and added nothing to the statement the
         # client is collecting.
         self._statement_start = True
-        return True
 
-    def _statement_command(self) -> bool:
+    def _lex_source_line(self, found: _CommandWord) -> None:
+        """`SOURCE` and the file name that is the rest of its line."""
+        argument = self._rest_of_line()[len(found.word) :]
+        self._emit(found.word, self._word_matcher)
+        self._file_name(argument)
+        # The command took its line, and added nothing to the statement the
+        # client is collecting.
+        self._statement_start = True
+
+    def _lex_source_statement(self, found: _CommandWord) -> None:
         r"""`SOURCE` that the client collects as a statement before reading it.
 
         That happens when its line holds the delimiter or `\g`, or when it
         follows a delimiter earlier on the line. The statement runs to the
         delimiter, and any backslash in it runs as a client command first.
         """
-        line = self._rest_of_line()
-        found = self._long_command(line)
-        if found is None or found.command.effect is not CommandEffect.READ_FILE:
-            return False
+        argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, self._word_matcher)
-        argument = line[len(found.word) :]
         end = argument.find(self._delimiter)
         if end < 0 or "\\" in argument[:end]:
             # The statement runs on past this line, or a backslash in it ran
@@ -270,58 +356,44 @@ class ClientScriptLexer:
             self._emit_misread(argument if end < 0 else argument[:end])
         else:
             self._file_name(argument[:end])
-        return True
 
-    def _shorthand_command(self) -> bool:
-        """A short-form command, which counts anywhere outside comments and strings."""
-        command = self._rules.command_starting(self._text, self._pos)
-        if command is None or command.shorthand is None:
-            return False
-        line = self._rest_of_line()
-        self._emit(command.shorthand, CLIENT_COMMAND_SHORTHAND)
-        argument = line[len(command.shorthand) :]
+    def _lex_shorthand(self, found: _CommandWord) -> None:
+        """A short-form command and its argument."""
+        argument = self._rest_of_line()[len(found.word) :]
+        self._emit(found.word, CLIENT_COMMAND_SHORTHAND)
 
         statement_start = self._statement_start
-        if command.effect is CommandEffect.END_STATEMENT:
+        if found.command.effect is CommandEffect.END_STATEMENT:
             statement_start = True
-        elif command.effect is CommandEffect.SET_DELIMITER:
+        elif found.command.effect is CommandEffect.SET_DELIMITER:
             self._shorthand_delimiter_argument(argument)
-        elif command.effect is CommandEffect.READ_FILE:
+        elif found.command.effect is CommandEffect.READ_FILE:
             # `\.` reads the rest of its line as the file name, delimiter and
             # all.
             self._file_name(argument)
         # Other than `\g` and `\G`, the command adds nothing to the statement
         # the client is collecting, so leaves it where it was.
         self._statement_start = statement_start
-        return True
 
-    def _active_delimiter(self) -> bool:
+    def _lex_active_delimiter(self) -> None:
         """The active delimiter, which ends the statement."""
-        if not self._text.startswith(self._delimiter, self._pos):
-            return False
         if self._delimiter == self._rules.default_delimiter:
             # The default delimiter keeps the dialect's own token for it.
-            self._ordinary_token()
+            self._lex_token()
         else:
             self._emit(self._delimiter, CLIENT_DELIMITER)
         self._statement_start = True
-        return True
 
-    def _statement_start_comment(self) -> bool:
-        """`--` with no whitespace after it, where the client takes it as a comment."""
-        if not self._rules.dash_dash_comment_at_statement_start:
-            return False
-        if not self._text.startswith("--", self._pos):
-            return False
+    def _lex_statement_start_comment(self) -> None:
+        """`--` with no whitespace after it, as a comment."""
         # Up to the newline, as the comment matcher's `[^\n]*` would take it.
         end = self._text.find("\n", self._pos)
         self._emit(
             self._text[self._pos : end if end >= 0 else None],
             self._inline_comment_matcher,
         )
-        return True
 
-    def _ordinary_token(self) -> None:
+    def _lex_token(self) -> None:
         """One token, lexed by the dialect's matchers.
 
         The client looks for the delimiter and short commands everywhere but
