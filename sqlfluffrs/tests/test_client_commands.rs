@@ -134,3 +134,22 @@ fn test_dash_dash_at_mariadb_statement_start() {
         .collect();
     assert_eq!(last_three, ["-", "-", "x"]);
 }
+
+#[test]
+fn test_delimiter_inside_a_dollar_quote() {
+    let sql = "DELIMITER ;;\nSELECT $js$ a ;; b $js$;;\n";
+    let expected: Vec<(String, String)> = [
+        ("word", "SELECT"),
+        ("dollar_quote", "$js$ a ;; b $js$"),
+        ("client_delimiter", ";;"),
+    ]
+    .iter()
+    .map(|(kind, raw)| (kind.to_string(), raw.to_string()))
+    .collect();
+    assert_eq!(tokens(sql, Dialect::Mysql)[2..], expected[..]);
+
+    // MariaDB has no dollar-quoted strings, so its client finds the delimiter.
+    let mariadb = tokens(sql, Dialect::Mariadb);
+    let raws: Vec<&str> = mariadb[2..6].iter().map(|(_, raw)| raw.as_str()).collect();
+    assert_eq!(raws, ["SELECT", "$js$", "a", ";;"]);
+}

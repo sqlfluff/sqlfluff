@@ -145,3 +145,22 @@ def test_client_commands_dash_dash_at_mariadb_statement_start():
         ("minus", "-"),
         ("word", "x"),
     ]
+
+
+def test_client_commands_delimiter_inside_a_dollar_quote():
+    """The mysql client doesn't find the delimiter in a dollar-quoted string.
+
+    MariaDB has no dollar-quoted strings, so its client does.
+    """
+    raw = "DELIMITER ;;\nSELECT $js$ a ;; b $js$;;\n"
+    assert _tokens(raw)[2:] == [
+        ("word", "SELECT"),
+        ("dollar_quote", "$js$ a ;; b $js$"),
+        ("client_delimiter", ";;"),
+    ]
+    assert _tokens(raw, "mariadb")[2:6] == [
+        ("word", "SELECT"),
+        ("word", "$js$"),
+        ("word", "a"),
+        ("client_delimiter", ";;"),
+    ]

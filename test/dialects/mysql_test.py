@@ -320,3 +320,27 @@ def test_mariadb_no_comment_before_a_client_command(raw: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "SELECT 1 AS $$;\n",
+        "SELECT 1 AS $a$;\n",
+        "SELECT 1 AS $1$;\n",
+        "SELECT 1 AS $$a;\n",
+        "SELECT 1 AS $a$b;\n",
+    ],
+)
+def test_mysql_dollar_quote_opener_is_not_a_name(raw: str) -> None:
+    """Test that `$tag$` at the start of a token is not a MySQL name.
+
+    MySQL reads it as the start of a dollar-quoted string, which never ends:
+    MySQL 8.4 and 9.7 report each of these as a syntax error. (MariaDB has no
+    dollar-quoted strings and takes them as names; see its `identifier_dollar`
+    fixture.)
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    lexing_errors = [v for v in parsed.violations if v.rule_code() == "LXR"]
+
+    assert lexing_errors

@@ -292,7 +292,8 @@ class ClientScriptScanner:
         # Up to the newline, as the comment matcher's `[^\n]*` would take it.
         end = self._text.find("\n", self._pos)
         self._emit(
-            self._text[self._pos : end if end >= 0 else None], self._inline_comment_matcher
+            self._text[self._pos : end if end >= 0 else None],
+            self._inline_comment_matcher,
         )
         return True
 

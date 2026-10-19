@@ -60,8 +60,20 @@ mariadb_dialect.sets("character_set_names").discard("GB18030")
 # even with no whitespace after it.
 mariadb_dialect.client_commands = replace(
     mysql.mysql_client_commands,
+    opaque_token_names=mysql.mysql_client_commands.opaque_token_names
+    - {"dollar_quote"},
     command_after_block_comment=False,
     dash_dash_comment_at_statement_start=True,
+)
+
+# MariaDB has no dollar-quoted strings: `$` is only an identifier character, so
+# `$$` and `$a$` are names.
+mariadb_dialect.set_lexer_matchers(
+    [
+        matcher
+        for matcher in mariadb_dialect.get_lexer_matchers()
+        if matcher.name not in ("dollar_quote", "dollar_quote_opener")
+    ]
 )
 
 mariadb_dialect.add(

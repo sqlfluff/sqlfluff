@@ -37,6 +37,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    UnlexableSegment,
     WordSegment,
 )
 from sqlfluff.core.parser.client_commands import (
@@ -64,6 +65,19 @@ The dialect for `MySQL <https://www.mysql.com/>`_.""",
 
 mysql_dialect.patch_lexer_matchers(
     [
+        # `$` is an identifier character anywhere in a name, as in `a$b`, `$a`
+        # or `1$`. Only a `$tag$` at the start of a token is something else: it
+        # opens a dollar-quoted string (see `dollar_quote_opener`).
+        RegexLexer("word", r"[0-9a-zA-Z_$]+", WordSegment),
+        # As ANSI's, except that digits followed by `$` are an identifier, as
+        # digits followed by a letter already are: `1$` is a name. A decimal or
+        # an exponent still ends there, so `1.5$x` is `1.5` and the name `$x`.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+(?=[eE][+-]?\d|(?![\w$])))"
+            r"(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
         # `--` starts a comment only with whitespace, or the end of the line,
         # after it; `--x` is two minus signs. At the start of a statement the
         # MariaDB client is looser, which its client command rules cover.
@@ -111,6 +125,14 @@ mysql_dialect.patch_lexer_matchers(
 # statements itself, so its own commands are lexed with its state: see
 # `ClientCommandRules`. Only the commands that matter in scripts are here.
 # https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+# A `$tag$` at the start of a token, with no closing `$tag$` to make it a
+# dollar-quoted string: MySQL reads it as the start of one anyway, so it is never
+# an identifier, and the string never ends.
+mysql_dialect.insert_lexer_matchers(
+    [RegexLexer("dollar_quote_opener", r"\$\w*\$", UnlexableSegment)],
+    before="numeric_literal",
+)
+
 mysql_client_commands = ClientCommandRules(
     commands=(
         ClientCommand(CommandEffect.SET_DELIMITER, name="delimiter", shorthand="\\d"),
@@ -127,6 +149,7 @@ mysql_client_commands = ClientCommandRules(
             "back_quote",
             "inline_comment",
             "block_comment",
+            "dollar_quote",
         }
     ),
     command_after_block_comment=True,
@@ -427,7 +450,7 @@ mysql_dialect.replace(
         Ref("ClientGoSegment"),
     ),
     ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
+        r"`?[A-Za-z0-9_$]*`?", CodeSegment, type="parameter"
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", BinaryOperatorSegment),
@@ -456,7 +479,7 @@ mysql_dialect.replace(
     ),
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
-            r"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_",
+            r"([A-Z0-9_$]*[A-Z$][A-Z0-9_$]*)|_",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
