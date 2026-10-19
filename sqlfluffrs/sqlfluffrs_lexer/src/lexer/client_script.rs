@@ -52,25 +52,25 @@ const SPACE: &[char] = &[' ', '\t', '\u{b}', '\u{c}', '\r'];
 
 /// A command, and its name or short form as written.
 #[derive(Clone, Copy)]
-struct CommandWord<'t> {
+struct CommandWord<'a> {
     command: &'static ClientCommand,
-    word: &'t str,
+    word: &'a str,
 }
 
 /// What comes next in the script, as the client reads it.
-enum Next<'t> {
+enum Next<'a> {
     /// A command that sets the delimiter (`DELIMITER`), at the start of a
     /// line. It takes the line.
-    DelimiterCommand(CommandWord<'t>),
+    DelimiterCommand(CommandWord<'a>),
     /// A command that reads a file (`SOURCE`), at the start of a line that
     /// holds neither the delimiter nor `\g`. The rest of the line is the file
     /// name.
-    SourceLine(CommandWord<'t>),
+    SourceLine(CommandWord<'a>),
     /// A command that reads a file, which the client collects as a statement
     /// before reading it.
-    SourceStatement(CommandWord<'t>),
+    SourceStatement(CommandWord<'a>),
     /// The short form of a command, such as `\d`, `\.` or `\g`.
-    Shorthand(CommandWord<'t>),
+    Shorthand(CommandWord<'a>),
     /// The active delimiter, which ends the statement.
     ActiveDelimiter,
     /// `--` with no whitespace after it, at the start of a statement, where
@@ -81,8 +81,8 @@ enum Next<'t> {
 }
 
 /// A command argument: its text as written, and the value the client reads.
-struct Argument<'t> {
-    raw: &'t str,
+struct Argument<'a> {
+    raw: &'a str,
     value: String,
 }
 
