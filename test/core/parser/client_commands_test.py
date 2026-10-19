@@ -36,8 +36,11 @@ def test_client_commands_long_forms_match_in_any_case():
 
 def test_client_commands_emitted_tokens_never_match():
     """An emitted token kind isn't a matcher."""
+    token = EmittedToken("delimiter_argument", ClientTextSegment)
     with pytest.raises(NotImplementedError):
-        EmittedToken("delimiter_argument", ClientTextSegment).match("anything")
+        token.match("anything")
+    with pytest.raises(NotImplementedError):
+        token.search("anything")
 
 
 def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
@@ -89,6 +92,37 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("client_delimiter", "ééééééé"),
             ],
         ),
+        # `\d` with no argument is refused, and the delimiter kept.
+        (
+            "\\d\nSELECT 1;\n",
+            [
+                ("client_command_shorthand", "\\d"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # A quoted argument with no closing quote runs to the end of the line.
+        (
+            "DELIMITER 'ab\nSELECT 1 ab\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "'ab"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "ab"),
+            ],
+        ),
+        # `\g` right after SOURCE sends `SOURCE` alone to the server.
+        (
+            "SOURCE \\g\n",
+            [("word", "SOURCE"), ("client_command_shorthand", "\\g")],
+        ),
+        # Trailing whitespace isn't part of a file name.
+        (
+            "SOURCE a.sql \t \n",
+            [("word", "SOURCE"), ("source_file_name", "a.sql")],
+        ),
         # After `\d` the client goes on from the first copy of the new
         # delimiter, which here is the argument itself.
         (
@@ -139,16 +173,37 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             ],
         ),
         # With `\g` on its line, SOURCE is collected as a statement, so the
-        # client doesn't read this file name.
+        # client doesn't read this file name. The `\g` sends `SOURCE a.sql`
+        # to the server and ends the statement, so the next line can be a
+        # command.
         (
-            "SOURCE a.sql \\g\n",
-            [("word", "SOURCE"), ("client_command_misread", "a.sql \\g")],
+            "SOURCE a.sql \\g\nDELIMITER $$\nSELECT 1 $$\n",
+            [
+                ("word", "SOURCE"),
+                ("client_command_misread", "a.sql"),
+                ("client_command_shorthand", "\\g"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "$$"),
+            ],
         ),
     ],
 )
 def test_client_commands_lexing(raw: str, expected: list[tuple[str, str]]):
     """Test the tokens the client script lexer makes."""
     assert _tokens(raw) == expected
+
+
+def test_client_commands_unlexable_text():
+    """Text that no matcher takes is unlexable, as in any other dialect."""
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
+    segments, errors = lexer.lex("SELECT 1 \x01;\n")
+    assert [segment.raw for segment in segments if segment.is_type("unlexable")] == [
+        "\x01"
+    ]
+    assert errors
 
 
 def test_client_commands_dash_dash_at_mariadb_statement_start():

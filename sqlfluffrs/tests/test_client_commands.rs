@@ -130,9 +130,20 @@ fn test_source_after_a_delimiter_runs_to_the_next() {
 
 #[test]
 fn test_source_collected_as_a_statement_is_misread() {
+    // `\g` sends `SOURCE a.sql` to the server, which ends the statement, so
+    // the next line can be a command.
     assert_tokens(
-        "SOURCE a.sql \\g\n",
-        &[("word", "SOURCE"), ("client_command_misread", "a.sql \\g")],
+        "SOURCE a.sql \\g\nDELIMITER $$\nSELECT 1 $$\n",
+        &[
+            ("word", "SOURCE"),
+            ("client_command_misread", "a.sql"),
+            ("client_command_shorthand", "\\g"),
+            ("word", "DELIMITER"),
+            ("delimiter_argument", "$$"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("client_delimiter", "$$"),
+        ],
     );
 }
 
@@ -145,11 +156,67 @@ fn test_dash_dash_at_mariadb_statement_start() {
         Some(&("inline_comment".to_string(), "--x".to_string()))
     );
     let mysql = tokens(sql, Dialect::Mysql);
-    let last_three: Vec<&str> = mysql[mysql.len() - 3..]
+    let expected: Vec<(String, String)> = [("minus", "-"), ("minus", "-"), ("word", "x")]
         .iter()
-        .map(|(_, raw)| raw.as_str())
+        .map(|(kind, raw)| (kind.to_string(), raw.to_string()))
         .collect();
-    assert_eq!(last_three, ["-", "-", "x"]);
+    assert_eq!(mysql[mysql.len() - 3..], expected[..]);
+}
+
+#[test]
+fn test_shorthand_delimiter_with_no_argument_is_refused() {
+    assert_tokens(
+        "\\d\nSELECT 1;\n",
+        &[
+            ("client_command_shorthand", "\\d"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+#[test]
+fn test_unclosed_quoted_argument_runs_to_the_end_of_the_line() {
+    assert_tokens(
+        "DELIMITER 'ab\nSELECT 1 ab\n",
+        &[
+            ("word", "DELIMITER"),
+            ("delimiter_argument", "'ab"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("client_delimiter", "ab"),
+        ],
+    );
+}
+
+#[test]
+fn test_shorthand_right_after_source() {
+    assert_tokens(
+        "SOURCE \\g\n",
+        &[("word", "SOURCE"), ("client_command_shorthand", "\\g")],
+    );
+}
+
+#[test]
+fn test_trailing_whitespace_is_not_part_of_a_file_name() {
+    assert_tokens(
+        "SOURCE a.sql \t \n",
+        &[("word", "SOURCE"), ("source_file_name", "a.sql")],
+    );
+}
+
+#[test]
+fn test_unlexable_text() {
+    let (tokens, errors) = Lexer::for_dialect(Dialect::Mysql)
+        .lex(LexInput::String("SELECT 1 \u{1};\n".to_string()), false);
+    let unlexable: Vec<&str> = tokens
+        .iter()
+        .filter(|token| token.is_type(&["unlexable"]))
+        .map(|token| token.raw())
+        .collect();
+    assert_eq!(unlexable, ["\u{1}"]);
+    assert!(!errors.is_empty());
 }
 
 #[test]
@@ -166,7 +233,14 @@ fn test_delimiter_inside_a_dollar_quote() {
     assert_eq!(tokens(sql, Dialect::Mysql)[2..], expected[..]);
 
     // MariaDB has no dollar-quoted strings, so its client finds the delimiter.
-    let mariadb = tokens(sql, Dialect::Mariadb);
-    let raws: Vec<&str> = mariadb[2..6].iter().map(|(_, raw)| raw.as_str()).collect();
-    assert_eq!(raws, ["SELECT", "$js$", "a", ";;"]);
+    let expected: Vec<(String, String)> = [
+        ("word", "SELECT"),
+        ("word", "$js$"),
+        ("word", "a"),
+        ("client_delimiter", ";;"),
+    ]
+    .iter()
+    .map(|(kind, raw)| (kind.to_string(), raw.to_string()))
+    .collect();
+    assert_eq!(tokens(sql, Dialect::Mariadb)[2..6], expected[..]);
 }

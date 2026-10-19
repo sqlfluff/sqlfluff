@@ -259,17 +259,26 @@ impl<'a> ClientScriptLexer<'a> {
     ///
     /// That happens when its line holds the delimiter or `\g`, or when it
     /// follows a delimiter earlier on the line. The statement runs to the
-    /// delimiter, and any backslash in it runs as a client command first.
+    /// delimiter. A short command in it runs as the client reaches it, so it
+    /// is lexed as a command after the text before it: `SOURCE a.sql \g`
+    /// sends `SOURCE a.sql` to the server, and the statement ends there.
     fn lex_source_statement(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, self.word_matcher);
-        match argument.find(self.delimiter.as_str()) {
-            Some(end) if !argument[..end].contains('\\') => self.file_name(&argument[..end]),
-            // A backslash in the statement ran as a command: the client
-            // doesn't open the file this names.
-            Some(end) => self.emit_misread(&argument[..end]),
-            // The statement runs on past this line.
+        match self.first_break(argument) {
+            // The statement runs on past this line, so the client doesn't
+            // open the file this names.
             None => self.emit_misread(argument),
+            Some(end)
+                if argument[end..].starts_with(self.delimiter.as_str())
+                    && !argument[..end].contains('\\') =>
+            {
+                self.file_name(&argument[..end]);
+            }
+            // A short command comes first, or a backslash before the
+            // delimiter ran as a command: the client doesn't open the file
+            // this names.
+            Some(end) => self.emit_misread(&argument[..end]),
         }
     }
 
@@ -486,11 +495,30 @@ impl<'a> ClientScriptLexer<'a> {
         self.emit(&text[start + content.len()..], self.whitespace_matcher);
     }
 
-    /// Text the client misreads, after any whitespace before it.
+    /// Text the client misreads, between any whitespace around it.
     fn emit_misread(&mut self, text: &'a str) {
-        let trimmed = text.trim_start_matches(SPACE);
-        self.emit(&text[..text.len() - trimmed.len()], self.whitespace_matcher);
-        self.emit(trimmed, &CLIENT_COMMAND_MISREAD);
+        let content = text.trim_matches(SPACE);
+        if content.is_empty() {
+            self.emit(text, self.whitespace_matcher);
+            return;
+        }
+        let start = text.len() - text.trim_start_matches(SPACE).len();
+        self.emit(&text[..start], self.whitespace_matcher);
+        self.emit(content, &CLIENT_COMMAND_MISREAD);
+        self.emit(&text[start + content.len()..], self.whitespace_matcher);
+    }
+
+    /// Where the client finds the delimiter or a short command in `text`.
+    fn first_break(&self, text: &str) -> Option<usize> {
+        let shorthands = self
+            .rules
+            .commands
+            .iter()
+            .filter_map(|command| command.shorthand);
+        std::iter::once(self.delimiter.as_str())
+            .chain(shorthands)
+            .filter_map(|needle| text.find(needle))
+            .min()
     }
 
     /// The text from here to the end of the line, without the line break.

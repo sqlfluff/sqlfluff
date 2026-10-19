@@ -345,17 +345,24 @@ class ClientScriptLexer:
 
         That happens when its line holds the delimiter or `\g`, or when it
         follows a delimiter earlier on the line. The statement runs to the
-        delimiter, and any backslash in it runs as a client command first.
+        delimiter. A short command in it runs as the client reaches it, so it
+        is lexed as a command after the text before it: `SOURCE a.sql \g`
+        sends `SOURCE a.sql` to the server, and the statement ends there.
         """
         argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, self._word_matcher)
-        end = argument.find(self._delimiter)
-        if end < 0 or "\\" in argument[:end]:
-            # The statement runs on past this line, or a backslash in it ran
-            # as a command: the client doesn't open the file this names.
-            self._emit_misread(argument if end < 0 else argument[:end])
-        else:
+        end = self._first_break(argument)
+        if end is None:
+            # The statement runs on past this line, so the client doesn't
+            # open the file this names.
+            self._emit_misread(argument)
+        elif argument.startswith(self._delimiter, end) and "\\" not in argument[:end]:
             self._file_name(argument[:end])
+        else:
+            # A short command comes first, or a backslash before the
+            # delimiter ran as a command: the client doesn't open the file
+            # this names.
+            self._emit_misread(argument[:end])
 
     def _lex_shorthand(self, found: _CommandWord) -> None:
         """A short-form command and its argument."""
@@ -543,10 +550,26 @@ class ClientScriptLexer:
         self._emit(text[start + len(content) :], self._whitespace_matcher)
 
     def _emit_misread(self, text: str) -> None:
-        """Text the client misreads, after any whitespace before it."""
-        gap = len(text) - len(text.lstrip(_SPACE))
-        self._emit(text[:gap], self._whitespace_matcher)
-        self._emit(text[gap:], CLIENT_COMMAND_MISREAD)
+        """Text the client misreads, between any whitespace around it."""
+        content = text.strip(_SPACE)
+        if not content:
+            self._emit(text, self._whitespace_matcher)
+            return
+        start = text.index(content[0])
+        self._emit(text[:start], self._whitespace_matcher)
+        self._emit(content, CLIENT_COMMAND_MISREAD)
+        self._emit(text[start + len(content) :], self._whitespace_matcher)
+
+    def _first_break(self, text: str) -> Optional[int]:
+        """Where the client finds the delimiter or a short command in `text`."""
+        needles = [self._delimiter]
+        needles.extend(
+            command.shorthand for command in self._rules.commands if command.shorthand
+        )
+        found = [
+            index for index in (text.find(needle) for needle in needles) if index >= 0
+        ]
+        return min(found, default=None)
 
     def _rest_of_line(self) -> str:
         """The text from here to the end of the line, without the line break."""
