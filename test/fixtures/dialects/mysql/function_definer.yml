@@ -3,9 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b31461814bbee32ec5bce8e47dc6b98418ed70b0053d4eb3149afdf2c6ec0b5
+_hash: c139c2edfcbeec218f9b929c02c46dae5ecc9492fdae30f0f6b649818a7f644a
 file:
-  statement:
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: '~'
+- statement:
     create_function_statement:
     - keyword: CREATE
     - definer_segment:
@@ -40,4 +43,7 @@ file:
                     numeric_literal: '1'
             statement_terminator: ;
         - keyword: END
-  statement_terminator: '~'
+- statement_terminator: '~'
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;

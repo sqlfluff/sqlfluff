@@ -39,6 +39,11 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.client_commands import (
+    ClientCommand,
+    ClientCommandRules,
+    CommandEffect,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
@@ -59,9 +64,12 @@ The dialect for `MySQL <https://www.mysql.com/>`_.""",
 
 mysql_dialect.patch_lexer_matchers(
     [
+        # `--` starts a comment only with whitespace, or the end of the line,
+        # after it; `--x` is two minus signs. At the start of a statement the
+        # MariaDB client is looser, which its client command rules cover.
         RegexLexer(
             "inline_comment",
-            r"(^--|-- |#)[^\n]*",
+            r"(--(?=\s|$)|#)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("--", "#")},
         ),
@@ -98,6 +106,33 @@ mysql_dialect.patch_lexer_matchers(
         ),
     ]
 )
+
+# The mysql command-line client reads a script line by line and splits it into
+# statements itself, so its own commands are lexed with its state: see
+# `ClientCommandRules`. Only the commands that matter in scripts are here.
+# https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+mysql_client_commands = ClientCommandRules(
+    commands=(
+        ClientCommand(CommandEffect.SET_DELIMITER, name="delimiter", shorthand="\\d"),
+        ClientCommand(CommandEffect.READ_FILE, name="source", shorthand="\\."),
+        # The long forms `go` and `ego` only count at the start of a statement,
+        # where there is nothing to send, so only the short forms are here.
+        ClientCommand(CommandEffect.END_STATEMENT, shorthand="\\g"),
+        ClientCommand(CommandEffect.END_STATEMENT, shorthand="\\G"),
+    ),
+    opaque_token_names=frozenset(
+        {
+            "single_quote",
+            "double_quote",
+            "back_quote",
+            "inline_comment",
+            "block_comment",
+        }
+    ),
+    command_after_block_comment=True,
+    dash_dash_comment_at_statement_start=False,
+)
+mysql_dialect.client_commands = mysql_client_commands
 
 mysql_dialect.insert_lexer_matchers(
     [
@@ -384,8 +419,13 @@ mysql_dialect.replace(
     ),
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
-    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
+    # A statement ends at `;`, at another delimiter set with `DELIMITER`, or at
+    # `\g` or `\G`.
+    DelimiterGrammar=OneOf(
+        Ref("SemicolonSegment"),
+        Ref("ClientDelimiterSegment"),
+        Ref("ClientGoSegment"),
+    ),
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
     ),
@@ -432,6 +472,19 @@ mysql_dialect.replace(
 )
 
 mysql_dialect.add(
+    ClientDelimiterSegment=TypedParser(
+        "client_delimiter", SymbolSegment, type="statement_terminator"
+    ),
+    # `\g` and `\G` (raw_upper of both).
+    ClientGoSegment=StringParser("\\G", SymbolSegment, type="statement_terminator"),
+    # A client command ends with its line, so needs no delimiter after it.
+    ClientCommandIgnoredSegment=TypedParser(
+        "client_command_ignored", CodeSegment, type="client_command_ignored"
+    ),
+    ClientCommandGrammar=OneOf(
+        Ref("DelimiterStatement"),
+        Ref("SourceStatementSegment"),
+    ),
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         LiteralSegment,
@@ -1899,7 +1952,6 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
-            Ref("DelimiterStatement"),
             Ref("CompoundStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
@@ -1956,11 +2008,83 @@ class StatementSegment(ansi.StatementSegment):
 
 
 class DelimiterStatement(BaseSegment):
-    """DELIMITER statement."""
+    r"""A `DELIMITER` (or `\d`) client command, which sets the delimiter.
+
+    The lexer reads the argument and keeps track of the delimiter it sets (see
+    `ClientCommandRules`). Anything after the argument on its line is ignored by
+    the client.
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+    """
 
     type = "delimiter_statement"
 
-    match_grammar = Ref.keyword("DELIMITER")
+    match_grammar = Sequence(
+        OneOf(
+            "DELIMITER",
+            StringParser("\\D", SymbolSegment, type="client_command_shorthand"),
+        ),
+        TypedParser("delimiter_argument", CodeSegment, type="delimiter_argument"),
+        Ref("ClientCommandIgnoredSegment", optional=True),
+    )
+
+
+class SourceStatementSegment(BaseSegment):
+    r"""A `SOURCE` (or `\.`) client command, which runs another script.
+
+    The lexer reads the file name the way the client does (see
+    `ClientCommandRules`).
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-batch-commands.html
+    """
+
+    type = "source_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            "SOURCE",
+            StringParser("\\.", SymbolSegment, type="client_command_shorthand"),
+        ),
+        TypedParser("source_file_name", CodeSegment, type="source_file_name"),
+        Ref("ClientCommandIgnoredSegment", optional=True),
+    )
+
+
+class FileSegment(ansi.FileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+
+    Overrides ANSI so that client commands, which end with their line, need no
+    delimiter after them.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        AnyNumberOf(
+            Sequence(
+                Ref("ClientCommandGrammar"),
+                AnyNumberOf(Ref("DelimiterGrammar")),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("StatementSegment"),
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_gaps=True,
+                ),
+                AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            ),
+        ),
+        # The last statement in the file may have no delimiter.
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            optional=True,
+        ),
+    )
 
 
 class CreateProcedureStatementSegment(BaseSegment):

@@ -3,6 +3,8 @@
 https://mariadb.com/kb/en/sql-statements-structure/
 """
 
+from dataclasses import replace
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -52,6 +54,15 @@ mariadb_dialect.update_keywords_set_from_multiline_string(
 # `_gb18030` with an alias.
 # https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/supported-character-sets-and-collations
 mariadb_dialect.sets("character_set_names").discard("GB18030")
+
+# The mariadb client takes no comment before a command on the same line, and
+# takes any line starting with `--` at the start of a statement as a comment,
+# even with no whitespace after it.
+mariadb_dialect.client_commands = replace(
+    mysql.mysql_client_commands,
+    command_after_block_comment=False,
+    dash_dash_comment_at_statement_start=True,
+)
 
 mariadb_dialect.add(
     # A value in the LIMIT of GROUP_CONCAT and JSON_ARRAYAGG.
