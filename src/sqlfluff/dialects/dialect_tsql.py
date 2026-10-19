@@ -4933,7 +4933,7 @@ class WithinGroupClause(BaseSegment):
         ),
         Sequence(
             "OVER",
-            Bracketed(Ref("PartitionClauseSegment")),
+            Bracketed(Ref("PartitionClauseSegment", optional=True)),
             optional=True,
         ),
     )
