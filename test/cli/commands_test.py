@@ -416,6 +416,34 @@ def test__cli__command_stdin_filename_config(
 
 
 @pytest.mark.parametrize(
+    ("command", "ret_code", "stdout"),
+    [
+        (lint, 1, "LT01"),
+        (fix, 0, "SELECT a FROM tbl\n"),
+        (cli_format, 0, "SELECT a FROM tbl\n"),
+    ],
+)
+def test__cli__command_stdin_filename_disregard_sqlfluffignores(
+    command, ret_code, stdout
+):
+    """Check --disregard-sqlfluffignores is respected for an ignored stdin file."""
+    invoke_assert_code(
+        ret_code=ret_code,
+        args=[
+            command,
+            [
+                "--disregard-sqlfluffignores",
+                "--stdin-filename",
+                "test/fixtures/cli/stdin_filename/ignored.sql",
+                "-",
+            ],
+        ],
+        cli_input="SELECT a  FROM tbl\n",
+        assert_stdout_contains=stdout,
+    )
+
+
+@pytest.mark.parametrize(
     "command",
     [
         (

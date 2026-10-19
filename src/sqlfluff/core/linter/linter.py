@@ -1107,6 +1107,7 @@ class Linter:
         fname: str = "<string input>",
         fix: bool = False,
         stdin_filename: Optional[str] = None,
+        ignore_files: bool = True,
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
@@ -1116,7 +1117,10 @@ class Linter:
             # may be desired.
             sql_exts = ("",)
             for _ in paths_from_path(
-                stdin_filename, target_file_exts=sql_exts, check_non_existent_file=True
+                stdin_filename,
+                ignore_files=ignore_files,
+                target_file_exts=sql_exts,
+                check_non_existent_file=True,
             ):
                 linted_path.add(self.lint_string(string, fname=fname, fix=fix))
                 # Only return the first item, as stdin should only be one

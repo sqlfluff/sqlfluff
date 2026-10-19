@@ -805,7 +805,10 @@ def lint(
                     stdin_filename, require_dialect=False
                 )
             result = lnt.lint_string_wrapped(
-                sys.stdin.read(), fname="stdin", stdin_filename=stdin_filename
+                sys.stdin.read(),
+                fname="stdin",
+                stdin_filename=stdin_filename,
+                ignore_files=not disregard_sqlfluffignores,
             )
         else:
             result = lnt.lint_paths(
@@ -1201,13 +1204,18 @@ def _stdin_fix(
     formatter: OutputStreamFormatter,
     fix_even_unparsable: bool,
     stdin_filename: Optional[str] = None,
+    ignore_files: bool = True,
 ) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
 
     result = linter.lint_string_wrapped(
-        stdin, fname="stdin", fix=True, stdin_filename=stdin_filename
+        stdin,
+        fname="stdin",
+        fix=True,
+        stdin_filename=stdin_filename,
+        ignore_files=ignore_files,
     )
     templater_error = result.num_violations(types=SQLTemplaterError) > 0
     unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
@@ -1510,7 +1518,13 @@ def fix(
                 lnt.config = lnt.config.make_child_from_path(
                     stdin_filename, require_dialect=False
                 )
-            _stdin_fix(lnt, formatter, fix_even_unparsable, stdin_filename)
+            _stdin_fix(
+                lnt,
+                formatter,
+                fix_even_unparsable,
+                stdin_filename,
+                ignore_files=not disregard_sqlfluffignores,
+            )
         else:
             _paths_fix(
                 lnt,
@@ -1637,7 +1651,11 @@ def cli_format(
                     stdin_filename, require_dialect=False
                 )
             _stdin_fix(
-                lnt, formatter, fix_even_unparsable=False, stdin_filename=stdin_filename
+                lnt,
+                formatter,
+                fix_even_unparsable=False,
+                stdin_filename=stdin_filename,
+                ignore_files=not disregard_sqlfluffignores,
             )
         else:
             _paths_fix(
