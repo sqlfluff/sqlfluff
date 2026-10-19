@@ -1589,3 +1589,17 @@ test_fail_alias_matches_collation_in_named_window:
   configs:
     core:
       dialect: postgres
+
+test_fail_alias_matches_collation_reference_in_named_window_mysql:
+  # MySQL parses the COLLATE operand as a collation_reference.
+  fail_str: |
+    SELECT SUM(y) OVER w
+    FROM a AS c
+    WINDOW w AS (ORDER BY x COLLATE c)
+  fix_str: |
+    SELECT SUM(y) OVER w
+    FROM a
+    WINDOW w AS (ORDER BY x COLLATE c)
+  configs:
+    core:
+      dialect: mysql
