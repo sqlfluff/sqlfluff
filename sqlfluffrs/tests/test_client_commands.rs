@@ -97,6 +97,23 @@ fn test_dash_dash_before_statement_end_is_a_comment() {
 }
 
 #[test]
+fn test_tokens_end_where_the_server_text_ends() {
+    assert_tokens(
+        "DELIMITER go\nSELECT 1.go\nSELECT .5go\n",
+        &[
+            ("word", "DELIMITER"),
+            ("delimiter_argument", "go"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1."),
+            ("client_delimiter", "go"),
+            ("word", "SELECT"),
+            ("numeric_literal", ".5"),
+            ("client_delimiter", "go"),
+        ],
+    );
+}
+
+#[test]
 fn test_source_after_a_delimiter_runs_to_the_next() {
     assert_tokens(
         "SELECT 1; SOURCE b.sql;\n",

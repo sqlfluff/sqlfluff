@@ -330,6 +330,8 @@ def test_mariadb_no_comment_before_a_client_command(raw: str) -> None:
         "SELECT 1 AS $1$;\n",
         "SELECT 1 AS $$a;\n",
         "SELECT 1 AS $a$b;\n",
+        # The client opens the quote before it finds the delimiter `$$`.
+        "DELIMITER $$\nSELECT $a$$\n",
     ],
 )
 def test_mysql_dollar_quote_opener_is_not_a_name(raw: str) -> None:

@@ -82,10 +82,10 @@ class ClientCommandRules:
                 return command
         return None
 
-    def command_starting(self, text: str) -> Optional[ClientCommand]:
-        """The command whose short form starts `text`."""
+    def command_starting(self, text: str, pos: int = 0) -> Optional[ClientCommand]:
+        """The command whose short form starts at `pos` in `text`."""
         for command in self.commands:
-            if command.shorthand and text.startswith(command.shorthand):
+            if command.shorthand and text.startswith(command.shorthand, pos):
                 return command
         return None
 
@@ -148,14 +148,34 @@ class _Argument(NamedTuple):
     value: str
 
 
+class _NextPlace:
+    """Where a text next appears in the script, found again once lexing passes it.
+
+    Each search runs on from the last place found, so the whole script is
+    searched about once.
+    """
+
+    def __init__(self, needle: str) -> None:
+        self._needle = needle
+        self._at = 0
+
+    def after(self, text: str, pos: int) -> int:
+        """The first place after `pos` where the text appears, or the end of `text`."""
+        if self._at <= pos:
+            found = text.find(self._needle, pos + 1)
+            self._at = found if found >= 0 else len(text)
+        return self._at
+
+
 class ClientScriptScanner:
     """Lexes a script with the state of the client that runs it.
 
     The state is the active delimiter, whether the client is at the start of a
     statement (nothing but whitespace and comments since the last delimiter),
     and whether it is at the start of a line. Commands are lexed here. All
-    other text is lexed by the dialect's matchers, cut short where the client
-    would find the delimiter or a short command inside what they match.
+    other text is lexed by the dialect's matchers, from the text the server
+    gets: the statement ends where the client finds the delimiter or a short
+    command.
     """
 
     def __init__(
@@ -178,6 +198,12 @@ class ClientScriptScanner:
         self._pos = 0
         self._elements: list[LexedElement] = []
         self._delimiter = self._rules.default_delimiter
+        self._delimiter_place = _NextPlace(self._delimiter)
+        self._shorthand_places = [
+            _NextPlace(command.shorthand)
+            for command in self._rules.commands
+            if command.shorthand
+        ]
         self._statement_start = True
         self._line_start = True
 
@@ -191,8 +217,6 @@ class ClientScriptScanner:
             if self._statement_start and self._statement_command():
                 continue
             if self._statement_start and self._statement_start_comment():
-                continue
-            if self._comment_at_statement_end():
                 continue
             self._ordinary_token()
         return self._elements
@@ -250,7 +274,7 @@ class ClientScriptScanner:
 
     def _shorthand_command(self) -> bool:
         """A short-form command, which counts anywhere outside comments and strings."""
-        command = self._rules.command_starting(self._text[self._pos :])
+        command = self._rules.command_starting(self._text, self._pos)
         if command is None or command.shorthand is None:
             return False
         line = self._rest_of_line()
@@ -297,37 +321,22 @@ class ClientScriptScanner:
         )
         return True
 
-    def _comment_at_statement_end(self) -> bool:
-        r"""`--` right before the delimiter, `\g` or `\G`.
-
-        The client ends the statement there, so the server finds the `--` at
-        the end of its input, where it is a comment.
-        """
-        if not self._text.startswith("--", self._pos):
-            return False
-        after = self._text[self._pos + 2 :]
-        command = self._rules.command_starting(after)
-        ends_here = after.startswith(self._delimiter) or (
-            command is not None and command.effect is CommandEffect.END_STATEMENT
-        )
-        if not ends_here:
-            return False
-        self._emit("--", self._inline_comment_matcher)
-        return True
-
     def _ordinary_token(self) -> None:
         """One token, lexed by the dialect's matchers.
 
-        A match the client scans through is cut where the client finds the
-        delimiter or a short command inside it, and lexed again up to there.
+        The client looks for the delimiter and short commands everywhere but
+        in the tokens it scans through (strings and comments). Any other
+        token is lexed again from the text the server gets, which ends at the
+        next one of those. So `1.go` with `go` active is `1.`, and `--$$`
+        with `$$` active is a comment, as `--` at the end of the server's
+        input is.
         """
         rest = self._text[self._pos :]
         elements = self._match(rest)
         if elements[0].matcher.name not in self._rules.opaque_token_names:
-            length = sum(len(element.raw) for element in elements)
-            cut = self._first_break(rest, length)
-            if cut is not None:
-                elements = self._match(rest[:cut])
+            end = self._statement_end() - self._pos
+            if end < len(rest):
+                elements = self._match(rest[:end])
         for element in elements:
             self._emit(element.raw, element.matcher)
 
@@ -341,16 +350,10 @@ class ClientScriptScanner:
             raise SQLLexError(f"Fatal. Unable to lex characters: {text[:10]!r}")
         return result.elements
 
-    def _first_break(self, text: str, length: int) -> Optional[int]:
-        """Where the client finds the delimiter or a short command in `text[1:length]`."""
-        breaks = [text.find(self._delimiter, 1, length)]
-        breaks.extend(
-            text.find(command.shorthand, 1, length)
-            for command in self._rules.commands
-            if command.shorthand
-        )
-        found = [index for index in breaks if index > 0]
-        return min(found) if found else None
+    def _statement_end(self) -> int:
+        """Where the client next finds the delimiter or a short command, after here."""
+        places = [self._delimiter_place, *self._shorthand_places]
+        return min(place.after(self._text, self._pos) for place in places)
 
     def _delimiter_argument(self, argument: str) -> str:
         """Lex the argument of `DELIMITER` and set the delimiter from it.
@@ -373,6 +376,7 @@ class ClientScriptScanner:
         else:
             self._emit(parsed.raw, DELIMITER_ARGUMENT)
             self._delimiter = delimiter
+            self._delimiter_place = _NextPlace(delimiter)
         return trimmed[len(parsed.raw) :]
 
     def _shorthand_delimiter_argument(self, argument: str) -> None:

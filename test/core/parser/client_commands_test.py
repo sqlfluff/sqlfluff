@@ -111,6 +111,21 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("client_command_shorthand", "\\g"),
             ],
         ),
+        # A token is lexed from the text the server gets, which ends at the
+        # delimiter: `1.` and `.5` are numbers.
+        (
+            "DELIMITER go\nSELECT 1.go\nSELECT .5go\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "go"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1."),
+                ("client_delimiter", "go"),
+                ("word", "SELECT"),
+                ("numeric_literal", ".5"),
+                ("client_delimiter", "go"),
+            ],
+        ),
         # After a delimiter on the same line, SOURCE runs to the next one.
         (
             "SELECT 1; SOURCE b.sql;\n",

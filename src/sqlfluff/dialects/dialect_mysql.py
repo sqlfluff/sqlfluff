@@ -150,6 +150,7 @@ mysql_client_commands = ClientCommandRules(
             "inline_comment",
             "block_comment",
             "dollar_quote",
+            "dollar_quote_opener",
         }
     ),
     command_after_block_comment=True,

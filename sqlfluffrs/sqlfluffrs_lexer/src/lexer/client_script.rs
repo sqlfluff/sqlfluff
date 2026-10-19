@@ -63,13 +63,45 @@ struct Argument<'t> {
     value: String,
 }
 
+/// Where a text next appears in the script, found again once lexing passes
+/// it.
+///
+/// Each search runs on from the last place found, so the whole script is
+/// searched about once.
+struct NextPlace {
+    needle: String,
+    at: usize,
+}
+
+impl NextPlace {
+    fn new(needle: &str) -> Self {
+        Self {
+            needle: needle.to_string(),
+            at: 0,
+        }
+    }
+
+    /// The first place after `pos` where the text appears, or the end of
+    /// `text`.
+    fn after(&mut self, text: &str, pos: usize) -> usize {
+        if self.at <= pos {
+            let from = pos + text[pos..].chars().next().map_or(0, char::len_utf8);
+            self.at = text[from..]
+                .find(self.needle.as_str())
+                .map_or(text.len(), |index| from + index);
+        }
+        self.at
+    }
+}
+
 /// Lexes a script with the state of the client that runs it.
 ///
 /// The state is the active delimiter, whether the client is at the start of a
 /// statement (nothing but whitespace and comments since the last delimiter),
 /// and whether it is at the start of a line. Commands are lexed here. All
-/// other text is lexed by the dialect's matchers, cut short where the client
-/// would find the delimiter or a short command inside what they match.
+/// other text is lexed by the dialect's matchers, from the text the server
+/// gets: the statement ends where the client finds the delimiter or a short
+/// command.
 pub(super) struct ClientScriptScanner<'a> {
     rules: &'static ClientCommandRules,
     lexer: &'a Lexer,
@@ -80,6 +112,8 @@ pub(super) struct ClientScriptScanner<'a> {
     pos: usize,
     elements: Vec<LexedElement<'a>>,
     delimiter: String,
+    delimiter_place: NextPlace,
+    shorthand_places: Vec<NextPlace>,
     statement_start: bool,
     line_start: bool,
 }
@@ -103,6 +137,13 @@ impl<'a> ClientScriptScanner<'a> {
             pos: 0,
             elements: Vec::with_capacity(text.len()),
             delimiter: rules.default_delimiter.to_string(),
+            delimiter_place: NextPlace::new(rules.default_delimiter),
+            shorthand_places: rules
+                .commands
+                .iter()
+                .filter_map(|command| command.shorthand)
+                .map(NextPlace::new)
+                .collect(),
             statement_start: true,
             line_start: true,
         }
@@ -124,9 +165,6 @@ impl<'a> ClientScriptScanner<'a> {
                 continue;
             }
             if self.statement_start && self.statement_start_comment() {
-                continue;
-            }
-            if self.comment_at_statement_end() {
                 continue;
             }
             self.ordinary_token();
@@ -250,38 +288,21 @@ impl<'a> ClientScriptScanner<'a> {
         true
     }
 
-    /// `--` right before the delimiter, `\g` or `\G`.
-    ///
-    /// The client ends the statement there, so the server finds the `--` at
-    /// the end of its input, where it is a comment.
-    fn comment_at_statement_end(&mut self) -> bool {
-        let rest = &self.text[self.pos..];
-        let Some(after) = rest.strip_prefix("--") else {
-            return false;
-        };
-        let ends_here = after.starts_with(self.delimiter.as_str())
-            || self
-                .rules
-                .command_starting(after)
-                .is_some_and(|command| command.effect == CommandEffect::EndStatement);
-        if !ends_here {
-            return false;
-        }
-        self.emit(&rest[..2], self.inline_comment_matcher);
-        true
-    }
-
     /// One token, lexed by the dialect's matchers.
     ///
-    /// A match the client scans through is cut where the client finds the
-    /// delimiter or a short command inside it, and lexed again up to there.
+    /// The client looks for the delimiter and short commands everywhere but
+    /// in the tokens it scans through (strings and comments). Any other
+    /// token is lexed again from the text the server gets, which ends at the
+    /// next one of those. So `1.go` with `go` active is `1.`, and `--$$`
+    /// with `$$` active is a comment, as `--` at the end of the server's
+    /// input is.
     fn ordinary_token(&mut self) {
         let rest = &self.text[self.pos..];
         let mut elements = self.match_text(rest);
         if !self.rules.is_opaque(&elements[0].matcher.name) {
-            let length = elements.iter().map(|element| element.raw.len()).sum();
-            if let Some(cut) = self.first_break(rest, length) {
-                elements = self.match_text(&rest[..cut]);
+            let end = self.statement_end() - self.pos;
+            if end < rest.len() {
+                elements = self.match_text(&rest[..end]);
             }
         }
         for element in elements {
@@ -300,21 +321,14 @@ impl<'a> ClientScriptScanner<'a> {
         elements
     }
 
-    /// Where the client finds the delimiter or a short command in `text`
-    /// after its first character and before `length`.
-    fn first_break(&self, text: &str, length: usize) -> Option<usize> {
-        let first = text.chars().next().map_or(0, char::len_utf8);
-        let searched = &text[first..length];
-        let shorthands = self
-            .rules
-            .commands
-            .iter()
-            .filter_map(|command| command.shorthand);
-        std::iter::once(self.delimiter.as_str())
-            .chain(shorthands)
-            .filter_map(|needle| searched.find(needle))
-            .min()
-            .map(|index| index + first)
+    /// Where the client next finds the delimiter or a short command, after
+    /// here.
+    fn statement_end(&mut self) -> usize {
+        let delimiter_end = self.delimiter_place.after(self.text, self.pos);
+        self.shorthand_places
+            .iter_mut()
+            .map(|place| place.after(self.text, self.pos))
+            .fold(delimiter_end, usize::min)
     }
 
     /// Lex the argument of `DELIMITER` and set the delimiter from it.
@@ -338,6 +352,7 @@ impl<'a> ClientScriptScanner<'a> {
         match self.accepted_delimiter(&argument.value) {
             Some(delimiter) => {
                 self.emit(argument.raw, &DELIMITER_ARGUMENT);
+                self.delimiter_place = NextPlace::new(&delimiter);
                 self.delimiter = delimiter;
             }
             None => self.emit(argument.raw, &CLIENT_COMMAND_MISREAD),
