@@ -7,6 +7,7 @@ from collections.abc import Callable
 from typing import Optional, Union
 
 from sqlfluff.core.dialects import dialect_selector
+from sqlfluff.core.parser.client_commands import CommandEffect
 from sqlfluff.core.parser.lexer import LexerType
 
 
@@ -38,6 +39,54 @@ def generate_lexer(dialect: str):
     for matcher in loaded_dialect.get_lexer_matchers():
         print(f"{_as_rust_lexer_matcher(matcher, dialect.capitalize())},")
     print("]});")
+
+
+def _rust_str(value: str) -> str:
+    """A Rust string literal for `value`, which must be printable ASCII."""
+    assert value.isascii() and value.isprintable(), value
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+def _rust_option_str(value: Optional[str]) -> str:
+    return "None" if value is None else f"Some({_rust_str(value)})"
+
+
+def generate_client_commands(dialect: str):
+    """Generate the dialect's client command rules, if it has any.
+
+    See `sqlfluff.core.parser.client_commands`.
+    """
+    rules = dialect_selector(dialect).client_commands
+    name = f"{dialect.upper()}_CLIENT_COMMANDS"
+    rules_type = "sqlfluffrs_types::ClientCommandRules"
+    if rules is None:
+        print(f"pub static {name}: Option<{rules_type}> = None;")
+        return
+    effects = {
+        CommandEffect.SET_DELIMITER: "SetDelimiter",
+        CommandEffect.READ_FILE: "ReadFile",
+        CommandEffect.END_STATEMENT: "EndStatement",
+    }
+    print(f"pub static {name}: Option<{rules_type}> = Some({rules_type} {{")
+    print("    commands: &[")
+    for command in rules.commands:
+        print(
+            "        sqlfluffrs_types::ClientCommand {"
+            f" effect: sqlfluffrs_types::CommandEffect::{effects[command.effect]},"
+            f" name: {_rust_option_str(command.name)},"
+            f" shorthand: {_rust_option_str(command.shorthand)} }},"
+        )
+    print("    ],")
+    opaque = ", ".join(_rust_str(n) for n in sorted(rules.opaque_token_names))
+    print(f"    opaque_token_names: &[{opaque}],")
+    after_comment = str(rules.command_after_block_comment).lower()
+    print(f"    command_after_block_comment: {after_comment},")
+    dash_dash = str(rules.dash_dash_comment_at_statement_start).lower()
+    print(f"    dash_dash_comment_at_statement_start: {dash_dash},")
+    print(f"    default_delimiter: {_rust_str(rules.default_delimiter)},")
+    print(f"    max_delimiter_bytes: {rules.max_delimiter_bytes},")
+    print("});")
 
 
 def generate_bracket_pairs(dialect: str):
@@ -290,5 +339,7 @@ if __name__ == "__main__":
     generate_lexer(args.dialect)
     print()
     generate_bracket_pairs(args.dialect)
+    print()
+    generate_client_commands(args.dialect)
     print()
     generate_extract_nested_block_comments(args.dialect)

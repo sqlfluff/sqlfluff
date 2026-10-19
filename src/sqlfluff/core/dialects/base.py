@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     StringParser,
 )
+from sqlfluff.core.parser.client_commands import ClientCommandRules
 from sqlfluff.core.parser.grammar.base import BaseGrammar, Nothing
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
@@ -30,6 +31,7 @@ class Dialect:
         name: str,
         root_segment_name: str,
         lexer_matchers: Optional[list[LexerType]] = None,
+        client_commands: Optional[ClientCommandRules] = None,
         library: Optional[dict[str, DialectElementType]] = None,
         sets: Optional[dict[str, set[Union[str, BracketPairTuple]]]] = None,
         inherits_from: Optional[str] = None,
@@ -39,6 +41,7 @@ class Dialect:
         self._library = library or {}
         self.name = name
         self.lexer_matchers = lexer_matchers
+        self.client_commands = client_commands
         self.expanded = False
         self._sets = sets or {}
         self.inherits_from = inherits_from
@@ -157,6 +160,7 @@ class Dialect:
             name=name,
             library=self._library.copy(),
             lexer_matchers=self.lexer_matchers.copy(),
+            client_commands=self.client_commands,
             sets=new_sets,
             inherits_from=self.name,
             root_segment_name=self.root_segment_name,

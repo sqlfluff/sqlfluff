@@ -1,3 +1,4 @@
+pub mod client_commands;
 pub mod config;
 pub mod grammar_api;
 pub mod grammar_inst;
@@ -11,6 +12,7 @@ pub mod slice;
 pub mod string;
 pub mod templater;
 pub mod token;
+pub use client_commands::{ClientCommand, ClientCommandRules, CommandEffect};
 pub use config::fluffconfig::FluffConfig;
 pub use grammar_api::{patterns as grammar_patterns, GrammarContext};
 pub use grammar_inst::{GrammarFlags, GrammarId, GrammarInst, GrammarVariant};

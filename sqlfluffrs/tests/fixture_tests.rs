@@ -37,7 +37,7 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let dialect_obj =
             sqlfluffrs_dialects::Dialect::from_str(&test.dialect).expect("Invalid dialect");
         let input = sqlfluffrs_lexer::LexInput::String(sql_content.clone());
-        let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect_obj.get_lexers().to_vec());
+        let lexer = sqlfluffrs_lexer::Lexer::for_dialect(dialect_obj);
         let (tokens, lex_errors) = lexer.lex(input, false);
         assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
         let mut parser = sqlfluffrs_parser::parser::Parser::new_with_max_parse_depth(
@@ -502,7 +502,7 @@ impl FixtureTest {
 
         let input = LexInput::String(sql_content.clone());
         // Use the correct lexers for the dialect
-        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        let lexer = Lexer::for_dialect(dialect);
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {
