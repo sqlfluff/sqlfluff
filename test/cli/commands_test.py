@@ -3324,3 +3324,26 @@ def test__cli__command_fix_large_file_skip_fail(tmpdir):
         ret_code=1,
         args=[fix, ["--config", config_path, sql_path]],
     )
+
+
+@pytest.mark.parametrize("serializer", ["json", "yaml", "github-annotation"])
+def test__cli__command_lint_bench_machine_readable_stdout(serializer):
+    """--bench timings must not corrupt machine-readable stdout.
+
+    See https://github.com/sqlfluff/sqlfluff/issues/8490.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        lint,
+        ["--format", serializer, "--bench", "--dialect", "ansi", "-"],
+        input="select 1\n",
+    )
+    assert result.exit_code == 0
+    # The timing summary goes to stderr...
+    assert "==== overall timings ====" not in result.stdout
+    assert "==== overall timings ====" in result.stderr
+    # ...so stdout stays parseable.
+    if serializer == "yaml":
+        yaml.safe_load(result.stdout)
+    else:
+        json.loads(result.stdout)
