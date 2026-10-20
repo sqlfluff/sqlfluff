@@ -1605,3 +1605,57 @@ test_fail_redundantly_bracketed_join_target_unknown_table_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_bigquery_with_expression_variables:
+  # The variables of a WITH expression are declared in place.
+  pass_str: |
+    SELECT
+        WITH(a AS t.x, a + 1) AS y,
+        WITH(s AS STRUCT(1 AS f), s.f) AS z,
+        WITH(`v` AS STRUCT(1 AS f), v.f) AS w,
+        WITH(u AS STRUCT(1 AS f), `u`.f) AS q
+    FROM t
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_bigquery_with_expression_variables_no_from:
+  pass_str: SELECT WITH(s AS STRUCT(1 AS f), s.f) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_bigquery_with_expression_unknown_table:
+  fail_str: SELECT WITH(a AS 1, b.x + a) AS y FROM t
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_bigquery_with_expression_variable_in_subquery:
+  # A subquery inside a WITH expression can use the variables before it.
+  pass_str: SELECT WITH(s AS STRUCT(1 AS f), (SELECT s.f FROM t)) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_bigquery_with_expression_variable_in_own_subquery:
+  # A subquery in the assignment of a variable cannot use that variable.
+  fail_str: SELECT WITH(s AS (SELECT s.f FROM t), s) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true

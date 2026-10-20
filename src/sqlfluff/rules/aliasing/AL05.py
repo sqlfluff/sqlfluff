@@ -337,12 +337,61 @@ class Rule_AL05(BaseRule):
                 # Record the aliases.
                 query.aliases += select_info.table_aliases
 
+                references: list[BaseSegment] = [
+                    *select_info.reference_buffer,
+                    *select_info.table_reference_buffer,
+                ]
+                # These clauses are not collected by the shared SELECT analysis.
+                # Keep each crawl in this scope; children are analyzed separately.
+                for clause in selectable.selectable.recursive_crawl(
+                    "named_window",
+                    "for_clause",
+                    "connectby_clause",
+                    "lateral_view_clause",
+                    "distribute_by_clause",
+                    "prewhere_clause",
+                    "array_join_clause",
+                    no_recursive_seg_type="select_statement",
+                ):
+                    for ref in clause.recursive_crawl(
+                        "object_reference", no_recursive_seg_type="select_statement"
+                    ):
+                        if ref.is_type("collation_reference"):
+                            continue
+                        parent_info = ref.get_parent()
+                        if parent_info:
+                            parent, index = parent_info
+                            previous = next(
+                                (
+                                    seg
+                                    for seg in reversed(parent.segments[:index])
+                                    if seg.is_code
+                                ),
+                                None,
+                            )
+                            if (
+                                previous
+                                and previous.is_type("keyword")
+                                and previous.raw_upper == "COLLATE"
+                            ):
+                                continue
+                        if clause.is_type("for_clause") and ref.is_type(
+                            "table_reference"
+                        ):
+                            # FOR UPDATE OF names tables, not qualified columns.
+                            for part in extract_possible_references(
+                                ref, ObjectReferenceLevel.OBJECT, query.dialect.name
+                            ):
+                                self._resolve_and_mark_reference(
+                                    query, part.segments[0]
+                                )
+                        else:
+                            references.append(ref)
+
                 # Look at each table reference; if it's an alias reference,
                 # resolve the alias: could be an alias defined in "query"
                 # itself or an "ancestor" query.
-                for r in (
-                    select_info.reference_buffer + select_info.table_reference_buffer
-                ):
+                for r in references:
                     table_refs = extract_possible_references(
                         r,
                         level=ObjectReferenceLevel.TABLE,
