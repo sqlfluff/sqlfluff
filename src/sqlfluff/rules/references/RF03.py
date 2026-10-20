@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.common import (
     ColumnAliasInfo,
     ObjectReferenceLevel,
     extract_possible_references,
+    get_from_clause_aliases,
     is_qualified,
     iter_raw_references,
     qualification,
@@ -27,6 +28,7 @@ from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+_DML_TYPES = ("update_statement", "delete_statement", "merge_statement")
 
 
 class Rule_RF03(BaseRule):
@@ -148,7 +150,9 @@ class Rule_RF03(BaseRule):
         A correlated subquery may reference any enclosing query, not just its
         direct parent, so walk up the whole chain of ancestors. A CTE never
         sees the FROM clause of the query that uses it, so skip that query,
-        but it can see the queries enclosing its WITH statement.
+        but it can see the queries enclosing its WITH statement. The outermost
+        query may sit in an UPDATE, DELETE or MERGE statement, which makes the
+        tables of that statement visible too.
         """
         outer_aliases: list[AliasInfo] = []
         child = query
@@ -156,6 +160,10 @@ class Rule_RF03(BaseRule):
             if child.cte_definition_segment is None:
                 outer_aliases += self._iter_available_targets(child.parent, child)
             child = child.parent
+        if child.selectables and _sees_outer_columns(child.selectables[0].selectable):
+            outer_aliases += _dml_table_aliases(
+                child.selectables[0].selectable, child.dialect.name
+            )
         return outer_aliases
 
     def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
@@ -246,11 +254,12 @@ def _sees_outer_columns(selectable: BaseSegment) -> bool:
     if it is a LATERAL or APPLY subquery. Other subqueries (e.g. in the WHERE
     clause) always can. A CTE takes the position of the WITH statement which
     defines it. Any subquery can also see the columns which its enclosing
-    query can see, e.g. a derived table nested in a LATERAL subquery.
+    query can see, e.g. a derived table nested in a LATERAL subquery. The
+    same goes for the subqueries of UPDATE, DELETE and MERGE statements.
     """
     parent = _parent_segment(selectable)
     while parent:
-        if parent.is_type("select_statement"):
+        if parent.is_type("select_statement", *_DML_TYPES):
             return True
         if parent.is_type("from_expression_element"):
             if _is_lateral_element(parent):
@@ -262,6 +271,57 @@ def _sees_outer_columns(selectable: BaseSegment) -> bool:
                 return False
         parent = _parent_segment(parent)
     return False
+
+
+def _dml_table_aliases(selectable: BaseSegment, dialect_name: str) -> list[AliasInfo]:
+    """Get the tables of the UPDATE, DELETE or MERGE statement around a selectable.
+
+    A subquery in such a statement can see the target table, the tables in a
+    FROM clause and the MERGE source table. Tables which contain the selectable
+    itself (e.g. an APPLY subquery in the FROM clause) are skipped.
+    """
+    statement = _parent_segment(selectable)
+    while statement and not statement.is_type(*_DML_TYPES):
+        statement = _parent_segment(statement)
+    if not statement:  # pragma: no cover
+        return []
+
+    aliases: list[AliasInfo] = []
+    for from_clause in statement.get_children("from_clause"):
+        aliases += [a for _, a in get_from_clause_aliases(from_clause, dialect_name)]
+    # The target table (and the MERGE source table) are direct children, each
+    # with an optional alias.
+    code_segments = [seg for seg in statement.segments if seg.is_code]
+    for idx, seg in enumerate(code_segments):
+        if not seg.is_type("table_reference"):
+            continue
+        alias_expression = (
+            code_segments[idx + 1]
+            if idx + 1 < len(code_segments)
+            and code_segments[idx + 1].is_type("alias_expression")
+            else None
+        )
+        alias_segment = (
+            alias_expression.get_child("identifier") if alias_expression else None
+        )
+        if alias_expression and alias_segment:
+            aliases.append(
+                AliasInfo(
+                    alias_segment.raw_normalized(casefold=False),
+                    alias_segment,
+                    True,
+                    seg,
+                    alias_expression,
+                    seg,
+                )
+            )
+            continue
+        parts = list(iter_raw_references(seg, dialect_name))
+        if parts:
+            aliases.append(
+                AliasInfo(parts[-1].part, parts[-1].segments[0], False, seg, None, seg)
+            )
+    return [a for a in aliases if not a.from_expression_element.path_to(selectable)]
 
 
 def _parent_segment(segment: BaseSegment) -> Optional[BaseSegment]:

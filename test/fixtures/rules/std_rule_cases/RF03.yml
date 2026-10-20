@@ -1573,3 +1573,170 @@ test_pass_tsql_cross_apply_outer_table_variable_named_unqualified_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_postgres_update_where_exists_unqualified_8714:
+  # The subquery can see the target table of the UPDATE, so removing the
+  # qualifiers would turn `l.id = o.id` into the always true `id = id`.
+  pass_str: |
+    update orders as o set x = 1
+    where exists (select 1 from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_update_set_subquery_unqualified_8714:
+  pass_str: |
+    update orders as o set x = (select l.x from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_delete_where_exists_unqualified_8714:
+  pass_str: |
+    delete from orders as o
+    where exists (select 1 from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_update_from_cross_apply_unqualified_8714:
+  pass_str: |
+    update o set x = s.j
+    from orders as o
+    cross apply (
+        select l.x as j from lines as l where l.id = o.id
+    ) as s;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_merge_update_subquery_unqualified_8714:
+  pass_str: |
+    merge into t using s on t.id = s.id
+    when matched then update set t.y = (select m.y from m where m.id = t.id);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_merge_using_subquery_unqualified_8714:
+  # A subquery in the WHEN clause sees the USING table too.
+  pass_str: |
+    merge into t using s on t.id = s.id
+    when matched then update set y = (select m.y from m where m.id = s.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_postgres_update_uncorrelated_subquery_unqualified_8714:
+  # Nothing references the target table, so the subquery is still fixed.
+  fail_str: |
+    update orders as o set x = 1
+    where exists (select 1 from lines as l where l.id = 1);
+  fix_str: |
+    update orders as o set x = 1
+    where exists (select 1 from lines as l where id = 1);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_no_fix_postgres_update_set_subquery_qualified_8714:
+  # Adding qualifiers is unsafe: `id` could belong to the target table.
+  fail_str: |
+    update orders as o set x = (select l.x from lines as l where id = 1);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_postgres_update_from_derived_table_unqualified_8714:
+  # A plain derived table in an UPDATE ... FROM can't see the target table.
+  fail_str: |
+    update orders as o set x = s.x
+    from (select l.x, l.id from lines as l) as s
+    where s.id = o.id;
+  fix_str: |
+    update orders as o set x = s.x
+    from (select x, id from lines as l) as s
+    where s.id = o.id;
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_update_unaliased_correlated_subquery_unqualified_8714:
+  # Subqueries in unaliased UPDATE statements can see the target table name.
+  pass_str: |
+    update orders
+    set x = 1
+    where exists (
+        select 1 from lines as l where l.id = orders.id
+    );
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_delete_unaliased_correlated_subquery_unqualified_8714:
+  pass_str: |
+    delete from orders
+    where exists (
+        select 1 from lines as l where l.id = orders.id
+    );
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_postgres_update_from_derived_table_subquery_unqualified_8714:
+  # A subquery inside a plain derived table in UPDATE ... FROM cannot
+  # correlate to the UPDATE target table, so its qualifiers are still fixed.
+  fail_str: |
+    update orders as o set x = s.x
+    from (
+        select 1 as x, 1 as id
+        where exists (select 1 from items as i where i.id = 1)
+    ) as s
+    where s.id = o.id;
+  fix_str: |
+    update orders as o set x = s.x
+    from (
+        select 1 as x, 1 as id
+        where exists (select 1 from items as i where id = 1)
+    ) as s
+    where s.id = o.id;
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
