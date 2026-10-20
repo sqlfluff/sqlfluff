@@ -111,6 +111,27 @@ class ClientCommandRules:
     # `None` for no limit.
     max_delimiter_bytes: Optional[int] = None
 
+    def __post_init__(self) -> None:
+        """Check the rules give delimiters the lexer can work with."""
+        # A cut must leave at least one character, which is up to 4 bytes.
+        assert self.max_delimiter_bytes is None or self.max_delimiter_bytes >= 4, (
+            f"max_delimiter_bytes must be None or at least 4: {self}"
+        )
+        # The default must be a delimiter the client would set. The lexer
+        # relies on it: one that starts with whitespace can match before an
+        # argument starts, and an empty one matches everywhere.
+        delimiter = self.default_delimiter
+        assert (
+            delimiter
+            and "\\" not in delimiter
+            and delimiter[0] not in _SPACE
+            and delimiter[-1] not in _SPACE
+            and (
+                self.max_delimiter_bytes is None
+                or len(delimiter.encode("utf-8")) <= self.max_delimiter_bytes
+            )
+        ), f"default_delimiter {delimiter!r} is not one the client would set: {self}"
+
     def command_named(self, name: str) -> Optional[LongClientCommand]:
         """The long command called `name`, in any case."""
         lowered = name.lower()

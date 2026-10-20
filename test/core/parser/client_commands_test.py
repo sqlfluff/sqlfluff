@@ -41,6 +41,23 @@ def test_client_commands_long_forms_match_in_any_case():
     assert RULES.command_starting("\\G;") is None
 
 
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"default_delimiter": ""},
+        {"default_delimiter": " ;"},
+        {"default_delimiter": "; "},
+        {"default_delimiter": "a\\"},
+        {"default_delimiter": "a" * 16, "max_delimiter_bytes": 15},
+        {"max_delimiter_bytes": 3},
+    ],
+)
+def test_client_commands_rules_need_a_usable_default_delimiter(changes):
+    """Rules with a default delimiter the client wouldn't set are refused."""
+    with pytest.raises(AssertionError):
+        replace(RULES, **changes)
+
+
 def test_client_commands_emitted_tokens_never_match():
     """An emitted token kind isn't a matcher."""
     token = EmittedToken("delimiter_argument", ClientTextSegment)
