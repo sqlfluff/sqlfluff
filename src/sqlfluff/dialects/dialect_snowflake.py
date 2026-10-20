@@ -2079,6 +2079,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalVolumeStatementSegment"),
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
+            Ref("CreateGitRepositoryStatementSegment"),
+            Ref("AlterGitRepositoryStatementSegment"),
             Ref("ForInLoopSegment"),
             Ref("ScriptingWhileLoopSegment"),
             Ref("ScriptingLoopSegment"),
@@ -3439,6 +3441,81 @@ class AlterDynamicTableStatementSegment(BaseSegment):
     )
 
 
+class CreateGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `CREATE GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-git-repository
+    """
+
+    type = "create_git_repository_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "GIT",
+        "REPOSITORY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence("ORIGIN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "API_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "GIT_CREDENTIALS",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Ref("TagBracketedEqualsSegment"),
+        ),
+    )
+
+
+class AlterGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `ALTER GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-git-repository
+    """
+
+    type = "alter_git_repository_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GIT",
+        "REPOSITORY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "FETCH",
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "GIT_CREDENTIALS",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "API_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(OneOf("GIT_CREDENTIALS", "COMMENT")),
+            ),
+        ),
+    )
+
+
 class AlterWarehouseStatementSegment(BaseSegment):
     """An `ALTER WAREHOUSE` statement.
 
@@ -4018,6 +4095,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("MASKING", "POLICY"),
         Sequence("ROW", "ACCESS", "POLICY"),
         Sequence("CORTEX", "SEARCH", "SERVICE"),
+        Sequence("GIT", "REPOSITORY"),
     )
 
 
@@ -4044,6 +4122,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
         Sequence("SEMANTIC", "VIEWS"),
+        Sequence("GIT", "REPOSITORIES"),
     )
 
 
@@ -9717,6 +9796,7 @@ class ShowStatementSegment(BaseSegment):
         Sequence("EXTERNAL", "VOLUMES"),
         Sequence("PASSWORD", "POLICIES"),
         Sequence("CORTEX", "SEARCH", "SERVICES"),
+        Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
         Sequence("RESOURCE", "MONITORS"),
         Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
     )
@@ -9745,6 +9825,7 @@ class ShowStatementSegment(BaseSegment):
                 "WORKSPACE",
                 Sequence("DBT", "PROJECT"),
                 Sequence("DCM", "PROJECT"),
+                Sequence("GIT", "REPOSITORY"),
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),
@@ -10573,6 +10654,12 @@ class DescribeStatementSegment(BaseSegment):
                 "DATABASE",
                 Ref("DatabaseReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-git-repository
+            Sequence(
+                "GIT",
+                "REPOSITORY",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
             Sequence(
                 OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
@@ -11167,6 +11254,7 @@ class DropObjectStatementSegment(BaseSegment):
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
+                    Sequence("GIT", "REPOSITORY"),
                     Sequence("MCP", "SERVER"),
                     Sequence(
                         OneOf(
