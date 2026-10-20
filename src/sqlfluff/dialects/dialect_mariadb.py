@@ -55,9 +55,10 @@ mariadb_dialect.update_keywords_set_from_multiline_string(
 # https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/supported-character-sets-and-collations
 mariadb_dialect.sets("character_set_names").discard("GB18030")
 
-# The mariadb client takes no comment before a command on the same line, and
-# takes any line starting with `--` at the start of a statement as a comment,
-# even with no whitespace after it.
+# The mariadb client differs from mysql's in two ways. A comment before a
+# command on the same line stops it being a command. And, apparently by
+# mistake, at the start of a statement `--` is a comment even with no space
+# after it (`--x`), though it isn't anywhere else.
 mariadb_dialect.client_commands = replace(
     mysql.mysql_client_commands,
     opaque_token_names=mysql.mysql_client_commands.opaque_token_names

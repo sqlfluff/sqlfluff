@@ -128,9 +128,9 @@ mysql_dialect.patch_lexer_matchers(
 # statements itself, so its own commands are lexed with its state: see
 # `ClientCommandRules`. Only the commands that matter in scripts are here.
 # https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
-# A `$tag$` at the start of a token, with no closing `$tag$` to make it a
-# dollar-quoted string: MySQL reads it as the start of one anyway, so it is never
-# an identifier, and the string never ends.
+# A `$tag$` at the start of a token with no closing `$tag$`. MySQL still reads
+# it as the start of a dollar-quoted string, which then never ends, so `$a$` is
+# never a name, oddly, even though `$` is allowed in names.
 mysql_dialect.insert_lexer_matchers(
     [RegexLexer("dollar_quote_opener", r"\$\w*\$", UnlexableSegment)],
     before="numeric_literal",

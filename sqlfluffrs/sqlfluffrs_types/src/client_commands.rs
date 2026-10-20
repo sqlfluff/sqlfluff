@@ -68,9 +68,10 @@ pub struct ClientCommandRules {
     /// whitespace after it. Elsewhere `--` needs whitespace or the end of the
     /// line after it, which is the dialect's comment matcher's job.
     pub dash_dash_comment_at_statement_start: bool,
-    /// A long-form command never takes a line that holds this text: the client
-    /// collects the line as a statement instead. The mysql client's
-    /// `find_command` checks for a lower-case `\g`, so `\G` doesn't count.
+    /// A line holding this text is never a long-form command line: the client
+    /// collects it as a statement instead. For no apparent reason the mysql
+    /// client only checks for a lower-case `\g` here, though `\G` ends a
+    /// statement just the same: `SOURCE x.sql \G` reads a file named `x.sql \G`.
     pub collected_line_marker: Option<&'static str>,
     pub default_delimiter: &'static str,
     /// If set, longer delimiters are cut to this many bytes, as the client

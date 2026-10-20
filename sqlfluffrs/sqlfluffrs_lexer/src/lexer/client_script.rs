@@ -291,10 +291,12 @@ impl<'a> ClientScriptLexer<'a> {
     /// `SOURCE` that the client collects as a statement before reading it.
     ///
     /// That happens when its line holds the delimiter or `\g`, or when it
-    /// follows a delimiter earlier on the line. The statement runs to the
-    /// delimiter. A short command in it runs as the client reaches it, so it
-    /// is lexed as a command after the text before it: `SOURCE a.sql \g`
-    /// sends `SOURCE a.sql` to the server, and the statement ends there.
+    /// follows a delimiter earlier on the line. The client then treats it
+    /// almost like SQL, with results that are probably client bugs:
+    /// - `SOURCE a.sql;` still runs the file: at the delimiter the client sees
+    ///   the statement starts with `SOURCE` and runs it.
+    /// - `SOURCE a.sql \g` sends `SOURCE a.sql` to the server as SQL, which
+    ///   fails: `\g` sends the statement without that check.
     fn lex_source_statement(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, self.word_matcher, Buffer::Append);
@@ -355,12 +357,12 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// One token, lexed by the dialect's matchers.
     ///
-    /// The client looks for the delimiter and short commands everywhere but
-    /// in the tokens it scans through (strings and comments). Any other
-    /// token is lexed again from the text the server gets, which ends at the
-    /// next one of those. So `1.go` with `go` active is `1.`, and `--$$`
-    /// with `$$` active is a comment, as `--` at the end of the server's
-    /// input is.
+    /// The client cuts the statement at the delimiter or a short command before
+    /// the server sees it, so a token that isn't a string or comment is lexed
+    /// again from the text up to there. With `go` as the delimiter, `1.go` is the
+    /// number `1.`. And, absurdly, with `$$` as the delimiter `--$$` is a
+    /// comment: the client doesn't treat `--` without a space as a comment, but
+    /// the server does at the end of a statement.
     fn lex_token(&mut self) {
         let rest = &self.text[self.pos..];
         let mut elements = self.match_text(rest);
@@ -433,8 +435,8 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// Lex the argument of `\d`.
     ///
-    /// MySQL and MariaDB handle this oddly, probably by accident, but both do
-    /// the same thing: after setting the delimiter, the client carries on
+    /// MySQL and MariaDB handle this bizarrely, probably a client bug, but both
+    /// do the same thing: after setting the delimiter, the client carries on
     /// reading right after the new delimiter's text on the line. Normally that's
     /// just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
     /// the argument as typed isn't exactly the delimiter, ridiculous stuff
