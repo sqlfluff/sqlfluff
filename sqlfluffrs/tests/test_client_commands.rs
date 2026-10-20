@@ -225,6 +225,30 @@ fn test_short_delimiter_command_skips_to_its_escaped_delimiter() {
 }
 
 #[test]
+fn test_refused_short_delimiter_keeps_the_delimiter() {
+    // `\d xab\` is refused for its backslash, so `ab` stays the delimiter.
+    let (tokens, _) = Lexer::for_dialect(Dialect::Mysql).lex(
+        LexInput::String("DELIMITER ab\n\\d xab\\\nSELECT 2 ab\n".to_string()),
+        false,
+    );
+    let kinds: Vec<(String, String)> = tokens
+        .iter()
+        .filter_map(|token| {
+            let kind = token.instance_types.first()?;
+            Some((kind.clone(), token.raw().to_string()))
+        })
+        .collect();
+    assert!(kinds.contains(&("client_command_misread".to_string(), "xab".to_string())));
+    assert_eq!(
+        kinds[kinds.len() - 2..],
+        [
+            ("client_delimiter".to_string(), "ab".to_string()),
+            ("newline".to_string(), "\n".to_string()),
+        ]
+    );
+}
+
+#[test]
 fn test_short_delimiter_command_with_no_argument_is_refused() {
     assert_tokens(
         "\\d\nSELECT 1;\n",

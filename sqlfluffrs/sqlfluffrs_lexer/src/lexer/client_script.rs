@@ -422,21 +422,29 @@ impl<'a> ClientScriptLexer<'a> {
         }
 
         let argument = parse_argument(trimmed);
-        match self.accepted_delimiter(&argument.value) {
-            Some(delimiter) => {
-                self.emit(argument.raw, &DELIMITER_ARGUMENT, Buffer::Keep);
-                self.delimiter_place = NextPlace::new(&delimiter);
-                self.delimiter = delimiter;
-            }
-            None => self.emit(argument.raw, &CLIENT_COMMAND_MISREAD, Buffer::Keep),
-        }
+        let delimiter = self.accepted_delimiter(&argument.value);
+        self.set_delimiter(argument.raw, delimiter);
         &trimmed[argument.raw.len()..]
+    }
+
+    /// Emit an argument as written, and set the delimiter it gives.
+    ///
+    /// `None` if the client refused the argument: it is misread, and the
+    /// delimiter kept.
+    fn set_delimiter(&mut self, raw: &'a str, delimiter: Option<String>) {
+        let Some(delimiter) = delimiter else {
+            self.emit(raw, &CLIENT_COMMAND_MISREAD, Buffer::Keep);
+            return;
+        };
+        self.emit(raw, &DELIMITER_ARGUMENT, Buffer::Keep);
+        self.delimiter_place = NextPlace::new(&delimiter);
+        self.delimiter = delimiter;
     }
 
     /// Lex the argument of `\d`.
     ///
-    /// MySQL and MariaDB handle this bizarrely, probably a client bug, but both
-    /// do the same thing: after setting the delimiter, the client carries on
+    /// The mysql and mariadb clients handle this bizarrely, probably a client
+    /// bug, but both do the same thing: after setting the delimiter, the client carries on
     /// reading right after the new delimiter's text on the line. Normally that's
     /// just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
     /// the argument as typed isn't exactly the delimiter, ridiculous stuff
@@ -453,18 +461,20 @@ impl<'a> ClientScriptLexer<'a> {
     /// even if it looks like SQL. SQL before the `\d` stays in the statement.
     fn short_command_delimiter_argument(&mut self, argument: &'a str) {
         let trimmed = argument.trim_start_matches(SPACE);
+        let gap = argument.len() - trimmed.len();
         let parsed = parse_argument(trimmed);
-        let needle = self
-            .accepted_delimiter(&parsed.value)
-            .unwrap_or_else(|| self.delimiter.clone());
+        let delimiter = self.accepted_delimiter(&parsed.value);
+        let needle = delimiter.clone().unwrap_or_else(|| self.delimiter.clone());
         let resume = argument
             .find(needle.as_str())
             .map(|found| found + needle.len());
-        let argument_end = argument.len() - trimmed.len() + parsed.raw.len();
+        let argument_end = gap + parsed.raw.len();
         if let Some(resume) = resume.filter(|&resume| resume < argument_end) {
-            // The client goes on from inside the argument, so only the text
-            // before that is its argument.
-            self.delimiter_argument(&argument[..resume]);
+            // The client goes on from inside the argument. The whole argument
+            // still decides the delimiter, but only the text before that point
+            // is the command's.
+            self.emit(&argument[..gap], self.whitespace_matcher, Buffer::Keep);
+            self.set_delimiter(&argument[gap..resume], delimiter);
             return;
         }
         let rest = self.delimiter_argument(argument);

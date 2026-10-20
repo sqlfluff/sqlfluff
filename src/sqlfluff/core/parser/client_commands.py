@@ -526,20 +526,27 @@ class ClientScriptLexer:
             return ""
 
         parsed = _parse_argument(trimmed)
-        delimiter = self._accepted_delimiter(parsed.value)
-        if delimiter is None:
-            self._emit(parsed.raw, CLIENT_COMMAND_MISREAD, _Buffer.KEEP)
-        else:
-            self._emit(parsed.raw, DELIMITER_ARGUMENT, _Buffer.KEEP)
-            self._delimiter = delimiter
-            self._delimiter_place = _NextPlace(delimiter)
+        self._set_delimiter(parsed.raw, self._accepted_delimiter(parsed.value))
         return trimmed[len(parsed.raw) :]
+
+    def _set_delimiter(self, raw: str, delimiter: Optional[str]) -> None:
+        """Emit an argument as written, and set the delimiter it gives.
+
+        `None` if the client refused the argument: it is misread, and the
+        delimiter kept.
+        """
+        if delimiter is None:
+            self._emit(raw, CLIENT_COMMAND_MISREAD, _Buffer.KEEP)
+            return
+        self._emit(raw, DELIMITER_ARGUMENT, _Buffer.KEEP)
+        self._delimiter = delimiter
+        self._delimiter_place = _NextPlace(delimiter)
 
     def _short_command_delimiter_argument(self, argument: str) -> None:
         r"""Lex the argument of `\d`.
 
-        MySQL and MariaDB handle this bizarrely, probably a client bug, but both
-        do the same thing: after setting the delimiter, the client carries on
+        The mysql and mariadb clients handle this bizarrely, probably a client
+        bug, but both do the same thing: after setting the delimiter, the client carries on
         reading right after the new delimiter's text on the line. Normally that's
         just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
         the argument as typed isn't exactly the delimiter, ridiculous stuff
@@ -556,15 +563,19 @@ class ClientScriptLexer:
         even if it looks like SQL. SQL before the `\d` stays in the statement.
         """
         trimmed = argument.lstrip(_SPACE)
+        gap = len(argument) - len(trimmed)
         parsed = _parse_argument(trimmed)
-        needle = self._accepted_delimiter(parsed.value) or self._delimiter
+        delimiter = self._accepted_delimiter(parsed.value)
+        needle = delimiter or self._delimiter
         found = argument.find(needle)
         resume = None if found < 0 else found + len(needle)
-        argument_end = len(argument) - len(trimmed) + len(parsed.raw)
+        argument_end = gap + len(parsed.raw)
         if resume is not None and resume < argument_end:
-            # The client goes on from inside the argument, so only the text
-            # before that is its argument.
-            self._delimiter_argument(argument[:resume])
+            # The client goes on from inside the argument. The whole argument
+            # still decides the delimiter, but only the text before that point
+            # is the command's.
+            self._emit(argument[:gap], self._whitespace_matcher, _Buffer.KEEP)
+            self._set_delimiter(argument[gap:resume], delimiter)
             return
         rest = self._delimiter_argument(argument)
         if resume is None:

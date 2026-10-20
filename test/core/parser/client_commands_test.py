@@ -298,6 +298,20 @@ def test_client_commands_no_delimiter_byte_limit():
     ]
 
 
+def test_client_commands_refused_short_delimiter_keeps_the_delimiter():
+    r"""A refused `\d` argument keeps the delimiter, even mid-argument.
+
+    `\d xab\` is refused for its backslash, so `ab` stays the delimiter; the
+    client carries on after the `ab` inside the argument. Checked on mysql 8.4
+    and 9.7 and mariadb 11.8, which then run `SELECT 2`.
+    """
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
+    segments, _ = lexer.lex("DELIMITER ab\n\\d xab\\\nSELECT 2 ab\n")
+    tokens = [(s.get_type(), s.raw) for s in segments]
+    assert ("client_command_misread", "xab") in tokens
+    assert tokens[-3:-1] == [("client_delimiter", "ab"), ("newline", "\n")]
+
+
 def test_client_commands_unlexable_text():
     """Text that no matcher takes is unlexable, as in any other dialect."""
     lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
