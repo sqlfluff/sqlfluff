@@ -2104,6 +2104,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropResourceMonitorStatementSegment"),
             Ref("CreateSecretStatementSegment"),
             Ref("AlterSecretStatementSegment"),
+            Ref("CreateGitRepositoryStatementSegment"),
+            Ref("AlterGitRepositoryStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -4008,6 +4010,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("DBT", "PROJECT"),
         Sequence("DCM", "PROJECT"),
         Sequence("MCP", "SERVER"),
+        Sequence("GIT", "REPOSITORY"),
         Sequence("SEMANTIC", "VIEW"),
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("DYNAMIC", "TABLE"),
@@ -4043,6 +4046,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         Sequence("DBT", "PROJECTS"),
         Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
+        Sequence("GIT", "REPOSITORIES"),
         Sequence("SEMANTIC", "VIEWS"),
     )
 
@@ -9710,6 +9714,10 @@ class ShowStatementSegment(BaseSegment):
         Sequence("DBT", "PROJECTS"),
         Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
+        # https://docs.snowflake.com/en/sql-reference/sql/show-git-repositories
+        # https://docs.snowflake.com/en/sql-reference/sql/show-git-branches
+        # https://docs.snowflake.com/en/sql-reference/sql/show-git-tags
+        Sequence("GIT", OneOf("REPOSITORIES", "BRANCHES", "TAGS")),
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
         "PROCEDURES",
@@ -9745,6 +9753,7 @@ class ShowStatementSegment(BaseSegment):
                 "WORKSPACE",
                 Sequence("DBT", "PROJECT"),
                 Sequence("DCM", "PROJECT"),
+                Sequence("GIT", "REPOSITORY"),
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),
@@ -10584,6 +10593,12 @@ class DescribeStatementSegment(BaseSegment):
                 "SECRET",
                 Ref("ObjectReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-git-repository
+            Sequence(
+                "GIT",
+                "REPOSITORY",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-session-policy.html
             Sequence(
                 "SESSION",
@@ -11167,6 +11182,7 @@ class DropObjectStatementSegment(BaseSegment):
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
+                    Sequence("GIT", "REPOSITORY"),
                     Sequence("MCP", "SERVER"),
                     Sequence(
                         OneOf(
@@ -12310,6 +12326,85 @@ class AlterSecretStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "SET",
         Ref("SecretOptionsSegment"),
+    )
+
+
+class CreateGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `CREATE GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-git-repository
+    """
+
+    type = "create_git_repository_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "GIT",
+        "REPOSITORY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence("ORIGIN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "API_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "GIT_CREDENTIALS",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Ref("TagBracketedEqualsSegment"),
+        ),
+    )
+
+
+class AlterGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `ALTER GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-git-repository
+    """
+
+    type = "alter_git_repository_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GIT",
+        "REPOSITORY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "FETCH",
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence(
+                "UNSET",
+                "TAG",
+                Delimited(Ref("TagReferenceSegment")),
+            ),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "GIT_CREDENTIALS",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "API_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(OneOf("GIT_CREDENTIALS", "COMMENT")),
+            ),
+        ),
     )
 
 
