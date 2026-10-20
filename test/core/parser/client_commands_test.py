@@ -127,9 +127,9 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("delimiter_argument", ";"),
             ],
         ),
-        # `\d` goes on after the first copy of the new delimiter. Cut to 15
-        # bytes, the delimiter here ends inside its argument, so the rest of the
-        # argument is SQL.
+        # `\d` carries on right after the new delimiter's text on the line. Cut
+        # to 15 bytes, the delimiter here ends inside its argument, so the rest
+        # of the argument is SQL.
         (
             "\\d abcdefghijklmnopqrstuvwxyz\nSELECT 1 abcdefghijklmno\n",
             [
@@ -262,8 +262,8 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             "SOURCE a.sql \t \n",
             [("word", "SOURCE"), ("source_file_name", "a.sql")],
         ),
-        # After `\d` the client goes on from the first copy of the new
-        # delimiter, which here is the argument itself.
+        # `\d` carries on right after the new delimiter's text on the line,
+        # which is normally just after the argument.
         (
             "\\d $$ SELECT 1 $$\n",
             [
