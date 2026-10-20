@@ -330,7 +330,7 @@ class ClientScriptLexer:
         self._line_start = True
 
         while self._pos < len(text):
-            match self._peek():
+            match next_part := self._peek():
                 case _DelimiterCommand(found):
                     self._lex_delimiter_command(found)
                 case _SourceLine(found):
@@ -345,6 +345,9 @@ class ClientScriptLexer:
                     self._lex_statement_start_comment()
                 case _Token():
                     self._lex_token()
+                case _:  # pragma: no cover
+                    # Without this, a `_Next` kind missing above would loop forever.
+                    raise AssertionError(f"Unhandled {next_part!r}")
         return self._elements
 
     def _peek(self) -> _Next:
