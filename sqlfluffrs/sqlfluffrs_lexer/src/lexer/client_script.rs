@@ -212,6 +212,7 @@ impl<'a> ClientScriptLexer<'a> {
             match found.command.effect {
                 CommandEffect::SetDelimiter => return Next::DelimiterCommand(found),
                 CommandEffect::ReadFile => return Next::SourceLine(found),
+                // `ClientCommandRules` refuses a long form that ends a statement.
                 CommandEffect::EndStatement => {}
             }
         }

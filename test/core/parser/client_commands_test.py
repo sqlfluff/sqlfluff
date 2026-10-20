@@ -27,6 +27,18 @@ RULES = ClientCommandRules(
 )
 
 
+def test_client_commands_no_long_form_ends_a_statement():
+    """A long form that ends a statement would do nothing, so the rules refuse it."""
+    with pytest.raises(ValueError, match="'go' can't end a statement"):
+        ClientCommandRules(
+            commands=(ClientCommand(CommandEffect.END_STATEMENT, name="go"),),
+            opaque_token_names=frozenset(),
+            line_command_after_block_comment=True,
+            dash_dash_comment_at_statement_start=False,
+            collected_line_marker="\\g",
+        )
+
+
 def test_client_commands_long_forms_match_in_any_case():
     """Long forms are found in any case, short forms only in their own."""
     assert RULES.command_named("DeLiMiTeR") is RULES.commands[0]

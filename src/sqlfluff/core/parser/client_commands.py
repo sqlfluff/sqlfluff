@@ -80,6 +80,15 @@ class ClientCommandRules:
     max_delimiter_bytes: int = 15
     """Longer delimiters are cut to this many bytes, as the client does."""
 
+    def __post_init__(self) -> None:
+        for command in self.commands:
+            if command.effect is CommandEffect.END_STATEMENT and command.name:
+                raise ValueError(
+                    f"Client command {command.name!r} can't end a statement: long "
+                    "forms are only recognised at the start of a statement, where "
+                    "there is nothing to send."
+                )
+
     def command_named(self, name: str) -> Optional[ClientCommand]:
         """The command whose long form is `name`, in any case."""
         lowered = name.lower()
