@@ -357,6 +357,48 @@ mysql_dialect.add(
     InlineWhitespaceSegment=TypedParser(
         "whitespace", WhitespaceSegment, type="whitespace"
     ),
+    # One part of a `SOURCE` file name. The file name isn't a single token: it
+    # is made of whatever the line lexes as, so any token on the line is a
+    # part, whatever it lexed as (a word, number, operator, bracket, `@`
+    # variable...), except for:
+    # - whitespace and newlines, which the file name segments handle,
+    # - `;`, which ends the command,
+    # - comments (`#`, `--` and `/*`),
+    # - quotes and `$`, which start a quoted literal or don't lex,
+    # - backslashes, which are `SourceFileNameBackslashGrammar`.
+    # This is a regex on the raw token rather than a list of token types, so
+    # brackets are taken one token at a time and don't need to be balanced.
+    SourceFileNamePartGrammar=RegexParser(
+        r"""[^\s;#'"`$\\]+""",
+        CodeSegment,
+        type="source_file_name_part",
+        anti_template=r"(--|/\*).*",
+    ),
+    # A backslash in a `SOURCE` file name, such as in a Windows path. `allow_gaps`
+    # is off on these `OneOf`s because the Rust parser skips any newlines before
+    # a `OneOf` that allows gaps, which would let the file name run on to the
+    # next line.
+    SourceFileNameBackslashGrammar=OneOf(
+        StringParser("\\", CodeSegment, type="source_file_name_part"),
+        StringParser("\\.", CodeSegment, type="source_file_name_part"),
+        allow_gaps=False,
+    ),
+    # `\g` in a `SOURCE` file name. Only `\.` accepts it: after `SOURCE` the
+    # client runs it as the "go" command.
+    SourceFileNameClientGoGrammar=StringParser(
+        "\\g", CodeSegment, type="source_file_name_part"
+    ),
+    SourceBackslashFileNamePartGrammar=OneOf(
+        Ref("SourceFileNamePartGrammar"),
+        Ref("SourceFileNameBackslashGrammar"),
+        allow_gaps=False,
+    ),
+    SourceShorthandFileNamePartGrammar=OneOf(
+        Ref("SourceFileNamePartGrammar"),
+        Ref("SourceFileNameBackslashGrammar"),
+        Ref("SourceFileNameClientGoGrammar"),
+        allow_gaps=False,
+    ),
     SystemVariableSegment=RegexParser(
         r"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+",
         CodeSegment,
@@ -1857,38 +1899,14 @@ class DelimiterStatement(BaseSegment):
     match_grammar = Ref.keyword("DELIMITER")
 
 
-def _source_file_name_grammar(part: Matchable) -> Matchable:
-    """A `SOURCE` file name made of `part`s, on one line.
-
-    Gaps are not allowed so that it stays on one line, but the parts may be
-    separated by spaces. A `OneOf` passed as `part` needs `allow_gaps=False`
-    too: the Rust parser skips any newlines before a `OneOf` that allows gaps,
-    which would let the file name run on to the next line.
-    """
-    return Sequence(
-        part,
-        AnyNumberOf(
-            # The whitespace is optional within the sequence, rather than being
-            # its own option, because options are pruned on the next code
-            # segment and so one starting with whitespace would never match.
-            Sequence(
-                Ref("InlineWhitespaceSegment", optional=True),
-                part,
-                allow_gaps=False,
-            ),
-            allow_gaps=False,
-        ),
-        allow_gaps=False,
-    )
-
-
 class SourceFileNameSegment(BaseSegment):
     """The file name of a `SOURCE` client command.
 
     The client reads the file name verbatim to the end of the line (or up to a
     `;`), so it isn't a single token: it is made of whatever it happens to lex
-    as, and may contain spaces. Quote characters would be taken as part of the
-    file name, so quoted literals aren't accepted.
+    as, and may contain spaces. Gaps are not allowed so that it stays on one
+    line. Quote characters would be taken as part of the file name, so quoted
+    literals aren't accepted.
 
     This is the file name of `SOURCE` without a backslash. See
     `SourceBackslashFileNameSegment` and `SourceShorthandFileNameSegment` for
@@ -1900,29 +1918,21 @@ class SourceFileNameSegment(BaseSegment):
 
     type = "source_file_name"
 
-    # Any token on the line is part of the file name, whatever it lexed as (a
-    # word, number, operator, bracket, `@` variable...), except for:
-    # - whitespace and newlines, which are handled by `match_grammar` below,
-    # - `;`, which ends the command,
-    # - comments (`#`, `--` and `/*`),
-    # - quotes and `$`, which start a quoted literal or don't lex,
-    # - backslashes, which are handled by the other file name segments.
-    # This is a regex on the raw token rather than a list of token types, so
-    # brackets are taken one token at a time and don't need to be balanced.
-    _part = RegexParser(
-        r"""[^\s;#'"`$\\]+""",
-        CodeSegment,
-        type="source_file_name_part",
-        anti_template=r"(--|/\*).*",
-    )
-    _backslash = OneOf(
-        StringParser("\\", CodeSegment, type="source_file_name_part"),
-        StringParser("\\.", CodeSegment, type="source_file_name_part"),
+    match_grammar = Sequence(
+        Ref("SourceFileNamePartGrammar"),
+        AnyNumberOf(
+            # The whitespace is optional within the sequence, rather than being
+            # its own option, because options are pruned on the next code
+            # segment and so one starting with whitespace would never match.
+            Sequence(
+                Ref("InlineWhitespaceSegment", optional=True),
+                Ref("SourceFileNamePartGrammar"),
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+        ),
         allow_gaps=False,
     )
-    _client_go = StringParser("\\g", CodeSegment, type="source_file_name_part")
-
-    match_grammar = _source_file_name_grammar(_part)
 
 
 class SourceBackslashFileNameSegment(SourceFileNameSegment):
@@ -1934,25 +1944,40 @@ class SourceBackslashFileNameSegment(SourceFileNameSegment):
     `FileSegment` doesn't accept a `;` after it.
     """
 
-    match_grammar = _source_file_name_grammar(
-        OneOf(
-            SourceFileNameSegment._part,
-            SourceFileNameSegment._backslash,
+    match_grammar = Sequence(
+        Ref("SourceBackslashFileNamePartGrammar"),
+        AnyNumberOf(
+            # The whitespace is optional within the sequence, rather than being
+            # its own option, because options are pruned on the next code
+            # segment and so one starting with whitespace would never match.
+            Sequence(
+                Ref("InlineWhitespaceSegment", optional=True),
+                Ref("SourceBackslashFileNamePartGrammar"),
+                allow_gaps=False,
+            ),
             allow_gaps=False,
-        )
+        ),
+        allow_gaps=False,
     )
 
 
 class SourceShorthandFileNameSegment(SourceFileNameSegment):
     r"""The file name of `\.`, which the client always reads verbatim."""
 
-    match_grammar = _source_file_name_grammar(
-        OneOf(
-            SourceFileNameSegment._part,
-            SourceFileNameSegment._backslash,
-            SourceFileNameSegment._client_go,
+    match_grammar = Sequence(
+        Ref("SourceShorthandFileNamePartGrammar"),
+        AnyNumberOf(
+            # The whitespace is optional within the sequence, rather than being
+            # its own option, because options are pruned on the next code
+            # segment and so one starting with whitespace would never match.
+            Sequence(
+                Ref("InlineWhitespaceSegment", optional=True),
+                Ref("SourceShorthandFileNamePartGrammar"),
+                allow_gaps=False,
+            ),
             allow_gaps=False,
-        )
+        ),
+        allow_gaps=False,
     )
 
 
