@@ -463,7 +463,11 @@ impl<'a> ClientScriptLexer<'a> {
         if value.is_empty() || value.contains('\\') {
             return None;
         }
-        Some(cut_to_bytes(value, self.rules.max_delimiter_bytes).to_string())
+        let value = match self.rules.max_delimiter_bytes {
+            Some(limit) => cut_to_bytes(value, limit),
+            None => value,
+        };
+        Some(value.to_string())
     }
 
     /// Lex the argument of `SOURCE` or `\.`, as the client's `com_source`.

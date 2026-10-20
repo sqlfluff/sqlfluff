@@ -163,6 +163,8 @@ mysql_client_commands = ClientCommandRules(
     line_command_after_block_comment=True,
     dash_dash_comment_at_statement_start=False,
     collected_line_marker="\\g",
+    # The client keeps the delimiter in `char delimiter[16]`.
+    max_delimiter_bytes=15,
 )
 mysql_dialect.client_commands = mysql_client_commands
 

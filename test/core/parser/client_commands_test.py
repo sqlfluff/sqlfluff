@@ -4,6 +4,8 @@ The mysql dialect's rules are used throughout, as the dialect that has them.
 Every case was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients.
 """
 
+from dataclasses import replace
+
 import pytest
 
 from sqlfluff.core import FluffConfig
@@ -11,6 +13,7 @@ from sqlfluff.core.parser import ClientTextSegment, PyLexer
 from sqlfluff.core.parser.client_commands import (
     BufferAction,
     ClientCommandRules,
+    ClientScriptLexer,
     CommandArgument,
     EmittedToken,
     LongClientCommand,
@@ -236,6 +239,20 @@ def test_client_commands_mariadb_collected_command_after_a_comment():
         ("word", "SOURCE"),
         ("source_file_name", "a.sql"),
         ("semicolon", ";"),
+    ]
+
+
+def test_client_commands_no_delimiter_byte_limit():
+    """With no byte limit set, a long delimiter is kept whole."""
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
+    mysql_rules = lexer.config.get("dialect_obj").client_commands
+    rules = replace(mysql_rules, max_delimiter_bytes=None)
+    delimiter = "abcdefghijklmnopqrstuvwxyz"
+    elements = ClientScriptLexer(
+        rules, lexer.lexer_matchers, lexer.last_resort_lexer
+    ).lex(f"DELIMITER {delimiter}\nSELECT 1 {delimiter}\n")
+    assert [e.raw for e in elements if e.matcher.name == "client_delimiter"] == [
+        delimiter
     ]
 
 

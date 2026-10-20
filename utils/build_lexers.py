@@ -102,7 +102,8 @@ def generate_client_commands(dialect: str):
     marker = _rust_option_str(rules.collected_line_marker)
     print(f"    collected_line_marker: {marker},")
     print(f"    default_delimiter: {_rust_str(rules.default_delimiter)},")
-    print(f"    max_delimiter_bytes: {rules.max_delimiter_bytes},")
+    limit = rules.max_delimiter_bytes
+    print(f"    max_delimiter_bytes: {'None' if limit is None else f'Some({limit})'},")
     print("});")
 
 

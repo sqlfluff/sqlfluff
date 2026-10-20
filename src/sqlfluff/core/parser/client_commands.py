@@ -106,8 +106,9 @@ class ClientCommandRules:
     collects the line as a statement instead. The mysql client's `find_command`
     checks for a lower-case `\\g`, so `\\G` doesn't count."""
     default_delimiter: str = ";"
-    max_delimiter_bytes: int = 15
-    """Longer delimiters are cut to this many bytes, as the client does."""
+    max_delimiter_bytes: Optional[int] = None
+    """If set, longer delimiters are cut to this many bytes, as the client does.
+    `None` for no limit."""
 
     def command_named(self, name: str) -> Optional[LongClientCommand]:
         """The long command called `name`, in any case."""
@@ -560,7 +561,10 @@ class ClientScriptLexer:
         """
         if not value or "\\" in value:
             return None
-        return _cut_to_bytes(value, self._rules.max_delimiter_bytes)
+        limit = self._rules.max_delimiter_bytes
+        if limit is None:
+            return value
+        return _cut_to_bytes(value, limit)
 
     def _file_name(self, argument: str, buffer: _Buffer) -> None:
         r"""Lex the argument of `SOURCE` or `\.`, as the client's `com_source`.

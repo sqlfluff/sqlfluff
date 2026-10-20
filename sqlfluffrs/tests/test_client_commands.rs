@@ -5,6 +5,7 @@
 
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_types::ClientCommandRules;
 
 /// The (type, raw) of each token the lexer makes, but whitespace.
 fn tokens(sql: &str, dialect: Dialect) -> Vec<(String, String)> {
@@ -249,6 +250,28 @@ fn test_trailing_whitespace_is_not_part_of_a_file_name() {
         "SOURCE a.sql \t \n",
         &[("word", "SOURCE"), ("source_file_name", "a.sql")],
     );
+}
+
+#[test]
+fn test_no_delimiter_byte_limit() {
+    let mysql = Dialect::Mysql
+        .get_client_commands()
+        .expect("mysql has client commands");
+    let rules: &'static ClientCommandRules = Box::leak(Box::new(ClientCommandRules {
+        max_delimiter_bytes: None,
+        ..*mysql
+    }));
+    let delimiter = "abcdefghijklmnopqrstuvwxyz";
+    let sql = format!("DELIMITER {delimiter}\nSELECT 1 {delimiter}\n");
+    let (tokens, _) = Lexer::for_dialect(Dialect::Mysql)
+        .with_client_commands(Some(rules))
+        .lex(LexInput::String(sql), false);
+    let delimiters: Vec<&str> = tokens
+        .iter()
+        .filter(|token| token.is_type(&["client_delimiter"]))
+        .map(|token| token.raw())
+        .collect();
+    assert_eq!(delimiters, [delimiter]);
 }
 
 #[test]

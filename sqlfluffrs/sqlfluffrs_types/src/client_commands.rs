@@ -73,8 +73,9 @@ pub struct ClientCommandRules {
     /// `find_command` checks for a lower-case `\g`, so `\G` doesn't count.
     pub collected_line_marker: Option<&'static str>,
     pub default_delimiter: &'static str,
-    /// Longer delimiters are cut to this many bytes, as the client does.
-    pub max_delimiter_bytes: usize,
+    /// If set, longer delimiters are cut to this many bytes, as the client
+    /// does. `None` for no limit.
+    pub max_delimiter_bytes: Option<usize>,
 }
 
 impl ClientCommandRules {
