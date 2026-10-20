@@ -46,11 +46,12 @@ class Rule_RF01(BaseRule):
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
 
-       For Athena, Databricks, DuckDB, Hive, Impala, Redshift and Trino, single-source
-       SELECTs are exempt by default because dotted references may access
-       ROW/struct fields. SELECTs with multiple sources are still checked,
-       allowing field access through a visible table or alias. Use
-       ``force_enable = True`` for strict checking of these references too.
+       For Athena, ClickHouse, Databricks, DuckDB, Hive, Impala, Redshift and
+       Trino, single-source SELECTs are exempt by default because dotted
+       references may access ROW/struct fields. SELECTs with multiple sources
+       are still checked, allowing field access through a visible table or
+       alias. Use ``force_enable = True`` for strict checking of these
+       references too.
 
     **Anti-pattern**
 
@@ -294,6 +295,7 @@ class Rule_RF01(BaseRule):
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
         supports_struct_access = query.dialect.name in (
             "athena",
+            "clickhouse",
             "databricks",
             "duckdb",
             "hive",
@@ -405,6 +407,10 @@ class Rule_RF01(BaseRule):
         # https://docs.aws.amazon.com/athena/latest/ug/filtering-with-dot.html
         # BigQuery:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/operators#field_access_operator
+        # ClickHouse:
+        # https://clickhouse.com/docs/sql-reference/data-types/newjson
+        # https://clickhouse.com/docs/sql-reference/data-types/tuple
+        # https://clickhouse.com/docs/sql-reference/data-types/nested-data-structures/nested
         # Databricks:
         # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
         # DuckDB:
@@ -419,6 +425,7 @@ class Rule_RF01(BaseRule):
         return dialect.name in (
             "athena",
             "bigquery",
+            "clickhouse",
             "databricks",
             "duckdb",
             "hive",
