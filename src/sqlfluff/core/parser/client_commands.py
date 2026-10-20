@@ -92,23 +92,28 @@ class ClientCommandRules:
     short_commands: tuple[ShortClientCommand, ...]
     opaque_token_names: frozenset[str]
     """Lexer matchers whose text the client doesn't scan: strings, quoted
-    identifiers and comments. The delimiter isn't found inside these."""
+    identifiers and comments. The delimiter isn't found inside these.
+    """
     line_command_after_block_comment: bool
     """Whether a `/* ... */` comment may come before a long-form command that
     takes its line. A command the client collects as a statement may follow a
-    comment either way."""
+    comment either way.
+    """
     dash_dash_comment_at_statement_start: bool
     """Whether `--` starts a comment at the start of a statement even with no
     whitespace after it. Elsewhere `--` needs whitespace or the end of the line
-    after it, which is the dialect's comment matcher's job."""
+    after it, which is the dialect's comment matcher's job.
+    """
     collected_line_marker: Optional[str]
     """A long-form command never takes a line that holds this text: the client
     collects the line as a statement instead. The mysql client's `find_command`
-    checks for a lower-case `\\g`, so `\\G` doesn't count."""
+    checks for a lower-case `\\g`, so `\\G` doesn't count.
+    """
     default_delimiter: str = ";"
     max_delimiter_bytes: Optional[int] = None
     """If set, longer delimiters are cut to this many bytes, as the client does.
-    `None` for no limit."""
+    `None` for no limit.
+    """
 
     def command_named(self, name: str) -> Optional[LongClientCommand]:
         """The long command called `name`, in any case."""
@@ -156,7 +161,8 @@ CLIENT_COMMAND_IGNORED = EmittedToken("client_command_ignored", ClientTextSegmen
 """Text on a command's line that the client reads past without using."""
 CLIENT_COMMAND_MISREAD = EmittedToken("client_command_misread", ClientTextSegment)
 """Command text the client doesn't read the way it looks. No grammar accepts
-it, so it is reported as a parse error."""
+it, so it is reported as a parse error.
+"""
 
 # Standard matcher names, which every dialect has.
 _WORD = "word"
@@ -174,7 +180,8 @@ class _Buffer(Enum):
 
     KEEP = "keep"
     """The statement stays as it is: whitespace, comments, and the client
-    commands the client takes out and runs."""
+    commands the client takes out and runs.
+    """
 
     END = "end"
     """The statement is sent and a new one starts: the delimiter, `\\g`."""
