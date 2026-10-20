@@ -38,24 +38,24 @@ from sqlfluff.core.parser.segments import ClientTextSegment, CodeSegment, RawSeg
 class CommandArgument(Enum):
     """What a client command reads after its name."""
 
+    # A new statement delimiter, e.g. `DELIMITER $$`.
     DELIMITER = "delimiter"
-    """A new statement delimiter, e.g. `DELIMITER $$`."""
 
+    # A script to run, e.g. `SOURCE file.sql`.
     FILE_NAME = "file_name"
-    """A script to run, e.g. `SOURCE file.sql`."""
 
 
 class BufferAction(Enum):
     """What a short command does to the statement it appears in."""
 
+    # The statement carries on, e.g. `\d`.
     KEEP = "keep"
-    """The statement carries on, e.g. `\\d`."""
 
+    # The statement is sent to the server, as at the delimiter, e.g. `\g`.
     END = "end"
-    """The statement is sent to the server, as at the delimiter, e.g. `\\g`."""
 
+    # The statement is thrown away, e.g. `\.`.
     DISCARD = "discard"
-    """The statement is thrown away, e.g. `\\.`."""
 
 
 @dataclass(frozen=True)
@@ -66,8 +66,8 @@ class LongClientCommand:
     collected up to the delimiter. So it never acts on SQL around it.
     """
 
+    # In lower case, matched in any case.
     name: str
-    """In lower case, matched in any case."""
     argument: CommandArgument
 
 
@@ -78,8 +78,8 @@ class ShortClientCommand:
     E.g. `\d $$`, which may come in the middle of a statement.
     """
 
+    # Matched in its own case, e.g. `\d`.
     text: str
-    """Matched in its own case, e.g. `\\d`."""
     buffer_action: BufferAction
     argument: Optional[CommandArgument] = None
 
@@ -90,30 +90,25 @@ class ClientCommandRules:
 
     long_commands: tuple[LongClientCommand, ...]
     short_commands: tuple[ShortClientCommand, ...]
+    # Lexer matchers whose text the client doesn't scan: strings, quoted
+    # identifiers and comments. The delimiter isn't found inside these.
     opaque_token_names: frozenset[str]
-    """Lexer matchers whose text the client doesn't scan: strings, quoted
-    identifiers and comments. The delimiter isn't found inside these.
-    """
+    # Whether a `/* ... */` comment may come before a long-form command that
+    # takes its line. A command the client collects as a statement may follow a
+    # comment either way.
     line_command_after_block_comment: bool
-    """Whether a `/* ... */` comment may come before a long-form command that
-    takes its line. A command the client collects as a statement may follow a
-    comment either way.
-    """
+    # Whether `--` starts a comment at the start of a statement even with no
+    # whitespace after it. Elsewhere `--` needs whitespace or the end of the line
+    # after it, which is the dialect's comment matcher's job.
     dash_dash_comment_at_statement_start: bool
-    """Whether `--` starts a comment at the start of a statement even with no
-    whitespace after it. Elsewhere `--` needs whitespace or the end of the line
-    after it, which is the dialect's comment matcher's job.
-    """
+    # A long-form command never takes a line that holds this text: the client
+    # collects the line as a statement instead. The mysql client's `find_command`
+    # checks for a lower-case `\g`, so `\G` doesn't count.
     collected_line_marker: Optional[str]
-    """A long-form command never takes a line that holds this text: the client
-    collects the line as a statement instead. The mysql client's `find_command`
-    checks for a lower-case `\\g`, so `\\G` doesn't count.
-    """
     default_delimiter: str = ";"
+    # If set, longer delimiters are cut to this many bytes, as the client does.
+    # `None` for no limit.
     max_delimiter_bytes: Optional[int] = None
-    """If set, longer delimiters are cut to this many bytes, as the client does.
-    `None` for no limit.
-    """
 
     def command_named(self, name: str) -> Optional[LongClientCommand]:
         """The long command called `name`, in any case."""
@@ -149,20 +144,19 @@ class EmittedToken(StringLexer):
         raise NotImplementedError(f"{self!r} is emitted, never searched for.")
 
 
+# The active delimiter, when it isn't the default one.
 CLIENT_DELIMITER = EmittedToken("client_delimiter", ClientTextSegment)
-"""The active delimiter, when it isn't the default one."""
+# A short command, such as `\d`, `\.` or `\g`.
 CLIENT_SHORT_COMMAND = EmittedToken("client_short_command", CodeSegment)
-"""A short command, such as `\\d`, `\\.` or `\\g`."""
+# The new delimiter in `DELIMITER $$`, as written.
 DELIMITER_ARGUMENT = EmittedToken("delimiter_argument", ClientTextSegment)
-"""The new delimiter in `DELIMITER $$`, as written."""
+# The file name in `SOURCE file.sql`, as the client reads it.
 SOURCE_FILE_NAME = EmittedToken("source_file_name", ClientTextSegment)
-"""The file name in `SOURCE file.sql`, as the client reads it."""
+# Text on a command's line that the client reads past without using.
 CLIENT_COMMAND_IGNORED = EmittedToken("client_command_ignored", ClientTextSegment)
-"""Text on a command's line that the client reads past without using."""
+# Command text the client doesn't read the way it looks. No grammar accepts
+# it, so it is reported as a parse error.
 CLIENT_COMMAND_MISREAD = EmittedToken("client_command_misread", ClientTextSegment)
-"""Command text the client doesn't read the way it looks. No grammar accepts
-it, so it is reported as a parse error.
-"""
 
 # Standard matcher names, which every dialect has.
 _WORD = "word"
@@ -175,19 +169,18 @@ _BLOCK_COMMENT = "block_comment"
 class _Buffer(Enum):
     """What a piece of text does to the statement the client is collecting."""
 
+    # It goes into the statement: SQL.
     APPEND = "append"
-    """It goes into the statement: SQL."""
 
+    # The statement stays as it is: whitespace, comments, and the client
+    # commands the client takes out and runs.
     KEEP = "keep"
-    """The statement stays as it is: whitespace, comments, and the client
-    commands the client takes out and runs.
-    """
 
+    # The statement is sent and a new one starts: the delimiter, `\g`.
     END = "end"
-    """The statement is sent and a new one starts: the delimiter, `\\g`."""
 
+    # The statement is thrown away and a new one starts: `\.`.
     DISCARD = "discard"
-    """The statement is thrown away and a new one starts: `\\.`."""
 
 
 _BUFFER_FOR_ACTION = {
