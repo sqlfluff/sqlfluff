@@ -262,15 +262,15 @@ fn test_short_delimiter_command_with_no_argument_is_refused() {
 }
 
 #[test]
-fn test_unclosed_quoted_argument_runs_to_the_end_of_the_line() {
+fn test_unclosed_quoted_argument_is_refused() {
     assert_tokens(
-        "DELIMITER 'ab\nSELECT 1 ab\n",
+        "DELIMITER 'ab\nSELECT 1;\n",
         &[
             ("word", "DELIMITER"),
-            ("delimiter_argument", "'ab"),
+            ("client_command_misread", "'ab"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
-            ("client_delimiter", "ab"),
+            ("semicolon", ";"),
         ],
     );
 }

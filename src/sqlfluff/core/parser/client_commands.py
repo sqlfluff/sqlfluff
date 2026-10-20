@@ -270,7 +270,8 @@ class _Argument(NamedTuple):
     """A command argument: its text as written, and the value the client reads."""
 
     raw: str
-    value: str
+    # `None` for a quote with no closing quote, which is refused.
+    value: Optional[str]
 
 
 class _NextPlace:
@@ -583,10 +584,11 @@ class ClientScriptLexer:
         else:
             self._emit_ignored(rest[: resume - argument_end])
 
-    def _accepted_delimiter(self, value: str) -> Optional[str]:
+    def _accepted_delimiter(self, value: Optional[str]) -> Optional[str]:
         """The delimiter the client sets from an argument's value.
 
-        `None` if it refuses the value: empty, or with a backslash left in it.
+        `None` if it refuses the value: empty, with a backslash left in it, or
+        from a quote with no closing quote.
         """
         if not value or "\\" in value:
             return None
@@ -690,15 +692,18 @@ class ClientScriptLexer:
 def _parse_argument(text: str) -> _Argument:
     r"""The command argument that starts `text`, as the client's `get_arg` reads it.
 
-    A quoted argument runs to the matching quote, or the end of the text, with
-    no escapes. An unquoted one ends at a space, and a backslash in it escapes
-    the character after it, which is kept in the value without the backslash,
-    so `a\ b` is one argument. A backslash at the very end stays in the value.
+    A quoted argument runs to the matching quote, with no escapes. With no
+    closing quote it has no value: the mysql client reads to the end of the
+    line, but that only ever comes from a typo such as `DELIMITER '$$`, and the
+    mariadb client refuses it, so it is refused here. An unquoted argument ends
+    at a space, and a backslash in it escapes the character after it, which is
+    kept in the value without the backslash, so `a\ b` is one argument. A
+    backslash at the very end stays in the value.
     """
     if text[:1] in ("'", '"', "`"):
         close = text.find(text[0], 1)
         if close < 0:
-            return _Argument(text, text[1:])
+            return _Argument(text, None)
         return _Argument(text[: close + 1], text[1:close])
 
     value = []

@@ -267,6 +267,9 @@ def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
         "SOURCE C:\\games\\x.sql\n",
         "SOURCE \\\\gitserver\\share\\x.sql\n",
         "SOURCE \\g\n",
+        # An unclosed quote in a delimiter argument is a typo.
+        "DELIMITER '$$\nSELECT 1 $$\n",
+        "\\d '$$\nSELECT 1 $$\n",
         # A line that holds `\g` is collected as a statement, even DELIMITER's.
         "DELIMITER // \\g\nSELECT 1 //\n",
         # SOURCE after a delimiter runs to the next one, past its line.

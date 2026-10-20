@@ -162,15 +162,16 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("semicolon", ";"),
             ],
         ),
-        # A quoted argument with no closing quote runs to the end of the line.
+        # A quoted argument with no closing quote is refused, and the delimiter
+        # kept: it only comes from a typo, and mariadb refuses it.
         (
-            "DELIMITER 'ab\nSELECT 1 ab\n",
+            "DELIMITER 'ab\nSELECT 1;\n",
             [
                 ("word", "DELIMITER"),
-                ("delimiter_argument", "'ab"),
+                ("client_command_misread", "'ab"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
-                ("client_delimiter", "ab"),
+                ("semicolon", ";"),
             ],
         ),
         # A line that holds `\g` is collected as a statement, even DELIMITER's:

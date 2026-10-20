@@ -112,7 +112,8 @@ enum Next<'a> {
 /// A command argument: its text as written, and the value the client reads.
 struct Argument<'a> {
     raw: &'a str,
-    value: String,
+    /// `None` for a quote with no closing quote, which is refused.
+    value: Option<String>,
 }
 
 /// Where a text next appears in the script, found again once lexing passes
@@ -422,7 +423,7 @@ impl<'a> ClientScriptLexer<'a> {
         }
 
         let argument = parse_argument(trimmed);
-        let delimiter = self.accepted_delimiter(&argument.value);
+        let delimiter = self.accepted_delimiter(argument.value.as_deref());
         self.set_delimiter(argument.raw, delimiter);
         &trimmed[argument.raw.len()..]
     }
@@ -463,7 +464,7 @@ impl<'a> ClientScriptLexer<'a> {
         let trimmed = argument.trim_start_matches(SPACE);
         let gap = argument.len() - trimmed.len();
         let parsed = parse_argument(trimmed);
-        let delimiter = self.accepted_delimiter(&parsed.value);
+        let delimiter = self.accepted_delimiter(parsed.value.as_deref());
         let needle = delimiter.clone().unwrap_or_else(|| self.delimiter.clone());
         let resume = argument
             .find(needle.as_str())
@@ -486,7 +487,8 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// The delimiter the client sets from an argument's value, or `None` if
     /// it refuses the value: empty, or with a backslash left in it.
-    fn accepted_delimiter(&self, value: &str) -> Option<String> {
+    fn accepted_delimiter(&self, value: Option<&str>) -> Option<String> {
+        let value = value?;
         if value.is_empty() || value.contains('\\') {
             return None;
         }
@@ -604,21 +606,24 @@ impl<'a> ClientScriptLexer<'a> {
 
 /// The command argument that starts `text`, as the client's `get_arg` reads it.
 ///
-/// A quoted argument runs to the matching quote, or the end of the text, with
-/// no escapes. An unquoted one ends at a space, and a backslash in it escapes
-/// the character after it, which is kept in the value without the backslash,
-/// so `a\ b` is one argument. A backslash at the very end stays in the value.
+/// A quoted argument runs to the matching quote, with no escapes. With no
+/// closing quote it has no value: the mysql client reads to the end of the
+/// line, but that only ever comes from a typo such as `DELIMITER '$$`, and the
+/// mariadb client refuses it, so it is refused here. An unquoted argument ends
+/// at a space, and a backslash in it escapes the character after it, which is
+/// kept in the value without the backslash, so `a\ b` is one argument. A
+/// backslash at the very end stays in the value.
 fn parse_argument(text: &str) -> Argument<'_> {
     if let Some(quote @ ('\'' | '"' | '`')) = text.chars().next() {
         let inner = &text[1..];
         return match inner.find(quote) {
             Some(close) => Argument {
                 raw: &text[..close + 2],
-                value: inner[..close].to_string(),
+                value: Some(inner[..close].to_string()),
             },
             None => Argument {
                 raw: text,
-                value: inner.to_string(),
+                value: None,
             },
         };
     }
@@ -641,7 +646,7 @@ fn parse_argument(text: &str) -> Argument<'_> {
     }
     Argument {
         raw: &text[..end],
-        value,
+        value: Some(value),
     }
 }
 
