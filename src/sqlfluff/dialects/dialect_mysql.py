@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     KeywordSegment,
     LiteralSegment,
@@ -116,6 +117,23 @@ mysql_dialect.insert_lexer_matchers(
     before="numeric_literal",
 )
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        # The national string `N'text'`. The `N` must touch the quote.
+        # https://dev.mysql.com/doc/refman/8.4/en/charset-national.html
+        RegexLexer(
+            "single_quote_with_n",
+            r"(?s)([nN]'(?:\\'|''|\\\\|[^'])*'(?!'))",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"(?s)([nN]'((?:\\'|''|\\\\|[^'])*)'(?!'))", 2),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
+        ),
+    ],
+    before="word",
+)
+
 # Set Keywords
 # Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
 # Just add MySQL unreserved keywords.
@@ -167,6 +185,58 @@ mysql_dialect.sets("date_part_function_name").update(
     ]
 )
 
+# Character set names. `_name` before a string is an introducer only when
+# `name` is one of these: `_latin1'x'` is a latin1 string, but `_foo 'x'` is
+# the column `_foo` with the alias 'x'.
+# https://dev.mysql.com/doc/refman/8.4/en/charset-charsets.html
+mysql_dialect.sets("character_set_names").update(
+    [
+        "ARMSCII8",
+        "ASCII",
+        "BIG5",
+        "BINARY",
+        "CP1250",
+        "CP1251",
+        "CP1256",
+        "CP1257",
+        "CP850",
+        "CP852",
+        "CP866",
+        "CP932",
+        "DEC8",
+        "EUCJPMS",
+        "EUCKR",
+        "GB18030",
+        "GB2312",
+        "GBK",
+        "GEOSTD8",
+        "GREEK",
+        "HEBREW",
+        "HP8",
+        "KEYBCS2",
+        "KOI8R",
+        "KOI8U",
+        "LATIN1",
+        "LATIN2",
+        "LATIN5",
+        "LATIN7",
+        "MACCE",
+        "MACROMAN",
+        "SJIS",
+        "SWE7",
+        "TIS620",
+        "UCS2",
+        "UJIS",
+        "UTF16",
+        "UTF16LE",
+        "UTF32",
+        "UTF8MB3",
+        "UTF8MB4",
+        # An alias of UTF8MB3.
+        "UTF8",
+    ]
+)
+
 mysql_dialect.sets("bare_functions").update(
     [
         "NOW",
@@ -176,6 +246,11 @@ mysql_dialect.sets("bare_functions").update(
 )
 
 mysql_dialect.replace(
+    # A function parameter: name type, with no direction (`sp_fdparam`).
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment"),
+        Ref("RoutineDatatypeGrammar"),
+    ),
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
@@ -186,8 +261,30 @@ mysql_dialect.replace(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SystemVariableSegment"),
+            Ref("IntroducedLiteralSegment"),
+            Ref("QuotedLiteralSegmentWithN"),
         ]
     ),
+    # `BINARY expr` casts to a binary string. It binds tighter than any
+    # comparison: `BINARY 'a' = 'A'` is `(BINARY 'a') = 'A'`.
+    # https://dev.mysql.com/doc/refman/8.4/en/cast-functions.html#operator_binary
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[Ref.keyword("BINARY")],
+    ),
+    # GROUP_CONCAT has its own grammar, so the generic function path must not
+    # also match it.
+    FunctionNameExclusionGrammar=ansi_dialect.get_grammar(
+        "FunctionNameExclusionGrammar"
+    ).copy(
+        insert=[Ref("GroupConcatFunctionNameSegment")],
+    ),
+    # MySQL has no general `type 'literal'` form. `DATE '...'`, `TIME '...'`
+    # and `TIMESTAMP '...'` are DateTimeLiteralGrammar, and `_utf8mb4'...'`
+    # is IntroducedLiteralSegment. Anything else, such as `foo 'x'`, is a
+    # column with an alias, and `foo 5` is a syntax error.
+    TypedLiteralGrammar=Nothing(),
     PostTableExpressionGrammar=OneOf(
         Ref("IndexHintClauseSegment"),
         Ref("SelectPartitionClauseSegment"),
@@ -217,7 +314,14 @@ mysql_dialect.replace(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
             Ref("VariableAssignmentSegment"),
-        ]
+        ],
+        # A typed literal; see TypedLiteralGrammar.
+        remove=[
+            Sequence(
+                Ref("DatatypeSegment"),
+                Ref("LiteralGrammar"),
+            ),
+        ],
     ),
     Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
         "Expression_D_Potential_Select_Statement_Without_Brackets"
@@ -284,9 +388,6 @@ mysql_dialect.replace(
     TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
-    ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", BinaryOperatorSegment),
@@ -385,6 +486,20 @@ mysql_dialect.add(
             + r"|".join(sorted(dialect.sets("reserved_keywords")))
             + r")$",
         )
+    ),
+    # A character set introducer: `_` and a character set name. A `_word` that
+    # is not a character set is an ordinary identifier.
+    CharacterSetIntroducerSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"_(?:" + r"|".join(sorted(dialect.sets("character_set_names"))) + r")\Z",
+            CodeSegment,
+            type="character_set_introducer",
+        )
+    ),
+    # The national string `N'text'`, lexed as one token like `X'41'`: `N 'x'`
+    # and `N"x"` are the column `N` with an alias.
+    QuotedLiteralSegmentWithN=TypedParser(
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
 )
 
@@ -597,6 +712,13 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("ConvertFunctionNameSegment"),
                 Ref("ConvertFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("GroupConcatFunctionNameSegment"),
+                Ref("GroupConcatFunctionContentsSegment"),
+                # The parser accepts OVER here, although neither server can
+                # execute GROUP_CONCAT as a window function yet.
+                Ref("OverClauseSegment", optional=True),
             ),
         ],
         at=0,
@@ -1076,7 +1198,9 @@ class UpsertClauseListSegment(BaseSegment):
         "DUPLICATE",
         "KEY",
         "UPDATE",
+        Indent,
         Delimited(Ref("SetClauseSegment")),
+        Dedent,
     )
 
 
@@ -1429,6 +1553,8 @@ class IntervalExpressionSegment(BaseSegment):
 mysql_dialect.add(
     AddDropSystemVersioningGrammar=Nothing(),
     TriggerOrReplaceGrammar=Nothing(),
+    # A trailing LIMIT on GROUP_CONCAT; MariaDB only.
+    AggregateLimitClauseGrammar=Nothing(),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, type="parameter_direction"
     ),
@@ -1436,18 +1562,35 @@ mysql_dialect.add(
     InputOutputParameterSegment=StringParser(
         "INOUT", SymbolSegment, type="parameter_direction"
     ),
-    ProcedureParameterGrammar=OneOf(
-        Sequence(
-            OneOf(
-                Ref("OutputParameterSegment"),
-                Ref("InputParameterSegment"),
-                Ref("InputOutputParameterSegment"),
-                optional=True,
-            ),
-            Ref("ParameterNameSegment", optional=True),
-            Ref("DatatypeSegment"),
+    # A routine parameter: [IN | OUT | INOUT] name type. The name is required,
+    # as on the server (`sp_pdparam`); MySQL allows a direction only on
+    # procedure parameters.
+    ProcedureParameterGrammar=Sequence(
+        OneOf(
+            Ref("OutputParameterSegment"),
+            Ref("InputParameterSegment"),
+            Ref("InputOutputParameterSegment"),
+            optional=True,
         ),
+        Ref("ParameterNameSegment"),
+        Ref("RoutineDatatypeGrammar"),
+    ),
+    # The type of a routine parameter, return value or local variable: a data
+    # type, which may carry a character set, then an optional collation
+    # (`type opt_collate` in the server's grammar).
+    RoutineDatatypeGrammar=Sequence(
         Ref("DatatypeSegment"),
+        Sequence(
+            Ref("CharsetGrammar"),
+            OneOf(
+                Ref("CharacterSetSegment"),
+                "BINARY",
+                Ref("SingleIdentifierGrammar"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("CollateGrammar", optional=True),
     ),
     LocalVariableNameSegment=RegexParser(
         r"`?[a-zA-Z0-9_$]*`?",
@@ -1458,6 +1601,25 @@ mysql_dialect.add(
         r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
         type="variable",
+    ),
+    # The branches of a CASE statement, shared by its simple and searched forms.
+    CaseStatementBranchesGrammar=Sequence(
+        Indent,
+        AnyNumberOf(
+            Ref("CaseStatementWhenClauseSegment"),
+            min_times=1,
+        ),
+        Ref("CaseStatementElseClauseSegment", optional=True),
+        Dedent,
+        "END",
+        "CASE",
+    ),
+    # The body of a routine, trigger, event or handler: a BEGIN ... END block,
+    # which keeps BEGIN at the header's level and indents its own contents, or
+    # a single statement, indented under the header.
+    ProceduralBodyGrammar=OneOf(
+        Ref("CompoundStatementSegment"),
+        Sequence(Indent, Ref("StatementSegment"), Dedent),
     ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableAssignmentSegment=Sequence(
@@ -1562,6 +1724,24 @@ class IndexColumnPrefixLengthSegment(BaseSegment):
     match_grammar = Bracketed(Ref("NumericLiteralSegment"))
 
 
+class IntroducedLiteralSegment(BaseSegment):
+    """A literal with a character set introducer.
+
+    `_utf8mb4'text'`, `_latin1 X'41'` or `_binary b'0101'`.
+    https://dev.mysql.com/doc/refman/8.4/en/charset-introducer.html
+    """
+
+    type = "introduced_literal"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CharacterSetIntroducerSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
+
+
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
     """A reference to an account, role, or user.
 
@@ -1590,7 +1770,8 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
             ),
             allow_gaps=True,
         ),
-        "CURRENT_USER",
+        # CURRENT_USER and CURRENT_USER() both name the current account.
+        Sequence("CURRENT_USER", Bracketed(optional=True)),
     )
 
 
@@ -1661,7 +1842,15 @@ class DeclareStatement(BaseSegment):
             Ref("NakedIdentifierSegment"),
             "CURSOR",
             "FOR",
-            Ref("StatementSegment"),
+            # The query is indented under the declaration, as a handler's
+            # statement is. Only a query is allowed here: `select_stmt` in
+            # MySQL, `select` in MariaDB. Both include VALUES.
+            Indent,
+            OneOf(
+                OptionallyBracketed(Ref("WithCompoundStatementSegment")),
+                Ref("NonWithSelectableGrammar"),
+            ),
+            Dedent,
         ),
         Sequence(
             "DECLARE",
@@ -1683,7 +1872,7 @@ class DeclareStatement(BaseSegment):
                     Ref("NakedIdentifierSegment"),
                 ),
             ),
-            Sequence(Ref("StatementSegment")),
+            Ref("ProceduralBodyGrammar"),
         ),
         Sequence(
             "DECLARE",
@@ -1694,15 +1883,11 @@ class DeclareStatement(BaseSegment):
         ),
         Sequence(
             "DECLARE",
-            Ref("LocalVariableNameSegment"),
-            Ref("DatatypeSegment"),
+            Delimited(Ref("LocalVariableNameSegment")),
+            Ref("RoutineDatatypeGrammar"),
             Sequence(
                 Ref.keyword("DEFAULT"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("FunctionSegment"),
-                ),
+                Ref("ExpressionSegment"),
                 optional=True,
             ),
         ),
@@ -1715,16 +1900,20 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
+            Ref("CompoundStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
             Ref("SetTransactionStatementSegment"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("CaseStatementSegment"),
             Ref("WhileStatementSegment"),
+            Ref("LeaveStatementSegment"),
             Ref("IterateStatementSegment"),
             Ref("RepeatStatementSegment"),
             Ref("LoopStatementSegment"),
             Ref("CallStoredProcedureSegment"),
+            Ref("DoStatementSegment"),
             Ref("PrepareSegment"),
             Ref("ExecuteSegment"),
             Ref("DeallocateSegment"),
@@ -1748,6 +1937,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
             Ref("AlterDatabaseStatementSegment"),
@@ -1787,8 +1977,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("ProcedureParameterListGrammar", optional=True),
-        Ref("CommentClauseSegment", optional=True),
+        Ref("ProcedureParameterListGrammar"),
         Ref("CharacteristicStatement", optional=True),
         Ref("FunctionDefinitionGrammar"),
     )
@@ -1798,25 +1987,54 @@ class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
     type = "function_definition"
-    match_grammar = Ref("TransactionStatementSegment")
+    match_grammar = Ref("ProceduralBodyGrammar")
+
+
+class CompoundStatementSegment(BaseSegment):
+    """A `BEGIN ... END` compound statement.
+
+    Distinct from the `BEGIN` which starts a transaction, which is handled by
+    `TransactionStatementSegment`. Within a stored program `BEGIN` always
+    opens a block.
+
+    https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
+    """
+
+    type = "compound_statement"
+
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "BEGIN",
+        Indent,
+        Ref("StatementListSegment", optional=True),
+        Dedent,
+        "END",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
 
 
 class CharacteristicStatement(BaseSegment):
-    """A Characteristics statement for functions/procedures."""
+    """The characteristics of a function or procedure.
+
+    Any number of them, in any order, including `COMMENT`, as in the server's
+    grammar (`sp_c_chistics`, a list of `sp_c_chistic`). Repeats are allowed;
+    the server keeps the last.
+
+    https://dev.mysql.com/doc/refman/8.4/en/create-procedure.html
+    """
 
     type = "characteristic_statement"
 
-    match_grammar = Sequence(
-        OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
-        Sequence("LANGUAGE", "SQL", optional=True),
-        OneOf(
-            Sequence("CONTAINS", "SQL", optional=True),
-            Sequence("NO", "SQL", optional=True),
-            Sequence("READS", "SQL", "DATA", optional=True),
-            Sequence("MODIFIES", "SQL", "DATA", optional=True),
-            optional=True,
-        ),
-        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+    match_grammar = AnyNumberOf(
+        Ref("CommentClauseSegment"),
+        Sequence("LANGUAGE", "SQL"),
+        Sequence(Ref.keyword("NOT", optional=True), "DETERMINISTIC"),
+        Sequence("CONTAINS", "SQL"),
+        Sequence("NO", "SQL"),
+        Sequence("READS", "SQL", "DATA"),
+        Sequence("MODIFIES", "SQL", "DATA"),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER")),
+        min_times=1,
     )
 
 
@@ -1832,14 +2050,14 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Ref("DefinerSegment", optional=True),
         "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("FunctionParameterListGrammar"),
         Sequence(
             "RETURNS",
-            Ref("DatatypeSegment"),
+            Ref("RoutineDatatypeGrammar"),
         ),
-        Ref("CommentClauseSegment", optional=True),
-        Ref("CharacteristicStatement"),
+        Ref("CharacteristicStatement", optional=True),
         Ref("FunctionDefinitionGrammar"),
     )
 
@@ -2079,6 +2297,7 @@ class AlterTableStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
+        Indent,
         Delimited(
             OneOf(
                 # Table options
@@ -2268,6 +2487,7 @@ class AlterTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
     )
 
 
@@ -2405,8 +2625,10 @@ class SetAssignmentStatementSegment(BaseSegment):
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
+    Transaction control only. `BEGIN ... END` blocks are handled by
+    `CompoundStatementSegment`, and `LEAVE` by `LeaveStatementSegment`.
+
     https://dev.mysql.com/doc/refman/8.0/en/commit.html
-    https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
     """
 
     type = "transaction_statement"
@@ -2414,18 +2636,8 @@ class TransactionStatementSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence("START", "TRANSACTION"),
         Sequence(
-            Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            Sequence(
-                "BEGIN",
-                Ref.keyword("WORK", optional=True),
-                Ref("StatementSegment"),
-            ),
-        ),
-        Sequence(
-            "LEAVE",
-            Ref("SingleIdentifierGrammar", optional=True),
+            "BEGIN",
+            Ref.keyword("WORK", optional=True),
         ),
         Sequence(
             "COMMIT",
@@ -2436,28 +2648,27 @@ class TransactionStatementSegment(BaseSegment):
             "ROLLBACK",
             Ref.keyword("WORK", optional=True),
         ),
-        Sequence(
-            "END",
-            Ref("SingleIdentifierGrammar", optional=True),
-        ),
     )
 
 
-class IfStatementListSegment(BaseSegment):
-    """Statements within an IF...END IF statement."""
+class StatementListSegment(BaseSegment):
+    """The statements in a block, loop or IF branch.
 
-    type = "if_statement_list"
+    One or more statements, each followed by its delimiter (`sp_proc_stmts1`
+    in the server's grammar). A `BEGIN ... END` block may be empty, so it makes
+    the list optional (`sp_proc_stmts`).
+
+    The list needs no exclusions. It ends where the next word cannot start a
+    statement (`END`, `UNTIL`, `ELSEIF`, `ELSE`, all reserved), and what may
+    follow it is up to the enclosing construct: for example, the order of
+    `ELSEIF` and `ELSE` branches is enforced by `IfExpressionStatement`.
+    """
+
+    type = "statement_list"
 
     match_grammar = AnyNumberOf(
         Sequence(
-            Ref(
-                "StatementSegment",
-                exclude=OneOf(
-                    "ELSEIF",
-                    "ELSE",
-                    Sequence("END", "IF"),
-                ),
-            ),
+            Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
         min_times=1,
@@ -2474,30 +2685,103 @@ class IfExpressionStatement(BaseSegment):
 
     match_grammar = Sequence(
         "IF",
+        # Each condition takes an implicit indent, as a WHERE clause does.
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
         "THEN",
         Indent,
-        Ref("IfStatementListSegment"),
+        Ref("StatementListSegment"),
         Dedent,
         AnyNumberOf(
             Sequence(
                 "ELSEIF",
+                ImplicitIndent,
                 Ref("ExpressionSegment"),
+                Dedent,
                 "THEN",
                 Indent,
-                Ref("IfStatementListSegment"),
+                Ref("StatementListSegment"),
                 Dedent,
             ),
         ),
         Sequence(
             "ELSE",
             Indent,
-            Ref("IfStatementListSegment"),
+            Ref("StatementListSegment"),
             Dedent,
             optional=True,
         ),
         "END",
         "IF",
+    )
+
+
+class CaseStatementSegment(BaseSegment):
+    """A `CASE ... END CASE` statement, the procedural form of `CASE`.
+
+    Unlike the `CASE` expression, which ends with a plain `END` and evaluates to
+    a value, each branch here holds statements. The two forms are written out
+    as in the server's grammar (`simple_case_stmt` and `searched_case_stmt`)
+    and in the `CASE` expression: the simple form compares a case value with
+    each `WHEN` value, the searched form tests each `WHEN` condition.
+
+    https://dev.mysql.com/doc/refman/8.4/en/case.html
+    """
+
+    type = "case_statement"
+
+    match_grammar = OneOf(
+        # Searched form: CASE WHEN search_condition THEN ...
+        Sequence(
+            "CASE",
+            Ref("CaseStatementBranchesGrammar"),
+        ),
+        # Simple form: CASE case_value WHEN when_value THEN ...
+        Sequence(
+            "CASE",
+            Ref("ExpressionSegment"),
+            Ref("CaseStatementBranchesGrammar"),
+        ),
+    )
+
+
+class CaseStatementWhenClauseSegment(BaseSegment):
+    """A `WHEN ... THEN` branch of a `CASE` statement.
+
+    Shares its type with the `CASE` expression's branch, so that a rule can
+    treat both alike. Rules written for `CASE` expressions only look inside
+    `case_expression`, so they do not reach these.
+    """
+
+    type = "when_clause"
+
+    match_grammar = Sequence(
+        "WHEN",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+        Dedent,
+        "THEN",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
+    )
+
+
+class CaseStatementElseClauseSegment(BaseSegment):
+    """The `ELSE` branch of a `CASE` statement.
+
+    Shares its type with the `CASE` expression's `ELSE`, as
+    `CaseStatementWhenClauseSegment` does.
+    """
+
+    type = "else_clause"
+
+    match_grammar = Sequence(
+        "ELSE",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
     )
 
 
@@ -2713,7 +2997,24 @@ class CallStoredProcedureSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CALL",
-        Ref("FunctionSegment"),
+        OneOf(
+            Ref("FunctionSegment"),
+            Ref("FunctionNameSegment"),
+        ),
+    )
+
+
+class DoStatementSegment(BaseSegment):
+    """A DO statement, which evaluates expressions and discards the results.
+
+    https://dev.mysql.com/doc/refman/8.0/en/do.html
+    """
+
+    type = "do_statement"
+
+    match_grammar = Sequence(
+        "DO",
+        Delimited(Ref("ExpressionSegment")),
     )
 
 
@@ -2736,25 +3037,19 @@ class WhileStatementSegment(BaseSegment):
 
     type = "while_statement"
 
-    match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            Sequence(
-                "WHILE",
-                Ref("ExpressionSegment"),
-                "DO",
-                AnyNumberOf(
-                    Ref("StatementSegment"),
-                ),
-            ),
-        ),
-        Sequence(
-            "END",
-            "WHILE",
-            Ref("SingleIdentifierGrammar", optional=True),
-        ),
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "WHILE",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+        Dedent,
+        "DO",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
+        "END",
+        "WHILE",
+        Ref("SingleIdentifierGrammar", optional=True),
     )
 
 
@@ -2841,21 +3136,15 @@ class LoopStatementSegment(BaseSegment):
 
     type = "loop_statement"
 
-    match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            "LOOP",
-            Delimited(
-                Ref("StatementSegment"),
-            ),
-        ),
-        Sequence(
-            "END",
-            "LOOP",
-            Ref("SingleIdentifierGrammar", optional=True),
-        ),
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "LOOP",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
+        "END",
+        "LOOP",
+        Ref("SingleIdentifierGrammar", optional=True),
     )
 
 
@@ -2874,6 +3163,20 @@ class CursorOpenCloseSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
             Ref("QuotedIdentifierSegment"),
         ),
+    )
+
+
+class LeaveStatementSegment(BaseSegment):
+    """A `LEAVE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/leave.html
+    """
+
+    type = "leave_statement"
+
+    match_grammar = Sequence(
+        "LEAVE",
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -2914,25 +3217,19 @@ class RepeatStatementSegment(BaseSegment):
 
     type = "repeat_statement"
 
-    match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
-            ),
-            "REPEAT",
-            AnyNumberOf(
-                Ref("StatementSegment"),
-            ),
-        ),
-        Sequence(
-            "UNTIL",
-            Ref("ExpressionSegment"),
-            Sequence(
-                "END",
-                "REPEAT",
-                Ref("SingleIdentifierGrammar", optional=True),
-            ),
-        ),
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True),
+        "REPEAT",
+        Indent,
+        Ref("StatementListSegment"),
+        Dedent,
+        "UNTIL",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+        Dedent,
+        "END",
+        "REPEAT",
+        Ref("SingleIdentifierGrammar", optional=True),
     )
 
 
@@ -2969,6 +3266,9 @@ class ResignalSegment(BaseSegment):
             Ref("NakedIdentifierSegment"),
             optional=True,
         ),
+        # The SET clause takes an implicit indent: on its own line it is
+        # indented under SIGNAL.
+        ImplicitIndent,
         Sequence(
             "SET",
             Delimited(
@@ -2998,6 +3298,7 @@ class ResignalSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
     )
 
 
@@ -3009,7 +3310,7 @@ class CursorFetchSegment(BaseSegment):
 
     type = "cursor_fetch_segment"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "FETCH",
         Sequence(Ref.keyword("NEXT", optional=True), "FROM", optional=True),
         Ref("NakedIdentifierSegment"),
@@ -3123,6 +3424,50 @@ class ConvertFunctionContentsSegment(BaseSegment):
             Sequence(Ref("CommaSegment"), Ref("DatatypeSegment")),
             Sequence("USING", OneOf("BINARY", Ref("NakedIdentifierSegment"))),
         ),
+    )
+
+
+class GroupConcatFunctionNameSegment(BaseSegment):
+    """GROUP_CONCAT function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "GROUP_CONCAT", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class GroupConcatFunctionContentsSegment(BaseSegment):
+    """GROUP_CONCAT function contents.
+
+    GROUP_CONCAT([DISTINCT] expr [, expr ...] [ORDER BY ...] [SEPARATOR str])
+
+    The separator is a single string token, or a hexadecimal or bit-value
+    literal; not a number, and not an expression.
+    https://dev.mysql.com/doc/refman/8.4/en/aggregate-functions.html#function_group-concat
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref.keyword("DISTINCT", optional=True),
+        Delimited(Ref("ExpressionSegment")),
+        Ref("AggregateOrderByClause", optional=True),
+        Sequence(
+            "SEPARATOR",
+            OneOf(
+                TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+                Ref("DoubleQuotedLiteralSegment"),
+                RegexParser(
+                    r"[xX]'[0-9a-fA-F]*'|0x[0-9a-fA-F]+|[bB]'[01]*'|0b[01]+",
+                    LiteralSegment,
+                    type="numeric_literal",
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("AggregateLimitClauseGrammar", optional=True),
     )
 
 
@@ -3453,6 +3798,23 @@ class FlushStatementSegment(BaseSegment):
     )
 
 
+class KillStatementSegment(BaseSegment):
+    """A `KILL` statement, ending a connection or the statement it is running.
+
+    The id is any expression, as in the server's grammar
+    (`KILL kill_option expr`).
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/kill.html
+    """
+
+    type = "kill_statement"
+    match_grammar: Matchable = Sequence(
+        "KILL",
+        OneOf("CONNECTION", "QUERY", optional=True),
+        Ref("ExpressionSegment"),
+    )
+
+
 class LoadDataSegment(BaseSegment):
     """A `LOAD DATA` statement.
 
@@ -3500,7 +3862,15 @@ class LoadDataSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            # Each target is a column or a user variable (`col_name_or_user_var`).
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("SessionVariableNameSegment"),
+                    )
+                )
+            ),
             optional=True,
         ),
         Sequence(
@@ -3567,10 +3937,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         Sequence(
             OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
         ),
-        OneOf(
-            Ref("StatementSegment"),
-            Sequence("BEGIN", Ref("StatementSegment"), "END"),
-        ),
+        Ref("ProceduralBodyGrammar"),
     )
 
 
@@ -3706,7 +4073,10 @@ class ReturnStatementSegment(BaseSegment):
     type = "return_statement"
     match_grammar = Sequence(
         "RETURN",
+        # The value takes an implicit indent, as a WHERE condition does.
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
     )
 
 
@@ -3795,7 +4165,7 @@ class CreateEventStatementSegment(BaseSegment):
         ),
         Ref("CommentClauseSegment", optional=True),
         "DO",
-        Ref("StatementSegment"),
+        Ref("ProceduralBodyGrammar"),
     )
 
 
@@ -3842,7 +4212,7 @@ class AlterEventStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("CommentClauseSegment", optional=True),
-        Sequence("DO", Ref("StatementSegment"), optional=True),
+        Sequence("DO", Ref("ProceduralBodyGrammar"), optional=True),
     )
 
 

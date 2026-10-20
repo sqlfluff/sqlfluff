@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e497e1581b4f902124eda5a156306b6a31fb9addcea3aeb80008d87dc391a523
+file:
+  batch:
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: bonuses
+      - alias_expression:
+          naked_identifier: d
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: employee_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: salary
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: department_id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+          end_bracket: )
+      - alias_expression:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: d
+              - dot: .
+              - naked_identifier: employee_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: s
+              - dot: .
+              - naked_identifier: employee_id
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+            - keyword: UPDATE
+            - set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: bonus
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - naked_identifier: d
+                    - dot: .
+                    - naked_identifier: bonus
+                  - binary_operator: +
+                  - column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: salary
+                  - binary_operator: '*'
+                  - numeric_literal: '0.01'
+            - keyword: DELETE
+            - where_clause:
+                keyword: WHERE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: salary
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '8000'
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: bonuses
+      - alias_expression:
+          naked_identifier: d
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: employee_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: salary
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: department_id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+          end_bracket: )
+      - alias_expression:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: d
+              - dot: .
+              - naked_identifier: employee_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: s
+              - dot: .
+              - naked_identifier: employee_id
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+            - keyword: UPDATE
+            - set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: bonus
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - naked_identifier: d
+                    - dot: .
+                    - naked_identifier: bonus
+                  - binary_operator: +
+                  - column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: salary
+                  - binary_operator: '*'
+                  - numeric_literal: '0.01'
+            - where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: department_id
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '80'
+            - keyword: DELETE
+            - where_clause:
+                keyword: WHERE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: salary
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '8000'
+                  end_bracket: )
+          merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+              keyword: INSERT
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: employee_id
+              - comma: ','
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: bonus
+              - end_bracket: )
+              values_clause:
+                keyword: VALUES
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: employee_id
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: salary
+                    binary_operator: '*'
+                    numeric_literal: '0.1'
+                - end_bracket: )
+              where_clause:
+                keyword: WHERE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: salary
+                    comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
+                    numeric_literal: '8000'
+                  end_bracket: )
+  - statement_terminator: ;

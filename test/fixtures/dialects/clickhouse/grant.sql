@@ -22,3 +22,12 @@ GRANT ALTER DELETE, ALTER UPDATE ON db_name TO user_name;
 
 -- ALL PRIVILEGES
 GRANT ALL ON db_name TO user_name;
+
+-- https://fiddle.clickhouse.com/20ab59f5-aaf3-4cb7-9bd0-68d18763fe63
+GRANT ALTER PROJECTION ON default.test_table TO user_name;
+GRANT ALTER ADD PROJECTION ON *.* TO user_name;
+GRANT ALTER MODIFY PROJECTION ON test_table TO user_name;
+GRANT ALTER DROP PROJECTION ON *.* TO user_name;
+GRANT ALTER MATERIALIZE PROJECTION ON default.test_table TO user_name;
+GRANT ALTER CLEAR PROJECTION ON test_table TO user_name;
+GRANT ALTER ADD PROJECTION, ALTER MATERIALIZE PROJECTION, ALTER PROJECTION ON default.test_table TO user_name;

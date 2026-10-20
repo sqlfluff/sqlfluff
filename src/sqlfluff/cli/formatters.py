@@ -623,7 +623,7 @@ class OutputStreamFormatter(FormatterInterface):
                     )
                     for t in linter.rule_tuples()
                 ],
-                col_width=80,
+                col_width=self.output_line_length,
                 cols=1,
                 label_color=Color.blue,
                 val_align="left",

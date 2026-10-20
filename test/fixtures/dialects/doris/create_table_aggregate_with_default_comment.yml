@@ -1,0 +1,76 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 671009de3e96a3333e11b0a29facfed1f6ec2df85ac400df22ec1268bf656ee6
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: v1
+        - data_type:
+            data_type_identifier: BIGINT
+        - keyword: SUM
+        - column_constraint_segment:
+            keyword: DEFAULT
+            quoted_literal: '"0"'
+        - column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: '"running total"'
+      - comma: ','
+      - column_definition:
+          naked_identifier: v2
+          data_type:
+            data_type_identifier: INT
+          keyword: MAX
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: v3
+          data_type:
+            data_type_identifier: STRING
+          keyword: REPLACE
+          column_constraint_segment:
+            keyword: DEFAULT
+            quoted_literal: '"n/a"'
+      - end_bracket: )
+    - keyword: AGGREGATE
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'replication_num'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'1'"
+      - end_bracket: )
+  statement_terminator: ;

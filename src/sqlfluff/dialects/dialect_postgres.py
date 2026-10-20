@@ -381,6 +381,16 @@ postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
 
+# Track the `col_name_keyword` class (PostgreSQL's
+# `non-reserved-(cannot-be-function-or-type)` keywords, e.g. BETWEEN) in a
+# dedicated dialect set. These may not be used as a bare data type name.
+# Storing them in a set (rather than closing over `postgres_keywords`
+# directly) lets child dialects such as Greenplum extend the exclusion with
+# their own `cannot-be-function-or-type` keywords. See issue #6430.
+postgres_dialect.sets("cannot_be_type_keywords").update(
+    get_keywords(postgres_keywords, "non-reserved-(cannot-be-function-or-type)")
+)
+
 # `SOURCE` and `TARGET` are not PostgreSQL keywords in general, but the
 # `MERGE ... WHEN NOT MATCHED BY {SOURCE,TARGET}` clauses (added in PostgreSQL
 # 17) need them. Register them as unreserved so they remain usable as ordinary
@@ -508,6 +518,15 @@ postgres_dialect.add(
     OnKeywordAsIdentifierSegment=StringParser(
         "ON", IdentifierSegment, type="naked_identifier"
     ),
+    # A boolean option value: TRUE, ON or 1 enable the option, and FALSE, OFF
+    # or 0 disable it.
+    # https://www.postgresql.org/docs/current/sql-explain.html
+    OptionBooleanGrammar=OneOf(
+        Ref("BooleanLiteralGrammar"),
+        "ON",
+        "OFF",
+        Ref("NumericLiteralSegment"),
+    ),
     DollarNumericLiteralSegment=TypedParser(
         "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
     ),
@@ -562,6 +581,20 @@ postgres_dialect.add(
         Ref("JsonTypeGrammar", optional=True),
         Ref("JsonUniqueKeysGrammar", optional=True),
     ),
+    # PostgreSQL 18 allows RETURNING to rename the OLD and NEW row references.
+    # https://www.postgresql.org/docs/18/sql-update.html
+    ReturningOldNewAliasesGrammar=Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("OLD", "NEW"),
+                    "AS",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -611,6 +644,31 @@ postgres_dialect.replace(
             + r")$",
             casefold=str.lower,
         )
+    ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # A user-defined type name. Per the PostgreSQL grammar a type name is
+        # `unreserved_keyword | type_func_name_keyword | IDENT`; crucially it may
+        # NOT be a `col_name_keyword` (the `cannot-be-function-or-type` class,
+        # e.g. BETWEEN). Built-in types such as INT/VARCHAR are matched by
+        # explicit branches in DatatypeSegment before this fallback is reached,
+        # so excluding those keywords here does not affect them. Reserved
+        # keywords are intentionally NOT excluded, because some grammar (e.g. the
+        # `substring(... SIMILAR ... ESCAPE ...)` special form) relies on
+        # matching such words as data-type identifiers. The excluded class is
+        # read from the `cannot_be_type_keywords` dialect set so child dialects
+        # (e.g. Greenplum) that add their own such keywords are handled too.
+        # See issue #6430.
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^("
+                + r"|".join(["NOT"] + sorted(dialect.sets("cannot_be_type_keywords")))
+                + r")$",
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
+        ),
     ),
     Expression_C_Grammar=Sequence(
         Ref("WalrusOperatorSegment", optional=True),
@@ -1118,7 +1176,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     ),
                     # numeric types [precision ["," scale])]
                     Sequence(
-                        OneOf("DECIMAL", "NUMERIC"),
+                        OneOf("DECIMAL", "DEC", "NUMERIC"),
                         Ref("BracketedArguments", optional=True),
                     ),
                     # monetary type
@@ -1135,6 +1193,12 @@ class DatatypeSegment(ansi.DatatypeSegment):
                                 Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
+                                "NCHAR",
+                                Sequence("NCHAR", "VARYING"),
+                                Sequence("NATIONAL", "CHARACTER"),
+                                Sequence("NATIONAL", "CHARACTER", "VARYING"),
+                                Sequence("NATIONAL", "CHAR"),
+                                Sequence("NATIONAL", "CHAR", "VARYING"),
                                 "VARCHAR",
                             ),
                             Ref("BracketedArguments", optional=True),
@@ -2345,13 +2409,16 @@ class ExplainOptionSegment(BaseSegment):
     VERBOSE [ boolean ]
     COSTS [ boolean ]
     SETTINGS [ boolean ]
+    GENERIC_PLAN [ boolean ]
     BUFFERS [ boolean ]
+    SERIALIZE [ { NONE | TEXT | BINARY } ]
     WAL [ boolean ]
     TIMING [ boolean ]
     SUMMARY [ boolean ]
+    MEMORY [ boolean ]
     FORMAT { TEXT | XML | JSON | YAML }
 
-    https://www.postgresql.org/docs/14/sql-explain.html
+    https://www.postgresql.org/docs/17/sql-explain.html
     """
 
     type = "explain_option"
@@ -2364,12 +2431,18 @@ class ExplainOptionSegment(BaseSegment):
                 "VERBOSE",
                 "COSTS",
                 "SETTINGS",
+                "GENERIC_PLAN",
                 "BUFFERS",
                 "WAL",
                 "TIMING",
                 "SUMMARY",
+                "MEMORY",
             ),
-            Ref("BooleanLiteralGrammar", optional=True),
+            Ref("OptionBooleanGrammar", optional=True),
+        ),
+        Sequence(
+            "SERIALIZE",
+            OneOf("NONE", "TEXT", "BINARY", optional=True),
         ),
         Sequence(
             "FORMAT",
@@ -2901,6 +2974,8 @@ class AlterTableActionSegment(BaseSegment):
                 Sequence("INITIALLY", "IMMEDIATE"),
                 optional=True,
             ),
+            # [ ENFORCED | NOT ENFORCED ] (PostgreSQL 18)
+            OneOf("ENFORCED", Sequence("NOT", "ENFORCED"), optional=True),
         ),
         Sequence("VALIDATE", "CONSTRAINT", Ref("ParameterNameSegment")),
         Sequence(
@@ -2937,6 +3012,15 @@ class AlterTableActionSegment(BaseSegment):
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", OneOf("CLUSTER", "OIDS")),
         Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
+        # `SET ACCESS METHOD` was added in PostgreSQL 15, and accepting
+        # `DEFAULT` (meaning `default_table_access_method`) in PostgreSQL 17.
+        # https://www.postgresql.org/docs/current/sql-altertable.html
+        Sequence(
+            "SET",
+            "ACCESS",
+            "METHOD",
+            OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+        ),
         Sequence("SET", OneOf("LOGGED", "UNLOGGED")),
         Sequence("SET", Ref("RelationOptionsSegment")),
         # Documentation says you can only provide keys in RESET options, but the
@@ -3429,6 +3513,14 @@ class AlterMaterializedViewActionSegment(BaseSegment):
         ),
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", "CLUSTER"),
+        # `SET ACCESS METHOD` was added in PostgreSQL 15.
+        # https://www.postgresql.org/docs/current/sql-altermaterializedview.html
+        Sequence(
+            "SET",
+            "ACCESS",
+            "METHOD",
+            OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+        ),
         Sequence(
             "SET",
             Bracketed(
@@ -3720,7 +3812,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "ALLOW_CONNECTIONS",
                 Ref("EqualsSegment", optional=True),
-                Ref("BooleanLiteralGrammar"),
+                Ref("OptionBooleanGrammar"),
             ),
             Sequence(
                 "CONNECTION",
@@ -3731,7 +3823,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "IS_TEMPLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("BooleanLiteralGrammar"),
+                Ref("OptionBooleanGrammar"),
             ),
         ),
     )
@@ -3753,13 +3845,13 @@ class AlterDatabaseStatementSegment(BaseSegment):
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 AnyNumberOf(
-                    Sequence("ALLOW_CONNECTIONS", Ref("BooleanLiteralGrammar")),
+                    Sequence("ALLOW_CONNECTIONS", Ref("OptionBooleanGrammar")),
                     Sequence(
                         "CONNECTION",
                         "LIMIT",
                         Ref("NumericLiteralSegment"),
                     ),
-                    Sequence("IS_TEMPLATE", Ref("BooleanLiteralGrammar")),
+                    Sequence("IS_TEMPLATE", Ref("OptionBooleanGrammar")),
                     min_times=1,
                 ),
             ),
@@ -3923,7 +4015,7 @@ class DropSubscriptionStatementSegment(BaseSegment):
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
-    https://www.postgresql.org/docs/15/sql-vacuum.html
+    https://www.postgresql.org/docs/18/sql-vacuum.html
     https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L11658
     """
 
@@ -3949,9 +4041,13 @@ class VacuumStatementSegment(BaseSegment):
                             "DISABLE_PAGE_SKIPPING",
                             "SKIP_LOCKED",
                             "INDEX_CLEANUP",
+                            "PROCESS_MAIN",
                             "PROCESS_TOAST",
                             "TRUNCATE",
                             "PARALLEL",
+                            "SKIP_DATABASE_STATS",
+                            "ONLY_DATABASE_STATS",
+                            "BUFFER_USAGE_LIMIT",
                         ),
                         OneOf(
                             Ref("LiteralGrammar"),
@@ -3967,7 +4063,10 @@ class VacuumStatementSegment(BaseSegment):
         ),
         Delimited(
             Sequence(
+                # ONLY and * are PostgreSQL 18+.
+                Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
+                Ref("StarSegment", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
             optional=True,
@@ -4083,6 +4182,8 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Sequence("INITIALLY", "IMMEDIATE"),
             optional=True,
         ),
+        # [ ENFORCED | NOT ENFORCED ] (PostgreSQL 18)
+        OneOf("ENFORCED", Sequence("NOT", "ENFORCED"), optional=True),
     )
 
 
@@ -4230,6 +4331,8 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
             OneOf(
                 Sequence("INITIALLY", "DEFERRED"), Sequence("INITIALLY", "IMMEDIATE")
             ),
+            # [ ENFORCED | NOT ENFORCED ] (PostgreSQL 18)
+            OneOf("ENFORCED", Sequence("NOT", "ENFORCED")),
             Sequence("NOT", "VALID"),
             Sequence("NO", "INHERIT"),
         ),
@@ -4817,12 +4920,12 @@ class ReindexStatementSegment(BaseSegment):
         "REINDEX",
         Bracketed(
             Delimited(
-                Sequence("CONCURRENTLY", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence("CONCURRENTLY", Ref("OptionBooleanGrammar", optional=True)),
                 Sequence(
                     "TABLESPACE",
                     Ref("TablespaceReferenceSegment"),
                 ),
-                Sequence("VERBOSE", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence("VERBOSE", Ref("OptionBooleanGrammar", optional=True)),
             ),
             optional=True,
         ),
@@ -5151,17 +5254,26 @@ class DropStatisticsStatementSegment(BaseSegment):
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
-    As specified in https://www.postgresql.org/docs/13/sql-analyze.html
+    As specified in https://www.postgresql.org/docs/18/sql-analyze.html
     """
 
     type = "analyze_statement"
 
-    _option = Sequence(
-        OneOf("VERBOSE", "SKIP_LOCKED"), Ref("BooleanLiteralGrammar", optional=True)
+    _option = OneOf(
+        Sequence(
+            OneOf("VERBOSE", "SKIP_LOCKED"), Ref("OptionBooleanGrammar", optional=True)
+        ),
+        Sequence(
+            "BUFFER_USAGE_LIMIT",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+        ),
     )
 
     _tables_and_columns = Sequence(
+        # ONLY and * are PostgreSQL 18+.
+        Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("StarSegment", optional=True),
         Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
     )
 
@@ -5537,6 +5649,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6004,7 +6117,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
 class CopyStatementSegment(BaseSegment):
     """A `COPY` statement.
 
-    As Specified in https://www.postgresql.org/docs/14/sql-copy.html
+    As Specified in https://www.postgresql.org/docs/current/sql-copy.html
     """
 
     type = "copy_statement"
@@ -6029,10 +6142,15 @@ class CopyStatementSegment(BaseSegment):
             Delimited(
                 AnySetOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
-                    Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("FREEZE", Ref("OptionBooleanGrammar", optional=True)),
                     Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
                     Sequence("NULL", Ref("QuotedLiteralSegment")),
-                    Sequence("HEADER", Ref("BooleanLiteralGrammar", optional=True)),
+                    # PostgreSQL 16+
+                    Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
+                    Sequence(
+                        "HEADER",
+                        OneOf(Ref("OptionBooleanGrammar"), "MATCH", optional=True),
+                    ),
                     Sequence("QUOTE", Ref("QuotedLiteralSegment")),
                     Sequence("ESCAPE", Ref("QuotedLiteralSegment")),
                     Sequence(
@@ -6044,13 +6162,25 @@ class CopyStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "FORCE_NOT_NULL",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
                     ),
                     Sequence(
                         "FORCE_NULL",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
                     ),
+                    # PostgreSQL 17+
+                    Sequence("ON_ERROR", OneOf("STOP", "IGNORE")),
+                    # PostgreSQL 18+
+                    Sequence("REJECT_LIMIT", Ref("NumericLiteralSegment")),
                     Sequence("ENCODING", Ref("QuotedLiteralSegment")),
+                    # PostgreSQL 17+ (SILENT added in 18)
+                    Sequence("LOG_VERBOSITY", OneOf("DEFAULT", "VERBOSE", "SILENT")),
                 )
             )
         ),
@@ -6318,6 +6448,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6424,6 +6555,7 @@ class UpdateStatementSegment(BaseSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6708,7 +6840,7 @@ class CreateCollationStatementSegment(BaseSegment):
                     Sequence(
                         "DETERMINISTIC",
                         Ref("EqualsSegment"),
-                        Ref("BooleanLiteralGrammar"),
+                        Ref("OptionBooleanGrammar"),
                     ),
                     Sequence(
                         "VERSION",
@@ -7387,26 +7519,6 @@ class DeallocateStatementSegment(BaseSegment):
     )
 
 
-class TypedArrayLiteralSegment(ansi.TypedArrayLiteralSegment):
-    """An array literal segment."""
-
-    type = "typed_array_literal"
-    match_grammar = ansi.TypedArrayLiteralSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                Ref.keyword("VARIADIC"),
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("WalrusOperatorSegment"),
-                    optional=True,
-                ),
-                optional=True,
-            )
-        ],
-        before=Ref("ArrayTypeSegment"),
-    )
-
-
 class SetSessionAuthorizationStatementSegment(BaseSegment):
     """A `SET SESSION AUTHORIZATION` statement.
 
@@ -7543,6 +7655,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
         insert=[
             Sequence(
                 "RETURNING",
+                Ref("ReturningOldNewAliasesGrammar", optional=True),
                 Indent,
                 OneOf(
                     Ref("StarSegment"),

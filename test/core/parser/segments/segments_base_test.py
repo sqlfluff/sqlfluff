@@ -280,6 +280,57 @@ def test__parser__base_segments_base_compare(DummySegment, DummyAuxSegment):
     assert ds1 != dsa2
 
 
+def test__parser__base_segments_raw_segment_index(DummySegment):
+    """Test raw_segment_index() gives the same answers as list.index()."""
+    template = TemplatedFile.from_string("foobar")
+    foo = RawSegment("foo", PositionMarker(slice(0, 3), slice(0, 3), template))
+    bar = RawSegment("bar", PositionMarker(slice(3, 6), slice(3, 6), template))
+    # Two zero length segments at the same position are equal.
+    empty1 = RawSegment("", PositionMarker(slice(3, 3), slice(3, 3), template))
+    empty2 = RawSegment("", PositionMarker(slice(3, 3), slice(3, 3), template))
+    # A copy shares the uuid of the original, so they are equal too.
+    seg = DummySegment([foo, empty1, empty2, bar, foo.copy()])
+    for probe in (
+        foo,
+        bar,
+        # Equal to an earlier segment in the list, which is found first.
+        empty2,
+        seg.raw_segments[4],
+        # Equal segments which aren't in the list: a copy, a new segment at
+        # the same position, and a segment with the same uuid but no position.
+        bar.copy(),
+        RawSegment("bar", PositionMarker(slice(3, 6), slice(3, 6), template)),
+        RawSegment("bar", uuid=bar.uuid),
+    ):
+        assert seg.raw_segment_index(probe) == seg.raw_segments.index(probe)
+    # Segments which aren't equal to any of them raise, like list.index().
+    for probe in (
+        RawSegment("bar", PositionMarker(slice(0, 3), slice(0, 3), template)),
+        RawSegment("bar"),
+    ):
+        with pytest.raises(ValueError):
+            seg.raw_segment_index(probe)
+
+
+def test__parser__base_segments_select_children(DummySegment):
+    """Test the .select_children() method."""
+    template = TemplatedFile.from_string("abcde")
+    a, b, c, d, e = (
+        RawSegment(raw, PositionMarker(slice(i, i + 1), slice(i, i + 1), template))
+        for i, raw in enumerate("abcde")
+    )
+    seg = DummySegment([a, b, c, d, e])
+    # Between the start and stop segments, excluding both.
+    assert seg.select_children(start_seg=a, stop_seg=e) == [b, c, d]
+    # Only the segments which pass select_if.
+    assert seg.select_children(select_if=lambda s: s.raw != "c") == [a, b, d, e]
+    # Stops at the first segment which fails loop_while.
+    assert seg.select_children(start_seg=a, loop_while=lambda s: s.raw != "d") == [
+        b,
+        c,
+    ]
+
+
 def test__parser__base_segments_pickle_safe(raw_segments):
     """Test pickling and unpickling of BaseSegment."""
     test_seg = BaseSegment([BaseSegment(raw_segments)])
@@ -489,6 +540,7 @@ def test__parser__base_segments_cached_property_names_autodetected():
         "direct_descendant_type_set",
         "raw_upper",
         "raw_segments",
+        "_raw_segment_indices",
         "raw_segments_with_ancestors",
         "source_fixes",
         "first_non_whitespace_segment_raw_upper",

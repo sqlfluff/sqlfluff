@@ -126,8 +126,38 @@ class Rule_RF03(BaseRule):
                     ):
                         # Skip the subquery alias itself
                         continue
-                    if (subquery and not alias.object_reference) or alias.ref_str:
+                    # Tables without an alias name (e.g. unaliased T-SQL table
+                    # variables) can't be targets for added qualifiers, but a
+                    # subquery can still see their columns, and reference them
+                    # by their bracketed name (e.g. `[@orders].id`).
+                    if alias.ref_str or subquery:
                         yield alias
+
+    @property
+    def _may_add_qualifiers(self) -> bool:
+        """Whether fixes may add qualifiers to references.
+
+        Only adding qualifiers needs to know about the tables of enclosing
+        queries. Removing them is safe, as unqualified names resolve to the
+        inner table first.
+        """
+        return self.single_table_references != "unqualified"
+
+    def _outer_visible_aliases(self, query: Query) -> list[AliasInfo]:
+        """Get the aliases visible from all queries enclosing this subquery.
+
+        A correlated subquery may reference any enclosing query, not just its
+        direct parent, so walk up the whole chain of ancestors. A CTE never
+        sees the FROM clause of the query that uses it, so skip that query,
+        but it can see the queries enclosing its WITH statement.
+        """
+        outer_aliases: list[AliasInfo] = []
+        child = query
+        while child.parent:
+            if child.cte_definition_segment is None:
+                outer_aliases += self._iter_available_targets(child.parent, child)
+            child = child.parent
+        return outer_aliases
 
     def _visit_queries(
         self, query: Query, visited: set, templater_name: str
@@ -142,12 +172,39 @@ class Rule_RF03(BaseRule):
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
                 # the *parent* query level. Only check if it is a subquery of the
-                # parent.
+                # parent. Nested subqueries can see the tables of all enclosing
+                # queries, which matters if the parent has no tables of its own.
                 possible_ref_tables = list(self._iter_available_targets(query))
-                if query.parent and query.is_subquery:
-                    possible_ref_tables += list(
-                        self._iter_available_targets(query.parent, query)
+                # Top level queries have no outer aliases.
+                outer_aliases = self._outer_visible_aliases(query)
+                references_outer_table = bool(outer_aliases) and (
+                    _references_outer_table(
+                        select_info.reference_buffer,
+                        select_info.table_aliases,
+                        outer_aliases,
+                        query.dialect.name,
                     )
+                )
+                if query.parent and query.is_subquery:
+                    if self._may_add_qualifiers or references_outer_table:
+                        possible_ref_tables += outer_aliases
+                    else:
+                        # Outer tables without an alias name only matter when
+                        # adding qualifiers, or when a reference names them.
+                        possible_ref_tables += [a for a in outer_aliases if a.ref_str]
+                # Subqueries in the FROM clause and CTEs normally can't see the
+                # tables of the enclosing queries. Correlated ones can (e.g.
+                # T-SQL CROSS/OUTER APPLY or LATERAL joins), so count the outer
+                # tables if any reference uses one of them. In valid SQL only
+                # correlated subqueries do that. An unqualified column may also
+                # belong to an outer table, so adding a qualifier is unsafe even
+                # without references to the outer tables.
+                elif references_outer_table or (
+                    outer_aliases
+                    and self._may_add_qualifiers
+                    and _sees_outer_columns(query.selectables[0].selectable)
+                ):
+                    possible_ref_tables += outer_aliases
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
                     # potential lint warnings, but don't generate fixes, because
@@ -184,6 +241,128 @@ class Rule_RF03(BaseRule):
                     children.append(q)
         for child in children:
             yield from self._visit_queries(child, visited, templater_name)
+
+
+def _sees_outer_columns(selectable: BaseSegment) -> bool:
+    """Check whether a selectable can see the columns of the enclosing query.
+
+    A subquery in the FROM clause can see the columns of its own query only
+    if it is a LATERAL or APPLY subquery. Other subqueries (e.g. in the WHERE
+    clause) always can. A CTE takes the position of the WITH statement which
+    defines it. Any subquery can also see the columns which its enclosing
+    query can see, e.g. a derived table nested in a LATERAL subquery.
+    """
+    parent = _parent_segment(selectable)
+    while parent:
+        if parent.is_type("select_statement"):
+            return True
+        if parent.is_type("from_expression_element"):
+            if _is_lateral_element(parent):
+                return True
+            # A plain derived table can't see the columns of the query whose
+            # FROM clause holds it, so skip that query.
+            parent = _enclosing_select(parent)
+            if not parent:  # pragma: no cover
+                return False
+        parent = _parent_segment(parent)
+    return False
+
+
+def _parent_segment(segment: BaseSegment) -> Optional[BaseSegment]:
+    """Get the parent of a segment, if it has one."""
+    parent = segment.get_parent()
+    return parent[0] if parent else None
+
+
+def _enclosing_select(segment: BaseSegment) -> Optional[BaseSegment]:
+    """Get the nearest select statement which contains a segment."""
+    parent = _parent_segment(segment)
+    while parent and not parent.is_type("select_statement"):
+        parent = _parent_segment(parent)
+    return parent
+
+
+def _is_lateral_element(element: BaseSegment) -> bool:
+    """Check whether a FROM expression element is a LATERAL or APPLY join."""
+    if any(seg.raw_upper == "LATERAL" for seg in element.get_children("keyword")):
+        return True
+    parent = _parent_segment(element)
+    return bool(
+        parent
+        and parent.is_type("join_clause")
+        and any(seg.raw_upper == "APPLY" for seg in parent.get_children("keyword"))
+    )
+
+
+def _normalized_parts(reference: BaseSegment, dialect_name: str) -> tuple[str, ...]:
+    """Get the parts of a reference, normalized to the dialect's casing."""
+    return tuple(
+        "".join(seg.raw_normalized() for seg in part.segments)
+        for part in iter_raw_references(reference, dialect_name)
+    )
+
+
+def _table_names(alias: AliasInfo, dialect_name: str) -> tuple[str, ...]:
+    """Get the name which qualifies references to a table.
+
+    Aliased tables are only known by their alias. Other tables may also be
+    known by their schema qualified name, e.g. ``public.orders``.
+    """
+    if not alias.aliased and alias.object_reference:
+        parts = _normalized_parts(alias.object_reference, dialect_name)
+        if parts:
+            return parts
+        # Table variables (e.g. T-SQL `@orders`) aren't identifiers, but
+        # references can still name them, e.g. `[@orders].id`. T-SQL
+        # normalizes identifiers to upper case.
+        return (alias.object_reference.raw_normalized().upper(),)
+    # Aliases without a segment have no name (e.g. an unaliased subquery).
+    return (alias.segment.raw_normalized(),) if alias.segment else ()
+
+
+def _is_suffix(short: tuple[str, ...], long: tuple[str, ...]) -> bool:
+    return 0 < len(short) <= len(long) and long[len(long) - len(short) :] == short
+
+
+def _references_outer_table(
+    references: list[ObjectReferenceSegment],
+    inner_aliases: list[AliasInfo],
+    outer_aliases: list[AliasInfo],
+    dialect_name: str,
+) -> bool:
+    """Check whether any reference is qualified with a table of an outer query.
+
+    A reference qualified with ``orders`` or ``public.orders`` names the
+    ``public.orders`` table. An inner table shadows an outer table with the
+    same name, so references which name an inner table point at that one.
+    The longest qualifier which names a table wins, e.g. ``public.orders.id``
+    names the outer ``orders`` or ``public.orders`` even if an inner table is
+    called ``public``. When it isn't clear which table a reference names, assume
+    the outer one, as that keeps the fixes safe.
+    """
+    inner_names = [_table_names(t, dialect_name) for t in inner_aliases]
+    outer_names = [_table_names(t, dialect_name) for t in outer_aliases]
+    for ref in references:
+        parts = _normalized_parts(ref, dialect_name)
+        # The leading parts of a column reference name the table, but it
+        # isn't clear how many (e.g. `schema.table.column` or
+        # `table.column.struct_field`), so try all of them, longest first.
+        # Unqualified references have no table name: they resolve to the
+        # inner table first.
+        qualifiers = [parts[:i] for i in range(1, len(parts))]
+        for qualifier in reversed(qualifiers):
+            if any(_is_suffix(qualifier, name) for name in inner_names):
+                break
+            # The reference may also add a schema to an outer table name,
+            # e.g. `public.orders` for `orders`. Inner names don't get this
+            # check: an inner alias `orders` can't be written as
+            # `public.orders`, so it mustn't hide an outer `public.orders`.
+            if any(
+                _is_suffix(qualifier, name) or _is_suffix(name, qualifier)
+                for name in outer_names
+            ):
+                return True
+    return False
 
 
 def _check_references(

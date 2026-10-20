@@ -461,6 +461,33 @@ ansi_dialect.add(
         Ref("TypedArrayLiteralSegment"),
         Ref("ObjectLiteralSegment"),
     ),
+    # Function names that FunctionSegment's generic path must not match,
+    # because they have their own grammar there.
+    FunctionNameExclusionGrammar=OneOf(
+        Ref("DatePartFunctionNameSegment"),
+        Ref("ColumnsExpressionFunctionNameSegment"),
+        Ref("ValuesClauseSegment"),
+    ),
+    # A literal preceded by the name of its data type, e.g. `INT '5'`. The SQL
+    # standard only has this for a few types (`DATE '...'` and the like);
+    # allowing any type is a PostgreSQL generalization. Dialects without it
+    # replace this with Nothing(), and must also remove the second copy of the
+    # rule in BaseExpressionElementGrammar, as mysql does.
+    # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC
+    TypedLiteralGrammar=Sequence(
+        Ref("DatatypeSegment"),
+        # Don't use the full LiteralGrammar here
+        # because only some of them are applicable.
+        # Notably we shouldn't use QualifiedNumericLiteralSegment
+        # here because it looks like an arithmetic operation.
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("BooleanLiteralGrammar"),
+            Ref("NullLiteralSegment"),
+            Ref("DateTimeLiteralGrammar"),
+        ),
+    ),
     AndOperatorGrammar=StringParser("AND", BinaryOperatorSegment),
     OrOperatorGrammar=StringParser("OR", BinaryOperatorSegment),
     NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
@@ -610,6 +637,7 @@ ansi_dialect.add(
         Ref("FunctionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+        # A second copy of TypedLiteralGrammar, with a wider literal set.
         Sequence(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
@@ -1075,6 +1103,34 @@ class DatatypeSegment(BaseSegment):
 
 
 # hookpoint
+ansi_dialect.add(
+    # A bracketed joined table used as a join target, under any number of
+    # redundant bracket layers: `(b JOIN c ON TRUE)`, `((b JOIN c ON TRUE))`,
+    # and so on. Recursive because a fixed depth only moves the failure one
+    # layer out (#8382).
+    BracketedJoinTargetGrammar=Bracketed(
+        OneOf(
+            Sequence(
+                Ref("FromExpressionElementSegment"),
+                AnyNumberOf(Ref("JoinClauseSegment"), min_times=1),
+            ),
+            Sequence(
+                Ref("BracketedJoinTargetGrammar"),
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
+    ),
+    # Only join targets get the bracketed forms. Offering them from
+    # FromExpressionElementSegment instead would also reach the FROM clause,
+    # where Bracketed(FromExpressionSegment) already parses the same text into
+    # a different tree.
+    JoinTargetGrammar=OneOf(
+        Ref("FromExpressionElementSegment"),
+        Ref("BracketedJoinTargetSegment"),
+    ),
+)
+
+
 ansi_dialect.add(CharCharacterSetGrammar=Nothing())
 
 
@@ -1552,11 +1608,7 @@ class FunctionSegment(BaseSegment):
             Sequence(
                 Ref(
                     "FunctionNameSegment",
-                    exclude=OneOf(
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("ColumnsExpressionFunctionNameSegment"),
-                        Ref("ValuesClauseSegment"),
-                    ),
+                    exclude=Ref("FunctionNameExclusionGrammar"),
                 ),
                 Ref("FunctionContentsSegment"),
             ),
@@ -1686,6 +1738,17 @@ class FromExpressionElementSegment(BaseSegment):
             "get_from_expression_element_alias()",
         )
         yield from dialect_common.get_from_expression_element_alias(self, None)
+
+
+class BracketedJoinTargetSegment(FromExpressionElementSegment):
+    """A join target wrapped in brackets it does not need.
+
+    Typed as a from_expression_element so the rules that walk join targets for
+    aliases and references see the same node they always have.
+    """
+
+    type = "from_expression_element"
+    match_grammar: Matchable = Ref("BracketedJoinTargetGrammar")
 
 
 class FromExpressionSegment(BaseSegment):
@@ -1922,7 +1985,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             AnyNumberOf(Ref("NestedJoinGrammar")),
             Dedent,
             Sequence(
@@ -1948,7 +2011,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("UnconditionalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
@@ -1956,7 +2019,7 @@ class JoinClauseSegment(BaseSegment):
         Sequence(
             Ref("ExtendedNaturalJoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            Ref("JoinTargetGrammar"),
             Dedent,
         ),
     )
@@ -2302,20 +2365,7 @@ ansi_dialect.add(
                 OneOf(Ref("StructTypeSegment"), Ref("MapTypeSegment")),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
-            Sequence(
-                Ref("DatatypeSegment"),
-                # Don't use the full LiteralGrammar here
-                # because only some of them are applicable.
-                # Notably we shouldn't use QualifiedNumericLiteralSegment
-                # here because it looks like an arithmetic operation.
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("BooleanLiteralGrammar"),
-                    Ref("NullLiteralSegment"),
-                    Ref("DateTimeLiteralGrammar"),
-                ),
-            ),
+            Ref("TypedLiteralGrammar"),
             Ref("LocalAliasSegment"),
             Ref("ListComprehensionGrammar"),
             terminators=[Ref("CommaSegment")],

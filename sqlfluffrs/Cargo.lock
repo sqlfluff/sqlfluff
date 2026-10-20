@@ -863,9 +863,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.37"
+version = "0.23.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "758025cb5fccfd3bc2fd74708fd4682be41d99e5dff73c377c0646c6012c73a4"
+checksum = "0d41d731c7d2f962d1ccc364cec258de3c0e93b38c2fb3ba97ac74513048d634"
 dependencies = [
  "log",
  "once_cell",
@@ -887,9 +887,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.13"
+version = "0.103.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61c429a8649f110dddef65e2a5ad240f747e85f7758a6bccc7e5777bd33f756e"
+checksum = "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -999,13 +999,12 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "sqlfluffrs"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "blake2",
  "criterion",
  "env_logger",
  "hashbrown 0.16.1",
- "log",
  "pyo3",
  "serde_yaml_ng",
  "sqlfluffrs_dialects",
@@ -1018,7 +1017,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_benchmarks"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "criterion",
  "hashbrown 0.16.1",
@@ -1031,7 +1030,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_dialects"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "once_cell",
  "sqlfluffrs_types",
@@ -1039,7 +1038,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_lexer"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "hashbrown 0.16.1",
  "itertools 0.14.0",
@@ -1053,7 +1052,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_parser"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "env_logger",
  "hashbrown 0.16.1",
@@ -1070,7 +1069,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_python"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "bincode",
  "hashbrown 0.16.1",
@@ -1084,7 +1083,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_rules"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
  "pyo3",
  "sqlfluffrs_parser",
@@ -1092,8 +1091,9 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_types"
-version = "4.3.0"
+version = "4.4.0"
 dependencies = [
+ "env_logger",
  "fancy-regex",
  "hashbrown 0.16.1",
  "log",

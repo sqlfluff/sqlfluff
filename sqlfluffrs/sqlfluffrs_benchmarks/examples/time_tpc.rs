@@ -293,6 +293,7 @@ fn run_suite(name: &str, count: u32, sub_dir: &str) {
 }
 
 fn main() {
+    sqlfluffrs_types::init_logging();
     println!("TPC-H and TPC-DS Parser Baseline");
     println!("Warm-up runs: {N_WARMUP}  |  Timed runs: {N_TIMED}");
     println!("Dialect: ANSI");

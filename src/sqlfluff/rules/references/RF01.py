@@ -41,10 +41,16 @@ class Rule_RF01(BaseRule):
 
     .. note::
 
-       This rule is disabled by default for Athena, BigQuery, Databricks, DuckDB, Hive,
-       Redshift, SOQL and SparkSQL due to the support of things like
+       This rule is disabled by default for BigQuery, SOQL and SparkSQL
+       due to the support of things like
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
+
+       For Athena, Databricks, DuckDB, Hive, Impala, Redshift and Trino, single-source
+       SELECTs are exempt by default because dotted references may access
+       ROW/struct fields. SELECTs with multiple sources are still checked,
+       allowing field access through a visible table or alias. Use
+       ``force_enable = True`` for strict checking of these references too.
 
     **Anti-pattern**
 
@@ -274,6 +280,8 @@ class Rule_RF01(BaseRule):
         tbl_refs: list[tuple[ObjectReferencePart, tuple[str, ...]]],
         dml_target_table: Optional[list[tuple[str, ...]]],
         query: RF01Query,
+        *,
+        is_parent_lookup: bool = False,
     ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
@@ -284,14 +292,34 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw,))
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
+        supports_struct_access = query.dialect.name in (
+            "athena",
+            "databricks",
+            "duckdb",
+            "hive",
+            "impala",
+            "redshift",
+            "trino",
+        )
 
-        if self._dialect_supports_dot_access(query.dialect):
+        # The single-source exemption belongs to the reference's own scope,
+        # not a parent visited while resolving a correlated reference.
+        if self._dialect_supports_dot_access(query.dialect) and not (
+            supports_struct_access and is_parent_lookup
+        ):
             # BigQuery supports having multiple aliases in the FROM statement
             # SparkSQL supports directly accessing values in nested array columns
-            if len(distinct_targets) == 1 or query.dialect.name in [
-                "bigquery",
-                "sparksql",
-            ]:
+            if (
+                len(distinct_targets) == 1
+                # An aliased table contributes both its name and alias
+                # to targets, but is still one source for ROW/struct access.
+                or (
+                    supports_struct_access
+                    and len(query.aliases) == 1
+                    and not query.standalone_aliases
+                )
+                or query.dialect.name in ["bigquery", "sparksql"]
+            ):
                 self.force_enable: bool
                 if self.force_enable:
                     # Backwards compatibility.
@@ -303,11 +331,23 @@ class Rule_RF01(BaseRule):
 
         targets += self._get_implicit_targets(query)
 
+        if supports_struct_access and not self.force_enable:
+            # ROW/struct access starts with a visible table or alias, followed by a
+            # column and its fields. Do not match an alias in the field suffix.
+            for reference in self._table_ref_as_tuple(r, query.dialect):
+                for end in range(1, len(reference) - 1):
+                    if any(reference[:end] == target[-end:] for target in targets):
+                        return None
+
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
-                    r, tbl_refs, dml_target_table, cast(RF01Query, query.parent)
+                    r,
+                    tbl_refs,
+                    dml_target_table,
+                    cast(RF01Query, query.parent),
+                    is_parent_lookup=True,
                 )
             # No parent query. If there's a DML statement at the root, check its
             # target table or alias.
@@ -369,8 +409,12 @@ class Rule_RF01(BaseRule):
         # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
         # DuckDB:
         # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
+        # Impala:
+        # https://impala.apache.org/docs/build/html/topics/impala_struct.html
         # Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+        # Trino:
+        # https://trino.io/docs/current/language/types.html#row
         # TODO: all doc links to all referenced dialects
         return dialect.name in (
             "athena",
@@ -378,7 +422,9 @@ class Rule_RF01(BaseRule):
             "databricks",
             "duckdb",
             "hive",
+            "impala",
             "redshift",
             "soql",
             "sparksql",
+            "trino",
         )

@@ -48,7 +48,7 @@ def wrap_field(
         label_width = len(label)
         label_list = [label]
 
-    max_val_width = width - len(sep_char) - label_width
+    max_val_width = max(1, width - len(sep_char) - label_width)
     val_list = []
     for v in val.split("\n"):
         val_list.extend(wrap_elem(v, width=max_val_width))

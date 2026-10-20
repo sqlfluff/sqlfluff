@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fee89722cc066c1136e03b31ce63b342e43400340a0f67d72b67fdfdf8cd6ca0
+_hash: 5f2c5fc235c05897a4ad40a968c762deb843e1bf1f514ddc3d725211f267cb31
 file:
 - statement:
     create_user_statement:
@@ -252,4 +252,35 @@ file:
         start_bracket: (
         quoted_literal: "'ALL'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: create
+    - keyword: user
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+        naked_identifier: my_service_user
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: service
+    - keyword: default_role
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_role
+    - keyword: default_secondary_roles
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'service user'"
 - statement_terminator: ;

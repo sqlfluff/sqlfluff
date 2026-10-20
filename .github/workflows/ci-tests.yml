@@ -40,8 +40,6 @@ jobs:
         job:
           [
             "linting",
-            "doclinting",
-            "docbuild",
             "yamllint",
             "mypy",
             "mypyc",
@@ -50,9 +48,6 @@ jobs:
         include:
           # Default to most recent python version
           - python-version: "3.14"
-          # As at 2024-10-10, docbuild fails on 3.13, so fall back to 3.12
-          - job: docbuild
-            python-version: "3.12"
 
     name: ${{ matrix.job }} tests
     steps:
@@ -80,6 +75,38 @@ jobs:
       run: uv pip install --system tox tox-uv
     - name: Run the tests
       run: tox -e ${{ matrix.job }}
+
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install SQLFluff
+        run: pip install -e .
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: docsv/pnpm-lock.yaml
+
+      - name: Install docs dependencies
+        working-directory: docsv
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build documentation
+        working-directory: docsv
+        run: corepack pnpm run docs:build
 
   rust-lint:
     # Rust formatting, lints and unit tests for the sqlfluffrs workspace.
@@ -132,6 +159,10 @@ jobs:
       - name: Clippy
         working-directory: sqlfluffrs
         run: cargo clippy --workspace --all-targets --features python -- -D warnings
+
+      - name: Clippy (verbose-debug)
+        working-directory: sqlfluffrs
+        run: cargo clippy --workspace --all-targets --features python,verbose-debug -- -D warnings
 
       - name: Run unit tests
         working-directory: sqlfluffrs
