@@ -7,7 +7,7 @@ from collections.abc import Callable
 from typing import Optional, Union
 
 from sqlfluff.core.dialects import dialect_selector
-from sqlfluff.core.parser.client_commands import CommandEffect
+from sqlfluff.core.parser.client_commands import BufferAction, CommandArgument
 from sqlfluff.core.parser.lexer import LexerType
 
 
@@ -63,19 +63,34 @@ def generate_client_commands(dialect: str):
     if rules is None:
         print(f"pub static {name}: Option<{rules_type}> = None;")
         return
-    effects = {
-        CommandEffect.SET_DELIMITER: "SetDelimiter",
-        CommandEffect.READ_FILE: "ReadFile",
-        CommandEffect.END_STATEMENT: "EndStatement",
+    arguments = {
+        CommandArgument.DELIMITER: "sqlfluffrs_types::CommandArgument::Delimiter",
+        CommandArgument.FILE_NAME: "sqlfluffrs_types::CommandArgument::FileName",
+    }
+    buffers = {
+        BufferAction.KEEP: "sqlfluffrs_types::BufferAction::Keep",
+        BufferAction.END: "sqlfluffrs_types::BufferAction::End",
+        BufferAction.DISCARD: "sqlfluffrs_types::BufferAction::Discard",
     }
     print(f"pub static {name}: Option<{rules_type}> = Some({rules_type} {{")
-    print("    commands: &[")
-    for command in rules.commands:
+    print("    long_commands: &[")
+    for long in rules.long_commands:
         print(
-            "        sqlfluffrs_types::ClientCommand {"
-            f" effect: sqlfluffrs_types::CommandEffect::{effects[command.effect]},"
-            f" name: {_rust_option_str(command.name)},"
-            f" shorthand: {_rust_option_str(command.shorthand)} }},"
+            "        sqlfluffrs_types::LongClientCommand {"
+            f" name: {_rust_str(long.name)},"
+            f" argument: {arguments[long.argument]} }},"
+        )
+    print("    ],")
+    print("    short_commands: &[")
+    for short in rules.short_commands:
+        argument = (
+            "None" if short.argument is None else f"Some({arguments[short.argument]})"
+        )
+        print(
+            "        sqlfluffrs_types::ShortClientCommand {"
+            f" text: {_rust_str(short.text)},"
+            f" buffer_action: {buffers[short.buffer_action]},"
+            f" argument: {argument} }},"
         )
     print("    ],")
     opaque = ", ".join(_rust_str(n) for n in sorted(rules.opaque_token_names))

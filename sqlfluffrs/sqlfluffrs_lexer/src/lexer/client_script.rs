@@ -15,7 +15,8 @@ use std::sync::LazyLock;
 
 use sqlfluffrs_types::{
     matcher::{LexMatcher, LexedElement},
-    ClientCommand, ClientCommandRules, CommandEffect, Token,
+    BufferAction, ClientCommandRules, CommandArgument, LongClientCommand, ShortClientCommand,
+    Token,
 };
 
 use super::Lexer;
@@ -23,29 +24,22 @@ use super::Lexer;
 /// The active delimiter, when it isn't the default one.
 static CLIENT_DELIMITER: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_delimiter", Token::client_text_token));
-/// The short form of a command, such as `\d`, `\.` or `\g`.
-static CLIENT_COMMAND_SHORTHAND: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted(CLIENT_COMMAND_SHORTHAND_NAME, Token::code_token));
+/// A short command, such as `\d`, `\.` or `\g`.
+static CLIENT_SHORT_COMMAND: LazyLock<LexMatcher> =
+    LazyLock::new(|| LexMatcher::emitted("client_short_command", Token::code_token));
 /// The new delimiter in `DELIMITER $$`, as written.
 static DELIMITER_ARGUMENT: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted(DELIMITER_ARGUMENT_NAME, Token::client_text_token));
+    LazyLock::new(|| LexMatcher::emitted("delimiter_argument", Token::client_text_token));
 /// The file name in `SOURCE file.sql`, as the client reads it.
 static SOURCE_FILE_NAME: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted(SOURCE_FILE_NAME_NAME, Token::client_text_token));
+    LazyLock::new(|| LexMatcher::emitted("source_file_name", Token::client_text_token));
 /// Text on a command's line that the client reads past without using.
 static CLIENT_COMMAND_IGNORED: LazyLock<LexMatcher> =
-    LazyLock::new(|| LexMatcher::emitted(CLIENT_COMMAND_IGNORED_NAME, Token::client_text_token));
+    LazyLock::new(|| LexMatcher::emitted("client_command_ignored", Token::client_text_token));
 /// Command text the client doesn't read the way it looks. No grammar accepts
 /// it, so it is reported as a parse error.
 static CLIENT_COMMAND_MISREAD: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_command_misread", Token::client_text_token));
-
-// Tokens the client reads itself, which add nothing to the statement it is
-// collecting: a command at the start of a statement leaves it at the start.
-const CLIENT_COMMAND_SHORTHAND_NAME: &str = "client_command_shorthand";
-const DELIMITER_ARGUMENT_NAME: &str = "delimiter_argument";
-const SOURCE_FILE_NAME_NAME: &str = "source_file_name";
-const CLIENT_COMMAND_IGNORED_NAME: &str = "client_command_ignored";
 
 // Standard matcher names, which every dialect has.
 const WORD: &str = "word";
@@ -54,14 +48,42 @@ const NEWLINE: &str = "newline";
 const INLINE_COMMENT: &str = "inline_comment";
 const BLOCK_COMMENT: &str = "block_comment";
 
+/// Matchers whose tokens are non-code: whitespace, newlines and comments.
+/// They don't change the statement the client is collecting.
+const NON_CODE_MATCHERS: &[&str] = &[WHITESPACE, NEWLINE, INLINE_COMMENT, BLOCK_COMMENT];
+
 /// What the client's `my_isspace` accepts within a line.
 const SPACE: &[char] = &[' ', '\t', '\u{b}', '\u{c}', '\r'];
 
-/// A command, and its name or short form as written.
+/// A long command, and its name as written.
 #[derive(Clone, Copy)]
 struct CommandWord<'a> {
-    command: &'static ClientCommand,
+    command: &'static LongClientCommand,
     word: &'a str,
+}
+
+/// What a piece of text does to the statement the client is collecting.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Buffer {
+    /// It goes into the statement: SQL.
+    Append,
+    /// The statement stays as it is: whitespace, comments, and the client
+    /// commands the client takes out and runs.
+    Keep,
+    /// The statement is sent and a new one starts: the delimiter, `\g`.
+    End,
+    /// The statement is thrown away and a new one starts: `\.`.
+    Discard,
+}
+
+impl From<BufferAction> for Buffer {
+    fn from(action: BufferAction) -> Self {
+        match action {
+            BufferAction::Keep => Buffer::Keep,
+            BufferAction::End => Buffer::End,
+            BufferAction::Discard => Buffer::Discard,
+        }
+    }
 }
 
 /// What comes next in the script, as the client reads it.
@@ -76,8 +98,8 @@ enum Next<'a> {
     /// A command that reads a file, which the client collects as a statement
     /// before reading it.
     SourceStatement(CommandWord<'a>),
-    /// The short form of a command, such as `\d`, `\.` or `\g`.
-    Shorthand(CommandWord<'a>),
+    /// A short command, such as `\d`, `\.` or `\g`.
+    ShortCommand(&'static ShortClientCommand),
     /// The active delimiter, which ends the statement.
     ActiveDelimiter,
     /// `--` with no whitespace after it, at the start of a statement, where
@@ -143,7 +165,7 @@ pub(super) struct ClientScriptLexer<'a> {
     elements: Vec<LexedElement<'a>>,
     delimiter: String,
     delimiter_place: NextPlace,
-    shorthand_places: Vec<NextPlace>,
+    short_command_places: Vec<NextPlace>,
     statement_start: bool,
     line_start: bool,
 }
@@ -168,11 +190,10 @@ impl<'a> ClientScriptLexer<'a> {
             elements: Vec::with_capacity(text.len()),
             delimiter: rules.default_delimiter.to_string(),
             delimiter_place: NextPlace::new(rules.default_delimiter),
-            shorthand_places: rules
-                .commands
+            short_command_places: rules
+                .short_commands
                 .iter()
-                .filter_map(|command| command.shorthand)
-                .map(NextPlace::new)
+                .map(|command| NextPlace::new(command.text))
                 .collect(),
             statement_start: true,
             line_start: true,
@@ -186,7 +207,7 @@ impl<'a> ClientScriptLexer<'a> {
                 Next::DelimiterCommand(found) => self.lex_delimiter_command(found),
                 Next::SourceLine(found) => self.lex_source_line(found),
                 Next::SourceStatement(found) => self.lex_source_statement(found),
-                Next::Shorthand(found) => self.lex_shorthand(found),
+                Next::ShortCommand(command) => self.lex_short_command(command),
                 Next::ActiveDelimiter => self.lex_active_delimiter(),
                 Next::StatementStartComment => self.lex_statement_start_comment(),
                 Next::Token => self.lex_token(),
@@ -199,7 +220,7 @@ impl<'a> ClientScriptLexer<'a> {
     ///
     /// Long-form commands count only at the start of a statement, and take
     /// their line unless the client collects it as a statement first (see
-    /// [`Self::line_is_collected`]). Short forms count anywhere outside
+    /// [`Self::line_is_collected`]). Short commands count anywhere outside
     /// comments and strings.
     fn peek(&self) -> Next<'a> {
         let long = if self.statement_start {
@@ -209,24 +230,20 @@ impl<'a> ClientScriptLexer<'a> {
         };
         if let Some(found) = long.filter(|found| self.line_start && !self.line_is_collected(found))
         {
-            match found.command.effect {
-                CommandEffect::SetDelimiter => return Next::DelimiterCommand(found),
-                CommandEffect::ReadFile => return Next::SourceLine(found),
-                // `ClientCommandRules` refuses a long form that ends a statement.
-                CommandEffect::EndStatement => {}
-            }
+            return match found.command.argument {
+                CommandArgument::Delimiter => Next::DelimiterCommand(found),
+                CommandArgument::FileName => Next::SourceLine(found),
+            };
         }
         if self.text[self.pos..].starts_with(self.delimiter.as_str()) {
             return Next::ActiveDelimiter;
         }
-        let shorthand = self
-            .rules
-            .command_starting(&self.text[self.pos..])
-            .and_then(|command| command.shorthand.map(|word| CommandWord { command, word }));
-        if let Some(found) = shorthand {
-            return Next::Shorthand(found);
+        if let Some(command) = self.rules.command_starting(&self.text[self.pos..]) {
+            return Next::ShortCommand(command);
         }
-        if let Some(found) = long.filter(|found| found.command.effect == CommandEffect::ReadFile) {
+        if let Some(found) =
+            long.filter(|found| found.command.argument == CommandArgument::FileName)
+        {
             return Next::SourceStatement(found);
         }
         if self.statement_start
@@ -252,29 +269,23 @@ impl<'a> ClientScriptLexer<'a> {
         {
             return true;
         }
-        let sets_delimiter = found.command.effect == CommandEffect::SetDelimiter;
+        let sets_delimiter = found.command.argument == CommandArgument::Delimiter;
         !sets_delimiter && line.contains(self.delimiter.as_str())
     }
 
     /// `DELIMITER` and its argument. The rest of the line is ignored.
     fn lex_delimiter_command(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
-        self.emit(found.word, self.word_matcher);
+        self.emit(found.word, self.word_matcher, Buffer::Keep);
         let rest = self.delimiter_argument(argument);
         self.emit_ignored(rest);
-        // The command took its line, and added nothing to the statement the
-        // client is collecting.
-        self.statement_start = true;
     }
 
     /// `SOURCE` and the file name that is the rest of its line.
     fn lex_source_line(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
-        self.emit(found.word, self.word_matcher);
-        self.file_name(argument);
-        // The command took its line, and added nothing to the statement the
-        // client is collecting.
-        self.statement_start = true;
+        self.emit(found.word, self.word_matcher, Buffer::Keep);
+        self.file_name(argument, Buffer::Keep);
     }
 
     /// `SOURCE` that the client collects as a statement before reading it.
@@ -286,47 +297,52 @@ impl<'a> ClientScriptLexer<'a> {
     /// sends `SOURCE a.sql` to the server, and the statement ends there.
     fn lex_source_statement(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
-        self.emit(found.word, self.word_matcher);
+        self.emit(found.word, self.word_matcher, Buffer::Append);
         match self.first_break(argument) {
             // The statement runs on past this line, so the client doesn't
             // open the file this names.
-            None => self.emit_misread(argument),
+            None => self.emit_misread(argument, Buffer::Append),
             Some(end)
                 if argument[end..].starts_with(self.delimiter.as_str())
                     && !argument[..end].contains('\\') =>
             {
-                self.file_name(&argument[..end]);
+                self.file_name(&argument[..end], Buffer::Append);
             }
             // A short command comes first, or a backslash before the
             // delimiter ran as a command: the client doesn't open the file
             // this names.
-            Some(end) => self.emit_misread(&argument[..end]),
+            Some(end) => self.emit_misread(&argument[..end], Buffer::Append),
         }
     }
 
-    /// A short-form command and its argument.
-    fn lex_shorthand(&mut self, found: CommandWord<'a>) {
-        let argument = &self.rest_of_line()[found.word.len()..];
-        self.emit(found.word, &CLIENT_COMMAND_SHORTHAND);
-        match found.command.effect {
-            CommandEffect::EndStatement => self.statement_start = true,
-            CommandEffect::SetDelimiter => self.shorthand_delimiter_argument(argument),
+    /// A short command and its argument.
+    fn lex_short_command(&mut self, command: &'static ShortClientCommand) {
+        let argument = &self.rest_of_line()[command.text.len()..];
+        self.emit(
+            command.text,
+            &CLIENT_SHORT_COMMAND,
+            Buffer::from(command.buffer_action),
+        );
+        match command.argument {
+            Some(CommandArgument::Delimiter) => self.short_command_delimiter_argument(argument),
             // `\.` reads the rest of its line as the file name, delimiter and
             // all.
-            CommandEffect::ReadFile => self.file_name(argument),
+            Some(CommandArgument::FileName) => self.file_name(argument, Buffer::Keep),
+            None => {}
         }
     }
 
     /// The active delimiter, which ends the statement.
     fn lex_active_delimiter(&mut self) {
+        let delimiter = &self.text[self.pos..self.pos + self.delimiter.len()];
         if self.delimiter == self.rules.default_delimiter {
             // The default delimiter keeps the dialect's own token for it.
-            self.lex_token();
+            for element in self.match_text(delimiter) {
+                self.emit(element.raw, element.matcher, Buffer::End);
+            }
         } else {
-            let delimiter = &self.text[self.pos..self.pos + self.delimiter.len()];
-            self.emit(delimiter, &CLIENT_DELIMITER);
+            self.emit(delimiter, &CLIENT_DELIMITER, Buffer::End);
         }
-        self.statement_start = true;
     }
 
     /// `--` with no whitespace after it, as a comment.
@@ -334,7 +350,7 @@ impl<'a> ClientScriptLexer<'a> {
         // Up to the newline, as the comment matcher's `[^\n]*` would take it.
         let rest = &self.text[self.pos..];
         let end = rest.find('\n').unwrap_or(rest.len());
-        self.emit(&rest[..end], self.inline_comment_matcher);
+        self.emit(&rest[..end], self.inline_comment_matcher, Buffer::Keep);
     }
 
     /// One token, lexed by the dialect's matchers.
@@ -355,7 +371,12 @@ impl<'a> ClientScriptLexer<'a> {
             }
         }
         for element in elements {
-            self.emit(element.raw, element.matcher);
+            let buffer = if NON_CODE_MATCHERS.contains(&element.matcher.name.as_str()) {
+                Buffer::Keep
+            } else {
+                Buffer::Append
+            };
+            self.emit(element.raw, element.matcher, buffer);
         }
     }
 
@@ -374,7 +395,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// here.
     fn statement_end(&mut self) -> usize {
         let delimiter_end = self.delimiter_place.after(self.text, self.pos);
-        self.shorthand_places
+        self.short_command_places
             .iter_mut()
             .map(|place| place.after(self.text, self.pos))
             .fold(delimiter_end, usize::min)
@@ -392,6 +413,7 @@ impl<'a> ClientScriptLexer<'a> {
         self.emit(
             &argument[..argument.len() - trimmed.len()],
             self.whitespace_matcher,
+            Buffer::Keep,
         );
         if trimmed.is_empty() {
             return "";
@@ -400,11 +422,11 @@ impl<'a> ClientScriptLexer<'a> {
         let argument = parse_argument(trimmed);
         match self.accepted_delimiter(&argument.value) {
             Some(delimiter) => {
-                self.emit(argument.raw, &DELIMITER_ARGUMENT);
+                self.emit(argument.raw, &DELIMITER_ARGUMENT, Buffer::Keep);
                 self.delimiter_place = NextPlace::new(&delimiter);
                 self.delimiter = delimiter;
             }
-            None => self.emit(argument.raw, &CLIENT_COMMAND_MISREAD),
+            None => self.emit(argument.raw, &CLIENT_COMMAND_MISREAD, Buffer::Keep),
         }
         &trimmed[argument.raw.len()..]
     }
@@ -414,7 +436,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// Once the delimiter is set, the client skips everything after `\d` up to
     /// and including the first copy of the (new) delimiter, or to the end of
     /// the line, and goes on lexing from there.
-    fn shorthand_delimiter_argument(&mut self, argument: &'a str) {
+    fn short_command_delimiter_argument(&mut self, argument: &'a str) {
         let new_delimiter =
             self.accepted_delimiter(&parse_argument(argument.trim_start_matches(SPACE)).value);
         let skip_end = argument.find(new_delimiter.as_deref().unwrap_or(&self.delimiter));
@@ -429,7 +451,7 @@ impl<'a> ClientScriptLexer<'a> {
             // The client goes on lexing from inside the argument (a quoted
             // delimiter). Nothing sensible follows, so the remainder of the
             // line is misread.
-            self.emit_misread(rest);
+            self.emit_misread(rest, Buffer::Append);
             return;
         }
         self.emit_ignored(&rest[..skip_end - argument_end]);
@@ -448,17 +470,19 @@ impl<'a> ClientScriptLexer<'a> {
     ///
     /// A space must follow the command. The file name is the rest, from the
     /// first character that isn't whitespace, with trailing whitespace and
-    /// control characters dropped.
-    fn file_name(&mut self, argument: &'a str) {
+    /// control characters dropped. `buffer` says what the name does to the
+    /// statement: nothing on a command's own line, but a collected `SOURCE`
+    /// is part of the statement until the delimiter.
+    fn file_name(&mut self, argument: &'a str, buffer: Buffer) {
         if !argument.starts_with(' ') {
-            self.emit_misread(argument);
+            self.emit_misread(argument, buffer);
             return;
         }
         let trimmed = argument.trim_start_matches(SPACE);
         let gap = argument.len() - trimmed.len();
-        self.emit(&argument[..gap], self.whitespace_matcher);
+        self.emit(&argument[..gap], self.whitespace_matcher, Buffer::Keep);
         let name = trimmed.trim_end_matches(|c: char| SPACE.contains(&c) || c < '\u{20}');
-        self.emit(name, &SOURCE_FILE_NAME);
+        self.emit(name, &SOURCE_FILE_NAME, buffer);
         self.emit_ignored(&trimmed[name.len()..]);
     }
 
@@ -478,7 +502,7 @@ impl<'a> ClientScriptLexer<'a> {
     }
 
     /// Add an element and update the client's state for it.
-    fn emit(&mut self, raw: &'a str, matcher: &'a LexMatcher) {
+    fn emit(&mut self, raw: &'a str, matcher: &'a LexMatcher, buffer: Buffer) {
         if raw.is_empty() {
             return;
         }
@@ -492,15 +516,12 @@ impl<'a> ClientScriptLexer<'a> {
                 }
             }
             WHITESPACE | INLINE_COMMENT => {}
-            CLIENT_COMMAND_SHORTHAND_NAME
-            | DELIMITER_ARGUMENT_NAME
-            | SOURCE_FILE_NAME_NAME
-            | CLIENT_COMMAND_IGNORED_NAME => self.line_start = false,
-            // The client adds this to the statement it is collecting.
-            _ => {
-                self.statement_start = false;
-                self.line_start = false;
-            }
+            _ => self.line_start = false,
+        }
+        match buffer {
+            Buffer::Append => self.statement_start = false,
+            Buffer::Keep => {}
+            Buffer::End | Buffer::Discard => self.statement_start = true,
         }
     }
 
@@ -508,37 +529,43 @@ impl<'a> ClientScriptLexer<'a> {
     fn emit_ignored(&mut self, text: &'a str) {
         let content = text.trim_matches(SPACE);
         if content.is_empty() {
-            self.emit(text, self.whitespace_matcher);
+            self.emit(text, self.whitespace_matcher, Buffer::Keep);
             return;
         }
         let start = text.len() - text.trim_start_matches(SPACE).len();
-        self.emit(&text[..start], self.whitespace_matcher);
-        self.emit(content, &CLIENT_COMMAND_IGNORED);
-        self.emit(&text[start + content.len()..], self.whitespace_matcher);
+        self.emit(&text[..start], self.whitespace_matcher, Buffer::Keep);
+        self.emit(content, &CLIENT_COMMAND_IGNORED, Buffer::Keep);
+        self.emit(
+            &text[start + content.len()..],
+            self.whitespace_matcher,
+            Buffer::Keep,
+        );
     }
 
     /// Text the client misreads, between any whitespace around it.
-    fn emit_misread(&mut self, text: &'a str) {
+    ///
+    /// `buffer` says whether the client puts it into the statement.
+    fn emit_misread(&mut self, text: &'a str, buffer: Buffer) {
         let content = text.trim_matches(SPACE);
         if content.is_empty() {
-            self.emit(text, self.whitespace_matcher);
+            self.emit(text, self.whitespace_matcher, Buffer::Keep);
             return;
         }
         let start = text.len() - text.trim_start_matches(SPACE).len();
-        self.emit(&text[..start], self.whitespace_matcher);
-        self.emit(content, &CLIENT_COMMAND_MISREAD);
-        self.emit(&text[start + content.len()..], self.whitespace_matcher);
+        self.emit(&text[..start], self.whitespace_matcher, Buffer::Keep);
+        self.emit(content, &CLIENT_COMMAND_MISREAD, buffer);
+        self.emit(
+            &text[start + content.len()..],
+            self.whitespace_matcher,
+            Buffer::Keep,
+        );
     }
 
     /// Where the client finds the delimiter or a short command in `text`.
     fn first_break(&self, text: &str) -> Option<usize> {
-        let shorthands = self
-            .rules
-            .commands
-            .iter()
-            .filter_map(|command| command.shorthand);
+        let short_commands = self.rules.short_commands.iter().map(|command| command.text);
         std::iter::once(self.delimiter.as_str())
-            .chain(shorthands)
+            .chain(short_commands)
             .filter_map(|needle| text.find(needle))
             .min()
     }

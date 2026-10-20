@@ -70,11 +70,11 @@ fn test_long_delimiter_is_cut_at_a_character_boundary() {
 }
 
 #[test]
-fn test_shorthand_delimiter_skips_to_the_new_delimiter() {
+fn test_short_delimiter_command_skips_to_the_new_delimiter() {
     assert_tokens(
         "\\d $$ SELECT 1 $$\n",
         &[
-            ("client_command_shorthand", "\\d"),
+            ("client_short_command", "\\d"),
             ("delimiter_argument", "$$"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
@@ -91,7 +91,7 @@ fn test_dash_dash_before_statement_end_is_a_comment() {
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("inline_comment", "--"),
-            ("client_command_shorthand", "\\g"),
+            ("client_short_command", "\\g"),
         ],
     );
 }
@@ -137,7 +137,7 @@ fn test_source_collected_as_a_statement_is_misread() {
         &[
             ("word", "SOURCE"),
             ("client_command_misread", "a.sql"),
-            ("client_command_shorthand", "\\g"),
+            ("client_short_command", "\\g"),
             ("word", "DELIMITER"),
             ("delimiter_argument", "$$"),
             ("word", "SELECT"),
@@ -164,11 +164,11 @@ fn test_dash_dash_at_mariadb_statement_start() {
 }
 
 #[test]
-fn test_command_after_a_shorthand_command() {
+fn test_command_after_a_short_command() {
     assert_tokens(
         "\\d $$\nDELIMITER ;\n",
         &[
-            ("client_command_shorthand", "\\d"),
+            ("client_short_command", "\\d"),
             ("delimiter_argument", "$$"),
             ("word", "DELIMITER"),
             ("delimiter_argument", ";"),
@@ -177,11 +177,11 @@ fn test_command_after_a_shorthand_command() {
 }
 
 #[test]
-fn test_shorthand_delimiter_with_no_argument_is_refused() {
+fn test_short_delimiter_command_with_no_argument_is_refused() {
     assert_tokens(
         "\\d\nSELECT 1;\n",
         &[
-            ("client_command_shorthand", "\\d"),
+            ("client_short_command", "\\d"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("semicolon", ";"),
@@ -211,7 +211,7 @@ fn test_line_with_lower_case_g_is_collected() {
             ("word", "DELIMITER"),
             ("divide", "/"),
             ("divide", "/"),
-            ("client_command_shorthand", "\\g"),
+            ("client_short_command", "\\g"),
             ("word", "SOURCE"),
             ("source_file_name", "a.sql \\G"),
         ],
@@ -236,10 +236,10 @@ fn test_mariadb_collected_command_after_a_comment() {
 }
 
 #[test]
-fn test_shorthand_right_after_source() {
+fn test_short_command_right_after_source() {
     assert_tokens(
         "SOURCE \\g\n",
-        &[("word", "SOURCE"), ("client_command_shorthand", "\\g")],
+        &[("word", "SOURCE"), ("client_short_command", "\\g")],
     );
 }
 

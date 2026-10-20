@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6169be15a5c19144db5d6ed90d61ea52f780381057ef8d7a49e2db14134b2e89
+_hash: 12822ac20dead26d23636832052162484b7f3920a4a17a025836cefb465626b0
 file:
 - source_statement:
     keyword: SOURCE
@@ -34,10 +34,10 @@ file:
     keyword: SOURCE
     source_file_name: a#b.sql
 - source_statement:
-    client_command_shorthand: \.
+    client_short_command: \.
     source_file_name: schema/tables.sql
 - source_statement:
-    client_command_shorthand: \.
+    client_short_command: \.
     source_file_name: C:\games\x.sql
 - statement:
     select_statement:

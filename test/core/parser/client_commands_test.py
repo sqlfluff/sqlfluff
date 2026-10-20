@@ -9,16 +9,19 @@ import pytest
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.parser import ClientTextSegment, PyLexer
 from sqlfluff.core.parser.client_commands import (
-    ClientCommand,
+    BufferAction,
     ClientCommandRules,
-    CommandEffect,
+    CommandArgument,
     EmittedToken,
+    LongClientCommand,
+    ShortClientCommand,
 )
 
 RULES = ClientCommandRules(
-    commands=(
-        ClientCommand(CommandEffect.SET_DELIMITER, name="delimiter", shorthand="\\d"),
-        ClientCommand(CommandEffect.END_STATEMENT, shorthand="\\g"),
+    long_commands=(LongClientCommand("delimiter", CommandArgument.DELIMITER),),
+    short_commands=(
+        ShortClientCommand("\\d", BufferAction.KEEP, CommandArgument.DELIMITER),
+        ShortClientCommand("\\g", BufferAction.END),
     ),
     opaque_token_names=frozenset(),
     line_command_after_block_comment=True,
@@ -27,23 +30,11 @@ RULES = ClientCommandRules(
 )
 
 
-def test_client_commands_no_long_form_ends_a_statement():
-    """A long form that ends a statement would do nothing, so the rules refuse it."""
-    with pytest.raises(ValueError, match="'go' can't end a statement"):
-        ClientCommandRules(
-            commands=(ClientCommand(CommandEffect.END_STATEMENT, name="go"),),
-            opaque_token_names=frozenset(),
-            line_command_after_block_comment=True,
-            dash_dash_comment_at_statement_start=False,
-            collected_line_marker="\\g",
-        )
-
-
 def test_client_commands_long_forms_match_in_any_case():
     """Long forms are found in any case, short forms only in their own."""
-    assert RULES.command_named("DeLiMiTeR") is RULES.commands[0]
+    assert RULES.command_named("DeLiMiTeR") is RULES.long_commands[0]
     assert RULES.command_named("source") is None
-    assert RULES.command_starting("\\g;") is RULES.commands[1]
+    assert RULES.command_starting("\\g;") is RULES.short_commands[1]
     assert RULES.command_starting("\\G;") is None
 
 
@@ -110,7 +101,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
         (
             "\\d $$\nDELIMITER ;\n",
             [
-                ("client_command_shorthand", "\\d"),
+                ("client_short_command", "\\d"),
                 ("delimiter_argument", "$$"),
                 ("word", "DELIMITER"),
                 ("delimiter_argument", ";"),
@@ -120,7 +111,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
         (
             "\\d\nSELECT 1;\n",
             [
-                ("client_command_shorthand", "\\d"),
+                ("client_short_command", "\\d"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("semicolon", ";"),
@@ -146,7 +137,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "DELIMITER"),
                 ("divide", "/"),
                 ("divide", "/"),
-                ("client_command_shorthand", "\\g"),
+                ("client_short_command", "\\g"),
                 ("word", "SOURCE"),
                 ("source_file_name", "a.sql \\G"),
             ],
@@ -154,7 +145,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
         # `\g` right after SOURCE sends `SOURCE` alone to the server.
         (
             "SOURCE \\g\n",
-            [("word", "SOURCE"), ("client_command_shorthand", "\\g")],
+            [("word", "SOURCE"), ("client_short_command", "\\g")],
         ),
         # Trailing whitespace isn't part of a file name.
         (
@@ -166,7 +157,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
         (
             "\\d $$ SELECT 1 $$\n",
             [
-                ("client_command_shorthand", "\\d"),
+                ("client_short_command", "\\d"),
                 ("delimiter_argument", "$$"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
@@ -180,7 +171,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("inline_comment", "--"),
-                ("client_command_shorthand", "\\g"),
+                ("client_short_command", "\\g"),
             ],
         ),
         # A token is lexed from the text the server gets, which ends at the
@@ -219,7 +210,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             [
                 ("word", "SOURCE"),
                 ("client_command_misread", "a.sql"),
-                ("client_command_shorthand", "\\g"),
+                ("client_short_command", "\\g"),
                 ("word", "DELIMITER"),
                 ("delimiter_argument", "$$"),
                 ("word", "SELECT"),

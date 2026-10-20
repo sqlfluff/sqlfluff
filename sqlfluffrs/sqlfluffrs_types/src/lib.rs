@@ -12,7 +12,9 @@ pub mod slice;
 pub mod string;
 pub mod templater;
 pub mod token;
-pub use client_commands::{ClientCommand, ClientCommandRules, CommandEffect};
+pub use client_commands::{
+    BufferAction, ClientCommandRules, CommandArgument, LongClientCommand, ShortClientCommand,
+};
 pub use config::fluffconfig::FluffConfig;
 pub use grammar_api::{patterns as grammar_patterns, GrammarContext};
 pub use grammar_inst::{GrammarFlags, GrammarId, GrammarInst, GrammarVariant};

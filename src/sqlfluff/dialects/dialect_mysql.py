@@ -42,9 +42,11 @@ from sqlfluff.core.parser import (
     WordSegment,
 )
 from sqlfluff.core.parser.client_commands import (
-    ClientCommand,
+    BufferAction,
     ClientCommandRules,
-    CommandEffect,
+    CommandArgument,
+    LongClientCommand,
+    ShortClientCommand,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
@@ -135,13 +137,17 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 mysql_client_commands = ClientCommandRules(
-    commands=(
-        ClientCommand(CommandEffect.SET_DELIMITER, name="delimiter", shorthand="\\d"),
-        ClientCommand(CommandEffect.READ_FILE, name="source", shorthand="\\."),
-        # The long forms `go` and `ego` only count at the start of a statement,
-        # where there is nothing to send, so only the short forms are here.
-        ClientCommand(CommandEffect.END_STATEMENT, shorthand="\\g"),
-        ClientCommand(CommandEffect.END_STATEMENT, shorthand="\\G"),
+    long_commands=(
+        LongClientCommand("delimiter", CommandArgument.DELIMITER),
+        LongClientCommand("source", CommandArgument.FILE_NAME),
+    ),
+    # `\\d` and `\\.` are the short forms of `delimiter` and `source`. The long
+    # forms of `\\g` and `\\G`, `go` and `ego`, do nothing in a script.
+    short_commands=(
+        ShortClientCommand("\\d", BufferAction.KEEP, CommandArgument.DELIMITER),
+        ShortClientCommand("\\.", BufferAction.DISCARD, CommandArgument.FILE_NAME),
+        ShortClientCommand("\\g", BufferAction.END),
+        ShortClientCommand("\\G", BufferAction.END),
     ),
     opaque_token_names=frozenset(
         {
@@ -2061,7 +2067,7 @@ class DelimiterStatement(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             "DELIMITER",
-            StringParser("\\D", SymbolSegment, type="client_command_shorthand"),
+            StringParser("\\D", SymbolSegment, type="client_short_command"),
         ),
         TypedParser("delimiter_argument", ClientTextSegment, type="delimiter_argument"),
         Ref("ClientCommandIgnoredSegment", optional=True),
@@ -2082,7 +2088,7 @@ class SourceStatementSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             "SOURCE",
-            StringParser("\\.", SymbolSegment, type="client_command_shorthand"),
+            StringParser("\\.", SymbolSegment, type="client_short_command"),
         ),
         TypedParser("source_file_name", ClientTextSegment, type="source_file_name"),
         Ref("ClientCommandIgnoredSegment", optional=True),
