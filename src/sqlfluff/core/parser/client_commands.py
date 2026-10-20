@@ -588,18 +588,22 @@ class ClientScriptLexer:
         r"""The delimiter the client sets from an argument's value.
 
         `None` if it refuses the value: empty, with a backslash left in it, or
-        from a quote with no closing quote. A value that starts or ends with
-        whitespace (from quotes or an escaped space, as in `\d \ x`) is refused
-        too: the client takes it, but then splits statements at every such
-        space, or only where the invisible space follows, so it is only ever a
-        mistake.
+        from a quote with no closing quote. The client checks these before it
+        cuts the value to the byte limit. A delimiter that starts or ends with
+        whitespace (from quotes or an escaped space, as in `\d \ x`, or from a
+        cut that ends at a space) is refused too: the client takes it, but then
+        splits statements at every such space, or only where the invisible
+        space follows, so it is only ever a mistake. That is checked after the
+        cut, on the delimiter the client would set.
         """
-        if not value or "\\" in value or value[0] in _SPACE or value[-1] in _SPACE:
+        if not value or "\\" in value:
             return None
         limit = self._rules.max_delimiter_bytes
-        if limit is None:
-            return value
-        return _cut_to_bytes(value, limit)
+        if limit is not None:
+            value = _cut_to_bytes(value, limit)
+        if value[0] in _SPACE or value[-1] in _SPACE:
+            return None
+        return value
 
     def _file_name(self, argument: str, buffer: _Buffer) -> None:
         r"""Lex the argument of `SOURCE` or `\.`, as the client's `com_source`.

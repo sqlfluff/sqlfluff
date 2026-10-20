@@ -176,6 +176,29 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("semicolon", ";"),
             ],
         ),
+        # So is one that ends with whitespace only once cut to 15 bytes.
+        (
+            "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_misread", "'aaaaaaaaaaaaaa b'"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # The client looks for a backslash before it cuts, so one past the
+        # 15th byte is still refused.
+        (
+            "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_misread", "`aaaaaaaaaaaaaaa\\`"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
         # `\d` with no argument is refused, and the delimiter kept.
         (
             "\\d\nSELECT 1;\n",

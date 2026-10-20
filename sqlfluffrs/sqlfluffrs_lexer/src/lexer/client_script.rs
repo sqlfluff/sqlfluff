@@ -488,24 +488,25 @@ impl<'a> ClientScriptLexer<'a> {
     /// The delimiter the client sets from an argument's value.
     ///
     /// `None` if it refuses the value: empty, with a backslash left in it, or
-    /// from a quote with no closing quote. A value that starts or ends with
-    /// whitespace (from quotes or an escaped space, as in `\d \ x`) is
-    /// refused too: the client takes it, but then splits statements at every
-    /// such space, or only where the invisible space follows, so it is only
-    /// ever a mistake.
+    /// from a quote with no closing quote. The client checks these before it
+    /// cuts the value to the byte limit. A delimiter that starts or ends with
+    /// whitespace (from quotes or an escaped space, as in `\d \ x`, or from a
+    /// cut that ends at a space) is refused too: the client takes it, but
+    /// then splits statements at every such space, or only where the
+    /// invisible space follows, so it is only ever a mistake. That is checked
+    /// after the cut, on the delimiter the client would set.
     fn accepted_delimiter(&self, value: Option<&str>) -> Option<String> {
         let value = value?;
-        if value.is_empty()
-            || value.contains('\\')
-            || value.starts_with(SPACE)
-            || value.ends_with(SPACE)
-        {
+        if value.is_empty() || value.contains('\\') {
             return None;
         }
         let value = match self.rules.max_delimiter_bytes {
             Some(limit) => cut_to_bytes(value, limit),
             None => value,
         };
+        if value.starts_with(SPACE) || value.ends_with(SPACE) {
+            return None;
+        }
         Some(value.to_string())
     }
 

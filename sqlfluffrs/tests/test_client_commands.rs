@@ -279,6 +279,36 @@ fn test_delimiter_starting_with_whitespace_is_refused() {
 }
 
 #[test]
+fn test_delimiter_ending_with_whitespace_once_cut_is_refused() {
+    assert_tokens(
+        "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
+        &[
+            ("word", "DELIMITER"),
+            ("client_command_misread", "'aaaaaaaaaaaaaa b'"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+/// The client looks for a backslash before it cuts, so one past the 15th
+/// byte is still refused.
+#[test]
+fn test_delimiter_with_backslash_past_the_cut_is_refused() {
+    assert_tokens(
+        "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
+        &[
+            ("word", "DELIMITER"),
+            ("client_command_misread", "`aaaaaaaaaaaaaaa\\`"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+#[test]
 fn test_short_delimiter_command_with_no_argument_is_refused() {
     assert_tokens(
         "\\d\nSELECT 1;\n",
