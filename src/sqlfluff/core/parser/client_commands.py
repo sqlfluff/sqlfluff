@@ -535,27 +535,39 @@ class ClientScriptLexer:
     def _short_command_delimiter_argument(self, argument: str) -> None:
         r"""Lex the argument of `\d`.
 
-        Once the delimiter is set, the client skips everything after `\d` up
-        to and including the first copy of the (new) delimiter, or to the end
-        of the line, and goes on lexing from there.
+        MySQL and MariaDB handle this oddly, probably by accident, but both do
+        the same thing: after setting the delimiter, the client carries on
+        reading right after the new delimiter's text on the line. Normally that's
+        just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
+        the argument as typed isn't exactly the delimiter, ridiculous stuff
+        happens:
+        - `\d '$$'` sets `$$` and carries on inside the quotes, so the closing
+          quote is read as SQL.
+        - An argument over 15 bytes sets only its first 15 and carries on after
+          those, so the rest is read as SQL.
+        - `\d a\ b` sets `a b`, which isn't on the line as typed, so it carries
+          on after the next `a b` on the line, or discards the rest of the line
+          if there's none.
+
+        Text the client skips belongs to the command: the server never sees it,
+        even if it looks like SQL. SQL before the `\d` stays in the statement.
         """
-        new_delimiter = self._accepted_delimiter(
-            _parse_argument(argument.lstrip(_SPACE)).value
-        )
-        skip_end = argument.find(new_delimiter or self._delimiter)
+        trimmed = argument.lstrip(_SPACE)
+        parsed = _parse_argument(trimmed)
+        needle = self._accepted_delimiter(parsed.value) or self._delimiter
+        found = argument.find(needle)
+        resume = None if found < 0 else found + len(needle)
+        argument_end = len(argument) - len(trimmed) + len(parsed.raw)
+        if resume is not None and resume < argument_end:
+            # The client goes on from inside the argument, so only the text
+            # before that is its argument.
+            self._delimiter_argument(argument[:resume])
+            return
         rest = self._delimiter_argument(argument)
-        argument_end = len(argument) - len(rest)
-        if skip_end < 0:
+        if resume is None:
             self._emit_ignored(rest)
-            return
-        skip_end += len(self._delimiter)
-        if skip_end < argument_end:
-            # The client goes on lexing from inside the argument (a quoted
-            # delimiter). Nothing sensible follows, so the remainder of the
-            # line is misread.
-            self._emit_misread(rest, _Buffer.APPEND)
-            return
-        self._emit_ignored(rest[: skip_end - argument_end])
+        else:
+            self._emit_ignored(rest[: resume - argument_end])
 
     def _accepted_delimiter(self, value: str) -> Optional[str]:
         """The delimiter the client sets from an argument's value.
@@ -623,27 +635,26 @@ class ClientScriptLexer:
 
     def _emit_ignored(self, text: str) -> None:
         """Text the client reads past, between any whitespace around it."""
-        content = text.strip(_SPACE)
-        if not content:
-            self._emit(text, self._whitespace_matcher, _Buffer.KEEP)
-            return
-        start = text.index(content[0])
-        self._emit(text[:start], self._whitespace_matcher, _Buffer.KEEP)
-        self._emit(content, CLIENT_COMMAND_IGNORED, _Buffer.KEEP)
-        self._emit(text[start + len(content) :], self._whitespace_matcher, _Buffer.KEEP)
+        self._emit_between_spaces(text, CLIENT_COMMAND_IGNORED, _Buffer.KEEP)
 
     def _emit_misread(self, text: str, buffer: _Buffer) -> None:
         """Text the client misreads, between any whitespace around it.
 
         `buffer` says whether the client puts it into the statement.
         """
+        self._emit_between_spaces(text, CLIENT_COMMAND_MISREAD, buffer)
+
+    def _emit_between_spaces(
+        self, text: str, matcher: LexerType, buffer: _Buffer
+    ) -> None:
+        """`text` as one `matcher` token, with any whitespace around it apart."""
         content = text.strip(_SPACE)
         if not content:
             self._emit(text, self._whitespace_matcher, _Buffer.KEEP)
             return
         start = text.index(content[0])
         self._emit(text[:start], self._whitespace_matcher, _Buffer.KEEP)
-        self._emit(content, CLIENT_COMMAND_MISREAD, buffer)
+        self._emit(content, matcher, buffer)
         self._emit(text[start + len(content) :], self._whitespace_matcher, _Buffer.KEEP)
 
     def _first_break(self, text: str) -> Optional[int]:

@@ -178,6 +178,53 @@ fn test_command_after_a_short_command() {
 }
 
 #[test]
+fn test_short_delimiter_command_goes_on_inside_a_long_argument() {
+    assert_tokens(
+        "\\d abcdefghijklmnopqrstuvwxyz\nSELECT 1 abcdefghijklmno\n",
+        &[
+            ("client_short_command", "\\d"),
+            ("delimiter_argument", "abcdefghijklmno"),
+            ("word", "pqrstuvwxyz"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("client_delimiter", "abcdefghijklmno"),
+        ],
+    );
+}
+
+#[test]
+fn test_short_delimiter_command_discards_the_rest_of_its_line() {
+    assert_tokens(
+        "SELECT 8 \\d 'a\\' more\n;\n",
+        &[
+            ("word", "SELECT"),
+            ("numeric_literal", "8"),
+            ("client_short_command", "\\d"),
+            ("client_command_misread", "'a\\'"),
+            ("client_command_ignored", "more"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+#[test]
+fn test_short_delimiter_command_skips_to_its_escaped_delimiter() {
+    assert_tokens(
+        "SELECT 1 \\d a\\ b SELECT 2 a b\nSELECT 3 a b\n",
+        &[
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("client_short_command", "\\d"),
+            ("delimiter_argument", "a\\ b"),
+            ("client_command_ignored", "SELECT 2 a b"),
+            ("word", "SELECT"),
+            ("numeric_literal", "3"),
+            ("client_delimiter", "a b"),
+        ],
+    );
+}
+
+#[test]
 fn test_short_delimiter_command_with_no_argument_is_refused() {
     assert_tokens(
         "\\d\nSELECT 1;\n",

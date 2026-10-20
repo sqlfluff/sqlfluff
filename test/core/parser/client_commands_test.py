@@ -110,6 +110,48 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("delimiter_argument", ";"),
             ],
         ),
+        # `\d` goes on after the first copy of the new delimiter. Cut to 15
+        # bytes, the delimiter here ends inside its argument, so the rest of the
+        # argument is SQL.
+        (
+            "\\d abcdefghijklmnopqrstuvwxyz\nSELECT 1 abcdefghijklmno\n",
+            [
+                ("client_short_command", "\\d"),
+                ("delimiter_argument", "abcdefghijklmno"),
+                ("word", "pqrstuvwxyz"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "abcdefghijklmno"),
+            ],
+        ),
+        # With no copy of the delimiter on the line, `\d` discards the rest of
+        # the line, though SQL before it stays: the client sends `SELECT 8`.
+        (
+            "SELECT 8 \\d 'a\\' more\n;\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "8"),
+                ("client_short_command", "\\d"),
+                ("client_command_misread", "'a\\'"),
+                ("client_command_ignored", "more"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # `\d a\ b` sets `a b`, so the client carries on after the next `a b`
+        # on the line, and `SELECT 2` is skipped: it sends `SELECT 1 SELECT 3`.
+        (
+            "SELECT 1 \\d a\\ b SELECT 2 a b\nSELECT 3 a b\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_short_command", "\\d"),
+                ("delimiter_argument", "a\\ b"),
+                ("client_command_ignored", "SELECT 2 a b"),
+                ("word", "SELECT"),
+                ("numeric_literal", "3"),
+                ("client_delimiter", "a b"),
+            ],
+        ),
         # `\d` with no argument is refused, and the delimiter kept.
         (
             "\\d\nSELECT 1;\n",

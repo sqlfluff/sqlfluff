@@ -433,28 +433,43 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// Lex the argument of `\d`.
     ///
-    /// Once the delimiter is set, the client skips everything after `\d` up to
-    /// and including the first copy of the (new) delimiter, or to the end of
-    /// the line, and goes on lexing from there.
+    /// MySQL and MariaDB handle this oddly, probably by accident, but both do
+    /// the same thing: after setting the delimiter, the client carries on
+    /// reading right after the new delimiter's text on the line. Normally that's
+    /// just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
+    /// the argument as typed isn't exactly the delimiter, ridiculous stuff
+    /// happens:
+    /// - `\d '$$'` sets `$$` and carries on inside the quotes, so the closing
+    ///   quote is read as SQL.
+    /// - An argument over 15 bytes sets only its first 15 and carries on after
+    ///   those, so the rest is read as SQL.
+    /// - `\d a\ b` sets `a b`, which isn't on the line as typed, so it carries
+    ///   on after the next `a b` on the line, or discards the rest of the line
+    ///   if there's none.
+    ///
+    /// Text the client skips belongs to the command: the server never sees it,
+    /// even if it looks like SQL. SQL before the `\d` stays in the statement.
     fn short_command_delimiter_argument(&mut self, argument: &'a str) {
-        let new_delimiter =
-            self.accepted_delimiter(&parse_argument(argument.trim_start_matches(SPACE)).value);
-        let skip_end = argument.find(new_delimiter.as_deref().unwrap_or(&self.delimiter));
-        let rest = self.delimiter_argument(argument);
-        let argument_end = argument.len() - rest.len();
-        let Some(skip_end) = skip_end else {
-            self.emit_ignored(rest);
-            return;
-        };
-        let skip_end = skip_end + self.delimiter.len();
-        if skip_end < argument_end {
-            // The client goes on lexing from inside the argument (a quoted
-            // delimiter). Nothing sensible follows, so the remainder of the
-            // line is misread.
-            self.emit_misread(rest, Buffer::Append);
+        let trimmed = argument.trim_start_matches(SPACE);
+        let parsed = parse_argument(trimmed);
+        let needle = self
+            .accepted_delimiter(&parsed.value)
+            .unwrap_or_else(|| self.delimiter.clone());
+        let resume = argument
+            .find(needle.as_str())
+            .map(|found| found + needle.len());
+        let argument_end = argument.len() - trimmed.len() + parsed.raw.len();
+        if let Some(resume) = resume.filter(|&resume| resume < argument_end) {
+            // The client goes on from inside the argument, so only the text
+            // before that is its argument.
+            self.delimiter_argument(&argument[..resume]);
             return;
         }
-        self.emit_ignored(&rest[..skip_end - argument_end]);
+        let rest = self.delimiter_argument(argument);
+        match resume {
+            None => self.emit_ignored(rest),
+            Some(resume) => self.emit_ignored(&rest[..resume - argument_end]),
+        }
     }
 
     /// The delimiter the client sets from an argument's value, or `None` if
@@ -531,25 +546,18 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// Text the client reads past, between any whitespace around it.
     fn emit_ignored(&mut self, text: &'a str) {
-        let content = text.trim_matches(SPACE);
-        if content.is_empty() {
-            self.emit(text, self.whitespace_matcher, Buffer::Keep);
-            return;
-        }
-        let start = text.len() - text.trim_start_matches(SPACE).len();
-        self.emit(&text[..start], self.whitespace_matcher, Buffer::Keep);
-        self.emit(content, &CLIENT_COMMAND_IGNORED, Buffer::Keep);
-        self.emit(
-            &text[start + content.len()..],
-            self.whitespace_matcher,
-            Buffer::Keep,
-        );
+        self.emit_between_spaces(text, &CLIENT_COMMAND_IGNORED, Buffer::Keep);
     }
 
     /// Text the client misreads, between any whitespace around it.
     ///
     /// `buffer` says whether the client puts it into the statement.
     fn emit_misread(&mut self, text: &'a str, buffer: Buffer) {
+        self.emit_between_spaces(text, &CLIENT_COMMAND_MISREAD, buffer);
+    }
+
+    /// `text` as one `matcher` token, with any whitespace around it apart.
+    fn emit_between_spaces(&mut self, text: &'a str, matcher: &'a LexMatcher, buffer: Buffer) {
         let content = text.trim_matches(SPACE);
         if content.is_empty() {
             self.emit(text, self.whitespace_matcher, Buffer::Keep);
@@ -557,7 +565,7 @@ impl<'a> ClientScriptLexer<'a> {
         }
         let start = text.len() - text.trim_start_matches(SPACE).len();
         self.emit(&text[..start], self.whitespace_matcher, Buffer::Keep);
-        self.emit(content, &CLIENT_COMMAND_MISREAD, buffer);
+        self.emit(content, matcher, buffer);
         self.emit(
             &text[start + content.len()..],
             self.whitespace_matcher,
