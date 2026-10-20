@@ -141,8 +141,10 @@ mysql_client_commands = ClientCommandRules(
         LongClientCommand("delimiter", CommandArgument.DELIMITER),
         LongClientCommand("source", CommandArgument.FILE_NAME),
     ),
-    # `\\d` and `\\.` are the short forms of `delimiter` and `source`. The long
-    # forms of `\\g` and `\\G`, `go` and `ego`, do nothing in a script.
+    # `\d` and `\.` are the short forms of `delimiter` and `source`. `go` and
+    # `ego`, the long forms of `\g` and `\G`, are left out: like any long form
+    # they only count where nothing has been collected yet, so they never send
+    # anything (unless the client runs with `--named-commands`).
     short_commands=(
         ShortClientCommand("\\d", BufferAction.KEEP, CommandArgument.DELIMITER),
         ShortClientCommand("\\.", BufferAction.DISCARD, CommandArgument.FILE_NAME),
