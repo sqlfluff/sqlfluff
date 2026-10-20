@@ -43,3 +43,9 @@ CREATE SECRET my_password_secret
     TYPE = PASSWORD
     USERNAME = :my_username
     PASSWORD = :my_password;
+
+CREATE SECRET my_oauth_secret
+    TYPE = OAUTH2
+    OAUTH_REFRESH_TOKEN = :my_refresh_token
+    OAUTH_REFRESH_TOKEN_EXPIRY_TIME = :my_expiry_time
+    API_AUTHENTICATION = my_integration;
