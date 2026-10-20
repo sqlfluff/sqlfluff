@@ -12240,6 +12240,13 @@ class SecretOptionsSegment(BaseSegment):
 
     type = "secret_options"
 
+    # Values may also be supplied via Snowflake Scripting bind variables,
+    # e.g. SECRET_STRING = :my_variable
+    # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables#using-a-variable-in-a-sql-statement-binding
+    _string_or_bind_variable = OneOf(
+        Ref("QuotedLiteralSegment"), Ref("BindVariableSegment")
+    )
+
     match_grammar = AnySetOf(
         Sequence(
             "API_AUTHENTICATION",
@@ -12251,18 +12258,16 @@ class SecretOptionsSegment(BaseSegment):
             Ref("EqualsSegment"),
             Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
         ),
-        Sequence(
-            "OAUTH_REFRESH_TOKEN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
-        ),
+        Sequence("OAUTH_REFRESH_TOKEN", Ref("EqualsSegment"), _string_or_bind_variable),
         Sequence(
             "OAUTH_REFRESH_TOKEN_EXPIRY_TIME",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            _string_or_bind_variable,
         ),
         Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("USERNAME", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
-        Sequence("PASSWORD", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
-        Sequence("SECRET_STRING", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence("USERNAME", Ref("EqualsSegment"), _string_or_bind_variable),
+        Sequence("PASSWORD", Ref("EqualsSegment"), _string_or_bind_variable),
+        Sequence("SECRET_STRING", Ref("EqualsSegment"), _string_or_bind_variable),
         Sequence("ALGORITHM", Ref("EqualsSegment"), "GENERIC"),
         Ref("CommentEqualsClauseSegment"),
     )

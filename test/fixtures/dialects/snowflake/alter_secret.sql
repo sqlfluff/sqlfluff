@@ -11,3 +11,5 @@ ALTER SECRET aws_secret SET API_AUTHENTICATION = 'my_other_integration';
 ALTER SECRET my_basic_secret SET USERNAME = 'svc_user' PASSWORD = 'new_password';
 
 ALTER SECRET my_db.my_schema.my_api_secret SET SECRET_STRING = 'new_api_token';
+
+ALTER SECRET my_secret SET SECRET_STRING = :my_secret_string;
