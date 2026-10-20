@@ -249,6 +249,36 @@ fn test_refused_short_delimiter_keeps_the_delimiter() {
 }
 
 #[test]
+fn test_delimiter_ending_with_whitespace_is_refused() {
+    assert_tokens(
+        "DELIMITER '$$ '\nSELECT 1;\n",
+        &[
+            ("word", "DELIMITER"),
+            ("client_command_misread", "'$$ '"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+#[test]
+fn test_delimiter_starting_with_whitespace_is_refused() {
+    assert_tokens(
+        "SELECT 1 \\d  \\ \nSELECT 2;\n",
+        &[
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("client_short_command", "\\d"),
+            ("client_command_misread", "\\ "),
+            ("word", "SELECT"),
+            ("numeric_literal", "2"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+#[test]
 fn test_short_delimiter_command_with_no_argument_is_refused() {
     assert_tokens(
         "\\d\nSELECT 1;\n",

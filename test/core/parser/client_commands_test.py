@@ -152,6 +152,30 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("client_delimiter", "a b"),
             ],
         ),
+        # A delimiter that starts or ends with whitespace is refused, and the
+        # delimiter kept.
+        (
+            "DELIMITER '$$ '\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_misread", "'$$ '"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        (
+            "SELECT 1 \\d  \\ \nSELECT 2;\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_short_command", "\\d"),
+                ("client_command_misread", "\\ "),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("semicolon", ";"),
+            ],
+        ),
         # `\d` with no argument is refused, and the delimiter kept.
         (
             "\\d\nSELECT 1;\n",

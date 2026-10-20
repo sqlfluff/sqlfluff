@@ -485,11 +485,21 @@ impl<'a> ClientScriptLexer<'a> {
         }
     }
 
-    /// The delimiter the client sets from an argument's value, or `None` if
-    /// it refuses the value: empty, or with a backslash left in it.
+    /// The delimiter the client sets from an argument's value.
+    ///
+    /// `None` if it refuses the value: empty, with a backslash left in it, or
+    /// from a quote with no closing quote. A value that starts or ends with
+    /// whitespace (from quotes or an escaped space, as in `\d \ x`) is
+    /// refused too: the client takes it, but then splits statements at every
+    /// such space, or only where the invisible space follows, so it is only
+    /// ever a mistake.
     fn accepted_delimiter(&self, value: Option<&str>) -> Option<String> {
         let value = value?;
-        if value.is_empty() || value.contains('\\') {
+        if value.is_empty()
+            || value.contains('\\')
+            || value.starts_with(SPACE)
+            || value.ends_with(SPACE)
+        {
             return None;
         }
         let value = match self.rules.max_delimiter_bytes {

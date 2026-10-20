@@ -585,12 +585,16 @@ class ClientScriptLexer:
             self._emit_ignored(rest[: resume - argument_end])
 
     def _accepted_delimiter(self, value: Optional[str]) -> Optional[str]:
-        """The delimiter the client sets from an argument's value.
+        r"""The delimiter the client sets from an argument's value.
 
         `None` if it refuses the value: empty, with a backslash left in it, or
-        from a quote with no closing quote.
+        from a quote with no closing quote. A value that starts or ends with
+        whitespace (from quotes or an escaped space, as in `\d \ x`) is refused
+        too: the client takes it, but then splits statements at every such
+        space, or only where the invisible space follows, so it is only ever a
+        mistake.
         """
-        if not value or "\\" in value:
+        if not value or "\\" in value or value[0] in _SPACE or value[-1] in _SPACE:
             return None
         limit = self._rules.max_delimiter_bytes
         if limit is None:
