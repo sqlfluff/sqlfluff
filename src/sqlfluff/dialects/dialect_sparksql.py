@@ -307,6 +307,11 @@ sparksql_dialect.replace(
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
+    # SparkSQL has no CONNECT BY, so `PRIOR` is not an operator and must stay
+    # usable as an identifier (e.g. `prior.x`).
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(remove=[Ref.keyword("PRIOR")]),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
@@ -330,7 +335,6 @@ sparksql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
-        "KEYS",
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
@@ -481,6 +485,7 @@ sparksql_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
+        Ref("WildcardIdentifierSegment"),
     ),
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
@@ -2338,7 +2343,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE` and `ROLLUP`.
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP` and `ALL`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
@@ -2348,6 +2353,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         "BY",
         Indent,
         OneOf(
+            "ALL",
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
@@ -2478,7 +2484,11 @@ class LateralViewClauseSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Sequence(
                     Ref.keyword("AS", optional=True),
-                    Delimited(Ref("SingleIdentifierGrammar")),
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                        # Don't mistake a following `LATERAL VIEW` for aliases.
+                        terminators=[Sequence("LATERAL", "VIEW")],
+                    ),
                     optional=True,
                 ),
             ),
@@ -3176,7 +3186,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
-                "KEYS",
                 "FROM",
             ),
         ),

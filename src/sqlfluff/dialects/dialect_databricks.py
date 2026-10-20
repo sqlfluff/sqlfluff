@@ -373,6 +373,11 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # `KEYS` follows the source table in `APPLY CHANGES INTO` and
+    # `AUTO CDC INTO`, so it must end the FROM clause.
+    FromClauseTerminatorGrammar=databricks_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref.keyword("KEYS")]),
     # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
     # visible inside the pipeline but not published to the catalog:
     #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
@@ -411,10 +416,9 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
-    FunctionContentsExpressionGrammar=OneOf(
-        Ref("ExpressionSegment"),
-        Ref("NamedArgumentSegment"),
-    ),
+    FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
+        "FunctionContentsExpressionGrammar"
+    ).copy(insert=[Ref("NamedArgumentSegment")]),
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
         IdentifierSegment,
@@ -1960,45 +1964,6 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "KEYS",
                 "FROM",
                 "FOR",
-            ),
-        ),
-        Dedent,
-    )
-
-
-class GroupByClauseSegment(sparksql.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    match_grammar = Sequence(
-        "GROUP",
-        "BY",
-        Indent,
-        OneOf(
-            "ALL",
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `GROUP BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can `GROUP BY coalesce(col, 1)`
-                    Ref("ExpressionSegment"),
-                ),
-                OneOf(
-                    Ref("WithCubeRollupClauseSegment"),
-                    Ref("GroupingSetsClauseSegment"),
-                ),
             ),
         ),
         Dedent,

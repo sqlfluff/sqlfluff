@@ -1,7 +1,7 @@
 """The DepthMap class is an enriched sequence of raw segments."""
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 
 from sqlfluff.core.parser import BaseSegment
@@ -132,10 +132,82 @@ class DepthMap:
     def from_parent(cls: type["DepthMap"], parent: BaseSegment) -> "DepthMap":
         """Generate a DepthMap from all the children of a segment.
 
-        NOTE: This is the most efficient way to construct a DepthMap
-        due to caching in the BaseSegment.
+        NOTE: This is the most efficient way to construct a DepthMap. It
+        gives the same result as building each raw segment's `DepthInfo`
+        from its stack (see `raw_segments_with_ancestors`), but walks the
+        tree once, and shares the parts of each stack that siblings have in
+        common rather than rebuilding them for every raw segment. It walks
+        with a loop rather than recursion.
         """
-        return cls(raws_with_stack=parent.raw_segments_with_ancestors)
+        depth_map = cls(raws_with_stack=())
+        depth_info = depth_map.depth_info
+        # Each entry holds a segment whose children are still to visit, an
+        # iterator over them, and the stack information they share: the
+        # hashes and class types of the segment and its ancestors, and the
+        # stack positions for the ancestors above it.
+        root_hashes: tuple[int, ...] = (hash(parent),)
+        stack: list[
+            tuple[
+                BaseSegment,
+                Iterator[tuple[int, BaseSegment]],
+                tuple[int, ...],
+                frozenset[int],
+                tuple[frozenset[str], ...],
+                dict[int, StackPosition],
+            ]
+        ] = [
+            (
+                parent,
+                enumerate(parent.segments),
+                root_hashes,
+                frozenset(root_hashes),
+                (parent.class_types,),
+                {},
+            )
+        ]
+        while stack:
+            seg, children, hashes, hash_set, class_types, positions = stack[-1]
+            # As in `StackPosition._stack_pos_interpreter()`.
+            code_idxs = seg._code_indices
+            solo = len(code_idxs) == 1
+            first_code = code_idxs[0] if code_idxs else -1
+            last_code = code_idxs[-1] if code_idxs else -1
+            num_children = len(seg.segments)
+            for idx, child in children:
+                if solo:
+                    pos_type = "solo"
+                elif idx == first_code:
+                    pos_type = "start"
+                elif idx == last_code:
+                    pos_type = "end"
+                else:
+                    pos_type = ""
+                child_positions = positions.copy()
+                child_positions[hashes[-1]] = StackPosition(idx, num_children, pos_type)
+                if child.is_type("raw"):
+                    depth_info[child.uuid] = DepthInfo(
+                        stack_depth=len(hashes),
+                        stack_hashes=hashes,
+                        stack_hash_set=hash_set,
+                        stack_class_types=class_types,
+                        stack_positions=child_positions,
+                    )
+                else:
+                    child_hashes = hashes + (hash(child),)
+                    stack.append(
+                        (
+                            child,
+                            enumerate(child.segments),
+                            child_hashes,
+                            frozenset(child_hashes),
+                            class_types + (child.class_types,),
+                            child_positions,
+                        )
+                    )
+                    break
+            else:
+                stack.pop()
+        return depth_map
 
     @classmethod
     def from_raws_and_root(

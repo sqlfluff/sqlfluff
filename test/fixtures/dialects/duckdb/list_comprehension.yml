@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f11de74d2f2f8cb2bc991851be5e886df97b3eb0910085182f08fdf300a0eee5
+_hash: edd4c4934593151b879ea64bd7eaf7e11f0c4e81fbdbcfe5f95243a27dd93938
 file:
 - statement:
     select_statement:
@@ -131,4 +131,138 @@ file:
                 identifier_list:
                   naked_identifier: strings
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            list_comprehension:
+            - start_square_bracket: '['
+            - expression:
+              - column_reference:
+                  naked_identifier: x
+              - binary_operator: +
+              - column_reference:
+                  naked_identifier: i
+            - keyword: FOR
+            - parameter: x
+            - comma: ','
+            - parameter: i
+            - keyword: IN
+            - expression:
+                array_literal:
+                - start_square_bracket: '['
+                - numeric_literal: '4'
+                - comma: ','
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '6'
+                - end_square_bracket: ']'
+            - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          array_literal:
+          - start_square_bracket: '['
+          - numeric_literal: '4'
+          - comma: ','
+          - numeric_literal: '5'
+          - comma: ','
+          - numeric_literal: '6'
+          - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: l
+      - comma: ','
+      - select_clause_element:
+          expression:
+            list_comprehension:
+            - start_square_bracket: '['
+            - expression:
+                column_reference:
+                  naked_identifier: x
+            - keyword: FOR
+            - parameter: x
+            - comma: ','
+            - parameter: i
+            - keyword: IN
+            - expression:
+                column_reference:
+                  naked_identifier: l
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: i
+                comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: '='
+                numeric_literal: '2'
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: filtered
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            list_comprehension:
+            - start_square_bracket: '['
+            - expression:
+                column_reference:
+                  naked_identifier: i
+            - keyword: FOR
+            - parameter: x
+            - comma: ','
+            - parameter: i
+            - keyword: IN
+            - expression:
+                array_literal:
+                - start_square_bracket: '['
+                - numeric_literal: '4'
+                - comma: ','
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '6'
+                - end_square_bracket: ']'
+            - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            list_comprehension:
+            - start_square_bracket: '['
+            - expression:
+              - column_reference:
+                  quoted_identifier: '"value"'
+              - binary_operator: +
+              - column_reference:
+                  quoted_identifier: '"position"'
+            - keyword: for
+            - parameter: '"value"'
+            - comma: ','
+            - parameter: '"position"'
+            - keyword: in
+            - expression:
+                array_literal:
+                - start_square_bracket: '['
+                - numeric_literal: '4'
+                - comma: ','
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '6'
+                - end_square_bracket: ']'
+            - end_square_bracket: ']'
 - statement_terminator: ;
