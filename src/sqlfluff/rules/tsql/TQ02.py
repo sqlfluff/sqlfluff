@@ -100,6 +100,20 @@ class Rule_TQ02(BaseRule):
             # Defensive: statement with no segments shouldn't happen in valid parsed SQL
             return None  # pragma: no cover
 
+        # After this rule's own fix is applied, the inserted BEGIN keyword is a
+        # sibling of the statements (the tree is not reparsed into a
+        # begin_end_block between fix passes), so check for that shape too or
+        # the rule re-fires until the loop limit.
+        first_code = next(
+            (seg for seg in procedure_statement.segments if seg.is_code), None
+        )
+        if (
+            first_code
+            and first_code.is_type("keyword")
+            and first_code.raw_upper == "BEGIN"
+        ):
+            return None
+
         # We have multiple statements without BEGIN/END - create a fix
         fixes = self._create_begin_end_fixes(procedure_statement, statements)
 

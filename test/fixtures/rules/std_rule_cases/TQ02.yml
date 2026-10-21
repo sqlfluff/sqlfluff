@@ -157,3 +157,32 @@ test_pass_external_name:
   configs:
     core:
       dialect: tsql
+
+test_fail_multiple_procedures_fix_converges:
+  fail_str: |
+    CREATE OR ALTER PROCEDURE p AS
+    SET NOCOUNT ON;
+    BEGIN SELECT '8' END;
+    GO
+
+    ALTER PROCEDURE q AS
+    SET NOCOUNT ON;
+    BEGIN SELECT '8' END;
+    GO
+  fix_str: |
+    CREATE OR ALTER PROCEDURE p AS
+    BEGIN
+    SET NOCOUNT ON;
+    BEGIN SELECT '8' END;
+    END
+    GO
+
+    ALTER PROCEDURE q AS
+    BEGIN
+    SET NOCOUNT ON;
+    BEGIN SELECT '8' END;
+    END
+    GO
+  configs:
+    core:
+      dialect: tsql
