@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1eed933b10d2613ceb4aa51f99e01832131bb17dfd04015e15ccc1dd9e07393
+_hash: 26803bf305fb7a9dbd36d8ca94bb9d7cc66f6a901bd4f3e64d96674d5cc9b49d
 file:
 - statement:
     select_statement:
@@ -146,9 +146,9 @@ file:
                 pattern_expression:
                 - naked_identifier: row_before_decrease
                 - naked_identifier: row_with_price_decrease
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: row_with_price_increase
-                - sign_indicator: +
+                - pattern_quantifier: +
                 end_bracket: )
             - keyword: define
             - naked_identifier: row_with_price_decrease
@@ -307,7 +307,7 @@ file:
                 pattern_expression:
                 - naked_identifier: any_row
                 - naked_identifier: up
-                - sign_indicator: +
+                - pattern_quantifier: +
                 end_bracket: )
             - keyword: define
             - naked_identifier: any_row
@@ -397,7 +397,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: overavg
-                  star: '*'
+                  pattern_quantifier: '*'
                 end_bracket: )
             - keyword: define
             - naked_identifier: overavg
@@ -509,7 +509,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: overavg
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: define
             - naked_identifier: overavg
@@ -818,34 +818,34 @@ file:
                 pattern_expression:
                 - caret: ^
                 - naked_identifier: S1
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: S2
-                - star: '*'
+                - pattern_quantifier: '*'
                 - naked_identifier: S3
-                - question_mark: '?'
+                - pattern_quantifier: '?'
                 - naked_identifier: S4
-                - start_curly_bracket: '{'
+                - start_pattern_quantifier_bracket: '{'
                 - numeric_literal: '1'
-                - end_curly_bracket: '}'
+                - end_pattern_quantifier_bracket: '}'
                 - naked_identifier: S5
-                - start_curly_bracket: '{'
+                - start_pattern_quantifier_bracket: '{'
                 - numeric_literal: '1'
-                - comma: ','
-                - end_curly_bracket: '}'
+                - pattern_comma: ','
+                - end_pattern_quantifier_bracket: '}'
                 - naked_identifier: S6
-                - start_curly_bracket: '{'
-                - comma: ','
+                - start_pattern_quantifier_bracket: '{'
+                - pattern_comma: ','
                 - numeric_literal: '1'
-                - end_curly_bracket: '}'
+                - end_pattern_quantifier_bracket: '}'
                 - naked_identifier: S7
-                - start_curly_bracket: '{'
+                - start_pattern_quantifier_bracket: '{'
                 - numeric_literal: '1'
-                - comma: ','
+                - pattern_comma: ','
                 - numeric_literal: '1'
-                - end_curly_bracket: '}'
+                - end_pattern_quantifier_bracket: '}'
                 - naked_identifier: S8
-                - star: '*'
-                - question_mark: '?'
+                - pattern_quantifier: '*'
+                - pattern_quantifier: '?'
                 - dollar: $
                 end_bracket: )
             - keyword: define
@@ -1040,25 +1040,25 @@ file:
                   - binary_operator:
                       pipe: '|'
                   - naked_identifier: S2
-                  - star: '*'
+                  - pattern_quantifier: '*'
                   - end_bracket: )
-                - question_mark: '?'
+                - pattern_quantifier: '?'
                 - naked_identifier: S3
                 - keyword: PERMUTE
                 - bracketed:
                   - start_bracket: (
                   - naked_identifier: S4
-                  - sign_indicator: +
+                  - pattern_quantifier: +
                   - comma: ','
                   - naked_identifier: S5
-                  - star: '*'
-                  - question_mark: '?'
+                  - pattern_quantifier: '*'
+                  - pattern_quantifier: '?'
                   - end_bracket: )
                 - bracketed:
                     start_exclude_bracket: '{-'
                     naked_identifier: S6
                     end_exclude_bracket: -}
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - dollar: $
                 end_bracket: )
             - keyword: define
@@ -1252,12 +1252,12 @@ file:
                   - bracketed:
                     - start_exclude_bracket: '{-'
                     - naked_identifier: B
-                    - sign_indicator: +
+                    - pattern_quantifier: +
                     - naked_identifier: C
-                    - sign_indicator: +
+                    - pattern_quantifier: +
                     - end_exclude_bracket: -}
                   - naked_identifier: D
-                  - sign_indicator: +
+                  - pattern_quantifier: +
                   - end_bracket: )
                 end_bracket: )
             - keyword: define
@@ -1452,11 +1452,11 @@ file:
                       pipe: '|'
                   - naked_identifier: B
                   - end_bracket: )
-                  start_curly_bracket: '{'
+                  start_pattern_quantifier_bracket: '{'
                   numeric_literal: '5'
-                  end_curly_bracket: '}'
+                  end_pattern_quantifier_bracket: '}'
                   naked_identifier: C
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: define
             - naked_identifier: row_with_price_decrease

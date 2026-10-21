@@ -432,6 +432,32 @@ test_snowflake_match_pattern:
     core:
       dialect: snowflake
 
+test_snowflake_match_pattern_exclusions:
+  # Pattern quantifiers inside `{- ... -}` exclusions and subgroups must
+  # stay attached to the pattern variable: `b+`, not `b +`.
+  pass_str: |
+    select * from stock_price_history
+      match_recognize (
+        order by price_date
+        pattern (a {- b+ c* d? e{3,5} f{3,} g{,5} h{5} -} (i+ j) k)
+        define a as true
+      );
+  configs:
+    core:
+      dialect: snowflake
+
+test_trino_match_pattern_exclusions:
+  pass_str: |
+    select * from stock_price_history
+      match_recognize (
+        order by price_date
+        pattern (a {- b+ c* d? e{3,5} f{3,} g{,5} h{5} -} (i+ j) k)
+        define a as true
+      );
+  configs:
+    core:
+      dialect: trino
+
 test_hive_set_statement:
   # This should use ColonDelimiter so it shouldn't have spacing around it.
   pass_str: |

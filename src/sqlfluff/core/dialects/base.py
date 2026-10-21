@@ -104,6 +104,7 @@ class Dialect:
         assert label not in (
             "bracket_pairs",
             "angle_bracket_pairs",
+            "pattern_quantifier_pairs",
         ), f"Use `bracket_sets` to retrieve {label} set."
 
         if label not in self._sets:
@@ -115,6 +116,7 @@ class Dialect:
         assert label in (
             "bracket_pairs",
             "angle_bracket_pairs",
+            "pattern_quantifier_pairs",
         ), "Invalid bracket set. Consider using `sets` instead."
 
         if label not in self._sets:

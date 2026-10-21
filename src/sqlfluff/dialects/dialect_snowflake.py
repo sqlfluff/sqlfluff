@@ -129,6 +129,17 @@ snowflake_dialect.bracket_sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
+# A `{n,m}` PATTERN repetition quantifier needs its own bracket pair so the
+# brackets can be typed differently to `curly` (which object literals also use).
+snowflake_dialect.bracket_sets("pattern_quantifier_pairs").add(
+    (
+        "pattern_quantifier",
+        "StartPatternQuantifierBracketSegment",
+        "EndPatternQuantifierBracketSegment",
+        False,
+    )
+)
+
 # Set the bare functions
 snowflake_dialect.sets("bare_functions").clear()
 snowflake_dialect.sets("bare_functions").update(
@@ -750,34 +761,47 @@ snowflake_dialect.add(
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     CaretSegment=StringParser("^", SymbolSegment, type="caret"),
     DollarSegment=StringParser("$", SymbolSegment, type="dollar"),
+    # The `+`, `*`, `?` and `{n,m}` in a PATTERN are repetition quantifiers, not
+    # sign indicators or generic symbols, and must stay attached to the
+    # preceding pattern variable to reparse.
+    PatternPlusSegment=StringParser("+", SymbolSegment, type="pattern_quantifier"),
+    PatternStarSegment=StringParser("*", SymbolSegment, type="pattern_quantifier"),
+    PatternQuestionSegment=StringParser("?", SymbolSegment, type="pattern_quantifier"),
+    PatternCommaSegment=StringParser(",", SymbolSegment, type="pattern_comma"),
+    StartPatternQuantifierBracketSegment=StringParser(
+        "{", SymbolSegment, type="start_pattern_quantifier_bracket"
+    ),
+    EndPatternQuantifierBracketSegment=StringParser(
+        "}", SymbolSegment, type="end_pattern_quantifier_bracket"
+    ),
     PatternQuantifierGrammar=Sequence(
         OneOf(
-            Ref("PositiveSegment"),
-            Ref("StarSegment"),
-            Ref("QuestionMarkSegment"),
+            Ref("PatternPlusSegment"),
+            Ref("PatternStarSegment"),
+            Ref("PatternQuestionSegment"),
             Bracketed(
                 OneOf(
                     Ref("NumericLiteralSegment"),
                     Sequence(
                         Ref("NumericLiteralSegment"),
-                        Ref("CommaSegment"),
+                        Ref("PatternCommaSegment"),
                     ),
                     Sequence(
-                        Ref("CommaSegment"),
+                        Ref("PatternCommaSegment"),
                         Ref("NumericLiteralSegment"),
                     ),
                     Sequence(
                         Ref("NumericLiteralSegment"),
-                        Ref("CommaSegment"),
+                        Ref("PatternCommaSegment"),
                         Ref("NumericLiteralSegment"),
                     ),
                 ),
-                bracket_type="curly",
-                bracket_pairs_set="bracket_pairs",
+                bracket_type="pattern_quantifier",
+                bracket_pairs_set="pattern_quantifier_pairs",
             ),
         ),
         # To put a quantifier into “reluctant mode”.
-        Ref("QuestionMarkSegment", optional=True),
+        Ref("PatternQuestionSegment", optional=True),
         allow_gaps=False,
     ),
     PatternSymbolGrammar=Sequence(

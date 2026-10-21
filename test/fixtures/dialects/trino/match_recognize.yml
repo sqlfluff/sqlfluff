@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6bfc2b9023ce0da95888308b591378da0294b6e9abf96d7e155fe2743607ea38
+_hash: 66856652e1328c6d1bf385a161d0fe91b5b654dcda68fdbe9c066c6022bd9732
 file:
 - statement:
     select_statement:
@@ -34,7 +34,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: x
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: x
@@ -139,11 +139,11 @@ file:
                 pattern_expression:
                 - naked_identifier: A
                 - naked_identifier: B
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: C
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: D
-                - sign_indicator: +
+                - pattern_quantifier: +
                 end_bracket: )
             - keyword: SUBSET
             - naked_identifier: U
@@ -267,12 +267,12 @@ file:
                 - bracketed:
                   - start_exclude_bracket: '{-'
                   - naked_identifier: B
-                  - sign_indicator: +
+                  - pattern_quantifier: +
                   - naked_identifier: C
-                  - sign_indicator: +
+                  - pattern_quantifier: +
                   - end_exclude_bracket: -}
                 - naked_identifier: D
-                - sign_indicator: +
+                - pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: B
@@ -405,14 +405,14 @@ file:
                 pattern_expression:
                 - caret: ^
                 - naked_identifier: A
-                - start_curly_bracket: '{'
+                - start_pattern_quantifier_bracket: '{'
                 - numeric_literal: '2'
-                - comma: ','
+                - pattern_comma: ','
                 - numeric_literal: '4'
-                - end_curly_bracket: '}'
-                - question_mark: '?'
+                - end_pattern_quantifier_bracket: '}'
+                - pattern_quantifier: '?'
                 - naked_identifier: B
-                - star: '*'
+                - pattern_quantifier: '*'
                 - dollar: $
                 end_bracket: )
             - keyword: DEFINE
@@ -468,7 +468,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  star: '*'
+                  pattern_quantifier: '*'
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -523,7 +523,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  star: '*'
+                  pattern_quantifier: '*'
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -578,7 +578,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  star: '*'
+                  pattern_quantifier: '*'
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -622,7 +622,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -666,9 +666,9 @@ file:
                 start_bracket: (
                 pattern_expression:
                 - naked_identifier: A
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: B
-                - sign_indicator: +
+                - pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -717,9 +717,9 @@ file:
                 start_bracket: (
                 pattern_expression:
                 - naked_identifier: A
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: B
-                - sign_indicator: +
+                - pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -773,14 +773,14 @@ file:
                 pattern_expression:
                 - naked_identifier: START
                 - naked_identifier: DOWN
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: UP
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - pipe: '|'
                 - naked_identifier: DOWN
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: UP
-                - sign_indicator: +
+                - pattern_quantifier: +
                 - naked_identifier: LAST_UP
                 end_bracket: )
             - keyword: DEFINE
@@ -910,7 +910,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -1027,9 +1027,9 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  start_curly_bracket: '{'
-                  comma: ','
-                  end_curly_bracket: '}'
+                  start_pattern_quantifier_bracket: '{'
+                  pattern_comma: ','
+                  end_pattern_quantifier_bracket: '}'
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -1067,7 +1067,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
@@ -1109,7 +1109,7 @@ file:
                 start_bracket: (
                 pattern_expression:
                   naked_identifier: A
-                  sign_indicator: +
+                  pattern_quantifier: +
                 end_bracket: )
             - keyword: DEFINE
             - naked_identifier: A
