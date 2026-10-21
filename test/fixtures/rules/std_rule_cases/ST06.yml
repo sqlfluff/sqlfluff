@@ -676,3 +676,51 @@ test_fail_fix_standalone_comment_between_unchanged_targets:
 test_fail_fix_at_end_of_file:
   fail_str: SELECT (a - b) AS calc, name
   fix_str: SELECT name, (a - b) AS calc
+
+test_pass_cte_with_explicit_columns_ignored:
+  pass_str: |
+    WITH c (x, y) AS (
+      SELECT a + 1, b FROM t
+    )
+    SELECT x, y FROM c
+
+test_pass_derived_table_with_column_list_ignored:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT s.x, s.y FROM (SELECT a + 1, b FROM t) AS s (x, y)
+
+test_pass_lateral_subquery_with_column_list_ignored:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT s.x, s.y FROM LATERAL (SELECT a + 1, b FROM t) AS s (x, y)
+
+test_pass_create_table_as_statement_ignored:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    CREATE TABLE t2 (x, y) AS SELECT a + 1, b FROM t
+
+test_fail_subquery_inside_where_clause_still_reordered:
+  fail_str: |
+    SELECT a FROM t WHERE id IN (SELECT (a + 1) AS calc, b FROM u)
+  fix_str: |
+    SELECT a FROM t WHERE id IN (SELECT b, (a + 1) AS calc FROM u)
+
+test_fail_nested_cte_without_columns_still_reordered:
+  fail_str: |
+    WITH c (x, y) AS (
+      WITH d AS (SELECT a + 1 AS p, b AS q FROM t)
+      SELECT p, q FROM d
+    )
+    SELECT x, y FROM c
+  fix_str: |
+    WITH c (x, y) AS (
+      WITH d AS (SELECT b AS q, a + 1 AS p FROM t)
+      SELECT p, q FROM d
+    )
+    SELECT x, y FROM c

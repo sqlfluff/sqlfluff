@@ -260,9 +260,33 @@ class Rule_ST06(BaseRule):
                 "insert_statement",
                 "set_expression",
                 "create_table_statement",
+                "create_table_as_statement",
                 "merge_statement",
             ):
                 return None
+
+        # Check if this SELECT defines a CTE or derived table with an explicit column list.
+        # When explicit column names are defined (e.g. WITH c (x, y) AS (...) or
+        # FROM (...) AS s (x, y)), target expressions bind by position, so reordering
+        # targets will silently alter query results (#8794).
+        # Stop at the nearest CTE or query output owner so that nested CTEs without an
+        # explicit column list do not inherit an outer CTE's exemption.
+        for seg in reversed(context.parent_stack):
+            if seg.is_type(
+                "where_clause", "from_clause", "join_clause", "join_on_condition"
+            ):
+                break
+            if seg.is_type("common_table_expression"):
+                if seg.get_child("cte_column_list"):
+                    return None
+                break
+            if seg.is_type("from_expression_element"):
+                alias_expr = seg.get_child("alias_expression")
+                if alias_expr and alias_expr.get_child(
+                    "bracketed", "alias_column_list"
+                ):
+                    return None
+                break
 
         # CTE is order-sensitive only if CTE is referenced as SELECT * in set expression
         for seg in reversed(context.parent_stack):
