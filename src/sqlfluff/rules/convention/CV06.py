@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 from typing import NamedTuple, Optional, cast
 
+from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, RawSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -91,8 +92,25 @@ class Rule_CV06(BaseRule):
         return False
 
     @staticmethod
+    def _is_whole_block_comment(segment: BaseSegment, dialect: Dialect) -> bool:
+        """Whether a block comment segment holds a whole comment.
+
+        A block comment that spans lines is lexed one piece per line, so a piece
+        is whole only if the dialect's own ``block_comment`` matcher consumes all
+        of it. That matcher also knows whether the dialect nests comments.
+        """
+        for matcher in dialect.get_lexer_matchers():
+            if matcher.name == "block_comment":
+                match = matcher.match(segment.raw)
+                return bool(match) and not match.forward_string
+        return False
+
+    @classmethod
     def _handle_preceding_inline_comments(
-        before_segment: Sequence[BaseSegment], anchor_segment: BaseSegment
+        cls,
+        before_segment: Sequence[BaseSegment],
+        anchor_segment: BaseSegment,
+        dialect: Dialect,
     ):
         """Adjust segments to not move preceding inline comments.
 
@@ -110,15 +128,7 @@ class Rule_CV06(BaseRule):
                 if s.is_comment
                 and (
                     not s.is_type("block_comment")
-                    # A block comment spanning lines is lexed one piece per
-                    # line, so only a piece that opens and closes is whole.
-                    # Where comments nest, the first line of one that spans
-                    # lines can also end in "*/", so every opening must close.
-                    or (
-                        s.raw.startswith("/*")
-                        and s.raw.endswith("*/")
-                        and s.raw.count("/*") == s.raw.count("*/")
-                    )
+                    or cls._is_whole_block_comment(s, dialect)
                 )
                 and s.pos_marker
                 and s.pos_marker.working_line_no
@@ -219,7 +229,10 @@ class Rule_CV06(BaseRule):
         )
 
     def _handle_semicolon(
-        self, target_segment: RawSegment, parent_segment: BaseSegment
+        self,
+        target_segment: RawSegment,
+        parent_segment: BaseSegment,
+        dialect: Dialect,
     ) -> Optional[LintResult]:
         info = self._get_segment_move_context(target_segment, parent_segment)
         semicolon_newline = self.multiline_newline if not info.is_one_line else False
@@ -232,7 +245,9 @@ class Rule_CV06(BaseRule):
             )
         # Semi-colon on new line.
         else:
-            return self._handle_semicolon_newline(target_segment, parent_segment, info)
+            return self._handle_semicolon_newline(
+                target_segment, parent_segment, info, dialect
+            )
 
     def _handle_semicolon_same_line(
         self,
@@ -265,12 +280,13 @@ class Rule_CV06(BaseRule):
         target_segment: RawSegment,
         parent_segment: BaseSegment,
         info: SegmentMoveContext,
+        dialect: Dialect,
     ) -> Optional[LintResult]:
         # Adjust before_segment and anchor_segment for preceding inline
         # comments. Inline comments can contain noqa logic so we need to add the
         # newline after the inline comment.
         before_segment, anchor_segment = self._handle_preceding_inline_comments(
-            info.before_segment, info.anchor_segment
+            info.before_segment, info.anchor_segment, dialect
         )
 
         if (len(before_segment) == 1) and all(
@@ -349,7 +365,7 @@ class Rule_CV06(BaseRule):
         return fixes
 
     def _ensure_final_semicolon(
-        self, parent_segment: BaseSegment
+        self, parent_segment: BaseSegment, dialect: Dialect
     ) -> Optional[LintResult]:
         # Get the last statement in the file (may be nested in a batch)
         last_statement = self._get_last_statement(parent_segment)
@@ -454,7 +470,7 @@ class Rule_CV06(BaseRule):
                     before_segment,
                     anchor_segment,
                 ) = self._handle_preceding_inline_comments(
-                    before_segment, anchor_segment
+                    before_segment, anchor_segment, dialect
                 )
                 self.logger.debug("Revised anchor on: %s", anchor_segment)
                 fixes = [
@@ -509,7 +525,7 @@ class Rule_CV06(BaseRule):
                     self.logger.debug("Handling semi-colon: %s", seg)
 
                     if self._is_segment_semicolon(seg):
-                        res = self._handle_semicolon(seg, container)
+                        res = self._handle_semicolon(seg, container, context.dialect)
                 # Otherwise handle the end of the container separately.
                 # Only check for final semicolon at the file level, not batch level
                 elif (
@@ -523,7 +539,7 @@ class Rule_CV06(BaseRule):
                     )
 
                     if not has_final_non_semicolon_terminator:
-                        res = self._ensure_final_semicolon(container)
+                        res = self._ensure_final_semicolon(container, context.dialect)
                 if res:
                     results.append(res)
 

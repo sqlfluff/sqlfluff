@@ -514,6 +514,24 @@ test_fail_newline_nested_block_comment_custom_multiline_tsql:
       convention.terminator:
         multiline_newline: true
 
+test_fail_newline_block_comment_opening_with_slash_star_slash:
+  # "/*/" opens a block comment, it does not close one, so the comment spans
+  # lines and moves like any multiline comment.
+  fail_str: |
+    SELECT foo
+    FROM bar /*/
+    still open */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /*/
+    still open */
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
 test_fail_newline_create_table:
   # https://github.com/sqlfluff/sqlfluff/issues/2268
   fail_str: |
