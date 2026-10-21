@@ -237,6 +237,13 @@ class PythonTemplater(RawTemplater):
         """
         live_context = self.get_context(fname, config)
         ignore_templating = config and "templating" in config.get("ignore")
+        default_value = (
+            config.get("default_value", section=("templater", self.name))
+            if config
+            else None
+        )
+        if default_value is not None:
+            default_value = self.infer_type(default_value)
 
         def render_func(raw_str: str) -> str:
             """Render the string using the captured live_context.
@@ -257,14 +264,9 @@ class PythonTemplater(RawTemplater):
                 raw_str_with_dot_notation_hack,
             )
 
-            if ignore_templating:
-                # When ignoring templating errors, use a fallback dict that
-                # returns the variable name for missing keys, so that templating
-                # can still succeed and linting can proceed on the result.
-                # This mirrors the behaviour of Jinja's DummyUndefined when
-                # ignore=templating is set. No violations are recorded for
-                # missing variables since the user has explicitly opted to
-                # ignore templating errors.
+            if ignore_templating or default_value is not None:
+                # Missing keys use an explicit default, or their name when
+                # templating errors are ignored, as with Jinja's DummyUndefined.
 
                 class _FallbackValue:
                     """A fallback value that acts as a placeholder for missing vars.
@@ -304,14 +306,18 @@ class PythonTemplater(RawTemplater):
                             }
                         )
 
-                    def __missing__(self, key: str) -> "_FallbackValue":
+                    def __missing__(self, key: str) -> Any:
+                        if default_value is not None:
+                            return default_value
                         return _FallbackValue(key)
 
                 class _DotNotationFallbackDict(_FallbackDict):
-                    def __missing__(self, key: str) -> "_FallbackValue":
-                        return _FallbackValue(key.replace(".", "_"))
+                    def __missing__(self, key: str) -> Any:
+                        return super().__missing__(key.replace(".", "_"))
 
                 fallback_context = _FallbackDict.from_mapping(live_context)
+                if default_value is not None and "sqlfluff" not in fallback_context:
+                    fallback_context["sqlfluff"] = _DotNotationFallbackDict()
                 if isinstance(fallback_context.get("sqlfluff"), Mapping):
                     fallback_context["sqlfluff"] = (
                         _DotNotationFallbackDict.from_mapping(

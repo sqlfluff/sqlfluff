@@ -4,13 +4,104 @@ import logging
 
 import pytest
 
-from sqlfluff.core import FluffConfig, SQLTemplaterError
+from sqlfluff.core import FluffConfig, Linter, SQLTemplaterError
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.templaters import PythonTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 from sqlfluff.core.templaters.python import IntermediateFileSlice
 
 PYTHON_STRING = "SELECT * FROM {blah}"
+
+
+@pytest.mark.parametrize(
+    "default_value,query,context,expected",
+    [
+        ("Placeholder", "SELECT '{city}'", {}, "SELECT 'Placeholder'"),
+        ("0", "SELECT {age:d}", {}, "SELECT 0"),
+        ("0", "SELECT {age:d}", {"age": "18"}, "SELECT 18"),
+        ("False", "SELECT {flag}", {}, "SELECT False"),
+        ("''", "SELECT '{city}'", {}, "SELECT ''"),
+        ("1", "SELECT {flag}", {"flag": "False"}, "SELECT False"),
+        ("1", "SELECT '{city}'", {"city": "''"}, "SELECT ''"),
+        ("1", "SELECT {value}", {"value": "None"}, "SELECT None"),
+        ("Placeholder", "SELECT {city!r}", {}, "SELECT 'Placeholder'"),
+        (
+            "Placeholder",
+            "SELECT {known}, '{missing}', '{missing}'",
+            {"known": "0"},
+            "SELECT 0, 'Placeholder', 'Placeholder'",
+        ),
+        ("1", "SELECT {schema.table}", {}, "SELECT 1"),
+        (
+            "1",
+            "SELECT {schema.table}, {schema.other}",
+            {"sqlfluff": "{'schema.table': 2}"},
+            "SELECT 2, 1",
+        ),
+        ("1", "SELECT {record[missing]}", {"record": "{}"}, "SELECT 1"),
+    ],
+)
+def test__templater_python_default_value(default_value, query, context, expected):
+    """Configured defaults fill missing values without replacing explicit context."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "python": {"default_value": default_value, "context": context}
+            },
+        }
+    )
+    templater = PythonTemplater()
+    rendered, violations = templater.process(in_str=query, fname="test", config=config)
+    assert str(rendered) == expected
+    assert not violations
+    assert rendered.source_str == query
+    assert rendered.sliced_file[-1].source_slice.stop == len(query)
+    assert rendered.sliced_file[-1].templated_slice.stop == len(expected)
+
+
+@pytest.mark.parametrize("ignore", ["", "templating"])
+def test__templater_python_default_value_from_config(ignore):
+    """Read an INI default and keep placeholders intact when fixing SQL."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = python\n"
+        "rules = CP01\n"
+        f"ignore = {ignore}\n"
+        "[sqlfluff:templater:python]\n"
+        "default_value = 0\n"
+        "[sqlfluff:templater:python:context]\n"
+        "min_age = 18\n"
+        "[sqlfluff:rules:capitalisation.keywords]\n"
+        "capitalisation_policy = upper\n"
+    )
+    query = "select * from users where age > {min_age} and city = '{city_name}'"
+    linter = Linter(config=config)
+    parsed = linter.parse_string(query)
+    assert not parsed.violations
+    assert str(parsed.parsed_variants[0].templated_file) == (
+        "select * from users where age > 18 and city = '0'"
+    )
+    fixed, changed = linter.lint_string(query, fix=True).fix_string()
+    assert changed
+    assert fixed == (
+        "SELECT * FROM users WHERE age > {min_age} AND city = '{city_name}'"
+    )
+    assert config.get_section(("templater", "python", "context")) == {"min_age": 18}
+
+
+@pytest.mark.parametrize("default_value", [None, "None"])
+def test__templater_python_default_value_disabled(default_value):
+    """An unset or None default preserves missing-variable errors."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"python": {"default_value": default_value}},
+        }
+    )
+    with pytest.raises(SQLTemplaterError, match="Have you configured your variables"):
+        PythonTemplater().process(in_str=PYTHON_STRING, fname="test", config=config)
 
 
 def test__templater_python():

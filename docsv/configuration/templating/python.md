@@ -26,6 +26,44 @@ tbl_name = my_table
 SELECT * FROM my_table
 ```
 
+## Default Values
+
+To provide a shared placeholder for variables without an explicit context value,
+set `default_value` in the Python templater configuration:
+
+```ini
+[sqlfluff:templater:python]
+default_value = 0
+
+[sqlfluff:templater:python:context]
+min_age = 18
+```
+
+For example, this SQL:
+
+```sql
+SELECT * FROM users WHERE age > {min_age} AND city = '{city_name}'
+```
+
+...renders as:
+
+```sql
+SELECT * FROM users WHERE age > 18 AND city = '0'
+```
+
+Explicit context values always take priority, including `0`, `False`, and empty
+strings. Defaults use the same Python literal type inference as context values,
+so `0` supports numeric format specifications such as `{min_age:d}`. A string
+default must be compatible with any format specifications used in the template.
+Defaults also apply to missing dictionary keys and dotted variable names.
+
+Without `default_value` (or if it is `None`), missing variables still raise
+templating errors unless `ignore = templating` is configured. If both options
+are set, the configured default takes priority over variable-name placeholders.
+This option only supplies values for rendering; fixes preserve the placeholders
+in the source SQL. Choose a default that makes sense for your queries: one value
+cannot represent every possible SQL expression or data type.
+
 ## Complex Python Variable Templating
 
 [Python string formatting](https://docs.python.org/3/library/string.html#format-string-syntax) supports accessing object attributes
