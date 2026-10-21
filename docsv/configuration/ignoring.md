@@ -91,11 +91,30 @@ The patterns in `ignore_paths` use the same matching rules as
 
 ## Ignoring types of errors
 
-General *categories* of errors can be ignored using the ``--ignore`` command
-line option or the ``ignore`` setting in `sqlfluffignore`. Types of errors
-that can be ignored include:
+General *categories* of errors can be ignored using the `--ignore` command
+line option or the `ignore` setting in the `[sqlfluff]` section of a
+`.sqlfluff` configuration file. For example, to ignore templating errors:
 
-* `lexing`
-* `linting`
-* `parsing`
-* `templating`
+```ini
+[sqlfluff]
+ignore = templating
+```
+
+The equivalent command-line option is `--ignore templating`. To ignore
+multiple categories, separate them with commas, such as
+`ignore = templating,parsing`.
+
+The supported categories are:
+
+* `lexing`: errors splitting SQL into tokens.
+* `linting`: violations of linting rules.
+* `parsing`: errors matching SQL to the selected dialect's grammar.
+* `templating`: errors rendering templated SQL.
+
+The [`.sqlfluffignore` file](#sqlfluffignore) excludes files and directories;
+it does not configure error categories.
+
+::: warning
+Ignoring templating or parsing errors can lead to incorrect linting and
+fixing results. Resolve these errors where possible.
+:::
