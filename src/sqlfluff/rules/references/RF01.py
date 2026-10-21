@@ -26,6 +26,10 @@ _START_TYPES = [
     "update_statement",
 ]
 
+# dbt declares this scripting variable around BigQuery incremental models.
+# Unquoted BigQuery identifiers normalize with ``str.upper``.
+_DBT_BIGQUERY_MAX_PARTITION = "_dbt_max_partition"
+
 
 @dataclass
 class RF01Query(Query):
@@ -34,6 +38,9 @@ class RF01Query(Query):
     aliases: list[AliasInfo] = field(default_factory=list)
     standalone_aliases: list[BaseSegment] = field(default_factory=list)
     parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
+    # Set per evaluation for dbt BigQuery. Child queries read it from an
+    # ancestor; it is not stored on the rule, so later files cannot see it.
+    dbt_bigquery_partition: bool = False
 
 
 class Rule_RF01(BaseRule):
@@ -51,6 +58,12 @@ class Rule_RF01(BaseRule):
        ROW/struct fields. SELECTs with multiple sources are still checked,
        allowing field access through a visible table or alias. Use
        ``force_enable = True`` for strict checking of these references too.
+
+       On BigQuery with the dbt templater, unqualified ``_dbt_max_partition``
+       is supplied by dbt's incremental execution environment and resolves
+       without a ``FROM`` object. Qualified references and other ``_dbt_*``
+       names are still checked when ``force_enable`` is set. The raw and
+       jinja templaters do not supply this variable.
 
     **Anti-pattern**
 
@@ -102,6 +115,9 @@ class Rule_RF01(BaseRule):
         # below context.segment in the parser tree.
         query: RF01Query = RF01Query.from_segment(context.segment, context.dialect)
         query.parent_stack = context.parent_stack
+        # Local to this query tree. Nested queries reach it by walking parents
+        # in ``_resolve_reference``; the next ``_eval`` builds a new query.
+        query.dbt_bigquery_partition = self._uses_dbt_bigquery_partition(context)
         self._analyze_table_references(
             query, dml_target_table, context.dialect, violations
         )
@@ -329,7 +345,7 @@ class Rule_RF01(BaseRule):
                 else:
                     return None
 
-        targets += self._get_implicit_targets(query)
+        targets += self._get_implicit_targets(query, r)
 
         if supports_struct_access and not self.force_enable:
             # ROW/struct access starts with a visible table or alias, followed by a
@@ -364,7 +380,42 @@ class Rule_RF01(BaseRule):
 
         return None
 
-    def _get_implicit_targets(self, query: RF01Query) -> list[tuple[str, ...]]:
+    def _uses_dbt_bigquery_partition(self, context: RuleContext) -> bool:
+        """Whether dbt's BigQuery runtime supplies ``_dbt_max_partition``."""
+        return (
+            context.dialect.name == "bigquery"
+            and context.config.get("templater") == "dbt"
+        )
+
+    def _dbt_max_partition_targets(
+        self, reference: ObjectReferenceSegment, dialect: Dialect
+    ) -> list[tuple[str, ...]]:
+        """Return targets when ``reference`` is unqualified ``_dbt_max_partition``.
+
+        Comparison uses the identifier segment's BigQuery normalization, so
+        case variants of the variable match. A qualified reference is
+        left untouched, including when its first component only looks like the
+        variable, and names that merely start with ``_dbt_`` are not exempt.
+        """
+        parts = list(iter_raw_references(reference, dialect.name))
+        if len(parts) != 1:
+            return []
+        normalized = parts[0].segments[0].raw_normalized(casefold=True)
+        if normalized != _DBT_BIGQUERY_MAX_PARTITION.upper():
+            return []
+        # Hand back this reference's own spellings. Resolution compares those
+        # strings, which keep the source case, rather than the folded form.
+        return self._table_ref_as_tuple(reference, dialect)
+
+    def _get_implicit_targets(
+        self, query: RF01Query, reference: ObjectReferenceSegment
+    ) -> list[tuple[str, ...]]:
+        """Return execution-environment names that need no ``FROM`` entry.
+
+        Nested queries do not copy ``dbt_bigquery_partition``. Ancestor
+        resolution calls this again on the parent query, which owns the flag
+        for the current evaluation.
+        """
         if query.dialect.name == "sqlite":
             maybe_create_trigger: Optional[BaseSegment] = next(
                 (
@@ -397,6 +448,9 @@ class Rule_RF01(BaseRule):
                             cast(ObjectReferenceSegment, table_reference),
                             query.dialect,
                         )
+
+        if query.dbt_bigquery_partition:
+            return self._dbt_max_partition_targets(reference, query.dialect)
 
         return []
 

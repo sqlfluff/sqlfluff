@@ -1659,3 +1659,39 @@ test_fail_bigquery_with_expression_variable_in_own_subquery:
     rules:
       references.from:
         force_enable: true
+
+test_fail_bigquery_dbt_max_partition_raw_templater:
+  # Strict BigQuery still treats a bare identifier as a table reference.
+  # _dbt_max_partition is implicit only for the dbt templater.
+  fail_str: |
+    SELECT DATE(_dbt_max_partition)
+    FROM events
+  configs:
+    core:
+      dialect: bigquery
+      templater: raw
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_bigquery_dbt_max_partition_jinja_templater:
+  fail_str: |
+    SELECT DATE(_dbt_max_partition)
+    FROM events
+  configs:
+    core:
+      dialect: bigquery
+      templater: jinja
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_bigquery_dbt_max_partition_without_force_enable:
+  # The BigQuery exemption stays in place when strict mode is off.
+  pass_str: |
+    SELECT DATE(_dbt_max_partition), missing.col
+    FROM events
+  configs:
+    core:
+      dialect: bigquery
+      templater: raw
