@@ -464,6 +464,72 @@ class Rule_CV06(BaseRule):
             )
         return None  # pragma: no cover
 
+    def _ensure_nested_semicolons(self, file_segment: BaseSegment) -> list[LintResult]:
+        """Terminate executable statements inside procedural statement lists."""
+        results = []
+        for container in file_segment.recursive_crawl(
+            "procedure_statement",
+            "begin_end_block",
+            "if_then_statement",
+            "while_statement",
+        ):
+            for idx, statement in enumerate(container.segments):
+                if not statement.is_type("statement"):
+                    continue
+                # Control-flow and block statements own their child statements.
+                # Adding a terminator to both would duplicate or misplace it.
+                if any(
+                    child.is_type(
+                        "begin_end_block", "if_then_statement", "while_statement"
+                    )
+                    for child in statement.segments
+                ) or any(
+                    nested is not statement
+                    for nested in statement.recursive_crawl("statement")
+                ):
+                    continue
+
+                last_code = next(
+                    (seg for seg in reversed(statement.raw_segments) if seg.is_code),
+                    None,
+                )
+                if (
+                    last_code is None
+                    or not last_code.pos_marker
+                    or not last_code.pos_marker.is_literal()
+                    or any(
+                        seg.is_code
+                        and (not seg.pos_marker or not seg.pos_marker.is_literal())
+                        for seg in statement.raw_segments
+                    )
+                ):
+                    continue
+
+                # In T-SQL blocks, parsed semicolons can be plain "symbol"
+                # segments rather than "statement_terminator" segments.
+                next_code = next(
+                    (seg for seg in container.segments[idx + 1 :] if seg.is_code),
+                    None,
+                )
+                if last_code.raw == ";" or (next_code and next_code.raw == ";"):
+                    continue
+
+                multiline = self.multiline_newline and any(
+                    seg.is_type("newline") for seg in statement.raw_segments
+                )
+                segments: list[BaseSegment] = [
+                    SymbolSegment(raw=";", type="statement_terminator")
+                ]
+                if multiline:
+                    segments.insert(0, NewlineSegment())
+                results.append(
+                    LintResult(
+                        anchor=last_code,
+                        fixes=[LintFix.create_after(last_code, segments)],
+                    )
+                )
+        return results
+
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
@@ -473,6 +539,11 @@ class Rule_CV06(BaseRule):
         # We should only be dealing with a root segment
         assert context.segment.is_type("file")
         results = []
+        nested_results = (
+            self._ensure_nested_semicolons(context.segment)
+            if self.require_final_semicolon
+            else []
+        )
 
         # Process file segments and any batch segments (for T-SQL)
         # Collect all containers that should be processed
@@ -511,7 +582,14 @@ class Rule_CV06(BaseRule):
 
                     if not has_final_non_semicolon_terminator:
                         res = self._ensure_final_semicolon(container)
+                        if res and nested_results:
+                            # Do not edit the enclosing statement while also
+                            # editing its nested statements in this fix pass.
+                            # Both fixes can otherwise add a final semicolon.
+                            res = LintResult(anchor=res.anchor)
                 if res:
                     results.append(res)
+
+        results.extend(nested_results)
 
         return results
