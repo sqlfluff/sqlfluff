@@ -1,0 +1,213 @@
+# Opt-in merging of consecutive scalar declarations in T-SQL.
+rule: TQ05
+configs:
+  core:
+    dialect: tsql
+  rules:
+    tsql.combine_declarations:
+      force_enable: true
+
+test_fail_two_same_line:
+  fail_str: "DECLARE @var1 INT; DECLARE @var2 NVARCHAR(10);"
+  fix_str: "DECLARE @var1 INT, @var2 NVARCHAR(10);"
+
+test_fail_three_on_separate_lines:
+  fail_str: |
+    DECLARE @var1 INT;
+    DECLARE @var2 NVARCHAR(10);
+    DECLARE @var3 INT;
+  fix_str: |
+    DECLARE @var1 INT,
+     @var2 NVARCHAR(10),
+     @var3 INT;
+
+test_fail_mixed_case_and_optional_as:
+  fail_str: |
+    DeClArE @var1 INT;
+    declare @var2 AS NVARCHAR(10);
+  fix_str: |
+    DeClArE @var1 INT,
+     @var2 AS NVARCHAR(10);
+
+test_fail_existing_comma_list:
+  fail_str: |
+    DECLARE @var1 INT, @var2 INT;
+    DECLARE @var3 VARCHAR(8);
+  fix_str: |
+    DECLARE @var1 INT, @var2 INT,
+     @var3 VARCHAR(8);
+
+test_fail_static_initializers:
+  fail_str: "DECLARE @var1 INT=1; DECLARE @var2 AS VARCHAR(3)='abc';"
+  fix_str: "DECLARE @var1 INT=1, @var2 AS VARCHAR(3)='abc';"
+
+test_fail_negative_and_null_initializers:
+  fail_str: "DECLARE @var1 INT=-1; DECLARE @var2 INT=NULL;"
+  fix_str: "DECLARE @var1 INT=-1, @var2 INT=NULL;"
+
+test_fail_inside_begin_end:
+  fail_str: |
+    BEGIN
+      DECLARE @var1 INT;
+      DECLARE @var2 INT;
+    END
+  fix_str: |
+    BEGIN
+      DECLARE @var1 INT,
+       @var2 INT;
+    END
+
+test_fail_inside_stored_procedure:
+  fail_str: |
+    CREATE PROCEDURE foo AS BEGIN
+      DECLARE @var1 INT;
+      DECLARE @var2 INT;
+    END;
+  fix_str: |
+    CREATE PROCEDURE foo AS BEGIN
+      DECLARE @var1 INT,
+       @var2 INT;
+    END;
+
+test_fail_without_final_semicolon:
+  fail_str: "DECLARE @var1 INT; DECLARE @var2 INT"
+  fix_str: "DECLARE @var1 INT, @var2 INT"
+
+test_fail_separate_runs_across_go:
+  fail_str: |
+    DECLARE @var1 INT;
+    DECLARE @var2 INT;
+    GO
+    DECLARE @var3 INT;
+    DECLARE @var4 INT;
+  fix_str: |
+    DECLARE @var1 INT,
+     @var2 INT;
+    GO
+    DECLARE @var3 INT,
+     @var4 INT;
+
+test_fail_separate_runs_across_select:
+  fail_str: |
+    DECLARE @var1 INT;
+    DECLARE @var2 INT;
+    SELECT 1;
+    DECLARE @var3 INT;
+    DECLARE @var4 INT;
+  fix_str: |
+    DECLARE @var1 INT,
+     @var2 INT;
+    SELECT 1;
+    DECLARE @var3 INT,
+     @var4 INT;
+
+test_pass_disabled_by_default:
+  pass_str: |
+    DECLARE @var1 INT;
+    DECLARE @var2 INT;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_already_combined:
+  pass_str: "DECLARE @var1 INT, @var2 NVARCHAR(10);"
+
+test_pass_single_declaration:
+  pass_str: "DECLARE @var1 INT;"
+
+test_pass_unrelated_sql:
+  pass_str: "SELECT 1;"
+
+test_pass_go_batch_boundary:
+  pass_str: |
+    DECLARE @var1 INT;
+    GO
+    DECLARE @var2 INT;
+
+test_pass_intervening_sql:
+  pass_str: |
+    DECLARE @var1 INT;
+    SELECT 1;
+    DECLARE @var2 INT;
+
+test_pass_begin_end_scope:
+  pass_str: |
+    BEGIN
+      DECLARE @var1 INT;
+    END;
+    DECLARE @var2 INT;
+
+test_pass_comment_between_declarations:
+  pass_str: |
+    DECLARE @var1 INT; -- keep this comment
+    DECLARE @var2 INT;
+
+test_pass_block_comment_inside_declaration:
+  pass_str: |
+    DECLARE @var1 /* keep */ INT;
+    DECLARE @var2 INT;
+
+test_pass_table_variable:
+  pass_str: "DECLARE @var1 TABLE (id INT); DECLARE @var2 INT;"
+
+test_pass_named_table_type:
+  pass_str: |
+    CREATE TYPE person AS TABLE (id INT);
+    GO
+    DECLARE @rows person;
+    DECLARE @counter INT;
+
+test_pass_schema_qualified_table_type:
+  pass_str: |
+    DECLARE @rows dbo.person;
+    DECLARE @counter INT;
+
+test_pass_bracketed_named_table_type:
+  pass_str: "DECLARE @rows [person]; DECLARE @counter INT;"
+
+test_pass_quoted_named_table_type:
+  pass_str: 'DECLARE @rows "person"; DECLARE @counter INT;'
+
+test_pass_cursor_variable:
+  pass_str: "DECLARE @var1 CURSOR; DECLARE @var2 INT;"
+
+test_pass_dependent_initializer:
+  pass_str: "DECLARE @var1 INT=1; DECLARE @var2 INT=@var1+1;"
+
+test_pass_nonliteral_initializer:
+  pass_str: "DECLARE @var1 INT=GETDATE(); DECLARE @var2 INT=2;"
+
+test_pass_no_statement_terminator:
+  pass_str: |
+    DECLARE @var1 INT
+    DECLARE @var2 INT
+
+test_pass_duplicated_variable_name:
+  pass_str: "DECLARE @var1 INT; DECLARE @VAR1 INT;"
+
+test_pass_templated_type:
+  pass_str: |
+    DECLARE @var1 INT;
+    DECLARE @var2 {{ 'INT' }};
+
+test_pass_templated_control_flow_boundary:
+  pass_str: |
+    DECLARE @var1 INT;
+    {% if true %}
+    DECLARE @var2 INT;
+    {% endif %}
+
+test_pass_templated_comment_boundary:
+  pass_str: |
+    DECLARE @var1 INT;
+    {# keep boundary #}
+    DECLARE @var2 INT;
+
+test_pass_non_tsql_dialect:
+  pass_str: "SELECT 1;"
+  configs:
+    core:
+      dialect: ansi
+    rules:
+      tsql.combine_declarations:
+        force_enable: true
