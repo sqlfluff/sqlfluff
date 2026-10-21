@@ -751,3 +751,93 @@ test_fail_bigquery_procedure_missing_semicolon:
     rules:
       convention.terminator:
         require_final_semicolon: true
+
+# The newline terminating a detached line comment must survive moving its
+# following semicolon. Otherwise code or another comment can be swallowed.
+test_fail_newline_detached_comment_followed_by_statement:
+  fail_str: "SELECT\n1\n-- c\n;SELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- c\nSELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_detached_comment_multiple_blank_lines:
+  fail_str: "SELECT\n1\n-- c\n  \n  ;  SELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- c\n  SELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_detached_comment_followed_by_inline_comment:
+  fail_str: "SELECT\n1\n-- first\n;-- second\nSELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- first\n-- second\nSELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_detached_comment_followed_by_block_comment:
+  fail_str: "SELECT\n1\n-- first\n;/* block\n comment */SELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- first\n/* block\n comment */SELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_attached_and_detached_comments_followed_by_statement:
+  fail_str: "SELECT\n1 -- attached\n-- detached\n;SELECT 2;"
+  fix_str: "SELECT\n1 -- attached\n;\n-- detached\nSELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_attached_comment_keeps_existing_spacing:
+  fail_str: "SELECT\n1 -- attached\n\n;SELECT 2;"
+  fix_str: "SELECT\n1 -- attached\n;SELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_detached_comment_with_existing_following_newline:
+  fail_str: "SELECT\n1\n-- detached\n\n;\nSELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- detached\nSELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_detached_comment_with_only_trailing_whitespace:
+  fail_str: "SELECT\n1\n-- detached\n\n;  "
+  fix_str: "SELECT\n1\n;\n-- detached  "
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_block_then_inline_comment:
+  fail_str: "SELECT\n1\n/* block */\n-- detached\n;SELECT 2;"
+  fix_str: "SELECT\n1\n;\n/* block */\n-- detached\nSELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_inline_then_block_comment:
+  fail_str: "SELECT\n1\n-- detached\n/* block */\n;SELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- detached\n/* block */SELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_detached_comment_crlf:
+  fail_str: "SELECT\r\n1\r\n-- c\r\n;SELECT 2;"
+  fix_str: "SELECT\n1\n;\n-- c\nSELECT 2;"
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true

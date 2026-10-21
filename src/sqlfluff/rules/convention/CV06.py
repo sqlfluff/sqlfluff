@@ -274,6 +274,31 @@ class Rule_CV06(BaseRule):
         anchor_segment = self._handle_trailing_inline_comments(
             parent_segment, anchor_segment
         )
+        whitespace_deletions = info.whitespace_deletions
+        preceding_comment = info.before_segment.select(
+            sp.not_(sp.is_whitespace())
+        ).first()
+        if (
+            preceding_comment
+            and preceding_comment[0].is_comment
+            and not preceding_comment[0].is_type("block_comment")
+            and preceding_comment[0] is not anchor_segment
+            and Segments(*parent_segment.raw_segments).select(
+                sp.not_(sp.or_(sp.is_whitespace(), sp.is_meta())),
+                loop_while=sp.not_(sp.is_type("newline")),
+                start_seg=target_segment,
+            )
+        ):
+            # Moving the semicolon before a detached line comment must not
+            # join that comment to the code/comment following the old semicolon.
+            # The deletion list is reversed: keep the newline nearest the comment.
+            comment_newline = next(
+                (s for s in reversed(whitespace_deletions) if s.is_type("newline")),
+                None,
+            )
+            whitespace_deletions = whitespace_deletions.select(
+                lambda segment: segment is not comment_newline
+            )
         fixes = []
         if anchor_segment is target_segment:
             fixes.append(
@@ -291,7 +316,7 @@ class Rule_CV06(BaseRule):
                     target_segment,
                     parent_segment,
                     anchor_segment,
-                    info.whitespace_deletions,
+                    whitespace_deletions,
                     [
                         NewlineSegment(),
                         SymbolSegment(raw=";", type="statement_terminator"),
