@@ -16,6 +16,110 @@ test_pass_valid_identifier_not_alias:
   # should pass on default config as not alias
   pass_str: SELECT parameter
 
+test_fail_redshift_keyword_cte_default_aliases:
+  # The declaration is an alias; subsequent references to the CTE are not.
+  # https://github.com/sqlfluff/sqlfluff/issues/5487
+  fail_str: |
+    with sum as (select 1 as test_rf04)
+
+    select sum.test_rf04
+    from sum
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_non_keyword_cte:
+  pass_str: |
+    WITH totals AS (SELECT 1 AS test_rf04)
+    SELECT totals.test_rf04 FROM totals
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_redshift_keyword_cte_table_aliases:
+  fail_str: WITH sum AS (SELECT 1 AS test_rf04) SELECT 1
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: table_aliases
+
+test_fail_redshift_keyword_cte_all:
+  fail_str: WITH sum AS (SELECT 1 AS test_rf04) SELECT 1
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_redshift_keyword_cte_column_aliases:
+  pass_str: WITH sum AS (SELECT 1 AS test_rf04) SELECT 1
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: column_aliases
+
+test_pass_redshift_quoted_keyword_cte_default_none:
+  pass_str: WITH "SUM" AS (SELECT 1 AS test_rf04) SELECT 1
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_redshift_quoted_keyword_cte_aliases:
+  fail_str: WITH "SUM" AS (SELECT 1 AS test_rf04) SELECT 1
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        quoted_identifiers_policy: aliases
+
+test_fail_redshift_quoted_keyword_cte_table_aliases:
+  fail_str: WITH "SUM" AS (SELECT 1 AS test_rf04) SELECT 1
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        quoted_identifiers_policy: table_aliases
+
+test_pass_redshift_quoted_keyword_cte_column_aliases:
+  pass_str: WITH "SUM" AS (SELECT 1 AS test_rf04) SELECT 1
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        quoted_identifiers_policy: column_aliases
+
+test_pass_redshift_keyword_cte_ignore_words:
+  pass_str: WITH sum AS (SELECT 1 AS test_rf04) SELECT 1
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        ignore_words: sum
+
+test_pass_redshift_quoted_keyword_cte_ignore_regex:
+  pass_str: WITH "SUM" AS (SELECT 1 AS test_rf04) SELECT 1
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.keywords:
+        quoted_identifiers_policy: aliases
+        ignore_words_regex: (?i)sum
+
 test_fail_keyword_as_identifier_not_alias_all:
   fail_str: SELECT parameter
   configs:
