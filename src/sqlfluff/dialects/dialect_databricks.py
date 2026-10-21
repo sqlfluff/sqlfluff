@@ -1768,6 +1768,8 @@ class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = sparksql.StatementSegment.match_grammar.copy(
+        # Databricks has its own, fuller, SQL function statement.
+        remove=[Ref("CreateSqlFunctionStatementSegment")],
         # Segments defined in Databricks SQL dialect
         insert=[
             # Unity Catalog
@@ -1794,7 +1796,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("ApplyChangesIntoStatementSegment"),
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
-        ]
+        ],
     )
 
 

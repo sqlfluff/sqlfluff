@@ -1676,7 +1676,7 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         "DEFAULT",
-                        OneOf(Ref("LiteralGrammar"), Ref("FunctionSegment")),
+                        Ref("ExpressionSegment"),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1706,6 +1706,56 @@ class CreateFunctionStatementSegment(BaseSegment):
         "AS",
         Ref("QuotedLiteralSegment"),
         Ref("ResourceLocationGrammar", optional=True),
+    )
+
+
+class CreateSqlFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement with a SQL body.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-sql-function.html
+    """
+
+    type = "create_sql_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammarWithComments"),
+        Sequence(
+            "RETURNS",
+            OneOf(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Ref("DatatypeSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence("LANGUAGE", "SQL"),
+            Sequence(Ref.keyword("NOT", optional=True), "DETERMINISTIC"),
+            Ref("CommentClauseSegment"),
+            OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
+        ),
+        "RETURN",
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("SelectableGrammar"),
+        ),
     )
 
 
@@ -3051,6 +3101,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("CreateSqlFunctionStatementSegment"),
             Ref("CreateTableStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
