@@ -820,3 +820,23 @@ test_fail_oracle_redundant_quoted_alias:
   configs:
     core:
       dialect: oracle
+
+test_fix_mysql_quoted_procedure_name:
+  # A quoted procedure name is a valid naked identifier inside function_name,
+  # so unquoting it must reparse rather than be rejected as unparseable.
+  fail_str: |
+    CREATE PROCEDURE `p` (in test int) BEGIN END;
+  fix_str: |
+    CREATE PROCEDURE p (in test int) BEGIN END;
+  configs:
+    core:
+      dialect: mysql
+
+test_fix_mariadb_quoted_procedure_name:
+  fail_str: |
+    CREATE PROCEDURE `p` (in test int) BEGIN END;
+  fix_str: |
+    CREATE PROCEDURE p (in test int) BEGIN END;
+  configs:
+    core:
+      dialect: mariadb

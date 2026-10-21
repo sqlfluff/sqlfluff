@@ -1547,6 +1547,10 @@ class FunctionNameSegment(BaseSegment):
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            # A ``naked_identifier`` never reaches here during a normal parse
+            # (the lexer produces ``word``), but fixers like RF06 can insert
+            # one when unquoting an identifier, and it should rematch.
+            Ref("NakedIdentifierSegment"),
             terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
