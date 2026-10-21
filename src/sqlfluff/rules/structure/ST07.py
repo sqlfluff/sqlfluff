@@ -1,6 +1,8 @@
 """Implementation of Rule ST07."""
 
-from typing import Optional
+from typing import Optional, cast
+
+import regex
 
 from sqlfluff.core.dialects.common import iter_raw_references
 from sqlfluff.core.parser import (
@@ -10,6 +12,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     WhitespaceSegment,
 )
+from sqlfluff.core.parser.parsers import RegexParser
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment
@@ -115,7 +118,6 @@ class Rule_ST07(BaseRule):
             return unfixable_result
 
         using_col_segments = _extract_cols_from_using(segment, using_anchor)
-        using_cols = [seg.raw for seg in using_col_segments]
 
         # A USING join de-duplicates the join columns, so any reference whose
         # leading identifier is a USING column -- a bare ``field_1`` in the
@@ -154,13 +156,31 @@ class Rule_ST07(BaseRule):
         table_b = alias_by_element.get(right_element.uuid) if right_element else None
         if table_a is None or table_b is None:  # pragma: no cover
             return unfixable_result
+        # The ON clause qualifies each join column with the table's ref_str.
+        # When a ref_str is not a valid naked identifier, e.g. an unquoted
+        # hyphenated table name like BigQuery's ``table-c``, the emitted text
+        # reparses as a different expression (``table - c``) rather than a
+        # column reference, so flag the USING but don't fix it.
+        naked_identifier_parser = cast(
+            RegexParser, context.dialect._library["NakedIdentifierSegment"]
+        )
+        for emitted in (table_a.ref_str, table_b.ref_str):
+            if not regex.fullmatch(
+                naked_identifier_parser.template,
+                emitted,
+                regex.IGNORECASE,
+            ):
+                return unfixable_result
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),
         ] + _generate_join_conditions(
             table_a.ref_str,
             table_b.ref_str,
-            using_cols,
+            using_col_segments,
+            # In an ASOF join the last USING column is an inequality
+            # condition, e.g. ``USING (a, b)`` means ``a = a AND b >= b``.
+            inequality_on_last=bool(segment.children(sp.is_keyword("asof"))),
         )
 
         assert table_a.segment
@@ -191,17 +211,26 @@ def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> Seg
 
 
 def _generate_join_conditions(
-    table_a_ref: str, table_b_ref: str, columns: list[str]
+    table_a_ref: str,
+    table_b_ref: str,
+    columns: Segments,
+    inequality_on_last: bool = False,
 ) -> list[BaseSegment]:
     edit_segments: list[BaseSegment] = []
-    for col in columns:
+    for idx, col in enumerate(columns):
+        # For an ASOF join, the final USING column carries the inequality.
+        comparison = (
+            [SymbolSegment(raw=">"), SymbolSegment(raw="=")]
+            if inequality_on_last and idx == len(columns) - 1
+            else [SymbolSegment(raw="=")]
+        )
         edit_segments = edit_segments + [
             _create_col_reference(
                 table_a_ref,
                 col,
             ),
             WhitespaceSegment(raw=" "),
-            SymbolSegment(raw="="),
+            *comparison,
             WhitespaceSegment(raw=" "),
             _create_col_reference(
                 table_b_ref,
@@ -245,10 +274,14 @@ def _extract_deletion_sequence_and_anchor(
     return to_delete, insert_anchor
 
 
-def _create_col_reference(table_ref: str, column_name: str) -> ColumnReferenceSegment:
+def _create_col_reference(
+    table_ref: str, column_seg: BaseSegment
+) -> ColumnReferenceSegment:
     segments = (
         IdentifierSegment(raw=table_ref, type="naked_identifier"),
         SymbolSegment(raw=".", type="symbol"),
-        IdentifierSegment(raw=column_name, type="naked_identifier"),
+        # Keep the source identifier's instance types so a quoted USING
+        # column like ``"when"`` still rematches as a quoted_identifier.
+        IdentifierSegment(raw=column_seg.raw, instance_types=column_seg.instance_types),
     )
     return ColumnReferenceSegment(segments=segments, pos_marker=None)

@@ -152,3 +152,38 @@ test_fail_no_fix_when_using_col_struct_access_matches_table_name:
   configs:
     core:
       dialect: bigquery
+
+test_fail_no_fix_when_table_name_needs_quoting:
+  # An unquoted hyphenated table name cannot be emitted as a naked identifier
+  # qualifier: ``table-c.a`` reparses as ``table - c.a``, so the rewrite would
+  # produce SQL that means something different. Flag but do not fix.
+  fail_str: |
+    select *
+    from project-a.dataset-b.table-c
+    join dataset-c.table-d using (a)
+  configs:
+    core:
+      dialect: bigquery
+
+test_fix_quoted_using_column:
+  # Quoted USING columns keep their quotes in the generated ON condition.
+  fail_str: |
+    select x from a as t join b as p using ("when")
+  fix_str: |
+    select x from a as t join b as p ON t."when" = p."when"
+  configs:
+    core:
+      dialect: duckdb
+
+test_fix_asof_join_uses_inequality_on_last_column:
+  # In an ASOF join the last USING column is an inequality condition, so the
+  # generated ON clause must use >= for it rather than =.
+  fail_str: |
+    select t.price
+    from trades as t asof left join prices as p using (symbol, "when")
+  fix_str: |
+    select t.price
+    from trades as t asof left join prices as p ON t.symbol = p.symbol AND t."when" >= p."when"
+  configs:
+    core:
+      dialect: duckdb
