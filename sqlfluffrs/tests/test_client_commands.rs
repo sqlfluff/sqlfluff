@@ -5,7 +5,7 @@
 
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_types::ClientCommandRules;
+use sqlfluffrs_types::{ClientCommandRules, Token};
 
 /// The (type, raw) of each token the lexer makes, but whitespace.
 fn tokens(sql: &str, dialect: Dialect) -> Vec<(String, String)> {
@@ -400,7 +400,7 @@ fn test_no_delimiter_byte_limit() {
     let delimiters: Vec<&str> = tokens
         .iter()
         .filter(|token| token.is_type(&["client_delimiter"]))
-        .map(|token| token.raw())
+        .map(Token::raw)
         .collect();
     assert_eq!(delimiters, [delimiter]);
 }
@@ -412,7 +412,7 @@ fn test_unlexable_text() {
     let unlexable: Vec<&str> = tokens
         .iter()
         .filter(|token| token.is_type(&["unlexable"]))
-        .map(|token| token.raw())
+        .map(Token::raw)
         .collect();
     assert_eq!(unlexable, ["\u{1}"]);
     assert!(!errors.is_empty());
