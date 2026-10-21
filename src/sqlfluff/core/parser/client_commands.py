@@ -589,8 +589,8 @@ class ClientScriptLexer:
         parsed = _parse_argument(trimmed)
         delimiter = self._accepted_delimiter(parsed.value)
         needle = delimiter or self._delimiter
-        found = argument.find(needle)
-        resume = None if found < 0 else found + len(needle)
+        found = trimmed.find(needle)
+        resume = None if found < 0 else gap + found + len(needle)
         argument_end = gap + len(parsed.raw)
         if resume is not None and resume < argument_end:
             # The client goes on from inside the argument. The whole argument

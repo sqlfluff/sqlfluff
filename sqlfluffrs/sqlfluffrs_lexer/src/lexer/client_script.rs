@@ -465,10 +465,10 @@ impl<'a> ClientScriptLexer<'a> {
         let gap = argument.len() - trimmed.len();
         let parsed = parse_argument(trimmed);
         let delimiter = self.accepted_delimiter(parsed.value.as_deref());
-        let needle = delimiter.clone().unwrap_or_else(|| self.delimiter.clone());
-        let resume = argument
-            .find(needle.as_str())
-            .map(|found| found + needle.len());
+        let needle = delimiter.as_deref().unwrap_or(&self.delimiter);
+        let resume = trimmed
+            .find(needle)
+            .map(|found| gap + found + needle.len());
         let argument_end = gap + parsed.raw.len();
         if let Some(resume) = resume.filter(|&resume| resume < argument_end) {
             // The client goes on from inside the argument. The whole argument
