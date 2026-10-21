@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec24b6baf97659f7b5ce55f4aba60c9adbd732441150259421cf037faadabc0b
+_hash: 9e890e68149e8a41c73a76371d812f2be1cab6146579fd2d793250b6610325be
 file:
 - batch:
   - statement:
@@ -18,7 +18,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: EXCEPT
             - column_reference:
@@ -52,7 +52,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: EXCEPT
               - keyword: ALL
@@ -87,7 +87,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: EXCEPT
               - keyword: DISTINCT
@@ -122,7 +122,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: INTERSECT
             - column_reference:
@@ -156,7 +156,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: INTERSECT
               - keyword: DISTINCT
@@ -191,7 +191,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: UNION
             - column_reference:
@@ -225,7 +225,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: UNION
               - keyword: DISTINCT
@@ -260,7 +260,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: UNION
               - keyword: ALL
@@ -295,7 +295,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: cust_address_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: INTERSECT
               - keyword: ALL
@@ -448,7 +448,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: happyfamily
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: EXCEPT
             - column_reference:
@@ -481,7 +481,7 @@ file:
               expression:
               - column_reference:
                   naked_identifier: cust_address_ntab
-              - binary_operator:
+              - multiset_operator:
                 - keyword: MULTISET
                 - keyword: EXCEPT
               - column_reference:
@@ -517,7 +517,7 @@ file:
               expression:
               - column_reference:
                   naked_identifier: col1_ntab
-              - binary_operator:
+              - multiset_operator:
                 - keyword: MULTISET
                 - keyword: INTERSECT
               - column_reference:
@@ -542,7 +542,7 @@ file:
             expression:
             - column_reference:
                 naked_identifier: col1_ntab
-            - binary_operator:
+            - multiset_operator:
               - keyword: MULTISET
               - keyword: UNION
             - column_reference:
@@ -624,7 +624,7 @@ file:
                   expression:
                   - column_reference:
                       naked_identifier: a
-                  - binary_operator:
+                  - multiset_operator:
                     - keyword: MULTISET
                     - keyword: EXCEPT
                   - column_reference:

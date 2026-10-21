@@ -1026,7 +1026,12 @@ class MultisetOperatorSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html
     """
 
-    type = "binary_operator"
+    # NOTE: Deliberately not ``binary_operator``: the layout config sets
+    # ``spacing_within = touch`` for binary operators, which would remove the
+    # whitespace inside this multi-word operator and emit ``MULTISETUNION``.
+    # A dedicated type lets the interior keep single spacing (like
+    # ``set_operator`` does for ``UNION ALL``).
+    type = "multiset_operator"
 
     match_grammar = Sequence(
         "MULTISET",

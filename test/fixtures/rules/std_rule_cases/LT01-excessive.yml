@@ -432,6 +432,25 @@ test_snowflake_match_pattern:
     core:
       dialect: snowflake
 
+test_oracle_multiset_operators:
+  # MULTISET operators are multi-word operators: the space between MULTISET
+  # and UNION/EXCEPT/INTERSECT must not be removed.
+  pass_str: |
+    select col1_ntab multiset union col2_ntab from t;
+  configs:
+    core:
+      dialect: oracle
+
+test_oracle_multiset_operators_normalize_spacing:
+  # Excess whitespace inside a MULTISET operator collapses to one space.
+  fail_str: |
+    select a multiset  union  all  b from t;
+  fix_str: |
+    select a multiset union all b from t;
+  configs:
+    core:
+      dialect: oracle
+
 test_hive_set_statement:
   # This should use ColonDelimiter so it shouldn't have spacing around it.
   pass_str: |
