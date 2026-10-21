@@ -69,6 +69,14 @@ class PositionMarker:
             return False  # pragma: no cover
         return self.working_loc == other.working_loc
 
+    def __hash__(self) -> int:
+        """Hash markers consistently with equality.
+
+        PositionMarker equality is based on the working location, so the hash
+        must use the same value rather than the source and templated slices.
+        """
+        return hash(self.working_loc)
+
     @property
     def working_loc(self) -> tuple[int, int]:
         """Location tuple for the working position."""
