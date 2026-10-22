@@ -60,7 +60,7 @@ const BLOCK_COMMENT: &str = "block_comment";
 const NON_CODE_MATCHERS: &[&str] = &[WHITESPACE, NEWLINE, INLINE_COMMENT, BLOCK_COMMENT];
 
 /// What the client's `my_isspace` accepts within a line.
-const SPACE: &[char] = &[' ', '\t', '\u{b}', '\u{c}', '\r'];
+const CLIENT_SPACE: &[char] = &[' ', '\t', '\u{b}', '\u{c}', '\r'];
 
 /// A long command, and its name as written.
 #[derive(Clone, Copy)]
@@ -467,7 +467,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// one with a backslash left in it, is rejected and the delimiter kept.
     /// Returns the text after the argument.
     fn delimiter_argument(&mut self, argument: &'a str) -> &'a str {
-        let trimmed = argument.trim_start_matches(SPACE);
+        let trimmed = argument.trim_start_matches(CLIENT_SPACE);
         self.emit(
             &argument[..argument.len() - trimmed.len()],
             self.whitespace_matcher,
@@ -515,7 +515,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// Text the client skips belongs to the command: the server never sees it,
     /// even if it looks like SQL. SQL before the `\d` stays in the statement.
     fn short_command_delimiter_argument(&mut self, argument: &'a str) {
-        let trimmed = argument.trim_start_matches(SPACE);
+        let trimmed = argument.trim_start_matches(CLIENT_SPACE);
         let gap = argument.len() - trimmed.len();
         let parsed = parse_argument(trimmed);
         let delimiter = self.accepted_delimiter(parsed.value.as_deref());
@@ -576,10 +576,10 @@ impl<'a> ClientScriptLexer<'a> {
             self.emit_rejected(argument, buffer);
             return;
         }
-        let trimmed = argument.trim_start_matches(SPACE);
+        let trimmed = argument.trim_start_matches(CLIENT_SPACE);
         let gap = argument.len() - trimmed.len();
         self.emit(&argument[..gap], self.whitespace_matcher, Buffer::Keep);
-        let name = trimmed.trim_end_matches(|c: char| SPACE.contains(&c) || c < '\u{20}');
+        let name = trimmed.trim_end_matches(|c: char| CLIENT_SPACE.contains(&c) || c < '\u{20}');
         self.emit(name, &SOURCE_FILE_NAME, buffer);
         self.emit_ignored(&trimmed[name.len()..]);
     }
@@ -644,12 +644,12 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// `text` as one `matcher` token, with any whitespace around it apart.
     fn emit_between_spaces(&mut self, raw: &'a str, matcher: &'a LexMatcher, buffer: Buffer) {
-        let content = raw.trim_matches(SPACE);
+        let content = raw.trim_matches(CLIENT_SPACE);
         if content.is_empty() {
             self.emit(raw, self.whitespace_matcher, Buffer::Keep);
             return;
         }
-        let start = raw.len() - raw.trim_start_matches(SPACE).len();
+        let start = raw.len() - raw.trim_start_matches(CLIENT_SPACE).len();
         self.emit(&raw[..start], self.whitespace_matcher, Buffer::Keep);
         self.emit(content, matcher, buffer);
         self.emit(

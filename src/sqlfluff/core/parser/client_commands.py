@@ -234,7 +234,7 @@ _BUFFER_FOR_ACTION = {
 _NON_CODE_MATCHERS = frozenset({_WHITESPACE, _NEWLINE, _INLINE_COMMENT, _BLOCK_COMMENT})
 
 # What the client's `my_isspace` accepts within a line.
-_SPACE = " \t\v\f\r"
+_CLIENT_SPACE = " \t\v\f\r"
 
 
 class _CommandWord(NamedTuple):
@@ -605,7 +605,7 @@ class ClientScriptLexer:
         one with a backslash left in it, is rejected and the delimiter kept.
         Returns the text after the argument.
         """
-        trimmed = argument.lstrip(_SPACE)
+        trimmed = argument.lstrip(_CLIENT_SPACE)
         self._emit(
             argument[: len(argument) - len(trimmed)],
             self._whitespace_matcher,
@@ -650,7 +650,7 @@ class ClientScriptLexer:
         Text the client skips belongs to the command: the server never sees it,
         even if it looks like SQL. SQL before the `\d` stays in the statement.
         """
-        trimmed = argument.lstrip(_SPACE)
+        trimmed = argument.lstrip(_CLIENT_SPACE)
         gap = len(argument) - len(trimmed)
         parsed = _parse_argument(trimmed)
         delimiter = self._accepted_delimiter(parsed.value)
@@ -706,7 +706,7 @@ class ClientScriptLexer:
         if not argument.startswith(" "):
             self._emit_rejected(argument, buffer)
             return
-        gap = len(argument) - len(argument.lstrip(_SPACE))
+        gap = len(argument) - len(argument.lstrip(_CLIENT_SPACE))
         self._emit(argument[:gap], self._whitespace_matcher, _Buffer.KEEP)
         name = _strip_trailing(argument[gap:])
         self._emit(name, SOURCE_FILE_NAME, buffer)
@@ -768,7 +768,7 @@ class ClientScriptLexer:
         self, raw: str, matcher: LexerType, buffer: _Buffer
     ) -> None:
         """`raw` as one `matcher` token, with any whitespace around it apart."""
-        content = raw.strip(_SPACE)
+        content = raw.strip(_CLIENT_SPACE)
         if not content:
             self._emit(raw, self._whitespace_matcher, _Buffer.KEEP)
             return
@@ -839,6 +839,6 @@ def _cut_to_bytes(value: str, limit: int) -> str:
 def _strip_trailing(text: str) -> str:
     """`text` without trailing whitespace or control characters."""
     end = len(text)
-    while end > 0 and (text[end - 1] in _SPACE or ord(text[end - 1]) < 0x20):
+    while end > 0 and (text[end - 1] in _CLIENT_SPACE or ord(text[end - 1]) < 0x20):
         end -= 1
     return text[:end]
