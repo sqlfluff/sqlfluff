@@ -57,7 +57,7 @@ fn test_backslash_escapes_in_unquoted_argument() {
 }
 
 #[test]
-fn test_delimiter_with_whitespace_inside_is_refused() {
+fn test_delimiter_with_whitespace_inside_is_rejected() {
     assert_tokens(
         "DELIMITER a\\ b\nSELECT 1 a b;\n",
         &[
@@ -256,8 +256,8 @@ fn test_short_delimiter_command_skips_to_its_escaped_delimiter() {
 }
 
 #[test]
-fn test_refused_short_delimiter_keeps_the_delimiter() {
-    // `\d xab\` is refused for its backslash, so `ab` stays the delimiter.
+fn test_rejected_short_delimiter_keeps_the_delimiter() {
+    // `\d xab\` is rejected for its backslash, so `ab` stays the delimiter.
     let (tokens, _) = Lexer::for_dialect(Dialect::Mysql).lex(
         LexInput::String("DELIMITER ab\n\\d xab\\\nSELECT 2 ab\n".to_string()),
         false,
@@ -280,7 +280,7 @@ fn test_refused_short_delimiter_keeps_the_delimiter() {
 }
 
 #[test]
-fn test_delimiter_ending_with_whitespace_is_refused() {
+fn test_delimiter_ending_with_whitespace_is_rejected() {
     assert_tokens(
         "DELIMITER '$$ '\nSELECT 1;\n",
         &[
@@ -294,7 +294,7 @@ fn test_delimiter_ending_with_whitespace_is_refused() {
 }
 
 #[test]
-fn test_delimiter_starting_with_whitespace_is_refused() {
+fn test_delimiter_starting_with_whitespace_is_rejected() {
     assert_tokens(
         "SELECT 1 \\d  \\ \nSELECT 2;\n",
         &[
@@ -310,7 +310,7 @@ fn test_delimiter_starting_with_whitespace_is_refused() {
 }
 
 #[test]
-fn test_delimiter_ending_with_whitespace_once_cut_is_refused() {
+fn test_delimiter_ending_with_whitespace_once_cut_is_rejected() {
     assert_tokens(
         "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
         &[
@@ -324,9 +324,9 @@ fn test_delimiter_ending_with_whitespace_once_cut_is_refused() {
 }
 
 /// The client looks for a backslash before it cuts, so one past the 15th
-/// byte is still refused.
+/// byte is still rejected.
 #[test]
-fn test_delimiter_with_backslash_past_the_cut_is_refused() {
+fn test_delimiter_with_backslash_past_the_cut_is_rejected() {
     assert_tokens(
         "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
         &[
@@ -340,7 +340,7 @@ fn test_delimiter_with_backslash_past_the_cut_is_refused() {
 }
 
 #[test]
-fn test_short_delimiter_command_with_no_argument_is_refused() {
+fn test_short_delimiter_command_with_no_argument_is_rejected() {
     assert_tokens(
         "\\d\nSELECT 1;\n",
         &[
@@ -353,7 +353,7 @@ fn test_short_delimiter_command_with_no_argument_is_refused() {
 }
 
 #[test]
-fn test_unclosed_quoted_argument_is_refused() {
+fn test_unclosed_quoted_argument_is_rejected() {
     assert_tokens(
         "DELIMITER 'ab\nSELECT 1;\n",
         &[

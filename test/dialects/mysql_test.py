@@ -242,7 +242,7 @@ def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
 @pytest.mark.parametrize(
     "raw",
     [
-        # DELIMITER needs an argument, and refuses an empty one or one with a
+        # DELIMITER needs an argument, and rejects an empty one or one with a
         # backslash left in it after unescaping.
         "DELIMITER\nSELECT 1;\n",
         "DELIMITER ''\nSELECT 1;\n",
@@ -293,7 +293,7 @@ def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
 )
 @pytest.mark.parametrize("dialect", ["mysql", "mariadb"])
 def test_mysql_client_commands_the_client_rejects(raw: str, dialect: str) -> None:
-    """Test that client commands the client refuses or misreads don't parse.
+    """Test that client commands the client rejects or misreads don't parse.
 
     The mysql and mariadb clients report each of these as an error, or send
     the server something other than what is written.

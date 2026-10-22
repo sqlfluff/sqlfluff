@@ -311,7 +311,7 @@ class _Argument(NamedTuple):
     """A command argument: its text as written, and the value the client reads."""
 
     raw: str
-    # `None` for a quote with no closing quote, which is refused.
+    # `None` for a quote with no closing quote, which is rejected.
     value: Optional[str]
 
 
@@ -597,7 +597,7 @@ class ClientScriptLexer:
         This follows the client's `get_arg`: whitespace, then either a word
         ending at the next space, in which a backslash escapes the next
         character, or a word in quotes, with no escapes. An empty argument, or
-        one with a backslash left in it, is refused and the delimiter kept.
+        one with a backslash left in it, is rejected and the delimiter kept.
         Returns the text after the argument.
         """
         trimmed = argument.lstrip(_SPACE)
@@ -791,7 +791,7 @@ def _parse_argument(text: str) -> _Argument:
     A quoted argument runs to the matching quote, with no escapes. With no
     closing quote it has no value: the mysql client reads to the end of the
     line, but that only ever comes from a typo such as `DELIMITER '$$`, and the
-    mariadb client refuses it, so it is refused here. An unquoted argument ends
+    mariadb client rejects it, so it is rejected here. An unquoted argument ends
     at a space, and a backslash in it escapes the character after it, which is
     kept in the value without the backslash, so `a\ b` is one argument. A
     backslash at the very end stays in the value.

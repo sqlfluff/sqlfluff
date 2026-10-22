@@ -54,7 +54,7 @@ def test_client_commands_long_forms_match_in_any_case():
     ],
 )
 def test_client_commands_rules_need_a_usable_default_delimiter(changes):
-    """Rules with a default delimiter the client wouldn't set are refused."""
+    """Rules with a default delimiter the client wouldn't set are rejected."""
     with pytest.raises(AssertionError):
         replace(RULES, **changes)
 
@@ -237,7 +237,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             ],
         ),
         # The client looks for a backslash before it cuts, so one past the
-        # 15th byte is still refused.
+        # 15th byte is still rejected.
         (
             "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
             [
@@ -248,7 +248,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("semicolon", ";"),
             ],
         ),
-        # `\d` with no argument is refused, and the delimiter kept.
+        # `\d` with no argument is rejected, and the delimiter kept.
         (
             "\\d\nSELECT 1;\n",
             [
@@ -258,8 +258,8 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("semicolon", ";"),
             ],
         ),
-        # A quoted argument with no closing quote is refused, and the delimiter
-        # kept: it only comes from a typo, and mariadb refuses it.
+        # A quoted argument with no closing quote is rejected, and the delimiter
+        # kept: it only comes from a typo, and mariadb rejects it.
         (
             "DELIMITER 'ab\nSELECT 1;\n",
             [
@@ -536,10 +536,10 @@ def test_client_commands_no_delimiter_byte_limit():
     ]
 
 
-def test_client_commands_refused_short_delimiter_keeps_the_delimiter():
-    r"""A refused `\d` argument keeps the delimiter, even mid-argument.
+def test_client_commands_rejected_short_delimiter_keeps_the_delimiter():
+    r"""A rejected `\d` argument keeps the delimiter, even mid-argument.
 
-    `\d xab\` is refused for its backslash, so `ab` stays the delimiter; the
+    `\d xab\` is rejected for its backslash, so `ab` stays the delimiter; the
     client carries on after the `ab` inside the argument. Checked on mysql 8.4
     and 9.7 and mariadb 11.8, which then run `SELECT 2`.
     """
