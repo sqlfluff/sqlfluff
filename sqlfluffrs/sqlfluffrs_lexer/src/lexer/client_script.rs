@@ -94,6 +94,8 @@ enum Next<'a> {
     /// A command that sets the delimiter (`DELIMITER`), at the start of a
     /// line. It takes the line.
     DelimiterLine(CommandWord<'a>),
+    /// A command that sets the delimiter, which the client collects first.
+    DelimiterStatement(CommandWord<'a>),
     /// A command that reads a file (`SOURCE`), at the start of a line that
     /// holds neither the delimiter nor `\g`. The rest of the line is the file
     /// name.
@@ -217,6 +219,7 @@ impl<'a> ClientScriptLexer<'a> {
         while self.pos < self.script.len() {
             match self.peek() {
                 Next::DelimiterLine(found) => self.lex_delimiter_line(found),
+                Next::DelimiterStatement(found) => self.lex_delimiter_statement(found),
                 Next::SourceLine(found) => self.lex_source_line(found),
                 Next::SourceStatement(found) => self.lex_source_statement(found),
                 Next::ShortCommand(command) => self.lex_short_command(command),
@@ -253,8 +256,11 @@ impl<'a> ClientScriptLexer<'a> {
         if let Some(command) = self.rules.short_command_starting(&self.script[self.pos..]) {
             return Next::ShortCommand(command);
         }
-        if let Some(found) = long.filter(|found| found.command.argument == ArgumentKind::FileName) {
-            return Next::SourceStatement(found);
+        if let Some(found) = long {
+            return match found.command.argument {
+                ArgumentKind::Delimiter => Next::DelimiterStatement(found),
+                ArgumentKind::FileName => Next::SourceStatement(found),
+            };
         }
         if self.statement_start
             && self.rules.dash_dash_comment_at_statement_start
@@ -289,6 +295,37 @@ impl<'a> ClientScriptLexer<'a> {
         self.emit(found.word, self.word_matcher, Buffer::Keep);
         let rest = self.delimiter_argument(argument);
         self.emit_ignored(rest);
+    }
+
+    /// `DELIMITER` that the client collects as a statement before running it.
+    ///
+    /// That happens when it follows a delimiter or `\g` earlier on its line,
+    /// or when its line holds `\g`. At the delimiter the client sees the
+    /// statement starts with `DELIMITER` and runs it, so the new delimiter
+    /// applies from just after the old one. Oddly, the argument then ends at
+    /// the old delimiter: `SELECT 1; DELIMITER //;` sets `//`, though
+    /// `DELIMITER //;` on its own line sets `//;`. If the old delimiter isn't
+    /// on the line, the client collects the lines after it into the statement
+    /// too, and the clients disagree on what they then do with them, so that
+    /// is misread.
+    fn lex_delimiter_statement(&mut self, found: CommandWord<'a>) {
+        let argument = &self.rest_of_line()[found.word.len()..];
+        self.emit(found.word, self.word_matcher, Buffer::Append);
+        let Some(end) = self.first_break_in(argument) else {
+            // The statement runs on past this line.
+            self.emit_misread(argument, Buffer::Append);
+            return;
+        };
+        if !argument[end..].starts_with(self.delimiter.as_str()) || argument[..end].contains('\\') {
+            // A short command comes first, or a backslash before the
+            // delimiter ran as a command.
+            self.emit_misread(&argument[..end], Buffer::Append);
+            return;
+        }
+        let old_delimiter = &argument[end..end + self.delimiter.len()];
+        let rest = self.delimiter_argument(&argument[..end]);
+        self.emit_ignored(rest);
+        self.emit_delimiter(old_delimiter);
     }
 
     /// `SOURCE` and the file name that is the rest of its line.
@@ -347,13 +384,18 @@ impl<'a> ClientScriptLexer<'a> {
     /// The active delimiter, which ends the statement.
     fn lex_active_delimiter(&mut self) {
         let delimiter = &self.script[self.pos..self.pos + self.delimiter.len()];
-        if self.delimiter == self.rules.default_delimiter {
+        self.emit_delimiter(delimiter);
+    }
+
+    /// A delimiter, here, which ends the statement.
+    fn emit_delimiter(&mut self, raw: &'a str) {
+        if raw == self.rules.default_delimiter {
             // The default delimiter keeps the dialect's own token for it.
-            for element in self.match_text(delimiter) {
+            for element in self.match_text(raw) {
                 self.emit(element.raw, element.matcher, Buffer::End);
             }
         } else {
-            self.emit(delimiter, &CLIENT_DELIMITER, Buffer::End);
+            self.emit(raw, &CLIENT_DELIMITER, Buffer::End);
         }
     }
 

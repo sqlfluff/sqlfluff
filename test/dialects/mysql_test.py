@@ -280,6 +280,15 @@ def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
         "DELIMITER // \\g\nSELECT 1 //\n",
         # SOURCE after a delimiter runs to the next one, past its line.
         "SELECT 1; SOURCE a.sql\nSELECT 2;\n",
+        # A collected DELIMITER without the old delimiter on its line takes the
+        # lines after it with it.
+        "SELECT 1; DELIMITER //\nSELECT 2 //\n",
+        "SELECT 1; DELIMITER //\n",
+        "DELIMITER $$\nSELECT 1 $$ DELIMITER ;\nSELECT 2;\nSELECT 3;\n",
+        # A collected DELIMITER with an escape runs it as an unknown command,
+        # and one with no argument is an error.
+        "SELECT 1; DELIMITER \\$\\$ ;\nSELECT 2 $$\n",
+        "SELECT 1; DELIMITER ;\nSELECT 2;\n",
     ],
 )
 @pytest.mark.parametrize("dialect", ["mysql", "mariadb"])

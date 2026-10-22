@@ -271,14 +271,14 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             ],
         ),
         # A line that holds `\g` is collected as a statement, even DELIMITER's:
-        # this one is SQL, not a command. `\G` doesn't count, so SOURCE takes
-        # its line and the file name ends in `\G`.
+        # `\g` sends this one to the server as SQL, so its argument is misread.
+        # `\G` doesn't count, so SOURCE takes its line and the file name ends in
+        # `\G`.
         (
             "DELIMITER // \\g\nSOURCE a.sql \\G\n",
             [
                 ("word", "DELIMITER"),
-                ("divide", "/"),
-                ("divide", "/"),
+                ("client_command_misread", "//"),
                 ("client_short_command", "\\g"),
                 ("word", "SOURCE"),
                 ("source_file_name", "a.sql \\G"),
@@ -313,6 +313,99 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("inline_comment", "--"),
+                ("client_short_command", "\\g"),
+            ],
+        ),
+        # After a delimiter on its line, DELIMITER is collected, and runs at the old
+        # delimiter: the new one applies from just after it.
+        (
+            "SELECT 1; DELIMITER // ;\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "//"),
+                ("semicolon", ";"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("client_delimiter", "//"),
+            ],
+        ),
+        # The old delimiter ends the collected argument, so this sets `//`, though
+        # `DELIMITER //;` on its own line sets `//;`.
+        (
+            "SELECT 1; DELIMITER //;\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "//"),
+                ("semicolon", ";"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("client_delimiter", "//"),
+            ],
+        ),
+        # Words after the argument are ignored, as on DELIMITER's own line.
+        (
+            "SELECT 1; DELIMITER // junk ;\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "//"),
+                ("client_command_ignored", "junk"),
+                ("semicolon", ";"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("client_delimiter", "//"),
+            ],
+        ),
+        # With the old delimiter not on its line, the client collects the lines after
+        # it too, so it is misread.
+        (
+            "SELECT 1; DELIMITER //\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("client_command_misread", "//"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("divide", "/"),
+                ("divide", "/"),
+            ],
+        ),
+        # The old delimiter may be one set before.
+        (
+            "DELIMITER $$\nSELECT 1 $$ DELIMITER ; $$\nSELECT 2;\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "$$"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", ";"),
+                ("client_delimiter", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # A short command before the old delimiter sends it to the server as SQL.
+        (
+            "SELECT 1; DELIMITER // \\g\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("client_command_misread", "//"),
                 ("client_short_command", "\\g"),
             ],
         ),

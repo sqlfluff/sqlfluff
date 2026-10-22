@@ -27,3 +27,9 @@ SELECT 21 --\g
    DELIMITER ;
 SELECT 22;
 SELECT 23 --;
+-- After a delimiter or `\g` on its line, DELIMITER is collected and runs at
+-- the old delimiter.
+SELECT 30; DELIMITER // ;
+SELECT 31 //
+SELECT 32 \g DELIMITER ; //
+SELECT 33;

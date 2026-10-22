@@ -249,6 +249,12 @@ class _DelimiterLine(NamedTuple):
     found: _CommandWord
 
 
+class _DelimiterStatement(NamedTuple):
+    """A command that sets the delimiter, which the client collects first."""
+
+    found: _CommandWord
+
+
 class _SourceLine(NamedTuple):
     r"""A command that reads a file (`SOURCE`), at the start of a line.
 
@@ -288,6 +294,7 @@ class _Token(NamedTuple):
 
 _Next = Union[
     _DelimiterLine,
+    _DelimiterStatement,
     _SourceLine,
     _SourceStatement,
     _ShortCommand,
@@ -368,6 +375,8 @@ class ClientScriptLexer:
             match next_part := self._peek():
                 case _DelimiterLine(found):
                     self._lex_delimiter_line(found)
+                case _DelimiterStatement(found):
+                    self._lex_delimiter_statement(found)
                 case _SourceLine(found):
                     self._lex_source_line(found)
                 case _SourceStatement(found):
@@ -406,8 +415,11 @@ class ClientScriptLexer:
         command = self._rules.short_command_starting(self._script, self._pos)
         if command is not None:
             return _ShortCommand(command)
-        if long is not None and long.command.argument is ArgumentKind.FILE_NAME:
-            return _SourceStatement(long)
+        if long is not None:
+            if long.command.argument is ArgumentKind.DELIMITER:
+                return _DelimiterStatement(long)
+            if long.command.argument is ArgumentKind.FILE_NAME:
+                return _SourceStatement(long)
         if (
             self._statement_start
             and self._rules.dash_dash_comment_at_statement_start
@@ -436,6 +448,36 @@ class ClientScriptLexer:
         self._emit(found.word, self._word_matcher, _Buffer.KEEP)
         rest = self._delimiter_argument(argument)
         self._emit_ignored(rest)
+
+    def _lex_delimiter_statement(self, found: _CommandWord) -> None:
+        r"""`DELIMITER` that the client collects as a statement before running it.
+
+        That happens when it follows a delimiter or `\g` earlier on its line,
+        or when its line holds `\g`. At the delimiter the client sees the
+        statement starts with `DELIMITER` and runs it, so the new delimiter
+        applies from just after the old one. Oddly, the argument then ends at
+        the old delimiter: `SELECT 1; DELIMITER //;` sets `//`, though
+        `DELIMITER //;` on its own line sets `//;`. If the old delimiter isn't
+        on the line, the client collects the lines after it into the statement
+        too, and the clients disagree on what they then do with them, so that
+        is misread.
+        """
+        argument = self._rest_of_line()[len(found.word) :]
+        self._emit(found.word, self._word_matcher, _Buffer.APPEND)
+        end = self._first_break_in(argument)
+        if end is None:
+            # The statement runs on past this line.
+            self._emit_misread(argument, _Buffer.APPEND)
+            return
+        if not argument.startswith(self._delimiter, end) or "\\" in argument[:end]:
+            # A short command comes first, or a backslash before the
+            # delimiter ran as a command.
+            self._emit_misread(argument[:end], _Buffer.APPEND)
+            return
+        old_delimiter = argument[end : end + len(self._delimiter)]
+        rest = self._delimiter_argument(argument[:end])
+        self._emit_ignored(rest)
+        self._emit_delimiter(old_delimiter)
 
     def _lex_source_line(self, found: _CommandWord) -> None:
         """`SOURCE` and the file name that is the rest of its line."""
@@ -486,13 +528,16 @@ class ClientScriptLexer:
 
     def _lex_active_delimiter(self) -> None:
         """The active delimiter, which ends the statement."""
-        if self._delimiter == self._rules.default_delimiter:
+        self._emit_delimiter(self._script[self._pos : self._pos + len(self._delimiter)])
+
+    def _emit_delimiter(self, raw: str) -> None:
+        """A delimiter, here, which ends the statement."""
+        if raw == self._rules.default_delimiter:
             # The default delimiter keeps the dialect's own token for it.
-            end = self._pos + len(self._delimiter)
-            for element in self._match(self._script[self._pos : end]):
+            for element in self._match(raw):
                 self._emit(element.raw, element.matcher, _Buffer.END)
         else:
-            self._emit(self._delimiter, CLIENT_DELIMITER, _Buffer.END)
+            self._emit(raw, CLIENT_DELIMITER, _Buffer.END)
 
     def _lex_statement_start_comment(self) -> None:
         """`--` with no whitespace after it, as a comment."""
