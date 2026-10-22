@@ -115,7 +115,13 @@ class ClientCommandRules:
     max_delimiter_bytes: Optional[int] = None
 
     def __post_init__(self) -> None:
-        """Check the rules give delimiters the lexer can work with."""
+        """Check the rules are ones the lexer can work with."""
+        # `long_command_named` lowers only the name as typed, so the names here
+        # must be in lower case, as in the client's own command table.
+        for command in self.long_commands:
+            assert command.name == command.name.lower(), (
+                f"long command name {command.name!r} must be lower case: {self}"
+            )
         # A cut must leave at least one character, which is up to 4 bytes.
         assert self.max_delimiter_bytes is None or self.max_delimiter_bytes >= 4, (
             f"max_delimiter_bytes must be None or at least 4: {self}"

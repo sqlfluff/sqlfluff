@@ -58,6 +58,15 @@ def test_client_commands_rules_need_a_usable_default_delimiter(changes):
         replace(RULES, **changes)
 
 
+def test_client_commands_rules_need_lower_case_long_command_names():
+    """A long command named in any other case would never be found."""
+    with pytest.raises(AssertionError):
+        replace(
+            RULES,
+            long_commands=(LongClientCommand("Delimiter", ArgumentKind.DELIMITER),),
+        )
+
+
 def test_client_commands_emitted_tokens_never_match():
     """An emitted token kind isn't a matcher."""
     token = EmittedToken("delimiter_argument", ClientTextSegment)
