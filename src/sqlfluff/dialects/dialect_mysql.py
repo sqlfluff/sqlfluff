@@ -42,9 +42,9 @@ from sqlfluff.core.parser import (
     WordSegment,
 )
 from sqlfluff.core.parser.client_commands import (
+    ArgumentKind,
     BufferAction,
     ClientCommandRules,
-    CommandArgument,
     LongClientCommand,
     ShortClientCommand,
 )
@@ -138,16 +138,16 @@ mysql_dialect.insert_lexer_matchers(
 
 mysql_client_commands = ClientCommandRules(
     long_commands=(
-        LongClientCommand("delimiter", CommandArgument.DELIMITER),
-        LongClientCommand("source", CommandArgument.FILE_NAME),
+        LongClientCommand("delimiter", ArgumentKind.DELIMITER),
+        LongClientCommand("source", ArgumentKind.FILE_NAME),
     ),
     # `\d` and `\.` are the short forms of `delimiter` and `source`. `go` and
     # `ego`, the long forms of `\g` and `\G`, are left out: like any long form
     # they only count where nothing has been collected yet, so they never send
     # anything (unless the client runs with `--named-commands`).
     short_commands=(
-        ShortClientCommand("\\d", BufferAction.KEEP, CommandArgument.DELIMITER),
-        ShortClientCommand("\\.", BufferAction.DISCARD, CommandArgument.FILE_NAME),
+        ShortClientCommand("\\d", BufferAction.KEEP, ArgumentKind.DELIMITER),
+        ShortClientCommand("\\.", BufferAction.DISCARD, ArgumentKind.FILE_NAME),
         ShortClientCommand("\\g", BufferAction.END),
         ShortClientCommand("\\G", BufferAction.END),
     ),

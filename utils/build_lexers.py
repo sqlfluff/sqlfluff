@@ -7,7 +7,7 @@ from collections.abc import Callable
 from typing import Optional, Union
 
 from sqlfluff.core.dialects import dialect_selector
-from sqlfluff.core.parser.client_commands import BufferAction, CommandArgument
+from sqlfluff.core.parser.client_commands import ArgumentKind, BufferAction
 from sqlfluff.core.parser.lexer import LexerType
 
 
@@ -64,19 +64,19 @@ def generate_client_commands(dialect: str):
         print(f"pub static {name}: Option<{rules_type}> = None;")
         return
     arguments = {
-        CommandArgument.DELIMITER: "sqlfluffrs_types::CommandArgument::Delimiter",
-        CommandArgument.FILE_NAME: "sqlfluffrs_types::CommandArgument::FileName",
+        ArgumentKind.DELIMITER: "sqlfluffrs_types::client_commands::ArgumentKind::Delimiter",
+        ArgumentKind.FILE_NAME: "sqlfluffrs_types::client_commands::ArgumentKind::FileName",
     }
     buffers = {
-        BufferAction.KEEP: "sqlfluffrs_types::BufferAction::Keep",
-        BufferAction.END: "sqlfluffrs_types::BufferAction::End",
-        BufferAction.DISCARD: "sqlfluffrs_types::BufferAction::Discard",
+        BufferAction.KEEP: "sqlfluffrs_types::client_commands::BufferAction::Keep",
+        BufferAction.END: "sqlfluffrs_types::client_commands::BufferAction::End",
+        BufferAction.DISCARD: "sqlfluffrs_types::client_commands::BufferAction::Discard",
     }
     print(f"pub static {name}: Option<{rules_type}> = Some({rules_type} {{")
     print("    long_commands: &[")
     for long in rules.long_commands:
         print(
-            "        sqlfluffrs_types::LongClientCommand {"
+            "        sqlfluffrs_types::client_commands::LongClientCommand {"
             f" name: {_rust_str(long.name)},"
             f" argument: {arguments[long.argument]} }},"
         )
@@ -87,7 +87,7 @@ def generate_client_commands(dialect: str):
             "None" if short.argument is None else f"Some({arguments[short.argument]})"
         )
         print(
-            "        sqlfluffrs_types::ShortClientCommand {"
+            "        sqlfluffrs_types::client_commands::ShortClientCommand {"
             f" text: {_rust_str(short.text)},"
             f" buffer_action: {buffers[short.buffer_action]},"
             f" argument: {argument} }},"

@@ -35,7 +35,7 @@ from sqlfluff.core.parser.lexer import LexedElement, LexerType, StringLexer
 from sqlfluff.core.parser.segments import ClientTextSegment, CodeSegment, RawSegment
 
 
-class CommandArgument(Enum):
+class ArgumentKind(Enum):
     """What a client command reads after its name."""
 
     # A new statement delimiter, e.g. `DELIMITER $$`.
@@ -68,7 +68,7 @@ class LongClientCommand:
 
     # In lower case, matched in any case.
     name: str
-    argument: CommandArgument
+    argument: ArgumentKind
 
 
 @dataclass(frozen=True)
@@ -81,7 +81,7 @@ class ShortClientCommand:
     # Matched in its own case, e.g. `\d`.
     text: str
     buffer_action: BufferAction
-    argument: Optional[CommandArgument] = None
+    argument: Optional[ArgumentKind] = None
 
 
 @dataclass(frozen=True)
@@ -387,16 +387,16 @@ class ClientScriptLexer:
         if self._statement_start:
             long = self._long_command(self._rest_of_line())
         if long is not None and self._line_start and not self._line_is_collected(long):
-            if long.command.argument is CommandArgument.DELIMITER:
+            if long.command.argument is ArgumentKind.DELIMITER:
                 return _DelimiterCommand(long)
-            if long.command.argument is CommandArgument.FILE_NAME:
+            if long.command.argument is ArgumentKind.FILE_NAME:
                 return _SourceLine(long)
         if self._text.startswith(self._delimiter, self._pos):
             return _ActiveDelimiter()
         command = self._rules.command_starting(self._text, self._pos)
         if command is not None:
             return _ShortCommand(command)
-        if long is not None and long.command.argument is CommandArgument.FILE_NAME:
+        if long is not None and long.command.argument is ArgumentKind.FILE_NAME:
             return _SourceStatement(long)
         if (
             self._statement_start
@@ -417,7 +417,7 @@ class ClientScriptLexer:
         marker = self._rules.collected_line_marker
         if marker is not None and marker in line:
             return True
-        sets_delimiter = found.command.argument is CommandArgument.DELIMITER
+        sets_delimiter = found.command.argument is ArgumentKind.DELIMITER
         return not sets_delimiter and self._delimiter in line
 
     def _lex_delimiter_command(self, found: _CommandWord) -> None:
@@ -467,9 +467,9 @@ class ClientScriptLexer:
             CLIENT_SHORT_COMMAND,
             _BUFFER_FOR_ACTION[command.buffer_action],
         )
-        if command.argument is CommandArgument.DELIMITER:
+        if command.argument is ArgumentKind.DELIMITER:
             self._short_command_delimiter_argument(argument)
-        elif command.argument is CommandArgument.FILE_NAME:
+        elif command.argument is ArgumentKind.FILE_NAME:
             # `\.` reads the rest of its line as the file name, delimiter and
             # all.
             self._file_name(argument, _Buffer.KEEP)

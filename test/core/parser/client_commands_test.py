@@ -11,19 +11,19 @@ import pytest
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.parser import ClientTextSegment, PyLexer
 from sqlfluff.core.parser.client_commands import (
+    ArgumentKind,
     BufferAction,
     ClientCommandRules,
     ClientScriptLexer,
-    CommandArgument,
     EmittedToken,
     LongClientCommand,
     ShortClientCommand,
 )
 
 RULES = ClientCommandRules(
-    long_commands=(LongClientCommand("delimiter", CommandArgument.DELIMITER),),
+    long_commands=(LongClientCommand("delimiter", ArgumentKind.DELIMITER),),
     short_commands=(
-        ShortClientCommand("\\d", BufferAction.KEEP, CommandArgument.DELIMITER),
+        ShortClientCommand("\\d", BufferAction.KEEP, ArgumentKind.DELIMITER),
         ShortClientCommand("\\g", BufferAction.END),
     ),
     opaque_token_names=frozenset(),

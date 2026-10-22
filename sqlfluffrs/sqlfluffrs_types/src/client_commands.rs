@@ -12,7 +12,7 @@
 
 /// What a client command reads after its name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CommandArgument {
+pub enum ArgumentKind {
     /// A new statement delimiter, e.g. `DELIMITER $$`.
     Delimiter,
     /// A script to run, e.g. `SOURCE file.sql`.
@@ -38,7 +38,7 @@ pub enum BufferAction {
 pub struct LongClientCommand {
     /// In lower case, matched in any case.
     pub name: &'static str,
-    pub argument: CommandArgument,
+    pub argument: ArgumentKind,
 }
 
 /// A command that runs wherever it appears outside strings and comments.
@@ -49,7 +49,7 @@ pub struct ShortClientCommand {
     /// Matched in its own case, e.g. `\d`.
     pub text: &'static str,
     pub buffer_action: BufferAction,
-    pub argument: Option<CommandArgument>,
+    pub argument: Option<ArgumentKind>,
 }
 
 /// How a command-line client splits a script into statements.

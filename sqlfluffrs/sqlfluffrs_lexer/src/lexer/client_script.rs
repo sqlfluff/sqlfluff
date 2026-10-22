@@ -14,9 +14,9 @@
 use std::sync::LazyLock;
 
 use sqlfluffrs_types::{
+    client_commands::{ArgumentKind, BufferAction, LongClientCommand, ShortClientCommand},
     matcher::{LexMatcher, LexedElement},
-    BufferAction, ClientCommandRules, CommandArgument, LongClientCommand, ShortClientCommand,
-    Token,
+    ClientCommandRules, Token,
 };
 
 use super::Lexer;
@@ -236,8 +236,8 @@ impl<'a> ClientScriptLexer<'a> {
         if let Some(found) = long.filter(|found| self.line_start && !self.line_is_collected(found))
         {
             return match found.command.argument {
-                CommandArgument::Delimiter => Next::DelimiterCommand(found),
-                CommandArgument::FileName => Next::SourceLine(found),
+                ArgumentKind::Delimiter => Next::DelimiterCommand(found),
+                ArgumentKind::FileName => Next::SourceLine(found),
             };
         }
         if self.text[self.pos..].starts_with(self.delimiter.as_str()) {
@@ -246,9 +246,7 @@ impl<'a> ClientScriptLexer<'a> {
         if let Some(command) = self.rules.command_starting(&self.text[self.pos..]) {
             return Next::ShortCommand(command);
         }
-        if let Some(found) =
-            long.filter(|found| found.command.argument == CommandArgument::FileName)
-        {
+        if let Some(found) = long.filter(|found| found.command.argument == ArgumentKind::FileName) {
             return Next::SourceStatement(found);
         }
         if self.statement_start
@@ -274,7 +272,7 @@ impl<'a> ClientScriptLexer<'a> {
         {
             return true;
         }
-        let sets_delimiter = found.command.argument == CommandArgument::Delimiter;
+        let sets_delimiter = found.command.argument == ArgumentKind::Delimiter;
         !sets_delimiter && line.contains(self.delimiter.as_str())
     }
 
@@ -331,10 +329,10 @@ impl<'a> ClientScriptLexer<'a> {
             Buffer::from(command.buffer_action),
         );
         match command.argument {
-            Some(CommandArgument::Delimiter) => self.short_command_delimiter_argument(argument),
+            Some(ArgumentKind::Delimiter) => self.short_command_delimiter_argument(argument),
             // `\.` reads the rest of its line as the file name, delimiter and
             // all.
-            Some(CommandArgument::FileName) => self.file_name(argument, Buffer::Keep),
+            Some(ArgumentKind::FileName) => self.file_name(argument, Buffer::Keep),
             None => {}
         }
     }
