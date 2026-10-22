@@ -48,13 +48,18 @@ def test_client_commands_long_forms_match_in_any_case():
         {"default_delimiter": " ;"},
         {"default_delimiter": "; "},
         {"default_delimiter": "a b"},
+        {"default_delimiter": "a\u00a0b"},
         {"default_delimiter": "a\\"},
         {"default_delimiter": "a" * 16, "max_delimiter_bytes": 15},
         {"max_delimiter_bytes": 3},
     ],
 )
 def test_client_commands_rules_need_a_usable_default_delimiter(changes):
-    """Rules with a default delimiter the client wouldn't set are rejected."""
+    """Rules with a default delimiter the lexer would reject are rejected.
+
+    The client would take some of these, like `a b`, but then splits statements
+    in odd places, so nobody uses one on purpose.
+    """
     with pytest.raises(AssertionError):
         replace(RULES, **changes)
 
@@ -211,6 +216,18 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("client_command_rejected", "\\ "),
                 ("word", "SELECT"),
                 ("numeric_literal", "2"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # `\s` matches a non-breaking space, so it is rejected too, though the
+        # client treats it as an ordinary character.
+        (
+            "DELIMITER a\u00a0b\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "a\u00a0b"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
                 ("semicolon", ";"),
             ],
         ),

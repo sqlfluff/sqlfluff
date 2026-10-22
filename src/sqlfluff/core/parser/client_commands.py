@@ -36,6 +36,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import NamedTuple, Optional, Union
 
+import regex
+
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.parser.lexer import LexedElement, LexerType, StringLexer
 from sqlfluff.core.parser.segments import ClientTextSegment, CodeSegment, RawSegment
@@ -136,7 +138,7 @@ class ClientCommandRules:
         assert (
             delimiter
             and "\\" not in delimiter
-            and not any(character in _SPACE for character in delimiter)
+            and not regex.search(r"\s", delimiter)
             and (
                 self.max_delimiter_bytes is None
                 or len(delimiter.encode("utf-8")) <= self.max_delimiter_bytes
@@ -679,13 +681,16 @@ class ClientScriptLexer:
         client takes it, but then finds it in ordinary SQL, as in `SELECT a b`,
         or only where an invisible space follows, so it is only ever a mistake.
         That is checked after the cut, on the delimiter the client would set.
+        Whitespace here is whatever `\s` matches, as in sqlfluff's lexers, so a
+        non-breaking space is rejected too, though the client treats it as an
+        ordinary character.
         """
         if not value or "\\" in value:
             return None
         limit = self._rules.max_delimiter_bytes
         if limit is not None:
             value = _cut_to_bytes(value, limit)
-        if any(character in _SPACE for character in value):
+        if regex.search(r"\s", value):
             return None
         return value
 

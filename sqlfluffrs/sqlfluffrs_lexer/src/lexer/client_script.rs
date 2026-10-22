@@ -546,7 +546,9 @@ impl<'a> ClientScriptLexer<'a> {
     /// the client takes it, but then finds it in ordinary SQL, as in
     /// `SELECT a b`, or only where an invisible space follows, so it is only
     /// ever a mistake. That is checked after the cut, on the delimiter the
-    /// client would set.
+    /// client would set. Whitespace here is whatever `\s` matches, as in
+    /// sqlfluff's lexers, so a non-breaking space is rejected too, though the
+    /// client treats it as an ordinary character.
     fn accepted_delimiter(&self, value: Option<&str>) -> Option<String> {
         let value = value?;
         if value.is_empty() || value.contains('\\') {
@@ -556,7 +558,7 @@ impl<'a> ClientScriptLexer<'a> {
             Some(limit) => cut_to_bytes(value, limit),
             None => value,
         };
-        if value.contains(SPACE) {
+        if value.contains(char::is_whitespace) {
             return None;
         }
         Some(value.to_string())

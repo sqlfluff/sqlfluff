@@ -650,3 +650,19 @@ fn test_source_with_a_tab_is_rejected() {
         &[("word", "SOURCE"), ("client_command_rejected", "f.sql")],
     );
 }
+
+/// `\s` matches a non-breaking space, so it is rejected too, though the
+/// client treats it as an ordinary character.
+#[test]
+fn test_delimiter_with_a_non_breaking_space_is_rejected() {
+    assert_tokens(
+        "DELIMITER a\u{a0}b\nSELECT 1;\n",
+        &[
+            ("word", "DELIMITER"),
+            ("client_command_rejected", "a\u{a0}b"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("semicolon", ";"),
+        ],
+    );
+}
