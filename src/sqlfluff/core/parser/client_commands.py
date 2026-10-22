@@ -472,18 +472,11 @@ class ClientScriptLexer:
         """
         argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, self._word_matcher, _Buffer.APPEND)
-        end = self._first_break_in(argument)
-        if end is None:
-            # The statement runs on past this line.
-            self._emit_misread(argument, _Buffer.APPEND)
+        text = self._collected_argument(argument)
+        if text is None:
             return
-        if not argument.startswith(self._delimiter, end) or "\\" in argument[:end]:
-            # A short command comes first, or a backslash before the
-            # delimiter ran as a command.
-            self._emit_misread(argument[:end], _Buffer.APPEND)
-            return
-        old_delimiter = argument[end : end + len(self._delimiter)]
-        rest = self._delimiter_argument(argument[:end])
+        old_delimiter = argument[len(text) : len(text) + len(self._delimiter)]
+        rest = self._delimiter_argument(text)
         self._emit_ignored(rest)
         self._emit_delimiter(old_delimiter)
 
@@ -506,18 +499,29 @@ class ClientScriptLexer:
         """
         argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, self._word_matcher, _Buffer.APPEND)
+        name = self._collected_argument(argument)
+        if name is not None:
+            self._file_name(name, _Buffer.APPEND)
+
+    def _collected_argument(self, argument: str) -> Optional[str]:
+        """The argument of a collected long command, if the client runs it.
+
+        It does at the old delimiter, when that is the first break on the line
+        and no backslash comes before it, which would run as a command.
+        Otherwise the text goes to the server as SQL, or on past the line, so it
+        is misread.
+        """
         end = self._first_break_in(argument)
         if end is None:
-            # The statement runs on past this line, so the client doesn't
-            # open the file this names.
+            # The statement runs on past this line.
             self._emit_misread(argument, _Buffer.APPEND)
-        elif argument.startswith(self._delimiter, end) and "\\" not in argument[:end]:
-            self._file_name(argument[:end], _Buffer.APPEND)
-        else:
+            return None
+        if not argument.startswith(self._delimiter, end) or "\\" in argument[:end]:
             # A short command comes first, or a backslash before the
-            # delimiter ran as a command: the client doesn't open the file
-            # this names.
+            # delimiter ran as a command.
             self._emit_misread(argument[:end], _Buffer.APPEND)
+            return None
+        return argument[:end]
 
     def _lex_short_command(self, command: ShortClientCommand) -> None:
         """A short command and its argument."""

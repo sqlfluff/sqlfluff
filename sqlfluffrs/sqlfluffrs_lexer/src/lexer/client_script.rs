@@ -315,19 +315,11 @@ impl<'a> ClientScriptLexer<'a> {
     fn lex_delimiter_statement(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, self.word_matcher, Buffer::Append);
-        let Some(end) = self.first_break_in(argument) else {
-            // The statement runs on past this line.
-            self.emit_misread(argument, Buffer::Append);
+        let Some(text) = self.collected_argument(argument) else {
             return;
         };
-        if !argument[end..].starts_with(self.delimiter.as_str()) || argument[..end].contains('\\') {
-            // A short command comes first, or a backslash before the
-            // delimiter ran as a command.
-            self.emit_misread(&argument[..end], Buffer::Append);
-            return;
-        }
-        let old_delimiter = &argument[end..end + self.delimiter.len()];
-        let rest = self.delimiter_argument(&argument[..end]);
+        let old_delimiter = &argument[text.len()..text.len() + self.delimiter.len()];
+        let rest = self.delimiter_argument(text);
         self.emit_ignored(rest);
         self.emit_delimiter(old_delimiter);
     }
@@ -351,20 +343,36 @@ impl<'a> ClientScriptLexer<'a> {
     fn lex_source_statement(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, self.word_matcher, Buffer::Append);
+        if let Some(name) = self.collected_argument(argument) {
+            self.file_name(name, Buffer::Append);
+        }
+    }
+
+    /// The argument of a collected long command, if the client runs it.
+    ///
+    /// It does at the old delimiter, when that is the first break on the line
+    /// and no backslash comes before it, which would run as a command.
+    /// Otherwise the text goes to the server as SQL, or on past the line, so
+    /// it is misread.
+    fn collected_argument(&mut self, argument: &'a str) -> Option<&'a str> {
         match self.first_break_in(argument) {
-            // The statement runs on past this line, so the client doesn't
-            // open the file this names.
-            None => self.emit_misread(argument, Buffer::Append),
             Some(end)
                 if argument[end..].starts_with(self.delimiter.as_str())
                     && !argument[..end].contains('\\') =>
             {
-                self.file_name(&argument[..end], Buffer::Append);
+                Some(&argument[..end])
             }
             // A short command comes first, or a backslash before the
-            // delimiter ran as a command: the client doesn't open the file
-            // this names.
-            Some(end) => self.emit_misread(&argument[..end], Buffer::Append),
+            // delimiter ran as a command.
+            Some(end) => {
+                self.emit_misread(&argument[..end], Buffer::Append);
+                None
+            }
+            // The statement runs on past this line.
+            None => {
+                self.emit_misread(argument, Buffer::Append);
+                None
+            }
         }
     }
 
