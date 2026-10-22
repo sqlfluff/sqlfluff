@@ -16,8 +16,9 @@ short command, a long-form command such as `DELIMITER` must be the entire
 statement: it runs alone on its line at the start of a statement, unless the
 line holds `\g` (but, for no apparent reason, not `\G`), or holds the
 delimiter and the command isn't `DELIMITER`. Then, or when it follows a
-delimiter earlier on its line, the client collects it, and at the delimiter
-runs the statement as that command instead of sending it. Oddly again, a
+delimiter earlier on its line, the client collects it: if the delimiter is
+the next break, it runs the statement as that command instead of sending
+it, but if `\g` is, it sends it to the server as SQL. Oddly again, a
 collected `DELIMITER //;` sets `//`, though on its own line it sets `//;`.
 
 A *break* is where the client stops passing text to the server and acts itself:
