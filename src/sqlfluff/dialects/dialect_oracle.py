@@ -3,6 +3,8 @@
 This inherits from the ansi dialect.
 """
 
+from collections.abc import Sequence as SequenceABC
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -38,10 +40,13 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1499,6 +1504,57 @@ class BatchSegment(BaseSegment):
     )
 
 
+class _BatchDelimiterNotAtLineStartMatcher(Matchable):
+    """Match a ``/`` which is *not* the first code token on its line.
+
+    Used as an ``exclude`` on the batch-delimiter terminator of
+    ``CREATE VIEW ... AS SELECT`` so that a division operator inside the
+    statement body is not mistaken for a SQL*Plus slash-buffer terminator.
+
+    A SQL*Plus slash-buffer command is a ``/`` alone on a line, so a ``/``
+    which is preceded by another code token on the same line must be treated
+    as an operator rather than as a batch delimiter. See issue #8373.
+    """
+
+    def is_optional(self) -> bool:  # pragma: no cover
+        """A lookbehind matcher is never optional."""
+        return False
+
+    def simple(
+        self, parse_context: ParseContext, crumbs: tuple[str, ...] | None = None
+    ) -> SimpleHintType:  # pragma: no cover
+        """This element doesn't work with simple."""
+        return None
+
+    def cache_key(self) -> str:  # pragma: no cover
+        """Get the cache key for the matcher."""
+        return "batch-delimiter-not-at-line-start"
+
+    def match(
+        self,
+        segments: SequenceABC["BaseSegment"],
+        idx: int,
+        parse_context: ParseContext,
+    ) -> MatchResult:
+        """Match when the ``/`` has code before it on the same line."""
+        prev = idx - 1
+        while prev >= 0:
+            segment = segments[prev]
+            if segment.is_meta:
+                prev -= 1
+                continue
+            if segment.is_code:
+                # Another token earlier on this line: this is an operator.
+                return MatchResult(slice(idx, idx + 1))
+            if "\n" in segment.raw:
+                return MatchResult.empty_at(idx)
+            prev -= 1
+        return MatchResult.empty_at(idx)
+
+
+_slash_not_at_line_start = _BatchDelimiterNotAtLineStartMatcher()
+
+
 class SlashBufferExecutorSegment(BaseSegment):
     """A `/` standalone, functioning as a batch delimiter for SQL*Plus."""
 
@@ -1827,7 +1883,13 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            terminators=[
+                Ref(
+                    "BatchDelimiterGrammar",
+                    exclude=_slash_not_at_line_start,
+                )
+            ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
