@@ -135,7 +135,7 @@ class ClientCommandRules:
             )
         ), f"default_delimiter {delimiter!r} is not one the client would set: {self}"
 
-    def command_named(self, name: str) -> Optional[LongClientCommand]:
+    def long_command_named(self, name: str) -> Optional[LongClientCommand]:
         """The long command called `name`, in any case."""
         lowered = name.lower()
         for command in self.long_commands:
@@ -143,7 +143,9 @@ class ClientCommandRules:
                 return command
         return None
 
-    def command_starting(self, text: str, pos: int = 0) -> Optional[ShortClientCommand]:
+    def short_command_starting(
+        self, text: str, pos: int = 0
+    ) -> Optional[ShortClientCommand]:
         """The short command that starts at `pos` in `text`."""
         for command in self.short_commands:
             if text.startswith(command.text, pos):
@@ -396,7 +398,7 @@ class ClientScriptLexer:
                 return _SourceLine(long)
         if self._text.startswith(self._delimiter, self._pos):
             return _ActiveDelimiter()
-        command = self._rules.command_starting(self._text, self._pos)
+        command = self._rules.short_command_starting(self._text, self._pos)
         if command is not None:
             return _ShortCommand(command)
         if long is not None and long.command.argument is ArgumentKind.FILE_NAME:
@@ -659,7 +661,7 @@ class ClientScriptLexer:
             length += 1
         if length == 0 or (length < len(line) and line[length] not in " \t"):
             return None
-        command = self._rules.command_named(line[:length])
+        command = self._rules.long_command_named(line[:length])
         if command is None:
             return None
         return _CommandWord(command, line[:length])

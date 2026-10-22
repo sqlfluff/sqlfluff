@@ -82,7 +82,7 @@ pub struct ClientCommandRules {
 impl ClientCommandRules {
     /// The long command called `name`, in any case.
     #[must_use]
-    pub fn command_named(&self, name: &str) -> Option<&'static LongClientCommand> {
+    pub fn long_command_named(&self, name: &str) -> Option<&'static LongClientCommand> {
         self.long_commands
             .iter()
             .find(|command| command.name.eq_ignore_ascii_case(name))
@@ -90,7 +90,7 @@ impl ClientCommandRules {
 
     /// The short command that starts `text`.
     #[must_use]
-    pub fn command_starting(&self, text: &str) -> Option<&'static ShortClientCommand> {
+    pub fn short_command_starting(&self, text: &str) -> Option<&'static ShortClientCommand> {
         self.short_commands
             .iter()
             .find(|command| text.starts_with(command.text))

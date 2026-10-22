@@ -35,10 +35,10 @@ RULES = ClientCommandRules(
 
 def test_client_commands_long_forms_match_in_any_case():
     """Long forms are found in any case, short forms only in their own."""
-    assert RULES.command_named("DeLiMiTeR") is RULES.long_commands[0]
-    assert RULES.command_named("source") is None
-    assert RULES.command_starting("\\g;") is RULES.short_commands[1]
-    assert RULES.command_starting("\\G;") is None
+    assert RULES.long_command_named("DeLiMiTeR") is RULES.long_commands[0]
+    assert RULES.long_command_named("source") is None
+    assert RULES.short_command_starting("\\g;") is RULES.short_commands[1]
+    assert RULES.short_command_starting("\\G;") is None
 
 
 @pytest.mark.parametrize(

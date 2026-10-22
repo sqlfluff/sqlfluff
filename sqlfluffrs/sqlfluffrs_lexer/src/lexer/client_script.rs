@@ -246,7 +246,7 @@ impl<'a> ClientScriptLexer<'a> {
         if self.text[self.pos..].starts_with(self.delimiter.as_str()) {
             return Next::ActiveDelimiter;
         }
-        if let Some(command) = self.rules.command_starting(&self.text[self.pos..]) {
+        if let Some(command) = self.rules.short_command_starting(&self.text[self.pos..]) {
             return Next::ShortCommand(command);
         }
         if let Some(found) = long.filter(|found| found.command.argument == ArgumentKind::FileName) {
@@ -544,7 +544,7 @@ impl<'a> ClientScriptLexer<'a> {
             return None;
         }
         let word = &line[..length];
-        let command = self.rules.command_named(word)?;
+        let command = self.rules.long_command_named(word)?;
         Some(CommandWord { command, word })
     }
 
