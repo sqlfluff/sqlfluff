@@ -2271,9 +2271,7 @@ class DropMaskingPolicyStatementSegment(BaseSegment):
         "DROP",
         "MASKING",
         "POLICY",
-        Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
     )
 
 
