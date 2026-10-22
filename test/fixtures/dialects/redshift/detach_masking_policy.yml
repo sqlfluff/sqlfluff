@@ -70,7 +70,7 @@ file:
           naked_identifier: amount
         end_bracket: )
     - keyword: FROM
-    - role_reference:
+    - user_reference:
         naked_identifier: analyst
 - statement_terminator: ;
 - statement:
