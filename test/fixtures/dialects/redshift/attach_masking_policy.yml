@@ -90,7 +90,7 @@ file:
           naked_identifier: authorized
       - end_bracket: )
     - keyword: TO
-    - role_reference:
+    - user_reference:
         naked_identifier: analyst
     - keyword: PRIORITY
     - numeric_literal: '20'
