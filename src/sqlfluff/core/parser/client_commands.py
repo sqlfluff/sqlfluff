@@ -9,13 +9,16 @@ appear. Lexing such a script correctly needs the same state the client keeps.
 
 The client collects text into a statement, and the delimiter or `\g` sends
 it to the server (without the delimiter). A short command such as `\d` runs
-where the client reaches it, and collecting goes on after it; `\g` sends the
-statement collected so far, so collecting starts a new one, and `\.` discards
-it. A long-form command such as `DELIMITER` must be the entire statement: it
-runs alone on its line at the start of a statement, unless the line holds
-`\g`, or the delimiter in a command other than `DELIMITER`. Then the line is
-collected, and at the delimiter the client runs the statement as that command
-instead of sending it.
+wherever the client reaches it, and collecting goes on after it; `\g` sends
+the statement collected so far, so collecting starts a new one. Oddly, `\.`
+throws the statement away instead, though `\d` leaves it alone. Unlike a
+short command, a long-form command such as `DELIMITER` must be the entire
+statement: it runs alone on its line at the start of a statement, unless the
+line holds `\g` (but, for no apparent reason, not `\G`), or holds the
+delimiter and the command isn't `DELIMITER`. Then, or when it follows a
+delimiter earlier on its line, the client collects it, and at the delimiter
+runs the statement as that command instead of sending it. Oddly again, a
+collected `DELIMITER //;` sets `//`, though on its own line it sets `//;`.
 
 A *break* is where the client stops passing text to the server and acts itself:
 at the active delimiter or a short command.
