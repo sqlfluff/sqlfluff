@@ -168,7 +168,7 @@ pub(super) struct ClientScriptLexer<'a> {
     word_matcher: &'a LexMatcher,
     whitespace_matcher: &'a LexMatcher,
     inline_comment_matcher: &'a LexMatcher,
-    text: &'a str,
+    script: &'a str,
     pos: usize,
     elements: Vec<LexedElement<'a>>,
     delimiter: String,
@@ -179,7 +179,11 @@ pub(super) struct ClientScriptLexer<'a> {
 }
 
 impl<'a> ClientScriptLexer<'a> {
-    pub(super) fn new(lexer: &'a Lexer, rules: &'static ClientCommandRules, text: &'a str) -> Self {
+    pub(super) fn new(
+        lexer: &'a Lexer,
+        rules: &'static ClientCommandRules,
+        script: &'a str,
+    ) -> Self {
         let matcher = |name: &str| {
             lexer
                 .matchers
@@ -193,24 +197,24 @@ impl<'a> ClientScriptLexer<'a> {
             word_matcher: matcher(WORD),
             whitespace_matcher: matcher(WHITESPACE),
             inline_comment_matcher: matcher(INLINE_COMMENT),
-            text,
+            script,
             pos: 0,
-            elements: Vec::with_capacity(text.len()),
+            elements: Vec::with_capacity(script.len()),
             delimiter: rules.default_delimiter.to_string(),
-            delimiter_place: NextPlace::new(text, rules.default_delimiter),
+            delimiter_place: NextPlace::new(script, rules.default_delimiter),
             short_command_places: rules
                 .short_commands
                 .iter()
-                .map(|command| NextPlace::new(text, command.text))
+                .map(|command| NextPlace::new(script, command.text))
                 .collect(),
             statement_start: true,
             line_start: true,
         }
     }
 
-    /// Lex the whole text into elements.
+    /// Lex the whole script into elements.
     pub(super) fn lex(mut self) -> Vec<LexedElement<'a>> {
-        while self.pos < self.text.len() {
+        while self.pos < self.script.len() {
             match self.peek() {
                 Next::DelimiterLine(found) => self.lex_delimiter_line(found),
                 Next::SourceLine(found) => self.lex_source_line(found),
@@ -243,10 +247,10 @@ impl<'a> ClientScriptLexer<'a> {
                 ArgumentKind::FileName => Next::SourceLine(found),
             };
         }
-        if self.text[self.pos..].starts_with(self.delimiter.as_str()) {
+        if self.script[self.pos..].starts_with(self.delimiter.as_str()) {
             return Next::ActiveDelimiter;
         }
-        if let Some(command) = self.rules.short_command_starting(&self.text[self.pos..]) {
+        if let Some(command) = self.rules.short_command_starting(&self.script[self.pos..]) {
             return Next::ShortCommand(command);
         }
         if let Some(found) = long.filter(|found| found.command.argument == ArgumentKind::FileName) {
@@ -254,7 +258,7 @@ impl<'a> ClientScriptLexer<'a> {
         }
         if self.statement_start
             && self.rules.dash_dash_comment_at_statement_start
-            && self.text[self.pos..].starts_with("--")
+            && self.script[self.pos..].starts_with("--")
         {
             return Next::StatementStartComment;
         }
@@ -342,7 +346,7 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// The active delimiter, which ends the statement.
     fn lex_active_delimiter(&mut self) {
-        let delimiter = &self.text[self.pos..self.pos + self.delimiter.len()];
+        let delimiter = &self.script[self.pos..self.pos + self.delimiter.len()];
         if self.delimiter == self.rules.default_delimiter {
             // The default delimiter keeps the dialect's own token for it.
             for element in self.match_text(delimiter) {
@@ -356,7 +360,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// `--` with no whitespace after it, as a comment.
     fn lex_statement_start_comment(&mut self) {
         // Up to the newline, as the comment matcher's `[^\n]*` would take it.
-        let rest = &self.text[self.pos..];
+        let rest = &self.script[self.pos..];
         let end = rest.find('\n').unwrap_or(rest.len());
         self.emit(&rest[..end], self.inline_comment_matcher, Buffer::Keep);
     }
@@ -370,7 +374,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// comment: the client doesn't treat `--` without a space as a comment, but
     /// the server does at the end of a statement.
     fn lex_token(&mut self) {
-        let rest = &self.text[self.pos..];
+        let rest = &self.script[self.pos..];
         let mut elements = self.match_text(rest);
         if !self.rules.is_opaque(&elements[0].matcher.name) {
             let end = self.first_break_after_pos() - self.pos;
@@ -388,13 +392,13 @@ impl<'a> ClientScriptLexer<'a> {
         }
     }
 
-    fn match_text(&self, text: &'a str) -> Vec<LexedElement<'a>> {
+    fn match_text(&self, forward_string: &'a str) -> Vec<LexedElement<'a>> {
         let Some((elements, _)) = self
             .lexer
-            .lex_match(text)
-            .or_else(|| self.lexer.last_resort_lexer.scan_match(text))
+            .lex_match(forward_string)
+            .or_else(|| self.lexer.last_resort_lexer.scan_match(forward_string))
         else {
-            panic!("Fatal. Unable to lex characters: {text}");
+            panic!("Fatal. Unable to lex characters: {forward_string}");
         };
         elements
     }
@@ -443,7 +447,7 @@ impl<'a> ClientScriptLexer<'a> {
             return;
         };
         self.emit(raw, &DELIMITER_ARGUMENT, Buffer::Keep);
-        self.delimiter_place = NextPlace::new(self.text, &delimiter);
+        self.delimiter_place = NextPlace::new(self.script, &delimiter);
         self.delimiter = delimiter;
     }
 
@@ -573,29 +577,29 @@ impl<'a> ClientScriptLexer<'a> {
     }
 
     /// Text the client reads past, between any whitespace around it.
-    fn emit_ignored(&mut self, text: &'a str) {
-        self.emit_between_spaces(text, &CLIENT_COMMAND_IGNORED, Buffer::Keep);
+    fn emit_ignored(&mut self, raw: &'a str) {
+        self.emit_between_spaces(raw, &CLIENT_COMMAND_IGNORED, Buffer::Keep);
     }
 
     /// Text the client misreads, between any whitespace around it.
     ///
     /// `buffer` says whether the client puts it into the statement.
-    fn emit_misread(&mut self, text: &'a str, buffer: Buffer) {
-        self.emit_between_spaces(text, &CLIENT_COMMAND_MISREAD, buffer);
+    fn emit_misread(&mut self, raw: &'a str, buffer: Buffer) {
+        self.emit_between_spaces(raw, &CLIENT_COMMAND_MISREAD, buffer);
     }
 
     /// `text` as one `matcher` token, with any whitespace around it apart.
-    fn emit_between_spaces(&mut self, text: &'a str, matcher: &'a LexMatcher, buffer: Buffer) {
-        let content = text.trim_matches(SPACE);
+    fn emit_between_spaces(&mut self, raw: &'a str, matcher: &'a LexMatcher, buffer: Buffer) {
+        let content = raw.trim_matches(SPACE);
         if content.is_empty() {
-            self.emit(text, self.whitespace_matcher, Buffer::Keep);
+            self.emit(raw, self.whitespace_matcher, Buffer::Keep);
             return;
         }
-        let start = text.len() - text.trim_start_matches(SPACE).len();
-        self.emit(&text[..start], self.whitespace_matcher, Buffer::Keep);
+        let start = raw.len() - raw.trim_start_matches(SPACE).len();
+        self.emit(&raw[..start], self.whitespace_matcher, Buffer::Keep);
         self.emit(content, matcher, buffer);
         self.emit(
-            &text[start + content.len()..],
+            &raw[start + content.len()..],
             self.whitespace_matcher,
             Buffer::Keep,
         );
@@ -613,7 +617,7 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// The text from here to the end of the line, without the line break.
     fn rest_of_line(&self) -> &'a str {
-        let rest = &self.text[self.pos..];
+        let rest = &self.script[self.pos..];
         let line = rest.find('\n').map_or(rest, |end| &rest[..end]);
         line.strip_suffix('\r').unwrap_or(line)
     }

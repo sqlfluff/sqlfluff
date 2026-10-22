@@ -346,20 +346,20 @@ class ClientScriptLexer:
         self._whitespace_matcher = by_name[_WHITESPACE]
         self._inline_comment_matcher = by_name[_INLINE_COMMENT]
 
-    def lex(self, text: str) -> list[LexedElement]:
-        """Lex `text` into elements."""
-        self._text = text
+    def lex(self, script: str) -> list[LexedElement]:
+        """Lex `script` into elements."""
+        self._script = script
         self._pos = 0
         self._elements: list[LexedElement] = []
         self._delimiter = self._rules.default_delimiter
-        self._delimiter_place = _NextPlace(text, self._delimiter)
+        self._delimiter_place = _NextPlace(script, self._delimiter)
         self._short_command_places = [
-            _NextPlace(text, command.text) for command in self._rules.short_commands
+            _NextPlace(script, command.text) for command in self._rules.short_commands
         ]
         self._statement_start = True
         self._line_start = True
 
-        while self._pos < len(text):
+        while self._pos < len(script):
             match next_part := self._peek():
                 case _DelimiterLine(found):
                     self._lex_delimiter_line(found)
@@ -396,9 +396,9 @@ class ClientScriptLexer:
                 return _DelimiterLine(long)
             if long.command.argument is ArgumentKind.FILE_NAME:
                 return _SourceLine(long)
-        if self._text.startswith(self._delimiter, self._pos):
+        if self._script.startswith(self._delimiter, self._pos):
             return _ActiveDelimiter()
-        command = self._rules.short_command_starting(self._text, self._pos)
+        command = self._rules.short_command_starting(self._script, self._pos)
         if command is not None:
             return _ShortCommand(command)
         if long is not None and long.command.argument is ArgumentKind.FILE_NAME:
@@ -406,7 +406,7 @@ class ClientScriptLexer:
         if (
             self._statement_start
             and self._rules.dash_dash_comment_at_statement_start
-            and self._text.startswith("--", self._pos)
+            and self._script.startswith("--", self._pos)
         ):
             return _StatementStartComment()
         return _Token()
@@ -484,7 +484,7 @@ class ClientScriptLexer:
         if self._delimiter == self._rules.default_delimiter:
             # The default delimiter keeps the dialect's own token for it.
             end = self._pos + len(self._delimiter)
-            for element in self._match(self._text[self._pos : end]):
+            for element in self._match(self._script[self._pos : end]):
                 self._emit(element.raw, element.matcher, _Buffer.END)
         else:
             self._emit(self._delimiter, CLIENT_DELIMITER, _Buffer.END)
@@ -492,9 +492,9 @@ class ClientScriptLexer:
     def _lex_statement_start_comment(self) -> None:
         """`--` with no whitespace after it, as a comment."""
         # Up to the newline, as the comment matcher's `[^\n]*` would take it.
-        end = self._text.find("\n", self._pos)
+        end = self._script.find("\n", self._pos)
         self._emit(
-            self._text[self._pos : end if end >= 0 else None],
+            self._script[self._pos : end if end >= 0 else None],
             self._inline_comment_matcher,
             _Buffer.KEEP,
         )
@@ -509,7 +509,7 @@ class ClientScriptLexer:
         comment: the client doesn't treat `--` without a space as a comment, but
         the server does at the end of a statement.
         """
-        rest = self._text[self._pos :]
+        rest = self._script[self._pos :]
         elements = self._match(rest)
         if elements[0].matcher.name not in self._rules.opaque_token_names:
             end = self._first_break_after_pos() - self._pos
@@ -521,14 +521,16 @@ class ClientScriptLexer:
             else:
                 self._emit(element.raw, element.matcher, _Buffer.APPEND)
 
-    def _match(self, text: str) -> list[LexedElement]:
+    def _match(self, forward_string: str) -> list[LexedElement]:
         for matcher in self._matchers:
-            result = matcher.match(text)
+            result = matcher.match(forward_string)
             if result.elements:
                 return result.elements
-        result = self._last_resort.match(text)
+        result = self._last_resort.match(forward_string)
         if not result.elements:  # pragma: no cover
-            raise SQLLexError(f"Fatal. Unable to lex characters: {text[:10]!r}")
+            raise SQLLexError(
+                f"Fatal. Unable to lex characters: {forward_string[:10]!r}"
+            )
         return result.elements
 
     def _first_break_after_pos(self) -> int:
@@ -569,7 +571,7 @@ class ClientScriptLexer:
             return
         self._emit(raw, DELIMITER_ARGUMENT, _Buffer.KEEP)
         self._delimiter = delimiter
-        self._delimiter_place = _NextPlace(self._text, delimiter)
+        self._delimiter_place = _NextPlace(self._script, delimiter)
 
     def _short_command_delimiter_argument(self, argument: str) -> None:
         r"""Lex the argument of `\d`.
@@ -685,29 +687,29 @@ class ClientScriptLexer:
             # END or DISCARD: a new statement starts.
             self._statement_start = True
 
-    def _emit_ignored(self, text: str) -> None:
+    def _emit_ignored(self, raw: str) -> None:
         """Text the client reads past, between any whitespace around it."""
-        self._emit_between_spaces(text, CLIENT_COMMAND_IGNORED, _Buffer.KEEP)
+        self._emit_between_spaces(raw, CLIENT_COMMAND_IGNORED, _Buffer.KEEP)
 
-    def _emit_misread(self, text: str, buffer: _Buffer) -> None:
+    def _emit_misread(self, raw: str, buffer: _Buffer) -> None:
         """Text the client misreads, between any whitespace around it.
 
         `buffer` says whether the client puts it into the statement.
         """
-        self._emit_between_spaces(text, CLIENT_COMMAND_MISREAD, buffer)
+        self._emit_between_spaces(raw, CLIENT_COMMAND_MISREAD, buffer)
 
     def _emit_between_spaces(
-        self, text: str, matcher: LexerType, buffer: _Buffer
+        self, raw: str, matcher: LexerType, buffer: _Buffer
     ) -> None:
-        """`text` as one `matcher` token, with any whitespace around it apart."""
-        content = text.strip(_SPACE)
+        """`raw` as one `matcher` token, with any whitespace around it apart."""
+        content = raw.strip(_SPACE)
         if not content:
-            self._emit(text, self._whitespace_matcher, _Buffer.KEEP)
+            self._emit(raw, self._whitespace_matcher, _Buffer.KEEP)
             return
-        start = text.index(content[0])
-        self._emit(text[:start], self._whitespace_matcher, _Buffer.KEEP)
+        start = raw.index(content[0])
+        self._emit(raw[:start], self._whitespace_matcher, _Buffer.KEEP)
         self._emit(content, matcher, buffer)
-        self._emit(text[start + len(content) :], self._whitespace_matcher, _Buffer.KEEP)
+        self._emit(raw[start + len(content) :], self._whitespace_matcher, _Buffer.KEEP)
 
     def _first_break_in(self, text: str) -> Optional[int]:
         """The first break in `text`: the delimiter or a short command."""
@@ -720,8 +722,8 @@ class ClientScriptLexer:
 
     def _rest_of_line(self) -> str:
         """The text from here to the end of the line, without the line break."""
-        end = self._text.find("\n", self._pos)
-        line = self._text[self._pos :] if end < 0 else self._text[self._pos : end]
+        end = self._script.find("\n", self._pos)
+        line = self._script[self._pos :] if end < 0 else self._script[self._pos : end]
         return line[:-1] if line.endswith("\r") else line
 
 
