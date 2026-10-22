@@ -59,7 +59,8 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Redshift](https://docs.aws.amazon.com/redshift/index.html)
-- [Snowflake](https://www.snowflake.com/)
+- [Snowflake](https://www.snowflake.com/), including DCM `DEFINE STREAM`,
+  `DEFINE PROCEDURE`, and `DEFINE TASK` with `STARTED`/`SUSPENDED` target states.
 - [SOQL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
 - [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
