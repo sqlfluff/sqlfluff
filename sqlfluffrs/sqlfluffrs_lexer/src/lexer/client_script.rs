@@ -8,6 +8,9 @@
 //! described by a dialect's [`ClientCommandRules`]. Nothing here is specific to
 //! one client except what the rules say.
 //!
+//! A *break* is where the client stops passing text to the server and acts
+//! itself: at the active delimiter or a short command.
+//!
 //! This is the same lexer as `sqlfluff.core.parser.client_commands` in
 //! Python, method for method. The two must emit identical tokens.
 
@@ -303,7 +306,7 @@ impl<'a> ClientScriptLexer<'a> {
     fn lex_source_statement(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, self.word_matcher, Buffer::Append);
-        match self.first_break(argument) {
+        match self.first_break_in(argument) {
             // The statement runs on past this line, so the client doesn't
             // open the file this names.
             None => self.emit_misread(argument, Buffer::Append),
@@ -370,7 +373,7 @@ impl<'a> ClientScriptLexer<'a> {
         let rest = &self.text[self.pos..];
         let mut elements = self.match_text(rest);
         if !self.rules.is_opaque(&elements[0].matcher.name) {
-            let end = self.statement_end() - self.pos;
+            let end = self.first_break_after_pos() - self.pos;
             if end < rest.len() {
                 elements = self.match_text(&rest[..end]);
             }
@@ -396,9 +399,9 @@ impl<'a> ClientScriptLexer<'a> {
         elements
     }
 
-    /// Where the client next finds the delimiter or a short command, after
-    /// here.
-    fn statement_end(&mut self) -> usize {
+    /// The first break after here: where the client next finds the delimiter
+    /// or a short command.
+    fn first_break_after_pos(&mut self) -> usize {
         let delimiter_end = self.delimiter_place.after(self.pos);
         self.short_command_places
             .iter_mut()
@@ -598,8 +601,9 @@ impl<'a> ClientScriptLexer<'a> {
         );
     }
 
-    /// Where the client finds the delimiter or a short command in `text`.
-    fn first_break(&self, text: &str) -> Option<usize> {
+    /// The first break in `text`: where the client finds the delimiter or a
+    /// short command.
+    fn first_break_in(&self, text: &str) -> Option<usize> {
         let short_commands = self.rules.short_commands.iter().map(|command| command.text);
         std::iter::once(self.delimiter.as_str())
             .chain(short_commands)

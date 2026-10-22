@@ -17,6 +17,9 @@ runs alone on its line at the start of a statement, unless the line holds
 collected, and at the delimiter the client runs the statement as that command
 instead of sending it.
 
+A *break* is where the client stops passing text to the server and acts itself:
+at the active delimiter or a short command.
+
 `ClientCommandRules` describes a client, and `ClientScriptLexer` lexes with
 that state. The MySQL/MariaDB rules live with those dialects. Nothing here is
 specific to that client except what the rules say, so another client's
@@ -446,7 +449,7 @@ class ClientScriptLexer:
         """
         argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, self._word_matcher, _Buffer.APPEND)
-        end = self._first_break(argument)
+        end = self._first_break_in(argument)
         if end is None:
             # The statement runs on past this line, so the client doesn't
             # open the file this names.
@@ -507,7 +510,7 @@ class ClientScriptLexer:
         rest = self._text[self._pos :]
         elements = self._match(rest)
         if elements[0].matcher.name not in self._rules.opaque_token_names:
-            end = self._statement_end() - self._pos
+            end = self._first_break_after_pos() - self._pos
             if end < len(rest):
                 elements = self._match(rest[:end])
         for element in elements:
@@ -526,8 +529,8 @@ class ClientScriptLexer:
             raise SQLLexError(f"Fatal. Unable to lex characters: {text[:10]!r}")
         return result.elements
 
-    def _statement_end(self) -> int:
-        """Where the client next finds the delimiter or a short command, after here."""
+    def _first_break_after_pos(self) -> int:
+        """The first break after here: the next delimiter or short command."""
         places = [self._delimiter_place, *self._short_command_places]
         return min(place.after(self._pos) for place in places)
 
@@ -704,8 +707,8 @@ class ClientScriptLexer:
         self._emit(content, matcher, buffer)
         self._emit(text[start + len(content) :], self._whitespace_matcher, _Buffer.KEEP)
 
-    def _first_break(self, text: str) -> Optional[int]:
-        """Where the client finds the delimiter or a short command in `text`."""
+    def _first_break_in(self, text: str) -> Optional[int]:
+        """The first break in `text`: the delimiter or a short command."""
         needles = [self._delimiter]
         needles.extend(command.text for command in self._rules.short_commands)
         found = [
