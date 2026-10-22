@@ -1504,20 +1504,17 @@ class BatchSegment(BaseSegment):
     )
 
 
-class _BatchDelimiterNotAtLineStartMatcher(Matchable):
-    """Match a ``/`` which is *not* the first code token on its line.
+class _BatchDelimiterNotStandaloneMatcher(Matchable):
+    """Match a ``/`` with code before or after it on the same line.
 
     Used as an ``exclude`` on the batch-delimiter terminator of
-    ``CREATE VIEW ... AS SELECT`` so that a division operator inside the
-    statement body is not mistaken for a SQL*Plus slash-buffer terminator.
-
-    A SQL*Plus slash-buffer command is a ``/`` alone on a line, so a ``/``
-    which is preceded by another code token on the same line must be treated
-    as an operator rather than as a batch delimiter. See issue #8373.
+    ``CREATE VIEW ... AS SELECT`` so that division operators are not mistaken
+    for SQL*Plus slash-buffer terminators. A slash-buffer command must be a
+    slash alone on its line. See issue #8373.
     """
 
     def is_optional(self) -> bool:  # pragma: no cover
-        """A lookbehind matcher is never optional."""
+        """A lookaround matcher is never optional."""
         return False
 
     def simple(
@@ -1528,7 +1525,7 @@ class _BatchDelimiterNotAtLineStartMatcher(Matchable):
 
     def cache_key(self) -> str:  # pragma: no cover
         """Get the cache key for the matcher."""
-        return "batch-delimiter-not-at-line-start"
+        return "batch-delimiter-not-standalone"
 
     def match(
         self,
@@ -1536,7 +1533,7 @@ class _BatchDelimiterNotAtLineStartMatcher(Matchable):
         idx: int,
         parse_context: ParseContext,
     ) -> MatchResult:
-        """Match when the ``/`` has code before it on the same line."""
+        """Match when the ``/`` shares its line with another code token."""
         prev = idx - 1
         while prev >= 0:
             segment = segments[prev]
@@ -1544,15 +1541,27 @@ class _BatchDelimiterNotAtLineStartMatcher(Matchable):
                 prev -= 1
                 continue
             if segment.is_code:
-                # Another token earlier on this line: this is an operator.
                 return MatchResult(slice(idx, idx + 1))
             if "\n" in segment.raw:
-                return MatchResult.empty_at(idx)
+                break
             prev -= 1
+
+        following = idx + 1
+        while following < len(segments):
+            segment = segments[following]
+            if segment.is_meta:
+                following += 1
+                continue
+            if segment.is_code:
+                return MatchResult(slice(idx, idx + 1))
+            if "\n" in segment.raw:
+                break
+            following += 1
+
         return MatchResult.empty_at(idx)
 
 
-_slash_not_at_line_start = _BatchDelimiterNotAtLineStartMatcher()
+_slash_not_standalone = _BatchDelimiterNotStandaloneMatcher()
 
 
 class SlashBufferExecutorSegment(BaseSegment):
@@ -1887,7 +1896,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             terminators=[
                 Ref(
                     "BatchDelimiterGrammar",
-                    exclude=_slash_not_at_line_start,
+                    exclude=_slash_not_standalone,
                 )
             ],
         ),
