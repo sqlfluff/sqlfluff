@@ -75,9 +75,7 @@ def apply_recursion_limit(
     if recursion_limit is not None:
         try:
             if recursion_limit < min_limit:
-                raise ValueError(
-                    f"recursion_limit must be at least {min_limit}."
-                )
+                raise ValueError(f"recursion_limit must be at least {min_limit}.")
             sys.setrecursionlimit(recursion_limit)
         except ValueError as ve:
             click.echo(
