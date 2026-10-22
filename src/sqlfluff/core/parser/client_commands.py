@@ -235,7 +235,7 @@ class _CommandWord(NamedTuple):
 # below, as `_Next`.
 
 
-class _DelimiterCommand(NamedTuple):
+class _DelimiterLine(NamedTuple):
     """A command that sets the delimiter (`DELIMITER`), at the start of a line.
 
     It takes the line.
@@ -282,7 +282,7 @@ class _Token(NamedTuple):
 
 
 _Next = Union[
-    _DelimiterCommand,
+    _DelimiterLine,
     _SourceLine,
     _SourceStatement,
     _ShortCommand,
@@ -361,8 +361,8 @@ class ClientScriptLexer:
 
         while self._pos < len(text):
             match next_part := self._peek():
-                case _DelimiterCommand(found):
-                    self._lex_delimiter_command(found)
+                case _DelimiterLine(found):
+                    self._lex_delimiter_line(found)
                 case _SourceLine(found):
                     self._lex_source_line(found)
                 case _SourceStatement(found):
@@ -393,7 +393,7 @@ class ClientScriptLexer:
             long = self._long_command(self._rest_of_line())
         if long is not None and self._line_start and not self._line_is_collected(long):
             if long.command.argument is ArgumentKind.DELIMITER:
-                return _DelimiterCommand(long)
+                return _DelimiterLine(long)
             if long.command.argument is ArgumentKind.FILE_NAME:
                 return _SourceLine(long)
         if self._text.startswith(self._delimiter, self._pos):
@@ -425,7 +425,7 @@ class ClientScriptLexer:
         sets_delimiter = found.command.argument is ArgumentKind.DELIMITER
         return not sets_delimiter and self._delimiter in line
 
-    def _lex_delimiter_command(self, found: _CommandWord) -> None:
+    def _lex_delimiter_line(self, found: _CommandWord) -> None:
         """`DELIMITER` and its argument. The rest of the line is ignored."""
         argument = self._rest_of_line()[len(found.word) :]
         self._emit(found.word, self._word_matcher, _Buffer.KEEP)

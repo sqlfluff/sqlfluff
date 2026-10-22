@@ -93,7 +93,7 @@ impl From<BufferAction> for Buffer {
 enum Next<'a> {
     /// A command that sets the delimiter (`DELIMITER`), at the start of a
     /// line. It takes the line.
-    DelimiterCommand(CommandWord<'a>),
+    DelimiterLine(CommandWord<'a>),
     /// A command that reads a file (`SOURCE`), at the start of a line that
     /// holds neither the delimiter nor `\g`. The rest of the line is the file
     /// name.
@@ -212,7 +212,7 @@ impl<'a> ClientScriptLexer<'a> {
     pub(super) fn lex(mut self) -> Vec<LexedElement<'a>> {
         while self.pos < self.text.len() {
             match self.peek() {
-                Next::DelimiterCommand(found) => self.lex_delimiter_command(found),
+                Next::DelimiterLine(found) => self.lex_delimiter_line(found),
                 Next::SourceLine(found) => self.lex_source_line(found),
                 Next::SourceStatement(found) => self.lex_source_statement(found),
                 Next::ShortCommand(command) => self.lex_short_command(command),
@@ -239,7 +239,7 @@ impl<'a> ClientScriptLexer<'a> {
         if let Some(found) = long.filter(|found| self.line_start && !self.line_is_collected(found))
         {
             return match found.command.argument {
-                ArgumentKind::Delimiter => Next::DelimiterCommand(found),
+                ArgumentKind::Delimiter => Next::DelimiterLine(found),
                 ArgumentKind::FileName => Next::SourceLine(found),
             };
         }
@@ -280,7 +280,7 @@ impl<'a> ClientScriptLexer<'a> {
     }
 
     /// `DELIMITER` and its argument. The rest of the line is ignored.
-    fn lex_delimiter_command(&mut self, found: CommandWord<'a>) {
+    fn lex_delimiter_line(&mut self, found: CommandWord<'a>) {
         let argument = &self.rest_of_line()[found.word.len()..];
         self.emit(found.word, self.word_matcher, Buffer::Keep);
         let rest = self.delimiter_argument(argument);
