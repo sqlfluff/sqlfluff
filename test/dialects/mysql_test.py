@@ -267,8 +267,10 @@ def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
         "SOURCE C:\\games\\x.sql\n",
         "SOURCE \\\\gitserver\\share\\x.sql\n",
         "SOURCE \\g\n",
-        # A delimiter can't start with whitespace.
+        # A delimiter can't have whitespace in it.
         "SELECT 1 \\d  \\ \nSELECT 2;\n",
+        "DELIMITER a\\ b\nSELECT 1 a b\n",
+        "DELIMITER 'a b'\nSELECT 1 a b\n",
         "DELIMITER ' x'\nSELECT 1 x\n",
         "DELIMITER '$$ '\nSELECT 1 $$ \n",
         # An unclosed quote in a delimiter argument is a typo.

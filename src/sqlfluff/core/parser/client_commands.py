@@ -126,15 +126,14 @@ class ClientCommandRules:
         assert self.max_delimiter_bytes is None or self.max_delimiter_bytes >= 4, (
             f"max_delimiter_bytes must be None or at least 4: {self}"
         )
-        # The default must be a delimiter the client would set. The lexer
-        # relies on it: one that starts with whitespace can match before an
-        # argument starts, and an empty one matches everywhere.
+        # The default must be a delimiter the lexer would accept. The lexer
+        # relies on it: one with whitespace in it can match before an argument
+        # starts, and an empty one matches everywhere.
         delimiter = self.default_delimiter
         assert (
             delimiter
             and "\\" not in delimiter
-            and delimiter[0] not in _SPACE
-            and delimiter[-1] not in _SPACE
+            and not any(character in _SPACE for character in delimiter)
             and (
                 self.max_delimiter_bytes is None
                 or len(delimiter.encode("utf-8")) <= self.max_delimiter_bytes
@@ -583,17 +582,17 @@ class ClientScriptLexer:
         r"""Lex the argument of `\d`.
 
         The mysql and mariadb clients handle this bizarrely, probably a client
-        bug, but both do the same thing: after setting the delimiter, the client carries on
-        reading right after the new delimiter's text on the line. Normally that's
-        just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
-        the argument as typed isn't exactly the delimiter, ridiculous stuff
-        happens:
+        bug, but both do the same thing: after setting the delimiter, the client
+        carries on reading right after the new delimiter's text on the line.
+        Normally that's just after the argument: `\d $$ SELECT 1 $$` runs
+        `SELECT 1`. But when the argument as typed isn't exactly the delimiter,
+        ridiculous stuff happens:
         - `\d '$$'` sets `$$` and carries on inside the quotes, so the closing
           quote is read as SQL.
         - An argument over 15 bytes sets only its first 15 and carries on after
           those, so the rest is read as SQL.
-        - `\d a\ b` sets `a b`, which isn't on the line as typed, so it carries
-          on after the next `a b` on the line, or discards the rest of the line
+        - `\d \$\$` sets `$$`, which isn't on the line as typed, so it carries
+          on after the next `$$` on the line, or discards the rest of the line
           if there's none.
 
         Text the client skips belongs to the command: the server never sees it,
@@ -623,21 +622,20 @@ class ClientScriptLexer:
     def _accepted_delimiter(self, value: Optional[str]) -> Optional[str]:
         r"""The delimiter the client sets from an argument's value.
 
-        `None` if it refuses the value: empty, with a backslash left in it, or
+        `None` if it rejects the value: empty, with a backslash left in it, or
         from a quote with no closing quote. The client checks these before it
-        cuts the value to the byte limit. A delimiter that starts or ends with
-        whitespace (from quotes or an escaped space, as in `\d \ x`, or from a
-        cut that ends at a space) is refused too: the client takes it, but then
-        splits statements at every such space, or only where the invisible
-        space follows, so it is only ever a mistake. That is checked after the
-        cut, on the delimiter the client would set.
+        cuts the value to the byte limit. A delimiter with whitespace in it
+        (from quotes or an escaped space, as in `\d a\ b`) is rejected too: the
+        client takes it, but then finds it in ordinary SQL, as in `SELECT a b`,
+        or only where an invisible space follows, so it is only ever a mistake.
+        That is checked after the cut, on the delimiter the client would set.
         """
         if not value or "\\" in value:
             return None
         limit = self._rules.max_delimiter_bytes
         if limit is not None:
             value = _cut_to_bytes(value, limit)
-        if value[0] in _SPACE or value[-1] in _SPACE:
+        if any(character in _SPACE for character in value):
             return None
         return value
 

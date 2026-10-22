@@ -454,17 +454,17 @@ impl<'a> ClientScriptLexer<'a> {
     /// Lex the argument of `\d`.
     ///
     /// The mysql and mariadb clients handle this bizarrely, probably a client
-    /// bug, but both do the same thing: after setting the delimiter, the client carries on
-    /// reading right after the new delimiter's text on the line. Normally that's
-    /// just after the argument: `\d $$ SELECT 1 $$` runs `SELECT 1`. But when
-    /// the argument as typed isn't exactly the delimiter, ridiculous stuff
-    /// happens:
+    /// bug, but both do the same thing: after setting the delimiter, the client
+    /// carries on reading right after the new delimiter's text on the line.
+    /// Normally that's just after the argument: `\d $$ SELECT 1 $$` runs
+    /// `SELECT 1`. But when the argument as typed isn't exactly the delimiter,
+    /// ridiculous stuff happens:
     /// - `\d '$$'` sets `$$` and carries on inside the quotes, so the closing
     ///   quote is read as SQL.
     /// - An argument over 15 bytes sets only its first 15 and carries on after
     ///   those, so the rest is read as SQL.
-    /// - `\d a\ b` sets `a b`, which isn't on the line as typed, so it carries
-    ///   on after the next `a b` on the line, or discards the rest of the line
+    /// - `\d \$\$` sets `$$`, which isn't on the line as typed, so it carries
+    ///   on after the next `$$` on the line, or discards the rest of the line
     ///   if there's none.
     ///
     /// Text the client skips belongs to the command: the server never sees it,
@@ -494,14 +494,14 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// The delimiter the client sets from an argument's value.
     ///
-    /// `None` if it refuses the value: empty, with a backslash left in it, or
+    /// `None` if it rejects the value: empty, with a backslash left in it, or
     /// from a quote with no closing quote. The client checks these before it
-    /// cuts the value to the byte limit. A delimiter that starts or ends with
-    /// whitespace (from quotes or an escaped space, as in `\d \ x`, or from a
-    /// cut that ends at a space) is refused too: the client takes it, but
-    /// then splits statements at every such space, or only where the
-    /// invisible space follows, so it is only ever a mistake. That is checked
-    /// after the cut, on the delimiter the client would set.
+    /// cuts the value to the byte limit. A delimiter with whitespace in it
+    /// (from quotes or an escaped space, as in `\d a\ b`) is rejected too:
+    /// the client takes it, but then finds it in ordinary SQL, as in
+    /// `SELECT a b`, or only where an invisible space follows, so it is only
+    /// ever a mistake. That is checked after the cut, on the delimiter the
+    /// client would set.
     fn accepted_delimiter(&self, value: Option<&str>) -> Option<String> {
         let value = value?;
         if value.is_empty() || value.contains('\\') {
@@ -511,7 +511,7 @@ impl<'a> ClientScriptLexer<'a> {
             Some(limit) => cut_to_bytes(value, limit),
             None => value,
         };
-        if value.starts_with(SPACE) || value.ends_with(SPACE) {
+        if value.contains(SPACE) {
             return None;
         }
         Some(value.to_string())

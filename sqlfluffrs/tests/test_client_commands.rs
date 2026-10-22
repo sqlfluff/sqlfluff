@@ -45,13 +45,44 @@ fn test_delimiter_is_found_inside_words() {
 #[test]
 fn test_backslash_escapes_in_unquoted_argument() {
     assert_tokens(
-        "DELIMITER a\\ b\nSELECT 1 a b\n",
+        "DELIMITER \\$\\$\nSELECT 1 $$\n",
         &[
             ("word", "DELIMITER"),
-            ("delimiter_argument", "a\\ b"),
+            ("delimiter_argument", "\\$\\$"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
-            ("client_delimiter", "a b"),
+            ("client_delimiter", "$$"),
+        ],
+    );
+}
+
+#[test]
+fn test_delimiter_with_whitespace_inside_is_refused() {
+    assert_tokens(
+        "DELIMITER a\\ b\nSELECT 1 a b;\n",
+        &[
+            ("word", "DELIMITER"),
+            ("client_command_misread", "a\\ b"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("word", "a"),
+            ("word", "b"),
+            ("semicolon", ";"),
+        ],
+    );
+}
+
+/// Whitespace past the 15th byte is cut off, so it doesn't count.
+#[test]
+fn test_whitespace_past_the_cut_is_accepted() {
+    assert_tokens(
+        "DELIMITER 'aaaaaaaaaaaaaaa b'\nSELECT 1 aaaaaaaaaaaaaaa\n",
+        &[
+            ("word", "DELIMITER"),
+            ("delimiter_argument", "'aaaaaaaaaaaaaaa b'"),
+            ("word", "SELECT"),
+            ("numeric_literal", "1"),
+            ("client_delimiter", "aaaaaaaaaaaaaaa"),
         ],
     );
 }
@@ -210,16 +241,16 @@ fn test_short_delimiter_command_discards_the_rest_of_its_line() {
 #[test]
 fn test_short_delimiter_command_skips_to_its_escaped_delimiter() {
     assert_tokens(
-        "SELECT 1 \\d a\\ b SELECT 2 a b\nSELECT 3 a b\n",
+        "SELECT 1 \\d \\$\\$ SELECT 2 $$\nSELECT 3 $$\n",
         &[
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("client_short_command", "\\d"),
-            ("delimiter_argument", "a\\ b"),
-            ("client_command_ignored", "SELECT 2 a b"),
+            ("delimiter_argument", "\\$\\$"),
+            ("client_command_ignored", "SELECT 2 $$"),
             ("word", "SELECT"),
             ("numeric_literal", "3"),
-            ("client_delimiter", "a b"),
+            ("client_delimiter", "$$"),
         ],
     );
 }

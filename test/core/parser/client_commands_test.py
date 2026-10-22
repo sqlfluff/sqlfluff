@@ -47,6 +47,7 @@ def test_client_commands_long_forms_match_in_any_case():
         {"default_delimiter": ""},
         {"default_delimiter": " ;"},
         {"default_delimiter": "; "},
+        {"default_delimiter": "a b"},
         {"default_delimiter": "a\\"},
         {"default_delimiter": "a" * 16, "max_delimiter_bytes": 15},
         {"max_delimiter_bytes": 3},
@@ -105,13 +106,13 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
         ),
         # A backslash escapes the next character in an unquoted argument.
         (
-            "DELIMITER a\\ b\nSELECT 1 a b\n",
+            "DELIMITER \\$\\$\nSELECT 1 $$\n",
             [
                 ("word", "DELIMITER"),
-                ("delimiter_argument", "a\\ b"),
+                ("delimiter_argument", "\\$\\$"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
-                ("client_delimiter", "a b"),
+                ("client_delimiter", "$$"),
             ],
         ),
         # A delimiter over 15 bytes is cut, here before a two-byte character.
@@ -163,23 +164,34 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("semicolon", ";"),
             ],
         ),
-        # `\d a\ b` sets `a b`, so the client carries on after the next `a b`
+        # `\d \$\$` sets `$$`, so the client carries on after the next `$$`
         # on the line, and `SELECT 2` is skipped: it sends `SELECT 1 SELECT 3`.
         (
-            "SELECT 1 \\d a\\ b SELECT 2 a b\nSELECT 3 a b\n",
+            "SELECT 1 \\d \\$\\$ SELECT 2 $$\nSELECT 3 $$\n",
             [
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("client_short_command", "\\d"),
-                ("delimiter_argument", "a\\ b"),
-                ("client_command_ignored", "SELECT 2 a b"),
+                ("delimiter_argument", "\\$\\$"),
+                ("client_command_ignored", "SELECT 2 $$"),
                 ("word", "SELECT"),
                 ("numeric_literal", "3"),
-                ("client_delimiter", "a b"),
+                ("client_delimiter", "$$"),
             ],
         ),
-        # A delimiter that starts or ends with whitespace is refused, and the
-        # delimiter kept.
+        # A delimiter with whitespace in it is rejected, and the delimiter kept.
+        (
+            "DELIMITER a\\ b\nSELECT 1 a b;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_misread", "a\\ b"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("word", "a"),
+                ("word", "b"),
+                ("semicolon", ";"),
+            ],
+        ),
         (
             "DELIMITER '$$ '\nSELECT 1;\n",
             [
@@ -202,7 +214,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("semicolon", ";"),
             ],
         ),
-        # So is one that ends with whitespace only once cut to 15 bytes.
+        # So is one that ends with whitespace once cut to 15 bytes.
         (
             "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
             [
@@ -211,6 +223,17 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("semicolon", ";"),
+            ],
+        ),
+        # Whitespace past the 15th byte is cut off, so it doesn't count.
+        (
+            "DELIMITER 'aaaaaaaaaaaaaaa b'\nSELECT 1 aaaaaaaaaaaaaaa\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "'aaaaaaaaaaaaaaa b'"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "aaaaaaaaaaaaaaa"),
             ],
         ),
         # The client looks for a backslash before it cuts, so one past the
