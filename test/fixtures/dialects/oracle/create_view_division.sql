@@ -11,6 +11,15 @@ WHERE
     sample_time > sysdate - 1 / 24
 /
 
+-- A division operator may be the first code token on its line.
+CREATE VIEW line_start_division_view AS
+SELECT
+    1
+    / 100 AS pct
+FROM
+    dual
+/
+
 -- A slash alone on a line still terminates the batch.
 CREATE VIEW plain_view AS
 SELECT
