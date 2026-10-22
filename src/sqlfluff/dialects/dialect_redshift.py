@@ -2298,7 +2298,8 @@ class AttachMaskingPolicyStatementSegment(BaseSegment):
         "TO",
         OneOf(
             "PUBLIC",
-            Sequence(Ref.keyword("ROLE", optional=True), Ref("RoleReferenceSegment")),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Ref("UserReferenceSegment"),
         ),
         Sequence("PRIORITY", Ref("NumericLiteralSegment"), optional=True),
     )
@@ -2322,7 +2323,8 @@ class DetachMaskingPolicyStatementSegment(BaseSegment):
         "FROM",
         OneOf(
             "PUBLIC",
-            Sequence(Ref.keyword("ROLE", optional=True), Ref("RoleReferenceSegment")),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Ref("UserReferenceSegment"),
         ),
     )
 
