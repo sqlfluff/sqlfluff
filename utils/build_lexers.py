@@ -60,23 +60,24 @@ def generate_client_commands(dialect: str):
     rules = dialect_selector(dialect).client_commands
     name = f"{dialect.upper()}_CLIENT_COMMANDS"
     rules_type = "sqlfluffrs_types::ClientCommandRules"
+    client_commands = "sqlfluffrs_types::client_commands"
     if rules is None:
         print(f"pub static {name}: Option<{rules_type}> = None;")
         return
     arguments = {
-        ArgumentKind.DELIMITER: "sqlfluffrs_types::client_commands::ArgumentKind::Delimiter",
-        ArgumentKind.FILE_NAME: "sqlfluffrs_types::client_commands::ArgumentKind::FileName",
+        ArgumentKind.DELIMITER: f"{client_commands}::ArgumentKind::Delimiter",
+        ArgumentKind.FILE_NAME: f"{client_commands}::ArgumentKind::FileName",
     }
     buffers = {
-        BufferAction.KEEP: "sqlfluffrs_types::client_commands::BufferAction::Keep",
-        BufferAction.END: "sqlfluffrs_types::client_commands::BufferAction::End",
-        BufferAction.DISCARD: "sqlfluffrs_types::client_commands::BufferAction::Discard",
+        BufferAction.KEEP: f"{client_commands}::BufferAction::Keep",
+        BufferAction.END: f"{client_commands}::BufferAction::End",
+        BufferAction.DISCARD: f"{client_commands}::BufferAction::Discard",
     }
     print(f"pub static {name}: Option<{rules_type}> = Some({rules_type} {{")
     print("    long_commands: &[")
     for long in rules.long_commands:
         print(
-            "        sqlfluffrs_types::client_commands::LongClientCommand {"
+            f"        {client_commands}::LongClientCommand {{"
             f" name: {_rust_str(long.name)},"
             f" argument: {arguments[long.argument]} }},"
         )
@@ -87,7 +88,7 @@ def generate_client_commands(dialect: str):
             "None" if short.argument is None else f"Some({arguments[short.argument]})"
         )
         print(
-            "        sqlfluffrs_types::client_commands::ShortClientCommand {"
+            f"        {client_commands}::ShortClientCommand {{"
             f" text: {_rust_str(short.text)},"
             f" buffer_action: {buffers[short.buffer_action]},"
             f" argument: {argument} }},"

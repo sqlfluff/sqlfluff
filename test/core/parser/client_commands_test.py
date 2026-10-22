@@ -1,7 +1,8 @@
 """Tests for lexing scripts run through a command-line client.
 
 The mysql dialect's rules are used throughout, as the dialect that has them.
-Every case was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients.
+Every case was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients,
+9.7 with `--commands`, which 9.x turns off by default.
 """
 
 from dataclasses import replace

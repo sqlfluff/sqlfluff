@@ -348,8 +348,8 @@ class ClientScriptLexer:
     statement (nothing but whitespace and comments since the last delimiter),
     and whether it is at the start of a line. Commands are lexed here. All
     other text is lexed by the dialect's matchers, from the text the server
-    gets: the statement ends where the client finds the delimiter or a short
-    command.
+    gets, which stops where the client next finds the delimiter or a short
+    command (the next break).
     """
 
     def __init__(
@@ -546,7 +546,7 @@ class ClientScriptLexer:
         """A delimiter, here, which ends the statement."""
         if raw == self._rules.default_delimiter:
             # The default delimiter keeps the dialect's own token for it.
-            for element in self._match(raw):
+            for element in self._match_text(raw):
                 self._emit(element.raw, element.matcher, _Buffer.END)
         else:
             self._emit(raw, CLIENT_DELIMITER, _Buffer.END)
@@ -564,26 +564,25 @@ class ClientScriptLexer:
     def _lex_token(self) -> None:
         """One token, lexed by the dialect's matchers.
 
-        The client cuts the statement at the delimiter or a short command before
-        the server sees it, so a token that isn't a string or comment is lexed
-        again from the text up to there. With `go` as the delimiter, `1.go` is the
-        number `1.`. And, absurdly, with `$$` as the delimiter `--$$` is a
-        comment: the client doesn't treat `--` without a space as a comment, but
-        the server does at the end of a statement.
+        The server's text stops at the next break, so a token that isn't a
+        string or comment is lexed again from the text up to there. With `go` as
+        the delimiter, `1.go` is the number `1.`. And, absurdly, with `$$` as
+        the delimiter `--$$` is a comment: the client doesn't treat `--` without
+        a space as a comment, but the server does at the end of a statement.
         """
         rest = self._script[self._pos :]
-        elements = self._match(rest)
+        elements = self._match_text(rest)
         if elements[0].matcher.name not in self._rules.opaque_token_names:
             end = self._first_break_after_pos() - self._pos
             if end < len(rest):
-                elements = self._match(rest[:end])
+                elements = self._match_text(rest[:end])
         for element in elements:
             if element.matcher.name in _NON_CODE_MATCHERS:
                 self._emit(element.raw, element.matcher, _Buffer.KEEP)
             else:
                 self._emit(element.raw, element.matcher, _Buffer.APPEND)
 
-    def _match(self, forward_string: str) -> list[LexedElement]:
+    def _match_text(self, forward_string: str) -> list[LexedElement]:
         for matcher in self._matchers:
             result = matcher.match(forward_string)
             if result.elements:
@@ -596,7 +595,10 @@ class ClientScriptLexer:
         return result.elements
 
     def _first_break_after_pos(self) -> int:
-        """The first break after here: the next delimiter or short command."""
+        """The first break after here: the next delimiter or short command.
+
+        Never one here: `_peek` has already dealt with that.
+        """
         places = [self._delimiter_place, *self._short_command_places]
         return min(place.after(self._pos) for place in places)
 
@@ -605,9 +607,9 @@ class ClientScriptLexer:
 
         This follows the client's `get_arg`: whitespace, then either a word
         ending at the next space, in which a backslash escapes the next
-        character, or a word in quotes, with no escapes. An empty argument, or
-        one with a backslash left in it, is rejected and the delimiter kept.
-        Returns the text after the argument.
+        character, or a word in quotes, with no escapes. An argument the client
+        rejects (see `_accepted_delimiter`) keeps the delimiter. Returns the text
+        after the argument.
         """
         trimmed = argument.lstrip(_CLIENT_SPACE)
         self._emit(
@@ -776,7 +778,7 @@ class ClientScriptLexer:
         if not content:
             self._emit(raw, self._whitespace_matcher, _Buffer.KEEP)
             return
-        start = raw.index(content[0])
+        start = len(raw) - len(raw.lstrip(_CLIENT_SPACE))
         self._emit(raw[:start], self._whitespace_matcher, _Buffer.KEEP)
         self._emit(content, matcher, buffer)
         self._emit(raw[start + len(content) :], self._whitespace_matcher, _Buffer.KEEP)

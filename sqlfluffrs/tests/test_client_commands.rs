@@ -1,7 +1,8 @@
 //! Lexing scripts run through a command-line client, with the mysql rules.
 //!
 //! The same cases as `test/core/parser/client_commands_test.py`. Every case
-//! was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients.
+//! was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients, 9.7
+//! with `--commands`, which 9.x turns off by default.
 
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
@@ -474,7 +475,8 @@ fn test_delimiter_inside_a_dollar_quote() {
     assert_eq!(tokens(sql, Dialect::Mariadb)[2..6], expected[..]);
 }
 
-/// After a delimiter on its line, DELIMITER is collected, and runs at the old delimiter: the new one applies from just after it.
+/// After a delimiter on its line, DELIMITER is collected, and runs at the old
+/// delimiter: the new one applies from just after it.
 #[test]
 fn test_collected_delimiter_runs_at_the_old_delimiter() {
     assert_tokens(
@@ -493,7 +495,8 @@ fn test_collected_delimiter_runs_at_the_old_delimiter() {
     );
 }
 
-/// The old delimiter ends the collected argument, so this sets `//`, though `DELIMITER //;` on its own line sets `//;`.
+/// The old delimiter ends the collected argument, so this sets `//`, though
+/// `DELIMITER //;` on its own line sets `//;`.
 #[test]
 fn test_collected_delimiter_argument_ends_at_the_old_delimiter() {
     assert_tokens(
@@ -532,7 +535,8 @@ fn test_collected_delimiter_ignores_words_after_its_argument() {
     );
 }
 
-/// With the old delimiter not on its line, the client collects the lines after it too, so it is misread.
+/// With the old delimiter not on its line, the client collects the lines after
+/// it too, so it is misread.
 #[test]
 fn test_collected_delimiter_without_the_old_delimiter_is_misread() {
     assert_tokens(
@@ -588,7 +592,8 @@ fn test_collected_delimiter_before_a_short_command_is_misread() {
     );
 }
 
-/// `\.` takes its whole line as the file name, backslashes and all, so a Windows path works.
+/// `\.` takes its whole line as the file name, backslashes and all, so a
+/// Windows path works.
 #[test]
 fn test_dot_command_takes_a_windows_path() {
     assert_tokens(
@@ -624,7 +629,8 @@ fn test_source_path_with_other_short_command_letters() {
     );
 }
 
-/// But the `\g` in `\golf` makes the client collect the line, so its backslashes run as commands, in all three clients.
+/// But the `\g` in `\golf` makes the client collect the line, so its
+/// backslashes run as commands, in all three clients.
 #[test]
 fn test_source_path_with_lower_case_g_is_collected() {
     assert_tokens(

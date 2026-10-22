@@ -166,8 +166,8 @@ impl<'a> NextPlace<'a> {
 /// statement (nothing but whitespace and comments since the last delimiter),
 /// and whether it is at the start of a line. Commands are lexed here. All
 /// other text is lexed by the dialect's matchers, from the text the server
-/// gets: the statement ends where the client finds the delimiter or a short
-/// command.
+/// gets, which stops where the client next finds the delimiter or a short
+/// command (the next break).
 pub(super) struct ClientScriptLexer<'a> {
     rules: &'static ClientCommandRules,
     lexer: &'a Lexer,
@@ -421,12 +421,12 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// One token, lexed by the dialect's matchers.
     ///
-    /// The client cuts the statement at the delimiter or a short command before
-    /// the server sees it, so a token that isn't a string or comment is lexed
-    /// again from the text up to there. With `go` as the delimiter, `1.go` is the
-    /// number `1.`. And, absurdly, with `$$` as the delimiter `--$$` is a
-    /// comment: the client doesn't treat `--` without a space as a comment, but
-    /// the server does at the end of a statement.
+    /// The server's text stops at the next break, so a token that isn't a
+    /// string or comment is lexed again from the text up to there. With `go`
+    /// as the delimiter, `1.go` is the number `1.`. And, absurdly, with `$$`
+    /// as the delimiter `--$$` is a comment: the client doesn't treat `--`
+    /// without a space as a comment, but the server does at the end of a
+    /// statement.
     fn lex_token(&mut self) {
         let rest = &self.script[self.pos..];
         let mut elements = self.match_text(rest);
@@ -459,6 +459,8 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// The first break after here: where the client next finds the delimiter
     /// or a short command.
+    ///
+    /// Never one here: [`Self::peek`] has already dealt with that.
     fn first_break_after_pos(&mut self) -> usize {
         let delimiter_end = self.delimiter_place.after(self.pos);
         self.short_command_places
@@ -471,9 +473,9 @@ impl<'a> ClientScriptLexer<'a> {
     ///
     /// This follows the client's `get_arg`: whitespace, then either a word
     /// ending at the next space, in which a backslash escapes the next
-    /// character, or a word in quotes, with no escapes. An empty argument, or
-    /// one with a backslash left in it, is rejected and the delimiter kept.
-    /// Returns the text after the argument.
+    /// character, or a word in quotes, with no escapes. An argument the client
+    /// rejects (see [`Self::accepted_delimiter`]) keeps the delimiter. Returns
+    /// the text after the argument.
     fn delimiter_argument(&mut self, argument: &'a str) -> &'a str {
         let trimmed = argument.trim_start_matches(CLIENT_SPACE);
         self.emit(
