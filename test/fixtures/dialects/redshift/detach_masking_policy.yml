@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a71ce84464a91b5628100b43756a9a642b42b150851d1538ae991c5d3a30f7c
+_hash: 7bc711e4bf7e6d19d3d17af4fa8c639830f936b461be5927debaa82b5fe3a0ef
 file:
 - statement:
     detach_masking_policy_statement:
