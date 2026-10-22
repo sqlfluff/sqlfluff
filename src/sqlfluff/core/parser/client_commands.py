@@ -299,18 +299,20 @@ class _NextPlace:
     """Where a text next appears in the script, found again once lexing passes it.
 
     Each search runs on from the last place found, so the whole script is
-    searched about once.
+    searched about once. The place is only meaningful in the one script, so it
+    holds that script.
     """
 
-    def __init__(self, needle: str) -> None:
+    def __init__(self, script: str, needle: str) -> None:
+        self._script = script
         self._needle = needle
         self._at = 0
 
-    def after(self, text: str, pos: int) -> int:
-        """The first place after `pos` where the text appears, or the end of `text`."""
+    def after(self, pos: int) -> int:
+        """The first place after `pos` where the text appears, or the script's end."""
         if self._at <= pos:
-            found = text.find(self._needle, pos + 1)
-            self._at = found if found >= 0 else len(text)
+            found = self._script.find(self._needle, pos + 1)
+            self._at = found if found >= 0 else len(self._script)
         return self._at
 
 
@@ -345,9 +347,9 @@ class ClientScriptLexer:
         self._pos = 0
         self._elements: list[LexedElement] = []
         self._delimiter = self._rules.default_delimiter
-        self._delimiter_place = _NextPlace(self._delimiter)
+        self._delimiter_place = _NextPlace(text, self._delimiter)
         self._short_command_places = [
-            _NextPlace(command.text) for command in self._rules.short_commands
+            _NextPlace(text, command.text) for command in self._rules.short_commands
         ]
         self._statement_start = True
         self._line_start = True
@@ -527,7 +529,7 @@ class ClientScriptLexer:
     def _statement_end(self) -> int:
         """Where the client next finds the delimiter or a short command, after here."""
         places = [self._delimiter_place, *self._short_command_places]
-        return min(place.after(self._text, self._pos) for place in places)
+        return min(place.after(self._pos) for place in places)
 
     def _delimiter_argument(self, argument: str) -> str:
         """Lex the argument of `DELIMITER` and set the delimiter from it.
@@ -562,7 +564,7 @@ class ClientScriptLexer:
             return
         self._emit(raw, DELIMITER_ARGUMENT, _Buffer.KEEP)
         self._delimiter = delimiter
-        self._delimiter_place = _NextPlace(delimiter)
+        self._delimiter_place = _NextPlace(self._text, delimiter)
 
     def _short_command_delimiter_argument(self, argument: str) -> None:
         r"""Lex the argument of `\d`.

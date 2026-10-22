@@ -120,28 +120,32 @@ struct Argument<'a> {
 /// it.
 ///
 /// Each search runs on from the last place found, so the whole script is
-/// searched about once.
-struct NextPlace {
+/// searched about once. The place is only meaningful in the one script, so
+/// it holds that script.
+struct NextPlace<'a> {
+    script: &'a str,
     needle: String,
     at: usize,
 }
 
-impl NextPlace {
-    fn new(needle: &str) -> Self {
+impl<'a> NextPlace<'a> {
+    fn new(script: &'a str, needle: &str) -> Self {
         Self {
+            script,
             needle: needle.to_string(),
             at: 0,
         }
     }
 
-    /// The first place after `pos` where the text appears, or the end of
-    /// `text`.
-    fn after(&mut self, text: &str, pos: usize) -> usize {
+    /// The first place after `pos` where the text appears, or the end of the
+    /// script.
+    fn after(&mut self, pos: usize) -> usize {
         if self.at <= pos {
-            let from = pos + text[pos..].chars().next().map_or(0, char::len_utf8);
-            self.at = text[from..]
+            let script = self.script;
+            let from = pos + script[pos..].chars().next().map_or(0, char::len_utf8);
+            self.at = script[from..]
                 .find(self.needle.as_str())
-                .map_or(text.len(), |index| from + index);
+                .map_or(script.len(), |index| from + index);
         }
         self.at
     }
@@ -165,8 +169,8 @@ pub(super) struct ClientScriptLexer<'a> {
     pos: usize,
     elements: Vec<LexedElement<'a>>,
     delimiter: String,
-    delimiter_place: NextPlace,
-    short_command_places: Vec<NextPlace>,
+    delimiter_place: NextPlace<'a>,
+    short_command_places: Vec<NextPlace<'a>>,
     statement_start: bool,
     line_start: bool,
 }
@@ -190,11 +194,11 @@ impl<'a> ClientScriptLexer<'a> {
             pos: 0,
             elements: Vec::with_capacity(text.len()),
             delimiter: rules.default_delimiter.to_string(),
-            delimiter_place: NextPlace::new(rules.default_delimiter),
+            delimiter_place: NextPlace::new(text, rules.default_delimiter),
             short_command_places: rules
                 .short_commands
                 .iter()
-                .map(|command| NextPlace::new(command.text))
+                .map(|command| NextPlace::new(text, command.text))
                 .collect(),
             statement_start: true,
             line_start: true,
@@ -397,10 +401,10 @@ impl<'a> ClientScriptLexer<'a> {
     /// Where the client next finds the delimiter or a short command, after
     /// here.
     fn statement_end(&mut self) -> usize {
-        let delimiter_end = self.delimiter_place.after(self.text, self.pos);
+        let delimiter_end = self.delimiter_place.after(self.pos);
         self.short_command_places
             .iter_mut()
-            .map(|place| place.after(self.text, self.pos))
+            .map(|place| place.after(self.pos))
             .fold(delimiter_end, usize::min)
     }
 
@@ -438,7 +442,7 @@ impl<'a> ClientScriptLexer<'a> {
             return;
         };
         self.emit(raw, &DELIMITER_ARGUMENT, Buffer::Keep);
-        self.delimiter_place = NextPlace::new(&delimiter);
+        self.delimiter_place = NextPlace::new(self.text, &delimiter);
         self.delimiter = delimiter;
     }
 
