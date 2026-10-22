@@ -186,8 +186,11 @@ DELIMITER_ARGUMENT = EmittedToken("delimiter_argument", ClientTextSegment)
 SOURCE_FILE_NAME = EmittedToken("source_file_name", ClientTextSegment)
 # Text on a command's line that the client reads past without using.
 CLIENT_COMMAND_IGNORED = EmittedToken("client_command_ignored", ClientTextSegment)
-# Command text the client doesn't read the way it looks. No grammar accepts
-# it, so it is reported as a parse error.
+# A command argument the client rejects, with an error. No grammar accepts it,
+# so it is reported as a parse error.
+CLIENT_COMMAND_REJECTED = EmittedToken("client_command_rejected", ClientTextSegment)
+# Command text the client sends to the server as SQL, not as the command it
+# looks like. No grammar accepts it, so it is reported as a parse error.
 CLIENT_COMMAND_MISREAD = EmittedToken("client_command_misread", ClientTextSegment)
 
 # Standard matcher names, which every dialect has.
@@ -613,11 +616,10 @@ class ClientScriptLexer:
     def _set_delimiter(self, raw: str, delimiter: Optional[str]) -> None:
         """Emit an argument as written, and set the delimiter it gives.
 
-        `None` if the client refused the argument: it is misread, and the
-        delimiter kept.
+        `None` if the client rejected the argument: the delimiter is kept.
         """
         if delimiter is None:
-            self._emit(raw, CLIENT_COMMAND_MISREAD, _Buffer.KEEP)
+            self._emit(raw, CLIENT_COMMAND_REJECTED, _Buffer.KEEP)
             return
         self._emit(raw, DELIMITER_ARGUMENT, _Buffer.KEEP)
         self._delimiter = delimiter
@@ -694,7 +696,7 @@ class ClientScriptLexer:
         is part of the statement until the delimiter.
         """
         if not argument.startswith(" "):
-            self._emit_misread(argument, buffer)
+            self._emit_rejected(argument, buffer)
             return
         gap = len(argument) - len(argument.lstrip(_SPACE))
         self._emit(argument[:gap], self._whitespace_matcher, _Buffer.KEEP)
@@ -739,6 +741,13 @@ class ClientScriptLexer:
     def _emit_ignored(self, raw: str) -> None:
         """Text the client reads past, between any whitespace around it."""
         self._emit_between_spaces(raw, CLIENT_COMMAND_IGNORED, _Buffer.KEEP)
+
+    def _emit_rejected(self, raw: str, buffer: _Buffer) -> None:
+        """Text the client rejects, between any whitespace around it.
+
+        `buffer` says whether the client puts it into the statement.
+        """
+        self._emit_between_spaces(raw, CLIENT_COMMAND_REJECTED, buffer)
 
     def _emit_misread(self, raw: str, buffer: _Buffer) -> None:
         """Text the client misreads, between any whitespace around it.

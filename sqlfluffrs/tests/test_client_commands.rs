@@ -62,7 +62,7 @@ fn test_delimiter_with_whitespace_inside_is_refused() {
         "DELIMITER a\\ b\nSELECT 1 a b;\n",
         &[
             ("word", "DELIMITER"),
-            ("client_command_misread", "a\\ b"),
+            ("client_command_rejected", "a\\ b"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("word", "a"),
@@ -231,7 +231,7 @@ fn test_short_delimiter_command_discards_the_rest_of_its_line() {
             ("word", "SELECT"),
             ("numeric_literal", "8"),
             ("client_short_command", "\\d"),
-            ("client_command_misread", "'a\\'"),
+            ("client_command_rejected", "'a\\'"),
             ("client_command_ignored", "more"),
             ("semicolon", ";"),
         ],
@@ -269,7 +269,7 @@ fn test_refused_short_delimiter_keeps_the_delimiter() {
             Some((kind.clone(), token.raw().to_string()))
         })
         .collect();
-    assert!(kinds.contains(&("client_command_misread".to_string(), "xab".to_string())));
+    assert!(kinds.contains(&("client_command_rejected".to_string(), "xab".to_string())));
     assert_eq!(
         kinds[kinds.len() - 2..],
         [
@@ -285,7 +285,7 @@ fn test_delimiter_ending_with_whitespace_is_refused() {
         "DELIMITER '$$ '\nSELECT 1;\n",
         &[
             ("word", "DELIMITER"),
-            ("client_command_misread", "'$$ '"),
+            ("client_command_rejected", "'$$ '"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("semicolon", ";"),
@@ -301,7 +301,7 @@ fn test_delimiter_starting_with_whitespace_is_refused() {
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("client_short_command", "\\d"),
-            ("client_command_misread", "\\ "),
+            ("client_command_rejected", "\\ "),
             ("word", "SELECT"),
             ("numeric_literal", "2"),
             ("semicolon", ";"),
@@ -315,7 +315,7 @@ fn test_delimiter_ending_with_whitespace_once_cut_is_refused() {
         "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
         &[
             ("word", "DELIMITER"),
-            ("client_command_misread", "'aaaaaaaaaaaaaa b'"),
+            ("client_command_rejected", "'aaaaaaaaaaaaaa b'"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("semicolon", ";"),
@@ -331,7 +331,7 @@ fn test_delimiter_with_backslash_past_the_cut_is_refused() {
         "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
         &[
             ("word", "DELIMITER"),
-            ("client_command_misread", "`aaaaaaaaaaaaaaa\\`"),
+            ("client_command_rejected", "`aaaaaaaaaaaaaaa\\`"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("semicolon", ";"),
@@ -358,7 +358,7 @@ fn test_unclosed_quoted_argument_is_refused() {
         "DELIMITER 'ab\nSELECT 1;\n",
         &[
             ("word", "DELIMITER"),
-            ("client_command_misread", "'ab"),
+            ("client_command_rejected", "'ab"),
             ("word", "SELECT"),
             ("numeric_literal", "1"),
             ("semicolon", ";"),

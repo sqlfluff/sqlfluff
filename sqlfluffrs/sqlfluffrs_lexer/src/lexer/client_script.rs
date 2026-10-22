@@ -39,8 +39,12 @@ static SOURCE_FILE_NAME: LazyLock<LexMatcher> =
 /// Text on a command's line that the client reads past without using.
 static CLIENT_COMMAND_IGNORED: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_command_ignored", Token::client_text_token));
-/// Command text the client doesn't read the way it looks. No grammar accepts
+/// A command argument the client rejects, with an error. No grammar accepts
 /// it, so it is reported as a parse error.
+static CLIENT_COMMAND_REJECTED: LazyLock<LexMatcher> =
+    LazyLock::new(|| LexMatcher::emitted("client_command_rejected", Token::client_text_token));
+/// Command text the client sends to the server as SQL, not as the command it
+/// looks like. No grammar accepts it, so it is reported as a parse error.
 static CLIENT_COMMAND_MISREAD: LazyLock<LexMatcher> =
     LazyLock::new(|| LexMatcher::emitted("client_command_misread", Token::client_text_token));
 
@@ -481,11 +485,10 @@ impl<'a> ClientScriptLexer<'a> {
 
     /// Emit an argument as written, and set the delimiter it gives.
     ///
-    /// `None` if the client refused the argument: it is misread, and the
-    /// delimiter kept.
+    /// `None` if the client rejected the argument: the delimiter is kept.
     fn set_delimiter(&mut self, raw: &'a str, delimiter: Option<String>) {
         let Some(delimiter) = delimiter else {
-            self.emit(raw, &CLIENT_COMMAND_MISREAD, Buffer::Keep);
+            self.emit(raw, &CLIENT_COMMAND_REJECTED, Buffer::Keep);
             return;
         };
         self.emit(raw, &DELIMITER_ARGUMENT, Buffer::Keep);
@@ -568,7 +571,7 @@ impl<'a> ClientScriptLexer<'a> {
     /// is part of the statement until the delimiter.
     fn file_name(&mut self, argument: &'a str, buffer: Buffer) {
         if !argument.starts_with(' ') {
-            self.emit_misread(argument, buffer);
+            self.emit_rejected(argument, buffer);
             return;
         }
         let trimmed = argument.trim_start_matches(SPACE);
@@ -621,6 +624,13 @@ impl<'a> ClientScriptLexer<'a> {
     /// Text the client reads past, between any whitespace around it.
     fn emit_ignored(&mut self, raw: &'a str) {
         self.emit_between_spaces(raw, &CLIENT_COMMAND_IGNORED, Buffer::Keep);
+    }
+
+    /// Text the client rejects, between any whitespace around it.
+    ///
+    /// `buffer` says whether the client puts it into the statement.
+    fn emit_rejected(&mut self, raw: &'a str, buffer: Buffer) {
+        self.emit_between_spaces(raw, &CLIENT_COMMAND_REJECTED, buffer);
     }
 
     /// Text the client misreads, between any whitespace around it.

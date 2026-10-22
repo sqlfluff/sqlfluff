@@ -159,7 +159,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "SELECT"),
                 ("numeric_literal", "8"),
                 ("client_short_command", "\\d"),
-                ("client_command_misread", "'a\\'"),
+                ("client_command_rejected", "'a\\'"),
                 ("client_command_ignored", "more"),
                 ("semicolon", ";"),
             ],
@@ -184,7 +184,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             "DELIMITER a\\ b\nSELECT 1 a b;\n",
             [
                 ("word", "DELIMITER"),
-                ("client_command_misread", "a\\ b"),
+                ("client_command_rejected", "a\\ b"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("word", "a"),
@@ -196,7 +196,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             "DELIMITER '$$ '\nSELECT 1;\n",
             [
                 ("word", "DELIMITER"),
-                ("client_command_misread", "'$$ '"),
+                ("client_command_rejected", "'$$ '"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("semicolon", ";"),
@@ -208,7 +208,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("client_short_command", "\\d"),
-                ("client_command_misread", "\\ "),
+                ("client_command_rejected", "\\ "),
                 ("word", "SELECT"),
                 ("numeric_literal", "2"),
                 ("semicolon", ";"),
@@ -219,7 +219,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
             [
                 ("word", "DELIMITER"),
-                ("client_command_misread", "'aaaaaaaaaaaaaa b'"),
+                ("client_command_rejected", "'aaaaaaaaaaaaaa b'"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("semicolon", ";"),
@@ -242,7 +242,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
             [
                 ("word", "DELIMITER"),
-                ("client_command_misread", "`aaaaaaaaaaaaaaa\\`"),
+                ("client_command_rejected", "`aaaaaaaaaaaaaaa\\`"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("semicolon", ";"),
@@ -264,7 +264,7 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
             "DELIMITER 'ab\nSELECT 1;\n",
             [
                 ("word", "DELIMITER"),
-                ("client_command_misread", "'ab"),
+                ("client_command_rejected", "'ab"),
                 ("word", "SELECT"),
                 ("numeric_literal", "1"),
                 ("semicolon", ";"),
@@ -498,7 +498,7 @@ def test_client_commands_refused_short_delimiter_keeps_the_delimiter():
     lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
     segments, _ = lexer.lex("DELIMITER ab\n\\d xab\\\nSELECT 2 ab\n")
     tokens = [(s.get_type(), s.raw) for s in segments]
-    assert ("client_command_misread", "xab") in tokens
+    assert ("client_command_rejected", "xab") in tokens
     assert tokens[-3:-1] == [("client_delimiter", "ab"), ("newline", "\n")]
 
 
