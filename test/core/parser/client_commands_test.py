@@ -409,6 +409,54 @@ def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
                 ("client_short_command", "\\g"),
             ],
         ),
+        # `\.` takes its whole line as the file name, backslashes and all, so a
+        # Windows path works.
+        (
+            "\\. C:\\My Files\\Golf\\golf.sql\n",
+            [
+                ("client_short_command", "\\."),
+                ("source_file_name", "C:\\My Files\\Golf\\golf.sql"),
+            ],
+        ),
+        # So does SOURCE, with no lower-case `\g` on its line.
+        (
+            "SOURCE C:\\My Files\\Golf\\Golf.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("source_file_name", "C:\\My Files\\Golf\\Golf.sql"),
+            ],
+        ),
+        # `\d` and `\n` in a SOURCE line's file name are part of it.
+        (
+            "SOURCE C:\\data\\new.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("source_file_name", "C:\\data\\new.sql"),
+            ],
+        ),
+        # But the `\g` in `\golf` makes the client collect the line, so its
+        # backslashes run as commands, in all three clients.
+        (
+            "SOURCE C:\\My Files\\Golf\\golf.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("client_command_misread", "C:\\My Files"),
+                ("client_short_command", "\\G"),
+                ("word", "olf"),
+                ("client_short_command", "\\g"),
+                ("word", "olf"),
+                ("dot", "."),
+                ("word", "sql"),
+            ],
+        ),
+        # SOURCE needs a space before its file name, not a tab.
+        (
+            "SOURCE\tf.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("client_command_rejected", "f.sql"),
+            ],
+        ),
         # A token is lexed from the text the server gets, which ends at the
         # delimiter: `1.` and `.5` are numbers.
         (

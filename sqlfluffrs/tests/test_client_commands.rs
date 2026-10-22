@@ -587,3 +587,66 @@ fn test_collected_delimiter_before_a_short_command_is_misread() {
         ],
     );
 }
+
+/// `\.` takes its whole line as the file name, backslashes and all, so a Windows path works.
+#[test]
+fn test_dot_command_takes_a_windows_path() {
+    assert_tokens(
+        "\\. C:\\My Files\\Golf\\golf.sql\n",
+        &[
+            ("client_short_command", "\\."),
+            ("source_file_name", "C:\\My Files\\Golf\\golf.sql"),
+        ],
+    );
+}
+
+/// So does SOURCE, with no lower-case `\g` on its line.
+#[test]
+fn test_source_takes_a_windows_path() {
+    assert_tokens(
+        "SOURCE C:\\My Files\\Golf\\Golf.sql\n",
+        &[
+            ("word", "SOURCE"),
+            ("source_file_name", "C:\\My Files\\Golf\\Golf.sql"),
+        ],
+    );
+}
+
+/// `\d` and `\n` in a SOURCE line's file name are part of it.
+#[test]
+fn test_source_path_with_other_short_command_letters() {
+    assert_tokens(
+        "SOURCE C:\\data\\new.sql\n",
+        &[
+            ("word", "SOURCE"),
+            ("source_file_name", "C:\\data\\new.sql"),
+        ],
+    );
+}
+
+/// But the `\g` in `\golf` makes the client collect the line, so its backslashes run as commands, in all three clients.
+#[test]
+fn test_source_path_with_lower_case_g_is_collected() {
+    assert_tokens(
+        "SOURCE C:\\My Files\\Golf\\golf.sql\n",
+        &[
+            ("word", "SOURCE"),
+            ("client_command_misread", "C:\\My Files"),
+            ("client_short_command", "\\G"),
+            ("word", "olf"),
+            ("client_short_command", "\\g"),
+            ("word", "olf"),
+            ("dot", "."),
+            ("word", "sql"),
+        ],
+    );
+}
+
+/// SOURCE needs a space before its file name, not a tab.
+#[test]
+fn test_source_with_a_tab_is_rejected() {
+    assert_tokens(
+        "SOURCE\tf.sql\n",
+        &[("word", "SOURCE"), ("client_command_rejected", "f.sql")],
+    );
+}
