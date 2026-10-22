@@ -80,19 +80,30 @@ def test_recursion_limit_config_non_integer(monkeypatch, echo_capture):
     assert echo_capture == []
 
 
-def test_recursion_limit_out_of_bounds(monkeypatch, echo_capture):
-    """Out-of-range values trigger validation error and stderr echo."""
+def test_recursion_limit_below_minimum(monkeypatch, echo_capture):
+    """Values below the minimum trigger validation error and stderr echo."""
     called = SimpleNamespace(called=False)
 
     def fake_set(limit):
         called.called = True
 
     monkeypatch.setattr("sqlfluff.cli.commands.sys.setrecursionlimit", fake_set)
-    # Above default max_limit=1_000_000 to trigger validation error
-    apply_rl(1_000_001, extra_config_path=None, ignore_local_config=False, kwargs={})
+    apply_rl(99, extra_config_path=None, ignore_local_config=False, kwargs={})
     assert not called.called
     assert echo_capture and "Invalid recursion_limit" in echo_capture[0][0]
     assert echo_capture[0][1] is True
+
+
+def test_recursion_limit_above_former_maximum(monkeypatch):
+    """Values above the former maximum are passed to Python."""
+    called = SimpleNamespace(value=None)
+
+    def fake_set(limit):
+        called.value = limit
+
+    monkeypatch.setattr("sqlfluff.cli.commands.sys.setrecursionlimit", fake_set)
+    apply_rl(1_000_001, extra_config_path=None, ignore_local_config=False, kwargs={})
+    assert called.value == 1_000_001
 
 
 def test_recursion_limit_set_raises(monkeypatch, echo_capture):

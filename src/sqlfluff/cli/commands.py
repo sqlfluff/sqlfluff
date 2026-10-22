@@ -56,7 +56,6 @@ def apply_recursion_limit(
     ignore_local_config: bool = False,
     kwargs: Optional[dict] = None,
     min_limit: int = 100,
-    max_limit: int = 1000000,
 ) -> None:
     """Set the Python recursion limit from CLI flag or config, with validation."""
     # If CLI flag is not set, check config for recursion_limit
@@ -75,9 +74,9 @@ def apply_recursion_limit(
                 recursion_limit = None
     if recursion_limit is not None:
         try:
-            if not (min_limit <= recursion_limit <= max_limit):
+            if recursion_limit < min_limit:
                 raise ValueError(
-                    f"recursion_limit must be between {min_limit} and {max_limit}."
+                    f"recursion_limit must be at least {min_limit}."
                 )
             sys.setrecursionlimit(recursion_limit)
         except ValueError as ve:
