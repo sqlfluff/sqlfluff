@@ -1,6 +1,6 @@
 {
   "_comment": "Local development fixture for the version picker and version notice. Served only by the dev server; the deployed manifest is written by scripts/assemble-site.py. Deliberately a mixed state: VitePress channels and releases, plus archived Sphinx versions, and both listed and unlisted entries. Set SQLFLUFF_DOCS_BASE=/en/4.0.4/ to see how an unlisted version the reader landed on is added back to the picker. Edit freely to try other states, or delete to see how the picker degrades when no manifest is reachable.",
-  "default": "latest",
+  "default": "stable",
   "latest": "latest",
   "stable": "4.2.1",
   "versions": [

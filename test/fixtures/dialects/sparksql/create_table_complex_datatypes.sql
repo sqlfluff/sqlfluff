@@ -28,3 +28,24 @@ CREATE TABLE my_table (
     field_a STRING,
     field_b VARIANT
 );
+
+--Create Table with NOT NULL on a struct field
+--https://spark.apache.org/docs/latest/sql-ref-datatypes.html
+CREATE TABLE table_identifier
+( a STRUCT<b: STRING NOT NULL, c: BOOLEAN>);
+
+--Create Table with NOT NULL on a struct field written without :
+CREATE TABLE table_identifier
+( a STRUCT<b STRING NOT NULL>);
+
+--Create Table with NOT NULL before a struct field comment
+CREATE TABLE table_identifier
+( a STRUCT<b: STRING NOT NULL COMMENT 'struct_comment'>);
+
+--Create Table with NOT NULL on a nested struct field
+CREATE TABLE table_identifier
+( a STRUCT<b: STRUCT<c: STRING NOT NULL> NOT NULL>);
+
+--Create Table with NOT NULL on more than one struct field
+CREATE TABLE table_identifier
+( a STRUCT<b: STRING NOT NULL, c: BOOLEAN NOT NULL, d: INT>);

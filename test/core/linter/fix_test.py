@@ -260,6 +260,59 @@ def test__fix__jinja_non_empty_context_adjacent_to_quotes(caplog):
     assert "Skipping edit patch on uncertain templated section" not in caplog.text
 
 
+@pytest.mark.parametrize(
+    "rules,sql,expected",
+    [
+        # A new indent before the token.
+        (
+            "LT02",
+            "select\nb{% if true %}c{% endif %}\n",
+            "select\n    b{% if true %}c{% endif %}\n",
+        ),
+        # A deletion elsewhere in the same clause.
+        (
+            "LT01",
+            "select a  , b{% if true %}c{% endif %}\n",
+            "select a, b{% if true %}c{% endif %}\n",
+        ),
+        (
+            "LT01",
+            "select a  , b{# note #}c\n",
+            "select a, b{# note #}c\n",
+        ),
+        # A new newline after the tag placeholder and its indent.
+        (
+            "LT09",
+            "select a, b{% if true %}c{% endif %}\n",
+            "select\na,\nb{% if true %}c{% endif %}\n",
+        ),
+        # A new indent, then a move of the whole token.
+        (
+            "LT02,LT09",
+            "select\nb{# note #}c\n",
+            "select bc    {# note #}\n",
+        ),
+        # The token only spans the tag in the variant which renders the block.
+        (
+            "LT05",
+            "{% if false %}select " + "a" * 65 + "{% endif %}select 1\n",
+            "{% if false %}\n    select\n" + "a" * 65 + "{% endif %}select 1\n",
+        ),
+    ],
+)
+def test__fix__token_spanning_jinja_tag(rules, sql, expected):
+    """Fixes keep the part of a token before a Jinja tag inside it.
+
+    See: https://github.com/sqlfluff/sqlfluff/issues/8611
+    """
+    linter = Linter(config=FluffConfig(overrides={"dialect": "ansi", "rules": rules}))
+    linted_file = linter.lint_string(sql, fix=True)
+    fixed_sql, changed = linted_file.fix_string()
+
+    assert changed
+    assert fixed_sql == expected
+
+
 def test__fix__jinja_dbt_var_subscript_allows_layout_fix():
     """Regression test for dbt `var()` placeholders used with subscripts."""
     sql = "select {{ var('123')['123'] }} ,1/2 as d from d\n"

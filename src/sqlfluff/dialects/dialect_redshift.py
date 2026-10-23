@@ -2219,6 +2219,116 @@ class DropRlsPolicyStatementSegment(BaseSegment):
     )
 
 
+class CreateMaskingPolicyStatementSegment(BaseSegment):
+    """A `CREATE MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MASKING_POLICY.html
+    """
+
+    type = "create_masking_policy_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Ref("IfNotExistsGrammar", optional=True),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(Ref("ColumnReferenceSegment"), Ref("DatatypeSegment")),
+            ),
+        ),
+        "USING",
+        Bracketed(Delimited(Ref("ExpressionSegment"))),
+    )
+
+
+class AlterMaskingPolicyStatementSegment(BaseSegment):
+    """An `ALTER MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_MASKING_POLICY.html
+    """
+
+    type = "alter_masking_policy_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "USING",
+        Bracketed(Delimited(Ref("ExpressionSegment"))),
+    )
+
+
+class DropMaskingPolicyStatementSegment(BaseSegment):
+    """A `DROP MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_MASKING_POLICY.html
+    """
+
+    type = "drop_masking_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class AttachMaskingPolicyStatementSegment(BaseSegment):
+    """An `ATTACH MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ATTACH_MASKING_POLICY.html
+    """
+
+    type = "attach_masking_policy_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        "TO",
+        OneOf(
+            "PUBLIC",
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Ref("UserReferenceSegment"),
+        ),
+        Sequence("PRIORITY", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+class DetachMaskingPolicyStatementSegment(BaseSegment):
+    """A `DETACH MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DETACH_MASKING_POLICY.html
+    """
+
+    type = "detach_masking_policy_statement"
+    match_grammar = Sequence(
+        "DETACH",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "FROM",
+        OneOf(
+            "PUBLIC",
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Ref("UserReferenceSegment"),
+        ),
+    )
+
+
 class AnalyzeCompressionStatementSegment(BaseSegment):
     """An `ANALYZE COMPRESSION` statement.
 
@@ -2312,6 +2422,11 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateRlsPolicyStatementSegment"),
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
+            Ref("CreateMaskingPolicyStatementSegment"),
+            Ref("AlterMaskingPolicyStatementSegment"),
+            Ref("DropMaskingPolicyStatementSegment"),
+            Ref("AttachMaskingPolicyStatementSegment"),
+            Ref("DetachMaskingPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
         ],
@@ -2618,13 +2733,20 @@ class LockTableStatementSegment(BaseSegment):
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
-    Override to add Object unpivoting.
+    Override to add Object unpivoting and navigation into SUPER values
+    which uses array accessors, e.g. `a.topic[0].extension`.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
     """
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
             Ref("ObjectUnpivotSegment", optional=True),
             Ref("ArrayUnnestSegment", optional=True),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("AccessorGrammar"),
+            ),
         ],
         before=Ref("TableReferenceSegment"),
     )
@@ -3000,8 +3122,8 @@ class ExcludeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXCLUDE",
         OneOf(
-            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
-            Delimited(Ref("SingleIdentifierGrammar")),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Delimited(Ref("ColumnReferenceSegment")),
         ),
     )
 
