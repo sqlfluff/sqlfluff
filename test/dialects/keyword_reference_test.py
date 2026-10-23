@@ -16,10 +16,13 @@ each says which file to change and how. The tests at the end check the checker
 itself, so that a gap in it fails rather than quietly checking less.
 
 Run this file directly, ``python test/dialects/keyword_reference_test.py``, for
-a report. It never fails anything. It shows, for each unaudited dialect, what
-these checks would find if it opted in, and for every dialect, the keywords no
-grammar uses: leads to syntax sqlfluff doesn't parse yet, or to words that can
-come out of a keyword list. Name dialects as arguments to report on just those.
+a report. It never fails anything. It shows what these checks find in each
+dialect: for an audited one, the failures pytest would show; for an unaudited
+one, what opting in would bring. It also lists, for every dialect, the keywords
+no grammar uses: leads to syntax sqlfluff doesn't parse yet, or to words that
+can come out of a keyword list. Name dialects as arguments to report on just
+those and the dialects that inherit from them, as the parser's "not found in
+the ... dialect" errors suggest.
 """
 
 import inspect
@@ -763,24 +766,49 @@ def _unused_keyword_report(dialect_names: list[str]) -> str:
     return "\n".join(lines)
 
 
-def _audit_preview(dialect_names: list[str]) -> str:
-    """What the checks would report for unaudited dialects if they opted in.
+def _with_descendants(dialect_names: list[str]) -> list[str]:
+    """These dialects and every dialect that inherits from them, at any depth.
 
-    For someone about to opt a dialect in: these are the problems to fix.
+    Grammar added to a dialect reaches its children, so a change is checked
+    there too, without the person making it having to know the family tree.
     """
-    return _audit_preview_of({name: dialect_selector(name) for name in dialect_names})
+    parents = {name: load_raw_dialect(name).inherits_from for name in ALL_DIALECTS}
+    chosen = list(dialect_names)
+    for name in ALL_DIALECTS:
+        ancestor = parents[name]
+        while ancestor is not None and ancestor not in dialect_names:
+            ancestor = parents.get(ancestor)
+        if ancestor is not None and name not in chosen:
+            chosen.append(name)
+    return chosen
 
 
-def _audit_preview_of(dialects: dict[str, Dialect]) -> str:
-    """The audit preview for these dialects, by name."""
+def test_with_descendants_adds_children_at_any_depth() -> None:
+    """Test that naming a parent dialect also checks the dialects below it."""
+    assert _with_descendants(["mysql"]) == ["mysql", "doris", "mariadb", "starrocks"]
+    assert _with_descendants(["tsql"]) == ["tsql"]
+    assert set(_with_descendants(["ansi"])) == set(ALL_DIALECTS)
+
+
+def _audit_report(dialect_names: list[str]) -> str:
+    """What the checks in this file find in each of these dialects.
+
+    For an audited dialect, these are the failures pytest would show. For one
+    in UNAUDITED_DIALECTS, they are the problems to fix before opting it in.
+    """
+    return _audit_report_of({name: dialect_selector(name) for name in dialect_names})
+
+
+def _audit_report_of(dialects: dict[str, Dialect]) -> str:
+    """The audit report for these dialects, by name."""
     lines = [
-        "Audit preview: what the checks in this file would report for each "
-        "dialect in UNAUDITED_DIALECTS if it opted in today.",
+        "Audit: what the checks in this file find in each dialect. For an "
+        "audited dialect, pytest fails on these. For one in UNAUDITED_DIALECTS, "
+        "they are what opting in would bring.",
         "",
     ]
     for name, dialect in dialects.items():
-        if name not in UNAUDITED_DIALECTS:
-            continue
+        audited = name not in UNAUDITED_DIALECTS
         unresolved = _unresolved_references(dialect)
         keywords = {
             reference[: -len("KeywordSegment")].upper(): owners
@@ -793,16 +821,25 @@ def _audit_preview_of(dialects: dict[str, Dialect]) -> str:
             if not reference.endswith("KeywordSegment")
         }
         overlaps = _overlaps(dialect)
-        if not (keywords or segments or overlaps):
-            lines.append(f"{name}: nothing to fix, ready to opt in.")
+        own_unimplemented = _unimplemented_in_own_grammar(dialect)
+        if not (keywords or segments or overlaps or own_unimplemented):
+            if audited:
+                lines.append(f"{name}: audited, nothing to fix.")
+            else:
+                lines.append(f"{name}: nothing to fix, ready to opt in.")
             lines.append("")
             continue
-        lines.append(f"{name}:")
+        if audited:
+            lines.append(f"{name} (audited, so pytest fails on these):")
+        else:
+            lines.append(f"{name} (unaudited):")
         if keywords:
             lines.append(_missing_keywords_message(dialect, keywords))
         if segments:
             lines.append(_missing_segments_message(dialect, segments))
-        if overlaps:
+        if overlaps and audited:
+            lines.append(_overlaps_message(dialect, overlaps))
+        elif overlaps:
             lines.append(
                 f"{len(overlaps)} words have more than one keyword status today. "
                 "declare_keyword_sets() sorts out those inherited from a parent "
@@ -810,37 +847,62 @@ def _audit_preview_of(dialects: dict[str, Dialect]) -> str:
                 "file needs an edit:"
             )
             lines.extend(_wrapped(sorted(overlaps)))
+        if own_unimplemented:
+            lines.append(
+                _unimplemented_in_own_grammar_message(dialect, own_unimplemented)
+            )
         lines.append("")
     return "\n".join(lines)
 
 
-def test_audit_preview_reports_unaudited_dialects_only() -> None:
-    """Test that the preview covers unaudited dialects and skips audited ones."""
-    preview = _audit_preview(["mysql", "tsql"])
+def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
+    """Test that the report answers for any dialect it is given."""
+    report = _audit_report(["mysql", "tsql"])
 
-    assert "tsql:" in preview
-    assert "MARK" in preview
-    assert "mysql" not in preview.split("\n", 2)[2]
+    assert "mysql: audited, nothing to fix." in report
+    assert "tsql (unaudited):" in report
+    assert "MARK" in report
 
 
-def test_audit_preview_covers_ready_dialects_segments_and_overlaps() -> None:
-    """Test the preview's other parts on a ready and a broken dialect."""
+def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
+    """Test the report's other parts on a ready and a broken dialect."""
     ready = load_raw_dialect("ansi").copy_as("zzready")
     # The two keywords ansi's GRANT grammar used without listing, so this
     # dialect is ready however ansi itself stands.
     ready.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
     broken = _faulty_dialect("zzbroken")
     broken.sets("unreserved_keywords").add("SELECT")
-    previews = {"zzready": ready.expand(), "zzbroken": broken}
-    UNAUDITED_DIALECTS.update(previews)
+    dialects = {"zzready": ready.expand(), "zzbroken": broken}
+    UNAUDITED_DIALECTS.update(dialects)
     try:
-        preview = _audit_preview_of(previews)
+        report = _audit_report_of(dialects)
     finally:
-        UNAUDITED_DIALECTS.difference_update(previews)
+        UNAUDITED_DIALECTS.difference_update(dialects)
 
-    assert "zzready: nothing to fix, ready to opt in." in preview
-    assert "refers to segments or grammars that don't exist" in preview
-    assert "words have more than one keyword status today" in preview
+    assert "zzready: nothing to fix, ready to opt in." in report
+    assert "refers to segments or grammars that don't exist" in report
+    assert "words have more than one keyword status today" in report
+
+
+def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
+    """Test that a broken audited dialect gets the messages pytest gives it."""
+    broken = _faulty_dialect("zzauditedbroken")
+    broken.sets("unreserved_keywords").add("SELECT")
+    own = load_raw_dialect("ansi").copy_as("zzown")
+    own.replace(SelectClauseModifierSegment=_OwnGrammarSegment)
+    own.declare_keyword_sets(
+        reserved=load_raw_dialect("ansi").sets("reserved_keywords"),
+        unreserved=[],
+        future_reserved=[],
+        unimplemented=["ZZOWNWORD"],
+    )
+
+    report = _audit_report_of({"zzauditedbroken": broken, "zzown": own.expand()})
+
+    assert "zzauditedbroken (audited, so pytest fails on these):" in report
+    assert "In the zzauditedbroken dialect, these words have more" in report
+    assert "zzown (audited, so pytest fails on these):" in report
+    assert "- ZZOWNWORD (in _OwnGrammarSegment)" in report
 
 
 def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
@@ -877,7 +939,13 @@ def test_unused_keyword_report_has_both_sections() -> None:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    # With dialect names as arguments, report on those only.
-    chosen = [name for name in sys.argv[1:] if name in ALL_DIALECTS] or ALL_DIALECTS
-    print(_audit_preview(chosen))
+    # With dialect names as arguments, report on those and their descendants.
+    unknown = [name for name in sys.argv[1:] if name not in ALL_DIALECTS]
+    if unknown:
+        sys.exit(
+            f"Unknown dialect(s): {', '.join(unknown)}. "
+            f"Dialects: {', '.join(ALL_DIALECTS)}."
+        )
+    chosen = _with_descendants(sys.argv[1:]) if sys.argv[1:] else ALL_DIALECTS
+    print(_audit_report(chosen))
     print(_unused_keyword_report(chosen))
