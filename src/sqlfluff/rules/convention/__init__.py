@@ -15,9 +15,15 @@ def get_configs_info() -> dict[str, ConfigInfo]:
             ),
         },
         "select_clause_trailing_comma": {
-            "validation": ["forbid", "require"],
+            "validation": [
+                "forbid",
+                "require",
+                "require_multiline_forbid_single_line",
+            ],
             "definition": (
-                "Should trailing commas within select clauses be required or forbidden?"
+                "Should trailing commas within select clauses be required, forbidden, "
+                "or required only for multiline clauses and forbidden for single-line "
+                "clauses?"
             ),
         },
         "prefer_count_1": {

@@ -1,6 +1,4 @@
 use crate::parser::{match_result::MatchedClass, MetaSegment};
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
 use std::sync::Arc;
 
@@ -44,14 +42,8 @@ impl Parser<'_> {
             );
         }
 
-        let local_terminators = self
-            .grammar_ctx
-            .terminators(seq_grammar_id)
-            .collect::<Vec<_>>();
-        let elements = self
-            .grammar_ctx
-            .children(seq_grammar_id)
-            .collect::<Vec<_>>();
+        let local_terminators = self.grammar_ctx.terminators_slice(seq_grammar_id);
+        let elements = self.grammar_ctx.children_ids_slice(seq_grammar_id);
 
         // Handle empty elements case - sequence with no elements should succeed immediately
         if elements.is_empty() {
@@ -65,9 +57,9 @@ impl Parser<'_> {
         // parse_context.terminators — children only see parent-level terminators.
         // The Sequence uses the combined set (own + parent) only for its own
         // trim_to_terminator / max_idx computation.
-        let child_terminators = frame.table_terminators.to_vec();
-        let all_terminators = Self::combine_terminators(
-            &local_terminators,
+        let child_terminators = frame.table_terminators.clone();
+        let all_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
@@ -108,7 +100,7 @@ impl Parser<'_> {
         let frame_pos = frame.pos;
 
         // Update frame with Sequence context
-        frame.context = FrameContext::Sequence(SequenceState {
+        frame.context = FrameContext::Sequence(Box::new(SequenceState {
             seq_grammar_id,
             start_idx: frame.pos,
             matched_idx: frame.pos,
@@ -121,11 +113,11 @@ impl Parser<'_> {
             insert_segments: Vec::new(), // (position, segments) to insert
             child_matches: Vec::new(),   // Store child matches here until sequence is complete
             child_terminators,           // Parent terminators (without Sequence's own) for children
-        });
+        }));
         frame.table_terminators = all_terminators;
 
         // Buffer any leading meta elements before creating first child
-        self.buffer_trailing_meta_elements(&mut frame, &elements);
+        self.buffer_trailing_meta_elements(&mut frame, elements);
 
         // Get updated current_element_idx after meta buffering
         let current_element_idx = {
@@ -149,7 +141,7 @@ impl Parser<'_> {
                 child_index: current_element_idx,
             };
             let end_pos = self.pos;
-            let arc = Arc::new(mr);
+            let arc = stack.share_result(mr);
             return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
         }
 
@@ -192,7 +184,6 @@ impl Parser<'_> {
     /// Handle Sequence grammar Waiting for child state
     /// child_match - the MatchResult from the child parse
     /// child_end_pos,
-    /// child_element_key,
     /// stack,
     pub(crate) fn handle_sequence_waiting_for_child(
         &mut self,
@@ -411,7 +402,7 @@ impl Parser<'_> {
                     child_index: next_element_idx,
                 };
                 let end_pos = self.pos;
-                let arc = Arc::new(mr);
+                let arc = stack.share_result(mr);
                 return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
             }
 
@@ -601,9 +592,10 @@ impl Parser<'_> {
             if child_match.matched_class.is_some() {
                 ctx.child_matches.push(Arc::clone(child_match));
             } else {
-                ctx.child_matches.extend(child_match.child_matches.clone());
+                ctx.child_matches
+                    .extend(child_match.child_matches.iter().cloned());
                 ctx.insert_segments
-                    .extend(child_match.insert_segments.clone());
+                    .extend(child_match.insert_segments.iter().cloned());
             }
 
             ctx.advance_element_idx();
@@ -637,8 +629,7 @@ impl Parser<'_> {
             self.pos = matched_idx;
             frame.end_pos = Some(matched_idx);
             frame.state = FrameState::Combining;
-            stack.push(frame);
-            return Ok(TableFrameResult::Done);
+            return Ok(TableFrameResult::Push(frame));
         }
 
         // Calculate start position for next child
@@ -660,7 +651,7 @@ impl Parser<'_> {
                         child_index: current_idx,
                     };
                     let end_pos = self.pos;
-                    let arc = Arc::new(mr);
+                    let arc = stack.share_result(mr);
                     return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
                 }
 
@@ -737,7 +728,7 @@ impl Parser<'_> {
                 child_index: current_idx,
             };
             let end_pos = self.pos;
-            let arc = Arc::new(mr);
+            let arc = stack.share_result(mr);
             return self.handle_sequence_waiting_for_child(frame, &arc, &end_pos, stack);
         }
 
@@ -767,7 +758,7 @@ impl Parser<'_> {
         allow_gaps: bool,
         elements: &[GrammarId],
         child_frame_id: usize,
-        child_terminators: &[GrammarId],
+        child_terminators: &Arc<[GrammarId]>,
     ) -> TableParseFrame {
         let child_start_pos = self.calculate_sequence_child_start_position(
             matched_idx,
@@ -788,7 +779,7 @@ impl Parser<'_> {
     }
 
     #[inline]
-    fn sequence_child_terminators(frame: &mut TableParseFrame) -> &[GrammarId] {
+    fn sequence_child_terminators(frame: &mut TableParseFrame) -> &Arc<[GrammarId]> {
         &frame
             .context
             .as_sequence_mut()
@@ -800,7 +791,7 @@ impl Parser<'_> {
     pub(crate) fn handle_sequence_combining(
         &mut self,
         mut frame: TableParseFrame,
-        _stack: &mut TableParseFrameStack,
+        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         // Take ownership of the context fields we need, avoiding clones.
         // The frame is consumed after combining, so this is safe.
@@ -840,7 +831,7 @@ impl Parser<'_> {
             && matched_idx == frame.pos
             && insert_segments.is_empty()
         {
-            Arc::new(MatchResult::empty_at(frame.pos))
+            stack.empty_result_at(frame.pos)
         } else {
             let mut final_matched_idx = matched_idx;
 

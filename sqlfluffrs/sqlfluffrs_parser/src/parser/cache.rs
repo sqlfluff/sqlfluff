@@ -18,9 +18,6 @@ use std::sync::Arc;
 
 use crate::parser::MatchResult;
 
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
-
 // ============================================================================
 // Element-Level Parse Cache - REMOVED
 // ============================================================================

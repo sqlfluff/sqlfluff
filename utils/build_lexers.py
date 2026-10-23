@@ -7,6 +7,7 @@ from collections.abc import Callable
 from typing import Optional, Union
 
 from sqlfluff.core.dialects import dialect_selector
+from sqlfluff.core.parser.client_commands import ArgumentKind, BufferAction
 from sqlfluff.core.parser.lexer import LexerType
 
 
@@ -38,6 +39,73 @@ def generate_lexer(dialect: str):
     for matcher in loaded_dialect.get_lexer_matchers():
         print(f"{_as_rust_lexer_matcher(matcher, dialect.capitalize())},")
     print("]});")
+
+
+def _rust_str(value: str) -> str:
+    """A Rust string literal for `value`, which must be printable ASCII."""
+    assert value.isascii() and value.isprintable(), value
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+def _rust_option_str(value: Optional[str]) -> str:
+    return "None" if value is None else f"Some({_rust_str(value)})"
+
+
+def generate_client_commands(dialect: str):
+    """Generate the dialect's client command rules, if it has any.
+
+    See `sqlfluff.core.parser.client_commands`.
+    """
+    rules = dialect_selector(dialect).client_commands
+    name = f"{dialect.upper()}_CLIENT_COMMANDS"
+    rules_type = "sqlfluffrs_types::ClientCommandRules"
+    client_commands = "sqlfluffrs_types::client_commands"
+    if rules is None:
+        print(f"pub static {name}: Option<{rules_type}> = None;")
+        return
+    arguments = {
+        ArgumentKind.DELIMITER: f"{client_commands}::ArgumentKind::Delimiter",
+        ArgumentKind.FILE_NAME: f"{client_commands}::ArgumentKind::FileName",
+    }
+    buffers = {
+        BufferAction.KEEP: f"{client_commands}::BufferAction::Keep",
+        BufferAction.END: f"{client_commands}::BufferAction::End",
+        BufferAction.DISCARD: f"{client_commands}::BufferAction::Discard",
+    }
+    print(f"pub static {name}: Option<{rules_type}> = Some({rules_type} {{")
+    print("    long_commands: &[")
+    for long in rules.long_commands:
+        print(
+            f"        {client_commands}::LongClientCommand {{"
+            f" name: {_rust_str(long.name)},"
+            f" argument: {arguments[long.argument]} }},"
+        )
+    print("    ],")
+    print("    short_commands: &[")
+    for short in rules.short_commands:
+        argument = (
+            "None" if short.argument is None else f"Some({arguments[short.argument]})"
+        )
+        print(
+            f"        {client_commands}::ShortClientCommand {{"
+            f" text: {_rust_str(short.text)},"
+            f" buffer_action: {buffers[short.buffer_action]},"
+            f" argument: {argument} }},"
+        )
+    print("    ],")
+    opaque = ", ".join(_rust_str(n) for n in sorted(rules.opaque_token_names))
+    print(f"    opaque_token_names: &[{opaque}],")
+    after_comment = str(rules.line_command_after_block_comment).lower()
+    print(f"    line_command_after_block_comment: {after_comment},")
+    dash_dash = str(rules.dash_dash_comment_at_statement_start).lower()
+    print(f"    dash_dash_comment_at_statement_start: {dash_dash},")
+    marker = _rust_option_str(rules.collected_line_marker)
+    print(f"    collected_line_marker: {marker},")
+    print(f"    default_delimiter: {_rust_str(rules.default_delimiter)},")
+    limit = rules.max_delimiter_bytes
+    print(f"    max_delimiter_bytes: {'None' if limit is None else f'Some({limit})'},")
+    print("});")
 
 
 def generate_bracket_pairs(dialect: str):
@@ -176,7 +244,15 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
 
     if lexer_class == "StringLexer":
         rust_fn = "string_lexer"
-        template = f'"{lexer_matcher.template}"'
+        # Escape controls too: Rust source normalizes literal CRLF to LF.
+        template = lexer_matcher.template.translate(
+            {
+                **{char: rf"\u{{{char:x}}}" for char in (*range(0x20), 0x7F)},
+                ord("\\"): r"\\",
+                ord('"'): r"\"",
+            }
+        )
+        template = f'"{template}"'
         fallback = ""
         is_match_valid = ""
     elif lexer_class == "RegexLexer":
@@ -282,5 +358,7 @@ if __name__ == "__main__":
     generate_lexer(args.dialect)
     print()
     generate_bracket_pairs(args.dialect)
+    print()
+    generate_client_commands(args.dialect)
     print()
     generate_extract_nested_block_comments(args.dialect)

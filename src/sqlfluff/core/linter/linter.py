@@ -123,7 +123,9 @@ class Linter:
         fname: str, root_config: FluffConfig
     ) -> tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
-        file_config = root_config.make_child_from_path(fname)
+        # The file may supply its dialect via an inline config directive.
+        # Dialect validation happens in render_string() after those are processed.
+        file_config = root_config.make_child_from_path(fname, require_dialect=False)
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
@@ -1190,6 +1192,7 @@ class Linter:
             self.config,
             processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
+            retain_files=retain_files,
         )
 
         if self.formatter and effective_processes != 1:

@@ -41,6 +41,13 @@ greenplum_dialect.sets("unreserved_keywords").update(
     get_keywords(greenplum_keywords, "non-reserved")
 )
 
+# Greenplum adds its own `col_name_keyword`s (e.g. CUBE, ROLLUP, MEDIAN);
+# extend the inherited exclusion set so they are also rejected as bare data
+# type names. See issue #6430.
+greenplum_dialect.sets("cannot_be_type_keywords").update(
+    get_keywords(greenplum_keywords, "non-reserved-(cannot-be-function-or-type)")
+)
+
 
 class StatementSegment(postgres.StatementSegment):
     """A generic segment, to any of its child subsegments."""

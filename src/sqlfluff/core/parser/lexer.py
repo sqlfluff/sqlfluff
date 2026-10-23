@@ -782,6 +782,39 @@ class PyLexer:
             str_buff = str(template)
 
         # Lex the string to get a tuple of LexedElement
+        element_buffer = self.lex_elements(str_buff)
+
+        # Map tuple LexedElement to list of TemplateElement.
+        # This adds the template_slice to the object.
+        templated_buffer = self.map_template_slices(element_buffer, template)
+
+        # Turn lexed elements into segments.
+        segments: tuple[RawSegment, ...] = self.elements_to_segments(
+            templated_buffer, template
+        )
+
+        # Generate any violations
+        violations: list[SQLLexError] = self.violations_from_segments(segments)
+
+        return segments, violations
+
+    def lex_elements(self, str_buff: str) -> list[LexedElement]:
+        """Lex a string into elements.
+
+        A dialect for scripts run through a command-line client (see
+        `ClientCommandRules`) is lexed with the client's state. Any other is
+        lexed by its matchers alone.
+        """
+        rules = self.config.get("dialect_obj").client_commands
+        if rules:
+            # Imported here: the module imports this one.
+            from sqlfluff.core.parser.client_commands import ClientScriptLexer
+
+            client_lexer = ClientScriptLexer(
+                rules, self.lexer_matchers, self.last_resort_lexer
+            )
+            return client_lexer.lex(str_buff)
+
         element_buffer: list[LexedElement] = []
         while True:
             res = self.lex_match(str_buff, self.lexer_matchers)
@@ -801,20 +834,7 @@ class PyLexer:
                 element_buffer += resort_res.elements
             else:  # pragma: no cover TODO?
                 break
-
-        # Map tuple LexedElement to list of TemplateElement.
-        # This adds the template_slice to the object.
-        templated_buffer = self.map_template_slices(element_buffer, template)
-
-        # Turn lexed elements into segments.
-        segments: tuple[RawSegment, ...] = self.elements_to_segments(
-            templated_buffer, template
-        )
-
-        # Generate any violations
-        violations: list[SQLLexError] = self.violations_from_segments(segments)
-
-        return segments, violations
+        return element_buffer
 
     def elements_to_segments(
         self, elements: list[TemplateElement], templated_file: TemplatedFile
@@ -910,7 +930,9 @@ class PyLexer:
 try:
     from sqlfluffrs import RsLexer, RsToken
 
-    def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
+    def get_segment_type_map(
+        base_class: type[RawSegment],
+    ) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""
         segment_map = {}
         for subclass in base_class.__subclasses__():
