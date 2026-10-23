@@ -1,0 +1,97 @@
+#
+# Keeps the automated "lifecycle" labels on pull requests up to date:
+#   pr: first-time contributor / pr: stale
+#   ci: needs approval / passing / failing
+#   review: awaiting author / awaiting maintainer / ai feedback open
+#
+# All the logic lives in utils/pr_lifecycle.py, which recomputes the correct
+# labels for a PR from the GitHub API and applies the difference. The events
+# below only decide *which* PRs to recompute; the scheduled sweep recomputes all
+# open PRs so nothing gets stuck.
+#
+# SAFETY: this uses pull_request_target so that it has a write token for PRs
+# from forks. That is only safe because it never checks out or runs code from
+# the PR - the checkout below is pinned to the default branch. Do NOT add a
+# checkout of the PR head (or any step that runs PR-controlled code) here.
+# See: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+#
+# ROLLOUT: the script runs in dry-run mode (logging what it would change) until
+# the repository variable PR_LIFECYCLE_APPLY is set to "true".
+#
+name: PR Lifecycle Labels
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+  pull_request_review:
+    types: [submitted, dismissed]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created, deleted]
+  workflow_run:
+    workflows: [CI, pre-commit]
+    types: [requested, in_progress, completed]
+  schedule:
+    # Sweep of every open PR. This also catches anything the events above
+    # don't trigger on, such as review threads being resolved.
+    - cron: '23 */3 * * *'
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to reconcile (blank = every open PR)"
+        required: false
+        type: string
+      apply:
+        description: "Apply changes (otherwise dry run, regardless of PR_LIFECYCLE_APPLY)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  # One run at a time per PR (or per commit, for workflow_run events). A newer
+  # run supersedes an older one because the script recomputes from scratch.
+  group: pr-lifecycle-${{ github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.head_sha || github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    # issue_comment also fires for plain issues; only PR comments matter.
+    if: github.event_name != 'issue_comment' || github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch (never the PR)
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+          sparse-checkout: utils/pr_lifecycle.py
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Reconcile labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLY: ${{ ((github.event_name == 'workflow_dispatch' && inputs.apply == true) || (github.event_name != 'workflow_dispatch' && vars.PR_LIFECYCLE_APPLY == 'true')) && '--apply' || '' }}
+          PR_NUMBER: ${{ inputs.pr }}
+        run: |
+          # Only create missing labels on the scheduled sweep / manual run, not on every event.
+          EXTRA=""
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            EXTRA="--ensure-labels"
+          fi
+          if [ -n "$PR_NUMBER" ]; then
+            python utils/pr_lifecycle.py $APPLY $EXTRA --pr "$PR_NUMBER"
+          else
+            python utils/pr_lifecycle.py $APPLY $EXTRA
+          fi
