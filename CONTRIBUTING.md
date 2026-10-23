@@ -254,6 +254,10 @@ for development, and which parts of the test suite you may find most useful.
    runs to specific dialects to further improve iteration speed. e.g.
    - `tox -e generate-fixture-yml -- -d mysql` will run just the mysql tests.
    - `python test/generate_parse_fixture_yml.py -d mysql` will do the same.
+   Also run `python test/dialects/keyword_reference_test.py mysql`, naming
+   your dialect. It checks that dialect and every dialect that inherits from
+   it, lists keywords and segments the grammar uses but the dialect doesn't
+   have, which crash the parser, and says how to fix each.
    As you make changes to a dialect, you will also need to regenerate the Rust
    dialects to keep them in sync. To do this, run `tox -e generate-rs` (if using
    tox), or, with sqlfluff installed in a virtual environment, run

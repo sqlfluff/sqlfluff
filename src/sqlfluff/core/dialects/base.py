@@ -45,6 +45,10 @@ from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
 # Most unimplemented words come from declare_keyword_sets(): the parent's reserved
 # words a dialect doesn't list move there. List one by hand for inherited
 # grammar the dialect's server doesn't have.
+#
+# The checks are in test/dialects/keyword_reference_test.py. Run it directly,
+# with dialect names as arguments, for a report on any dialect, including one
+# that doesn't call declare_keyword_sets() yet.
 KEYWORD_STATUS_SETS = (
     "reserved_keywords",
     "unreserved_keywords",
@@ -60,6 +64,21 @@ KEYWORD_STATUS_CHOICE = (
     "database doesn't recognize it at all, but grammar inherited from a "
     "parent dialect uses it, it's unimplemented."
 )
+
+
+def _reference_audit_tip(dialect_name: str) -> str:
+    """Point someone changing the dialect at the report of every such problem.
+
+    Only someone working in a sqlfluff checkout has the test file, so the
+    message says so.
+    """
+    return (
+        "\n\nIf you are changing this dialect in a sqlfluff checkout, run "
+        f"`python test/dialects/keyword_reference_test.py {dialect_name}`. "
+        "It lists every keyword and segment that grammar refers to but a "
+        f"dialect doesn't have, in {dialect_name} and in the dialects that "
+        "inherit from it, and what to do about each."
+    )
 
 
 def _keyword_set(words: Iterable[str], argument: str) -> set[str]:
@@ -233,8 +252,10 @@ class Dialect:
 
         Listing a word under more than one status is an error.
 
-        Calling this also opts the dialect in to the keyword status checks
-        in the dialect tests.
+        Calling this also opts the dialect in to the keyword and reference
+        checks in test/dialects/keyword_reference_test.py. Run that file
+        directly, ``python test/dialects/keyword_reference_test.py <dialect>``,
+        to see what they find in a dialect before opting it in.
 
         Only call this once the dialect's keyword lists come from its own
         server or vendor documentation, and its maintainers want the checks.
@@ -463,6 +484,7 @@ class Dialect:
                 "Or, even better, see this guide on how to help contribute"
                 " keyword and/or dialect updates:\n"
                 "https://docs.sqlfluff.com/en/stable/perma/contribute_dialect_keywords.html"
+                f"{_reference_audit_tip(self.name)}"
             )
             # Keyword errors are common so avoid printing the whole, scary,
             # traceback as not that useful and confusing to people.
@@ -475,8 +497,8 @@ class Dialect:
             )
         else:  # pragma: no cover
             raise RuntimeError(
-                "Grammar refers to {!r} which was not found in the {} dialect.".format(
-                    name, self.name
+                "Grammar refers to {!r} which was not found in the {} dialect.{}".format(
+                    name, self.name, _reference_audit_tip(self.name)
                 )
             )
 

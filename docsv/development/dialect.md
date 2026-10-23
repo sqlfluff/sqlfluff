@@ -249,25 +249,76 @@ match this.
 
 ## Keywords
 
-Most dialects have a keywords file, listing all the keywords. Some dialects
-just inherit the ANSI keywords and then add or remove keywords from that.
-Not quite as accurate as managing the actual keywords, but a lot quicker
-and easier to manage usually!
+Most dialects have a keywords file, `dialect_<name>_keywords.py`, listing
+the keywords. Some dialects just inherit their parent's keywords and then add
+or remove some. Not quite as accurate as managing the actual keywords, but a
+lot quicker and easier to manage usually!
 
-Keywords are separated into RESERVED and UNRESERVED lists. RESERVED keywords
-have extra restrictions meaning they cannot be used as identifiers. If using
-a keyword in grammar (e.g. `"SELECT"`), then it needs to be in one of
-the Keywords lists so you may have to add it or you might see error's like
-this (showing `"NAN"` has not been added as a Keyword in this dialect)
+Each keyword should have one status:
+
+- **Reserved**: a keyword everywhere. It can't be used as a bare name, such
+  as a column called `select`.
+- **Unreserved**: a keyword in some places, and an ordinary name in others.
+- **Future reserved**: not reserved yet, but the vendor says it will be.
+- **Unimplemented**: not a keyword on this dialect's database, but grammar
+  the dialect inherits uses it. That part of the inherited grammar doesn't
+  match in this dialect. The rest of the rule still does.
+
+If grammar uses a word (e.g. `"SELECT"`), the word needs a status in the
+dialect, or you'll see an error like this (showing `"NAN"` has not been added
+as a keyword in this dialect):
 
 ```bash
-RuntimeError: Grammar refers to 'NanKeywordSegment' which was not found in the redshift dialect
+RuntimeError: Grammar refers to the 'NAN' keyword which was not found in the redshift dialect.
 ```
 
-Also if editing the main ANSI dialect, and adding the ANSI keyword list,
-then take care to consider if it needs added to the other dialects if they
-will inherit this syntax - usually yes unless explicitly overridden in those
-dialects.
+The parser raises this as soon as a statement reaches the rule that uses the
+word, even if the statement doesn't contain it. So one missing keyword can stop
+whole statements from parsing.
+
+If you edit a parent dialect such as ANSI or MySQL, your grammar reaches every
+dialect that inherits from it. A child dialect that replaces its keyword lists
+may not have your new word.
+
+### Dialects that declare their keywords
+
+A dialect whose keyword lists come from its database's own source or
+documentation can call `declare_keyword_sets()` in its dialect file:
+
+```python
+mysql_dialect.declare_keyword_sets(
+    reserved=mysql_reserved_keywords.split(),
+    unreserved=mysql_unreserved_keywords.split(),
+    future_reserved=[],
+    unimplemented=mysql_unimplemented_keywords.split(),
+)
+```
+
+This replaces the reserved list and keeps each word in only one status. A
+reserved word inherited from the parent that the dialect doesn't list becomes
+unimplemented, so inherited grammar that uses it stops matching instead of
+crashing.
+
+It also opts the dialect in to the checks in
+`test/dialects/keyword_reference_test.py`. They fail if a word has more than
+one status, if grammar refers to a keyword or segment the dialect doesn't have,
+or if the dialect's own grammar uses one of its unimplemented words. Each
+failure says which file to change and how. ANSI, MySQL, MariaDB, Doris and
+StarRocks are opted in.
+
+### Finding these problems in any dialect
+
+Run the test file directly, with dialect names as arguments:
+
+```bash
+python test/dialects/keyword_reference_test.py tsql
+```
+
+This never fails. It shows what the checks find in each named dialect and in
+every dialect that inherits from it, including dialects that aren't opted in
+yet. It also lists the keywords no grammar uses.
+An unused keyword can mean syntax that sqlfluff doesn't parse yet, or a word
+that can come out of the list.
 
 ## Where to find the grammar for your database
 -------------------------------------------

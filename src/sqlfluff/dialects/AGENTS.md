@@ -321,6 +321,31 @@ tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 ```
 
+### Keyword Statuses and the Audit
+
+Each keyword should have one status: reserved, unreserved, future reserved, or
+unimplemented (not a keyword on this dialect's database, though inherited
+grammar uses it; that part of the grammar then doesn't match). A keyword used
+in grammar with no status crashes the parser for every statement that reaches
+that rule, so a word you add to a parent dialect's grammar must exist in every
+child that replaces its keyword lists.
+
+Dialects whose lists come from their database's source call
+`declare_keyword_sets()` instead of `.sets(...).update(...)`. See its docstring
+in `src/sqlfluff/core/dialects/base.py`. That opts them in to
+`test/dialects/keyword_reference_test.py`, which checks every keyword and
+reference their grammar can reach.
+
+After changing any dialect's grammar or keywords, run:
+
+```bash
+python test/dialects/keyword_reference_test.py <dialect>
+```
+
+It reports missing keywords and segments, with the fix for each, for that
+dialect and every dialect that inherits from it, including those not opted in
+yet.
+
 ## Common Dialect Patterns
 
 ### Adding Vendor-Specific Functions
