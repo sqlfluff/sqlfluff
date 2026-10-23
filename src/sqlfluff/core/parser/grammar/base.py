@@ -6,6 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     Optional,
     TypeVar,
     Union,
@@ -485,16 +486,15 @@ class Anything(BaseGrammar):
         )
 
 
-# Nothing starts with no word and no type.
-_NOTHING_HINT: SimpleHintType = (frozenset(), frozenset())
-
-
 class Nothing(BaseGrammar):
     """Matches nothing.
 
     Useful for placeholders which might be overwritten by other
     dialects.
     """
+
+    # Nothing starts with no word and no type.
+    _SIMPLE_HINT: ClassVar[SimpleHintType] = (frozenset(), frozenset())
 
     def simple(
         self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
@@ -505,7 +505,7 @@ class Nothing(BaseGrammar):
         lets it sit among terminators, where every matcher needs a hint.
         Pruning calls this often, so the hint is built once.
         """
-        return _NOTHING_HINT
+        return self._SIMPLE_HINT
 
     def match(
         self,
