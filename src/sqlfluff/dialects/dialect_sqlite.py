@@ -108,6 +108,14 @@ sqlite_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"``", "`")],
             },
         ),
+        # SQLite numeric literals can contain single underscores ('_') since version 3.46.0
+        # as thousands separators or for grouping in decimal and hex literals.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(?:_\d+)*\.\d+(?:_\d+)*|\d+(?:_\d+)*\.(?![\.\w])|\.\d+(?:_\d+)*|\d+(?:_\d+)*)"
+            r"(\.?[eE][+-]?\d+(?:_\d+)*)?((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -121,7 +129,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hexadecimal_literal",
-            r"0[xX][\da-fA-F]+",
+            r"0[xX][\da-fA-F]+(?:_[\da-fA-F]+)*(?![.\w])",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
