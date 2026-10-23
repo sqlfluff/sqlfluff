@@ -71,6 +71,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "DATABASES",
         "DATEFORMAT",
         "DELIM",
+        "FILE_SIZE_BYTES",
         "GLOB",
         "INSTALL",
         "MACRO",
@@ -82,6 +83,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "PARQUET_VERSION",
         "PARTITION_BY",
         "PERCENT",
+        "PER_THREAD_OUTPUT",
         "POSITIONAL",
         "PREFIX",
         "PROGRAM",
@@ -1452,6 +1454,21 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                     ),
                     Sequence("OVERWRITE", Ref("BooleanLiteralGrammar", optional=True)),
                     Sequence("APPEND", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence(
+                        "PER_THREAD_OUTPUT",
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "FILE_SIZE_BYTES",
+                        OneOf(
+                            Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
                     Sequence(
                         "PARTITION_BY",
                         OneOf(
