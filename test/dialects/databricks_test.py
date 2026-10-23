@@ -41,13 +41,26 @@ def test_magic_lines_do_not_trigger_lt01(
     "command",
     ["%tensorboard --logdir logs", "%%profile", "%uv pip install pandas"],
 )
+@pytest.mark.parametrize("line_ending", ["\n", "\r\n"], ids=["lf", "crlf"])
 @pytest.mark.parametrize("first_cell", [True, False], ids=["first", "later"])
-def test_bare_magic_commands_parse(command: str, first_cell: bool) -> None:
+def test_bare_magic_commands_parse(
+    command: str, line_ending: str, first_cell: bool
+) -> None:
     """The shared bare magic pattern works at both cell positions."""
-    notebook = "-- Databricks notebook source\n"
+    notebook = "-- Databricks notebook source" + line_ending
     if not first_cell:
-        notebook += "\n-- COMMAND ----------\n\nSELECT 1\n\n-- COMMAND ----------\n"
-    parsed = Linter(dialect="databricks").parse_string(notebook + command + "\n")
+        notebook += line_ending.join(
+            [
+                "",
+                "-- COMMAND ----------",
+                "",
+                "SELECT 1",
+                "",
+                "-- COMMAND ----------",
+                "",
+            ]
+        )
+    parsed = Linter(dialect="databricks").parse_string(notebook + command + line_ending)
     assert parsed.tree
     assert not parsed.violations
     assert not list(parsed.tree.recursive_crawl("unparsable"))
