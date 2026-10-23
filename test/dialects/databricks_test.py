@@ -5,6 +5,54 @@ import pytest
 from sqlfluff.core import Linter
 
 
+@pytest.mark.parametrize("line_ending", ["\n", "\r\n"], ids=["lf", "crlf"])
+@pytest.mark.parametrize(
+    "magic_lines",
+    [
+        pytest.param(
+            ["-- MAGIC %md", "-- MAGIC Some notebook prose"],
+            id="magic_start_and_line",
+        ),
+        pytest.param(
+            ["-- MAGIC %md # Title", "-- MAGIC", "-- MAGIC More prose"],
+            id="single_line_directive_and_empty_line",
+        ),
+    ],
+)
+def test_magic_lines_do_not_trigger_lt01(
+    line_ending: str, magic_lines: list[str]
+) -> None:
+    """Notebook magic lines remain separated for layout linting."""
+    sql = line_ending.join(
+        [
+            "-- Databricks notebook source",
+            *magic_lines,
+            "",
+            "-- COMMAND ----------",
+            "",
+            "SELECT 1;",
+        ]
+    )
+    violations = Linter(dialect="databricks", rules=["LT01"]).lint_string(sql)
+    assert not violations.violations
+
+
+@pytest.mark.parametrize(
+    "command",
+    ["%tensorboard --logdir logs", "%%profile", "%uv pip install pandas"],
+)
+@pytest.mark.parametrize("first_cell", [True, False], ids=["first", "later"])
+def test_bare_magic_commands_parse(command: str, first_cell: bool) -> None:
+    """The shared bare magic pattern works at both cell positions."""
+    notebook = "-- Databricks notebook source\n"
+    if not first_cell:
+        notebook += "\n-- COMMAND ----------\n\nSELECT 1\n\n-- COMMAND ----------\n"
+    parsed = Linter(dialect="databricks").parse_string(notebook + command + "\n")
+    assert parsed.tree
+    assert not parsed.violations
+    assert not list(parsed.tree.recursive_crawl("unparsable"))
+
+
 def _violations(sql: str) -> list:
     """Return all parse errors, including unparsable nodes in the tree."""
     parsed = Linter(dialect="databricks").parse_string(sql)
