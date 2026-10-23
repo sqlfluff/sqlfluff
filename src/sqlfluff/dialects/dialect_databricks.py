@@ -57,6 +57,16 @@ databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
 
+# Databricks documents a finite set of notebook magic commands. Keep the
+# pattern shared between notebook-start and later-cell lexers.
+BARE_MAGIC_COMMAND_PATTERN = (
+    r"(?:%(?:python|scala|r|sh|md|run|fs|pip|conda|tensorboard|"
+    r"set_cell_max_output_size_in_mb|skip)\b|%%(?:profile|oprofile)\b|"
+    r"%uv[ \t]+pip\b)"
+    r"[^\r\n]*"
+)
+
+
 databricks_dialect.insert_lexer_matchers(
     # Named Function Parameters:
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
@@ -118,10 +128,12 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "notebook_start_bare_magic_cell",
-            r"(?s)-- Databricks notebook source(?:\r?\n)"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
-            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
-            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            (
+                r"(?s)-- Databricks notebook source(?:\r?\n)"
+                + BARE_MAGIC_COMMAND_PATTERN
+                + r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+                r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)"
+            ),
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(
@@ -144,11 +156,13 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "magic_single_line",
-            r"(-- MAGIC %)([^\n]{2,})( [^\n%]{1})([^\n]*)",
+            r"(-- MAGIC %)([^\r\n]{2,})( [^%]{1})([^\r\n]*)",
             CodeSegment,
         ),
-        RegexLexer("magic_line", r"(-- MAGIC)( [^\n%]{1})([^\n]*)", CodeSegment),
-        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})", CodeSegment),
+        RegexLexer(
+            "magic_line", r"(-- MAGIC)(?! ?%)(?: [^%\r\n][^\r\n]*)?", CodeSegment
+        ),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\r\n]{2,})", CodeSegment),
         RegexLexer(
             "bare_magic_sql",
             r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
@@ -160,10 +174,12 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "bare_magic_cell",
-            r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
-            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
-            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            (
+                r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
+                + BARE_MAGIC_COMMAND_PATTERN
+                + r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+                r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)"
+            ),
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(
@@ -373,6 +389,11 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # `KEYS` follows the source table in `APPLY CHANGES INTO` and
+    # `AUTO CDC INTO`, so it must end the FROM clause.
+    FromClauseTerminatorGrammar=databricks_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref.keyword("KEYS")]),
     # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
     # visible inside the pipeline but not published to the catalog:
     #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
@@ -411,10 +432,9 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
-    FunctionContentsExpressionGrammar=OneOf(
-        Ref("ExpressionSegment"),
-        Ref("NamedArgumentSegment"),
-    ),
+    FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
+        "FunctionContentsExpressionGrammar"
+    ).copy(insert=[Ref("NamedArgumentSegment")]),
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
         IdentifierSegment,
@@ -705,6 +725,42 @@ class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
     type = "volume_reference"
 
 
+class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
+    """A securable object that lives inside a schema.
+
+    Unity Catalog lists VOLUME among the securable objects a privilege can be
+    granted on, and `CREATE VOLUME` among the privileges grantable on a schema.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessSchemaObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("VOLUME"),
+        ],
+    )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """A Unity Catalog privilege.
+
+    READ VOLUME and WRITE VOLUME are the two privileges governing volume
+    contents. Neither is a bare READ or WRITE, so they are matched as
+    sequences rather than as the single keywords ANSI already carries.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                OneOf("READ", "WRITE"),
+                "VOLUME",
+            ),
+        ],
+    )
+
+
 class AlterCatalogStatementSegment(BaseSegment):
     """An `ALTER CATALOG` statement.
 
@@ -888,6 +944,20 @@ class DropVolumeStatementSegment(BaseSegment):
     )
 
 
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    Databricks documents an optional MATERIALIZED keyword:
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-view
+    """
+
+    match_grammar = ansi.DropViewStatementSegment.match_grammar.copy(
+        insert=[Ref.keyword("MATERIALIZED", optional=True)],
+        before=Ref.keyword("VIEW"),
+    )
+
+
 class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
@@ -921,21 +991,28 @@ class CreateViewStatementSegment(BaseSegment):
 
     type = "create_view_statement"
 
-    _schema_binding_clause = Sequence(
-        "WITH",
-        OneOf(
-            "METRICS",
-            Sequence(
-                "SCHEMA",
-                OneOf(
-                    "BINDING",
-                    "COMPENSATION",
-                    Sequence(
-                        Ref.keyword("TYPE", optional=True),
-                        "EVOLUTION",
-                    ),
+    _schema_binding = OneOf(
+        "METRICS",
+        Sequence(
+            "SCHEMA",
+            OneOf(
+                "BINDING",
+                "COMPENSATION",
+                Sequence(
+                    Ref.keyword("TYPE", optional=True),
+                    "EVOLUTION",
                 ),
             ),
+        ),
+    )
+
+    # with_clause: WITH { schema_binding | METRICS | ( ... ) }. The
+    # parenthesised list is the same production in brackets.
+    _with_clause = Sequence(
+        "WITH",
+        OneOf(
+            _schema_binding,
+            Bracketed(Delimited(_schema_binding)),
         ),
     )
 
@@ -948,33 +1025,61 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         Ref("TablePropertiesGrammar"),
         Sequence("LANGUAGE", "YAML"),
-        _schema_binding_clause,
+        _with_clause,
     )
 
-    match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "VIEW",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("CommentClauseSegment", optional=True),
-                    ),
-                ),
+    _column_list = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("CommentClauseSegment", optional=True),
             ),
-            optional=True,
+            # Pipeline expectations, e.g.
+            # CONSTRAINT valid_a EXPECT (a IS NOT NULL)
+            Ref("ConstraintStatementSegment", optional=True),
         ),
-        _view_clauses,
-        "AS",
-        OneOf(
-            OptionallyBracketed(Ref("SelectableGrammar")),
-            # YAML metric view definition: $$ yaml_string $$
-            Ref("DollarQuotedUDFBody"),
+    )
+
+    match_grammar = OneOf(
+        # The query-backed or metric view.
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            Ref("TemporaryGrammar", optional=True),
+            # A pipeline view declared against the legacy LIVE schema.
+            # STREAMING is bound to LIVE rather than being independently
+            # optional, because there is no `CREATE STREAMING VIEW`.
+            Sequence(
+                Ref.keyword("STREAMING", optional=True),
+                "LIVE",
+                optional=True,
+            ),
+            "VIEW",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence(_column_list, optional=True),
+            _view_clauses,
+            "AS",
+            OneOf(
+                OptionallyBracketed(Ref("SelectableGrammar")),
+                # YAML metric view definition: $$ yaml_string $$
+                Ref("DollarQuotedUDFBody"),
+            ),
+        ),
+        # The temporary view backed by a data source. Unlike the query-backed
+        # production, TEMPORARY is not bracketed here and there is no AS, so
+        # `CREATE VIEW v USING csv` stays rejected.
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            Ref("TemporaryGrammar"),
+            "VIEW",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence(_column_list, optional=True),
+            "USING",
+            Ref("DataSourceFormatSegment"),
+            Ref("OptionsGrammar", optional=True),
         ),
     )
 
@@ -1679,6 +1784,8 @@ class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = sparksql.StatementSegment.match_grammar.copy(
+        # Databricks has its own, fuller, SQL function statement.
+        remove=[Ref("CreateSqlFunctionStatementSegment")],
         # Segments defined in Databricks SQL dialect
         insert=[
             # Unity Catalog
@@ -1705,7 +1812,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("ApplyChangesIntoStatementSegment"),
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
-        ]
+        ],
     )
 
 
@@ -1875,45 +1982,6 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "KEYS",
                 "FROM",
                 "FOR",
-            ),
-        ),
-        Dedent,
-    )
-
-
-class GroupByClauseSegment(sparksql.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    match_grammar = Sequence(
-        "GROUP",
-        "BY",
-        Indent,
-        OneOf(
-            "ALL",
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `GROUP BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can `GROUP BY coalesce(col, 1)`
-                    Ref("ExpressionSegment"),
-                ),
-                OneOf(
-                    Ref("WithCubeRollupClauseSegment"),
-                    Ref("GroupingSetsClauseSegment"),
-                ),
             ),
         ),
         Dedent,
@@ -2434,7 +2502,8 @@ class CreateFlowStatementSegment(BaseSegment):
                 Dedent,
                 Ref("CDCSpecificationSegment"),
             ),
-            # INSERT [ONCE] INTO [ONCE] target BY NAME [REPLACE USING (...)]
+            # INSERT [ONCE] INTO [ONCE] target BY NAME
+            # [REPLACE USING (...) SEQUENCE BY col]
             # query -- an append flow, which is how a pipeline points several
             # sources at one streaming table.
             #
@@ -2485,6 +2554,9 @@ class CreateFlowStatementSegment(BaseSegment):
                     "REPLACE",
                     "USING",
                     Ref("BracketedColumnReferenceListGrammar"),
+                    "SEQUENCE",
+                    "BY",
+                    Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),
                 Ref("SelectableGrammar"),

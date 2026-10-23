@@ -1030,7 +1030,35 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     )
 
 
+class WithExpressionSegment(BaseSegment):
+    """A WITH expression, which assigns variables and then returns an expression.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/operators#with_expression
+    """
+
+    type = "with_expression"
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "AS",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
 bigquery_dialect.replace(
+    # This grammar sits in the inner OneOf of Expression_D_Grammar, so a WITH
+    # expression takes the accessors after it, as in WITH(a AS [1], a)[OFFSET(0)].
+    Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets"
+    ).copy(insert=[Ref("WithExpressionSegment")]),
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
@@ -1064,13 +1092,13 @@ bigquery_dialect.replace(
         ),
     ),
     FunctionNameIdentifierSegment=OneOf(
-        # In BigQuery struct() and array() have a special syntax,
+        # In BigQuery struct(), array() and with() have a special syntax,
         # so we don't treat them as functions
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
             type="function_name_identifier",
-            anti_template=r"^(STRUCT|ARRAY)$",
+            anti_template=r"^(STRUCT|ARRAY|WITH)$",
         ),
         RegexParser(
             r"`[^`]*`",

@@ -1,0 +1,191 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 88f4b3dc1e360415fc30e8c7aa49a7f8427af417e40aec2b86036e42a11adee0
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '42'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: value
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: PARQUET
+      - comma: ','
+      - keyword: PER_THREAD_OUTPUT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: CSV
+      - comma: ','
+      - keyword: PER_THREAD_OUTPUT
+      - boolean_literal: 'TRUE'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: PER_THREAD_OUTPUT
+        boolean_literal: 'FALSE'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: PARQUET
+      - comma: ','
+      - keyword: PER_THREAD_OUTPUT
+      - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - bracketed:
+        start_bracket: (
+        keyword: PER_THREAD_OUTPUT
+        numeric_literal: '0'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: PARQUET
+      - comma: ','
+      - keyword: PER_THREAD_OUTPUT
+      - quoted_literal: "'true'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: PARQUET
+      - comma: ','
+      - keyword: FILE_SIZE_BYTES
+      - numeric_literal: '1000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: data
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: PARQUET
+      - comma: ','
+      - keyword: FILE_SIZE_BYTES
+      - quoted_literal: "'1MB'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '42'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: value
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: PARQUET
+      - comma: ','
+      - keyword: PER_THREAD_OUTPUT
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: FILE_SIZE_BYTES
+      - quoted_literal: "'1MB'"
+      - comma: ','
+      - keyword: COMPRESSION
+      - naked_identifier: ZSTD
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: per_thread_output
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: file_size_bytes
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;

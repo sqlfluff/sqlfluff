@@ -62,3 +62,117 @@ test_fail_templated:
     rules:
       convention.select_trailing_comma:
         select_clause_trailing_comma: forbid
+
+test_conditional_pass_single_line:
+  pass_str: |
+    SELECT *
+    FROM foo
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_pass_multiline:
+  pass_str: |
+    SELECT
+        a,
+        b,
+    FROM foo
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_fail_single_line:
+  fail_str: SELECT a, b, FROM foo
+  fix_str: SELECT a, b FROM foo
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_fail_multiline_with_comment:
+  fail_str: |
+    SELECT
+        a,
+        b -- Keep this comment.
+    FROM foo
+  fix_str: |
+    SELECT
+        a,
+        b, -- Keep this comment.
+    FROM foo
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_fail_multiline_expression:
+  fail_str: |
+    SELECT COALESCE(
+        a, b
+    ) FROM foo
+  fix_str: |
+    SELECT COALESCE(
+        a, b
+    ), FROM foo
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_fail_mixed_nested_clauses:
+  fail_str: |
+    SELECT b, FROM (
+        SELECT
+            b
+        FROM bar
+    ) AS sub
+    UNION ALL
+    SELECT c, FROM baz
+  fix_str: |
+    SELECT b FROM (
+        SELECT
+            b,
+        FROM bar
+    ) AS sub
+    UNION ALL
+    SELECT c FROM baz
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_fail_comma_on_own_line:
+  # Removing the comma must not change the single-line classification.
+  fail_str: "SELECT a\n    ,\nFROM foo\n"
+  fix_str: "SELECT a\n    \nFROM foo\n"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line
+
+test_conditional_fail_templated_no_fix:
+  # Without fix_str, the harness asserts that the source is unchanged.
+  fail_str: |
+    SELECT {% for col in ['a', 'b', 'c'] %}{{col}}, {% endfor %} FROM tbl
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require_multiline_forbid_single_line

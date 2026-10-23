@@ -136,6 +136,9 @@ SELECT TOP 5 WITH TIES * FROM orders ORDER BY total_amount DESC;
 - Multiple test cases per file covering variations
 - Use descriptive filenames
 - Include comments explaining edge cases
+- **Positive cases only** — the grammar is intentionally loose, so never assert
+  that invalid SQL fails to parse (see root `AGENTS.md`, "Grammar is
+  Permissive, Not a Validator")
 
 ### YAML Expected Outputs
 

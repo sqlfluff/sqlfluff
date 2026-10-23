@@ -98,6 +98,10 @@ pub enum LexerMode {
     Regex(Regex, fn(&str) -> bool),           // Match using a regex
     FancyRegex(FancyRegex, fn(&str) -> bool), // Match using a regex
     Function(fn(&str) -> Option<&str>),
+    /// Never matches: a kind of token that a stateful lexer emits itself
+    /// (see `sqlfluffrs_lexer`'s `client_script`). It only gives those tokens
+    /// their type and token class.
+    Emitted,
 }
 
 impl Display for LexerMode {
@@ -107,6 +111,7 @@ impl Display for LexerMode {
             LexerMode::FancyRegex(_, _) => write!(f, "FancyRegexMatcher"),
             LexerMode::String(_) => write!(f, "StringMatcher"),
             LexerMode::Function(_) => write!(f, "FunctionMatcher"),
+            LexerMode::Emitted => write!(f, "EmittedToken"),
         }
     }
 }
@@ -269,6 +274,24 @@ impl LexMatcher {
         )
     }
 
+    /// A kind of token a stateful lexer emits itself, which never matches input.
+    pub fn emitted(name: &str, token_class_func: TokenGenerator) -> Self {
+        let config = LexMatcherConfig::default();
+        Self {
+            name: name.to_string(),
+            mode: LexerMode::Emitted,
+            token_class_func,
+            subdivider: config.subdivider,
+            trim_post_subdivide: config.trim_post_subdivide,
+            trim_start: config.trim_start,
+            trim_chars: config.trim_chars,
+            quoted_value: config.quoted_value,
+            escape_replacements: config.escape_replacements,
+            casefold: config.casefold,
+            kwarg_type: config.kwarg_type,
+        }
+    }
+
     pub fn scan_match<'a>(&'a self, input: &'a str) -> Option<(Vec<LexedElement<'a>>, usize)> {
         // let t = Instant::now();
         if input.is_empty() {
@@ -299,6 +322,7 @@ impl LexMatcher {
                     .map(|mat| LexedElement::new(mat.as_str(), self))
             }
             LexerMode::Function(function) => (function)(input).map(|s| LexedElement::new(s, self)),
+            LexerMode::Emitted => unreachable!("{self} is emitted, never matched"),
         };
 
         // Handle subdivision and trimming
