@@ -46,6 +46,17 @@ def test_markers__setting_position_working():
     assert pos.working_loc == (4, 4)
 
 
+def test_markers__hash_matches_equality():
+    """Markers equal by working location must have equal hashes."""
+    templ = TemplatedFile.from_string("abcdef")
+    first = PositionMarker(slice(0, 1), slice(0, 1), templ, 4, 2)
+    second = PositionMarker(slice(3, 4), slice(3, 4), templ, 4, 2)
+
+    assert first == second
+    assert hash(first) == hash(second)
+    assert {first: "found"}[second] == "found"
+
+
 def test_markers__comparison():
     """Test that we can correctly compare markers."""
     templ = TemplatedFile.from_string("abc")
