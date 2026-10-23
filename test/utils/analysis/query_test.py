@@ -309,3 +309,54 @@ join (
         "ctes": {"D": {"selectables": ["select x, z from b"]}},
         "query_type": "WithCompound",
     }
+
+
+@pytest.mark.parametrize("pop", [False, True])
+@pytest.mark.parametrize("quoted", [False, True])
+def test_lookup_cte_reference_normalization(pop, quoted):
+    """Normalize an AST reference and retain the existing pop contract."""
+    name = '"c space"' if quoted else "c"
+    query, _ = _parse_and_crawl_outer(
+        f"WITH {name} AS (SELECT 1 AS a) SELECT * FROM {name}"
+    )
+    selectable = query.selectables[0]
+    wildcard = selectable.get_wildcard_info()[0]
+    reference = selectable.find_table_reference(wildcard.tables[0], wildcard.segment)
+    assert reference is not None
+    cte = query.lookup_cte(reference, pop=pop)
+    assert cte is not None
+    assert bool(query.ctes) is (not pop)
+    # Explicit string keys continue to work, including when no pop was requested.
+    assert (query.lookup_cte(name.strip('"'), pop=False) is cte) is (not pop)
+
+
+@pytest.mark.parametrize(
+    "sql, expected_name, expected_resolution",
+    [
+        ('WITH "c" AS (SELECT 1) SELECT c.* FROM "c"', "c", True),
+        ("WITH c AS (SELECT 1) SELECT C.* FROM c", "c", True),
+        ('WITH "c.dot" AS (SELECT 1) SELECT "c.dot".* FROM "c.dot"', "c.dot", True),
+        ('WITH "main.c" AS (SELECT 1) SELECT * FROM main.c', "main.c", False),
+        ("WITH c AS (SELECT 1) SELECT C.* FROM main.c", "main.c", False),
+        ("WITH c AS (SELECT 1) SELECT c.* FROM another_source", "c", True),
+        (
+            "WITH c AS (SELECT 1) SELECT c.* FROM main.c JOIN other.c ON 1=1",
+            None,
+            False,
+        ),
+        ("WITH c AS (SELECT 1) SELECT schema.c.* FROM unknown_source", None, False),
+        ("WITH c AS (SELECT 1) SELECT * FROM unknown_source", "unknown_source", False),
+    ],
+)
+def test_find_table_reference_preserves_qualification(
+    sql, expected_name, expected_resolution
+):
+    """Do not confuse quoted dots, schema qualifiers, or ambiguous sources."""
+    query, _ = _parse_and_crawl_outer(sql)
+    selectable = query.selectables[0]
+    wildcard = selectable.get_wildcard_info()[0]
+    reference = selectable.find_table_reference(wildcard.tables[0], wildcard.segment)
+    assert (reference.raw_normalized(False) if reference else None) == expected_name
+    assert (
+        query.lookup_cte(reference, pop=False) is not None if reference else False
+    ) is expected_resolution

@@ -132,14 +132,23 @@ class Rule_AM04(BaseRule):
                             "{wildcard_table}"
                         )
                         # Is it an alias?
-                        alias_info = selectable.find_alias(wildcard_table)
+                        alias_info = selectable.find_alias(
+                            wildcard_table, wildcard.segment
+                        )
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
                             self._handle_alias(alias_info, query, wildcard_anchor)
                         else:
                             # Not an alias. Is it a CTE?
-                            cte = query.lookup_cte(wildcard_table)
+                            reference = selectable.find_table_reference(
+                                wildcard_table, wildcard.segment
+                            )
+                            cte = (
+                                query.lookup_cte(reference)
+                                if reference is not None
+                                else None
+                            )
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
                                 self._analyze_result_columns(cte, wildcard_anchor)

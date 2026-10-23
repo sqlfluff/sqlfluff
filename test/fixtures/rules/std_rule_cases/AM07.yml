@@ -544,3 +544,134 @@ test_fail_placeholder_templater_set_columns:
       placeholder:
         param_style: dollar
         CATALOG: my_catalog
+
+test_fail_quoted_lookup_double_quoted_cte:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c space" UNION ALL
+    SELECT 3;
+
+test_fail_quoted_lookup_quoted_qualified_wildcard:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "c space".* FROM "c space" UNION ALL
+    SELECT 3;
+
+test_fail_quoted_lookup_quoted_cte_alias:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT x.* FROM "c space" AS x UNION ALL
+    SELECT 3;
+
+test_fail_quoted_lookup_quoted_cte_chain:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b), d AS (SELECT * FROM "c space")
+    SELECT * FROM d UNION ALL
+    SELECT 3;
+
+test_fail_quoted_lookup_quoted_cte_dot:
+  fail_str: |
+    WITH "c.space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c.space" UNION ALL
+    SELECT 3;
+
+test_fail_quoted_lookup_quoted_cte_escape:
+  fail_str: |
+    WITH "c""space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c""space" UNION ALL
+    SELECT 3;
+
+test_fail_quoted_lookup_backtick_cte:
+  fail_str: |
+    WITH `c space` AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM `c space` UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_quoted_lookup_mixed_quote_cte:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM `c space` UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_quoted_lookup_mixed_quote_wildcard:
+  fail_str: |
+    WITH "c" AS (SELECT 1 AS a, 2 AS b)
+    SELECT c.* FROM "c" UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_quoted_lookup_casefold_wildcard:
+  fail_str: |
+    WITH c AS (SELECT 1 AS a, 2 AS b)
+    SELECT C.* FROM c UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_quoted_lookup_quoted_cte_same_width:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c space" UNION ALL
+    SELECT 3, 4;
+
+test_pass_quoted_lookup_qualified_table_not_quoted_cte:
+  pass_str: |
+    WITH "main.c" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM main.c UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_quoted_lookup_qualified_table_wildcard_not_cte:
+  pass_str: |
+    WITH c AS (SELECT 1 AS a, 2 AS b)
+    SELECT C.* FROM main.c UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_quoted_lookup_unknown_quoted_table:
+  pass_str: |
+    WITH "other c" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c space" UNION ALL
+    SELECT 3;
+
+test_pass_quoted_lookup_shadow_quoted_cte:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM (WITH "c space" AS (SELECT 3 AS a)
+    SELECT * FROM "c space") AS q UNION ALL
+    SELECT 4;
+
+test_pass_quoted_lookup_quoted_external_alias:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "c space".* FROM ext AS "c space" UNION ALL
+    SELECT 3;
+
+test_pass_quoted_lookup_quoted_subquery_alias:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "c space".* FROM (SELECT 7 AS a) AS "c space" UNION ALL
+    SELECT 3;
+
+
+test_pass_quoted_lookup_case_variant_alias_shadow:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "C SPACE".* FROM ext AS "c space" UNION ALL
+    SELECT 3;
+  configs:
+    core:
+      dialect: sqlite

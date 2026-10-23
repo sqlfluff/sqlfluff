@@ -106,10 +106,9 @@ class Rule_AM07(BaseRule):
         # There might be multiple tables referenced in some wildcard cases.
         num_cols = 0
         for wildcard_table in wildcard.tables:
-            cte_name = wildcard_table
             # Get the AliasInfo for the table referenced in the wildcard
             # expression.
-            alias_info = selectable.find_alias(wildcard_table)
+            alias_info = selectable.find_alias(wildcard_table, wildcard.segment)
             # attempt to resolve alias or table name to a cte
             if alias_info:
                 # Crawl inside the FROM expression looking for something to
@@ -119,14 +118,20 @@ class Rule_AM07(BaseRule):
                 )
 
                 if isinstance(select_info_target, str):
-                    cte_name = select_info_target
+                    # This alias names an external source. Do not let an unrelated
+                    # same-name CTE shadow it during the direct-reference lookup.
+                    resolved = False
+                    continue
                 else:
                     _cols, _resolved = self.__resolve_wild_query(select_info_target)
                     num_cols += _cols
                     resolved = resolved and _resolved
                     continue
 
-            cte = root_query.lookup_cte(cte_name)
+            reference = selectable.find_table_reference(
+                wildcard_table, wildcard.segment
+            )
+            cte = root_query.lookup_cte(reference) if reference is not None else None
             if cte:
                 _cols, _resolved = self.__resolve_wild_query(cte)
                 num_cols += _cols

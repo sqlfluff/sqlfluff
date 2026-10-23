@@ -178,8 +178,18 @@ class Selectable:
                     )
         return buff
 
-    def find_alias(self, table: str) -> Optional[AliasInfo]:
+    def find_alias(
+        self, table: str, wildcard: Optional[BaseSegment] = None
+    ) -> Optional[AliasInfo]:
         """Find corresponding table_aliases entry (if any) matching "table"."""
+        if wildcard is not None:
+            identifier = next(wildcard.recursive_crawl("wildcard_identifier"), None)
+            parts = list(identifier.recursive_crawl("identifier")) if identifier else []
+            if len(parts) > 1:
+                return None
+            if parts:
+                # Match the identifier value, not its choice of quote characters.
+                table = parts[0].raw_normalized(False)
         alias_info = [
             t
             for t in (self.select_info.table_aliases if self.select_info else [])
@@ -187,6 +197,48 @@ class Selectable:
         ]
         assert len(alias_info) <= 1
         return alias_info[0] if alias_info else None
+
+    def find_table_reference(
+        self, table: str, wildcard: BaseSegment
+    ) -> Optional[BaseSegment]:
+        """Find the source AST, preserving quoted names and qualification."""
+        aliases = self.select_info.table_aliases if self.select_info else []
+        references = [
+            alias.object_reference
+            for alias in aliases
+            if not alias.aliased
+            and alias.object_reference is not None
+            and table == alias.object_reference.raw
+        ]
+        if references:
+            return references[0] if len(references) == 1 else None
+
+        # A wildcard qualifier may use different quoting from its FROM source.
+        # Only a single identifier can name a CTE, never a qualified table.
+        identifier = next(wildcard.recursive_crawl("wildcard_identifier"), None)
+        if identifier is None:
+            return None
+        parts = list(identifier.recursive_crawl("identifier"))
+        if len(parts) != 1:
+            return None
+        name = parts[0].raw_normalized(False).upper()
+        references = [
+            alias.object_reference
+            for alias in aliases
+            if not alias.aliased
+            and alias.object_reference is not None
+            and alias.segment is not None
+            and alias.segment.raw_normalized(False).upper() == name
+        ]
+        if references:
+            return references[0] if len(references) == 1 else None
+        # An unresolved alias may shadow a CTE (for example, case variants in
+        # a case-insensitive dialect). Do not reinterpret it as that CTE.
+        if any(alias.aliased and alias.ref_str.upper() == name for alias in aliases):
+            return None
+        # Preserve existing lookup of an explicit CTE qualifier even when the
+        # FROM clause does not resolve it. Query analysis is not SQL validation.
+        return parts[0]
 
 
 T = TypeVar("T", bound="Query")
@@ -242,8 +294,14 @@ class Query(Generic[T]):
             result["subqueries"] = [q.as_dict() for q in self.subqueries]
         return result
 
-    def lookup_cte(self: T, name: str, pop: bool = True) -> Optional[T]:
+    def lookup_cte(
+        self: T, name: Union[str, BaseSegment], pop: bool = True
+    ) -> Optional[T]:
         """Look up a CTE by name, in the current or any parent scope."""
+        if isinstance(name, BaseSegment):
+            if is_qualified(name, self.dialect.name):
+                return None
+            name = name.raw_normalized(False)
         cte = self.ctes.get(name.upper())
         if cte:
             if pop:
@@ -282,7 +340,7 @@ class Query(Generic[T]):
             if seg.is_type("table_reference"):
                 _seg = cast(ObjectReferenceSegment, seg)
                 if not is_qualified(_seg, self.dialect.name) and lookup_cte:
-                    cte = self.lookup_cte(_seg.raw, pop=pop)
+                    cte = self.lookup_cte(_seg, pop=pop)
                     if cte:
                         # It's a CTE.
                         yield cte

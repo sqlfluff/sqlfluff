@@ -773,3 +773,68 @@ test_pass_templated_wildcard:
       jinja:
         context:
           cols: "*"
+
+test_pass_quoted_lookup_quoted_known:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c space";
+
+test_pass_quoted_lookup_quoted_known_alias:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT x.* FROM "c space" AS x;
+
+test_pass_quoted_lookup_quoted_known_wildcard:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "c space".* FROM "c space";
+
+test_pass_quoted_lookup_quoted_dot_known:
+  pass_str: |
+    WITH "main.c" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "main.c";
+
+test_fail_quoted_lookup_qualified_external:
+  fail_str: |
+    WITH "main.c" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM main.c;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_quoted_lookup_qualified_external_caps:
+  fail_str: |
+    WITH c AS (SELECT 1 AS a, 2 AS b)
+    SELECT C.* FROM main.c;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_quoted_lookup_unknown_quoted:
+  fail_str: |
+    WITH "other c" AS (SELECT 1 AS a, 2 AS b)
+    SELECT * FROM "c space";
+
+test_fail_quoted_lookup_quoted_unknown_columns:
+  fail_str: |
+    WITH "c space" AS (SELECT * FROM unknown_table)
+    SELECT * FROM "c space";
+
+test_fail_quoted_lookup_quoted_external_alias:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "c space".* FROM ext AS "c space";
+
+test_pass_quoted_lookup_quoted_subquery_alias:
+  pass_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "c space".* FROM (SELECT 7 AS a) AS "c space";
+
+
+test_fail_quoted_lookup_case_variant_alias_shadow:
+  fail_str: |
+    WITH "c space" AS (SELECT 1 AS a, 2 AS b)
+    SELECT "C SPACE".* FROM ext AS "c space";
+  configs:
+    core:
+      dialect: sqlite
