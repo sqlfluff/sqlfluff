@@ -25,6 +25,7 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_starrocks_keywords import (
     starrocks_reserved_keywords,
+    starrocks_unimplemented_keywords,
     starrocks_unreserved_keywords,
 )
 
@@ -39,12 +40,11 @@ starrocks_dialect = mysql_dialect.copy_as(
 
     The dialect for `StarRocks <https://www.starrocks.io/>`_.""",
 )
-starrocks_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", starrocks_unreserved_keywords
-)
-starrocks_dialect.sets("reserved_keywords").clear()
-starrocks_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", starrocks_reserved_keywords
+starrocks_dialect.declare_keyword_sets(
+    reserved=starrocks_reserved_keywords.split(),
+    unreserved=starrocks_unreserved_keywords.split(),
+    future_reserved=[],
+    unimplemented=starrocks_unimplemented_keywords.split(),
 )
 
 

@@ -532,3 +532,9 @@ BLOOM_FILTER
 STORED
 VIRTUAL
 """
+
+# Keywords that grammar this dialect inherits uses, but that its server
+# doesn't recognize. The parent's reserved words this dialect doesn't list
+# are added automatically; list others here.
+doris_unimplemented_keywords = """
+"""

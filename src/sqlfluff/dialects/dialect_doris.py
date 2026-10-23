@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_doris_keywords import (
     doris_reserved_keywords,
+    doris_unimplemented_keywords,
     doris_unreserved_keywords,
 )
 
@@ -34,12 +35,11 @@ doris_dialect = mysql_dialect.copy_as(
 
     The dialect for `Apache Doris <https://doris.apache.org/>`_.""",
 )
-doris_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", doris_unreserved_keywords
-)
-doris_dialect.sets("reserved_keywords").clear()
-doris_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", doris_reserved_keywords
+doris_dialect.declare_keyword_sets(
+    reserved=doris_reserved_keywords.split(),
+    unreserved=doris_unreserved_keywords.split(),
+    future_reserved=[],
+    unimplemented=doris_unimplemented_keywords.split(),
 )
 
 

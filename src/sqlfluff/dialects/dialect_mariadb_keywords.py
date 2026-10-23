@@ -724,3 +724,9 @@ INPLACE
 NOCOPY
 INSTANT
 """
+
+# Keywords that grammar this dialect inherits uses, but that its server
+# doesn't recognize. The parent's reserved words this dialect doesn't list
+# are added automatically; list others here.
+mariadb_unimplemented_keywords = """
+"""

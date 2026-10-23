@@ -540,6 +540,7 @@ PERSISTENT
 PHASE
 PLUGIN
 PLUGINS
+POLICIES
 PORT
 PORTION
 PRECEDES
@@ -741,4 +742,10 @@ BITMAP
 GIN
 NGRAMBF
 VECTOR
+"""
+
+# Keywords that grammar this dialect inherits uses, but that its server
+# doesn't recognize. The parent's reserved words this dialect doesn't list
+# are added automatically; list others here.
+starrocks_unimplemented_keywords = """
 """

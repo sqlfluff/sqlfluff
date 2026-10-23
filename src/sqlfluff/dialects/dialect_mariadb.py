@@ -27,6 +27,7 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
+    mariadb_unimplemented_keywords,
     mariadb_unreserved_keywords,
 )
 
@@ -42,12 +43,11 @@ Identifiers: |back_quotes|.
 
 The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
 )
-mariadb_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", mariadb_unreserved_keywords
-)
-mariadb_dialect.sets("reserved_keywords").clear()
-mariadb_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", mariadb_reserved_keywords
+mariadb_dialect.declare_keyword_sets(
+    reserved=mariadb_reserved_keywords.split(),
+    unreserved=mariadb_unreserved_keywords.split(),
+    future_reserved=[],
+    unimplemented=mariadb_unimplemented_keywords.split(),
 )
 
 # MariaDB has no gb18030 character set, so `_gb18030'x'` is the column
