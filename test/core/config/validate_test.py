@@ -267,12 +267,27 @@ def test__validate_indentation_invalid(config_dict, config_warning):
     assert "Valid options are: forbid, allow, require" in str(excinfo.value)
 
 
+@pytest.mark.parametrize("list_wrapping", ["invalid", "FILL", "", 123])
+def test__validate_list_wrapping_invalid(list_wrapping):
+    """Test the indentation validation checks for invalid list_wrapping."""
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        _validate_indentation_config(
+            {"indentation": {"list_wrapping": list_wrapping}}, "<test>"
+        )
+    assert f"set an invalid value for `list_wrapping`: {list_wrapping!r}" in str(
+        excinfo.value
+    )
+    assert "Valid options are: one_per_line, fill" in str(excinfo.value)
+
+
 @pytest.mark.parametrize(
     "config_dict",
     [
         {"indentation": {"implicit_indents": "forbid"}},
         {"indentation": {"implicit_indents": "allow"}},
         {"indentation": {"implicit_indents": "require"}},
+        {"indentation": {"list_wrapping": "one_per_line"}},
+        {"indentation": {"list_wrapping": "fill"}},
         {"indentation": {}},  # missing key should be ok
         {},  # no indentation section should be ok
     ],

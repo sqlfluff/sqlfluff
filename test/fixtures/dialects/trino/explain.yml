@@ -1,0 +1,288 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d31e1d2303d7ace5f40c7afd45618ed82da8efe1bce13491b5f513ae34183dd1
+file:
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - keyword: DISTRIBUTED
+      - end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - keyword: JSON
+      - comma: ','
+      - keyword: TYPE
+      - keyword: IO
+      - end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - keyword: GRAPHVIZ
+      - comma: ','
+      - keyword: TYPE
+      - keyword: LOGICAL
+      - end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - keyword: VALIDATE
+      - end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ANALYZE
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ANALYZE
+    - keyword: VERBOSE
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ANALYZE
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: orders
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: staging_orders
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: target
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - keyword: IO
+      - end_bracket: )
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: target
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ANALYZE
+    - merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: target
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+- statement_terminator: ;

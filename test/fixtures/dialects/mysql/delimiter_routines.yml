@@ -1,0 +1,282 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07045855d1893765f4dc476e7871e328484650ac900088c1090ce9cca599d343
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+- statement_terminator: ;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: $$
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: count_to
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: IN
+          parameter: n
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+          - statement:
+              declare_statement:
+              - keyword: DECLARE
+              - variable: i
+              - data_type:
+                  data_type_identifier: INT
+              - keyword: DEFAULT
+              - expression:
+                  numeric_literal: '0'
+          - statement_terminator: ;
+          - statement:
+              while_statement:
+              - keyword: WHILE
+              - expression:
+                - column_reference:
+                    naked_identifier: i
+                - comparison_operator:
+                    raw_comparison_operator: <
+                - column_reference:
+                    naked_identifier: n
+              - keyword: DO
+              - statement_list:
+                  statement:
+                    set_statement:
+                      keyword: SET
+                      variable: i
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                        binary_operator: +
+                        numeric_literal: '1'
+                  statement_terminator: ;
+              - keyword: END
+              - keyword: WHILE
+          - statement_terminator: ;
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: i
+          - statement_terminator: ;
+        - keyword: END
+- statement_terminator: $$
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: //
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: double_it
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+        keyword: DETERMINISTIC
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+            statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                  binary_operator: '*'
+                  numeric_literal: '2'
+            statement_terminator: ;
+        - keyword: END
+- statement_terminator: //
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: t_before_insert
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: t
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - compound_statement:
+      - keyword: BEGIN
+      - statement_list:
+          statement:
+            set_statement:
+            - keyword: SET
+            - keyword: NEW
+            - dot: .
+            - variable: a
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                column_reference:
+                - naked_identifier: NEW
+                - dot: .
+                - naked_identifier: a
+                binary_operator: +
+                numeric_literal: '1'
+          statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: count_to
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '3'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: double_it
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '4'
+                end_bracket: )
+- statement_terminator: ;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: $$
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: $$
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@a'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: $$
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+            statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '1'
+            statement_terminator: ;
+        - keyword: END
+- statement_terminator: $$
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: go
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: go
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@b'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '2'
+- statement_terminator: go
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            variable: '@a'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            variable: '@b'
+- statement_terminator: ;
