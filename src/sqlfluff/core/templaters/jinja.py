@@ -8,8 +8,9 @@ import os.path
 import pkgutil
 import re
 import sys
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from functools import reduce
+from types import CodeType
 from typing import (
     Any,
     Callable,
@@ -27,9 +28,12 @@ from jinja2 import (
     TemplateSyntaxError,
     meta,
 )
+from jinja2.defaults import DEFAULT_POLICIES
 from jinja2.exceptions import TemplateNotFound, UndefinedError
-from jinja2.ext import Extension
+from jinja2.ext import ExprStmtExtension, Extension
+from jinja2.filters import FILTERS as DEFAULT_FILTERS
 from jinja2.sandbox import SandboxedEnvironment
+from jinja2.tests import TESTS as DEFAULT_TESTS
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
@@ -42,12 +46,102 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
     large_file_check,
 )
-from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS, DbtMacroWrapper
+from sqlfluff.core.templaters.builtins.dbt import (
+    DBT_BUILTINS,
+    DbtMacroWrapper,
+    DbtSandboxedEnvironment,
+)
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
+
+# Compiled macro code, shared by environments that compile the same text the
+# same way. Rendering a file loads each macro file two or more times (see
+# `_get_env_context`), so this saves compiling the same macros over and over.
+_MACRO_CODE_CACHE: dict[tuple[Any, ...], CodeType] = {}
+# The cache is cleared at this size, so a long-running process whose macro
+# files keep changing does not grow it without limit.
+_MACRO_CODE_CACHE_MAX_SIZE = 1024
+# Jinja's defaults as they were when this module was imported, so that later
+# changes to them, in place or not, stop code from being reused.
+_JINJA_FILTERS = dict(DEFAULT_FILTERS)
+_JINJA_TESTS = dict(DEFAULT_TESTS)
+_JINJA_POLICIES = copy.deepcopy(DEFAULT_POLICIES)
+# The attributes that Jinja's own environments set on themselves. Anything else
+# on an environment, such as a code generator set on the instance, could change
+# how it compiles.
+_JINJA_ENV_ATTRIBUTES = frozenset(vars(SandboxedEnvironment()))
+
+
+def _holds_same_objects(mapping: Mapping[str, Any], default: Mapping[str, Any]) -> bool:
+    """Return whether ``mapping`` has the same keys and objects as ``default``."""
+    return mapping.keys() == default.keys() and all(
+        mapping[key] is value for key, value in default.items()
+    )
+
+
+def _compile_macro_template(template: str, env: Environment) -> CodeType:
+    """Compile a macro template, reusing code compiled earlier in this process.
+
+    While compiling, Jinja can run filters, tests, ``finalize``, ``autoescape``,
+    the ``undefined`` class, extensions and environment methods, for example to
+    fold constants, and its filters can read the environment's policies. Code is
+    only reused when all of these are Jinja's defaults, as they were when this
+    module was imported, or sqlfluff's own, and nothing else is set on the
+    environment. Then compiling again would run no other code and give the same
+    result. The template text, environment class, extensions and settings must
+    also match.
+
+    Raises:
+        TemplateSyntaxError: If the template is invalid. Failures are not
+            cached, so an invalid template raises every time.
+    """
+    extension_types = tuple(type(ext) for ext in env.iter_extensions())
+    if not (
+        # A nested config section under `macros` is not a string. Leave it to
+        # Jinja, which raises its own error for it.
+        isinstance(template, str)
+        and type(env) in (Environment, SandboxedEnvironment, DbtSandboxedEnvironment)
+        and vars(env).keys() <= _JINJA_ENV_ATTRIBUTES
+        and all(t in (ExprStmtExtension, DBTTestExtension) for t in extension_types)
+        and _holds_same_objects(env.filters, _JINJA_FILTERS)
+        and _holds_same_objects(env.tests, _JINJA_TESTS)
+        and env.policies == _JINJA_POLICIES
+        and env.finalize is None
+        and isinstance(env.autoescape, bool)
+        and env.undefined is jinja2.Undefined
+    ):
+        return env.compile(template)
+    key = (
+        template,
+        type(env),
+        extension_types,
+        # The lexer settings, as in `jinja2.lexer.get_lexer`.
+        env.block_start_string,
+        env.block_end_string,
+        env.variable_start_string,
+        env.variable_end_string,
+        env.comment_start_string,
+        env.comment_end_string,
+        env.line_statement_prefix,
+        env.line_comment_prefix,
+        env.trim_blocks,
+        env.lstrip_blocks,
+        env.newline_sequence,
+        env.keep_trailing_newline,
+        env.optimized,
+        env.is_async,
+        env.autoescape,
+    )
+    code = _MACRO_CODE_CACHE.get(key)
+    if code is None:
+        code = env.compile(template)
+        if len(_MACRO_CODE_CACHE) >= _MACRO_CODE_CACHE_MAX_SIZE:
+            _MACRO_CODE_CACHE.clear()
+        _MACRO_CODE_CACHE[key] = code
+    return code
 
 
 class UndefinedRecorder:
@@ -143,9 +237,11 @@ class JinjaTemplater(PythonTemplater):
 
         # Iterate through keys exported from the loaded template string
         context: dict[str, DbtMacroWrapper] = {}
-        # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
-        # is invalid.
-        macro_template = env.from_string(template, globals=ctx)
+        # NOTE: `_compile_macro_template()` will raise TemplateSyntaxError if
+        # `template` is invalid.
+        macro_template = env.template_class.from_code(
+            env, _compile_macro_template(template, env), env.make_globals(ctx)
+        )
 
         # This is kind of low level and hacky but it works
         try:
@@ -470,10 +566,12 @@ class JinjaTemplater(PythonTemplater):
         else:
             loader = FileSystemLoader(final_search_path) if final_search_path else None
         extensions: list[Union[str, type[Extension]]] = ["jinja2.ext.do"]
+        environment_class = SandboxedEnvironment
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
+            environment_class = DbtSandboxedEnvironment
 
-        return SandboxedEnvironment(
+        return environment_class(
             # We explicitly want to preserve newlines.
             keep_trailing_newline=True,
             # The do extension allows the "do" directive

@@ -1,7 +1,9 @@
 """Tests for the Linter class and LintingResult class."""
 
+import contextvars
 import logging
 import os
+import pickle
 from unittest.mock import patch
 
 import pytest
@@ -19,6 +21,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.linter import runner
 from sqlfluff.core.linter.common import DeferredRenderTask
+from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.core.templaters import RawTemplater, TemplatedFile
@@ -434,17 +437,39 @@ def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
     assert not isinstance(task, DeferredRenderTask)
 
 
+@pytest.mark.parametrize("templates_in_worker", [True, False])
+def test__parallel_runner__root_config_for_workers(templates_in_worker, monkeypatch):
+    """Workers get the root config, without its dialect, only if they render."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(config=config)
+    monkeypatch.setattr(lntr.templater, "templates_in_worker", templates_in_worker)
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=2)
+    pickled = thd_runner._root_config_for_workers()
+    if not templates_in_worker:
+        assert pickled is None
+        return
+    worker_config = pickle.loads(pickled)
+    assert worker_config.get("dialect") == "ansi"
+    assert worker_config.get("dialect_obj") is None
+    # The main process keeps its dialect.
+    assert config.get("dialect_obj") is not None
+
+
+def _apply_in_worker(partial_tuple, root_config=None, retain_files=True):
+    """Run ParallelRunner._apply as a pool worker does, after its initializer."""
+    ctx = contextvars.copy_context()
+    pickled = pickle.dumps(root_config) if root_config else None
+    ctx.run(runner.ParallelRunner._init_worker, pickled, retain_files)
+    return ctx.run(runner.ParallelRunner._apply, partial_tuple)
+
+
 def test__parallel_runner__apply_deferred_task():
     """_apply with a DeferredRenderTask should render and return a LintedFile."""
     from sqlfluff.core.linter import LintedFile
 
     config = FluffConfig(overrides={"dialect": "ansi"})
-    task = DeferredRenderTask(
-        fname="test/fixtures/linter/passing.sql",
-        root_config=config,
-        fix=False,
-    )
-    result = runner.ParallelRunner._apply(("test/fixtures/linter/passing.sql", task))
+    task = DeferredRenderTask(fname="test/fixtures/linter/passing.sql", fix=False)
+    result = _apply_in_worker(("test/fixtures/linter/passing.sql", task), config)
     assert isinstance(result, LintedFile)
 
 
@@ -483,14 +508,89 @@ def test__parallel_runner__apply_skip_file():
     so render_file raises SQLFluffSkipFile.
     """
     config = FluffConfig(overrides={"large_file_skip_byte_limit": 5, "dialect": "ansi"})
-    task = DeferredRenderTask(
-        fname="test/fixtures/linter/passing.sql",
-        root_config=config,
-        fix=False,
-    )
-    result = runner.ParallelRunner._apply(("test/fixtures/linter/passing.sql", task))
+    task = DeferredRenderTask(fname="test/fixtures/linter/passing.sql", fix=False)
+    result = _apply_in_worker(("test/fixtures/linter/passing.sql", task), config)
     assert isinstance(result, runner.DelayedException)
     assert isinstance(result.ee, SQLFluffSkipFile)
+
+
+def test__parallel_runner__apply_unpickles_root_config_once():
+    """A worker unpickles the root config for its first file, then reuses it."""
+    fname = "test/fixtures/linter/passing.sql"
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    ctx = contextvars.copy_context()
+    ctx.run(runner.ParallelRunner._init_worker, pickle.dumps(config), True)
+    task = (fname, DeferredRenderTask(fname=fname, fix=False))
+    assert isinstance(ctx.run(runner.ParallelRunner._apply, task), runner.LintedFile)
+    first = ctx[runner._worker_state].root_config
+    assert isinstance(ctx.run(runner.ParallelRunner._apply, task), runner.LintedFile)
+    assert first is not None
+    assert ctx[runner._worker_state].root_config is first
+
+
+def test__parallel_runner__apply_bad_root_config():
+    """A root config which can't be unpickled fails the file, not the worker."""
+    fname = "test/fixtures/linter/passing.sql"
+    ctx = contextvars.copy_context()
+    ctx.run(runner.ParallelRunner._init_worker, b"not a pickle", True)
+    task = (fname, DeferredRenderTask(fname=fname, fix=False))
+    assert isinstance(
+        ctx.run(runner.ParallelRunner._apply, task), runner.DelayedException
+    )
+
+
+@pytest.mark.parametrize(
+    "fname,retain_files,tree_sent",
+    [
+        # The main process won't read the tree of a clean file it doesn't keep.
+        ("test/fixtures/linter/passing.sql", False, False),
+        # It reads the tree to write fixes.
+        ("test/fixtures/linter/comma_errors.sql", False, True),
+        # And it may read any tree of a file it keeps.
+        ("test/fixtures/linter/passing.sql", True, True),
+    ],
+)
+def test__parallel_runner__apply_leaves_out_unused_tree(fname, retain_files, tree_sent):
+    """Workers leave out parse trees which the main process won't read."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    expected = Linter(config=config).lint_paths((fname,), fix=True).paths[0].files[0]
+    task = DeferredRenderTask(fname=fname, fix=True)
+    result = _apply_in_worker((fname, task), config, retain_files)
+    assert (result.tree is not None) == tree_sent
+    if not tree_sent:
+        assert result.segment_counts == (
+            expected.tree.count_segments(raw_only=False),
+            expected.tree.count_segments(raw_only=True),
+        )
+
+
+def test__linter__parallel_records_without_trees(monkeypatch):
+    """Parallel runs which leave out trees still report the same records."""
+    monkeypatch.setattr(Linter, "allow_process_parallelism", False)
+    paths = (
+        "test/fixtures/linter/passing.sql",
+        "test/fixtures/linter/comma_errors.sql",
+    )
+    trees_received = {}
+    real_add = LintedDir.add
+
+    def add(self, file):
+        trees_received[os.path.basename(file.path)] = file.tree is not None
+        real_add(self, file)
+
+    monkeypatch.setattr(LintedDir, "add", add)
+
+    def records(processes):
+        result = Linter(dialect="ansi").lint_paths(
+            paths, fix=True, processes=processes, retain_files=False
+        )
+        # Timings vary from run to run.
+        return [{**record, "timings": {}} for record in result.as_records()]
+
+    parallel = records(2)
+    # The clean file's tree stayed in the worker. The other has fixes to write.
+    assert trees_received == {"passing.sql": False, "comma_errors.sql": True}
+    assert parallel == records(1)
 
 
 def test__parallel_runner__skip_file_handled_in_run():
@@ -677,15 +777,17 @@ def test__parallel_runner__pool_join_called_on_generator_close(monkeypatch):
         def __init__(self):
             self.terminated = False
             self.joined = False
+            # Like a pool worker, run the initializer and the tasks in one context.
+            self.ctx = contextvars.copy_context()
 
         def imap_unordered(self, func, iterable):
             # Yield a sentinel so the generator suspends at yield.
             for item in iterable:
-                yield func(item)
+                yield self.ctx.run(func, item)
 
         def imap(self, func, iterable):
             for item in iterable:
-                yield func(item)
+                yield self.ctx.run(func, item)
 
         def terminate(self):
             self.terminated = True
@@ -695,10 +797,12 @@ def test__parallel_runner__pool_join_called_on_generator_close(monkeypatch):
 
     tracking_pool = TrackingPool()
 
+    def _create_pool(cls, processes, initializer):
+        tracking_pool.ctx.run(initializer)
+        return tracking_pool
+
     monkeypatch.setattr(
-        runner.MultiThreadRunner,
-        "_create_pool",
-        classmethod(lambda cls, *a, **kw: tracking_pool),
+        runner.MultiThreadRunner, "_create_pool", classmethod(_create_pool)
     )
 
     config = FluffConfig(overrides={"dialect": "ansi"})
@@ -707,7 +811,7 @@ def test__parallel_runner__pool_join_called_on_generator_close(monkeypatch):
         ["test/fixtures/linter/passing.sql"], fix=False
     )
     # Advance to the first yield, then close early.
-    next(gen, None)
+    assert isinstance(next(gen), runner.LintedFile)
     gen.close()
 
     assert tracking_pool.terminated, "pool.terminate() was not called"

@@ -18,8 +18,8 @@ directly from [docstrings](https://en.wikipedia.org/wiki/Docstring) in the codeb
 [Dialect Reference](/reference/dialects/index), and [Internal API Reference](/reference/internals/index).
 All generation is orchestrated by [`docsv/scripts/generate-all-docs.py`](https://github.com/sqlfluff/sqlfluff/blob/main/docsv/scripts/generate-all-docs.py).
 
-For the active beta-docs migration and deployment work, see the
-[Versioned Beta Docs Hosting Plan](/development/versioned-docs-hosting).
+For publishing and version management, see
+[Versioned Docs Hosting](/development/versioned-docs-hosting).
 
 
 ## Docstrings

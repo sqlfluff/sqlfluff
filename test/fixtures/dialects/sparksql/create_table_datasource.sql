@@ -69,3 +69,11 @@ CREATE TABLE cluster_by_table_cols (
 )
 USING DELTA
 CLUSTER BY (col1);
+
+--Temporary table with a data source provider and no column list
+CREATE TEMPORARY TABLE consolidationboard USING elastic;
+
+--Temporary table with a column list, provider and options
+CREATE TEMPORARY TABLE student_tmp (id INT, student_name STRING)
+USING CSV
+OPTIONS ( "header" = "true" );
