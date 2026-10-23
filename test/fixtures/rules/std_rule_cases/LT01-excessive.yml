@@ -24,6 +24,13 @@ test_redshift_variadic_array_spacing:
     core:
       dialect: redshift
 
+test_redshift_masking_policy_spacing_fix:
+  fail_str: CREATE MASKING POLICY "test_policy"     WITH (col1 VARCHAR) USING ('***'::TEXT)
+  fix_str: CREATE MASKING POLICY "test_policy" WITH (col1 VARCHAR) USING ('***'::TEXT)
+  configs:
+    core:
+      dialect: redshift
+
 test_basic_template:
   pass_str: |
     {{ 'SELECT 1' }}
