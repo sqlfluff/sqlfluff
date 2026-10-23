@@ -210,20 +210,25 @@ impl GrammarTables {
 
     /// Get simple hint for a grammar by its ID
     ///
-    /// Returns None if the grammar has no hint (hint_idx = 0).
-    /// Note: hint_idx=0 actually maps to SIMPLE_HINTS[0] which is empty().
+    /// Returns None if the grammar has no hint (hint_idx = 0), so the caller
+    /// must try a full match. This is Python's `simple()` returning None.
+    /// SIMPLE_HINTS[0] is only a placeholder that keeps real hints at 1 and up;
+    /// it is never returned, because an empty hint means something else (see
+    /// `hint_can_match`).
     #[inline]
     pub fn get_simple_hint_for_grammar(&self, id: GrammarId) -> Option<&SimpleHintData> {
         if id.get() as usize >= self.simple_hint_indices.len() {
             return None;
         }
         let hint_idx = self.simple_hint_indices[id.get() as usize] as usize;
+        if hint_idx == 0 {
+            return None;
+        }
         if hint_idx >= self.simple_hints.len() {
             // Out of bounds - this shouldn't happen but handle gracefully
             None
         } else {
             // hint_idx is a direct index into simple_hints array
-            // SIMPLE_HINTS[0] is reserved for empty hint
             Some(&self.simple_hints[hint_idx])
         }
     }
@@ -231,9 +236,13 @@ impl GrammarTables {
     /// Check if a hint can match a token
     ///
     /// Returns true if:
-    /// - The hint is empty (complex grammar, must try)
     /// - The token's raw_upper matches any of the hint's raw values
     /// - The token's types intersect with the hint's token types
+    ///
+    /// An empty hint matches no token. It comes from a grammar that can never
+    /// match, such as `Nothing`, and Python prunes it the same way. A grammar
+    /// that is too complex for a hint has no hint at all
+    /// (`get_simple_hint_for_grammar` returns None), and the caller tries it.
     #[inline]
     pub fn hint_can_match(
         &self,
@@ -242,11 +251,6 @@ impl GrammarTables {
         instance_types: &[String],
         class_types: &hashbrown::HashSet<String>,
     ) -> bool {
-        // Empty hint means "complex - can't determine", so return true (must try it)
-        if hint.is_empty() {
-            return true;
-        }
-
         // Check raw values (indices into hint_string_indices -> strings)
         let raw_start = hint.raw_values_start as usize;
         let raw_end = raw_start + hint.raw_values_count as usize;
@@ -397,7 +401,7 @@ impl SimpleHintData {
         }
     }
 
-    /// Check if this hint is empty (complex grammar)
+    /// Check if this hint is empty (the grammar can never match)
     pub const fn is_empty(&self) -> bool {
         self.raw_values_count == 0 && self.token_types_count == 0
     }
@@ -674,5 +678,74 @@ mod tests {
             token_types_count: 1,
         };
         assert!(!hint.is_empty());
+    }
+
+    /// Python's `simple()` has three answers, and the tables must keep them
+    /// apart: None (try a full match), an empty hint (never matches, e.g.
+    /// `Nothing`), and a hint with words or types.
+    #[test]
+    fn test_simple_hint_states() {
+        static INSTRUCTIONS: &[GrammarInst] = &[
+            GrammarInst::new(GrammarVariant::Sequence),
+            GrammarInst::new(GrammarVariant::Nothing),
+            GrammarInst::new(GrammarVariant::StringParser),
+        ];
+        static STRINGS: &[&str] = &["SELECT"];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0];
+        static SIMPLE_HINTS: &[SimpleHintData] = &[
+            // [0] placeholder: index 0 means "no hint"
+            SimpleHintData::empty(),
+            // [1] Nothing: no words, no types
+            SimpleHintData::empty(),
+            // [2] the word SELECT
+            SimpleHintData {
+                raw_values_start: 0,
+                raw_values_count: 1,
+                token_types_start: 1,
+                token_types_count: 0,
+            },
+        ];
+        static HINT_STRING_INDICES: &[u32] = &[0];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 1, 2];
+
+        let tables = GrammarTables {
+            instructions: INSTRUCTIONS,
+            child_ids: &[],
+            terminators: &[],
+            strings: STRINGS,
+            aux_data: &[],
+            aux_data_offsets: AUX_DATA_OFFSETS,
+            regex_patterns: &[],
+            simple_hints: SIMPLE_HINTS,
+            hint_string_indices: HINT_STRING_INDICES,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
+            segment_type_offsets: &[],
+            segment_class_offsets: &[],
+            casefold_sparse: &[],
+            trim_chars_sparse: &[],
+            trim_chars_data: &[],
+            segment_class_types_sparse: &[],
+            segment_class_types_data: &[],
+        };
+        let class_types = hashbrown::HashSet::from(["keyword".to_string()]);
+        let instance_types = ["keyword".to_string()];
+
+        // No hint: the caller must try a full match.
+        assert!(tables
+            .get_simple_hint_for_grammar(GrammarId::new(0))
+            .is_none());
+
+        // Empty hint: matches no token, not even one of its "types".
+        let nothing = tables
+            .get_simple_hint_for_grammar(GrammarId::new(1))
+            .expect("an empty hint is a hint, not a missing one");
+        assert!(!tables.hint_can_match(nothing, "SELECT", &instance_types, &class_types));
+
+        // Real hint: matches its word only.
+        let select = tables
+            .get_simple_hint_for_grammar(GrammarId::new(2))
+            .expect("SELECT has a hint");
+        assert!(tables.hint_can_match(select, "SELECT", &instance_types, &class_types));
+        assert!(!tables.hint_can_match(select, "FROM", &instance_types, &class_types));
     }
 }

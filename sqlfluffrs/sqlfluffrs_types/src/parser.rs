@@ -14,7 +14,7 @@ pub struct SimpleHint {
 }
 
 impl SimpleHint {
-    /// Create an empty hint (means "complex - can't determine")
+    /// Create an empty hint (the grammar can never match)
     pub fn empty() -> Self {
         Self {
             raw_values: HashSet::new(),
@@ -75,13 +75,10 @@ impl SimpleHint {
 
     /// Check if this hint can match the given token (using a set of types)
     /// This matches Python's behavior where it checks intersection of hint types with token's class_types
-    /// Returns true if the token's raw value OR any type matches, or if hint is empty (can't determine)
+    /// Returns true if the token's raw value OR any type matches. An empty hint
+    /// matches no token, as in Python; a grammar too complex for a hint has no
+    /// hint at all.
     pub fn can_match_token(&self, raw_upper: &str, token_types: &HashSet<String>) -> bool {
-        // Empty hint means "complex - can't determine", so return true (must try it)
-        if self.is_empty() {
-            return true;
-        }
-
         // Check raw value match
         if !self.raw_values.is_empty() && self.raw_values.contains(raw_upper) {
             return true;
@@ -99,7 +96,7 @@ impl SimpleHint {
         false
     }
 
-    /// Check if this hint is empty (meaning grammar is too complex to analyze)
+    /// Check if this hint is empty (the grammar can never match)
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.raw_values.is_empty() && self.token_types.is_empty()
