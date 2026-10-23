@@ -291,7 +291,7 @@ postgres_docs_keywords = [
     ("END-EXEC", "not-keyword"),
     ("END_FRAME", "not-keyword"),
     ("END_PARTITION", "not-keyword"),
-    ("ENFORCED", "not-keyword"),
+    ("ENFORCED", "non-reserved"),
     ("ENUM", "non-reserved"),
     ("EQUALS", "not-keyword"),
     ("ERROR", "not-keyword"),

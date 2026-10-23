@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 44707c171d008c5a4f5cee153427f5df7c2ac6ddd46993632cd3c21947bd2348
+_hash: 5cf24e08160edf79f76747395c309f3e1b3429ab77b31a36bdea76d476bc0c24
 file:
 - statement:
     alter_table_statement:
@@ -1725,11 +1725,12 @@ file:
     - projection_definition:
       - keyword: PROJECTION
       - naked_identifier: uid_proj
-      - keyword: INDEX
-      - column_reference:
-          naked_identifier: user_id
-      - keyword: TYPE
-      - naked_identifier: basic
+      - projection_body:
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: user_id
+        - keyword: TYPE
+        - naked_identifier: basic
       - keyword: WITH
       - settings_clause:
           keyword: SETTINGS
@@ -1758,39 +1759,40 @@ file:
     - projection_definition:
       - keyword: PROJECTION
       - naked_identifier: region_proj
-      - bracketed:
-          start_bracket: (
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
+      - projection_body:
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
                 naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              function:
-                function_name:
-                  function_name_identifier: count
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: user_id
-                    end_bracket: )
-          where_clause:
-            keyword: where
-            expression:
-              column_reference:
-                naked_identifier: region
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "'JP'"
-          groupby_clause:
-          - keyword: group
-          - keyword: by
-          - column_reference:
-              naked_identifier: region
-          end_bracket: )
+            end_bracket: )
       - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -1808,37 +1810,38 @@ file:
       - keyword: NOT
       - keyword: EXISTS
       - naked_identifier: user_proj
-      - keyword: INDEX
-      - expression:
-          function:
-            function_name:
-              function_name_identifier: trim
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: cast
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: user_id
-                        keyword: as
-                        data_type:
-                          data_type_identifier: Nullable
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              data_type:
-                                data_type_identifier: String
-                              end_bracket: )
-                        end_bracket: )
-                end_bracket: )
-      - keyword: TYPE
-      - naked_identifier: basic
+      - projection_body:
+        - keyword: INDEX
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: trim
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: cast
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: user_id
+                          keyword: as
+                          data_type:
+                            data_type_identifier: Nullable
+                            bracketed_arguments:
+                              bracketed:
+                                start_bracket: (
+                                data_type:
+                                  data_type_identifier: String
+                                end_bracket: )
+                          end_bracket: )
+                  end_bracket: )
+        - keyword: TYPE
+        - naked_identifier: basic
       - keyword: WITH
       - settings_clause:
           keyword: SETTINGS
@@ -1864,31 +1867,32 @@ file:
     - projection_definition:
       - keyword: PROJECTION
       - naked_identifier: region_proj_3
-      - bracketed:
-          start_bracket: (
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              column_reference:
+      - projection_body:
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
                 naked_identifier: user_id
-          where_clause:
-            keyword: where
-            expression:
-              column_reference:
-                naked_identifier: region
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "'JP'"
-          orderby_clause:
-          - keyword: order
-          - keyword: by
-          - column_reference:
-              naked_identifier: user_id
-          end_bracket: )
+            end_bracket: )
       - keyword: WITH
       - settings_clause:
           keyword: SETTINGS
@@ -1915,31 +1919,32 @@ file:
       - keyword: NOT
       - keyword: EXISTS
       - naked_identifier: region_proj_4
-      - bracketed:
-          start_bracket: (
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              column_reference:
+      - projection_body:
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
                 naked_identifier: user_id
-          where_clause:
-            keyword: where
-            expression:
-              column_reference:
-                naked_identifier: region
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "'JP'"
-          orderby_clause:
-          - keyword: order
-          - keyword: by
-          - column_reference:
-              naked_identifier: user_id
-          end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1956,45 +1961,46 @@ file:
       - keyword: NOT
       - keyword: EXISTS
       - naked_identifier: region_proj
-      - bracketed:
-        - start_bracket: (
-        - keyword: with
-        - expression:
-            quoted_literal: "'JP'"
-        - keyword: as
-        - naked_identifier: country
-        - select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              function:
-                function_name:
-                  function_name_identifier: count
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: user_id
-                    end_bracket: )
-        - where_clause:
-            keyword: where
-            expression:
+      - projection_body:
+          bracketed:
+          - start_bracket: (
+          - keyword: with
+          - expression:
+              quoted_literal: "'JP'"
+          - keyword: as
+          - naked_identifier: country
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+          - where_clause:
+              keyword: where
+              expression:
+              - column_reference:
+                  naked_identifier: region
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: country
+          - groupby_clause:
+            - keyword: group
+            - keyword: by
             - column_reference:
                 naked_identifier: region
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - column_reference:
-                naked_identifier: country
-        - groupby_clause:
-          - keyword: group
-          - keyword: by
-          - column_reference:
-              naked_identifier: region
-        - end_bracket: )
+          - end_bracket: )
       - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -2012,60 +2018,61 @@ file:
       - keyword: NOT
       - keyword: EXISTS
       - naked_identifier: region_proj_3
-      - bracketed:
-        - start_bracket: (
-        - keyword: with
-        - expression:
-            bracketed:
-              start_bracket: (
+      - projection_body:
+          bracketed:
+          - start_bracket: (
+          - keyword: with
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '1'
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '1'
+                end_bracket: )
+          - keyword: as
+          - naked_identifier: f1
+          - comma: ','
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: cast
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'JP'"
+                    keyword: as
+                    data_type:
+                      data_type_identifier: String
+                    end_bracket: )
+          - keyword: as
+          - naked_identifier: country
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+          - where_clause:
+              keyword: where
               expression:
-              - numeric_literal: '1'
+              - column_reference:
+                  naked_identifier: region
               - comparison_operator:
                   raw_comparison_operator: '='
-              - numeric_literal: '1'
-              end_bracket: )
-        - keyword: as
-        - naked_identifier: f1
-        - comma: ','
-        - expression:
-            function:
-              function_name:
-                function_name_identifier: cast
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'JP'"
-                  keyword: as
-                  data_type:
-                    data_type_identifier: String
-                  end_bracket: )
-        - keyword: as
-        - naked_identifier: country
-        - select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              column_reference:
+              - column_reference:
+                  naked_identifier: country
+          - orderby_clause:
+            - keyword: order
+            - keyword: by
+            - column_reference:
                 naked_identifier: user_id
-        - where_clause:
-            keyword: where
-            expression:
-            - column_reference:
-                naked_identifier: region
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - column_reference:
-                naked_identifier: country
-        - orderby_clause:
-          - keyword: order
-          - keyword: by
-          - column_reference:
-              naked_identifier: user_id
-        - end_bracket: )
+          - end_bracket: )
       - keyword: WITH
       - settings_clause:
           keyword: SETTINGS
@@ -2092,56 +2099,57 @@ file:
       - keyword: NOT
       - keyword: EXISTS
       - naked_identifier: region_proj_4
-      - bracketed:
-        - start_bracket: (
-        - keyword: with
-        - expression:
-          - numeric_literal: '1'
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '0'
-        - keyword: as
-        - naked_identifier: f1
-        - comma: ','
-        - expression:
-            function:
-              function_name:
-                function_name_identifier: cast
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'JP'"
-                  keyword: as
-                  data_type:
-                    data_type_identifier: String
-                  end_bracket: )
-        - keyword: as
-        - naked_identifier: country
-        - select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: user_id
-        - where_clause:
-            keyword: where
-            expression:
-            - column_reference:
-                naked_identifier: region
+      - projection_body:
+          bracketed:
+          - start_bracket: (
+          - keyword: with
+          - expression:
+            - numeric_literal: '1'
             - comparison_operator:
                 raw_comparison_operator: '='
+            - numeric_literal: '0'
+          - keyword: as
+          - naked_identifier: f1
+          - comma: ','
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: cast
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'JP'"
+                    keyword: as
+                    data_type:
+                      data_type_identifier: String
+                    end_bracket: )
+          - keyword: as
+          - naked_identifier: country
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+          - where_clause:
+              keyword: where
+              expression:
+              - column_reference:
+                  naked_identifier: region
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: country
+          - orderby_clause:
+            - keyword: order
+            - keyword: by
             - column_reference:
-                naked_identifier: country
-        - orderby_clause:
-          - keyword: order
-          - keyword: by
-          - column_reference:
-              naked_identifier: user_id
-        - end_bracket: )
+                naked_identifier: user_id
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -2155,11 +2163,12 @@ file:
     - projection_definition:
       - keyword: PROJECTION
       - naked_identifier: uid_proj
-      - keyword: INDEX
-      - column_reference:
-          naked_identifier: user_id
-      - keyword: TYPE
-      - naked_identifier: basic
+      - projection_body:
+        - keyword: INDEX
+        - column_reference:
+            naked_identifier: user_id
+        - keyword: TYPE
+        - naked_identifier: basic
       - keyword: WITH
       - settings_clause:
           keyword: SETTINGS
@@ -2185,39 +2194,40 @@ file:
       - keyword: IF
       - keyword: EXISTS
       - naked_identifier: region_proj
-      - bracketed:
-          start_bracket: (
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
+      - projection_body:
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            groupby_clause:
+            - keyword: group
+            - keyword: by
+            - column_reference:
                 naked_identifier: region
-          - comma: ','
-          - select_clause_element:
-              function:
-                function_name:
-                  function_name_identifier: count
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: user_id
-                    end_bracket: )
-          where_clause:
-            keyword: where
-            expression:
-              column_reference:
-                naked_identifier: region
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "'JP'"
-          groupby_clause:
-          - keyword: group
-          - keyword: by
-          - column_reference:
-              naked_identifier: region
-          end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

@@ -3,29 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1da06c2b2eccd428d6053f563bc3f54b234e809d8e4cde79e6019fb564d1f329
+_hash: e609059d50f2d644a48adbf4c052715c7b837d50091cbeefa3d5d76e042d1f6e
 file:
   statement:
     compound_statement:
     - naked_identifier: blocks
     - colon: ':'
     - keyword: BEGIN
-    - statement:
-        compound_statement:
-        - naked_identifier: nest
-        - colon: ':'
-        - keyword: begin
-        - statement:
-            set_statement:
-              keyword: set
-              variable: '@abc'
-              comparison_operator:
-                raw_comparison_operator: '='
-              numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: end
-        - naked_identifier: nest
-    - statement_terminator: ;
+    - statement_list:
+        statement:
+          compound_statement:
+          - naked_identifier: nest
+          - colon: ':'
+          - keyword: begin
+          - statement_list:
+              statement:
+                set_statement:
+                  keyword: set
+                  variable: '@abc'
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              statement_terminator: ;
+          - keyword: end
+          - naked_identifier: nest
+        statement_terminator: ;
     - keyword: END
     - naked_identifier: blocks
   statement_terminator: '~'

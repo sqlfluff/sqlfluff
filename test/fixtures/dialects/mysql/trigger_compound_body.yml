@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 38b71ed81b5b039ed5fb25d6a24819427990887ee4e9afd64fa7d6b26fb5a7fc
+_hash: 420af78c332b8265e499885710aa148bc06bd1931362496d2ffffb46391cb700
 file:
   statement:
     create_trigger:
@@ -21,31 +21,32 @@ file:
     - keyword: ROW
     - compound_statement:
       - keyword: BEGIN
-      - statement:
-          set_statement:
-          - keyword: SET
-          - keyword: NEW
-          - dot: .
-          - variable: c1
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '1'
-      - statement_terminator: ;
-      - statement:
-          set_statement:
-          - keyword: SET
-          - keyword: NEW
-          - dot: .
-          - variable: c2
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - expression:
-              column_reference:
-              - naked_identifier: NEW
-              - dot: .
-              - naked_identifier: c1
-              binary_operator: +
-              numeric_literal: '1'
-      - statement_terminator: ;
+      - statement_list:
+        - statement:
+            set_statement:
+            - keyword: SET
+            - keyword: NEW
+            - dot: .
+            - variable: c1
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+        - statement_terminator: ;
+        - statement:
+            set_statement:
+            - keyword: SET
+            - keyword: NEW
+            - dot: .
+            - variable: c2
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                column_reference:
+                - naked_identifier: NEW
+                - dot: .
+                - naked_identifier: c1
+                binary_operator: +
+                numeric_literal: '1'
+        - statement_terminator: ;
       - keyword: END
   statement_terminator: ;

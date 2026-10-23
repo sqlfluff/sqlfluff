@@ -3095,3 +3095,102 @@ test_fail_snowflake_exception_block_nested:
   configs:
     core:
       dialect: snowflake
+
+test_pass_snowflake_scripting_case_statement_simple:
+  # Issue 8690: Scripting CASE statement WHEN/ELSE branches must be indented
+  # under CASE, and their bodies one level further.
+  pass_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_scripting_case_statement_searched:
+  # Searched CASE statement without expression value.
+  pass_str: |
+    BEGIN
+        CASE
+            WHEN x < 3 THEN
+                result := 'small';
+            WHEN x < 10 THEN
+                result := 'medium';
+            ELSE
+                result := 'large';
+        END;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_scripting_case_statement_unindented_branches:
+  # Issue 8690: WHEN/ELSE branches at CASE indentation level should be fixed to indent.
+  fail_str: |
+    BEGIN
+        CASE (v)
+        WHEN 1 THEN
+            x := 2;
+        ELSE
+            x := 3;
+        END CASE;
+    END;
+  fix_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_implicit_indents_require_bracketed_subquery_on_next_line:
+  # Collapsing the line break after FROM used to produce a fix that deleted
+  # whitespace created by the indent fix for the bracket line, which crashed
+  # the linter with "has no PositionMarker".
+  fail_str: |
+    SELECT 1 AS u
+    FROM
+    (
+        SELECT 1 AS c
+        FROM t
+    ) p
+  fix_str: |
+    SELECT 1 AS u
+    FROM (
+        SELECT 1 AS c
+        FROM t
+    ) p
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_implicit_indents_require_indented_bracketed_subquery_on_next_line:
+  # As above, but the bracket line already has leading whitespace, which the
+  # indent fix replaces. The collapse must remove the original whitespace and
+  # not leave it behind after `FROM`.
+  fail_str: |
+    SELECT 1 AS u
+    FROM
+      (
+        SELECT 1 AS c
+        FROM t
+      ) p
+  fix_str: |
+    SELECT 1 AS u
+    FROM (
+        SELECT 1 AS c
+        FROM t
+    ) p
+  configs:
+    indentation:
+      implicit_indents: require

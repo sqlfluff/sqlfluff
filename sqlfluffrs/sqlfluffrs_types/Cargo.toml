@@ -7,6 +7,7 @@ rust-version.workspace = true
 [dependencies]
 hashbrown.workspace = true
 regex.workspace = true
+env_logger.workspace = true
 log.workspace = true
 serde.workspace = true
 uuid.workspace = true

@@ -12,12 +12,14 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    KeywordSegment,
     Matchable,
     OneOf,
     OptionallyDelimited,
     ParseMode,
     Ref,
     Sequence,
+    StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
@@ -45,6 +47,23 @@ mariadb_dialect.sets("reserved_keywords").clear()
 mariadb_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", mariadb_reserved_keywords
 )
+
+# MariaDB has no gb18030 character set, so `_gb18030'x'` is the column
+# `_gb18030` with an alias.
+# https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/supported-character-sets-and-collations
+mariadb_dialect.sets("character_set_names").discard("GB18030")
+
+mariadb_dialect.add(
+    # A value in the LIMIT of GROUP_CONCAT and JSON_ARRAYAGG.
+    AggregateLimitValueGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("ParameterSegment"),
+        # A routine variable. LocalVariableNameSegment accepts any word,
+        # reserved or not, so LIMIT's own ALL is excluded here explicitly.
+        Ref("LocalVariableNameSegment", exclude=Ref.keyword("ALL")),
+    ),
+)
+
 mariadb_dialect.replace(
     AddDropSystemVersioningGrammar=Sequence(
         OneOf("ADD", "DROP"),
@@ -83,10 +102,44 @@ mariadb_dialect.replace(
     # (`DEFAULT NEXT VALUE FOR seq`) or bracketed (`DEFAULT (NEXT VALUE FOR
     # seq)`) -- both are accepted by MariaDB. The base column-default grammar
     # only allows literals/functions, so it does not cover this.
+    # MariaDB lets GROUP_CONCAT and JSON_ARRAYAGG end with a LIMIT clause:
+    # `GROUP_CONCAT(v ORDER BY v SEPARATOR ',' LIMIT 2)`. MySQL does not.
+    # https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/group_concat
+    AggregateLimitClauseGrammar=Ref("AggregateLimitClauseSegment"),
+    FunctionNameExclusionGrammar=mysql_dialect.get_grammar(
+        "FunctionNameExclusionGrammar"
+    ).copy(
+        insert=[Ref("JsonArrayaggFunctionNameSegment")],
+    ),
     ColumnConstraintDefaultGrammar=OneOf(
         Ref("SequenceValueForSegment"),
         Bracketed(Ref("SequenceValueForSegment")),
         mysql_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
+    # MariaDB gives function parameters the same form as procedure parameters,
+    # including a direction (IN, OUT or INOUT), which MySQL forbids on
+    # functions. The two-word IN OUT is Oracle mode only, so not accepted here.
+    # https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
+    FunctionParameterGrammar=Ref("ProcedureParameterGrammar"),
+    # A parameter may have a default value (`sp_opt_default`), used when the
+    # caller leaves it out. MySQL has no parameter defaults.
+    # https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-procedure
+    ProcedureParameterGrammar=mysql_dialect.get_grammar(
+        "ProcedureParameterGrammar"
+    ).copy(
+        insert=[Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True)],
+    ),
+)
+
+mariadb_dialect.add(
+    # A user or a role (`user_or_role` in the server's grammar): any account
+    # reference, or CURRENT_ROLE. It belongs in DEFINER, GRANT and REVOKE
+    # lists, role grants and SHOW GRANTS FOR, not where a statement names a
+    # specific user account (CREATE USER, DROP USER, KILL USER), where
+    # CURRENT_ROLE can never work.
+    UserOrRoleGrammar=OneOf(
+        Ref("RoleReferenceSegment"),
+        Ref("CurrentRoleSegment"),
     ),
 )
 
@@ -1026,6 +1079,7 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
                         # Rename column
                         Sequence(
                             "COLUMN",
+                            Ref("IfExistsGrammar", optional=True),
                             Ref("ColumnReferenceSegment"),
                             "TO",
                             Ref("ColumnReferenceSegment"),
@@ -1101,15 +1155,42 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
     )
 
 
+class CurrentRoleSegment(BaseSegment):
+    """`CURRENT_ROLE`, with or without brackets: the session's active role.
+
+    Typed like an account reference, as `CURRENT_USER` is.
+    https://mariadb.com/docs/server/reference/sql-functions/secondary-functions/information-functions/current_role
+    """
+
+    type = "role_reference"
+    match_grammar: Matchable = Sequence("CURRENT_ROLE", Bracketed(optional=True))
+
+
+class DefinerSegment(mysql.DefinerSegment):
+    """`DEFINER = user_or_role`.
+
+    As in MySQL, a user or a role is named like any account. MariaDB also
+    accepts CURRENT_ROLE here; in MySQL, CURRENT_ROLE() is only a function.
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-procedure
+    """
+
+    match_grammar = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        Ref("UserOrRoleGrammar"),
+    )
+
+
 class CreateProcedureStatementSegment(mysql.CreateProcedureStatementSegment):
     """A `CREATE PROCEDURE` statement.
 
     https://mariadb.com/docs/server/server-usage/stored-routines/stored-procedures/create-procedure
     """
 
+    # OR REPLACE comes straight after CREATE, before any DEFINER.
     match_grammar = mysql.CreateProcedureStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
-        before=Ref("ProcedureKeywordSegment"),
+        before=Ref("DefinerSegment", optional=True),
     )
 
 
@@ -1119,9 +1200,41 @@ class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
     https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
     """
 
+    # OR REPLACE comes straight after CREATE, before any DEFINER; AGGREGATE
+    # comes just before FUNCTION.
     match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
         insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("DefinerSegment", optional=True),
+    ).copy(
+        insert=[Ref.keyword("AGGREGATE", optional=True)],
         before=Ref("FunctionKeywordSegment"),
+    )
+
+
+class CreateEventStatementSegment(mysql.CreateEventStatementSegment):
+    """A `CREATE EVENT` statement.
+
+    MariaDB adds `OR REPLACE`, straight after `CREATE`.
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-event
+    """
+
+    match_grammar = mysql.CreateEventStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("DefinerSegment", optional=True),
+    )
+
+
+class CursorFetchSegment(mysql.CursorFetchSegment):
+    """A `FETCH` statement.
+
+    MariaDB adds `FETCH GROUP NEXT ROW`, which an aggregate function uses to
+    read its next row.
+    https://mariadb.com/docs/server/server-usage/stored-routines/stored-functions/stored-aggregate-functions
+    """
+
+    match_grammar = OneOf(
+        Sequence("FETCH", "GROUP", "NEXT", "ROW"),
+        mysql.CursorFetchSegment.match_grammar,
     )
 
 
@@ -1454,6 +1567,73 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
     )
 
 
+class FunctionSegment(mysql.FunctionSegment):
+    """A scalar or aggregate function, with MariaDB's JSON_ARRAYAGG."""
+
+    match_grammar = mysql.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonArrayaggFunctionNameSegment"),
+                Ref("JsonArrayaggFunctionContentsSegment"),
+                # The parser accepts OVER here, although MariaDB cannot execute
+                # JSON_ARRAYAGG as a window function yet.
+                Ref("OverClauseSegment", optional=True),
+            ),
+        ],
+        at=0,
+    )
+
+
+class AggregateLimitClauseSegment(BaseSegment):
+    """The LIMIT clause of GROUP_CONCAT and JSON_ARRAYAGG.
+
+    LIMIT {[offset,] row_count | row_count OFFSET offset}
+
+    Narrower than a query's LIMIT: each value is a number, a `?` placeholder
+    or a routine variable, never an expression or ALL.
+    """
+
+    type = "limit_clause"
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Ref("AggregateLimitValueGrammar"),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("AggregateLimitValueGrammar")),
+            Sequence("OFFSET", Ref("AggregateLimitValueGrammar")),
+            optional=True,
+        ),
+    )
+
+
+class JsonArrayaggFunctionNameSegment(BaseSegment):
+    """JSON_ARRAYAGG function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_ARRAYAGG", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class JsonArrayaggFunctionContentsSegment(BaseSegment):
+    """JSON_ARRAYAGG function contents.
+
+    JSON_ARRAYAGG([DISTINCT] expr [ORDER BY ...] [LIMIT ...])
+
+    https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_arrayagg
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref.keyword("DISTINCT", optional=True),
+        Ref("ExpressionSegment"),
+        Ref("AggregateOrderByClause", optional=True),
+        Ref("AggregateLimitClauseGrammar", optional=True),
+    )
+
+
 class KillStatementSegment(mysql.KillStatementSegment):
     """A `KILL` statement, with MariaDB's additional forms.
 
@@ -1467,12 +1647,12 @@ class KillStatementSegment(mysql.KillStatementSegment):
         "KILL",
         OneOf("HARD", "SOFT", optional=True),
         OneOf(
-            Sequence("QUERY", "ID", Ref("KillIdGrammar")),
+            Sequence("QUERY", "ID", Ref("ExpressionSegment")),
             Sequence(
                 OneOf("CONNECTION", "QUERY", optional=True),
                 OneOf(
                     Sequence("USER", Ref("RoleReferenceSegment")),
-                    Ref("KillIdGrammar"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),

@@ -58,8 +58,14 @@ class Rule_ST08(BaseRule):
             bracketed = expression.children(sp.is_type("bracketed")).first()
             # is the first element only an expression with only brackets?
             if modifier and bracketed:
-                # If there's nothing else in the expression, remove the brackets.
-                if len(expression[0].segments) == 1:
+                # Keep brackets required by subqueries and row constructors.
+                if (
+                    len(expression[0].segments) == 1
+                    and not bracketed.recursive_crawl(
+                        "select_statement", "values_clause", recurse_into=False
+                    )
+                    and not bracketed.children(sp.is_type("comma"))
+                ):
                     anchor, seq = self._remove_unneeded_brackets(context, bracketed)
                 # Otherwise, still make sure there's a space after the DISTINCT.
                 else:
