@@ -238,6 +238,12 @@ class DepthMap:
                 f"segment {raw} with UUID {raw.uuid}"
             ) from err
 
+    def copy(self) -> "DepthMap":
+        """Return a copy, so `copy_depth_info()` on it doesn't change this one."""
+        depth_map = self.__class__(raws_with_stack=())
+        depth_map.depth_info = self.depth_info.copy()
+        return depth_map
+
     def copy_depth_info(
         self, anchor: RawSegment, new_segment: RawSegment, trim: int = 0
     ) -> None:
