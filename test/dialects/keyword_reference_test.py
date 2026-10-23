@@ -342,11 +342,6 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
 def _missing_segments_message(dialect: Dialect, segments: dict[str, set[Owner]]) -> str:
     """Say, for each reference to a segment that doesn't exist, where it is."""
     name = dialect.name
-    existing = {
-        element
-        for element in dialect._library
-        if not element.endswith("KeywordSegment")
-    }
     lines = [
         f"The {name} dialect's grammar refers to segments or grammars that don't "
         f"exist in {name}, so any statement reaching that grammar would crash. "
@@ -357,10 +352,48 @@ def _missing_segments_message(dialect: Dialect, segments: dict[str, set[Owner]])
         files = " and ".join(_dialect_file(module) for module in modules)
         lines.append(
             f'- Ref("{missing}") (in {users}, in {files}):'
+            f"{_keyword_meant(dialect, missing)}"
+        )
+    return "\n".join(lines)
+
+
+def _keyword_meant(dialect: Dialect, missing: str) -> str:
+    """The advice for one missing Ref(), spotting a keyword written as a segment.
+
+    Segment names are CamelCase, so an all-capitals name like Ref("COLUMN") is
+    almost always a keyword that should have been Ref.keyword("COLUMN"). Without
+    this, the advice would be to define a COLUMN segment, which is wrong.
+    """
+    if not missing.isupper():
+        existing = {
+            element
+            for element in dialect._library
+            if not element.endswith("KeywordSegment")
+        }
+        return (
             f"{_did_you_mean(missing, existing)} Fix the name in that Ref(), or "
             f"define {missing}."
         )
-    return "\n".join(lines)
+    name = dialect.name
+    known = any(
+        missing in dialect.sets(label)
+        for label in (
+            "reserved_keywords",
+            "unreserved_keywords",
+            "future_reserved_keywords",
+        )
+    )
+    if known:
+        return (
+            f" {missing} is a {name} keyword, so this is probably meant to be "
+            f'Ref.keyword("{missing}"), or just "{missing}".'
+        )
+    return (
+        f" this looks like a keyword, not a segment. Write it as "
+        f'Ref.keyword("{missing}"), or just "{missing}", and add '
+        f"{missing} to {_keyword_file(f'dialect_{name}')}, in the reserved or the "
+        f"unreserved list, whichever {name}'s own keyword documentation says."
+    )
 
 
 def _overlaps(dialect: Dialect) -> dict[str, list[str]]:
@@ -630,6 +663,31 @@ def test_checker_explains_a_keyword_in_the_dialects_own_grammar() -> None:
     assert "Did you mean SELECT, which zzfaulty already has?" in message
     assert "src/sqlfluff/dialects/dialect_zzfaulty_keywords.py" in message
     assert "unimplemented" not in message
+
+
+def test_checker_spots_a_keyword_written_as_a_segment() -> None:
+    """Test that Ref("COLUMN") is read as a keyword, not a missing segment.
+
+    The advice must not be to define a COLUMN segment.
+    """
+    dialect = _faulty_dialect("zzfaulty")
+    known = {"SELECT": {("SomeSegment", "dialect_zzfaulty")}}
+    unknown = {"ZZNOWORD": {("SomeSegment", "dialect_zzfaulty")}}
+
+    known_message = _missing_segments_message(dialect, known)
+    unknown_message = _missing_segments_message(dialect, unknown)
+
+    assert (
+        'SELECT is a zzfaulty keyword, so this is probably meant to be Ref.keyword("SELECT")'
+        in known_message
+    )
+    assert "define SELECT" not in known_message
+    assert (
+        'this looks like a keyword, not a segment. Write it as Ref.keyword("ZZNOWORD")'
+        in unknown_message
+    )
+    assert "src/sqlfluff/dialects/dialect_zzfaulty_keywords.py" in unknown_message
+    assert "define ZZNOWORD" not in unknown_message
 
 
 def test_checker_offers_no_guess_for_an_unlike_segment_name() -> None:
