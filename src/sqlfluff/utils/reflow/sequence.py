@@ -1,6 +1,8 @@
 """Dataclasses for reflow work."""
 
+import copy
 import logging
+import weakref
 from collections.abc import Iterator, Sequence
 from itertools import chain
 from typing import Literal, Optional, cast
@@ -10,7 +12,7 @@ from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.chained_indent_model import model_chained_indents
 from sqlfluff.utils.reflow.chained_layout import style_for_tree
-from sqlfluff.utils.reflow.config import ReflowConfig
+from sqlfluff.utils.reflow.config import ConfigDictType, ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 from sqlfluff.utils.reflow.elements import (
     ReflowBlock,
@@ -30,6 +32,35 @@ from sqlfluff.utils.reflow.reindent import (
 # logs to appear in the context of rules. Hence it's a subset
 # of the rules logger.
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
+
+# What the latest `ReflowSequence.from_root()` call built, and what it was built
+# from. Several rules (e.g. LT01, LT02, LT05) reflow the whole file one after
+# another, and until a fix changes the tree they all see the same tree, so they
+# can share one set of elements and depth map. A fixed tree is always a new root
+# object. Setting the root's segments, or calling invalidate_caches() on it as
+# apply_fixes() does, gives it a new list of raw segments. Both are matched by
+# identity. An edit below the root changes neither, so it needs a call to
+# invalidate_caches() on the root, as the root's other cached values do. We hold
+# only a weak reference to the root, and forget all of this once the root is
+# freed.
+_from_root_cache: Optional[
+    tuple[
+        "weakref.ref[BaseSegment]",
+        list[RawSegment],
+        type["ReflowSequence"],
+        ReflowConfig,
+        ConfigDictType,
+        ReflowSequenceType,
+        DepthMap,
+    ]
+] = None
+
+
+def _drop_from_root_cache(root_ref: "weakref.ref[BaseSegment]") -> None:
+    """Forget what `ReflowSequence.from_root()` kept for a root that is freed."""
+    global _from_root_cache
+    if _from_root_cache is not None and _from_root_cache[0] is root_ref:
+        _from_root_cache = None
 
 
 class ReflowSequence:
@@ -219,13 +250,48 @@ class ReflowSequence:
             config (:obj:`FluffConfig`): A config object from which
                 to load the spacing behaviours of different segments.
         """
-        sequence = cls.from_raw_segments(
-            root_segment.raw_segments,
-            root_segment,
-            config=config,
-            # This is the efficient route. We use it here because we can.
-            depth_map=DepthMap.from_parent(root_segment),
-        )
+        global _from_root_cache
+        raw_segments = root_segment.raw_segments
+        reflow_config = ReflowConfig.from_fluff_config(config)
+        # The reflow config holds the config's own layout settings, not a copy,
+        # so edits to those are found by comparing them with a copy.
+        layout = config.get_section(["layout", "type"])
+        cached = _from_root_cache
+        if (
+            cached
+            and cached[0]() is root_segment
+            and cached[1] is raw_segments
+            and cached[2] is cls
+            and cached[3] == reflow_config
+            and cached[4] == layout
+        ):
+            sequence = cls(
+                # Each caller gets its own list and depth map, so that editing
+                # one sequence can't change another.
+                elements=list(cached[5]),
+                root_segment=root_segment,
+                reflow_config=reflow_config,
+                depth_map=cached[6].copy(),
+            )
+        else:
+            sequence = cls.from_raw_segments(
+                raw_segments,
+                root_segment,
+                config=config,
+                # This is the efficient route. We use it here because we can.
+                depth_map=DepthMap.from_parent(root_segment),
+            )
+            _from_root_cache = (
+                weakref.ref(root_segment, _drop_from_root_cache),
+                raw_segments,
+                cls,
+                sequence.reflow_config,
+                copy.deepcopy(layout),
+                list(sequence.elements),
+                sequence.depth_map.copy(),
+            )
+        # Cache only the base elements: chain style can change independently of
+        # the reflow config, and every caller needs its own virtual markers.
         if (
             "chained_function_call" not in root_segment.descendant_type_set
             or style_for_tree(root_segment, config) != "indented"

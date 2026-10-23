@@ -549,7 +549,12 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.raw().eq_ignore_ascii_case(template) && tok.is_code() => {
+            Some(tok)
+                if tok.raw().eq_ignore_ascii_case(template)
+                    && tok.is_code()
+                    // Client text is matched by type only (see `Token::client_text_token`).
+                    && !tok.is_type(&["client_text"]) =>
+            {
                 let token_pos = self.pos;
                 let configured_instance_types = configured_instance_type_ids
                     .iter()
@@ -927,7 +932,9 @@ impl<'a> Parser<'a> {
                 if tok.is_code()
                     && template_ids
                         .iter()
-                        .any(|id| tok.raw().eq_ignore_ascii_case(tables.get_string(*id))) =>
+                        .any(|id| tok.raw().eq_ignore_ascii_case(tables.get_string(*id)))
+                    // Client text is matched by type only (see `Token::client_text_token`).
+                    && !tok.is_type(&["client_text"]) =>
             {
                 let token_pos = self.pos;
                 #[cfg(feature = "verbose-debug")]
@@ -1230,8 +1237,9 @@ impl<'a> Parser<'a> {
                     }
                 }
 
-                // Check main pattern
-                if pattern.is_match(raw) {
+                // Check main pattern. Client text is matched by type only (see
+                // `Token::client_text_token`).
+                if pattern.is_match(raw) && !tok.is_type(&["client_text"]) {
                     let token_pos = self.pos;
 
                     vdebug!(

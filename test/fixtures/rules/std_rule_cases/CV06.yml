@@ -261,6 +261,37 @@ test_fail_same_line_inline_comment:
   fix_str: |
     SELECT a FROM foo; -- inline comment
 
+test_fail_inline_comment_before_next_statement:
+  fail_str: &inline_comment_next_statement |
+    SELECT 1
+    -- c
+    ;SELECT 2;
+  fix_str: &inline_comment_next_statement_fixed |
+    SELECT 1;
+    -- c
+    SELECT 2;
+
+test_fail_inline_comment_before_next_statement_custom_newline:
+  fail_str: *inline_comment_next_statement
+  fix_str: *inline_comment_next_statement_fixed
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_inline_comment_before_delete:
+  fail_str: |
+    SELECT 1
+    -- c
+    ;DELETE FROM t;
+  fix_str: |
+    SELECT 1;
+    -- c
+    DELETE FROM t;
+
+test_pass_inline_comment_before_next_statement:
+  pass_str: *inline_comment_next_statement_fixed
+
 test_fail_same_line_multiple_inline_comment:
   fail_str: |
     SELECT a FROM foo -- inline comment #1

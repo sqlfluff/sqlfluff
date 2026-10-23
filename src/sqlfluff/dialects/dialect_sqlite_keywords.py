@@ -205,4 +205,5 @@ UNRESERVED_KEYWORDS = [
     "RTRIM",
     "STORED",  # https://sqlite.org/forum/forumpost/91127ba3db
     "ACTION",
+    "UNINDEXED",
 ]

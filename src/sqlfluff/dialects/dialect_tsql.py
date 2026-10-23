@@ -594,9 +594,12 @@ tsql_dialect.replace(
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
     ).copy(
+        insert=[
+            Ref("ActionParameterSegment"),
+        ],
         remove=[
             Ref("IntervalExpressionSegment"),
-        ]
+        ],
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -685,6 +688,7 @@ tsql_dialect.replace(
             "NONCLUSTERED",
             optional=True,
         ),
+        Ref.keyword("HASH", optional=True),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -695,6 +699,15 @@ tsql_dialect.replace(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterGrammar"),
         "WINDOW",
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "WINDOW",
+        "OPTION",
+        "FOR",
+        Ref("SetOperatorSegment"),
+        Ref("DelimiterGrammar"),
     ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
     LikeGrammar=Sequence(
@@ -800,6 +813,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
             "DEFAULT",
+            Ref("ActionParameterSegment"),
         ),
         Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
@@ -946,6 +960,7 @@ class StatementSegment(ansi.StatementSegment):
             # Other statements
             Ref("PrintStatementSegment"),
             Ref("RaiserrorStatementSegment"),
+            Ref("LinenoStatementSegment"),
             Ref("DeclareStatementSegment"),
             Ref("ExecuteScriptSegment"),
             # Ref("PermissionStatementSegment"),
@@ -3433,6 +3448,7 @@ class RelationalIndexOptionsSegment(BaseSegment):
                             "ALLOW_PAGE_LOCKS",
                             "OPTIMIZE_FOR_SEQUENTIAL_KEY",
                             "MAXDOP",
+                            "BUCKET_COUNT",
                         ),
                         Ref("EqualsSegment"),
                         OneOf(
@@ -4239,6 +4255,7 @@ class ColumnConstraintSegment(BaseSegment):
                     "INDEX",
                     Ref("ObjectReferenceSegment"),  # index name
                     OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                    Ref.keyword("HASH", optional=True),
                     # other optional blocks (RelationalIndexOptionsSegment,
                     # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned
                     # above
@@ -4923,7 +4940,7 @@ class WithinGroupClause(BaseSegment):
         ),
         Sequence(
             "OVER",
-            Bracketed(Ref("PartitionClauseSegment")),
+            Bracketed(Ref("PartitionClauseSegment", optional=True)),
             optional=True,
         ),
     )
@@ -5694,6 +5711,7 @@ class TableIndexSegment(BaseSegment):
             Sequence(
                 Sequence("UNIQUE", optional=True),
                 OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                Ref.keyword("HASH", optional=True),
                 Ref("BracketedIndexColumnListGrammar"),
             ),
             Sequence("CLUSTERED", "COLUMNSTORE"),
@@ -6512,14 +6530,18 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
+        Ref.keyword("ALL", optional=True),
         Indent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
+                Bracketed(),
             ),
             terminators=[
                 # Clauses that can follow GROUP BY
@@ -6549,13 +6571,17 @@ class GroupByClauseSegment(BaseSegment):
 
 
 class WithRollupClauseSegment(BaseSegment):
-    """A `WITH ROLLUP` clause after the `GROUP BY` clause."""
+    """A `WITH ROLLUP` or `WITH CUBE` clause after the `GROUP BY` clause.
+
+    Legacy T-SQL syntax allowing either `WITH ROLLUP` or `WITH CUBE`
+    following a `GROUP BY` clause.
+    """
 
     type = "with_rollup_clause"
 
     match_grammar = Sequence(
         "WITH",
-        "ROLLUP",
+        OneOf("ROLLUP", "CUBE"),
     )
 
 
@@ -6749,6 +6775,19 @@ class PrintStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "PRINT",
         Ref("ExpressionSegment"),
+    )
+
+
+class LinenoStatementSegment(BaseSegment):
+    """LINENO statement segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/lineno-transact-sql
+    """
+
+    type = "lineno_statement"
+    match_grammar = Sequence(
+        "LINENO",
+        Ref("NumericLiteralSegment"),
     )
 
 

@@ -230,6 +230,20 @@ class Rule_CV06(BaseRule):
         if not info.before_segment:
             return None
 
+        whitespace_deletions = info.whitespace_deletions
+        if info.before_segment[len(whitespace_deletions) :].first().any(
+            sp.is_type("inline_comment")
+        ) and Segments(*parent_segment.raw_segments).select(
+            sp.is_code(),
+            loop_while=sp.not_(sp.is_type("newline")),
+            start_seg=target_segment,
+        ):
+            # Keep the newline ending the comment so following code stays executable.
+            comment_newline = whitespace_deletions.last(sp.is_type("newline"))
+            whitespace_deletions = whitespace_deletions.select(
+                lambda seg: seg not in comment_newline
+            )
+
         # If preceding segments are found then delete the old
         # semi-colon and its preceding whitespace and then insert
         # the semi-colon in the correct location.
@@ -237,7 +251,7 @@ class Rule_CV06(BaseRule):
             target_segment,
             parent_segment,
             info.anchor_segment,
-            info.whitespace_deletions,
+            whitespace_deletions,
             [
                 SymbolSegment(raw=";", type="statement_terminator"),
             ],

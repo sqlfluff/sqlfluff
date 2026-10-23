@@ -57,6 +57,16 @@ databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
 
+# Databricks documents a finite set of notebook magic commands. Keep the
+# pattern shared between notebook-start and later-cell lexers.
+BARE_MAGIC_COMMAND_PATTERN = (
+    r"(?:%(?:python|scala|r|sh|md|run|fs|pip|conda|tensorboard|"
+    r"set_cell_max_output_size_in_mb|skip)\b|%%(?:profile|oprofile)\b|"
+    r"%uv[ \t]+pip\b)"
+    r"[^\r\n]*"
+)
+
+
 databricks_dialect.insert_lexer_matchers(
     # Named Function Parameters:
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
@@ -118,10 +128,12 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "notebook_start_bare_magic_cell",
-            r"(?s)-- Databricks notebook source(?:\r?\n)"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
-            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
-            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            (
+                r"(?s)-- Databricks notebook source(?:\r?\n)"
+                + BARE_MAGIC_COMMAND_PATTERN
+                + r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+                r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)"
+            ),
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(
@@ -144,11 +156,13 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "magic_single_line",
-            r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+            r"(-- MAGIC %)([^\r\n]{2,})( [^%]{1})([^\r\n]*)",
             CodeSegment,
         ),
-        RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
-        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer(
+            "magic_line", r"(-- MAGIC)(?! ?%)(?: [^%\r\n][^\r\n]*)?", CodeSegment
+        ),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\r\n]{2,})", CodeSegment),
         RegexLexer(
             "bare_magic_sql",
             r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
@@ -160,10 +174,12 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "bare_magic_cell",
-            r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
-            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
-            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            (
+                r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
+                + BARE_MAGIC_COMMAND_PATTERN
+                + r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+                r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)"
+            ),
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(
@@ -1768,6 +1784,8 @@ class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = sparksql.StatementSegment.match_grammar.copy(
+        # Databricks has its own, fuller, SQL function statement.
+        remove=[Ref("CreateSqlFunctionStatementSegment")],
         # Segments defined in Databricks SQL dialect
         insert=[
             # Unity Catalog
@@ -1794,7 +1812,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("ApplyChangesIntoStatementSegment"),
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
-        ]
+        ],
     )
 
 

@@ -1,0 +1,608 @@
+"""Tests for lexing scripts run through a command-line client.
+
+The mysql dialect's rules are used throughout, as the dialect that has them.
+Every case was checked against the mysql 8.4 and 9.7 and mariadb 11.8 clients,
+9.7 with `--commands`, which 9.x turns off by default.
+"""
+
+from dataclasses import replace
+
+import pytest
+
+from sqlfluff.core import FluffConfig
+from sqlfluff.core.parser import ClientTextSegment, PyLexer
+from sqlfluff.core.parser.client_commands import (
+    ArgumentKind,
+    BufferAction,
+    ClientCommandRules,
+    ClientScriptLexer,
+    EmittedToken,
+    LongClientCommand,
+    ShortClientCommand,
+)
+
+RULES = ClientCommandRules(
+    long_commands=(LongClientCommand("delimiter", ArgumentKind.DELIMITER),),
+    short_commands=(
+        ShortClientCommand("\\d", BufferAction.KEEP, ArgumentKind.DELIMITER),
+        ShortClientCommand("\\g", BufferAction.END),
+    ),
+    opaque_token_names=frozenset(),
+    line_command_after_block_comment=True,
+    dash_dash_comment_at_statement_start=False,
+    collected_line_marker="\\g",
+)
+
+
+def test_client_commands_long_forms_match_in_any_case():
+    """Long forms are found in any case, short forms only in their own."""
+    assert RULES.long_command_named("DeLiMiTeR") is RULES.long_commands[0]
+    assert RULES.long_command_named("source") is None
+    assert RULES.short_command_starting("\\g;") is RULES.short_commands[1]
+    assert RULES.short_command_starting("\\G;") is None
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"default_delimiter": ""},
+        {"default_delimiter": " ;"},
+        {"default_delimiter": "; "},
+        {"default_delimiter": "a b"},
+        {"default_delimiter": "a\u00a0b"},
+        {"default_delimiter": "a\\"},
+        {"default_delimiter": "a" * 16, "max_delimiter_bytes": 15},
+        {"max_delimiter_bytes": 3},
+    ],
+)
+def test_client_commands_rules_need_a_usable_default_delimiter(changes):
+    """Rules with a default delimiter the lexer would reject are rejected.
+
+    The client would take some of these, like `a b`, but then splits statements
+    in odd places, so nobody uses one on purpose.
+    """
+    with pytest.raises(AssertionError):
+        replace(RULES, **changes)
+
+
+def test_client_commands_rules_need_lower_case_long_command_names():
+    """A long command named in any other case would never be found."""
+    with pytest.raises(AssertionError):
+        replace(
+            RULES,
+            long_commands=(LongClientCommand("Delimiter", ArgumentKind.DELIMITER),),
+        )
+
+
+def test_client_commands_emitted_tokens_never_match():
+    """An emitted token kind isn't a matcher."""
+    token = EmittedToken("delimiter_argument", ClientTextSegment)
+    with pytest.raises(NotImplementedError):
+        token.match("anything")
+    with pytest.raises(NotImplementedError):
+        token.search("anything")
+
+
+def _tokens(raw: str, dialect: str = "mysql") -> list[tuple[str, str]]:
+    """The (type, raw) of each token the Python lexer makes, but whitespace."""
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": dialect}))
+    segments, errors = lexer.lex(raw)
+    assert not errors
+    return [
+        (segment.get_type(), segment.raw)
+        for segment in segments
+        if segment.get_type() not in ("whitespace", "newline", "end_of_file")
+    ]
+
+
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        # The delimiter is found inside words and needs no space before it.
+        (
+            "DELIMITER go\nSELECT good go\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "go"),
+                ("word", "SELECT"),
+                ("client_delimiter", "go"),
+                ("word", "od"),
+                ("client_delimiter", "go"),
+            ],
+        ),
+        # A backslash escapes the next character in an unquoted argument.
+        (
+            "DELIMITER \\$\\$\nSELECT 1 $$\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "\\$\\$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "$$"),
+            ],
+        ),
+        # A delimiter over 15 bytes is cut, here before a two-byte character.
+        (
+            "DELIMITER ééééééééx\nSELECT 1 ééééééé\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "ééééééééx"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "ééééééé"),
+            ],
+        ),
+        # A short command adds nothing to the statement, so a command can
+        # follow it.
+        (
+            "\\d $$\nDELIMITER ;\n",
+            [
+                ("client_short_command", "\\d"),
+                ("delimiter_argument", "$$"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", ";"),
+            ],
+        ),
+        # `\d` carries on right after the new delimiter's text on the line. Cut
+        # to 15 bytes, the delimiter here ends inside its argument, so the rest
+        # of the argument is SQL.
+        (
+            "\\d abcdefghijklmnopqrstuvwxyz\nSELECT 1 abcdefghijklmno\n",
+            [
+                ("client_short_command", "\\d"),
+                ("delimiter_argument", "abcdefghijklmno"),
+                ("word", "pqrstuvwxyz"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "abcdefghijklmno"),
+            ],
+        ),
+        # With no copy of the delimiter on the line, `\d` discards the rest of
+        # the line, though SQL before it stays: the client sends `SELECT 8`.
+        (
+            "SELECT 8 \\d 'a\\' more\n;\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "8"),
+                ("client_short_command", "\\d"),
+                ("client_command_rejected", "'a\\'"),
+                ("client_command_ignored", "more"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # `\d \$\$` sets `$$`, so the client carries on after the next `$$`
+        # on the line, and `SELECT 2` is skipped: it sends `SELECT 1 SELECT 3`.
+        (
+            "SELECT 1 \\d \\$\\$ SELECT 2 $$\nSELECT 3 $$\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_short_command", "\\d"),
+                ("delimiter_argument", "\\$\\$"),
+                ("client_command_ignored", "SELECT 2 $$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "3"),
+                ("client_delimiter", "$$"),
+            ],
+        ),
+        # A delimiter with whitespace in it is rejected, and the delimiter kept.
+        (
+            "DELIMITER a\\ b\nSELECT 1 a b;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "a\\ b"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("word", "a"),
+                ("word", "b"),
+                ("semicolon", ";"),
+            ],
+        ),
+        (
+            "DELIMITER '$$ '\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "'$$ '"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        (
+            "SELECT 1 \\d  \\ \nSELECT 2;\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_short_command", "\\d"),
+                ("client_command_rejected", "\\ "),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # `\s` matches a non-breaking space, so it is rejected too, though the
+        # client treats it as an ordinary character.
+        (
+            "DELIMITER a\u00a0b\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "a\u00a0b"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # So is one that ends with whitespace once cut to 15 bytes.
+        (
+            "DELIMITER 'aaaaaaaaaaaaaa b'\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "'aaaaaaaaaaaaaa b'"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # Whitespace past the 15th byte is cut off, so it doesn't count.
+        (
+            "DELIMITER 'aaaaaaaaaaaaaaa b'\nSELECT 1 aaaaaaaaaaaaaaa\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "'aaaaaaaaaaaaaaa b'"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "aaaaaaaaaaaaaaa"),
+            ],
+        ),
+        # The client looks for a backslash before it cuts, so one past the
+        # 15th byte is still rejected.
+        (
+            "DELIMITER `aaaaaaaaaaaaaaa\\`\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "`aaaaaaaaaaaaaaa\\`"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # `\d` with no argument is rejected, and the delimiter kept.
+        (
+            "\\d\nSELECT 1;\n",
+            [
+                ("client_short_command", "\\d"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # A quoted argument with no closing quote is rejected, and the delimiter
+        # kept: it only comes from a typo, and mariadb rejects it.
+        (
+            "DELIMITER 'ab\nSELECT 1;\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_rejected", "'ab"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # A line that holds `\g` is collected as a statement, even DELIMITER's:
+        # `\g` sends this one to the server as SQL, so its argument is misread.
+        # `\G` doesn't count, so SOURCE takes its line and the file name ends in
+        # `\G`.
+        (
+            "DELIMITER // \\g\nSOURCE a.sql \\G\n",
+            [
+                ("word", "DELIMITER"),
+                ("client_command_misread", "//"),
+                ("client_short_command", "\\g"),
+                ("word", "SOURCE"),
+                ("source_file_name", "a.sql \\G"),
+            ],
+        ),
+        # `\g` right after SOURCE sends `SOURCE` alone to the server.
+        (
+            "SOURCE \\g\n",
+            [("word", "SOURCE"), ("client_short_command", "\\g")],
+        ),
+        # Trailing whitespace isn't part of a file name.
+        (
+            "SOURCE a.sql \t \n",
+            [("word", "SOURCE"), ("source_file_name", "a.sql")],
+        ),
+        # `\d` carries on right after the new delimiter's text on the line,
+        # which is normally just after the argument.
+        (
+            "\\d $$ SELECT 1 $$\n",
+            [
+                ("client_short_command", "\\d"),
+                ("delimiter_argument", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "$$"),
+            ],
+        ),
+        # `--` right before the end of a statement is a comment.
+        (
+            "SELECT 1 --\\g\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("inline_comment", "--"),
+                ("client_short_command", "\\g"),
+            ],
+        ),
+        # After a delimiter on its line, DELIMITER is collected, and runs at the old
+        # delimiter: the new one applies from just after it.
+        (
+            "SELECT 1; DELIMITER // ;\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "//"),
+                ("semicolon", ";"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("client_delimiter", "//"),
+            ],
+        ),
+        # The old delimiter ends the collected argument, so this sets `//`, though
+        # `DELIMITER //;` on its own line sets `//;`.
+        (
+            "SELECT 1; DELIMITER //;\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "//"),
+                ("semicolon", ";"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("client_delimiter", "//"),
+            ],
+        ),
+        # Words after the argument are ignored, as on DELIMITER's own line.
+        (
+            "SELECT 1; DELIMITER // junk ;\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "//"),
+                ("client_command_ignored", "junk"),
+                ("semicolon", ";"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("client_delimiter", "//"),
+            ],
+        ),
+        # With the old delimiter not on its line, the client collects the lines after
+        # it too, so it is misread.
+        (
+            "SELECT 1; DELIMITER //\nSELECT 2 //\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("client_command_misread", "//"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("divide", "/"),
+                ("divide", "/"),
+            ],
+        ),
+        # The old delimiter may be one set before.
+        (
+            "DELIMITER $$\nSELECT 1 $$ DELIMITER ; $$\nSELECT 2;\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "$$"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", ";"),
+                ("client_delimiter", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "2"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # A short command before the old delimiter sends it to the server as SQL.
+        (
+            "SELECT 1; DELIMITER // \\g\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "DELIMITER"),
+                ("client_command_misread", "//"),
+                ("client_short_command", "\\g"),
+            ],
+        ),
+        # `\.` takes its whole line as the file name, backslashes and all, so a
+        # Windows path works.
+        (
+            "\\. C:\\My Files\\Golf\\golf.sql\n",
+            [
+                ("client_short_command", "\\."),
+                ("source_file_name", "C:\\My Files\\Golf\\golf.sql"),
+            ],
+        ),
+        # So does SOURCE, with no lower-case `\g` on its line.
+        (
+            "SOURCE C:\\My Files\\Golf\\Golf.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("source_file_name", "C:\\My Files\\Golf\\Golf.sql"),
+            ],
+        ),
+        # `\d` and `\n` in a SOURCE line's file name are part of it.
+        (
+            "SOURCE C:\\data\\new.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("source_file_name", "C:\\data\\new.sql"),
+            ],
+        ),
+        # But the `\g` in `\golf` makes the client collect the line, so its
+        # backslashes run as commands, in all three clients.
+        (
+            "SOURCE C:\\My Files\\Golf\\golf.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("client_command_misread", "C:\\My Files"),
+                ("client_short_command", "\\G"),
+                ("word", "olf"),
+                ("client_short_command", "\\g"),
+                ("word", "olf"),
+                ("dot", "."),
+                ("word", "sql"),
+            ],
+        ),
+        # SOURCE needs a space before its file name, not a tab.
+        (
+            "SOURCE\tf.sql\n",
+            [
+                ("word", "SOURCE"),
+                ("client_command_rejected", "f.sql"),
+            ],
+        ),
+        # A token is lexed from the text the server gets, which ends at the
+        # delimiter: `1.` and `.5` are numbers.
+        (
+            "DELIMITER go\nSELECT 1.go\nSELECT .5go\n",
+            [
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "go"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1."),
+                ("client_delimiter", "go"),
+                ("word", "SELECT"),
+                ("numeric_literal", ".5"),
+                ("client_delimiter", "go"),
+            ],
+        ),
+        # After a delimiter on the same line, SOURCE runs to the next one.
+        (
+            "SELECT 1; SOURCE b.sql;\n",
+            [
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("semicolon", ";"),
+                ("word", "SOURCE"),
+                ("source_file_name", "b.sql"),
+                ("semicolon", ";"),
+            ],
+        ),
+        # With `\g` on its line, SOURCE is collected as a statement, so the
+        # client doesn't read this file name. The `\g` sends `SOURCE a.sql`
+        # to the server and ends the statement, so the next line can be a
+        # command.
+        (
+            "SOURCE a.sql \\g\nDELIMITER $$\nSELECT 1 $$\n",
+            [
+                ("word", "SOURCE"),
+                ("client_command_misread", "a.sql"),
+                ("client_short_command", "\\g"),
+                ("word", "DELIMITER"),
+                ("delimiter_argument", "$$"),
+                ("word", "SELECT"),
+                ("numeric_literal", "1"),
+                ("client_delimiter", "$$"),
+            ],
+        ),
+    ],
+)
+def test_client_commands_lexing(raw: str, expected: list[tuple[str, str]]):
+    """Test the tokens the client script lexer makes."""
+    assert _tokens(raw) == expected
+
+
+def test_client_commands_mariadb_collected_command_after_a_comment():
+    """A comment can come before a command the client collects as a statement.
+
+    The mariadb client doesn't take a command after a comment on its line,
+    but it does check a collected statement for one.
+    """
+    assert _tokens("/* c */ SOURCE a.sql;\n", "mariadb") == [
+        ("block_comment", "/* c */"),
+        ("word", "SOURCE"),
+        ("source_file_name", "a.sql"),
+        ("semicolon", ";"),
+    ]
+
+
+def test_client_commands_no_delimiter_byte_limit():
+    """With no byte limit set, a long delimiter is kept whole."""
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
+    mysql_rules = lexer.config.get("dialect_obj").client_commands
+    rules = replace(mysql_rules, max_delimiter_bytes=None)
+    delimiter = "abcdefghijklmnopqrstuvwxyz"
+    elements = ClientScriptLexer(
+        rules, lexer.lexer_matchers, lexer.last_resort_lexer
+    ).lex(f"DELIMITER {delimiter}\nSELECT 1 {delimiter}\n")
+    assert [e.raw for e in elements if e.matcher.name == "client_delimiter"] == [
+        delimiter
+    ]
+
+
+def test_client_commands_rejected_short_delimiter_keeps_the_delimiter():
+    r"""A rejected `\d` argument keeps the delimiter, even mid-argument.
+
+    `\d xab\` is rejected for its backslash, so `ab` stays the delimiter; the
+    client carries on after the `ab` inside the argument. Checked on mysql 8.4
+    and 9.7 and mariadb 11.8, which then run `SELECT 2`.
+    """
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
+    segments, _ = lexer.lex("DELIMITER ab\n\\d xab\\\nSELECT 2 ab\n")
+    tokens = [(s.get_type(), s.raw) for s in segments]
+    assert ("client_command_rejected", "xab") in tokens
+    assert tokens[-3:-1] == [("client_delimiter", "ab"), ("newline", "\n")]
+
+
+def test_client_commands_unlexable_text():
+    """Text that no matcher takes is unlexable, as in any other dialect."""
+    lexer = PyLexer(config=FluffConfig(overrides={"dialect": "mysql"}))
+    segments, errors = lexer.lex("SELECT 1 \x01;\n")
+    assert [segment.raw for segment in segments if segment.is_type("unlexable")] == [
+        "\x01"
+    ]
+    assert errors
+
+
+def test_client_commands_dash_dash_at_mariadb_statement_start():
+    """The mariadb client takes `--` at the start of a statement as a comment."""
+    raw = "SELECT 1; --x\n"
+    assert _tokens(raw, "mariadb")[-1] == ("inline_comment", "--x")
+    assert _tokens(raw, "mysql")[-3:] == [
+        ("minus", "-"),
+        ("minus", "-"),
+        ("word", "x"),
+    ]
+
+
+def test_client_commands_delimiter_inside_a_dollar_quote():
+    """The mysql client doesn't find the delimiter in a dollar-quoted string.
+
+    MariaDB has no dollar-quoted strings, so its client does.
+    """
+    raw = "DELIMITER ;;\nSELECT $js$ a ;; b $js$;;\n"
+    assert _tokens(raw)[2:] == [
+        ("word", "SELECT"),
+        ("dollar_quote", "$js$ a ;; b $js$"),
+        ("client_delimiter", ";;"),
+    ]
+    assert _tokens(raw, "mariadb")[2:6] == [
+        ("word", "SELECT"),
+        ("word", "$js$"),
+        ("word", "a"),
+        ("client_delimiter", ";;"),
+    ]

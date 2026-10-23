@@ -248,6 +248,41 @@ def test_factory_models_each_sequence_once() -> None:
         assert tree.stringify() == before
 
 
+@pytest.mark.parametrize("style", BOUNDARIES)
+def test_cached_sequence_uses_current_chain_style(style: str) -> None:
+    """Cached base elements must not retain or skip style-specific markers."""
+    linter = layout_linter("indented", rules=NATIVE_RULES)
+    parsed = linter.parse_string("SELECT (foo).LOWER().TRIM();")
+    assert parsed.tree is not None and not parsed.violations
+    tree = parsed.tree
+    before = tree.stringify()
+    original_ids = {raw.uuid for raw in tree.raw_segments}
+    original_factory = ReflowSequence.from_raw_segments
+    with (
+        patch("sqlfluff.utils.reflow.sequence._from_root_cache", None),
+        patch.object(
+            ReflowSequence, "from_raw_segments", wraps=original_factory
+        ) as factory,
+    ):
+        for current_style in ("indented", style, "indented"):
+            linter.config.set_value(
+                ("rules", PUBLIC_RULE_NAME, "writing_style"), current_style
+            )
+            sequence = ReflowSequence.from_root(tree, linter.config)
+            added = [
+                raw.get_type()
+                for element in sequence.elements
+                for raw in element.segments
+                if raw.uuid not in original_ids
+            ]
+            # The single-line input makes consistent resolve to one_liner.
+            expected = ["indent", "dedent"] if current_style == "indented" else []
+            assert added == expected
+            assert sequence.get_raw() == tree.raw
+            assert tree.stringify() == before
+        assert factory.call_count == 1
+
+
 def test_configurations_do_not_leak() -> None:
     """Two native linters must obey their own indentation configurations."""
     indented = layout_linter("indented", rules=("LT02",))
