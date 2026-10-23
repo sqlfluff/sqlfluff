@@ -1,0 +1,266 @@
+rule: AM10
+
+test_fail_issue_5515:
+  fail_str: |
+    INSERT INTO table1
+    (col1)
+    SELECT
+        col1,
+        col2
+    FROM table2;
+
+test_fail_too_few_select_columns:
+  fail_str: INSERT INTO dst (a, b) SELECT x FROM src;
+
+test_pass_matching_columns:
+  pass_str: INSERT INTO dst (a, b) SELECT x, y FROM src;
+
+test_pass_no_target_columns:
+  pass_str: INSERT INTO dst SELECT x, y FROM src;
+
+test_pass_no_target_columns_bracketed_select:
+  pass_str: INSERT INTO dst (SELECT x, y FROM src);
+
+test_pass_wildcard:
+  pass_str: INSERT INTO dst (a, b) SELECT * FROM src;
+
+test_pass_qualified_wildcard:
+  pass_str: INSERT INTO dst (a, b) SELECT src.* FROM src;
+
+test_pass_composite_value_expansion:
+  pass_str: INSERT INTO dst (a, b) SELECT (src.rec).* FROM src;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_mixed_wildcard:
+  pass_str: INSERT INTO dst (a, b) SELECT x, src.* FROM src;
+
+test_pass_wildcard_with_except:
+  pass_str: INSERT INTO dst (a, b) SELECT * EXCEPT (c) FROM src;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_count_star:
+  pass_str: INSERT INTO dst (a) SELECT COUNT(*) FROM src;
+
+test_fail_count_star_is_one_column:
+  fail_str: INSERT INTO dst (a, b) SELECT COUNT(*) FROM src;
+
+test_pass_scalar_subquery:
+  pass_str: INSERT INTO dst (a) SELECT (SELECT MAX(x) FROM src);
+
+test_fail_scalar_subquery_does_not_expand:
+  fail_str: |
+    INSERT INTO dst (a, b)
+    SELECT (SELECT MAX(x) FROM src);
+
+test_pass_from_subquery_columns_not_counted:
+  pass_str: |
+    INSERT INTO dst (a)
+    SELECT x FROM (SELECT x, y FROM src) AS nested;
+
+test_fail_outer_query_only:
+  fail_str: |
+    INSERT INTO dst (a)
+    SELECT x, y FROM (SELECT x FROM src) AS nested;
+
+test_pass_cte_columns_not_counted:
+  pass_str: |
+    INSERT INTO dst (a)
+    WITH cte AS (SELECT x, y FROM src)
+    SELECT x FROM cte;
+
+test_fail_with_source:
+  fail_str: |
+    INSERT INTO dst (a)
+    WITH cte AS (SELECT x FROM src)
+    SELECT x, x FROM cte;
+
+test_fail_with_before_insert:
+  fail_str: |
+    WITH cte AS (SELECT x FROM src)
+    INSERT INTO dst (a, b) SELECT x FROM cte;
+
+test_pass_cte_wildcard_not_in_output:
+  pass_str: |
+    INSERT INTO dst (a)
+    WITH cte AS (SELECT * FROM src)
+    SELECT x FROM cte;
+
+test_pass_cte_output_wildcard:
+  pass_str: |
+    INSERT INTO dst (a)
+    WITH cte AS (SELECT x, y FROM src)
+    SELECT * FROM cte;
+
+test_fail_set_expression:
+  fail_str: |
+    INSERT INTO dst (a)
+    SELECT x, y FROM src
+    UNION ALL
+    SELECT x, y FROM other_src;
+
+test_fail_later_set_branch:
+  fail_str: |
+    INSERT INTO dst (a)
+    SELECT x FROM src
+    UNION ALL
+    SELECT x, y FROM other_src;
+
+test_pass_matching_set_expression:
+  pass_str: |
+    INSERT INTO dst (a, b)
+    SELECT x, y FROM src
+    UNION ALL
+    SELECT x, y FROM other_src;
+
+test_pass_set_expression_wildcard:
+  pass_str: |
+    INSERT INTO dst (a)
+    SELECT x, y FROM src
+    UNION ALL
+    SELECT * FROM other_src;
+
+test_fail_nested_parentheses:
+  fail_str: INSERT INTO dst (a) ((SELECT x, y FROM src));
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_parenthesized_with:
+  fail_str: |
+    INSERT INTO dst (a)
+    (WITH cte AS (SELECT x, y FROM src) SELECT x, y FROM cte);
+
+test_pass_values_subquery:
+  pass_str: INSERT INTO dst (a, b) VALUES ((SELECT MAX(x) FROM src), 1);
+
+test_pass_default_values:
+  pass_str: INSERT INTO dst DEFAULT VALUES;
+
+test_pass_postgres_returning:
+  pass_str: INSERT INTO dst (a) SELECT x FROM src RETURNING a, b;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_conflict_columns_not_targets:
+  pass_str: |
+    INSERT INTO dst SELECT x, y FROM src
+    ON CONFLICT (a) DO NOTHING;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_conflict_columns:
+  fail_str: |
+    INSERT INTO dst (a, b) SELECT x FROM src
+    ON CONFLICT (a) DO NOTHING;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_quoted_columns_and_comments:
+  pass_str: |
+    INSERT INTO dst ("a", /* target */ "b")
+    SELECT x AS "first", COALESCE(y, z) AS "second" FROM src;
+
+test_pass_bigquery_as_struct:
+  pass_str: INSERT INTO dst (a) SELECT AS STRUCT x, y FROM src;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_as_struct_wildcard:
+  pass_str: INSERT INTO dst (a) SELECT AS STRUCT * FROM src;
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_as_struct:
+  fail_str: INSERT INTO dst (a, b) SELECT AS STRUCT x, y FROM src;
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_as_value:
+  fail_str: INSERT INTO dst (a, b) SELECT AS VALUE STRUCT(x, y) FROM src;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_duckdb_columns:
+  pass_str: INSERT INTO dst (a, b) SELECT COLUMNS('.*') FROM src;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_unpacked_columns:
+  pass_str: INSERT INTO dst (a, b) SELECT *COLUMNS('.*') FROM src;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_unpacked_columns_whitespace:
+  pass_str: INSERT INTO dst (a, b) SELECT * COLUMNS('.*') FROM src;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_regular_function:
+  pass_str: INSERT INTO dst (a) SELECT MAX(x) FROM src;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_unnest:
+  pass_str: |
+    INSERT INTO dst (a, b) SELECT unnest({'a': 1, 'b': 2});
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_implicit_wildcard:
+  pass_str: INSERT INTO dst (a, b) FROM src;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_by_name:
+  pass_str: INSERT INTO dst BY NAME SELECT x FROM src;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_snowflake_multitable:
+  pass_str: |
+    INSERT ALL
+    INTO dst (a) VALUES (x)
+    INTO other_dst (a, b) VALUES (x, y)
+    SELECT x, y FROM src;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_single_target_multitable_syntax:
+  pass_str: |
+    INSERT ALL INTO dst (a) VALUES (x) SELECT x, y FROM src;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_sparksql_replace_using:
+  pass_str: INSERT INTO dst REPLACE USING (a) SELECT x, y FROM src;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_hive_partition_mapping:
+  pass_str: |
+    INSERT INTO TABLE dst PARTITION (dt='2026-01-01', country)
+    (a, b) SELECT x, y, z FROM src;
+  configs:
+    core:
+      dialect: hive
