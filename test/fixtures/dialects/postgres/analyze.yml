@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ecb08b571c1dc8d9e180100584b643f460663317dd9cb728e6337c73a7a4f56
+_hash: b43ed5e30b7222a9591ba114f3ad87609d2353ad2653bb5860b426b07ae1200b
 file:
 - statement:
     analyze_statement:
@@ -154,4 +154,51 @@ file:
       - end_bracket: )
       table_reference:
         naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+    - keyword: ANALYZE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+    - keyword: ANALYZE
+    - keyword: VERBOSE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: bat
+      - end_bracket: )
+    - comma: ','
+    - table_reference:
+        naked_identifier: foo2
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+    - keyword: ANALYZE
+    - bracketed:
+        start_bracket: (
+        keyword: SKIP_LOCKED
+        end_bracket: )
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo
+    - comma: ','
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo2
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar2
+        end_bracket: )
 - statement_terminator: ;

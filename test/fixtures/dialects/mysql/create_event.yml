@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 463592a1df4173b659f0873a41197f264d9c84f711d54c653b0d1cfb22d878c5
+_hash: a5ea6c60d339101aa993eb1824b4bba0d60b9300fbe0806556eabcefb45c236f
 file:
 - statement:
     create_event_statement:
@@ -123,9 +123,9 @@ file:
         quoted_literal: "'Saves total number of sessions then clears the table each\
           \ day'"
     - keyword: DO
-    - statement:
-        compound_statement:
-        - keyword: BEGIN
+    - compound_statement:
+      - keyword: BEGIN
+      - statement_list:
         - statement:
             insert_statement:
             - keyword: INSERT
@@ -180,7 +180,7 @@ file:
                       - dot: .
                       - naked_identifier: sessions
         - statement_terminator: ;
-        - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - statement:
     create_event_statement:

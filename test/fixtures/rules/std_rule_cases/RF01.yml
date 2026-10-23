@@ -1,5 +1,349 @@
 rule: RF01
 
+test_athena_struct_fields:
+  pass_str: |
+    SELECT metadata.value FROM source_table;
+    SELECT a.metadata.value FROM source_table AS a;
+    SELECT "a".metadata.nested.value
+    FROM source_table AS "a" JOIN other_table AS b ON "a".id = b.id;
+    SELECT a.metadata.value FROM source_table AS a
+    UNION ALL SELECT b.metadata.value FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.metadata.value
+    );
+  configs:
+    core:
+      dialect: athena
+
+test_athena_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.metadata.value FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: athena
+    rules:
+      references.from:
+        force_enable: true
+
+test_athena_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.metadata.value
+    FROM source_table AS a JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: athena
+
+test_athena_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.metadata.value
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: athena
+
+test_duckdb_struct_fields:
+  pass_str: |
+    SELECT metadata.value FROM source_table;
+    SELECT a.metadata.value FROM source_table AS a;
+    SELECT "a".metadata.nested.value
+    FROM source_table AS "a" JOIN other_table AS b ON "a".id = b.id;
+    SELECT a.metadata.value FROM source_table AS a
+    UNION ALL SELECT b.metadata.value FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.metadata.value
+    );
+  configs:
+    core:
+      dialect: duckdb
+
+test_duckdb_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.metadata.value FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      references.from:
+        force_enable: true
+
+test_duckdb_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.metadata.value
+    FROM source_table AS a JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: duckdb
+
+test_duckdb_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.metadata.value
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: duckdb
+
+test_redshift_struct_fields:
+  pass_str: |
+    SELECT metadata.value FROM source_table;
+    SELECT a.metadata.value FROM source_table AS a;
+    SELECT "a".metadata.nested.value
+    FROM source_table AS "a" JOIN other_table AS b ON "a".id = b.id;
+    SELECT a.metadata.value FROM source_table AS a
+    UNION ALL SELECT b.metadata.value FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.metadata.value
+    );
+  configs:
+    core:
+      dialect: redshift
+
+test_redshift_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.metadata.value FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+    rules:
+      references.from:
+        force_enable: true
+
+test_redshift_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.metadata.value
+    FROM source_table AS a JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: redshift
+
+test_redshift_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.metadata.value
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: redshift
+
+test_impala_struct_fields:
+  pass_str: |
+    SELECT address.city FROM source_table;
+    SELECT a.address.city FROM source_table AS a;
+    SELECT `a`.address.city.name
+    FROM source_table AS `a` JOIN other_table AS b ON `a`.id = b.id;
+    SELECT a.address.city FROM source_table AS a
+    UNION ALL SELECT b.address.city FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.address.city
+    );
+  configs:
+    core:
+      dialect: impala
+
+test_impala_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.address.city FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: impala
+    rules:
+      references.from:
+        force_enable: true
+
+test_impala_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.address.city FROM source_table AS a
+    JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: impala
+
+test_impala_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.address.city
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: impala
+
+test_clickhouse_struct_fields:
+  pass_str: |
+    SELECT address.city FROM source_table;
+    SELECT a.address.city FROM source_table AS a;
+    SELECT `a`.address.city.name
+    FROM source_table AS `a` JOIN other_table AS b ON `a`.id = b.id;
+    SELECT a.address.city FROM source_table AS a
+    UNION ALL SELECT b.address.city FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.address.city
+    );
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_json_tuple_nested_columns:
+  # JSON subcolumns, named Tuple elements and Nested columns.
+  # https://clickhouse.com/docs/sql-reference/data-types/newjson
+  # https://clickhouse.com/docs/sql-reference/data-types/tuple
+  # https://clickhouse.com/docs/sql-reference/data-types/nested-data-structures/nested
+  pass_str: |
+    SELECT payload.order_id, payload.customer.email FROM events;
+    SELECT e.payload.order_id, e.meta.source, e.line_items.sku
+    FROM events AS e;
+    SELECT e.payload.order_id, o.meta.source
+    FROM events AS e JOIN orders AS o ON e.order_id = o.id;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.address.city FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      references.from:
+        force_enable: true
+
+test_clickhouse_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.address.city FROM source_table AS a
+    JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.address.city
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: clickhouse
+
+test_hive_struct_fields:
+  pass_str: |
+    SELECT metadata.value FROM source_table;
+    SELECT a.metadata.value FROM source_table AS a;
+    SELECT `a`.metadata.nested.value
+    FROM source_table AS `a` JOIN other_table AS b ON `a`.id = b.id;
+    SELECT a.metadata.value FROM source_table AS a
+    UNION ALL SELECT b.metadata.value FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.metadata.value
+    );
+  configs:
+    core:
+      dialect: hive
+
+test_hive_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.metadata.value FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: hive
+    rules:
+      references.from:
+        force_enable: true
+
+test_hive_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.metadata.value
+    FROM source_table AS a JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: hive
+
+test_hive_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.metadata.value
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: hive
+
+test_databricks_struct_fields:
+  pass_str: |
+    SELECT metadata.value FROM source_table;
+    SELECT a.metadata.value FROM source_table AS a;
+    SELECT `a`.metadata.nested.value
+    FROM source_table AS `a` JOIN other_table AS b ON `a`.id = b.id;
+    SELECT a.metadata.value FROM source_table AS a
+    UNION ALL SELECT b.metadata.value FROM other_table AS b;
+    SELECT a.id FROM source_table AS a WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = a.metadata.value
+    );
+  configs:
+    core:
+      dialect: databricks
+
+test_databricks_struct_fields_force_enable:
+  fail_str: |
+    SELECT a.metadata.value FROM source_table AS a;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      references.from:
+        force_enable: true
+
+test_databricks_unknown_struct_qualifier:
+  fail_str: |
+    SELECT missing.a.metadata.value
+    FROM source_table AS a JOIN other_table AS b ON a.id = b.id;
+  line_numbers: [1]
+  configs:
+    core:
+      dialect: databricks
+
+test_databricks_unknown_reference_in_joined_subquery:
+  fail_str: |
+    SELECT source_table.id FROM source_table WHERE EXISTS (
+        SELECT 1 FROM t2 AS b JOIN t3 AS c ON b.id = c.id
+        WHERE b.key = missing.metadata.value
+    );
+  line_numbers: [3]
+  configs:
+    core:
+      dialect: databricks
+
 test_pass_object_referenced_1:
   # References in quotes in bigquery
   pass_str: SELECT bar.user_id FROM `foo.far.bar`
@@ -636,8 +980,9 @@ test_athena_apply_rule_if_multiple_tables:
     core:
       dialect: athena
 
-test_athena_apply_rule_if_one_aliased_table:
-  fail_str: |
+test_athena_struct_fields_from_one_aliased_table:
+  # The alias does not disambiguate an unqualified struct column named a.
+  pass_str: |
     select
         a.complex.key,
         a.complex.structure.val
@@ -1322,3 +1667,57 @@ test_fail_redundantly_bracketed_join_target_unknown_table_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_bigquery_with_expression_variables:
+  # The variables of a WITH expression are declared in place.
+  pass_str: |
+    SELECT
+        WITH(a AS t.x, a + 1) AS y,
+        WITH(s AS STRUCT(1 AS f), s.f) AS z,
+        WITH(`v` AS STRUCT(1 AS f), v.f) AS w,
+        WITH(u AS STRUCT(1 AS f), `u`.f) AS q
+    FROM t
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_bigquery_with_expression_variables_no_from:
+  pass_str: SELECT WITH(s AS STRUCT(1 AS f), s.f) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_bigquery_with_expression_unknown_table:
+  fail_str: SELECT WITH(a AS 1, b.x + a) AS y FROM t
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_bigquery_with_expression_variable_in_subquery:
+  # A subquery inside a WITH expression can use the variables before it.
+  pass_str: SELECT WITH(s AS STRUCT(1 AS f), (SELECT s.f FROM t)) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_bigquery_with_expression_variable_in_own_subquery:
+  # A subquery in the assignment of a variable cannot use that variable.
+  fail_str: SELECT WITH(s AS (SELECT s.f FROM t), s) AS z
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true

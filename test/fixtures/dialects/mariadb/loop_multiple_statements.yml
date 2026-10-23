@@ -3,34 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 002eda76bbe4a089e8a6f6d28a0b5327bde12c40881bdaf58546fec3be1b63e6
+_hash: 45018760204962874bc36ff197207533c58c48878852ff702646754d30b764f5
 file:
   statement:
     loop_statement:
     - keyword: loop
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              numeric_literal: '1'
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: onetable
-    - statement_terminator: ;
+    - statement_list:
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '1'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: onetable
+      - statement_terminator: ;
     - keyword: end
     - keyword: loop
   statement_terminator: ;

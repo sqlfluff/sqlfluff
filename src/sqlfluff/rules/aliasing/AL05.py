@@ -150,11 +150,26 @@ class Rule_AL05(BaseRule):
             for a in query.aliases
             if a.object_reference and a.object_reference.segments
         )
+        # ClickHouse requires an alias on every table function in a FROM clause
+        # with more than one table source (a join or a comma list), so collect
+        # the sources of such a FROM clause.
+        multi_source_elements: set[BaseSegment] = set()
+        from_clause = context.segment.get_child("from_clause")
+        if context.dialect.name == "clickhouse" and from_clause:
+            sources = list(
+                from_clause.recursive_crawl(
+                    "from_expression_element", no_recursive_seg_type="select_statement"
+                )
+            )
+            if len(sources) > 1:
+                multi_source_elements = set(sources)
         for alias in query.aliases:
             # Skip alias if it's required (some dialects require aliases for
             # VALUES clauses).
             if alias.from_expression_element and self._is_alias_required(
-                alias.from_expression_element, context.dialect.name
+                alias.from_expression_element,
+                context.dialect.name,
+                alias.from_expression_element in multi_source_elements,
             ):
                 continue
             # Skip alias if the table is referenced more than once, some dialects
@@ -235,7 +250,10 @@ class Rule_AL05(BaseRule):
         return False
 
     def _is_alias_required(
-        self, from_expression_element: BaseSegment, dialect_name: str
+        self,
+        from_expression_element: BaseSegment,
+        dialect_name: str,
+        in_multi_source_from: bool,
     ) -> bool:
         """Given an alias, is it REQUIRED to be present?
 
@@ -247,6 +265,10 @@ class Rule_AL05(BaseRule):
 
         * In the case of a nested SELECT, all dialect checked (MySQL, Postgres,
           T-SQL) require an alias.
+
+        * ClickHouse requires an alias on a table function when the FROM
+          clause has more than one table source (``in_multi_source_from`` is
+          only set for ClickHouse).
         """
         # Look for a table_expression (i.e. VALUES clause) as a descendant of
         # the FROM expression, potentially nested inside brackets. The reason we
@@ -273,6 +295,12 @@ class Rule_AL05(BaseRule):
                             and name.raw.lower() in self._tsql_rowset_datatype_methods
                         ):
                             return True
+                # ClickHouse rejects a table function without an alias on
+                # either side of a join, or in a comma list, while the
+                # `joined_subquery_requires_alias` setting is on (the default).
+                # The rule cannot see server settings, so it assumes the default.
+                if in_multi_source_from and segment.get_child("function"):
+                    return True
                 # Found a table expression. Does it have a VALUES clause?
                 if segment.get_child("values_clause"):
                     # Found a VALUES clause. Is this a dialect that requires
@@ -309,12 +337,61 @@ class Rule_AL05(BaseRule):
                 # Record the aliases.
                 query.aliases += select_info.table_aliases
 
+                references: list[BaseSegment] = [
+                    *select_info.reference_buffer,
+                    *select_info.table_reference_buffer,
+                ]
+                # These clauses are not collected by the shared SELECT analysis.
+                # Keep each crawl in this scope; children are analyzed separately.
+                for clause in selectable.selectable.recursive_crawl(
+                    "named_window",
+                    "for_clause",
+                    "connectby_clause",
+                    "lateral_view_clause",
+                    "distribute_by_clause",
+                    "prewhere_clause",
+                    "array_join_clause",
+                    no_recursive_seg_type="select_statement",
+                ):
+                    for ref in clause.recursive_crawl(
+                        "object_reference", no_recursive_seg_type="select_statement"
+                    ):
+                        if ref.is_type("collation_reference"):
+                            continue
+                        parent_info = ref.get_parent()
+                        if parent_info:
+                            parent, index = parent_info
+                            previous = next(
+                                (
+                                    seg
+                                    for seg in reversed(parent.segments[:index])
+                                    if seg.is_code
+                                ),
+                                None,
+                            )
+                            if (
+                                previous
+                                and previous.is_type("keyword")
+                                and previous.raw_upper == "COLLATE"
+                            ):
+                                continue
+                        if clause.is_type("for_clause") and ref.is_type(
+                            "table_reference"
+                        ):
+                            # FOR UPDATE OF names tables, not qualified columns.
+                            for part in extract_possible_references(
+                                ref, ObjectReferenceLevel.OBJECT, query.dialect.name
+                            ):
+                                self._resolve_and_mark_reference(
+                                    query, part.segments[0]
+                                )
+                        else:
+                            references.append(ref)
+
                 # Look at each table reference; if it's an alias reference,
                 # resolve the alias: could be an alias defined in "query"
                 # itself or an "ancestor" query.
-                for r in (
-                    select_info.reference_buffer + select_info.table_reference_buffer
-                ):
+                for r in references:
                     table_refs = extract_possible_references(
                         r,
                         level=ObjectReferenceLevel.TABLE,

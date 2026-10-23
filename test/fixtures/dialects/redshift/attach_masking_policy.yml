@@ -1,0 +1,129 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1b5fc1b28d22b4b37db099f9cf259d2d1d1165a45fd57ed0f7dd0630c589b483
+file:
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_email
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customers
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: email
+        end_bracket: )
+    - keyword: TO
+    - keyword: PUBLIC
+- statement_terminator: ;
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        quoted_identifier: '"customer mask"'
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: customers
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: first_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: last_name
+      - end_bracket: )
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: given_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: family_name
+      - end_bracket: )
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: '"analyst role"'
+    - keyword: PRIORITY
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: analytics
+      - dot: .
+      - naked_identifier: mask_amount
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: analytics
+      - dot: .
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: sales
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: amount
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: amount
+      - comma: ','
+      - column_reference:
+          naked_identifier: authorized
+      - end_bracket: )
+    - keyword: TO
+    - user_reference:
+        naked_identifier: analyst
+    - keyword: PRIORITY
+    - numeric_literal: '20'
+- statement_terminator: ;
+- statement:
+    attach_masking_policy_statement:
+    - keyword: ATTACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customers
+    - bracketed:
+        start_bracket: (
+        column_reference:
+        - naked_identifier: person
+        - dot: .
+        - naked_identifier: name
+        - dot: .
+        - naked_identifier: first_name
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        column_reference:
+        - naked_identifier: person
+        - dot: .
+        - naked_identifier: name
+        - dot: .
+        - naked_identifier: first_name
+        end_bracket: )
+    - keyword: TO
+    - keyword: PUBLIC
+- statement_terminator: ;

@@ -126,11 +126,24 @@ class Rule_AM07(BaseRule):
                     resolved = resolved and _resolved
                     continue
 
+            # Locate the owner query holding the CTE in its scope so we can
+            # restore it after resolution, ensuring repeated references to the same
+            # CTE across multiple selectables in a set expression resolve properly.
+            owner: Optional[Query] = root_query
+            while owner and cte_name.upper() not in owner.ctes:
+                owner = owner.parent
+
             cte = root_query.lookup_cte(cte_name)
             if cte:
-                _cols, _resolved = self.__resolve_wild_query(cte)
-                num_cols += _cols
-                resolved = resolved and _resolved
+                try:
+                    _cols, _resolved = self.__resolve_wild_query(cte)
+                    num_cols += _cols
+                    resolved = resolved and _resolved
+                finally:
+                    if owner is not None:
+                        owner.ctes[cte_name.upper()] = cte
+                    else:  # pragma: no cover
+                        root_query.ctes[cte_name.upper()] = cte
             else:
                 # Unable to resolve
                 resolved = False
