@@ -1,0 +1,69 @@
+SHOW CATALOGS;
+
+SHOW CATALOGS LIKE 'hive%';
+
+SHOW COLUMNS FROM orders;
+
+SHOW COLUMNS IN hive.sales.orders LIKE 'order%';
+
+SHOW CREATE TABLE hive.sales.orders;
+
+SHOW CREATE VIEW sales.recent_orders;
+
+SHOW CREATE MATERIALIZED VIEW sales.order_totals;
+
+SHOW CREATE SCHEMA hive.sales;
+
+SHOW CREATE FUNCTION hive.sales.total;
+
+SHOW FUNCTIONS;
+
+SHOW FUNCTIONS LIKE 'array%';
+
+SHOW FUNCTIONS FROM hive.sales LIKE 'to!_%' ESCAPE '!';
+
+SHOW GRANTS;
+
+SHOW GRANTS ON orders;
+
+SHOW GRANTS ON TABLE hive.sales.orders;
+
+SHOW ROLES;
+
+SHOW ROLES FROM hive;
+
+SHOW CURRENT ROLES IN hive;
+
+SHOW ROLE GRANTS;
+
+SHOW ROLE GRANTS FROM hive;
+
+SHOW ROLES FROM "hive.sales";
+
+SHOW CURRENT ROLES IN "hive.sales";
+
+SHOW ROLE GRANTS FROM "hive.sales";
+
+SHOW SCHEMAS;
+
+SHOW SCHEMAS FROM hive;
+
+SHOW SCHEMAS FROM "hive.sales";
+
+SHOW SCHEMAS IN hive LIKE 's%';
+
+SHOW SESSION;
+
+SHOW SESSION LIKE 'query%';
+
+SHOW STATS FOR orders;
+
+SHOW STATS FOR hive.sales.orders;
+
+SHOW STATS FOR (SELECT * FROM orders WHERE total > 10);
+
+SHOW TABLES;
+
+SHOW TABLES FROM hive.sales;
+
+SHOW TABLES IN sales LIKE 'ord%';

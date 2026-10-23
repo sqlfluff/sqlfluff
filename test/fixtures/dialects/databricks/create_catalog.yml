@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54e4939e42deb86808cd4a8d475b03ec3d20b8480db5777aba6d99db75fbaf07
+_hash: 2be7135c97ba1a580c69fe096e3cfad84cf4f876b2d4df564fd81e3d0ca54ac1
 file:
 - statement:
     create_catalog_statement:
@@ -33,4 +33,29 @@ file:
         naked_identifier: customer_cat
     - keyword: COMMENT
     - quoted_literal: "'This is customer catalog'"
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: MANAGED
+    - keyword: LOCATION
+    - quoted_literal: "'s3://depts/customers'"
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: COMMENT
+    - quoted_literal: "'This is customer catalog'"
+    - keyword: MANAGED
+    - keyword: LOCATION
+    - quoted_literal: "'s3://depts/customers'"
 - statement_terminator: ;

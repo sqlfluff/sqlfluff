@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ba547ecc0b47f1f1c49e00e3270e3c70184b271d5a495890e43cead5eb2240a9
+_hash: d81662c3fce3520c62fc13041f0609391c1d260714d2c4eb17662d205697bdc6
 file:
 - statement:
     execute_immediate_clause:
@@ -132,4 +132,24 @@ file:
         - pipe: '|'
         - pipe: '|'
       - quoted_literal: "' AS SELECT * FROM t'"
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - quoted_literal: "'/scripts/foo.sql'"
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - snowflake_keyword_expression:
+          parameter: env
+          parameter_assigner: =>
+          quoted_literal: "'prod'"
+      - comma: ','
+      - snowflake_keyword_expression:
+          parameter: region
+          parameter_assigner: =>
+          quoted_literal: "'us'"
+      - end_bracket: )
 - statement_terminator: ;

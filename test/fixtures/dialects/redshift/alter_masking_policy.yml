@@ -1,0 +1,91 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6df94f2eaed4a9ab5eb91ae212f73710ea533d5f554ec84094e327e73104b2db
+file:
+- statement:
+    alter_masking_policy_statement:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_email
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          cast_expression:
+            quoted_literal: "'redacted'"
+            casting_operator: '::'
+            data_type:
+              keyword: TEXT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_masking_policy_statement:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: analytics
+        dot: .
+        quoted_identifier: '"customer mask"'
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: LOWER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: first_name
+                end_bracket: )
+      - comma: ','
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: LOWER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: last_name
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_masking_policy_statement:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_amount
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: authorized
+            - keyword: THEN
+            - expression:
+                column_reference:
+                  naked_identifier: amount
+          - else_clause:
+              keyword: ELSE
+              expression:
+                null_literal: 'NULL'
+          - keyword: END
+        end_bracket: )
+- statement_terminator: ;

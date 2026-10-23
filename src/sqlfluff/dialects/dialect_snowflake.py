@@ -350,6 +350,30 @@ snowflake_dialect.add(
             optional=True,
         ),
     ),
+    # WORKLOAD_IDENTITY property shared by CREATE USER and ALTER USER,
+    # for workload identity federation. TYPE is required.
+    # https://docs.snowflake.com/en/user-guide/workload-identity-federation
+    WorkloadIdentityPropertyGrammar=Sequence(
+        "WORKLOAD_IDENTITY",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf("AWS", "AZURE", "GCP", "OIDC"),
+            ),
+            AnySetOf(
+                Sequence("ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence("ISSUER", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence("SUBJECT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+                Sequence(
+                    "OIDC_AUDIENCE_LIST",
+                    Ref("EqualsSegment"),
+                    Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                ),
+            ),
+        ),
+    ),
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
@@ -1164,7 +1188,6 @@ snowflake_dialect.replace(
     ),
     PreTableFunctionKeywordsGrammar=OneOf(Ref("LateralKeywordSegment")),
     FunctionContentsExpressionGrammar=OneOf(
-        Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
         Ref("ReferencedVariableNameSegment"),
         Ref("LambdaExpressionSegment"),
@@ -1544,6 +1567,99 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
             ),
         ),
         allow_gaps=False,
+    )
+
+
+class FirstDatePartFunctionNameSegment(BaseSegment):
+    """Unqualified built-ins with a date unit in the first argument.
+
+    https://docs.snowflake.com/en/sql-reference/functions-date-time
+    """
+
+    type = "function_name"
+    match_grammar = MultiStringParser(
+        [
+            "DATEADD",
+            "TIMEADD",
+            "TIMESTAMPADD",
+            "DATEDIFF",
+            "TIMEDIFF",
+            "TIMESTAMPDIFF",
+            "DATE_TRUNC",
+            "DATE_PART",
+            "EXTRACT",
+        ],
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class FirstDatePartFunctionContentsSegment(BaseSegment):
+    """Recognize only the leading date unit, including extraction's FROM form."""
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        OneOf(Ref("DatetimeUnitSegment"), Ref("FunctionContentsExpressionGrammar")),
+        OneOf(
+            Sequence(Ref("CommaSegment"), Ref("FunctionContentsGrammar")),
+            Sequence("FROM", Ref("ExpressionSegment")),
+        ),
+    )
+
+
+class SecondDatePartFunctionNameSegment(BaseSegment):
+    """Built-ins with a date unit in the second argument."""
+
+    type = "function_name"
+    match_grammar = MultiStringParser(
+        ["LAST_DAY", "TRUNC", "TRUNCATE"],
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class SecondDatePartFunctionContentsSegment(BaseSegment):
+    """An expression followed by an optional date unit.
+
+    https://docs.snowflake.com/en/sql-reference/functions/last_day
+    https://docs.snowflake.com/en/sql-reference/functions/trunc2
+
+    TRUNC/TRUNCATE also accept a numeric scale expression in the second slot.
+    Without type information, retain their existing date-part interpretation of
+    bare unit words in that slot; other scale expressions use expression grammar.
+    """
+
+    type = "function_contents"
+    match_grammar = Bracketed(
+        Ref("FunctionContentsExpressionGrammar"),
+        Sequence(
+            Ref("CommaSegment"),
+            OneOf(Ref("DatetimeUnitSegment"), Ref("FunctionContentsExpressionGrammar")),
+            optional=True,
+        ),
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """Dispatch bare date units by function and argument position.
+
+    Generic, quoted and qualified function names retain expression arguments.
+    """
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("FirstDatePartFunctionNameSegment"),
+                Ref("FirstDatePartFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("SecondDatePartFunctionNameSegment"),
+                Ref("SecondDatePartFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
+            ),
+        ],
+        at=0,
     )
 
 
@@ -2055,6 +2171,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalVolumeStatementSegment"),
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
+            Ref("CreateGitRepositoryStatementSegment"),
+            Ref("AlterGitRepositoryStatementSegment"),
             Ref("ForInLoopSegment"),
             Ref("ScriptingWhileLoopSegment"),
             Ref("ScriptingLoopSegment"),
@@ -2067,6 +2185,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("CreateStorageLifecyclePolicyStatementSegment"),
+            Ref("AlterStorageLifecyclePolicyStatementSegment"),
+            Ref("CreateSessionPolicyStatementSegment"),
+            Ref("AlterSessionPolicyStatementSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
             Ref("AlterDynamicTableStatementSegment"),
@@ -2074,6 +2196,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropIcebergTableStatementSegment"),
             Ref("CreateAuthenticationPolicySegment"),
             Ref("DropResourceMonitorStatementSegment"),
+            Ref("CreateSecretStatementSegment"),
+            Ref("AlterSecretStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -3409,6 +3533,81 @@ class AlterDynamicTableStatementSegment(BaseSegment):
     )
 
 
+class CreateGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `CREATE GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-git-repository
+    """
+
+    type = "create_git_repository_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "GIT",
+        "REPOSITORY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence("ORIGIN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "API_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "GIT_CREDENTIALS",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Ref("TagBracketedEqualsSegment"),
+        ),
+    )
+
+
+class AlterGitRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `ALTER GIT REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-git-repository
+    """
+
+    type = "alter_git_repository_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GIT",
+        "REPOSITORY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "FETCH",
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "GIT_CREDENTIALS",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "API_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(OneOf("GIT_CREDENTIALS", "COMMENT")),
+            ),
+        ),
+    )
+
+
 class AlterWarehouseStatementSegment(BaseSegment):
     """An `ALTER WAREHOUSE` statement.
 
@@ -3967,6 +4166,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         "PROCEDURE",
         "ROUTINE",
         "SEQUENCE",
+        "SECRET",
         "STREAM",
         "STREAMLIT",
         "TASK",
@@ -3977,6 +4177,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("DBT", "PROJECT"),
         Sequence("DCM", "PROJECT"),
         Sequence("MCP", "SERVER"),
+        Sequence("SEMANTIC", "VIEW"),
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("DYNAMIC", "TABLE"),
         Sequence("EXTERNAL", "TABLE"),
@@ -3986,6 +4187,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("MASKING", "POLICY"),
         Sequence("ROW", "ACCESS", "POLICY"),
         Sequence("CORTEX", "SEARCH", "SERVICE"),
+        Sequence("GIT", "REPOSITORY"),
     )
 
 
@@ -4000,6 +4202,7 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         "PROCEDURES",
         "ROUTINES",
         "SEQUENCES",
+        "SECRETS",
         "STREAMS",
         "STREAMLITS",
         "TASKS",
@@ -4010,6 +4213,8 @@ class AccessSchemaPluralObjectSegment(ansi.AccessSchemaPluralObjectSegment):
         Sequence("DBT", "PROJECTS"),
         Sequence("MCP", "SERVERS"),
         Sequence("DCM", "PROJECTS"),
+        Sequence("SEMANTIC", "VIEWS"),
+        Sequence("GIT", "REPOSITORIES"),
     )
 
 
@@ -4018,6 +4223,24 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
 
     match_grammar: Matchable = OneOf(
         "ACCOUNT",
+        # Inherited grants support the account-wide container, which is not
+        # followed by an object reference:
+        # https://docs.snowflake.com/en/user-guide/inherited-grants-using
+        Sequence(
+            "ALL",
+            OneOf(
+                Ref("AccessSchemaPluralObjectSegment"),
+                Sequence("MATERIALIZED", "VIEWS"),
+                Sequence("EXTERNAL", "TABLES"),
+                Sequence("DYNAMIC", "TABLES"),
+                Sequence("ICEBERG", "TABLES"),
+                Sequence("FILE", "FORMATS"),
+                "SCHEMAS",
+                "WAREHOUSES",
+            ),
+            "IN",
+            "ACCOUNT",
+        ),
         Sequence(
             OneOf(
                 Sequence("RESOURCE", "MONITOR"),
@@ -4034,11 +4257,12 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
                 Ref("AccessSchemaObjectSegment"),
                 Sequence(
                     OneOf("ALL", "FUTURE"),
-                    OneOf("DYNAMIC", optional=True),
                     OneOf(
                         Ref("AccessSchemaPluralObjectSegment"),
                         Sequence("MATERIALIZED", "VIEWS"),
                         Sequence("EXTERNAL", "TABLES"),
+                        Sequence("DYNAMIC", "TABLES"),
+                        Sequence("ICEBERG", "TABLES"),
                         Sequence("FILE", "FORMATS"),
                     ),
                     "IN",
@@ -4071,6 +4295,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
                 "USER",
                 "WAREHOUSE",
                 "DATABASE",
+                Sequence("DATABASE", "ROLE"),
                 "INTEGRATION",
                 "SHARE",
                 "TAG",
@@ -4167,6 +4392,8 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
         "GRANT",
         OneOf(
             Sequence(
+                # https://docs.snowflake.com/en/user-guide/inherited-grants-using
+                Ref.keyword("INHERITED", optional=True),
                 Ref("AccessPermissionsSegment"),
                 "ON",
                 Ref("AccessObjectSegment"),
@@ -4217,6 +4444,8 @@ class RevokeStatementSegment(ansi.RevokeStatementSegment):
         Sequence("GRANT", "OPTION", "FOR", optional=True),
         OneOf(
             Sequence(
+                # https://docs.snowflake.com/en/user-guide/inherited-grants-using
+                Ref.keyword("INHERITED", optional=True),
                 Ref("AccessPermissionsSegment"),
                 "ON",
                 Ref("AccessObjectSegment"),
@@ -5798,6 +6027,7 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "MAX_DATA_EXTENSION_TIME_IN_DAYS",
                         "DEFAULT_DDL_COLLATION",
                         "COMMENT",
+                        "ROW_TIMESTAMP_DEFAULT",
                     ),
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
@@ -5831,6 +6061,11 @@ class SchemaObjectParamsSegment(BaseSegment):
             "DEFAULT_DDL_COLLATION",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ROW_TIMESTAMP_DEFAULT",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Ref("CommentEqualsClauseSegment"),
     )
@@ -7375,6 +7610,7 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            Ref("WorkloadIdentityPropertyGrammar"),
             Sequence(
                 "DAYS_TO_EXPIRY",
                 Ref("EqualsSegment"),
@@ -7750,6 +7986,7 @@ class CreateFileFormatSegment(BaseSegment):
             Sequence("DEFINE", "FILE", "FORMAT"),
         ),
         Ref("ObjectReferenceSegment"),
+        Indent,
         # TYPE = <FILE_FORMAT> is included in below parameter segments.
         # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
         OneOf(
@@ -7767,6 +8004,7 @@ class CreateFileFormatSegment(BaseSegment):
             Ref("CommentEqualsClauseSegment"),
             optional=True,
         ),
+        Dedent,
     )
 
 
@@ -7786,6 +8024,7 @@ class AlterFileFormatSegment(BaseSegment):
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
             Sequence(
                 "SET",
+                Indent,
                 OneOf(
                     Ref("CsvFileFormatTypeParameters"),
                     Ref("JsonFileFormatTypeParameters"),
@@ -7794,14 +8033,15 @@ class AlterFileFormatSegment(BaseSegment):
                     Ref("ParquetFileFormatTypeParameters"),
                     Ref("XmlFileFormatTypeParameters"),
                 ),
+                Sequence(
+                    # Use a Sequence and include an optional CommaSegment here.
+                    # This allows a preceding comma when above parameters are delimited.
+                    Ref("CommaSegment", optional=True),
+                    Ref("CommentEqualsClauseSegment"),
+                    optional=True,
+                ),
+                Dedent,
             ),
-        ),
-        Sequence(
-            # Use a Sequence and include an optional CommaSegment here.
-            # This allows a preceding comma when above parameters are delimited.
-            Ref("CommaSegment", optional=True),
-            Ref("CommentEqualsClauseSegment"),
-            optional=True,
         ),
     )
 
@@ -9551,6 +9791,7 @@ class AlterCortexSearchServiceStatementSegment(BaseSegment):
                 OneOf("SUSPEND", "RESUME"),
                 OneOf("INDEXING", "SERVING"),
             ),
+            "REFRESH",
             Sequence(
                 "SET",
                 AnySetOf(
@@ -9633,6 +9874,7 @@ class ShowStatementSegment(BaseSegment):
         "COLUMNS",
         Sequence("FILE", "FORMATS"),
         "SEQUENCES",
+        "SECRETS",
         "STAGES",
         "PIPES",
         "STREAMS",
@@ -9650,7 +9892,9 @@ class ShowStatementSegment(BaseSegment):
         Sequence("EXTERNAL", "VOLUMES"),
         Sequence("PASSWORD", "POLICIES"),
         Sequence("CORTEX", "SEARCH", "SERVICES"),
+        Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
         Sequence("RESOURCE", "MONITORS"),
+        Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
     )
 
     _object_scope_types = OneOf(
@@ -9677,6 +9921,7 @@ class ShowStatementSegment(BaseSegment):
                 "WORKSPACE",
                 Sequence("DBT", "PROJECT"),
                 Sequence("DCM", "PROJECT"),
+                Sequence("GIT", "REPOSITORY"),
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),
@@ -9835,6 +10080,21 @@ class AlterUserStatementSegment(BaseSegment):
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
+            # ALTER USER ... SET { AUTHENTICATION | PASSWORD | SESSION } POLICY
+            # https://docs.snowflake.com/en/sql-reference/sql/alter-user
+            Sequence(
+                "SET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                Ref.keyword("FORCE", optional=True),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("AUTHENTICATION", "PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            Sequence("SET", Ref("WorkloadIdentityPropertyGrammar")),
             # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
             # we will just use that.
@@ -10289,6 +10549,7 @@ class ExecuteImmediateClauseSegment(BaseSegment):
 
     EXECUTE IMMEDIATE
         FROM { absoluteFilePath | relativeFilePath }
+        [ USING ( <key> => <value> [ , <key> => <value> ... ] ) ]
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
@@ -10315,7 +10576,17 @@ class ExecuteImmediateClauseSegment(BaseSegment):
         ),
         Sequence(
             "USING",
-            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        # The `EXECUTE IMMEDIATE FROM ...` form takes
+                        # `key => value` template parameters rather than
+                        # bind variables.
+                        Ref("NamedParameterExpressionSegment"),
+                        Ref("LocalVariableNameSegment"),
+                    )
+                )
+            ),
             optional=True,
         ),
     )
@@ -10479,10 +10750,21 @@ class DescribeStatementSegment(BaseSegment):
                 "DATABASE",
                 Ref("DatabaseReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-git-repository
+            Sequence(
+                "GIT",
+                "REPOSITORY",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
             Sequence(
                 OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
                 "INTEGRATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-secret
+            Sequence(
+                "SECRET",
                 Ref("ObjectReferenceSegment"),
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-session-policy.html
@@ -10556,6 +10838,13 @@ class DescribeStatementSegment(BaseSegment):
             Sequence(
                 "ROW",
                 "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-storage-lifecycle-policy
+            Sequence(
+                "STORAGE",
+                "LIFECYCLE",
                 "POLICY",
                 Ref("ObjectReferenceSegment"),
             ),
@@ -11061,6 +11350,7 @@ class DropObjectStatementSegment(BaseSegment):
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
+                    Sequence("GIT", "REPOSITORY"),
                     Sequence("MCP", "SERVER"),
                     Sequence(
                         OneOf(
@@ -11070,6 +11360,8 @@ class DropObjectStatementSegment(BaseSegment):
                     ),
                     "PIPE",
                     Sequence("ROW", "ACCESS", "POLICY"),
+                    "SECRET",
+                    Sequence("STORAGE", "LIFECYCLE", "POLICY"),
                     "STAGE",
                     "STREAM",
                     "STREAMLIT",
@@ -11695,6 +11987,7 @@ class ScriptingCaseStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CASE",
         OptionallyBracketed(Ref("ExpressionSegment"), optional=True),
+        Indent,
         AnyNumberOf(
             Sequence(
                 "WHEN",
@@ -11738,6 +12031,7 @@ class ScriptingCaseStatementSegment(BaseSegment):
             Dedent,
             optional=True,
         ),
+        Dedent,
         "END",
         Ref.keyword("CASE", optional=True),
         reset_terminators=True,
@@ -11873,6 +12167,23 @@ class ScriptingDeclareStatementSegment(BaseSegment):
     )
 
 
+def _scripting_if_branch_body(terminators) -> AnyNumberOf:
+    """One or more delimited statements for an IF/ELSEIF/ELSE branch.
+
+    reset_terminators on each StatementSegment prevents the branch-level
+    terminators (ELSEIF, ELSE, END IF) from leaking into nested expressions
+    such as CASE … ELSE … END.
+    """
+    return AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment", reset_terminators=True),
+            Ref("DelimiterGrammar"),
+        ),
+        min_times=1,
+        terminators=terminators,
+    )
+
+
 class ScriptingIfStatementSegment(BaseSegment):
     """A snowflake `If` statement for SQL scripting.
 
@@ -11886,19 +12197,9 @@ class ScriptingIfStatementSegment(BaseSegment):
             Bracketed(Ref("ExpressionSegment")),
             "THEN",
             Indent,
-            Ref("StatementSegment"),
-            AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar"),
-                    Ref("StatementSegment"),
-                ),
-                terminators=[
-                    "ELSEIF",
-                    "ELSE",
-                    Sequence("END", "IF"),
-                ],
+            _scripting_if_branch_body(
+                ["ELSEIF", "ELSE", Sequence("END", "IF")],
             ),
-            Ref("DelimiterGrammar"),
             Dedent,
         ),
         AnyNumberOf(
@@ -11907,19 +12208,9 @@ class ScriptingIfStatementSegment(BaseSegment):
                 Bracketed(Ref("ExpressionSegment")),
                 "THEN",
                 Indent,
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        Ref("StatementSegment"),
-                    ),
-                    terminators=[
-                        "ELSEIF",
-                        "ELSE",
-                        Sequence("END", "IF"),
-                    ],
+                _scripting_if_branch_body(
+                    ["ELSEIF", "ELSE", Sequence("END", "IF")],
                 ),
-                Ref("DelimiterGrammar"),
                 Dedent,
             ),
             terminators=[
@@ -11931,17 +12222,9 @@ class ScriptingIfStatementSegment(BaseSegment):
             Sequence(
                 "ELSE",
                 Indent,
-                Ref("StatementSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("DelimiterGrammar"),
-                        Ref("StatementSegment"),
-                    ),
-                    terminators=[
-                        Sequence("END", "IF"),
-                    ],
+                _scripting_if_branch_body(
+                    [Sequence("END", "IF")],
                 ),
-                Ref("DelimiterGrammar"),
                 Dedent,
             ),
             optional=True,
@@ -12135,6 +12418,200 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
     )
 
 
+class SecretOptionsSegment(BaseSegment):
+    """Secret Options.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-secret
+    """
+
+    type = "secret_options"
+
+    # Values may also be supplied via Snowflake Scripting bind variables,
+    # e.g. SECRET_STRING = :my_variable
+    # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables#using-a-variable-in-a-sql-statement-binding
+    _string_or_bind_variable = OneOf(
+        Ref("QuotedLiteralSegment"), Ref("BindVariableSegment")
+    )
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "API_AUTHENTICATION",
+            Ref("EqualsSegment"),
+            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "OAUTH_SCOPES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Sequence("OAUTH_REFRESH_TOKEN", Ref("EqualsSegment"), _string_or_bind_variable),
+        Sequence(
+            "OAUTH_REFRESH_TOKEN_EXPIRY_TIME",
+            Ref("EqualsSegment"),
+            _string_or_bind_variable,
+        ),
+        Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("USERNAME", Ref("EqualsSegment"), _string_or_bind_variable),
+        Sequence("PASSWORD", Ref("EqualsSegment"), _string_or_bind_variable),
+        Sequence("SECRET_STRING", Ref("EqualsSegment"), _string_or_bind_variable),
+        Sequence("ALGORITHM", Ref("EqualsSegment"), "GENERIC"),
+        Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class CreateSecretStatementSegment(BaseSegment):
+    """Create Secret Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-secret
+    """
+
+    type = "create_secret_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SECRET",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "TYPE",
+        Ref("EqualsSegment"),
+        OneOf(
+            "OAUTH2",
+            "CLOUD_PROVIDER_TOKEN",
+            "PASSWORD",
+            "GENERIC_STRING",
+            "SYMMETRIC_KEY",
+        ),
+        Ref("SecretOptionsSegment", optional=True),
+    )
+
+
+class AlterSecretStatementSegment(BaseSegment):
+    """Alter Secret Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-secret
+    """
+
+    type = "alter_secret_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SECRET",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "SET",
+        Ref("SecretOptionsSegment"),
+    )
+
+
+class SessionPolicyOptionsSegment(BaseSegment):
+    """Session Policy Options.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-session-policy
+    """
+
+    type = "session_policy_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "SESSION_IDLE_TIMEOUT_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SESSION_UI_IDLE_TIMEOUT_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SESSION_MAX_LIFESPAN_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SESSION_UI_MAX_LIFESPAN_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        # Both role lists accept `('ALL')`, a list of role names, or an
+        # empty list `()`.
+        Sequence(
+            "ALLOWED_SECONDARY_ROLES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Sequence(
+            "BLOCKED_SECONDARY_ROLES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+        Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class CreateSessionPolicyStatementSegment(BaseSegment):
+    """Create Session Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-session-policy
+    """
+
+    type = "create_session_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "SESSION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("SessionPolicyOptionsSegment", optional=True),
+    )
+
+
+class AlterSessionPolicyStatementSegment(BaseSegment):
+    """Alter Session Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-session-policy
+    """
+
+    type = "alter_session_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SESSION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence(
+                "SET",
+                Ref("SessionPolicyOptionsSegment"),
+            ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "SESSION_IDLE_TIMEOUT_MINS",
+                        "SESSION_UI_IDLE_TIMEOUT_MINS",
+                        "SESSION_MAX_LIFESPAN_MINS",
+                        "SESSION_UI_MAX_LIFESPAN_MINS",
+                        "ALLOWED_SECONDARY_ROLES",
+                        "BLOCKED_SECONDARY_ROLES",
+                        "COMMENT",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class CreateRowAccessPolicyStatementSegment(BaseSegment):
     """Create Row Access Policy.
 
@@ -12150,7 +12627,7 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         "ACCESS",
         "POLICY",
         Ref("IfNotExistsGrammar", optional=True),
-        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")),
+        Ref("ObjectReferenceSegment"),
         "AS",
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
@@ -12193,6 +12670,101 @@ class AlterRowAccessPolicyStatmentSegment(BaseSegment):
                 "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
             ),
             Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class CreateStorageLifecyclePolicyStatementSegment(BaseSegment):
+    """A `CREATE STORAGE LIFECYCLE POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-lifecycle-policy
+    """
+
+    type = "create_storage_lifecycle_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "STORAGE",
+        "LIFECYCLE",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        "BOOLEAN",
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+        Sequence(
+            "ARCHIVE_TIER",
+            Ref("EqualsSegment"),
+            OneOf("COOL", "COLD"),
+            optional=True,
+        ),
+        Sequence(
+            "ARCHIVE_FOR_DAYS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        Ref("TagBracketedEqualsSegment", optional=True),
+    )
+
+
+class AlterStorageLifecyclePolicyStatementSegment(BaseSegment):
+    """An `ALTER STORAGE LIFECYCLE POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-storage-lifecycle-policy
+    """
+
+    type = "alter_storage_lifecycle_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STORAGE",
+        "LIFECYCLE",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Sequence(
+                        "BODY",
+                        Ref("FunctionAssignerSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    Sequence(
+                        "ARCHIVE_TIER",
+                        Ref("EqualsSegment"),
+                        OneOf("COOL", "COLD"),
+                    ),
+                    Sequence(
+                        "ARCHIVE_FOR_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "COMMENT",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("TagEqualsSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Delimited(
+                        OneOf("ARCHIVE_FOR_DAYS", "COMMENT"),
+                    ),
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                ),
+            ),
         ),
     )
 

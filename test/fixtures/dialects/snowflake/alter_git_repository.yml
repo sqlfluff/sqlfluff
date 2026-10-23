@@ -1,0 +1,114 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6ea285963b8cdac25fe321c23f564dcded131f126f61673d4aea3ae4c59c6d20
+file:
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: snowflake_extensions
+    - keyword: FETCH
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_repo
+    - keyword: FETCH
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: SET
+    - keyword: GIT_CREDENTIALS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: new_git_secret
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: other_git_api_integration
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'rotated credentials'"
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: cost_center
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'data_eng'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: env
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'prod'"
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: cost_center
+    - comma: ','
+    - tag_reference:
+        naked_identifier: env
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: UNSET
+    - keyword: GIT_CREDENTIALS
+- statement_terminator: ;
+- statement:
+    alter_git_repository_statement:
+    - keyword: ALTER
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: UNSET
+    - keyword: GIT_CREDENTIALS
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;

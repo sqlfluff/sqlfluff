@@ -1,0 +1,9 @@
+CREATE PROCEDURE p3()
+BEGIN
+  DECLARE v1 INT DEFAULT 0;
+  BEGIN
+    SET v1 = 1;
+    SET v1 = v1 + 1;
+  END;
+  SELECT v1;
+END;

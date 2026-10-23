@@ -1,0 +1,150 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 669795209e9fda23c577663deafd6789c8f131c8cd0a031d4a8f2cd320083372
+file:
+- statement:
+    create_masking_policy_statement:
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_email
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: email
+        data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '256'
+              end_bracket: )
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          cast_expression:
+            quoted_literal: "'hidden'"
+            casting_operator: '::'
+            data_type:
+              keyword: TEXT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_masking_policy_statement:
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        quoted_identifier: '"customer mask"'
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: first_name
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: last_name
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+      - end_bracket: )
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: UPPER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: first_name
+                end_bracket: )
+      - comma: ','
+      - expression:
+          cast_expression:
+            quoted_literal: "'hidden'"
+            casting_operator: '::'
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '100'
+                  end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_masking_policy_statement:
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: analytics
+      - dot: .
+      - naked_identifier: mask_amount
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: amount
+      - data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '12'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: authorized
+      - data_type:
+          keyword: BOOLEAN
+      - end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: authorized
+            - keyword: THEN
+            - expression:
+                column_reference:
+                  naked_identifier: amount
+          - else_clause:
+              keyword: ELSE
+              expression:
+                numeric_literal: '0'
+          - keyword: END
+        end_bracket: )
+- statement_terminator: ;
