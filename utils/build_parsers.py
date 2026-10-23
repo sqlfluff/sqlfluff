@@ -1167,7 +1167,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_idx=self._add_simple_hint(grammar, parse_context),
             comment="Nothing",
         )
 

@@ -485,12 +485,27 @@ class Anything(BaseGrammar):
         )
 
 
+# Nothing starts with no word and no type.
+_NOTHING_HINT: SimpleHintType = (frozenset(), frozenset())
+
+
 class Nothing(BaseGrammar):
     """Matches nothing.
 
     Useful for placeholders which might be overwritten by other
     dialects.
     """
+
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
+    ) -> SimpleHintType:
+        """Nothing starts with no word and no type.
+
+        An empty hint, rather than none, lets option pruning drop it and
+        lets it sit among terminators, where every matcher needs a hint.
+        Pruning calls this often, so the hint is built once.
+        """
+        return _NOTHING_HINT
 
     def match(
         self,
