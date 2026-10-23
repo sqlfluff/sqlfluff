@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
+    ClientTextSegment,
     CodeSegment,
     CommentSegment,
     CompositeComparisonOperatorSegment,
@@ -37,7 +38,15 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    UnlexableSegment,
     WordSegment,
+)
+from sqlfluff.core.parser.client_commands import (
+    ArgumentKind,
+    BufferAction,
+    ClientCommandRules,
+    LongClientCommand,
+    ShortClientCommand,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
@@ -59,9 +68,25 @@ The dialect for `MySQL <https://www.mysql.com/>`_.""",
 
 mysql_dialect.patch_lexer_matchers(
     [
+        # `$` is an identifier character anywhere in a name, as in `a$b`, `$a`
+        # or `1$`. Only a `$tag$` at the start of a token is something else: it
+        # opens a dollar-quoted string (see `dollar_quote_opener`).
+        RegexLexer("word", r"[0-9a-zA-Z_$]+", WordSegment),
+        # As ANSI's, except that digits followed by `$` are an identifier, as
+        # digits followed by a letter already are: `1$` is a name. A decimal or
+        # an exponent still ends there, so `1.5$x` is `1.5` and the name `$x`.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+(?=[eE][+-]?\d|(?![\w$])))"
+            r"(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
+        # `--` starts a comment only with whitespace, or the end of the line,
+        # after it; `--x` is two minus signs. At the start of a statement the
+        # MariaDB client is looser, which its client command rules cover.
         RegexLexer(
             "inline_comment",
-            r"(^--|-- |#)[^\n]*",
+            r"(--(?=\s|$)|#)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("--", "#")},
         ),
@@ -99,17 +124,65 @@ mysql_dialect.patch_lexer_matchers(
     ]
 )
 
+# The mysql command-line client reads a script line by line and splits it into
+# statements itself, so its own commands are lexed with its state: see
+# `ClientCommandRules`. Only the commands that matter in scripts are here.
+# https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+# A `$tag$` at the start of a token with no closing `$tag$`. MySQL still reads
+# it as the start of a dollar-quoted string, which then never ends, so `$a$` is
+# never a name, oddly, even though `$` is allowed in names.
+mysql_dialect.insert_lexer_matchers(
+    [RegexLexer("dollar_quote_opener", r"\$\w*\$", UnlexableSegment)],
+    before="numeric_literal",
+)
+
+mysql_client_commands = ClientCommandRules(
+    long_commands=(
+        LongClientCommand("delimiter", ArgumentKind.DELIMITER),
+        LongClientCommand("source", ArgumentKind.FILE_NAME),
+    ),
+    # `\d` and `\.` are the short forms of `delimiter` and `source`. `go` and
+    # `ego`, the long forms of `\g` and `\G`, are left out: like any long form
+    # they only count where nothing has been collected yet, so they never send
+    # anything (unless the client runs with `--named-commands`).
+    short_commands=(
+        ShortClientCommand("\\d", BufferAction.KEEP, ArgumentKind.DELIMITER),
+        ShortClientCommand("\\.", BufferAction.DISCARD, ArgumentKind.FILE_NAME),
+        ShortClientCommand("\\g", BufferAction.END),
+        ShortClientCommand("\\G", BufferAction.END),
+    ),
+    opaque_token_names=frozenset(
+        {
+            "single_quote",
+            "double_quote",
+            "back_quote",
+            "inline_comment",
+            "block_comment",
+            "dollar_quote",
+            "dollar_quote_opener",
+        }
+    ),
+    line_command_after_block_comment=True,
+    dash_dash_comment_at_statement_start=False,
+    collected_line_marker="\\g",
+    # The client keeps the delimiter in `char delimiter[16]`.
+    max_delimiter_bytes=15,
+)
+mysql_dialect.client_commands = mysql_client_commands
+
 mysql_dialect.insert_lexer_matchers(
     [
+        # `0x1F` and `0b101` end only where no identifier character follows:
+        # `0x1Fg` and `0b1$` are names, as digits followed by a letter are.
         RegexLexer(
             "hexadecimal_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+(?![\w$]))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
         RegexLexer(
             "bit_value_literal",
-            r"([bB]'[01]+'|0b[01]+)",
+            r"([bB]'[01]+'|0b[01]+(?![\w$]))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -384,10 +457,15 @@ mysql_dialect.replace(
     ),
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
-    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
+    # A statement ends at `;`, at another delimiter set with `DELIMITER`, or at
+    # `\g` or `\G`.
+    DelimiterGrammar=OneOf(
+        Ref("SemicolonSegment"),
+        Ref("ClientDelimiterSegment"),
+        Ref("ClientGoSegment"),
+    ),
     ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
+        r"`?[A-Za-z0-9_$]*`?", CodeSegment, type="parameter"
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", BinaryOperatorSegment),
@@ -416,7 +494,7 @@ mysql_dialect.replace(
     ),
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
-            r"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_",
+            r"([A-Z0-9_$]*[A-Z$][A-Z0-9_$]*)|_",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
@@ -431,7 +509,31 @@ mysql_dialect.replace(
     ).copy(insert=[Ref("NullSafeEqualsSegment")]),
 )
 
+
+class ClientDelimiterSymbolSegment(ClientTextSegment, SymbolSegment):
+    """The client's delimiter, as a statement terminator.
+
+    A symbol like `;`, and still client text, so that a reparse never reads
+    `$$` as a name.
+    """
+
+    type = "client_delimiter_symbol"
+
+
 mysql_dialect.add(
+    ClientDelimiterSegment=TypedParser(
+        "client_delimiter", ClientDelimiterSymbolSegment, type="statement_terminator"
+    ),
+    # `\g` and `\G` (raw_upper of both).
+    ClientGoSegment=StringParser("\\G", SymbolSegment, type="statement_terminator"),
+    # A client command ends with its line, so needs no delimiter after it.
+    ClientCommandIgnoredSegment=TypedParser(
+        "client_command_ignored", ClientTextSegment, type="client_command_ignored"
+    ),
+    ClientCommandGrammar=OneOf(
+        Ref("DelimiterStatement"),
+        Ref("SourceStatementSegment"),
+    ),
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         LiteralSegment,
@@ -1899,7 +2001,6 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
-            Ref("DelimiterStatement"),
             Ref("CompoundStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
@@ -1956,11 +2057,83 @@ class StatementSegment(ansi.StatementSegment):
 
 
 class DelimiterStatement(BaseSegment):
-    """DELIMITER statement."""
+    r"""A `DELIMITER` (or `\d`) client command, which sets the delimiter.
+
+    The lexer reads the argument and keeps track of the delimiter it sets (see
+    `ClientCommandRules`). Anything after the argument on its line is ignored by
+    the client.
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+    """
 
     type = "delimiter_statement"
 
-    match_grammar = Ref.keyword("DELIMITER")
+    match_grammar = Sequence(
+        OneOf(
+            "DELIMITER",
+            StringParser("\\D", SymbolSegment, type="client_short_command"),
+        ),
+        TypedParser("delimiter_argument", ClientTextSegment, type="delimiter_argument"),
+        Ref("ClientCommandIgnoredSegment", optional=True),
+    )
+
+
+class SourceStatementSegment(BaseSegment):
+    r"""A `SOURCE` (or `\.`) client command, which runs another script.
+
+    The lexer reads the file name the way the client does (see
+    `ClientCommandRules`).
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-batch-commands.html
+    """
+
+    type = "source_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            "SOURCE",
+            StringParser("\\.", SymbolSegment, type="client_short_command"),
+        ),
+        TypedParser("source_file_name", ClientTextSegment, type="source_file_name"),
+        Ref("ClientCommandIgnoredSegment", optional=True),
+    )
+
+
+class FileSegment(ansi.FileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+
+    Overrides ANSI so that client commands, which end with their line, need no
+    delimiter after them.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        AnyNumberOf(
+            Sequence(
+                Ref("ClientCommandGrammar"),
+                AnyNumberOf(Ref("DelimiterGrammar")),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("StatementSegment"),
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_gaps=True,
+                ),
+                AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            ),
+        ),
+        # The last statement in the file may have no delimiter.
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            optional=True,
+        ),
+    )
 
 
 class CreateProcedureStatementSegment(BaseSegment):

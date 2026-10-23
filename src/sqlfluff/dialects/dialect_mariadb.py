@@ -3,6 +3,8 @@
 https://mariadb.com/kb/en/sql-statements-structure/
 """
 
+from dataclasses import replace
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -52,6 +54,28 @@ mariadb_dialect.update_keywords_set_from_multiline_string(
 # `_gb18030` with an alias.
 # https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/supported-character-sets-and-collations
 mariadb_dialect.sets("character_set_names").discard("GB18030")
+
+# The mariadb client differs from mysql's in two ways. A comment before a
+# command on the same line stops it being a command. And, apparently by
+# mistake, at the start of a statement `--` is a comment even with no space
+# after it (`--x`), though it isn't anywhere else.
+mariadb_dialect.client_commands = replace(
+    mysql.mysql_client_commands,
+    opaque_token_names=mysql.mysql_client_commands.opaque_token_names
+    - {"dollar_quote", "dollar_quote_opener"},
+    line_command_after_block_comment=False,
+    dash_dash_comment_at_statement_start=True,
+)
+
+# MariaDB has no dollar-quoted strings: `$` is only an identifier character, so
+# `$$` and `$a$` are names.
+mariadb_dialect.set_lexer_matchers(
+    [
+        matcher
+        for matcher in mariadb_dialect.get_lexer_matchers()
+        if matcher.name not in ("dollar_quote", "dollar_quote_opener")
+    ]
+)
 
 mariadb_dialect.add(
     # A value in the LIMIT of GROUP_CONCAT and JSON_ARRAYAGG.

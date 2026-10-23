@@ -237,3 +237,133 @@ def test_mysql_user_variable_is_not_a_name(raw: str, dialect: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # DELIMITER needs an argument, and rejects an empty one or one with a
+        # backslash left in it after unescaping.
+        "DELIMITER\nSELECT 1;\n",
+        "DELIMITER ''\nSELECT 1;\n",
+        "DELIMITER \\\\\nSELECT 1;\n",
+        # A command only counts at the start of a statement, and only the active
+        # delimiter ends one: here `;` doesn't, so DELIMITER is part of it.
+        "SELECT 1; DELIMITER $$\nSELECT 2 $$\n",
+        "SELECT 1\nDELIMITER $$\nSELECT 2 $$\n",
+        "DELIMITER ;;\nSELECT 1;\nDELIMITER ;\nSELECT 2;\n",
+        # The delimiter is found inside words, and is cut to 15 bytes.
+        "DELIMITER go\nSELECT 1 AS good go\n",
+        "DELIMITER abcdefghijklmnopqrstuvwxyz\nSELECT 1 abcdefghijklmnopqrstuvwxyz\n",
+        # `\d` skips its argument up to the new delimiter, which here is inside
+        # the quotes, so the rest of the line is read as SQL.
+        "\\d '$$' rest\nSELECT 1 $$\n",
+        # SOURCE needs a space before its file name.
+        "SOURCE\tt.sql\n",
+        "\\.a.sql\n",
+        # With the delimiter or `\g` on its line, SOURCE is collected as a
+        # statement first, so its backslashes run as client commands.
+        "SOURCE C:\\db\\x.sql;\n",
+        "SOURCE C:\\games\\x.sql\n",
+        "SOURCE \\\\gitserver\\share\\x.sql\n",
+        "SOURCE \\g\n",
+        # A delimiter can't have whitespace in it.
+        "SELECT 1 \\d  \\ \nSELECT 2;\n",
+        "DELIMITER a\\ b\nSELECT 1 a b\n",
+        "DELIMITER 'a b'\nSELECT 1 a b\n",
+        "DELIMITER ' x'\nSELECT 1 x\n",
+        "DELIMITER '$$ '\nSELECT 1 $$ \n",
+        # An unclosed quote in a delimiter argument is a typo.
+        "DELIMITER '$$\nSELECT 1 $$\n",
+        "\\d '$$\nSELECT 1 $$\n",
+        # A line that holds `\g` is collected as a statement, even DELIMITER's.
+        "DELIMITER // \\g\nSELECT 1 //\n",
+        # SOURCE after a delimiter runs to the next one, past its line.
+        "SELECT 1; SOURCE a.sql\nSELECT 2;\n",
+        # A collected DELIMITER without the old delimiter on its line takes the
+        # lines after it with it.
+        "SELECT 1; DELIMITER //\nSELECT 2 //\n",
+        "SELECT 1; DELIMITER //\n",
+        "DELIMITER $$\nSELECT 1 $$ DELIMITER ;\nSELECT 2;\nSELECT 3;\n",
+        # A collected DELIMITER with an escape runs it as an unknown command,
+        # and one with no argument is an error.
+        "SELECT 1; DELIMITER \\$\\$ ;\nSELECT 2 $$\n",
+        "SELECT 1; DELIMITER ;\nSELECT 2;\n",
+    ],
+)
+@pytest.mark.parametrize("dialect", ["mysql", "mariadb"])
+def test_mysql_client_commands_the_client_rejects(raw: str, dialect: str) -> None:
+    """Test that client commands the client rejects or misreads don't parse.
+
+    The mysql and mariadb clients report each of these as an error, or send
+    the server something other than what is written.
+    """
+    parsed = Linter(dialect=dialect).parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # MySQL needs whitespace after `--` for a comment, even at the start
+        # of a statement.
+        "--Hello\nSELECT 1;\n",
+        "SELECT 1; --inline\n",
+    ],
+)
+def test_mysql_dash_dash_needs_whitespace(raw: str) -> None:
+    """Test that `--` without whitespace after it isn't a MySQL comment.
+
+    MySQL 8.4 and 9.7 report each of these as a syntax error. (The mariadb
+    client takes them as comments; see the mariadb `line_comment` fixture.)
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "/* comment */ DELIMITER $$\nSELECT 1 $$\n",
+        "/* comment */ SOURCE after_comment.sql\n",
+    ],
+)
+def test_mariadb_no_comment_before_a_client_command(raw: str) -> None:
+    """Test that the mariadb client doesn't take a command after a comment.
+
+    The mysql client does; see the mysql `client_command_after_comment` fixture.
+    """
+    parsed = Linter(dialect="mariadb").parse_string(raw)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "SELECT 1 AS $$;\n",
+        "SELECT 1 AS $a$;\n",
+        "SELECT 1 AS $1$;\n",
+        "SELECT 1 AS $$a;\n",
+        "SELECT 1 AS $a$b;\n",
+        # The client opens the quote before it finds the delimiter `$$`.
+        "DELIMITER $$\nSELECT $a$$\n",
+    ],
+)
+def test_mysql_dollar_quote_opener_is_not_a_name(raw: str) -> None:
+    """Test that `$tag$` at the start of a token is not a MySQL name.
+
+    MySQL reads it as the start of a dollar-quoted string, which never ends:
+    MySQL 8.4 and 9.7 report each of these as a syntax error. (MariaDB has no
+    dollar-quoted strings and takes them as names; see its `identifier_dollar`
+    fixture.)
+    """
+    parsed = Linter(dialect="mysql").parse_string(raw)
+    lexing_errors = [v for v in parsed.violations if v.rule_code() == "LXR"]
+
+    assert lexing_errors
