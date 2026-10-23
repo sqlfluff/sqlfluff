@@ -1724,6 +1724,89 @@ WHERE processdate ! 3
         assert not os.path.isfile(fixed_path)
 
 
+@pytest.mark.parametrize("command", [fix, cli_format], ids=["fix", "format"])
+@pytest.mark.parametrize(
+    "config_suffix, cli_suffix, expected_suffix",
+    [
+        ("_fixed", None, "_fixed"),
+        ("0", None, "0"),
+        ("123", None, "123"),
+        ("_fixed", "_cli", "_cli"),
+        ("_fixed", "", ""),
+        (None, None, ""),
+    ],
+    ids=[
+        "config",
+        "config-numeric-zero",
+        "config-numeric-nonzero",
+        "cli-override",
+        "explicit-empty",
+        "default",
+    ],
+)
+def test_cli_fixed_suffix_configuration(
+    command, config_suffix, cli_suffix, expected_suffix, tmp_path, monkeypatch
+):
+    """A CLI suffix overrides config, including an explicitly empty suffix."""
+    source = tmp_path / "query.sql"
+    source_sql = "SELECT  a FROM t;\n"
+    source.write_text(source_sql)
+    config = "[sqlfluff]\ndialect = ansi\n"
+    if config_suffix is not None:
+        config += f"fixed_suffix = {config_suffix}\n"
+    (tmp_path / ".sqlfluff").write_text(config)
+    monkeypatch.chdir(tmp_path)
+
+    args = ["--disable-progress-bar"]
+    if command is fix:
+        args += ["--rules", "LT01"]
+    if cli_suffix is not None:
+        args += ["--fixed-suffix", cli_suffix]
+    invoke_assert_code(ret_code=0, args=[command, args + ["query.sql"]])
+
+    output = tmp_path / f"query{expected_suffix}.sql"
+    assert output.read_text() == "SELECT a FROM t;\n"
+    assert source.read_text() == (source_sql if expected_suffix else output.read_text())
+    assert sorted(path.name for path in tmp_path.glob("*.sql")) == (
+        ["query.sql"] if not expected_suffix else ["query.sql", output.name]
+    )
+
+
+def test_cli_fixed_suffix_check_confirmation(tmp_path, monkeypatch):
+    """Fix --check uses the configured suffix after confirmation."""
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\nfixed_suffix = _fixed\n"
+    )
+    source = tmp_path / "query.sql"
+    source.write_text("SELECT  a FROM t;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=0,
+        args=[fix, ["--rules", "LT01", "--check", "query.sql"]],
+        cli_input="y",
+    )
+    assert source.read_text() == "SELECT  a FROM t;\n"
+    assert (tmp_path / "query_fixed.sql").read_text() == "SELECT a FROM t;\n"
+
+
+@pytest.mark.parametrize("command", [fix, cli_format], ids=["fix", "format"])
+def test_cli_fixed_suffix_stdin(command, tmp_path, monkeypatch):
+    """Configured suffix does not change the stdin-to-stdout fix path."""
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\nfixed_suffix = _fixed\n"
+    )
+    monkeypatch.chdir(tmp_path)
+    args = ["--disable-progress-bar"]
+    if command is fix:
+        args += ["--rules", "LT01"]
+    result = invoke_assert_code(
+        ret_code=0, args=[command, args + ["-"]], cli_input="SELECT  a FROM t;\n"
+    )
+    assert result.stdout == "SELECT a FROM t;\n"
+    assert list(tmp_path.glob("*.sql")) == []
+
+
 @pytest.mark.parametrize(
     "stdin,rules,stdout",
     [

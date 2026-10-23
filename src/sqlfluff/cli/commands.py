@@ -1436,7 +1436,7 @@ def fix(
     check: bool = False,
     bench: bool = False,
     quiet: bool = False,
-    fixed_suffix: str = "",
+    fixed_suffix: Optional[str] = None,
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
@@ -1466,6 +1466,9 @@ def fix(
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
+    if fixed_suffix is None:
+        configured_suffix = config.get("fixed_suffix", default="")
+        fixed_suffix = "" if configured_suffix is None else str(configured_suffix)
     fix_even_unparsable = config.get("fix_even_unparsable")
     verbose = config.get("verbose")
     output_policy = OutputPolicy(verbosity=verbose, quiet=quiet)
@@ -1550,7 +1553,7 @@ def cli_format(
     recursion_limit: Optional[int],
     quiet: bool = False,
     bench: bool = False,
-    fixed_suffix: str = "",
+    fixed_suffix: Optional[str] = None,
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
@@ -1606,6 +1609,9 @@ def cli_format(
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
+    if fixed_suffix is None:
+        configured_suffix = config.get("fixed_suffix", default="")
+        fixed_suffix = "" if configured_suffix is None else str(configured_suffix)
     verbose = config.get("verbose")
     output_policy = OutputPolicy(verbosity=verbose, quiet=quiet)
     output_stream = make_output_stream(
