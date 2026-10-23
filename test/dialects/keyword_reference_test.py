@@ -48,7 +48,6 @@ from sqlfluff.core.parser.grammar.sequence import Sequence
 # run for them. Every other dialect, including any new one, must opt in. When
 # one of these opts in, remove it from here; the tests say so.
 UNAUDITED_DIALECTS = {
-    "ansi",
     "athena",
     "bigquery",
     "clickhouse",
