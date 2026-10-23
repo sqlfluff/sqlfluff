@@ -533,7 +533,7 @@ databricks_dialect.replace(
                 OneOf("GRANTS", "GRANT"),
                 Ref("RoleReferenceSegment", optional=True),
                 "ON",
-                Ref("AccessObjectSegment"),
+                OneOf("METASTORE", Ref("AccessObjectSegment")),
             ),
         ],
     ),

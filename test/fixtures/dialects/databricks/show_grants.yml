@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a845e5f88351b452cf0e5203385d597865d3163322afb0f6fd8614c2b52f51ab
+_hash: ea44245c1c79712333e8877658624468350005a5eaffbc1ed855177fc9269d8e
 file:
 - statement:
     show_statement:
@@ -65,9 +65,7 @@ file:
     - keyword: SHOW
     - keyword: GRANTS
     - keyword: 'ON'
-    - access_object:
-        object_reference:
-          naked_identifier: METASTORE
+    - keyword: METASTORE
 - statement_terminator: ;
 - statement:
     show_statement:
