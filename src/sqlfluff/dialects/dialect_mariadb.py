@@ -43,11 +43,17 @@ Identifiers: |back_quotes|.
 
 The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
 )
-mariadb_dialect.declare_keyword_sets(
+mariadb_dialect.categorize_keywords(
     reserved=mariadb_reserved_keywords.split(),
     unreserved=mariadb_unreserved_keywords.split(),
-    future_reserved=[],
     unimplemented=mariadb_unimplemented_keywords.split(),
+)
+mariadb_dialect.claim_exhaustive_reserved(
+    mariadb_reserved_keywords.split(),
+    source=(
+        "MariaDB 11.8.6: INFORMATION_SCHEMA.KEYWORDS words the server rejects "
+        "as a bare column name"
+    ),
 )
 
 # MariaDB has no gb18030 character set, so `_gb18030'x'` is the column

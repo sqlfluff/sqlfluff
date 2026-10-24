@@ -39,12 +39,24 @@ starrocks_dialect = mysql_dialect.copy_as(
     Identifiers: |back_quotes|.
 
     The dialect for `StarRocks <https://www.starrocks.io/>`_.""",
+    keyword_reference_error_docs=(
+        "A StarRocks keyword is reserved if it is a token in StarRocksLex.g4 and "
+        "not listed in the nonReserved rule of StarRocks.g4. Both are in "
+        "https://github.com/StarRocks/starrocks/tree/main/fe/fe-grammar/src/main/"
+        "antlr/com/starrocks/grammar"
+    ),
 )
-starrocks_dialect.declare_keyword_sets(
+starrocks_dialect.categorize_keywords(
     reserved=starrocks_reserved_keywords.split(),
     unreserved=starrocks_unreserved_keywords.split(),
-    future_reserved=[],
     unimplemented=starrocks_unimplemented_keywords.split(),
+)
+starrocks_dialect.claim_exhaustive_reserved(
+    starrocks_reserved_keywords.split(),
+    source=(
+        "StarRocks 4.1.6: "
+        "keyword tokens in StarRocksLex.g4 that StarRocks.g4's nonReserved rule doesn't list"
+    ),
 )
 
 

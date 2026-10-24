@@ -77,17 +77,16 @@ mysql_grant_all_masking_policies_unimplemented:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
   dialect: mysql
   expect: tree
-  pins: POLICIES is an unimplemented keyword in mysql (declare_keyword_sets), so the GRANT
+  pins: POLICIES is an unimplemented keyword in mysql (categorize_keywords), so the GRANT
     grammar mysql inherits from ansi never matches it. Both engines give the same
-    unparsable tree instead of the RuntimeError ansi still raises; MySQL itself
-    rejects the statement.
+    unparsable tree instead of a RuntimeError; MySQL itself rejects the statement.
 doris_flush_optimizer_costs_unimplemented:
   sql: FLUSH OPTIMIZER_COSTS
   dialect: doris
   expect: tree
-  pins: OPTIMIZER_COSTS is reserved in mysql and not listed by doris, so declare_keyword_sets
-    makes it unimplemented there. The FLUSH grammar doris inherits stops matching it,
-    and both engines give the same unparsable tree instead of a RuntimeError.
+  pins: OPTIMIZER_COSTS is reserved in mysql but isn't a Doris keyword (no DorisLexer.g4
+    token), so doris lists it as unimplemented. The FLUSH grammar doris inherits stops
+    matching it, and both engines give the same unparsable tree instead of a RuntimeError.
 postgres_alter_foreign_table_column_keyword:
   sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
   dialect: postgres

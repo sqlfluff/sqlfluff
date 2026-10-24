@@ -34,12 +34,24 @@ doris_dialect = mysql_dialect.copy_as(
     Identifiers: |back_quotes|.
 
     The dialect for `Apache Doris <https://doris.apache.org/>`_.""",
+    keyword_reference_error_docs=(
+        "A Doris keyword is reserved if it is a token in DorisLexer.g4 and not "
+        "listed in the nonReserved rule of DorisParser.g4. Both are in "
+        "https://github.com/apache/doris/tree/master/fe/fe-sql-parser/src/main/"
+        "antlr4/org/apache/doris/nereids"
+    ),
 )
-doris_dialect.declare_keyword_sets(
+doris_dialect.categorize_keywords(
     reserved=doris_reserved_keywords.split(),
     unreserved=doris_unreserved_keywords.split(),
-    future_reserved=[],
     unimplemented=doris_unimplemented_keywords.split(),
+)
+doris_dialect.claim_exhaustive_reserved(
+    doris_reserved_keywords.split(),
+    source=(
+        "Apache Doris 4.1.5-release: "
+        "keyword tokens in DorisLexer.g4 that DorisParser.g4's nonReserved rule doesn't list"
+    ),
 )
 
 
