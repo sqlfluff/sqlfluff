@@ -105,7 +105,10 @@ def _compile_macro_template(template: str, env: Environment) -> CodeType:
         isinstance(template, str)
         and type(env) in (Environment, SandboxedEnvironment, DbtSandboxedEnvironment)
         and vars(env).keys() <= _JINJA_ENV_ATTRIBUTES
-        and all(t in (ExprStmtExtension, DBTTestExtension) for t in extension_types)
+        and all(
+            t in (ExprStmtExtension, DBTTestExtension, DBTMaterializationExtension)
+            for t in extension_types
+        )
         and _holds_same_objects(env.filters, _JINJA_FILTERS)
         and _holds_same_objects(env.tests, _JINJA_TESTS)
         and env.policies == _JINJA_POLICIES
@@ -526,9 +529,9 @@ class JinjaTemplater(PythonTemplater):
         get_source method to handle missing templates when templating is ignored.
         If 'ignore' is not present or does not contain 'templating', it uses the
         regular FileSystemLoader. It then sets the extensions to ['jinja2.ext.do']
-        and adds the DBTTestExtension if the _apply_dbt_builtins method returns
-        True. Finally, it returns a SandboxedEnvironment object with the
-        specified settings.
+        and adds the DBTTestExtension and DBTMaterializationExtension if the
+        _apply_dbt_builtins method returns True. Finally, it returns a
+        SandboxedEnvironment object with the specified settings.
 
         Args:
             config (dict, optional): A dictionary containing configuration settings.
@@ -569,6 +572,7 @@ class JinjaTemplater(PythonTemplater):
         environment_class = SandboxedEnvironment
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
+            extensions.append(DBTMaterializationExtension)
             environment_class = DbtSandboxedEnvironment
 
         return environment_class(
@@ -1438,4 +1442,61 @@ class DBTTestExtension(Extension):
         parser.parse_signature(node)
         node.name = f"test_{test_name}"
         node.body = parser.parse_statements(("name:endtest",), drop_needle=True)
+        return node
+
+
+class DBTMaterializationExtension(Extension):
+    """Jinja extension to handle the dbt materialization tag.
+
+    dbt defines custom materializations with a block of the form
+    ``{% materialization <name>, adapter='<adapter>' %}`` (or ``default``
+    instead of ``adapter=...``), which it compiles into a macro called
+    ``materialization_<name>_<adapter>``.
+    """
+
+    tags = {"materialization"}
+
+    def parse(self, parser: jinja2.parser.Parser) -> jinja2.nodes.Macro:
+        """Parses out the contents of the materialization tag."""
+        node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
+        materialization_name = parser.parse_assign_target(name_only=True).name
+        adapter_name = "default"
+        node.args = []
+        node.defaults = []
+
+        while parser.stream.skip_if("comma"):
+            target = parser.parse_assign_target(name_only=True)
+            if target.name == "default":
+                continue
+            elif target.name == "adapter":
+                parser.stream.expect("assign")
+                adapter = parser.parse_expression()
+                if not isinstance(adapter, jinja2.nodes.Const):
+                    parser.fail(
+                        "The adapter of a materialization must be a literal.",
+                        adapter.lineno,
+                    )
+                adapter_name = str(adapter.value)
+            elif target.name == "supported_languages":
+                # dbt passes this to the materialization macro as a parameter.
+                target.set_ctx("param")
+                node.args.append(target)
+                parser.stream.expect("assign")
+                node.defaults.append(parser.parse_expression())
+            else:
+                parser.fail(
+                    f"Unexpected argument {target.name!r} for materialization "
+                    f"{materialization_name!r}.",
+                    target.lineno,
+                )
+
+        if not any(arg.name == "supported_languages" for arg in node.args):
+            # Like dbt, default to a materialization which only supports SQL.
+            node.args.append(jinja2.nodes.Name("supported_languages", "param"))
+            node.defaults.append(jinja2.nodes.List([jinja2.nodes.Const("sql")]))
+
+        node.name = f"materialization_{materialization_name}_{adapter_name}"
+        node.body = parser.parse_statements(
+            ("name:endmaterialization",), drop_needle=True
+        )
         return node
