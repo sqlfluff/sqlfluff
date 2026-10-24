@@ -1,0 +1,367 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f71c7a8fefee07bf050fc3abb62a2a73ba9184fb4e33c008a0f8c4f41c0b375d
+file:
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: BY
+    - keyword: POSITION
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: "'s3://example-bucket/p'"
+        end_bracket: )
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: VALIDATE
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: VALIDATE
+    - numeric_literal: '10'
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: FILES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'a.csv'"
+      - comma: ','
+      - quoted_literal: "'b.csv'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: PATTERN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'*.csv'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: FORMAT_OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: header
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'true'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: COPY_OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: force
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'true'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: CREDENTIAL
+        object_reference:
+          naked_identifier: cred
+        end_bracket: )
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: CREDENTIAL
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: AWS_ACCESS_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'k'"
+        - comma: ','
+        - naked_identifier: AWS_SECRET_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'s'"
+        - end_bracket: )
+        end_bracket: )
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: ENCRYPTION
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'AWS_SSE_C'"
+        - comma: ','
+        - naked_identifier: MASTER_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'k'"
+        - end_bracket: )
+        end_bracket: )
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: CREDENTIAL
+      - object_reference:
+          naked_identifier: cred
+      - keyword: ENCRYPTION
+      - bracketed:
+          start_bracket: (
+          naked_identifier: TYPE
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'AWS_SSE_C'"
+          end_bracket: )
+      - end_bracket: )
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: a
+        end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: VALIDATE
+    - numeric_literal: '5'
+    - keyword: ROWS
+    - keyword: FILES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'a.csv'"
+        end_bracket: )
+    - keyword: FORMAT_OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: header
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'true'"
+        end_bracket: )
+    - keyword: COPY_OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: force
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'true'"
+        end_bracket: )
+- statement_terminator: ;

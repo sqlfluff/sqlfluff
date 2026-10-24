@@ -23,6 +23,12 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "COPY_OPTIONS",
+    "CREDENTIAL",
+    "ENCRYPTION",
+    "FILES",
+    "FORMAT_OPTIONS",
+    "PATTERN",
     "AUTO",
     "CATALOG",
     "CDC",
