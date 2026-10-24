@@ -533,7 +533,7 @@ databricks_dialect.replace(
                 OneOf("GRANTS", "GRANT"),
                 Ref("RoleReferenceSegment", optional=True),
                 "ON",
-                OneOf("METASTORE", Ref("AccessObjectSegment")),
+                Ref("AccessObjectSegment"),
             ),
         ],
     ),
@@ -731,6 +731,23 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         insert=[
             Ref.keyword("VOLUME"),
         ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """A securable object, including the Unity Catalog metastore.
+
+    METASTORE is inserted first so it is matched as a keyword rather than as
+    an object reference of the same length.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("METASTORE"),
+        ],
+        at=0,
     )
 
 
