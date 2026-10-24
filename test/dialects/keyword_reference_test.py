@@ -1,35 +1,44 @@
-"""Keyword and reference checks for dialects that call declare_keyword_sets().
+"""Keyword and reference checks for the dialects this file audits.
 
-These tests hold each such dialect to two rules:
+Every dialect is audited unless UNAUDITED_DIALECTS below lists it, so a new
+dialect is audited from the start. An audited dialect is held to these rules,
+checked on its final keyword sets however it built them:
 
-- Every word has at most one keyword status.
+- Reserved, unreserved and unimplemented are disjoint, and a future reserved
+  word is never reserved.
+- No keyword it inherits loses every status: a grammar keyword with no status
+  crashes the parser on any statement that reaches the rule using it, even
+  when the statement doesn't contain the word.
 - Every keyword and reference its grammar can reach resolves: keywords,
   segments, bracket pairs, and those inside a Ref's exclude= and terminators=.
-  A grammar keyword with no status crashes the parser on any statement that
-  reaches the rule using it, even when the statement doesn't contain the word,
-  so this is checked here rather than left for a user to find.
+  A keyword the grammar uses can't be only future reserved, which says nothing
+  about what it is now.
+- Its own grammar doesn't use its unimplemented words.
+- If it claims an exhaustive reserved list (claim_exhaustive_reserved()), its
+  reserved keywords are exactly that list.
 
-Every dialect must opt in, unless it is listed in UNAUDITED_DIALECTS below.
-
-The failure messages are written for someone who has never touched a dialect:
-each says which file to change and how. The tests at the end check the checker
-itself, so that a gap in it fails rather than quietly checking less.
+The failure messages are written for someone who has never touched the
+dialect, usually because they changed its parent: each says which file to
+change and how. The tests at the end check the checker itself, so that a gap
+in it fails rather than quietly checking less.
 
 Run this file directly, ``python test/dialects/keyword_reference_test.py``, for
 a report. It never fails anything. It shows what these checks find in each
 dialect: for an audited one, the failures pytest would show; for an unaudited
-one, what opting in would bring. It also lists, for every dialect, the keywords
-no grammar uses: leads to syntax sqlfluff doesn't parse yet, or to words that
-can come out of a keyword list. Name dialects as arguments to report on just
-those and the dialects that inherit from them, as the parser's "not found in
-the ... dialect" errors suggest.
+one, what auditing it would bring, and when it passes, that it can come off the
+list. It also lists, for every dialect, inherited grammar its unimplemented
+words switch off, and the keywords no grammar uses: leads to syntax sqlfluff
+doesn't parse yet, or to words that can come out of a keyword list. Name
+dialects as arguments to report on just those and the dialects that inherit
+from them, as the parser's "not found in the ... dialect" errors suggest.
 """
 
 import inspect
 import sys
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from difflib import get_close_matches
 from itertools import combinations
+from typing import cast
 
 import pytest
 
@@ -39,17 +48,18 @@ from sqlfluff.core.dialects import (
     load_raw_dialect,
 )
 from sqlfluff.core.dialects.base import (
-    KEYWORD_STATUS_CHOICE,
+    DISJOINT_KEYWORD_STATUS_SETS,
     KEYWORD_STATUS_SETS,
     Dialect,
 )
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.grammar.base import Ref
 from sqlfluff.core.parser.grammar.sequence import Sequence
+from sqlfluff.core.parser.matchable import Matchable
 
-# Dialects that don't call declare_keyword_sets() yet, so these checks don't
-# run for them. Every other dialect, including any new one, must opt in. When
-# one of these opts in, remove it from here; the tests say so.
+# Dialects these checks don't run for yet. Every other dialect, including any
+# new one, is audited. To audit one of these, run this file with its name as
+# an argument, fix what the report shows, and remove it from here.
 UNAUDITED_DIALECTS = {
     "athena",
     "bigquery",
@@ -78,8 +88,15 @@ UNAUDITED_DIALECTS = {
 
 ALL_DIALECTS = sorted(info.label for info in dialect_readout())
 
-AUDITED_DIALECTS = sorted(
-    name for name in ALL_DIALECTS if dialect_selector(name).keyword_sets_declared
+AUDITED_DIALECTS = sorted(set(ALL_DIALECTS) - UNAUDITED_DIALECTS)
+
+# How to choose a word's status, for messages that ask someone to.
+KEYWORD_STATUS_CHOICE = (
+    "If the database reserves the word, it's reserved. If it's a keyword "
+    "but can also be a name, it's unreserved. If the database doesn't "
+    "recognize it at all, but grammar inherited from a parent dialect uses "
+    "it, it's unimplemented. If you can't check, use unreserved: the dialect "
+    "then keeps the inherited grammar, like the rest of what it inherits."
 )
 
 DIALECTS_DIR = "src/sqlfluff/dialects"
@@ -144,14 +161,14 @@ def _defining_module(dialect: Dialect, element_name: str) -> str:
     return f"dialect_{current.name}"
 
 
-def _reference_uses(dialect: Dialect) -> dict[str, set[Owner]]:
-    """Every name the dialect's grammar refers to, and where it is used.
+def _reference_walk(dialect: Dialect) -> list[tuple[Owner, Ref]]:
+    """Every Ref the dialect's grammar can reach, with where it is used.
 
-    Walks everything reachable from the dialect's root. Where a name is used
-    is the segment whose grammar uses it, or the named grammar (a
-    dialect.add() entry) that does.
+    Walks everything reachable from the dialect's root. Where a Ref is used is
+    the segment whose grammar uses it, or the named grammar (a dialect.add()
+    entry) that does.
     """
-    uses: dict[str, set[Owner]] = {}
+    found: list[tuple[Owner, Ref]] = []
     seen: set[int] = set()
     root = dialect.get_root_segment()
     assert isinstance(root, type)
@@ -162,7 +179,7 @@ def _reference_uses(dialect: Dialect) -> dict[str, set[Owner]]:
             continue
         seen.add(id(node))
         if not inspect.isclass(node) and isinstance(node, Ref):
-            uses.setdefault(node._ref, set()).add(owner)
+            found.append((owner, node))
             try:
                 target = dialect.ref(node._ref)
             except RuntimeError:
@@ -183,6 +200,14 @@ def _reference_uses(dialect: Dialect) -> dict[str, set[Owner]]:
             child_owner = owner
         for child in _grammar_children(node):
             stack.append((child_owner, child))
+    return found
+
+
+def _reference_uses(dialect: Dialect) -> dict[str, set[Owner]]:
+    """Every name the dialect's grammar refers to, and where it is used."""
+    uses: dict[str, set[Owner]] = {}
+    for owner, ref in _reference_walk(dialect):
+        uses.setdefault(ref._ref, set()).add(owner)
     return uses
 
 
@@ -212,21 +237,68 @@ def _unresolved_references(dialect: Dialect) -> dict[str, set[Owner]]:
     return unresolved
 
 
+def _direct_references(grammar: object) -> set[str]:
+    """The names a grammar refers to itself, without following its Refs."""
+    names: set[str] = set()
+    seen: set[int] = set()
+    stack = [grammar]
+    while stack:
+        node = stack.pop()
+        if id(node) in seen or inspect.isclass(node):
+            continue
+        seen.add(id(node))
+        if isinstance(node, Ref):
+            names.add(node._ref)
+        stack.extend(_grammar_children(node))
+    return names
+
+
+def _parent_uses(parent: Dialect, element_name: str) -> set[str]:
+    """The names the parent's element of that name refers to directly."""
+    element = parent._library.get(element_name)
+    if inspect.isclass(element):
+        element = getattr(element, "match_grammar", None)
+    if element is None:
+        return set()
+    return _direct_references(element)
+
+
 def _unimplemented_in_own_grammar(dialect: Dialect) -> dict[str, set[Owner]]:
     """Unimplemented keywords that the dialect's own grammar uses.
 
     Unimplemented is for grammar a dialect inherits but doesn't have. If the
     dialect's own grammar uses the word, the dialect does have it, and the
     entry switches that grammar off.
+
+    Own means written for this dialect. A dialect's segment often reuses its
+    parent's grammar (match_grammar.copy(...), or OneOf(parent.X.match_grammar,
+    ...)), and the parent's keywords inside it are still inherited. So a use is
+    own only if the parent's element of the same name doesn't use that keyword.
     """
     own_module = f"dialect_{dialect.name}"
-    uses = _reference_uses(dialect)
+    parent = None
+    if dialect.inherits_from:
+        parent = load_raw_dialect(dialect.inherits_from)
+    unimplemented = {
+        word.capitalize() + "KeywordSegment": word
+        for word in dialect.sets("unimplemented_keywords")
+    }
+    # A segment is registered under its library name, which may differ from
+    # its class name; the parent's element is found by the library name.
+    library_names = {
+        element.__name__: name
+        for name, element in dialect._library.items()
+        if isinstance(element, type)
+    }
     found: dict[str, set[Owner]] = {}
-    for word in dialect.sets("unimplemented_keywords"):
-        owners = uses.get(word.capitalize() + "KeywordSegment", set())
-        own = {owner for owner in owners if owner[1] == own_module}
-        if own:
-            found[word] = own
+    for owner, ref in _reference_walk(dialect):
+        word = unimplemented.get(ref._ref)
+        if not word or owner[1] != own_module:
+            continue
+        element_name = library_names.get(owner[0], owner[0])
+        if parent is not None and ref._ref in _parent_uses(parent, element_name):
+            continue
+        found.setdefault(word, set()).add(owner)
     return found
 
 
@@ -271,6 +343,28 @@ def _dialect_knows(dialect_name: str, word: str) -> bool:
     )
 
 
+def _paste(dialect_name: str, status: str, words: list[str]) -> str:
+    """A categorize_keywords() call to paste into the dialect file."""
+    quoted = ", ".join(f'"{word}"' for word in words)
+    return f"{dialect_name}_dialect.categorize_keywords({status}=[{quoted}])"
+
+
+def _docs_line(dialect: Dialect) -> str:
+    """The dialect's own advice on looking keywords up, if it gives any."""
+    docs = dialect.keyword_reference_error_docs
+    if not docs:
+        return ""
+    return f"\nHow to look up a {dialect.name} keyword: {docs}"
+
+
+def _audit_footer(dialect_name: str) -> str:
+    """How to stop auditing a dialect that isn't ready, for every failure."""
+    return (
+        f"\nIf {dialect_name} can't be audited yet, add it to UNAUDITED_DIALECTS "
+        "in test/dialects/keyword_reference_test.py, with a comment saying why."
+    )
+
+
 def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]]) -> str:
     """Say, for each keyword the dialect doesn't recognize, where to list it.
 
@@ -307,9 +401,18 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
                 f"- {word} (in {segments}, {name}'s own grammar):{action} it "
                 f"to {_keyword_file(own_module)}, in the reserved or the "
                 f"unreserved list, whichever {name}'s own keyword documentation "
-                "says."
+                f"says. If {name}'s keyword list doesn't have it at all, the "
+                "server reads it as a plain name there (an option name or "
+                "value, say), so add it as unreserved, with the words that "
+                "aren't keywords but are needed to parse."
             )
             continue
+        decide = (
+            f"Give it {name}'s status in {_dialect_file(own_module)}, with "
+            f"{_paste(name, 'unreserved', [word])} if {name}'s server has it, "
+            f"or {_paste(name, 'unimplemented', [word])} if it doesn't. If you "
+            "can't check, use unreserved."
+        )
         parents = " and ".join(module.removeprefix("dialect_") for module in modules)
         knowers = sorted(
             module.removeprefix("dialect_")
@@ -321,10 +424,7 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
                 f"- {word} (in {segments}, which {name} inherits from {parents}):"
                 f" {' and '.join(knowers)} already lists it, so {name}, or a "
                 "dialect between them, dropped it when it replaced its keyword "
-                f"lists. If {name}'s server has it, add it to "
-                f"{_keyword_file(own_module)}, in the reserved or the unreserved "
-                "list; if it doesn't, add it to the unimplemented keyword list "
-                "there."
+                f"lists. {decide}"
             )
             continue
         files = " and ".join(_keyword_file(module) for module in modules)
@@ -332,11 +432,11 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
             f"- {word} (in {segments}, which {name} inherits from {parents}):"
             f"{action} it to {files}, in the reserved or the unreserved list, "
             f"whichever that database's own keyword documentation says; {name} "
-            f"then follows automatically. Only if you know {name}'s server "
-            f"doesn't recognize {word}: instead, add it to the unimplemented "
-            f"keyword list in {_keyword_file(own_module)}."
+            f"then inherits it. Only if you know {name}'s server doesn't "
+            f"recognize {word}: instead, {_paste(name, 'unimplemented', [word])} "
+            f"in {_dialect_file(own_module)}."
         )
-    return "\n".join(lines)
+    return "\n".join(lines) + _docs_line(dialect)
 
 
 def _missing_segments_message(dialect: Dialect, segments: dict[str, set[Owner]]) -> str:
@@ -397,9 +497,15 @@ def _keyword_meant(dialect: Dialect, missing: str) -> str:
 
 
 def _overlaps(dialect: Dialect) -> dict[str, list[str]]:
-    """Each word with more than one keyword status, and those statuses."""
+    """Each word in two statuses that must be disjoint, and those statuses.
+
+    Reserved, unreserved and unimplemented are disjoint. Future reserved is a
+    tag that may overlap unreserved or unimplemented, but never reserved.
+    """
+    pairs = list(combinations(DISJOINT_KEYWORD_STATUS_SETS, 2))
+    pairs.append(("reserved_keywords", "future_reserved_keywords"))
     overlaps: dict[str, list[str]] = {}
-    for first, second in combinations(KEYWORD_STATUS_SETS, 2):
+    for first, second in pairs:
         for word in dialect.sets(first) & dialect.sets(second):
             overlaps.setdefault(word, [])
             for label in (first, second):
@@ -409,67 +515,170 @@ def _overlaps(dialect: Dialect) -> dict[str, list[str]]:
 
 
 def _overlaps_message(dialect: Dialect, overlaps: dict[str, list[str]]) -> str:
-    """Say, for each word with more than one status, how to choose one."""
+    """Say, for each word with two statuses, how to choose one."""
     name = dialect.name
     lines = [
-        f"In the {name} dialect, these words have more than one keyword status. "
-        "A word can have only one: remove it from every list but the one the "
-        f"database gives it, in {_keyword_file(f'dialect_{name}')}. "
-        f"{KEYWORD_STATUS_CHOICE}"
+        f"In the {name} dialect, these words have two statuses that can't go "
+        "together. Give each one status: list it under just one status in "
+        f"{_keyword_file(f'dialect_{name}')}, or with categorize_keywords() in "
+        f"{_dialect_file(f'dialect_{name}')}, which moves a word out of the "
+        f"others. {KEYWORD_STATUS_CHOICE}"
     ]
     for word, labels in sorted(overlaps.items()):
         lines.append(f"- {word}: {' and '.join(labels)}")
     lines.append(
-        "If the keyword file lists each of these words only once, then "
-        "declare_keyword_sets() accepted the lists (it rejects a word with two "
-        "statuses), so something changed dialect.sets(...) afterwards. Look in "
-        f"{_dialect_file(f'dialect_{name}')} for a sets(...).add() or "
-        ".update() after the declare_keyword_sets() call."
+        "categorize_keywords() never leaves a word in two of these, so if the "
+        "dialect only uses it, something changed dialect.sets(...) directly: "
+        f"look in {_dialect_file(f'dialect_{name}')} for sets(...).add() or "
+        ".update()."
     )
-    return "\n".join(lines)
+    return "\n".join(lines) + _docs_line(dialect)
 
 
-def _opt_in_instructions(name: str) -> str:
-    """How a dialect opts in to these keyword and reference checks."""
+def _known_keywords(dialect: Dialect) -> set[str]:
+    """Every word the dialect gives any status."""
+    known: set[str] = set()
+    for label in KEYWORD_STATUS_SETS:
+        known.update(dialect.sets(label))
+    return known
+
+
+def _vanished(dialect: Dialect) -> list[str]:
+    """Keywords the parent gives a status that the dialect gives none."""
+    if not dialect.inherits_from:
+        return []
+    parent = load_raw_dialect(dialect.inherits_from)
+    return sorted(_known_keywords(parent) - _known_keywords(dialect))
+
+
+def _vanished_message(dialect: Dialect, words: list[str]) -> str:
+    """Say which inherited keywords lost every status, and what to do."""
+    name = dialect.name
+    parent = dialect.inherits_from
     return (
-        f"The {name} dialect doesn't call declare_keyword_sets(), so its keywords "
-        "and grammar references aren't checked, and a keyword its grammar uses "
-        "but doesn't list would crash the parser with no test failing. New "
-        "dialects should opt in:\n"
-        "1. Get the database's own keyword list: its documentation, "
-        "information_schema.KEYWORDS, or its parser's source. Note which words "
-        "are reserved.\n"
-        f"2. In {_keyword_file(f'dialect_{name}')}, write the reserved, "
-        "unreserved, future reserved and unimplemented keyword lists (see "
-        "dialect_mysql_keywords.py).\n"
-        f"3. In {_dialect_file(f'dialect_{name}')}, pass them to "
-        f"{name}_dialect.declare_keyword_sets() (see dialect_mysql.py).\n"
-        "4. Run this test again: its messages say what still needs fixing, and "
-        "how.\n"
-        "If you can't get the database's keyword list yet, add "
-        f'"{name}" to UNAUDITED_DIALECTS in this file, with a comment saying why.'
+        f"{len(words)} keywords {name} inherits from {parent} have no status in "
+        f"{name}, so any of {parent}'s grammar that uses one would crash the "
+        f"parser in {name}. Usually a sets(...).clear() in "
+        f"{_dialect_file(f'dialect_{name}')} dropped them; give each a status "
+        f"instead. To keep them as they were, paste "
+        f"{_paste(name, 'unreserved', words)}. {KEYWORD_STATUS_CHOICE}"
+        + _docs_line(dialect)
     )
 
 
-def test_new_dialects_are_audited() -> None:
-    """Test that every dialect not listed as unaudited opts in."""
-    unlisted = sorted(
+def _future_only_uses(dialect: Dialect) -> dict[str, set[Owner]]:
+    """Keywords the grammar uses whose only status is future reserved."""
+    current: set[str] = set()
+    for label in DISJOINT_KEYWORD_STATUS_SETS:
+        current.update(dialect.sets(label))
+    uses = _reference_uses(dialect)
+    found: dict[str, set[Owner]] = {}
+    for word in dialect.sets("future_reserved_keywords") - current:
+        owners = uses.get(word.capitalize() + "KeywordSegment")
+        if owners:
+            found[word] = owners
+    return found
+
+
+def _future_only_message(dialect: Dialect, found: dict[str, set[Owner]]) -> str:
+    """Say, for each such word, what status it needs as well."""
+    name = dialect.name
+    lines = [
+        f"The {name} dialect's grammar uses these words as keywords, but their "
+        "only status is future reserved, which says what the vendor plans, not "
+        "what the word is now. Give each a current status as well; keep the "
+        "future reserved tag."
+    ]
+    for word, owners in sorted(found.items()):
+        segments, _ = _segments_and_files(owners)
+        lines.append(
+            f"- {word} (in {segments}): {name}'s grammar uses it, so it is "
+            f"probably a keyword now: {_paste(name, 'unreserved', [word])}."
+        )
+    return "\n".join(lines) + _docs_line(dialect)
+
+
+def _claim_problems(dialect: Dialect) -> dict[str, list[str]]:
+    """Where the dialect's reserved keywords differ from its exhaustive claim."""
+    claim = dialect.exhaustive_reserved_claim
+    if claim is None:
+        return {}
+    reserved = set(dialect.sets("reserved_keywords"))
+    parent_reserved: set[str] = set()
+    if dialect.inherits_from:
+        parent = load_raw_dialect(dialect.inherits_from)
+        parent_reserved = set(parent.sets("reserved_keywords"))
+    extra = reserved - claim.words
+    problems = {
+        "inherited": sorted(extra & parent_reserved),
+        "added": sorted(extra - parent_reserved),
+        "missing": sorted(claim.words - reserved),
+    }
+    return {kind: words for kind, words in problems.items() if words}
+
+
+def _claim_message(dialect: Dialect, problems: dict[str, list[str]]) -> str:
+    """Say how the reserved keywords break the claim, and what to do."""
+    name = dialect.name
+    claim = dialect.exhaustive_reserved_claim
+    assert claim is not None
+    parent = dialect.inherits_from
+    file = _dialect_file(f"dialect_{name}")
+    lines = [
+        f"{name}'s reserved list is marked exhaustive (source: {claim.source}), "
+        "but its reserved keywords differ from it."
+    ]
+    inherited = problems.get("inherited")
+    if inherited:
+        lines.append(
+            f"- Reserved only because {parent} reserves them: {', '.join(inherited)}. "
+            f"Look each up in {name}'s keyword documentation, then add to {file} "
+            f"{_paste(name, 'unreserved', inherited)} for those {name} has but "
+            f"allows as names, or {_paste(name, 'unimplemented', inherited)} for "
+            f"those {name} doesn't have. If you can't check, use unreserved: "
+            f"{name} then keeps the new feature, like the rest of what it inherits "
+            f"from {parent}, until someone who knows {name} says otherwise."
+        )
+    added = problems.get("added")
+    if added:
+        lines.append(
+            f"- Reserved but not in the claimed list: {', '.join(added)}. If "
+            f"{name} reserves them, add them to the claimed list; if not, don't "
+            "reserve them."
+        )
+    missing = problems.get("missing")
+    if missing:
+        lines.append(
+            f"- In the claimed list but not reserved: {', '.join(missing)}. "
+            f"Something moved them out of reserved after the claim; fix that line "
+            "or the claimed list."
+        )
+    return "\n".join(lines) + _docs_line(dialect)
+
+
+def _unaudited_claims(dialects: Mapping[str, Dialect]) -> list[str]:
+    """Unaudited dialects that claim an exhaustive reserved list."""
+    return sorted(
         name
-        for name in ALL_DIALECTS
-        if name not in AUDITED_DIALECTS and name not in UNAUDITED_DIALECTS
+        for name, dialect in dialects.items()
+        if name in UNAUDITED_DIALECTS and dialect.exhaustive_reserved_claim
     )
 
-    assert not unlisted, "\n\n".join(_opt_in_instructions(name) for name in unlisted)
 
-
-def test_unaudited_dialects_have_not_opted_in() -> None:
-    """Test that no dialect on the unaudited list has since opted in."""
-    now_audited = sorted(UNAUDITED_DIALECTS & set(AUDITED_DIALECTS))
-
-    assert not now_audited, (
-        f"These dialects now call declare_keyword_sets(), so they are checked: "
-        f"{now_audited}. Remove them from UNAUDITED_DIALECTS in this file."
+def _unaudited_claims_message(names: list[str]) -> str:
+    """Say why a claim on an unaudited dialect is a problem."""
+    return (
+        f"These dialects claim an exhaustive reserved list but are in "
+        f"UNAUDITED_DIALECTS, so nothing checks the claim: {', '.join(names)}. "
+        "Remove the claim, or audit the dialect and remove it from the list."
     )
+
+
+def test_exhaustive_claims_are_audited() -> None:
+    """Test that every dialect claiming an exhaustive list is audited."""
+    claimed = _unaudited_claims({name: dialect_selector(name) for name in ALL_DIALECTS})
+
+    assert not claimed, _unaudited_claims_message(claimed)
 
 
 def test_unaudited_dialects_all_exist() -> None:
@@ -509,7 +718,9 @@ def test_unimplemented_keywords_are_not_in_own_grammar(dialect_name: str) -> Non
     dialect = dialect_selector(dialect_name)
     found = _unimplemented_in_own_grammar(dialect)
 
-    assert not found, _unimplemented_in_own_grammar_message(dialect, found)
+    assert not found, _unimplemented_in_own_grammar_message(
+        dialect, found
+    ) + _audit_footer(dialect_name)
 
 
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
@@ -518,7 +729,38 @@ def test_keyword_statuses_are_disjoint(dialect_name: str) -> None:
     dialect = dialect_selector(dialect_name)
     overlaps = _overlaps(dialect)
 
-    assert not overlaps, _overlaps_message(dialect, overlaps)
+    assert not overlaps, _overlaps_message(dialect, overlaps) + _audit_footer(
+        dialect_name
+    )
+
+
+@pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
+def test_no_inherited_keyword_vanishes(dialect_name: str) -> None:
+    """Test that every keyword the parent has still has a status."""
+    dialect = dialect_selector(dialect_name)
+    vanished = _vanished(dialect)
+
+    assert not vanished, _vanished_message(dialect, vanished) + _audit_footer(
+        dialect_name
+    )
+
+
+@pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
+def test_grammar_keywords_are_not_only_future_reserved(dialect_name: str) -> None:
+    """Test that a keyword the grammar uses has a current status."""
+    dialect = dialect_selector(dialect_name)
+    found = _future_only_uses(dialect)
+
+    assert not found, _future_only_message(dialect, found) + _audit_footer(dialect_name)
+
+
+@pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
+def test_exhaustive_reserved_claim_holds(dialect_name: str) -> None:
+    """Test that a dialect's reserved keywords are exactly what it claims."""
+    dialect = dialect_selector(dialect_name)
+    problems = _claim_problems(dialect)
+
+    assert not problems, _claim_message(dialect, problems) + _audit_footer(dialect_name)
 
 
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
@@ -537,8 +779,12 @@ def test_grammar_references_resolve(dialect_name: str) -> None:
         if not name.endswith("KeywordSegment")
     }
 
-    assert not keywords, _missing_keywords_message(dialect, keywords)
-    assert not segments, _missing_segments_message(dialect, segments)
+    assert not keywords, _missing_keywords_message(dialect, keywords) + _audit_footer(
+        dialect_name
+    )
+    assert not segments, _missing_segments_message(dialect, segments) + _audit_footer(
+        dialect_name
+    )
 
 
 # The tests below check the checker: each builds a dialect with one kind of
@@ -563,12 +809,7 @@ def _faulty_dialect(name: str) -> Dialect:
     """An expanded ansi copy whose grammar reaches _FaultySegment."""
     dialect = load_raw_dialect("ansi").copy_as(name)
     dialect.replace(SelectClauseModifierSegment=_FaultySegment)
-    dialect.declare_keyword_sets(
-        reserved=load_raw_dialect("ansi").sets("reserved_keywords"),
-        unreserved=[],
-        future_reserved=[],
-        unimplemented=["OPTIMIZER_COSTS"],
-    )
+    dialect.categorize_keywords(unimplemented=["OPTIMIZER_COSTS"])
     dialect.bracket_sets("bracket_pairs").add(
         ("zz", "ZzStartSegment", "ZzEndSegment", True)
     )
@@ -600,7 +841,7 @@ def test_checker_says_where_inherited_grammar_comes_from() -> None:
 
     # _FaultySegment is defined in this test module, not in zzchild's.
     assert "which zzchild inherits from keyword_reference_test" in message
-    assert "unimplemented keyword list in" in message
+    assert 'zzchild_dialect.categorize_keywords(unimplemented=["ZZPLAIN"])' in message
 
 
 def test_checker_never_suggests_an_unimplemented_word() -> None:
@@ -632,16 +873,26 @@ def test_checker_suggests_a_close_segment_name() -> None:
 def test_checker_finds_and_explains_an_overlap() -> None:
     """Test that a word given a second status after declaring is found."""
     dialect = load_raw_dialect("ansi").copy_as("zzoverlap")
-    dialect.declare_keyword_sets(
-        reserved=["SELECT"], unreserved=[], future_reserved=[], unimplemented=[]
-    )
+    dialect.categorize_keywords(reserved=["SELECT"], future_reserved=["ZZLATER"])
     dialect.sets("unreserved_keywords").add("SELECT")
+    dialect.sets("future_reserved_keywords").add("SELECT")
+    # A future reserved word may also be unreserved.
+    dialect.sets("unreserved_keywords").add("ZZLATER")
 
     overlaps = _overlaps(dialect)
     message = _overlaps_message(dialect, overlaps)
 
-    assert overlaps == {"SELECT": ["reserved_keywords", "unreserved_keywords"]}
-    assert "- SELECT: reserved_keywords and unreserved_keywords" in message
+    assert overlaps == {
+        "SELECT": [
+            "reserved_keywords",
+            "unreserved_keywords",
+            "future_reserved_keywords",
+        ]
+    }
+    assert (
+        "- SELECT: reserved_keywords and unreserved_keywords and "
+        "future_reserved_keywords" in message
+    )
     assert "src/sqlfluff/dialects/dialect_zzoverlap.py" in message
 
 
@@ -719,12 +970,7 @@ def test_checker_finds_an_unimplemented_word_in_own_grammar() -> None:
     """
     dialect = load_raw_dialect("ansi").copy_as("zzown")
     dialect.replace(SelectClauseModifierSegment=_OwnGrammarSegment)
-    dialect.declare_keyword_sets(
-        reserved=load_raw_dialect("ansi").sets("reserved_keywords"),
-        unreserved=[],
-        future_reserved=[],
-        unimplemented=["ZZOWNWORD"],
-    )
+    dialect.categorize_keywords(unimplemented=["ZZOWNWORD"])
     expanded = dialect.expand()
 
     found = _unimplemented_in_own_grammar(expanded)
@@ -738,13 +984,165 @@ def test_checker_finds_an_unimplemented_word_in_own_grammar() -> None:
     assert not _unimplemented_in_own_grammar(inherited)
 
 
-def test_checker_tells_a_new_dialect_how_to_opt_in() -> None:
-    """Test that the opt-in message names the files and the way out."""
-    message = _opt_in_instructions("zzdb")
+def _ansi_select_modifier_grammar() -> Matchable:
+    """Ansi's SelectClauseModifierSegment grammar, for segments that reuse it."""
+    segment = load_raw_dialect("ansi")._library["SelectClauseModifierSegment"]
+    assert isinstance(segment, type) and issubclass(segment, BaseSegment)
+    return cast(type[BaseSegment], segment).match_grammar
 
-    assert "src/sqlfluff/dialects/dialect_zzdb_keywords.py" in message
-    assert "zzdb_dialect.declare_keyword_sets()" in message
-    assert 'add "zzdb" to UNAUDITED_DIALECTS' in message
+
+class _WrappingSegment(BaseSegment):
+    """A zzwrap segment that wraps ansi grammar and adds its own ZZOWNWORD."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(_ansi_select_modifier_grammar(), Ref.keyword("ZZOWNWORD"))
+
+
+_WrappingSegment.__module__ = "sqlfluff.dialects.dialect_zzwrap"
+
+
+class _CopyingSegment(BaseSegment):
+    """A zzcopy segment that copies ansi's grammar and inserts ZZOWNWORD."""
+
+    type = "select_clause_modifier"
+    match_grammar = _ansi_select_modifier_grammar().copy(
+        insert=[Ref.keyword("ZZOWNWORD")]
+    )
+
+
+_CopyingSegment.__module__ = "sqlfluff.dialects.dialect_zzcopy"
+
+
+def test_checker_counts_copied_parent_grammar_as_inherited() -> None:
+    """Test that keywords in a .copy() of the parent's grammar are inherited."""
+    dialect = load_raw_dialect("ansi").copy_as("zzcopy")
+    dialect.replace(SelectClauseModifierSegment=_CopyingSegment)
+    dialect.categorize_keywords(unimplemented=["DISTINCT", "ZZOWNWORD"])
+
+    found = _unimplemented_in_own_grammar(dialect.expand())
+
+    assert set(found) == {"ZZOWNWORD"}
+
+
+def test_checker_counts_wrapped_parent_grammar_as_inherited() -> None:
+    """Test that parent grammar inside a dialect's own segment is inherited.
+
+    ansi's SelectClauseModifierSegment uses DISTINCT; marking it unimplemented
+    switches off inherited grammar, which is allowed. ZZOWNWORD is the
+    dialect's own, so marking it unimplemented is not.
+    """
+    dialect = load_raw_dialect("ansi").copy_as("zzwrap")
+    dialect.replace(SelectClauseModifierSegment=_WrappingSegment)
+    dialect.categorize_keywords(unimplemented=["DISTINCT", "ZZOWNWORD"])
+
+    found = _unimplemented_in_own_grammar(dialect.expand())
+
+    assert set(found) == {"ZZOWNWORD"}
+
+
+def test_checker_reads_direct_references_only() -> None:
+    """Test that the direct walk names each Ref once and stops at segments."""
+    shared = Ref.keyword("ZZSHARED")
+    grammar = Sequence(shared, Sequence(shared), _FutureSegment)
+
+    assert _direct_references(grammar) == {"ZzsharedKeywordSegment"}
+    assert _parent_uses(load_raw_dialect("ansi"), "ZzNoSuchSegment") == set()
+
+
+def test_checker_says_how_to_stop_auditing() -> None:
+    """Test the footer every audited failure ends with."""
+    footer = _audit_footer("zzdb")
+
+    assert "add it to UNAUDITED_DIALECTS" in footer
+    assert "with a comment saying why" in footer
+
+
+def test_checker_finds_vanished_inherited_keywords() -> None:
+    """Test that keywords dropped by a clear() are found, with a fix to paste."""
+    dialect = load_raw_dialect("ansi").copy_as("zzcleared")
+    dialect.sets("unreserved_keywords").clear()
+
+    vanished = _vanished(dialect)
+    message = _vanished_message(dialect, vanished)
+
+    assert "SELECT" not in vanished
+    assert "ZONE" in vanished
+    assert "zzcleared_dialect.categorize_keywords(unreserved=[" in message
+
+
+class _FutureSegment(BaseSegment):
+    """A segment whose grammar uses the future reserved word ZZFUTURE."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(Ref.keyword("ZZFUTURE"))
+
+
+def _future_dialect(name: str, also_unreserved: bool) -> Dialect:
+    """An ansi copy whose grammar uses ZZFUTURE, tagged future reserved."""
+    dialect = load_raw_dialect("ansi").copy_as(name)
+    dialect.replace(SelectClauseModifierSegment=_FutureSegment)
+    if also_unreserved:
+        dialect.categorize_keywords(
+            unreserved=["ZZFUTURE"], future_reserved=["ZZFUTURE"]
+        )
+    else:
+        dialect.categorize_keywords(future_reserved=["ZZFUTURE"])
+    return dialect.expand()
+
+
+def test_checker_finds_a_grammar_keyword_that_is_only_future_reserved() -> None:
+    """Test that future reserved alone isn't enough for a grammar keyword."""
+    only_future = _future_dialect("zzfuture", also_unreserved=False)
+    with_status = _future_dialect("zzfuture", also_unreserved=True)
+
+    found = _future_only_uses(only_future)
+    message = _future_only_message(only_future, found)
+
+    assert set(found) == {"ZZFUTURE"}
+    assert 'zzfuture_dialect.categorize_keywords(unreserved=["ZZFUTURE"])' in message
+    assert not _future_only_uses(with_status)
+
+
+def test_checker_holds_a_dialect_to_its_exhaustive_claim() -> None:
+    """Test each way reserved keywords can differ from the claim."""
+    ansi = load_raw_dialect("ansi")
+    claimed = sorted(set(ansi.sets("reserved_keywords")) - {"SELECT"})
+    dialect = ansi.copy_as(
+        "zzclaim", keyword_reference_error_docs="See the zzclaim manual."
+    )
+    dialect.claim_exhaustive_reserved(
+        claimed + ["ZZCLAIMED"], source="zzclaim 1.0, the manual"
+    )
+    dialect.categorize_keywords(reserved=["ZZADDED"])
+
+    problems = _claim_problems(dialect)
+    message = _claim_message(dialect, problems)
+
+    assert problems == {
+        "inherited": ["SELECT"],
+        "added": ["ZZADDED"],
+        "missing": ["ZZCLAIMED"],
+    }
+    assert "source: zzclaim 1.0, the manual" in message
+    assert 'zzclaim_dialect.categorize_keywords(unreserved=["SELECT"])' in message
+    assert 'zzclaim_dialect.categorize_keywords(unimplemented=["SELECT"])' in message
+    assert "If you can't check, use unreserved" in message
+    assert "How to look up a zzclaim keyword: See the zzclaim manual." in message
+    assert not _claim_problems(ansi.copy_as("zzunclaimed"))
+
+
+def test_checker_finds_a_claim_on_an_unaudited_dialect() -> None:
+    """Test that a claim nothing checks is reported."""
+    dialect = load_raw_dialect("ansi").copy_as("zzunchecked")
+    dialect.claim_exhaustive_reserved(["SELECT"], source="zz")
+    UNAUDITED_DIALECTS.add("zzunchecked")
+    try:
+        claimed = _unaudited_claims({"zzunchecked": dialect})
+    finally:
+        UNAUDITED_DIALECTS.discard("zzunchecked")
+
+    assert claimed == ["zzunchecked"]
+    assert "zzunchecked" in _unaudited_claims_message(claimed)
 
 
 def _keywords_used(dialect: Dialect) -> set[str]:
@@ -857,14 +1255,26 @@ def _audit_report(dialect_names: list[str]) -> str:
     return _audit_report_of({name: dialect_selector(name) for name in dialect_names})
 
 
+def _switched_off(dialect: Dialect) -> dict[str, set[Owner]]:
+    """Unimplemented words that grammar the dialect can reach uses."""
+    uses = _reference_uses(dialect)
+    found: dict[str, set[Owner]] = {}
+    for word in dialect.sets("unimplemented_keywords"):
+        owners = uses.get(word.capitalize() + "KeywordSegment")
+        if owners:
+            found[word] = owners
+    return found
+
+
 def _audit_report_of(dialects: dict[str, Dialect]) -> str:
     """The audit report for these dialects, by name."""
     lines = [
         "Audit: what the checks in this file find in each dialect. For an "
         "audited dialect, pytest fails on these. For one in UNAUDITED_DIALECTS, "
-        "they are what opting in would bring.",
+        "they are what auditing it would bring.",
         "",
     ]
+    ready: list[str] = []
     for name, dialect in dialects.items():
         audited = name not in UNAUDITED_DIALECTS
         unresolved = _unresolved_references(dialect)
@@ -880,36 +1290,60 @@ def _audit_report_of(dialects: dict[str, Dialect]) -> str:
         }
         overlaps = _overlaps(dialect)
         own_unimplemented = _unimplemented_in_own_grammar(dialect)
-        if not (keywords or segments or overlaps or own_unimplemented):
+        vanished = _vanished(dialect)
+        future_only = _future_only_uses(dialect)
+        claim_problems = _claim_problems(dialect)
+        messages = []
+        if keywords:
+            messages.append(_missing_keywords_message(dialect, keywords))
+        if segments:
+            messages.append(_missing_segments_message(dialect, segments))
+        if overlaps:
+            messages.append(_overlaps_message(dialect, overlaps))
+        if vanished:
+            messages.append(_vanished_message(dialect, vanished))
+        if future_only:
+            messages.append(_future_only_message(dialect, future_only))
+        if own_unimplemented:
+            messages.append(
+                _unimplemented_in_own_grammar_message(dialect, own_unimplemented)
+            )
+        if claim_problems:
+            messages.append(_claim_message(dialect, claim_problems))
+        if not audited and dialect.exhaustive_reserved_claim:
+            messages.append(_unaudited_claims_message([name]))
+        if not messages:
             if audited:
                 lines.append(f"{name}: audited, nothing to fix.")
             else:
-                lines.append(f"{name}: nothing to fix, ready to opt in.")
-            lines.append("")
-            continue
-        if audited:
-            lines.append(f"{name} (audited, so pytest fails on these):")
+                lines.append(
+                    f'{name} passes every check. Lock it in: remove "{name}" from '
+                    "UNAUDITED_DIALECTS in test/dialects/keyword_reference_test.py. "
+                    f"CI then audits {name} on every change."
+                )
+                ready.append(name)
         else:
-            lines.append(f"{name} (unaudited):")
-        if keywords:
-            lines.append(_missing_keywords_message(dialect, keywords))
-        if segments:
-            lines.append(_missing_segments_message(dialect, segments))
-        if overlaps and audited:
-            lines.append(_overlaps_message(dialect, overlaps))
-        elif overlaps:
+            if audited:
+                lines.append(f"{name} (audited, so pytest fails on these):")
+            else:
+                lines.append(f"{name} (unaudited):")
+            lines.extend(messages)
+        switched_off = _switched_off(dialect)
+        if switched_off:
             lines.append(
-                f"{len(overlaps)} words have more than one keyword status today. "
-                "declare_keyword_sets() sorts out those inherited from a parent "
-                "dialect; only a word listed twice in this dialect's own keyword "
-                "file needs an edit:"
+                f"  Inherited grammar {name}'s unimplemented words switch off "
+                "(check these are features its server lacks):"
             )
-            lines.extend(_wrapped(sorted(overlaps)))
-        if own_unimplemented:
-            lines.append(
-                _unimplemented_in_own_grammar_message(dialect, own_unimplemented)
-            )
+            for word, owners in sorted(switched_off.items()):
+                users, _ = _segments_and_files(owners)
+                lines.append(f"    {word}: {users}")
         lines.append("")
+    if ready:
+        lines.append(
+            f"Ready to audit: {', '.join(ready)}. Remove "
+            f"{'it' if len(ready) == 1 else 'them'} from UNAUDITED_DIALECTS in "
+            "test/dialects/keyword_reference_test.py."
+        )
     return "\n".join(lines)
 
 
@@ -930,6 +1364,8 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     ready.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
     broken = _faulty_dialect("zzbroken")
     broken.sets("unreserved_keywords").add("SELECT")
+    # ZONE is used by inherited ansi grammar (AT TIME ZONE).
+    broken.sets("unimplemented_keywords").add("ZONE")
     dialects = {"zzready": ready.expand(), "zzbroken": broken}
     UNAUDITED_DIALECTS.update(dialects)
     try:
@@ -937,9 +1373,12 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     finally:
         UNAUDITED_DIALECTS.difference_update(dialects)
 
-    assert "zzready: nothing to fix, ready to opt in." in report
+    assert 'zzready passes every check. Lock it in: remove "zzready"' in report
+    assert "Ready to audit: zzready." in report
     assert "refers to segments or grammars that don't exist" in report
-    assert "words have more than one keyword status today" in report
+    assert "two statuses that can't go together" in report
+    assert "Inherited grammar zzbroken's unimplemented words switch off" in report
+    assert "    ZONE: " in report
 
 
 def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
@@ -948,19 +1387,31 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
     broken.sets("unreserved_keywords").add("SELECT")
     own = load_raw_dialect("ansi").copy_as("zzown")
     own.replace(SelectClauseModifierSegment=_OwnGrammarSegment)
-    own.declare_keyword_sets(
-        reserved=load_raw_dialect("ansi").sets("reserved_keywords"),
-        unreserved=[],
-        future_reserved=[],
-        unimplemented=["ZZOWNWORD"],
-    )
+    own.categorize_keywords(unimplemented=["ZZOWNWORD"])
 
-    report = _audit_report_of({"zzauditedbroken": broken, "zzown": own.expand()})
+    claimer = load_raw_dialect("ansi").copy_as("zzclaimer")
+    claimer.claim_exhaustive_reserved(["ZZONLY"], source="zz")
+    unchecked = load_raw_dialect("ansi").copy_as("zzunchecked")
+    unchecked.claim_exhaustive_reserved(["SELECT"], source="zz")
+    UNAUDITED_DIALECTS.add("zzunchecked")
+    try:
+        report = _audit_report_of(
+            {
+                "zzauditedbroken": broken,
+                "zzown": own.expand(),
+                "zzclaimer": claimer.expand(),
+                "zzunchecked": unchecked.expand(),
+            }
+        )
+    finally:
+        UNAUDITED_DIALECTS.discard("zzunchecked")
 
     assert "zzauditedbroken (audited, so pytest fails on these):" in report
-    assert "In the zzauditedbroken dialect, these words have more" in report
+    assert "In the zzauditedbroken dialect, these words have two statuses" in report
     assert "zzown (audited, so pytest fails on these):" in report
     assert "- ZZOWNWORD (in _OwnGrammarSegment)" in report
+    assert "zzclaimer's reserved list is marked exhaustive (source: zz)" in report
+    assert "nothing checks the claim: zzunchecked" in report
 
 
 def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
@@ -984,7 +1435,7 @@ def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
     message = _missing_keywords_message(expanded, {word: keywords[word]})
 
     assert "ansi already lists it, so zzdropped" in message
-    assert "src/sqlfluff/dialects/dialect_zzdropped_keywords.py" in message
+    assert f'zzdropped_dialect.categorize_keywords(unreserved=["{word}"])' in message
 
 
 def test_unused_keyword_report_has_both_sections() -> None:
