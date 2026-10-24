@@ -341,7 +341,7 @@ class Rule_LT09(BaseRule):
             found_newline = False
             for seg in select_children[target_idx + 1 :]:
                 if "\n" in seg.raw:
-                    trailing_len += len(seg.raw.split("\n", 1)[0])
+                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
                     found_newline = True
                     break
                 trailing_len += len(seg.raw)
@@ -355,7 +355,7 @@ class Rule_LT09(BaseRule):
                         break
                     for seg in parent.segments[idx + 1 :]:
                         if "\n" in seg.raw:
-                            trailing_len += len(seg.raw.split("\n", 1)[0])
+                            trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
                             found_newline = True
                             break
                         trailing_len += len(seg.raw)
