@@ -95,6 +95,11 @@ class LintResult:
         source (:obj:`str`, optional): A string identifier for what
             generated the result. Within larger libraries like reflow this
             can be useful for tracking where a result came from.
+        defer_to_fix (:obj:`bool`, optional): Set on a result with no fixes
+            when another rendering of the same source (another variant, or
+            another pass of a loop) may report the same issue with a fix.
+            If a violation of the same rule on the same line does not have
+            this flag, this result is dropped when deduplicating.
 
     """
 
@@ -105,6 +110,7 @@ class LintResult:
         memory: Optional[Any] = None,
         description: Optional[str] = None,
         source: Optional[str] = None,
+        defer_to_fix: bool = False,
     ):
         # An anchor of none, means no issue
         self.anchor = anchor
@@ -116,6 +122,7 @@ class LintResult:
         self.description = description
         # Optional code for where the result came from
         self.source: str = source or ""
+        self.defer_to_fix = defer_to_fix
 
     def __repr__(self) -> str:
         if not self.anchor:
@@ -141,6 +148,7 @@ class LintResult:
                 segment=self.anchor,
                 fixes=self.fixes,
                 description=description,
+                defer_to_fix=self.defer_to_fix,
             )
 
         return None
