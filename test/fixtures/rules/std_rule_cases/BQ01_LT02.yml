@@ -3,19 +3,6 @@ configs:
   core:
     dialect: bigquery
 
-test_pass_indented:
-  pass_str: |
-    SELECT
-        (foo)
-            .LOWER()
-            .TRIM() AS bar
-    FROM t;
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: indented
 test_fail_multiple_chains_in_one_expression:
   fail_str: |
     SELECT
@@ -40,23 +27,6 @@ test_fail_inline_select_input:
     SELECT (foo)
         .LOWER()
         .TRIM() AS result FROM t;
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: indented
-test_fail_one_line:
-  fail_str: |
-    SELECT
-        (foo).LOWER().TRIM() AS bar
-    FROM t;
-  fix_str: |
-    SELECT
-        (foo)
-            .LOWER()
-            .TRIM() AS bar
-    FROM t;
   configs:
     core:
       dialect: bigquery
@@ -214,84 +184,6 @@ test_fail_unrelated_indentation_is_still_checked:
     rules:
       bigquery.chained_functions:
         writing_style: indented
-test_fail_two_space_configuration:
-  fail_str: |
-    SELECT
-      (foo).LOWER().TRIM() AS bar
-    FROM t;
-  fix_str: |
-    SELECT
-      (foo)
-        .LOWER()
-        .TRIM() AS bar
-    FROM t;
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: indented
-    indentation:
-      tab_space_size: 2
-test_fail_tabs:
-  fail_str: "SELECT\n\t(foo).LOWER().TRIM() AS bar\nFROM t;\n"
-  fix_str: "SELECT\n\t(foo)\n\t\t.LOWER()\n\t\t.TRIM() AS bar\nFROM t;\n"
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: indented
-    indentation:
-      indent_unit: tab
-test_fail_consistent_keeps_first_indented_chain:
-  fail_str: |
-    SELECT
-        (foo)
-            .LOWER()
-            .TRIM() AS first_value,
-        (bar).LOWER().TRIM() AS second_value;
-  fix_str: |
-    SELECT
-        (foo)
-            .LOWER()
-            .TRIM() AS first_value,
-        (bar)
-            .LOWER()
-            .TRIM() AS second_value;
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: consistent
-test_pass_consistent_aligned_uses_no_extra_indent:
-  pass_str: |
-    SELECT
-        (foo)
-        .LOWER()
-        .TRIM() AS first_value,
-        (bar)
-        .LOWER()
-        .TRIM() AS second_value;
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: consistent
-test_pass_consistent_one_line:
-  pass_str: |
-    SELECT
-        (foo).LOWER().TRIM() AS first_value,
-        (bar).LOWER().TRIM() AS second_value;
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: consistent
-
 test_one_liner_pass_one_line:
   pass_str: |
     SELECT

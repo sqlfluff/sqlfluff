@@ -53,6 +53,27 @@ test_one_liner_preserves_line_comment:
       bigquery.chained_functions:
         writing_style: one_liner
 
+test_one_liner_reports_comment_only_gap_before_first_call:
+  fail_str: SELECT (foo)/* preserve */.LOWER();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: one_liner
+
+test_one_liner_reports_comment_only_gap_between_calls:
+  fail_str: SELECT (foo).LOWER()/* preserve */.TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: one_liner
+
+test_consistent_reports_comment_only_gap_after_one_liner:
+  fail_str: SELECT (foo).LOWER(), (bar)/* preserve */.TRIM();
+
 test_aligned_inserts_only_newlines:
   fail_str: SELECT (foo).LOWER().TRIM();
   fix_str: |-

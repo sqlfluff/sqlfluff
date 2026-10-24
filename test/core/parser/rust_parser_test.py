@@ -577,8 +577,14 @@ def test__rust_parser__profiling_records_stage_timings():
         set_profiling(False)
 
     assert result is not None
-    # All four stages should be recorded, each a non-negative duration.
-    assert set(profile) == {"rust_core", "convert", "apply", "apply_as_tree"}
+    # All five stages should be recorded, each a non-negative duration.
+    assert set(profile) == {
+        "rust_core",
+        "meta_policy",
+        "convert",
+        "apply",
+        "apply_as_tree",
+    }
     assert all(v >= 0.0 for v in profile.values())
 
 
@@ -1195,8 +1201,9 @@ def test__rust_parser__native_ast_profile_has_no_convert_stage():
         set_native_ast(False)
         set_profiling(False)
 
-    # rust_core + the fused build are timed; convert no longer runs.
+    # The core, policy and fused build are timed; convert no longer runs.
     assert "rust_core" in profile
+    assert "meta_policy" in profile
     assert "apply" in profile
     assert "convert" not in profile
 

@@ -217,7 +217,6 @@ def test_distinct_removal_preserves_line_comment_boundary() -> None:
         if raw.is_code and raw.raw_upper in {"AS", "FROM"}
     ] == ["AS", "FROM"]
     assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
-    assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
 
 
 @pytest.mark.parametrize("include_column", [True, False])

@@ -59,7 +59,7 @@ class Rule_BQ01(BaseRule):
             multiline = memory.setdefault("multiline", has_newline)
 
         whitespace = [seg for seg in gap if seg.is_type("whitespace", "newline")]
-        if (multiline and has_newline) or (not multiline and not whitespace):
+        if (multiline and has_newline) or (not multiline and not gap):
             return [LintResult(memory=memory)]
 
         # Crossing comments or template markers can change SQL semantics.
