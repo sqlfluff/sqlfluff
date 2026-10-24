@@ -72,7 +72,7 @@ dependencies = [
     # To get the encoding of files.
     "chardet",
     # Click supports compatible versions without an upper bound.
-    "click",
+    "click<8.6.0",
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",
