@@ -1,0 +1,12 @@
+-- ClickHouse parses ALTER TABLE commands as a comma-separated list.
+ALTER TABLE x ADD COLUMN a UInt8, ADD COLUMN b UInt8;
+
+ALTER TABLE x ON CLUSTER '{cluster}'
+ADD COLUMN IF NOT EXISTS a UInt64 AFTER y,
+ADD COLUMN IF NOT EXISTS b Nullable(String) AFTER a;
+
+ALTER TABLE x DROP COLUMN a, RENAME COLUMN b TO c, MODIFY COLUMN d String;
+
+ALTER TABLE x UPDATE a = 1, b = 2 WHERE c = 3;
+
+ALTER TABLE x ADD COLUMN a UInt8, DROP COLUMN b SETTINGS mutations_sync = 2;
