@@ -37,6 +37,8 @@ UNRESERVED_KEYWORDS = [
     "FEATURE",
     "FILTER",
     "FLOW",
+    "GEOGRAPHY",
+    "GEOMETRY",
     "HOUR",
     "HOURS",
     "IDENTIFIER",

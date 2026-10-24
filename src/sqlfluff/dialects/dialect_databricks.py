@@ -1319,6 +1319,24 @@ class MaskStatementSegment(BaseSegment):
     )
 
 
+class PrimitiveTypeSegment(sparksql.PrimitiveTypeSegment):
+    """Databricks primitive data types, adding the geospatial types.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/data-types/geography-type
+    https://docs.databricks.com/aws/en/sql/language-manual/data-types/geometry-type
+    """
+
+    match_grammar = sparksql.PrimitiveTypeSegment.match_grammar.copy(
+        insert=[
+            # GEOGRAPHY and GEOMETRY take an SRID or `ANY`.
+            Sequence(
+                OneOf("GEOGRAPHY", "GEOMETRY"),
+                Bracketed(OneOf(Ref("NumericLiteralSegment"), "ANY")),
+            ),
+        ]
+    )
+
+
 class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     """A column field definition, e.g. for CREATE TABLE or ALTER TABLE.
 
