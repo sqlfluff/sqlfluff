@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03c610e315a211d3fed46036ea30a6f132e3e88825d7e64d89bbfa3386cb8b7c
+_hash: 9df39ee421323f70f1ba11c422570a69755a8923a4e4f5035d976727774f0db6
 file:
 - statement:
     alter_database_statement:
@@ -212,4 +212,37 @@ file:
           raw_comparison_operator: '='
       - quoted_literal: "'2020-01-01'"
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: SET
+    - keyword: MANAGED
+    - keyword: LOCATION
+    - quoted_literal: "'s3://b/'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: TO
+    - numeric_literal: '1'
+    - keyword: DAY
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: DEFAULT
+    - keyword: COLLATION
+    - quoted_identifier: "'UTF8_LCASE'"
 - statement_terminator: ;
