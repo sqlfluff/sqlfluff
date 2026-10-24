@@ -42,6 +42,7 @@ UNRESERVED_KEYWORDS = [
     "IDENTIFIER",
     "MANAGED",
     "MASK",
+    "METASTORE",
     "METRICS",
     "MOST",
     "NORELY",

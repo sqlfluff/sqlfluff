@@ -541,7 +541,16 @@ databricks_dialect.replace(
                     Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
-            )
+            ),
+            # SHOW GRANTS [ principal ] ON securable_object
+            # GRANT is accepted as an alternative spelling of GRANTS.
+            # https://docs.databricks.com/aws/en/sql/language-manual/security-show-grant
+            Sequence(
+                OneOf("GRANTS", "GRANT"),
+                Ref("RoleReferenceSegment", optional=True),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
         ],
     ),
     NotNullGrammar=Sequence(
@@ -738,6 +747,23 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         insert=[
             Ref.keyword("VOLUME"),
         ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """A securable object, including the Unity Catalog metastore.
+
+    METASTORE is inserted first so it is matched as a keyword rather than as
+    an object reference of the same length.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("METASTORE"),
+        ],
+        at=0,
     )
 
 
