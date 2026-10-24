@@ -710,7 +710,7 @@ AND condition2
 
 There is also an `indented_using_on_newline` config (defaulted to
 `False`) which can be set to `True` to indent the `USING` or `ON`
-clause one level deeper than a joined table on its own line.
+clause one level deeper than a joined table on its own line when `indented_using_on` is also enabled.
 For example, with `indented_using_on_newline` set to `True` and
 `implicit_indents` set to `allow`:
 
