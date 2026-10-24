@@ -2,6 +2,9 @@
 
 from typing import Any, Callable, Union
 
+from jinja2.runtime import Context, Macro
+from jinja2.sandbox import SandboxedEnvironment
+
 from sqlfluff.core.templaters.builtins.common import FunctionWrapper
 
 
@@ -64,6 +67,20 @@ class MacroReturn(Exception):
 
 def _builtin_return(value: Any) -> None:
     raise MacroReturn(value)
+
+
+class DbtSandboxedEnvironment(SandboxedEnvironment):
+    """Handle dbt returns at every macro call, including same-file calls."""
+
+    def call(self, context: Context, obj: Any, /, *args: Any, **kwargs: Any) -> Any:
+        """Catch a return only at the macro boundary that owns it."""
+        try:
+            return super().call(context, obj, *args, **kwargs)
+        except MacroReturn as exc:
+            if isinstance(obj, Macro):
+                return exc.value
+            # The return() builtin must unwind until its enclosing macro call.
+            raise
 
 
 class DbtMacroWrapper:

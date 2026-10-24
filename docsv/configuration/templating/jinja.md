@@ -225,6 +225,10 @@ projects. In particular it provides mock objects for:
   linting purposes, this makes no difference and so the provided macro simply
   returns nothing.
 
+It also understands the dbt `{% test %}` and `{% materialization %}` blocks,
+so files which define generic tests or custom materializations can be linted
+like other macro files.
+
 ::: tip NOTE
 If there are other builtin macros which would make your life easier,
 consider submitting the idea (or even better a pull request) on [github](https://www.github.com/sqlfluff/sqlfluff).

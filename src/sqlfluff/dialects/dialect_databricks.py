@@ -57,6 +57,16 @@ databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
 
+# Databricks documents a finite set of notebook magic commands. Keep the
+# pattern shared between notebook-start and later-cell lexers.
+BARE_MAGIC_COMMAND_PATTERN = (
+    r"(?:%(?:python|scala|r|sh|md|run|fs|pip|conda|tensorboard|"
+    r"set_cell_max_output_size_in_mb|skip)\b|%%(?:profile|oprofile)\b|"
+    r"%uv[ \t]+pip\b)"
+    r"[^\r\n]*"
+)
+
+
 databricks_dialect.insert_lexer_matchers(
     # Named Function Parameters:
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
@@ -118,10 +128,12 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "notebook_start_bare_magic_cell",
-            r"(?s)-- Databricks notebook source(?:\r?\n)"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
-            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
-            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            (
+                r"(?s)-- Databricks notebook source(?:\r?\n)"
+                + BARE_MAGIC_COMMAND_PATTERN
+                + r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+                r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)"
+            ),
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(
@@ -144,11 +156,13 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "magic_single_line",
-            r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+            r"(-- MAGIC %)([^\r\n]{2,})( [^%]{1})([^\r\n]*)",
             CodeSegment,
         ),
-        RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
-        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+        RegexLexer(
+            "magic_line", r"(-- MAGIC)(?! ?%)(?: [^%\r\n][^\r\n]*)?", CodeSegment
+        ),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\r\n]{2,})", CodeSegment),
         RegexLexer(
             "bare_magic_sql",
             r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
@@ -160,10 +174,12 @@ databricks_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "bare_magic_cell",
-            r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
-            r"%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*"
-            r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
-            r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+            (
+                r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+"
+                + BARE_MAGIC_COMMAND_PATTERN
+                + r"(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*"
+                r"(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)"
+            ),
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(
@@ -373,6 +389,11 @@ databricks_dialect.add(
 
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # `KEYS` follows the source table in `APPLY CHANGES INTO` and
+    # `AUTO CDC INTO`, so it must end the FROM clause.
+    FromClauseTerminatorGrammar=databricks_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref.keyword("KEYS")]),
     # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
     # visible inside the pipeline but not published to the catalog:
     #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
@@ -411,10 +432,9 @@ databricks_dialect.replace(
             Ref("ParameterizedSegment"),
         ]
     ),
-    FunctionContentsExpressionGrammar=OneOf(
-        Ref("ExpressionSegment"),
-        Ref("NamedArgumentSegment"),
-    ),
+    FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
+        "FunctionContentsExpressionGrammar"
+    ).copy(insert=[Ref("NamedArgumentSegment")]),
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
         IdentifierSegment,
@@ -521,7 +541,16 @@ databricks_dialect.replace(
                     Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
-            )
+            ),
+            # SHOW GRANTS [ principal ] ON securable_object
+            # GRANT is accepted as an alternative spelling of GRANTS.
+            # https://docs.databricks.com/aws/en/sql/language-manual/security-show-grant
+            Sequence(
+                OneOf("GRANTS", "GRANT"),
+                Ref("RoleReferenceSegment", optional=True),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
         ],
     ),
     NotNullGrammar=Sequence(
@@ -718,6 +747,23 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         insert=[
             Ref.keyword("VOLUME"),
         ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """A securable object, including the Unity Catalog metastore.
+
+    METASTORE is inserted first so it is matched as a keyword rather than as
+    an object reference of the same length.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("METASTORE"),
+        ],
+        at=0,
     )
 
 
@@ -957,6 +1003,35 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
         remove=[
             Ref("LocationGrammar", optional=True),
         ],
+    )
+
+
+class CreateTableStatementSegment(sparksql.CreateTableStatementSegment):
+    """A `CREATE TABLE` statement, including an inline pipeline flow.
+
+    A streaming table may declare one flow inline instead of an AS query:
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    match_grammar = Sequence(
+        OneOf(
+            # Inline FLOW is only valid on a streaming table, so this alternative
+            # requires STREAMING and a flow clause. An optional FLOW clause on the
+            # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
+            # which Databricks rejects.
+            Sequence(
+                "CREATE",
+                Ref("OrRefreshGrammar", optional=True),
+                OneOf(
+                    Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                    Ref.keyword("STREAMING"),
+                ),
+                Ref("TableDefinitionSegment"),
+                Ref("FlowClauseSegment"),
+            ),
+            sparksql.CreateTableStatementSegment.match_grammar,
+        )
     )
 
 
@@ -1764,6 +1839,8 @@ class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = sparksql.StatementSegment.match_grammar.copy(
+        # Databricks has its own, fuller, SQL function statement.
+        remove=[Ref("CreateSqlFunctionStatementSegment")],
         # Segments defined in Databricks SQL dialect
         insert=[
             # Unity Catalog
@@ -1790,7 +1867,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("ApplyChangesIntoStatementSegment"),
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
-        ]
+        ],
     )
 
 
@@ -1960,45 +2037,6 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "KEYS",
                 "FROM",
                 "FOR",
-            ),
-        ),
-        Dedent,
-    )
-
-
-class GroupByClauseSegment(sparksql.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    match_grammar = Sequence(
-        "GROUP",
-        "BY",
-        Indent,
-        OneOf(
-            "ALL",
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
-            ),
-            Sequence(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `GROUP BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can `GROUP BY coalesce(col, 1)`
-                    Ref("ExpressionSegment"),
-                ),
-                OneOf(
-                    Ref("WithCubeRollupClauseSegment"),
-                    Ref("GroupingSetsClauseSegment"),
-                ),
             ),
         ),
         Dedent,
@@ -2287,13 +2325,23 @@ class MagicCellStatementSegment(BaseSegment):
                 # line (`-- MAGIC %md`) or with content after it
                 # (`-- MAGIC %md # Title`). Both may be followed by further
                 # `-- MAGIC` lines: the directive only names the language, it
-                # does not say how many lines the cell has.
+                # does not say how many lines the cell has. A later line may
+                # itself start with `%` (an `%md` cell quoting `%pip`, for
+                # example) without opening another cell, so directive-shaped
+                # lines are body text too.
                 OneOf(
                     Ref("MagicStartGrammar"),
                     Ref("MagicSingleLineGrammar"),
                     optional=True,
                 ),
-                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+                AnyNumberOf(
+                    OneOf(
+                        Ref("MagicLineGrammar"),
+                        Ref("MagicSingleLineGrammar"),
+                        Ref("MagicStartGrammar"),
+                    ),
+                    optional=True,
+                ),
             ),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
@@ -2569,4 +2617,63 @@ class CreateFlowStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
             ),
         ),
+    )
+
+
+class FlowClauseSegment(BaseSegment):
+    """A flow declared inline on a pipeline streaming table.
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    type = "flow_clause"
+
+    match_grammar = Sequence(
+        "FLOW",
+        Indent,
+        OneOf(
+            # FLOW INSERT [ONCE] BY NAME query
+            Sequence(
+                "INSERT",
+                Ref.keyword("ONCE", optional=True),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW AUTO CDC <cdc spec>. The target is the table itself, so
+            # there is no INTO here, unlike the standalone CREATE FLOW form.
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref("CDCSpecificationSegment"),
+            ),
+            # FLOW REPLACE WHERE predicate BY NAME query
+            Sequence(
+                "REPLACE",
+                "WHERE",
+                Ref("ExpressionSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW REPLACE USING ( column_name [, ...] )
+            #   SEQUENCE BY sequence_column BY NAME query
+            #
+            # The list and its SEQUENCE BY column are bound as a pair: the
+            # reference defines replace_using_spec with both, and accepting
+            # them independently is the defect #8509 shipped for the
+            # standalone statement.
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                "SEQUENCE",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+        ),
+        Dedent,
     )

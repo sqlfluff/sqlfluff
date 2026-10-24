@@ -76,7 +76,7 @@ class Rule_LT04(Rule_LT03):
         # but is true often enough to have meaningful upside from early
         # detection.
         if self._check_trail_lead_shortcut(
-            context.segment, context.parent_stack[-1], comma_positioning
+            context.segment_idx, context.parent_stack[-1], comma_positioning
         ):
             return [LintResult()]
 

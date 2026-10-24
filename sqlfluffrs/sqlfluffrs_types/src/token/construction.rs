@@ -148,6 +148,18 @@ impl Token {
         token
     }
 
+    /// Text that a command-line client reads itself, such as its delimiter.
+    ///
+    /// The lexer has already said what this is, so a grammar matches it by
+    /// type only, never by its text: a delimiter `$$` or `go` is never a name.
+    pub fn client_text_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
+        let mut token = Self::code_token(raw, pos_marker, config);
+        token.token_type = Cow::Borrowed("client_text");
+        token.class_name = Cow::Borrowed("ClientTextSegment");
+        token.class_types = CLIENT_TEXT_CT.clone();
+        token
+    }
+
     pub fn whitespace_token(raw: String, pos_marker: PositionMarker, config: TokenConfig) -> Self {
         let mut token = Self::raw_token(raw, pos_marker, config);
         token.token_type = Cow::Borrowed("whitespace");
@@ -330,6 +342,7 @@ class_types_static!(BINARY_OPERATOR_CT, "base", "raw", "binary_operator");
 class_types_static!(COMPARISON_OPERATOR_CT, "base", "raw", "comparison_operator");
 class_types_static!(WORD_CT, "base", "raw", "word");
 class_types_static!(UNLEXABLE_CT, "base", "raw", "unlexable");
+class_types_static!(CLIENT_TEXT_CT, "base", "raw", "client_text");
 class_types_static!(WHITESPACE_CT, "base", "raw", "whitespace");
 class_types_static!(NEWLINE_CT, "base", "raw", "newline");
 class_types_static!(COMMENT_CT, "base", "raw", "comment");

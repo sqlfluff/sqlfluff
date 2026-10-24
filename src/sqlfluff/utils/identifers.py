@@ -24,7 +24,21 @@ def identifiers_policy_applicable(
     )
     if policy == "aliases" and is_alias:
         return True
-    is_inside_from = any(p.is_type("from_clause") for p in parent_stack)
+    # Walk outward from the identifier looking for the nearest of
+    # "select_clause" or "from_clause". A column alias that belongs to a
+    # derived table's own SELECT (e.g. `FROM (SELECT 1 AS x) sub`) is
+    # nested inside that inner select_clause, which is itself nested
+    # inside the *outer* from_clause - so scanning the whole parent_stack
+    # for any from_clause wrongly classifies it as a table alias. Stopping
+    # at the first select_clause encountered keeps such a column alias
+    # scoped to the SELECT it actually belongs to.
+    is_inside_from = False
+    for p in reversed(parent_stack):
+        if p.is_type("select_clause"):
+            break
+        if p.is_type("from_clause"):
+            is_inside_from = True
+            break
     if policy == "column_aliases" and is_alias and not is_inside_from:
         return True
     if policy == "table_aliases" and is_alias and is_inside_from:

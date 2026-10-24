@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f14af1276b7c4dad919185d0c284a4e1f57f52c2a5b68c676a7f8a40242da71b
+_hash: 15ab764182b848e97c8c6774b06c1e3e09330a7aee3c0784a5797b9a5a2411dc
 file:
-  statement:
+- statement:
     create_task_statement:
     - keyword: DEFINE
     - keyword: TASK
@@ -42,4 +42,84 @@ file:
               expression:
                 numeric_literal: '1'
               end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: DEFINE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: my_task
+    - parameter: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'MY_WH'"
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 5 * * * UTC'"
+    - keyword: STARTED
+    - keyword: AS
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: DEFINE
+    - keyword: TASK
+    - object_reference:
+        quoted_identifier: '"suspended task"'
+    - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - warehouse_size: "'XSMALL'"
+    - keyword: SUSPENDED
+    - keyword: AS
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: DEFINE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: child_task
+    - keyword: AFTER
+    - object_reference:
+        naked_identifier: parent_task
+    - keyword: WHEN
+    - snowflake_task_expression_segment:
+        expression:
+          function:
+            function_name:
+              system_function_name: SYSTEM$STREAM_HAS_DATA
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'my_stream'"
+                end_bracket: )
+    - keyword: STARTED
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              function_name_identifier: my_proc
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;

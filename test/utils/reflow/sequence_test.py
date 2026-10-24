@@ -1,10 +1,14 @@
 """Tests for the reflow module."""
 
+import gc
 import logging
+import weakref
+from unittest.mock import patch
 
 import pytest
 
 from sqlfluff.core import Linter
+from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
 from sqlfluff.utils.reflow.sequence import ReflowSequence
@@ -251,3 +255,91 @@ def test_reflow_sequence_respace_filter(
         for fix in fixes
         if fix.edit_type == "replace"
     ] == edit_indices
+
+
+class _SubclassedReflowSequence(ReflowSequence):
+    """A subclass of ReflowSequence, which could build its elements differently."""
+
+
+@pytest.fixture()
+def empty_from_root_cache():
+    """Start with nothing kept from earlier `ReflowSequence.from_root()` calls."""
+    with patch("sqlfluff.utils.reflow.sequence._from_root_cache", None):
+        yield
+
+
+def test_reflow_sequence_from_root_shares_elements(
+    default_config, empty_from_root_cache
+):
+    """Sequences of the same unchanged tree share elements, not lists or maps."""
+    root = parse_ansi_string("select 1 +2", default_config)
+    first = ReflowSequence.from_root(root, config=default_config)
+    second = ReflowSequence.from_root(root, config=default_config)
+    assert second.elements is not first.elements
+    assert len(second.elements) == len(first.elements)
+    assert all(a is b for a, b in zip(first.elements, second.elements))
+    assert second.depth_map is not first.depth_map
+    assert second.depth_map.depth_info == first.depth_map.depth_info
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["new_root", "root_edited", "config_edited", "layout_edited", "subclass"],
+)
+def test_reflow_sequence_from_root_rebuilds_after_change(
+    change, default_config, empty_from_root_cache
+):
+    """Sequences aren't shared once the tree, the config or the class changes."""
+    root = parse_ansi_string("select 1 +2", default_config)
+    first = ReflowSequence.from_root(root, config=default_config)
+    sequence_class = ReflowSequence
+    if change == "new_root":
+        # A fixed tree is always a new root object.
+        root = root.copy()
+    elif change == "root_edited":
+        # As apply_fixes() does to the tree it is given.
+        root.invalidate_caches()
+    elif change == "config_edited":
+        default_config.set_value(["indentation", "tab_space_size"], 2)
+    elif change == "layout_edited":
+        default_config.set_value(
+            ["layout", "type", "comma", "spacing_before"], "single"
+        )
+    else:
+        sequence_class = _SubclassedReflowSequence
+    second = sequence_class.from_root(root, config=default_config)
+    assert type(second) is sequence_class
+    assert not any(a is b for a, b in zip(first.elements, second.elements))
+
+
+def test_reflow_sequence_from_root_edits_stay_local(
+    default_config, empty_from_root_cache
+):
+    """Editing one sequence's elements or depth map doesn't change another's."""
+    root = parse_ansi_string("select 1 +2", default_config)
+    first = ReflowSequence.from_root(root, config=default_config)
+    second = ReflowSequence.from_root(root, config=default_config)
+    new_segments = []
+    for sequence in (first, second):
+        sequence.elements.pop()
+        # Edits such as insert() and replace() add depth info for new segments.
+        new_segments.append(WhitespaceSegment())
+        sequence.depth_map.copy_depth_info(
+            root.raw_segments[0], new_segments[-1], trim=1
+        )
+    third = ReflowSequence.from_root(root, config=default_config)
+    assert len(third.elements) == len(first.elements) + 1
+    for new_segment in new_segments:
+        assert new_segment.uuid not in third.depth_map.depth_info
+
+
+def test_reflow_sequence_from_root_forgets_freed_tree(
+    default_config, empty_from_root_cache
+):
+    """Nothing kept from a tree stays in memory once the tree is freed."""
+    root = parse_ansi_string("select 1 +2", default_config)
+    ReflowSequence.from_root(root, config=default_config)
+    raw_segment = weakref.ref(root.raw_segments[0])
+    del root
+    gc.collect()
+    assert raw_segment() is None

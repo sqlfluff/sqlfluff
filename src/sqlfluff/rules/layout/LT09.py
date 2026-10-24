@@ -179,6 +179,8 @@ class Rule_LT09(BaseRule):
         """Multiple select targets. Ensure each is on a separate line."""
         fixes = []
         select_clause_raws = Segments(segment).raw_segments
+        children = segment.segments
+        target_idxs: Optional[list[int]] = None
         # Each search starts just after the previous code, not at the start of
         # the clause, so that wide select clauses take linear time.
         search_start = 0
@@ -212,23 +214,30 @@ class Rule_LT09(BaseRule):
             # previous one *ends* on. If they are on the same line, insert a newline.
             if target_start_line == previous_end_line:
                 # Find and delete any whitespace before the select target.
-                start_seg = select_targets_info.select_idx
-                # If any select modifier (e.g. distinct ) is present, start
-                # there rather than at the beginning.
-                modifier = segment.get_child("select_clause_modifier")
-                if modifier:
-                    start_seg = segment.segments.index(modifier)
-
-                ws_to_delete = segment.select_children(
-                    start_seg=(
-                        segment.segments[start_seg]
-                        if not i
-                        else select_targets_info.select_targets[i - 1]
-                    ),
-                    select_if=lambda s: s.is_type("whitespace"),
-                    loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
-                )
-                fixes += [LintFix.delete(ws) for ws in ws_to_delete]
+                if not i:
+                    # Start after the select keyword. If any select modifier
+                    # (e.g. distinct) is present, start there instead.
+                    start_idx = children.index(
+                        segment.get_child("select_clause_modifier")
+                        or children[select_targets_info.select_idx]
+                    )
+                else:
+                    # Start after the previous target. Find the targets once,
+                    # as searching the children for every target is quadratic
+                    # when many of them share a line.
+                    if target_idxs is None:
+                        target_idxs = [
+                            idx
+                            for idx, child in enumerate(children)
+                            if child.is_type("select_clause_element")
+                        ]
+                    start_idx = target_idxs[i - 1]
+                for child_idx in range(start_idx + 1, len(children)):
+                    child = children[child_idx]
+                    if not (child.is_type("whitespace", "comma") or child.is_meta):
+                        break
+                    if child.is_type("whitespace"):
+                        fixes.append(LintFix.delete(child))
                 fixes.append(LintFix.create_before(select_target, [NewlineSegment()]))
 
             # If we are at the last select target check if the FROM clause
@@ -411,7 +420,12 @@ class Rule_LT09(BaseRule):
                     # _eval_single_select_target_element() leave leftover
                     # child segments that need to be moved to become
                     # *siblings* of the select_clause.
+                    # NOTE: Exclude meta segments. Some dialects place the
+                    # select clause's `Indent` after the leading whitespace,
+                    # i.e. inside this range. Moving it would insert a
+                    # zero-width segment and orphan its `Dedent`.
                     move_after_select_clause = select_children.select(
+                        select_if=sp.not_(sp.is_meta()),
                         start_seg=start_seg,
                         stop_seg=to_delete[-1],
                     )

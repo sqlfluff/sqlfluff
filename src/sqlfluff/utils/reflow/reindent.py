@@ -1942,9 +1942,23 @@ def lint_indent_points(
 
         # Convert remaining newlines to spaces at tracked positions.
         if implicit_indent_locs:
+            # NOTE: Use the original `elements` rather than the working copy.
+            # The line pass above may have swapped points in `elem_buffer` for
+            # ones holding newly created segments, which can't be fix anchors.
             implicit_results = _convert_newlines_to_spaces(
-                elem_buffer, implicit_indent_locs
+                elements, implicit_indent_locs
             )
+            # The line break is being removed, so drop any indent results for
+            # the same point. Otherwise they would be conflicting fixes on the
+            # same anchor, and neither would be applied.
+            collapsed_anchors = {
+                fix.anchor.uuid for res in implicit_results for fix in res.fixes
+            }
+            results = [
+                res
+                for res in results
+                if not any(fix.anchor.uuid in collapsed_anchors for fix in res.fixes)
+            ]
             results = implicit_results + results
 
     return elem_buffer, results
@@ -2153,6 +2167,22 @@ def _increment_balance(
     return balance, matched_indents
 
 
+def _is_point_before_final_statement_terminator(
+    elements: ReflowSequenceType, point_idx: int
+) -> bool:
+    """Whether a point is followed only by a final statement terminator."""
+    found_terminator = False
+    for element in elements[point_idx + 1 :]:
+        for segment in element.segments:
+            if segment.is_type("statement_terminator"):
+                found_terminator = True
+            elif segment.is_type("newline"):
+                return found_terminator
+            elif segment.is_code:
+                return False
+    return found_terminator
+
+
 def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: dict[int, int],
@@ -2183,6 +2213,8 @@ def _match_indents(
         if indent_stats.implicit_indents:
             implicit_indent_dict[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
+        if _is_point_before_final_statement_terminator(line_elements, idx):
+            continue
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
             matched_indents[b].extend(indices)

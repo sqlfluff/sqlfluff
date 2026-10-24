@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
+    ClientTextSegment,
     CodeSegment,
     CommentSegment,
     CompositeComparisonOperatorSegment,
@@ -37,7 +38,15 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    UnlexableSegment,
     WordSegment,
+)
+from sqlfluff.core.parser.client_commands import (
+    ArgumentKind,
+    BufferAction,
+    ClientCommandRules,
+    LongClientCommand,
+    ShortClientCommand,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
@@ -59,9 +68,25 @@ The dialect for `MySQL <https://www.mysql.com/>`_.""",
 
 mysql_dialect.patch_lexer_matchers(
     [
+        # `$` is an identifier character anywhere in a name, as in `a$b`, `$a`
+        # or `1$`. Only a `$tag$` at the start of a token is something else: it
+        # opens a dollar-quoted string (see `dollar_quote_opener`).
+        RegexLexer("word", r"[0-9a-zA-Z_$]+", WordSegment),
+        # As ANSI's, except that digits followed by `$` are an identifier, as
+        # digits followed by a letter already are: `1$` is a name. A decimal or
+        # an exponent still ends there, so `1.5$x` is `1.5` and the name `$x`.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+(?=[eE][+-]?\d|(?![\w$])))"
+            r"(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
+        # `--` starts a comment only with whitespace, or the end of the line,
+        # after it; `--x` is two minus signs. At the start of a statement the
+        # MariaDB client is looser, which its client command rules cover.
         RegexLexer(
             "inline_comment",
-            r"(^--|-- |#)[^\n]*",
+            r"(--(?=\s|$)|#)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("--", "#")},
         ),
@@ -99,22 +124,87 @@ mysql_dialect.patch_lexer_matchers(
     ]
 )
 
+# The mysql command-line client reads a script line by line and splits it into
+# statements itself, so its own commands are lexed with its state: see
+# `ClientCommandRules`. Only the commands that matter in scripts are here.
+# https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+# A `$tag$` at the start of a token with no closing `$tag$`. MySQL still reads
+# it as the start of a dollar-quoted string, which then never ends, so `$a$` is
+# never a name, oddly, even though `$` is allowed in names.
+mysql_dialect.insert_lexer_matchers(
+    [RegexLexer("dollar_quote_opener", r"\$\w*\$", UnlexableSegment)],
+    before="numeric_literal",
+)
+
+mysql_client_commands = ClientCommandRules(
+    long_commands=(
+        LongClientCommand("delimiter", ArgumentKind.DELIMITER),
+        LongClientCommand("source", ArgumentKind.FILE_NAME),
+    ),
+    # `\d` and `\.` are the short forms of `delimiter` and `source`. `go` and
+    # `ego`, the long forms of `\g` and `\G`, are left out: like any long form
+    # they only count where nothing has been collected yet, so they never send
+    # anything (unless the client runs with `--named-commands`).
+    short_commands=(
+        ShortClientCommand("\\d", BufferAction.KEEP, ArgumentKind.DELIMITER),
+        ShortClientCommand("\\.", BufferAction.DISCARD, ArgumentKind.FILE_NAME),
+        ShortClientCommand("\\g", BufferAction.END),
+        ShortClientCommand("\\G", BufferAction.END),
+    ),
+    opaque_token_names=frozenset(
+        {
+            "single_quote",
+            "double_quote",
+            "back_quote",
+            "inline_comment",
+            "block_comment",
+            "dollar_quote",
+            "dollar_quote_opener",
+        }
+    ),
+    line_command_after_block_comment=True,
+    dash_dash_comment_at_statement_start=False,
+    collected_line_marker="\\g",
+    # The client keeps the delimiter in `char delimiter[16]`.
+    max_delimiter_bytes=15,
+)
+mysql_dialect.client_commands = mysql_client_commands
+
 mysql_dialect.insert_lexer_matchers(
     [
+        # `0x1F` and `0b101` end only where no identifier character follows:
+        # `0x1Fg` and `0b1$` are names, as digits followed by a letter are.
         RegexLexer(
             "hexadecimal_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+(?![\w$]))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
         RegexLexer(
             "bit_value_literal",
-            r"([bB]'[01]+'|0b[01]+)",
+            r"([bB]'[01]+'|0b[01]+(?![\w$]))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
     ],
     before="numeric_literal",
+)
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        # The national string `N'text'`. The `N` must touch the quote.
+        # https://dev.mysql.com/doc/refman/8.4/en/charset-national.html
+        RegexLexer(
+            "single_quote_with_n",
+            r"(?s)([nN]'(?:\\'|''|\\\\|[^'])*'(?!'))",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"(?s)([nN]'((?:\\'|''|\\\\|[^'])*)'(?!'))", 2),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
+        ),
+    ],
+    before="word",
 )
 
 # Set Keywords
@@ -168,6 +258,58 @@ mysql_dialect.sets("date_part_function_name").update(
     ]
 )
 
+# Character set names. `_name` before a string is an introducer only when
+# `name` is one of these: `_latin1'x'` is a latin1 string, but `_foo 'x'` is
+# the column `_foo` with the alias 'x'.
+# https://dev.mysql.com/doc/refman/8.4/en/charset-charsets.html
+mysql_dialect.sets("character_set_names").update(
+    [
+        "ARMSCII8",
+        "ASCII",
+        "BIG5",
+        "BINARY",
+        "CP1250",
+        "CP1251",
+        "CP1256",
+        "CP1257",
+        "CP850",
+        "CP852",
+        "CP866",
+        "CP932",
+        "DEC8",
+        "EUCJPMS",
+        "EUCKR",
+        "GB18030",
+        "GB2312",
+        "GBK",
+        "GEOSTD8",
+        "GREEK",
+        "HEBREW",
+        "HP8",
+        "KEYBCS2",
+        "KOI8R",
+        "KOI8U",
+        "LATIN1",
+        "LATIN2",
+        "LATIN5",
+        "LATIN7",
+        "MACCE",
+        "MACROMAN",
+        "SJIS",
+        "SWE7",
+        "TIS620",
+        "UCS2",
+        "UJIS",
+        "UTF16",
+        "UTF16LE",
+        "UTF32",
+        "UTF8MB3",
+        "UTF8MB4",
+        # An alias of UTF8MB3.
+        "UTF8",
+    ]
+)
+
 mysql_dialect.sets("bare_functions").update(
     [
         "NOW",
@@ -192,8 +334,30 @@ mysql_dialect.replace(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SystemVariableSegment"),
+            Ref("IntroducedLiteralSegment"),
+            Ref("QuotedLiteralSegmentWithN"),
         ]
     ),
+    # `BINARY expr` casts to a binary string. It binds tighter than any
+    # comparison: `BINARY 'a' = 'A'` is `(BINARY 'a') = 'A'`.
+    # https://dev.mysql.com/doc/refman/8.4/en/cast-functions.html#operator_binary
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(
+        insert=[Ref.keyword("BINARY")],
+    ),
+    # GROUP_CONCAT has its own grammar, so the generic function path must not
+    # also match it.
+    FunctionNameExclusionGrammar=ansi_dialect.get_grammar(
+        "FunctionNameExclusionGrammar"
+    ).copy(
+        insert=[Ref("GroupConcatFunctionNameSegment")],
+    ),
+    # MySQL has no general `type 'literal'` form. `DATE '...'`, `TIME '...'`
+    # and `TIMESTAMP '...'` are DateTimeLiteralGrammar, and `_utf8mb4'...'`
+    # is IntroducedLiteralSegment. Anything else, such as `foo 'x'`, is a
+    # column with an alias, and `foo 5` is a syntax error.
+    TypedLiteralGrammar=Nothing(),
     PostTableExpressionGrammar=OneOf(
         Ref("IndexHintClauseSegment"),
         Ref("SelectPartitionClauseSegment"),
@@ -223,7 +387,14 @@ mysql_dialect.replace(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
             Ref("VariableAssignmentSegment"),
-        ]
+        ],
+        # A typed literal; see TypedLiteralGrammar.
+        remove=[
+            Sequence(
+                Ref("DatatypeSegment"),
+                Ref("LiteralGrammar"),
+            ),
+        ],
     ),
     Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
         "Expression_D_Potential_Select_Statement_Without_Brackets"
@@ -286,10 +457,15 @@ mysql_dialect.replace(
     ),
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
-    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
+    # A statement ends at `;`, at another delimiter set with `DELIMITER`, or at
+    # `\g` or `\G`.
+    DelimiterGrammar=OneOf(
+        Ref("SemicolonSegment"),
+        Ref("ClientDelimiterSegment"),
+        Ref("ClientGoSegment"),
+    ),
     ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
+        r"`?[A-Za-z0-9_$]*`?", CodeSegment, type="parameter"
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", BinaryOperatorSegment),
@@ -318,7 +494,7 @@ mysql_dialect.replace(
     ),
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
-            r"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_",
+            r"([A-Z0-9_$]*[A-Z$][A-Z0-9_$]*)|_",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
@@ -333,7 +509,31 @@ mysql_dialect.replace(
     ).copy(insert=[Ref("NullSafeEqualsSegment")]),
 )
 
+
+class ClientDelimiterSymbolSegment(ClientTextSegment, SymbolSegment):
+    """The client's delimiter, as a statement terminator.
+
+    A symbol like `;`, and still client text, so that a reparse never reads
+    `$$` as a name.
+    """
+
+    type = "client_delimiter_symbol"
+
+
 mysql_dialect.add(
+    ClientDelimiterSegment=TypedParser(
+        "client_delimiter", ClientDelimiterSymbolSegment, type="statement_terminator"
+    ),
+    # `\g` and `\G` (raw_upper of both).
+    ClientGoSegment=StringParser("\\G", SymbolSegment, type="statement_terminator"),
+    # A client command ends with its line, so needs no delimiter after it.
+    ClientCommandIgnoredSegment=TypedParser(
+        "client_command_ignored", ClientTextSegment, type="client_command_ignored"
+    ),
+    ClientCommandGrammar=OneOf(
+        Ref("DelimiterStatement"),
+        Ref("SourceStatementSegment"),
+    ),
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         LiteralSegment,
@@ -388,6 +588,20 @@ mysql_dialect.add(
             + r"|".join(sorted(dialect.sets("reserved_keywords")))
             + r")$",
         )
+    ),
+    # A character set introducer: `_` and a character set name. A `_word` that
+    # is not a character set is an ordinary identifier.
+    CharacterSetIntroducerSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"_(?:" + r"|".join(sorted(dialect.sets("character_set_names"))) + r")\Z",
+            CodeSegment,
+            type="character_set_introducer",
+        )
+    ),
+    # The national string `N'text'`, lexed as one token like `X'41'`: `N 'x'`
+    # and `N"x"` are the column `N` with an alias.
+    QuotedLiteralSegmentWithN=TypedParser(
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
 )
 
@@ -600,6 +814,13 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 Ref("ConvertFunctionNameSegment"),
                 Ref("ConvertFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("GroupConcatFunctionNameSegment"),
+                Ref("GroupConcatFunctionContentsSegment"),
+                # The parser accepts OVER here, although neither server can
+                # execute GROUP_CONCAT as a window function yet.
+                Ref("OverClauseSegment", optional=True),
             ),
         ],
         at=0,
@@ -1434,6 +1655,8 @@ class IntervalExpressionSegment(BaseSegment):
 mysql_dialect.add(
     AddDropSystemVersioningGrammar=Nothing(),
     TriggerOrReplaceGrammar=Nothing(),
+    # A trailing LIMIT on GROUP_CONCAT; MariaDB only.
+    AggregateLimitClauseGrammar=Nothing(),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, type="parameter_direction"
     ),
@@ -1480,16 +1703,6 @@ mysql_dialect.add(
         r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
         type="variable",
-    ),
-    # The id argument of KILL.  A general ExpressionSegment would also accept
-    # `KILL HARD 5` as a typed literal, silently mis-parsing an unsupported form,
-    # so only the shapes a connection or query id takes are allowed.
-    KillIdGrammar=OneOf(
-        Ref("FunctionSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("SessionVariableNameSegment"),
-        Ref("LocalVariableNameSegment"),
-        Bracketed(Ref("ExpressionSegment")),
     ),
     # The branches of a CASE statement, shared by its simple and searched forms.
     CaseStatementBranchesGrammar=Sequence(
@@ -1611,6 +1824,24 @@ class IndexColumnPrefixLengthSegment(BaseSegment):
 
     type = "bracketed_arguments"
     match_grammar = Bracketed(Ref("NumericLiteralSegment"))
+
+
+class IntroducedLiteralSegment(BaseSegment):
+    """A literal with a character set introducer.
+
+    `_utf8mb4'text'`, `_latin1 X'41'` or `_binary b'0101'`.
+    https://dev.mysql.com/doc/refman/8.4/en/charset-introducer.html
+    """
+
+    type = "introduced_literal"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CharacterSetIntroducerSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
 
 
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
@@ -1770,7 +2001,6 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
-            Ref("DelimiterStatement"),
             Ref("CompoundStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
@@ -1827,11 +2057,83 @@ class StatementSegment(ansi.StatementSegment):
 
 
 class DelimiterStatement(BaseSegment):
-    """DELIMITER statement."""
+    r"""A `DELIMITER` (or `\d`) client command, which sets the delimiter.
+
+    The lexer reads the argument and keeps track of the delimiter it sets (see
+    `ClientCommandRules`). Anything after the argument on its line is ignored by
+    the client.
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html
+    """
 
     type = "delimiter_statement"
 
-    match_grammar = Ref.keyword("DELIMITER")
+    match_grammar = Sequence(
+        OneOf(
+            "DELIMITER",
+            StringParser("\\D", SymbolSegment, type="client_short_command"),
+        ),
+        TypedParser("delimiter_argument", ClientTextSegment, type="delimiter_argument"),
+        Ref("ClientCommandIgnoredSegment", optional=True),
+    )
+
+
+class SourceStatementSegment(BaseSegment):
+    r"""A `SOURCE` (or `\.`) client command, which runs another script.
+
+    The lexer reads the file name the way the client does (see
+    `ClientCommandRules`).
+
+    https://dev.mysql.com/doc/refman/8.4/en/mysql-batch-commands.html
+    """
+
+    type = "source_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            "SOURCE",
+            StringParser("\\.", SymbolSegment, type="client_short_command"),
+        ),
+        TypedParser("source_file_name", ClientTextSegment, type="source_file_name"),
+        Ref("ClientCommandIgnoredSegment", optional=True),
+    )
+
+
+class FileSegment(ansi.FileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+
+    Overrides ANSI so that client commands, which end with their line, need no
+    delimiter after them.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        AnyNumberOf(
+            Sequence(
+                Ref("ClientCommandGrammar"),
+                AnyNumberOf(Ref("DelimiterGrammar")),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("StatementSegment"),
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_gaps=True,
+                ),
+                AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            ),
+        ),
+        # The last statement in the file may have no delimiter.
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            optional=True,
+        ),
+    )
 
 
 class CreateProcedureStatementSegment(BaseSegment):
@@ -3298,6 +3600,50 @@ class ConvertFunctionContentsSegment(BaseSegment):
     )
 
 
+class GroupConcatFunctionNameSegment(BaseSegment):
+    """GROUP_CONCAT function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "GROUP_CONCAT", KeywordSegment, type="function_name_identifier"
+    )
+
+
+class GroupConcatFunctionContentsSegment(BaseSegment):
+    """GROUP_CONCAT function contents.
+
+    GROUP_CONCAT([DISTINCT] expr [, expr ...] [ORDER BY ...] [SEPARATOR str])
+
+    The separator is a single string token, or a hexadecimal or bit-value
+    literal; not a number, and not an expression.
+    https://dev.mysql.com/doc/refman/8.4/en/aggregate-functions.html#function_group-concat
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref.keyword("DISTINCT", optional=True),
+        Delimited(Ref("ExpressionSegment")),
+        Ref("AggregateOrderByClause", optional=True),
+        Sequence(
+            "SEPARATOR",
+            OneOf(
+                TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+                Ref("DoubleQuotedLiteralSegment"),
+                RegexParser(
+                    r"[xX]'[0-9a-fA-F]*'|0x[0-9a-fA-F]+|[bB]'[01]*'|0b[01]+",
+                    LiteralSegment,
+                    type="numeric_literal",
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("AggregateLimitClauseGrammar", optional=True),
+    )
+
+
 class DropProcedureStatementSegment(BaseSegment):
     """A `DROP` statement that addresses stored procedures and functions.
 
@@ -3628,6 +3974,9 @@ class FlushStatementSegment(BaseSegment):
 class KillStatementSegment(BaseSegment):
     """A `KILL` statement, ending a connection or the statement it is running.
 
+    The id is any expression, as in the server's grammar
+    (`KILL kill_option expr`).
+
     As per https://dev.mysql.com/doc/refman/8.0/en/kill.html
     """
 
@@ -3635,7 +3984,7 @@ class KillStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "KILL",
         OneOf("CONNECTION", "QUERY", optional=True),
-        Ref("KillIdGrammar"),
+        Ref("ExpressionSegment"),
     )
 
 

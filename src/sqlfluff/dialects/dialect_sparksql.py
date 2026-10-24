@@ -307,6 +307,11 @@ sparksql_dialect.replace(
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
+    # SparkSQL has no CONNECT BY, so `PRIOR` is not an operator and must stay
+    # usable as an identifier (e.g. `prior.x`).
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(remove=[Ref.keyword("PRIOR")]),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
@@ -330,7 +335,6 @@ sparksql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
-        "KEYS",
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
@@ -481,6 +485,7 @@ sparksql_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
+        Ref("WildcardIdentifierSegment"),
     ),
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
@@ -1671,7 +1676,7 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         "DEFAULT",
-                        OneOf(Ref("LiteralGrammar"), Ref("FunctionSegment")),
+                        Ref("ExpressionSegment"),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1701,6 +1706,56 @@ class CreateFunctionStatementSegment(BaseSegment):
         "AS",
         Ref("QuotedLiteralSegment"),
         Ref("ResourceLocationGrammar", optional=True),
+    )
+
+
+class CreateSqlFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement with a SQL body.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-sql-function.html
+    """
+
+    type = "create_sql_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammarWithComments"),
+        Sequence(
+            "RETURNS",
+            OneOf(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Ref("DatatypeSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence("LANGUAGE", "SQL"),
+            Sequence(Ref.keyword("NOT", optional=True), "DETERMINISTIC"),
+            Ref("CommentClauseSegment"),
+            OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
+        ),
+        "RETURN",
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("SelectableGrammar"),
+        ),
     )
 
 
@@ -2338,7 +2393,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE` and `ROLLUP`.
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP` and `ALL`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
@@ -2348,6 +2403,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         "BY",
         Indent,
         OneOf(
+            "ALL",
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
@@ -2478,7 +2534,11 @@ class LateralViewClauseSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Sequence(
                     Ref.keyword("AS", optional=True),
-                    Delimited(Ref("SingleIdentifierGrammar")),
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                        # Don't mistake a following `LATERAL VIEW` for aliases.
+                        terminators=[Sequence("LATERAL", "VIEW")],
+                    ),
                     optional=True,
                 ),
             ),
@@ -3041,6 +3101,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("CreateSqlFunctionStatementSegment"),
             Ref("CreateTableStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
@@ -3176,7 +3237,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
-                "KEYS",
                 "FROM",
             ),
         ),
