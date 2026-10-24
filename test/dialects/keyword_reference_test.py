@@ -1613,7 +1613,8 @@ def _verdict(
             if named
             else "Not required to pass this audit yet"
         )
-        lines.append(f"{label}: {'; '.join(others)}.")
+        lines.append(f"{label}:")
+        lines.extend(f"  {other}" for other in others)
     return lines, bool(failing)
 
 
@@ -1632,7 +1633,11 @@ def _audit_report_of(
     findings = {name: _audit_findings(name, d) for name, d in dialects.items()}
     never = _never_used_finding(dialects)
     verdict_lines, failed = _verdict(findings, set(named))
-    verdict = [wrapped for line in verdict_lines for wrapped in _paragraph(line, "")]
+    verdict = [
+        wrapped
+        for line in verdict_lines
+        for wrapped in textwrap.wrap(line, REPORT_WIDTH, subsequent_indent="  ")
+    ]
     lines = list(verdict)
     lines.append("")
     lines.extend(_heading("Keyword audit", "="))
@@ -1738,13 +1743,12 @@ def _audit_report_of(
     for hidden_level in LEVELS:
         items = hidden.get(hidden_level)
         if items:
-            lines.extend(
-                _paragraph(
-                    f"{hidden_level.capitalize()}s not shown ({len(items)}): "
-                    f"{'; '.join(items)}. Show them with --level {hidden_level}.",
-                    "",
-                )
+            lines.append(
+                f"{hidden_level.capitalize()}s not shown ({len(items)}). Show them "
+                f"with --level {hidden_level}:"
             )
+            for item in items:
+                lines.extend(_paragraph(item, "  "))
     lines.append("")
     lines.append("")
     lines.extend(verdict)
@@ -1855,7 +1859,7 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
     assert report.startswith(
         "*** FAIL *** 3 of 3 dialects required to pass this audit have errors"
     )
-    assert "\nNot required to pass this audit yet: zzunchecked " in report
+    assert "\nNot required to pass this audit yet:\n  zzunchecked " in report
 
     assert "== zzauditedbroken (required to pass) ==" in report
     assert "In the zzauditedbroken dialect, these words have two statuses" in flat
@@ -1902,8 +1906,9 @@ def test_audit_report_lists_unused_keywords_as_notices() -> None:
     assert "== Keywords no grammar in these dialects uses (" in shown
     assert "These do no harm" in _flat(shown)
     assert "Keywords no grammar uses (" not in hidden
-    assert re.search(r"Notices not shown \(\d+\): ", _flat(hidden))
-    assert "Show them with --level notice." in _flat(hidden)
+    assert re.search(
+        r"\nNotices not shown \(\d+\)\. Show them with --level notice:\n  \d", hidden
+    )
 
 
 def test_unused_findings_are_absent_when_everything_is_used() -> None:
@@ -1925,7 +1930,7 @@ def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     assert "[warning]" not in report
     assert "The audit would also fail on" in flat
     assert "Warnings not shown (" in flat
-    assert "Show them with --level warning." in flat
+    assert "Show them with --level warning:" in flat
     assert "Notices not shown (" in flat
 
 
@@ -1944,7 +1949,7 @@ def test_audit_verdict_judges_what_was_asked() -> None:
     assert "tsql isn't required to pass this audit yet" in named_tsql.text
     assert not everything.failed
     assert everything.text.startswith("*** PASS *** mysql has no errors or warnings.")
-    assert "Not required to pass this audit yet: tsql " in everything.text
+    assert "Not required to pass this audit yet:\n  tsql " in everything.text
     assert nothing.text.startswith("*** NO VERDICT ***")
 
 
@@ -1956,7 +1961,7 @@ def test_audit_verdict_counts_several_named_dialects() -> None:
 
     assert passing.text.startswith("*** PASS *** the 2 named dialects have no")
     assert mixed.text.startswith("*** FAIL *** 1 of 2 named dialects has errors")
-    assert "Also shown, not part of the verdict: tsql " in with_children.text
+    assert "Also shown, not part of the verdict:\n  tsql " in with_children.text
 
 
 def test_parse_args_reads_names_and_level() -> None:
