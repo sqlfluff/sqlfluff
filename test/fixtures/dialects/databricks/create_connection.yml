@@ -1,0 +1,184 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 93db2d76bb172dc4e253953b2e4de48d3a219bf85f900dfb8122001101518ea5
+file:
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: host
+      - quoted_literal: "'h'"
+      - comma: ','
+      - object_reference:
+          naked_identifier: port
+      - quoted_literal: "'5432'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: host
+        quoted_literal: "'h'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: host
+        quoted_literal: "'h'"
+        end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'x'"
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+        - naked_identifier: a
+        - dot: .
+        - naked_identifier: b
+        quoted_literal: "'h'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          quoted_identifier: "'host'"
+        quoted_literal: "'h'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: user
+      - function:
+          function_name:
+            function_name_identifier: secret
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'secrets.r.us'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'u'"
+            - end_bracket: )
+      - comma: ','
+      - object_reference:
+          naked_identifier: password
+      - function:
+          function_name:
+            function_name_identifier: secret
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'secrets.r.us'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'p'"
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: HTTP
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: host
+      - quoted_literal: "'https://slack.com'"
+      - comma: ','
+      - object_reference:
+          naked_identifier: bearer_token
+      - function:
+          function_name:
+            function_name_identifier: secret
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'secrets.r.us'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'t'"
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'slack'"
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - naked_identifier: c
+    - keyword: TYPE
+    - naked_identifier: POSTGRESQL
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: host
+        quoted_literal: "'h'"
+        end_bracket: )
+- statement_terminator: ;

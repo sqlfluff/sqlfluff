@@ -1,0 +1,113 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 918d01da5ec0994d6337fc258c57ecf3325a98a6da3b0568b179df9f5918b7da
+file:
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - naked_identifier: other_org
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: other_org
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - naked_identifier: r
+    - keyword: USING
+    - keyword: ID
+    - quoted_literal: "'azure:westus:abc'"
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - naked_identifier: r
+    - keyword: COMMENT
+    - quoted_literal: "'x'"
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - naked_identifier: r
+    - keyword: PROPERTIES
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: k
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - naked_identifier: r
+    - keyword: PROPERTIES
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: k
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - naked_identifier: r
+    - keyword: PROPERTIES
+    - bracketed:
+        start_bracket: (
+        object_reference:
+        - naked_identifier: a
+        - dot: .
+        - naked_identifier: b
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_recipient_statement:
+    - keyword: CREATE
+    - keyword: RECIPIENT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: r
+    - keyword: USING
+    - keyword: ID
+    - quoted_literal: "'x'"
+    - keyword: COMMENT
+    - quoted_literal: "'c'"
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: k
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'v'"
+      - comma: ','
+      - object_reference:
+        - naked_identifier: a
+        - dot: .
+        - naked_identifier: b
+      - quoted_literal: "'w'"
+      - end_bracket: )
+- statement_terminator: ;

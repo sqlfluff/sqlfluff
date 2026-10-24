@@ -369,6 +369,21 @@ databricks_dialect.add(
             optional=True,
         ),
     ),
+    # Clauses shared across the Unity Catalog DDL statements: CREATE CATALOG,
+    # CREATE SCHEMA and ALTER TABLE all take a default collation, and the
+    # catalog/schema statements take a dropped-file retention window.
+    DefaultCollationClauseGrammar=Sequence(
+        "DEFAULT",
+        "COLLATION",
+        Ref("SingleIdentifierGrammar"),
+    ),
+    RetainDroppedClauseGrammar=Sequence(
+        "RETAIN",
+        "DROPPED",
+        "FOR",
+        Ref("NumericLiteralSegment"),
+        OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
+    ),
     NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
     MagicSingleLineGrammar=TypedParser(
         "magic_single_line", CodeSegment, type="magic_single_line"
@@ -405,16 +420,71 @@ databricks_dialect.replace(
     # optional keyword: STREAMING is itself optional, so an independent
     # PRIVATE would also accept `CREATE PRIVATE TABLE`, which is not valid.
     # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
-    TableDefinitionSegment=sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
-        insert=[
-            OneOf(
-                Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
-                Ref.keyword("STREAMING"),
-                optional=True,
-            )
-        ],
-        before=Ref.keyword("STREAMING", optional=True),
-        remove=[Ref.keyword("STREAMING", optional=True)],
+    # Mirrors the SparkSQL TableDefinitionSegment, with PRIVATE / STREAMING
+    # support and two table clauses Databricks adds: a credential-aware
+    # LOCATION and DEFAULT COLLATION.
+    TableDefinitionSegment=Sequence(
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("EXTERNAL", optional=True),
+        OneOf(
+            Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+            Ref.keyword("STREAMING"),
+            optional=True,
+        ),
+        Ref.keyword("LIVE", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            # Columns and comment syntax:
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnFieldDefinitionSegment"),
+                            Ref("TableConstraintSegment", optional=True),
+                        ),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                    Ref("ConstraintStatementSegment", optional=True),
+                ),
+            ),
+            # Like Syntax
+            Sequence(
+                "LIKE",
+                OneOf(
+                    Ref("FileReferenceSegment"),
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("UsingClauseSegment", optional=True),
+        AnySetOf(
+            Ref("RowFormatClauseSegment"),
+            Ref("StoredAsGrammar"),
+            Ref("CommentGrammar"),
+            Ref("OptionsGrammar"),
+            Ref("PartitionSpecGrammar"),
+            Ref("BucketSpecGrammar"),
+            Ref("LocationGrammar"),
+            Ref("LocationWithCredentialGrammar"),
+            Ref("DefaultCollationClauseGrammar"),
+            Ref("CommentGrammar"),
+            Ref("TablePropertiesGrammar"),
+            Ref("TableClusterByClauseSegment"),
+            optional=True,
+        ),
+        # Create AS syntax:
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            optional=True,
+        ),
     ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
     DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
@@ -810,24 +880,85 @@ class AlterCatalogStatementSegment(BaseSegment):
 class CreateCatalogStatementSegment(BaseSegment):
     """A `CREATE CATALOG` statement.
 
-    https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-create-catalog.html
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-catalog
     """
 
     type = "create_catalog_statement"
+
+    # OPTIONS ( { option_name = option_value } [ , ... ] ). At least one
+    # option is required, and each needs both its name and a value.
+    _catalog_options = Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            )
+        ),
+    )
+
+    # The reference brackets each clause and follows the list with `[...]`,
+    # so clauses may repeat and appear in any order.
+    _catalog_clause = OneOf(
+        # USING SHARE provider_name . share_name. The dot is part of the
+        # production: a lone name is not a share.
+        Sequence(
+            "USING",
+            "SHARE",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("DotSegment"),
+                min_delimiters=1,
+            ),
+        ),
+        Sequence(
+            "MANAGED",
+            "LOCATION",
+            Ref("QuotedLiteralSegment"),
+        ),
+        # RETAIN DROPPED FOR number { HOUR | HOURS | DAY | DAYS | WEEK | WEEKS }
+        Sequence(
+            "RETAIN",
+            "DROPPED",
+            "FOR",
+            Ref("NumericLiteralSegment"),
+            OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
+        ),
+        Ref("CommentGrammar"),
+        Sequence(
+            "DEFAULT",
+            "COLLATION",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        _catalog_options,
+    )
+
     match_grammar = Sequence(
         "CREATE",
-        "CATALOG",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("CatalogReferenceSegment"),
-        # The reference gives these as a bracketed alternation followed by
-        # `[...]`, so they may appear in either order.
-        AnySetOf(
+        OneOf(
+            # The plain catalog: a name and any number of the clauses above.
             Sequence(
-                "MANAGED",
-                "LOCATION",
-                Ref("QuotedLiteralSegment"),
+                "CATALOG",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("CatalogReferenceSegment"),
+                AnyNumberOf(_catalog_clause),
             ),
-            Ref("CommentGrammar"),
+            # The foreign catalog: USING CONNECTION and OPTIONS are both
+            # required; only COMMENT is optional between them.
+            Sequence(
+                "FOREIGN",
+                "CATALOG",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("CatalogReferenceSegment"),
+                "USING",
+                "CONNECTION",
+                Ref("ObjectReferenceSegment"),
+                Ref("CommentGrammar", optional=True),
+                _catalog_options,
+            ),
         ),
     )
 
@@ -990,19 +1121,26 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-schema.html
     """
 
-    match_grammar = sparksql.CreateDatabaseStatementSegment.match_grammar.copy(
-        insert=[
+    # The reference brackets each clause and follows the list with `[...]`, so
+    # the clauses may repeat and appear in any order. `LOCATION` and `MANAGED
+    # LOCATION` are one alternative; DEFAULT COLLATION and RETAIN DROPPED are
+    # shared with the other Unity Catalog DDL statements.
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        AnyNumberOf(
+            Ref("CommentGrammar"),
+            Ref("DefaultCollationClauseGrammar"),
             Sequence(
                 Ref.keyword("MANAGED", optional=True),
                 "LOCATION",
                 Ref("QuotedLiteralSegment"),
-                optional=True,
             ),
-        ],
-        at=5,
-        remove=[
-            Ref("LocationGrammar", optional=True),
-        ],
+            Ref("RetainDroppedClauseGrammar"),
+            Sequence("WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar")),
+        ),
     )
 
 
@@ -1835,6 +1973,244 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     )
 
 
+class CreateConnectionStatementSegment(BaseSegment):
+    """A `CREATE CONNECTION` (or `CREATE SERVER`) statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-connection
+    """
+
+    type = "create_connection_statement"
+
+    # OPTIONS ( { option_key option_value } [, ...] ). An option key may be a
+    # dotted identifier or a string literal, and a value is a literal or a
+    # `secret(scope, key)` reference.
+    _options = Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("FunctionSegment")),
+            )
+        )
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        # SERVER is the standards-compliance synonym.
+        OneOf("CONNECTION", "SERVER"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        "TYPE",
+        Ref("SingleIdentifierGrammar"),
+        "OPTIONS",
+        _options,
+        Ref("CommentGrammar", optional=True),
+    )
+
+
+class CreateExternalLocationStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL LOCATION` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-location
+    """
+
+    type = "create_external_location_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "LOCATION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        "URL",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                "STORAGE",
+                "CREDENTIAL",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        Ref("CommentGrammar", optional=True),
+    )
+
+
+class CreateShareStatementSegment(BaseSegment):
+    """A `CREATE SHARE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-share
+    """
+
+    type = "create_share_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SHARE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("CommentGrammar", optional=True),
+    )
+
+
+class CreateRecipientStatementSegment(BaseSegment):
+    """A `CREATE RECIPIENT` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-recipient
+    """
+
+    type = "create_recipient_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "RECIPIENT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Sequence("USING", "ID", Ref("QuotedLiteralSegment"), optional=True),
+        Ref("CommentGrammar", optional=True),
+        Sequence(
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        # A property key may be dotted; the equals sign is
+                        # optional, per the reference.
+                        Ref("ObjectReferenceSegment"),
+                        Ref("EqualsSegment", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DropTableStatementSegment(ansi.DropTableStatementSegment):
+    """A `DROP TABLE` statement, extended with Databricks `FORCE`.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-table
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class DropConnectionStatementSegment(BaseSegment):
+    """A `DROP CONNECTION` statement."""
+
+    type = "drop_connection_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropCredentialStatementSegment(BaseSegment):
+    """A `DROP [STORAGE | SERVICE] CREDENTIAL` statement."""
+
+    type = "drop_credential_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            Sequence("STORAGE", "CREDENTIAL"),
+            Sequence("SERVICE", "CREDENTIAL"),
+            "CREDENTIAL",
+        ),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class DropExternalLocationStatementSegment(BaseSegment):
+    """A `DROP EXTERNAL LOCATION` statement."""
+
+    type = "drop_external_location_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "LOCATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropPolicyStatementSegment(BaseSegment):
+    """A `DROP POLICY` statement."""
+
+    type = "drop_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf(
+            "METASTORE",
+            Sequence("CATALOG", Ref("CatalogReferenceSegment")),
+            Sequence("SCHEMA", Ref("DatabaseReferenceSegment")),
+            Sequence("TABLE", Ref("TableReferenceSegment")),
+        ),
+    )
+
+
+class DropProviderStatementSegment(BaseSegment):
+    """A `DROP PROVIDER` statement."""
+
+    type = "drop_provider_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROVIDER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropRecipientStatementSegment(BaseSegment):
+    """A `DROP RECIPIENT` statement."""
+
+    type = "drop_recipient_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "RECIPIENT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropShareStatementSegment(BaseSegment):
+    """A `DROP SHARE` statement."""
+
+    type = "drop_share_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "SHARE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropVariableStatementSegment(BaseSegment):
+    """A `DROP TEMPORARY VARIABLE` statement."""
+
+    type = "drop_variable_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TEMPORARY",
+        "VARIABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("VariableNameIdentifierSegment"),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1846,7 +2222,19 @@ class StatementSegment(sparksql.StatementSegment):
             # Unity Catalog
             Ref("AlterCatalogStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
+            Ref("CreateConnectionStatementSegment"),
+            Ref("CreateExternalLocationStatementSegment"),
+            Ref("CreateShareStatementSegment"),
+            Ref("CreateRecipientStatementSegment"),
             Ref("DropCatalogStatementSegment"),
+            Ref("DropConnectionStatementSegment"),
+            Ref("DropCredentialStatementSegment"),
+            Ref("DropExternalLocationStatementSegment"),
+            Ref("DropPolicyStatementSegment"),
+            Ref("DropProviderStatementSegment"),
+            Ref("DropRecipientStatementSegment"),
+            Ref("DropShareStatementSegment"),
+            Ref("DropVariableStatementSegment"),
             Ref("UseCatalogStatementSegment"),
             Ref("AlterVolumeStatementSegment"),
             Ref("CreateVolumeStatementSegment"),
@@ -1901,7 +2289,12 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
         AnyNumberOf(
             Sequence(
                 "LANGUAGE",
-                OneOf(Ref.keyword("SQL"), Ref.keyword("PYTHON")),
+                OneOf(
+                    Ref.keyword("SQL"),
+                    Ref.keyword("PYTHON"),
+                    Ref.keyword("SCALA"),
+                    Ref.keyword("JAVA"),
+                ),
                 optional=True,
             ),
             Sequence(
@@ -1911,6 +2304,25 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
             Ref("CommentClauseSegment", optional=True),
             Sequence(
                 OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
+                optional=True,
+            ),
+            Sequence(
+                "DEFAULT",
+                "COLLATION",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "ENVIRONMENT",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        )
+                    )
+                ),
                 optional=True,
             ),
             Sequence(
@@ -1938,6 +2350,8 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                             Ref("WithCompoundStatementSegment"),
                         ),
                     ),
+                    # The handler class of a SCALA or JAVA function.
+                    Sequence("HANDLER", Ref("QuotedLiteralSegment")),
                 )
             ),
         )
