@@ -652,6 +652,96 @@ def test__templater_jinja_dynamic_variable_no_violations():
     assert len(vs) == 0
 
 
+@pytest.mark.parametrize(
+    "instr,expected",
+    [
+        (
+            '{% set columns = fromjson(\'["a", "b"]\') %}'
+            "SELECT {{ columns | join(', ') }} FROM my_table",
+            "SELECT a, b FROM my_table",
+        ),
+        (
+            "SELECT {{ fromjson('invalid', default=[1]) | join(', ') }}",
+            "SELECT 1",
+        ),
+        (
+            "SELECT '{{ tojson({'b': 2, 'a': 1}, sort_keys=True) }}'",
+            'SELECT \'{"a": 1, "b": 2}\'',
+        ),
+        (
+            "SELECT {{ fromjson(tojson([1, 2])) | join(', ') }}",
+            "SELECT 1, 2",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_json(instr, expected):
+    """JSON helpers render SQL through the Jinja templater."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    outstr, violations = JinjaTemplater().process(
+        in_str=instr, fname="test.sql", config=config
+    )
+    assert str(outstr) == expected
+    assert not violations
+
+
+@pytest.mark.parametrize("apply_dbt_builtins", [True, False])
+def test__templater_jinja_dbt_json_enabled(apply_dbt_builtins):
+    """JSON helpers respect the existing builtin configuration switch."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": apply_dbt_builtins}},
+        }
+    )
+    _, context, _ = JinjaTemplater().construct_render_func(config=config)
+    assert ("fromjson" in context) is apply_dbt_builtins
+    assert ("tojson" in context) is apply_dbt_builtins
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson"])
+def test__templater_jinja_dbt_json_override(name):
+    """Configured macros take precedence over JSON builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "jinja": {
+                    "apply_dbt_builtins": True,
+                    "macros": {
+                        "custom_json": f"{{% macro {name}(value) %}}42{{% endmacro %}}"
+                    },
+                }
+            },
+        }
+    )
+    outstr, violations = JinjaTemplater().process(
+        in_str=f"SELECT {{{{ {name}('input') }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson"])
+@pytest.mark.parametrize(
+    "override,call",
+    [(42, ""), (lambda value: 42, "('input')")],
+    ids=["value", "callable"],
+)
+def test__templater_jinja_dbt_json_context_override(name, override, call):
+    """Context values and callables take precedence over JSON builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": True}},
+        }
+    )
+    outstr, violations = JinjaTemplater(override_context={name: override}).process(
+        in_str=f"SELECT {{{{ {name}{call} }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
 def test__templater_jinja_dbt_builtin_function():
     """Test that dbt's `function()` builtin mock is available in Jinja templater."""
     config = FluffConfig.from_string(
@@ -671,6 +761,81 @@ def test__templater_jinja_dbt_builtin_function():
         == "SELECT my_dataset_my_udf(some_column, other_column) AS result\nFROM my_model\n"
     )
     assert len(vs) == 0
+
+
+@pytest.mark.parametrize(
+    "tag,macro_name,languages",
+    [
+        # Without supported_languages, dbt defaults it to ['sql'].
+        (
+            "{% materialization my_mat, default %}",
+            "materialization_my_mat_default",
+            "sql",
+        ),
+        (
+            "{% materialization my_mat, adapter='snowflake' %}",
+            "materialization_my_mat_snowflake",
+            "sql",
+        ),
+        (
+            "{% materialization my_mat, adapter = 'bigquery',"
+            " supported_languages=['sql', 'python'] %}",
+            "materialization_my_mat_bigquery",
+            "sql,python",
+        ),
+        (
+            "{% materialization my_mat, supported_languages=['python'], default %}",
+            "materialization_my_mat_default",
+            "python",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_materialization(tag, macro_name, languages):
+    """Test that dbt's `materialization` block is defined like dbt does it."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    body = (
+        "{% if supported_languages is defined %}"
+        "{{ supported_languages | join(',') }}"
+        "{% endif %}"
+    )
+    instr = f"{tag}{body}{{% endmaterialization %}}\nSELECT 1\n"
+    outstr, vs = JinjaTemplater().process(in_str=instr, fname="test.sql", config=config)
+    # The block only defines a macro, so it renders to nothing.
+    assert str(outstr) == "\nSELECT 1\n"
+    assert len(vs) == 0
+    # The macro gets the name and the supported_languages default dbt gives it.
+    env = JinjaTemplater()._get_jinja_env(config)
+    module = env.from_string(instr).module
+    assert str(getattr(module, macro_name)()) == languages
+
+
+@pytest.mark.parametrize(
+    "instr,error",
+    [
+        (
+            "{% materialization my_mat, foo='bar' %}{% endmaterialization %}",
+            "Unexpected argument 'foo' for materialization 'my_mat'.",
+        ),
+        (
+            "{% materialization my_mat, adapter=foo %}{% endmaterialization %}",
+            "The adapter of a materialization must be a literal.",
+        ),
+        (
+            "{% materialization my_mat, default %}SELECT 1",
+            "Unexpected end of template",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_materialization_invalid(instr, error):
+    """Test that invalid `materialization` arguments are reported."""
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        JinjaTemplater().process(
+            in_str=instr,
+            fname="test.sql",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    assert excinfo.value.rule_code() == "TMP"
+    assert error in str(excinfo.value)
 
 
 @pytest.mark.parametrize("macro_source", ["path", "config", "inline"])
@@ -1126,6 +1291,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_c_dbt/dbt_builtins_this_callable", True, False),
         ("jinja_c_dbt/dbt_builtins_var_default", True, False),
         ("jinja_c_dbt/dbt_builtins_test", True, False),
+        ("jinja_c_dbt/dbt_builtins_materialization", True, False),
         ("jinja_c_dbt/dbt_builtins_zip", True, False),
         ("jinja_c_dbt/dbt_builtins_zip_strict", True, False),
         ("jinja_c_dbt/dbt_builtins_return", True, False),
