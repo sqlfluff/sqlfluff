@@ -2016,6 +2016,20 @@ class ListStatementSegment(BaseSegment):
     )
 
 
+class ReplaceOnConditionSegment(BaseSegment):
+    """The comparison of a `REPLACE ON` ahead of a parenthesised query.
+
+    Typed as an expression so the tree matches the general `REPLACE ON` form.
+    """
+
+    type = "expression"
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"),
+        Ref("ComparisonOperatorGrammar"),
+        Ref("ColumnReferenceSegment"),
+    )
+
+
 class InsertStatementSegment(sparksql.InsertStatementSegment):
     """An `INSERT` statement.
 
@@ -2059,9 +2073,7 @@ class InsertStatementSegment(sparksql.InsertStatementSegment):
                 Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
                 "REPLACE",
                 "ON",
-                Ref("ColumnReferenceSegment"),
-                Ref("ComparisonOperatorGrammar"),
-                Ref("ColumnReferenceSegment"),
+                Ref("ReplaceOnConditionSegment"),
                 Bracketed(Ref("SelectableGrammar")),
                 Ref("AliasExpressionSegment", optional=True),
             ),
