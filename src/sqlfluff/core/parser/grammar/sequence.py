@@ -356,9 +356,12 @@ class Sequence(BaseGrammar):
                             # sequence.
                             matched_slice=slice(_idx, _stop_idx),
                             matched_class=UnparsableSegment,
-                            # TODO: We should come up with a better "expected" string
-                            # than this
-                            segment_kwargs={"expected": "Nothing here."},
+                            # Every required element matched, so name the
+                            # first unexpected token rather than just saying
+                            # "Nothing here.".
+                            segment_kwargs={
+                                "expected": f"Nothing here. Found {segments[_idx]}"
+                            },
                         ),
                     )
                     # Match up to the end.
