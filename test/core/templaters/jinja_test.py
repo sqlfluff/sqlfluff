@@ -721,6 +721,27 @@ def test__templater_jinja_dbt_json_override(name):
     assert not violations
 
 
+@pytest.mark.parametrize("name", ["fromjson", "tojson"])
+@pytest.mark.parametrize(
+    "override,call",
+    [(42, ""), (lambda value: 42, "('input')")],
+    ids=["value", "callable"],
+)
+def test__templater_jinja_dbt_json_context_override(name, override, call):
+    """Context values and callables take precedence over JSON builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": True}},
+        }
+    )
+    outstr, violations = JinjaTemplater(override_context={name: override}).process(
+        in_str=f"SELECT {{{{ {name}{call} }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
 def test__templater_jinja_dbt_builtin_function():
     """Test that dbt's `function()` builtin mock is available in Jinja templater."""
     config = FluffConfig.from_string(
