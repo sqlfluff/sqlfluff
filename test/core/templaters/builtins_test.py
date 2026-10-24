@@ -21,6 +21,78 @@ def test_function_emulator():
         str(wrapped)
 
 
+@pytest.mark.parametrize(
+    "string,expected",
+    [
+        ('{"columns": ["a", "b"]}', {"columns": ["a", "b"]}),
+        ('[1, true, null, "café"]', [1, True, None, "café"]),
+        ('"hello"', "hello"),
+        ("42", 42),
+        ("1.5", 1.5),
+        ("false", False),
+        ("null", None),
+    ],
+)
+def test_dbt_fromjson(string, expected):
+    """Deserialize JSON objects, arrays and scalars."""
+    assert DBT_BUILTINS["fromjson"](string=string) == expected
+
+
+@pytest.mark.parametrize("string", ["", "not json", '{"a":}'])
+def test_dbt_fromjson_default(string):
+    """Invalid JSON returns the default without changing its type."""
+    default = {"columns": ["fallback"]}
+    assert DBT_BUILTINS["fromjson"](string) is None
+    assert DBT_BUILTINS["fromjson"](string, default=default) is default
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ({"columns": ["a", "b"]}, '{"columns": ["a", "b"]}'),
+        ([1, True, None], "[1, true, null]"),
+        ("hello", '"hello"'),
+        (42, "42"),
+        (1.5, "1.5"),
+        (False, "false"),
+        (None, "null"),
+    ],
+)
+def test_dbt_tojson(value, expected):
+    """Serialize Python primitives using JSON syntax."""
+    assert DBT_BUILTINS["tojson"](value=value) == expected
+
+
+def test_dbt_tojson_sort_keys():
+    """Keep insertion order unless sorting is requested."""
+    value = {"b": 2, "a": 1}
+    assert DBT_BUILTINS["tojson"](value) == '{"b": 2, "a": 1}'
+    assert DBT_BUILTINS["tojson"](value, sort_keys=True) == '{"a": 1, "b": 2}'
+
+
+def test_dbt_tojson_default():
+    """Circular data returns the default, matching dbt's ValueError handling."""
+    value = []
+    value.append(value)
+    default = {"fallback": True}
+    assert DBT_BUILTINS["tojson"](value) is None
+    assert DBT_BUILTINS["tojson"](value, default=default) is default
+
+
+@pytest.mark.parametrize("name,value", [("fromjson", None), ("tojson", object())])
+def test_dbt_json_invalid_type(name, value):
+    """Type errors propagate even when a default is supplied, as in dbt."""
+    with pytest.raises(TypeError):
+        DBT_BUILTINS[name](value, default="fallback")
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson"])
+def test_dbt_json_uncalled(name):
+    """Rendering a JSON helper without calling it gives a useful error."""
+    with pytest.raises(SQLTemplaterError, match=f"builtin callable '{name}'"):
+        str(DBT_BUILTINS[name])
+
+
 def test_var_emulator_magic_methods():
     """Test the placeholder methods defined on the mocked dbt `var()` result."""
     var = DBT_BUILTINS["var"]("foo")
