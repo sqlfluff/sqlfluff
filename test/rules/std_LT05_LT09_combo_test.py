@@ -61,6 +61,17 @@ def test__rules__std_LT05_LT09_long_single_target_converges():
     assert sqlfluff.fix(result, config=config) == expected
 
 
+def test__rules__std_LT05_LT09_target_with_terminator_exceeds_max_line_length():
+    """Verify LT09 accounts for trailing statement terminator when projecting line length."""
+    # SELECT (7 chars) + 73 chars = 80 chars. Semicolon ; makes it 81 chars (> 80).
+    col = "x" * 73
+    sql = f"SELECT\n    {col};\n"
+    config = FluffConfig(overrides={"dialect": "postgres", "rules": "LT05,LT09"})
+    result = sqlfluff.fix(sql, config=config)
+    assert result == sql
+    assert sqlfluff.fix(result, config=config) == sql
+
+
 @pytest.mark.parametrize(
     "exclude_rules,expected",
     [

@@ -337,12 +337,39 @@ class Rule_LT09(BaseRule):
                 >= select_targets_info.first_new_line_idx
             ):
                 prefix += f" {modifier[0].raw}"
+            trailing_len = 0
+            found_newline = False
+            for seg in select_children[target_idx + 1 :]:
+                if "\n" in seg.raw:
+                    trailing_len += len(seg.raw.split("\n", 1)[0])
+                    found_newline = True
+                    break
+                trailing_len += len(seg.raw)
+
+            if not found_newline and context.parent_stack:
+                child_seg = select_clause.get()
+                for parent in reversed(context.parent_stack):
+                    try:
+                        idx = parent.segments.index(child_seg)
+                    except ValueError:
+                        break
+                    for seg in parent.segments[idx + 1 :]:
+                        if "\n" in seg.raw:
+                            trailing_len += len(seg.raw.split("\n", 1)[0])
+                            found_newline = True
+                            break
+                        trailing_len += len(seg.raw)
+                    if found_newline:
+                        break
+                    child_seg = parent
+
             resulting_line_length = (
                 select_keyword.pos_marker.working_line_pos
                 - 1
                 + len(prefix)
                 + 1
                 + len(target_seg.raw)
+                + trailing_len
             )
             if resulting_line_length > context.config.get("max_line_length"):
                 return LintResult(anchor=select_clause.get())
