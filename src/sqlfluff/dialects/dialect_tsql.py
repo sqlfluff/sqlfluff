@@ -919,6 +919,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropProcedureStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
             Ref("DisableTriggerStatementSegment"),
+            Ref("EnableTriggerStatementSegment"),
             Ref("CreatePartitionFunctionSegment"),
             Ref("AlterPartitionSchemeSegment"),
             Ref("CreateMasterKeySegment"),
@@ -7821,6 +7822,29 @@ class DisableTriggerStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "DISABLE",
+        "TRIGGER",
+        OneOf(
+            Delimited(Ref("TriggerReferenceSegment")),
+            "ALL",
+        ),
+        Sequence(
+            "ON",
+            OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
+            optional=True,
+        ),
+    )
+
+
+class EnableTriggerStatementSegment(BaseSegment):
+    """Enable Trigger Statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/enable-trigger-transact-sql
+    """
+
+    type = "enable_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "ENABLE",
         "TRIGGER",
         OneOf(
             Delimited(Ref("TriggerReferenceSegment")),
