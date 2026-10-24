@@ -34,6 +34,7 @@ class RF01Query(Query):
     aliases: list[AliasInfo] = field(default_factory=list)
     standalone_aliases: list[BaseSegment] = field(default_factory=list)
     parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
+    is_dbt_bigquery: bool = False
 
 
 class Rule_RF01(BaseRule):
@@ -103,6 +104,10 @@ class Rule_RF01(BaseRule):
         # below context.segment in the parser tree.
         query: RF01Query = RF01Query.from_segment(context.segment, context.dialect)
         query.parent_stack = context.parent_stack
+        query.is_dbt_bigquery = (
+            context.dialect.name == "bigquery"
+            and context.config.get("templater") == "dbt"
+        )
         self._analyze_table_references(
             query, dml_target_table, context.dialect, violations
         )
@@ -168,6 +173,7 @@ class Rule_RF01(BaseRule):
 
         # Visit children.
         for child in query.children:
+            cast(RF01Query, child).is_dbt_bigquery = query.is_dbt_bigquery
             self._analyze_table_references(
                 cast(RF01Query, child), dml_target_table, dialect, violations
             )
@@ -332,6 +338,14 @@ class Rule_RF01(BaseRule):
                     return None
 
         targets += self._get_implicit_targets(query)
+        if query.is_dbt_bigquery:
+            # BigQuery scripting variables are case insensitive. normalize()
+            # unquotes identifiers but does not fold their case.
+            possible_references += [
+                ("_DBT_MAX_PARTITION",)
+                for reference in possible_references
+                if len(reference) == 1 and reference[0].upper() == "_DBT_MAX_PARTITION"
+            ]
 
         if supports_struct_access and not self.force_enable:
             # ROW/struct access starts with a visible table or alias, followed by a
@@ -367,6 +381,11 @@ class Rule_RF01(BaseRule):
         return None
 
     def _get_implicit_targets(self, query: RF01Query) -> list[tuple[str, ...]]:
+        # dbt supplies this scripting variable for BigQuery incremental models.
+        # It is not an implicit target in other templaters or dialects.
+        if query.is_dbt_bigquery:
+            return [("_dbt_max_partition",), ("_DBT_MAX_PARTITION",)]
+
         if query.dialect.name == "sqlite":
             maybe_create_trigger: Optional[BaseSegment] = next(
                 (
