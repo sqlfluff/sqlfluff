@@ -33,6 +33,7 @@ dialects as arguments to report on just those and the dialects that inherit
 from them, as the parser's "not found in the ... dialect" errors suggest.
 """
 
+import functools
 import inspect
 import signal
 import sys
@@ -1288,7 +1289,11 @@ def test_with_descendants_adds_children_at_any_depth() -> None:
     assert set(_with_descendants(["ansi"])) == set(ALL_DIALECTS)
 
 
-def _audit_report(dialect_names: list[str], level: str = "warning") -> "AuditReport":
+def _audit_report(
+    dialect_names: list[str],
+    level: str = "warning",
+    named: frozenset[str] = frozenset(),
+) -> "AuditReport":
     """What the checks in this file find in each of these dialects.
 
     For an audited dialect, errors and warnings are the failures pytest would
@@ -1296,8 +1301,18 @@ def _audit_report(dialect_names: list[str], level: str = "warning") -> "AuditRep
     auditing it.
     """
     return _audit_report_of(
-        {name: dialect_selector(name) for name in dialect_names}, level
+        {name: _report_dialect(name) for name in dialect_names}, level, named
     )
+
+
+@functools.lru_cache(maxsize=None)
+def _report_dialect(name: str) -> Dialect:
+    """A real dialect for the report, expanded once and shared.
+
+    Expanding a dialect makes a new object, so without this every report would
+    walk every dialect again. The report never changes a dialect it reads.
+    """
+    return dialect_selector(name)
 
 
 def _switched_off(dialect: Dialect) -> dict[str, set[Owner]]:
@@ -1531,57 +1546,91 @@ class AuditReport(NamedTuple):
     failed: bool
 
 
-def _verdict(findings: dict[str, list[Finding]]) -> tuple[list[str], bool]:
+def _problem_counts(found: list[Finding]) -> str:
+    """'5 errors, 39 warnings', leaving out notices and zero counts."""
+    counts = _level_counts(found)
+    return ", ".join(
+        _plural(counts[lvl], lvl) for lvl in ("error", "warning") if counts[lvl]
+    )
+
+
+def _verdict(
+    findings: dict[str, list[Finding]], named: set[str]
+) -> tuple[list[str], bool]:
     """The pass or fail lines for the report, and whether it failed.
 
-    Only audited dialects decide: what an unaudited one shows is what auditing
-    it would bring, so it is counted on a line of its own.
+    Named dialects are what was asked about, so they decide, whether or not
+    they are required to pass this audit yet. With none named, the dialects
+    required to pass decide; the rest would fail it forever, so they are
+    counted on a line of their own.
     """
-    audited = [name for name in findings if name not in UNAUDITED_DIALECTS]
-    failing = [
-        name
-        for name in audited
-        if any(finding.level != "notice" for finding in findings[name])
-    ]
-    if not audited:
-        lines = ["NO AUDITED DIALECTS: nothing in this run decides pass or fail."]
-    elif failing:
-        lines = [
-            f"AUDIT FAILED: {len(failing)} of {len(audited)} audited dialects "
-            f"{'has' if len(failing) == 1 else 'have'} errors or warnings: "
-            f"{', '.join(failing)}."
-        ]
+
+    def has_problems(name: str) -> bool:
+        return any(finding.level != "notice" for finding in findings[name])
+
+    if named:
+        judged = [name for name in findings if name in named]
+        what = "named dialects"
     else:
-        lines = [
-            f"AUDIT PASSED: {_plural(len(audited), 'audited dialect')}, no errors "
-            "or warnings."
-        ]
-    unaudited = []
-    for name, found in findings.items():
-        if name not in UNAUDITED_DIALECTS:
-            continue
-        counts = _level_counts(found)
-        parts = [
-            _plural(counts[lvl], lvl) for lvl in ("error", "warning") if counts[lvl]
-        ]
-        if parts:
-            unaudited.append(f"{name} {', '.join(parts)}")
-    if unaudited:
-        lines.append(f"Unaudited, not part of the verdict: {'; '.join(unaudited)}.")
+        judged = [name for name in findings if name not in UNAUDITED_DIALECTS]
+        what = "dialects required to pass this audit"
+    failing = [name for name in judged if has_problems(name)]
+    if not judged:
+        lines = ["NOTHING TO JUDGE: no dialect in this run is required to pass."]
+    elif failing:
+        detail = ", ".join(
+            f"{name} ({_problem_counts(findings[name])})" for name in failing
+        )
+        if len(judged) == 1:
+            lines = [f"AUDIT FAILED: {detail}."]
+        else:
+            lines = [
+                f"AUDIT FAILED: {len(failing)} of {len(judged)} {what} "
+                f"{'has' if len(failing) == 1 else 'have'} errors or warnings: "
+                f"{detail}."
+            ]
+    elif len(judged) == 1:
+        lines = [f"AUDIT PASSED: {judged[0]} has no errors or warnings."]
+    else:
+        lines = [f"AUDIT PASSED: the {len(judged)} {what} have no errors or warnings."]
+    not_required = [name for name in judged if name in UNAUDITED_DIALECTS]
+    for name in not_required:
+        if has_problems(name):
+            lines.append(
+                f"{name} isn't required to pass this audit yet (it's in "
+                "UNAUDITED_DIALECTS), so its tests don't fail on these."
+            )
+    others = [
+        f"{name} {_problem_counts(findings[name])}"
+        for name in findings
+        if name not in judged and has_problems(name)
+    ]
+    if others:
+        label = (
+            "Also shown, not part of the verdict"
+            if named
+            else "Not required to pass this audit yet"
+        )
+        lines.append(f"{label}: {'; '.join(others)}.")
     return lines, bool(failing)
 
 
 def _audit_report_of(
-    dialects: dict[str, Dialect], level: str = "warning"
+    dialects: dict[str, Dialect],
+    level: str = "warning",
+    named: frozenset[str] = frozenset(),
 ) -> AuditReport:
     """The audit report for these dialects, by name, down to a level.
 
-    Findings below the level are counted in a footer, never silently dropped.
+    named are the dialects asked about, which decide the verdict; with none,
+    the dialects required to pass this audit decide. Findings below the level
+    are counted in a footer, never silently dropped.
     """
     shown_levels = LEVELS[: LEVELS.index(level) + 1]
     findings = {name: _audit_findings(name, d) for name, d in dialects.items()}
     never = _never_used_finding(dialects)
-    verdict, failed = _verdict(findings)
+    verdict_lines, failed = _verdict(findings, set(named))
+    verdict = [wrapped for line in verdict_lines for wrapped in _paragraph(line, "")]
     lines = list(verdict)
     lines.append("")
     lines.extend(_heading("Keyword audit", "="))
@@ -1589,26 +1638,27 @@ def _audit_report_of(
         _paragraph(
             "What the checks in test/dialects/keyword_reference_test.py find in "
             "each dialect. Errors crash the parser; warnings fail the audit "
-            "without crashing; notices are leads, not problems. For an audited "
-            "dialect, pytest fails on errors and warnings. For one in "
-            "UNAUDITED_DIALECTS, they are what auditing it would bring.",
+            "without crashing; notices are leads, not problems. For a dialect "
+            "required to pass this audit, its tests fail on errors and "
+            "warnings. For one in UNAUDITED_DIALECTS, they are what requiring it "
+            "would bring.",
             "",
         )
     )
     lines.append("")
     width = max(len(name) for name in dialects)
     for name, found in findings.items():
-        status = "unaudited" if name in UNAUDITED_DIALECTS else "audited"
+        status = "not yet" if name in UNAUDITED_DIALECTS else "required"
         counts = _level_counts(found)
         parts = [_plural(counts[lvl], lvl) for lvl in LEVELS if counts[lvl]]
         if not counts["error"] and not counts["warning"]:
             parts.insert(0, "nothing to fix")
         lines.extend(
             textwrap.wrap(
-                f"{name.ljust(width)}  {status:9}  {', '.join(parts)}",
+                f"{name.ljust(width)}  {status:8}  {', '.join(parts)}",
                 width=REPORT_WIDTH,
                 initial_indent="  ",
-                subsequent_indent=" " * (2 + width + 2 + 9 + 2),
+                subsequent_indent=" " * (2 + width + 2 + 8 + 2),
                 break_long_words=False,
             )
         )
@@ -1619,7 +1669,8 @@ def _audit_report_of(
         counts = _level_counts(found)
         lines.append("")
         lines.append("")
-        lines.extend(_heading(f"{name} ({'audited' if audited else 'unaudited'})", "="))
+        requirement = "required to pass" if audited else "not required to pass yet"
+        lines.extend(_heading(f"{name} ({requirement})", "="))
         if not counts["error"] and not counts["warning"]:
             lines.append("")
             if audited:
@@ -1629,8 +1680,8 @@ def _audit_report_of(
                     _paragraph(
                         f'{name} passes every check. Lock it in: remove "{name}" '
                         "from UNAUDITED_DIALECTS in "
-                        "test/dialects/keyword_reference_test.py. CI then audits "
-                        f"{name} on every change.",
+                        "test/dialects/keyword_reference_test.py. Its tests then "
+                        "require it to pass this audit.",
                         "  ",
                     )
                 )
@@ -1728,11 +1779,11 @@ def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     """Test that the report answers for any dialect it is given."""
     report = _audit_report(["mysql", "tsql"]).text
 
-    assert "== mysql (audited) ==" in report
+    assert "== mysql (required to pass) ==" in report
     assert "  Nothing to fix." in report
-    assert "== tsql (unaudited) ==" in report
+    assert "== tsql (not required to pass yet) ==" in report
     assert "* MARK (in TransactionStatementSegment" in report
-    assert "mysql  audited    nothing to fix, " in report
+    assert "mysql  required  nothing to fix, " in report
     assert "* MARK (in TransactionStatementSegment" in report
 
 
@@ -1756,6 +1807,7 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     flat = _flat(report)
 
     assert 'zzready passes every check. Lock it in: remove "zzready"' in flat
+    assert "Its tests then require it to pass this audit." in flat
     assert "Ready to audit: zzready." in flat
     assert "refers to segments or grammars that don't exist" in flat
     assert "two statuses that can't go together" in flat
@@ -1791,12 +1843,14 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
     flat = _flat(report)
 
     assert result.failed
-    assert report.startswith("AUDIT FAILED: 3 of 3 audited dialects have errors or")
-    assert "\nUnaudited, not part of the verdict: zzunchecked " in report
+    assert report.startswith(
+        "AUDIT FAILED: 3 of 3 dialects required to pass this audit have errors"
+    )
+    assert "\nNot required to pass this audit yet: zzunchecked " in report
 
-    assert "== zzauditedbroken (audited) ==" in report
+    assert "== zzauditedbroken (required to pass) ==" in report
     assert "In the zzauditedbroken dialect, these words have two statuses" in flat
-    assert "== zzown (audited) ==" in report
+    assert "== zzown (required to pass) ==" in report
     assert "* ZZOWNWORD (in _OwnGrammarSegment):" in report
     assert "zzclaimer's reserved list is marked exhaustive (source: zz)" in flat
     assert "nothing checks the claim: zzunchecked" in flat
@@ -1863,17 +1917,34 @@ def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     assert "Not shown, below --level error:" in flat
 
 
-def test_audit_verdict_passes_fails_and_ignores_unaudited() -> None:
-    """Test the verdict: only audited dialects decide it."""
-    passing = _audit_report(["mysql"])
-    unaudited_only = _audit_report(["tsql"])
+def test_audit_verdict_judges_what_was_asked() -> None:
+    """Test the verdict: named dialects decide; with none, the required ones."""
+    one = _audit_report(["mysql"], named=frozenset({"mysql"}))
+    named_tsql = _audit_report(["tsql"], named=frozenset({"tsql"}))
+    everything = _audit_report(["mysql", "tsql"])
+    nothing = _audit_report(["tsql"])
 
-    assert not passing.failed
-    assert passing.text.startswith("AUDIT PASSED: 1 audited dialect, no errors")
-    assert passing.text.rstrip().endswith("no errors or warnings.")
-    assert not unaudited_only.failed
-    assert unaudited_only.text.startswith("NO AUDITED DIALECTS")
-    assert "Unaudited, not part of the verdict: tsql " in unaudited_only.text
+    assert not one.failed
+    assert one.text.startswith("AUDIT PASSED: mysql has no errors or warnings.")
+    assert one.text.rstrip().endswith("AUDIT PASSED: mysql has no errors or warnings.")
+    assert named_tsql.failed
+    assert named_tsql.text.startswith("AUDIT FAILED: tsql (")
+    assert "tsql isn't required to pass this audit yet" in named_tsql.text
+    assert not everything.failed
+    assert everything.text.startswith("AUDIT PASSED: mysql has no errors or warnings.")
+    assert "Not required to pass this audit yet: tsql " in everything.text
+    assert nothing.text.startswith("NOTHING TO JUDGE")
+
+
+def test_audit_verdict_counts_several_named_dialects() -> None:
+    """Test the wording when several named dialects pass or one fails."""
+    passing = _audit_report(["mysql", "mariadb"], named=frozenset({"mysql", "mariadb"}))
+    mixed = _audit_report(["mysql", "tsql"], named=frozenset({"mysql", "tsql"}))
+    with_children = _audit_report(["mysql", "tsql"], named=frozenset({"mysql"}))
+
+    assert passing.text.startswith("AUDIT PASSED: the 2 named dialects have no")
+    assert mixed.text.startswith("AUDIT FAILED: 1 of 2 named dialects has errors")
+    assert "Also shown, not part of the verdict: tsql " in with_children.text
 
 
 def test_parse_args_reads_names_and_level() -> None:
@@ -1896,6 +1967,6 @@ if __name__ == "__main__":  # pragma: no cover
     # With dialect names as arguments, report on those and their descendants.
     names, level = _parse_args(sys.argv[1:])
     chosen = _with_descendants(names) if names else ALL_DIALECTS
-    report = _audit_report(chosen, level)
+    report = _audit_report(chosen, level, frozenset(names))
     print(report.text)
     sys.exit(1 if report.failed else 0)
