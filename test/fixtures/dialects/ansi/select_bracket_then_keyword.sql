@@ -9,3 +9,7 @@ SELECT (a)ORDER BY a;
 SELECT (a)LIMIT 1;
 
 SELECT count(DISTINCT sk)FROM t;
+
+SELECT a[1]FROM t;
+
+SELECT {'a': 1}FROM t;
