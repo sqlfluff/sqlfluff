@@ -1104,6 +1104,29 @@ class SridTypeArguments(BaseSegment):
     )
 
 
+def _datatype_with_arguments(type_name: Matchable, arguments: str) -> Matchable:
+    """A type name, optionally schema qualified, then its bracketed arguments.
+
+    The name and its qualifier allow no gaps, but whitespace may come before
+    the arguments (`DECIMAL (10, 2)`).
+    """
+    return Sequence(
+        Sequence(
+            # Some dialects allow optional qualification of data types with
+            # schemas
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+                allow_gaps=False,
+                optional=True,
+            ),
+            type_name,
+            allow_gaps=False,
+        ),
+        Ref(arguments, optional=True),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1155,46 +1178,20 @@ class DatatypeSegment(BaseSegment):
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
                     Ref("LengthTypeArguments", optional=True),
-                    allow_gaps=False,
                 ),
                 # Numeric types take a precision and an optional scale.
-                Sequence(
-                    _numeric_type_names,
-                    Ref("NumericTypeArguments", optional=True),
-                    allow_gaps=False,
-                ),
+                _datatype_with_arguments(_numeric_type_names, "NumericTypeArguments"),
                 # Fixed-length types take a single length.
-                Sequence(
-                    _length_type_names,
-                    Ref("LengthTypeArguments", optional=True),
-                    allow_gaps=False,
-                ),
+                _datatype_with_arguments(_length_type_names, "LengthTypeArguments"),
                 # Integer types take an optional display width (MySQL).
-                Sequence(
-                    _integer_type_names,
-                    Ref("LengthTypeArguments", optional=True),
-                    allow_gaps=False,
-                ),
+                _datatype_with_arguments(_integer_type_names, "LengthTypeArguments"),
                 # Geospatial types take a single SRID (or `ANY`).
-                Sequence(
-                    _srid_type_names,
-                    Ref("SridTypeArguments", optional=True),
-                    allow_gaps=False,
-                ),
+                _datatype_with_arguments(_srid_type_names, "SridTypeArguments"),
                 # Any other type, including dialect specific and user defined
                 # types. Their arguments are left unconstrained.
-                Sequence(
-                    # Some dialects allow optional qualification of data types with
-                    # schemas
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DotSegment"),
-                        allow_gaps=False,
-                        optional=True,
-                    ),
+                _datatype_with_arguments(
                     Ref("DatatypeIdentifierSegment", exclude=_restricted_types),
-                    Ref("BracketedArguments", optional=True),
-                    allow_gaps=False,
+                    "BracketedArguments",
                 ),
             ),
             AnyNumberOf(
