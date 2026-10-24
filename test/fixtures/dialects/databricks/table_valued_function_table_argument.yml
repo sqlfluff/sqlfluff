@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab5634cc4ec05f7d630b32c3f6e5db4535dd0dbb755e1a67039fa5b60f422e1a
+_hash: 8879ea39088148db95c72a4babfb0da5a4d51ff36258abb7239b559ada42adb3
 file:
 - statement:
     select_statement:
@@ -24,31 +24,27 @@ file:
                 function_contents:
                   bracketed:
                     start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: TABLE
-                        function_contents:
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
-                              select_statement:
-                                select_clause:
-                                  keyword: SELECT
-                                  select_clause_element:
-                                    column_reference:
-                                      naked_identifier: a
-                          - comma: ','
-                          - expression:
-                              column_reference:
-                                naked_identifier: b
-                          - expression:
-                              column_reference:
-                                naked_identifier: FROM
-                          - expression:
-                              column_reference:
-                                naked_identifier: t
-                          - end_bracket: )
+                    keyword: TABLE
+                    bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                            column_reference:
+                              naked_identifier: a
+                        - comma: ','
+                        - select_clause_element:
+                            column_reference:
+                              naked_identifier: b
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: t
+                      end_bracket: )
                     end_bracket: )
 - statement_terminator: ;
 - statement:

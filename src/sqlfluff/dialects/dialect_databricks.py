@@ -2228,8 +2228,13 @@ class FunctionNameSegment(BaseSegment):
             ),
             terminators=[Ref("BracketedSegment")],
         ),
-        # Base function name
-        Ref("FunctionNameIdentifierSegment", terminators=[Ref("BracketedSegment")]),
+        # Base function name. `TABLE(...)` is a table argument, not a function
+        # call, and Databricks' function names would otherwise accept it.
+        Ref(
+            "FunctionNameIdentifierSegment",
+            terminators=[Ref("BracketedSegment")],
+            exclude=Ref.keyword("TABLE"),
+        ),
         allow_gaps=False,
     )
 
