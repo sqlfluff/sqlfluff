@@ -31,3 +31,15 @@ CREATE MATERIALIZED VIEW NEW_VIEW AS( select PERSON_ID from PERSONS p);
 
 -- CREATE OR REPLACE MATERIALIZED VIEW
 CREATE OR REPLACE MATERIALIZED VIEW NEW_VIEW AS( select PERSON_ID from PERSONS p);
+
+-- Regression: an unparenthesised `/` in the SELECT body must still parse as
+-- the division operator; only a `/` on its own line acts as SQL*Plus's batch
+-- delimiter.
+CREATE VIEW NEW_VIEW AS
+SELECT 1 / 100 AS SIZE_RATIO FROM DUAL;
+
+CREATE VIEW NEW_VIEW AS
+SELECT * FROM T WHERE SAMPLE_TIME > SYSDATE - 1 / 24;
+
+CREATE VIEW NEW_VIEW AS
+SELECT NVL(BYTES, 0) / 1024 / 1024 AS SIZE_MB FROM T;
