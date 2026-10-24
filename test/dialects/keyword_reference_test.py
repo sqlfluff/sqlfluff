@@ -34,6 +34,7 @@ from them, as the parser's "not found in the ... dialect" errors suggest.
 """
 
 import inspect
+import signal
 import sys
 import textwrap
 from collections.abc import Iterator, Mapping
@@ -1287,7 +1288,7 @@ def test_with_descendants_adds_children_at_any_depth() -> None:
     assert set(_with_descendants(["ansi"])) == set(ALL_DIALECTS)
 
 
-def _audit_report(dialect_names: list[str], level: str = "warning") -> str:
+def _audit_report(dialect_names: list[str], level: str = "warning") -> "AuditReport":
     """What the checks in this file find in each of these dialects.
 
     For an audited dialect, errors and warnings are the failures pytest would
@@ -1523,7 +1524,56 @@ def _plural(count: int, word: str) -> str:
     return f"{count} {word}" if count == 1 else f"{count} {word}s"
 
 
-def _audit_report_of(dialects: dict[str, Dialect], level: str = "warning") -> str:
+class AuditReport(NamedTuple):
+    """The report's text, and whether an audited dialect failed."""
+
+    text: str
+    failed: bool
+
+
+def _verdict(findings: dict[str, list[Finding]]) -> tuple[list[str], bool]:
+    """The pass or fail lines for the report, and whether it failed.
+
+    Only audited dialects decide: what an unaudited one shows is what auditing
+    it would bring, so it is counted on a line of its own.
+    """
+    audited = [name for name in findings if name not in UNAUDITED_DIALECTS]
+    failing = [
+        name
+        for name in audited
+        if any(finding.level != "notice" for finding in findings[name])
+    ]
+    if not audited:
+        lines = ["NO AUDITED DIALECTS: nothing in this run decides pass or fail."]
+    elif failing:
+        lines = [
+            f"AUDIT FAILED: {len(failing)} of {len(audited)} audited dialects "
+            f"{'has' if len(failing) == 1 else 'have'} errors or warnings: "
+            f"{', '.join(failing)}."
+        ]
+    else:
+        lines = [
+            f"AUDIT PASSED: {_plural(len(audited), 'audited dialect')}, no errors "
+            "or warnings."
+        ]
+    unaudited = []
+    for name, found in findings.items():
+        if name not in UNAUDITED_DIALECTS:
+            continue
+        counts = _level_counts(found)
+        parts = [
+            _plural(counts[lvl], lvl) for lvl in ("error", "warning") if counts[lvl]
+        ]
+        if parts:
+            unaudited.append(f"{name} {', '.join(parts)}")
+    if unaudited:
+        lines.append(f"Unaudited, not part of the verdict: {'; '.join(unaudited)}.")
+    return lines, bool(failing)
+
+
+def _audit_report_of(
+    dialects: dict[str, Dialect], level: str = "warning"
+) -> AuditReport:
     """The audit report for these dialects, by name, down to a level.
 
     Findings below the level are counted in a footer, never silently dropped.
@@ -1531,7 +1581,10 @@ def _audit_report_of(dialects: dict[str, Dialect], level: str = "warning") -> st
     shown_levels = LEVELS[: LEVELS.index(level) + 1]
     findings = {name: _audit_findings(name, d) for name, d in dialects.items()}
     never = _never_used_finding(dialects)
-    lines = _heading("Keyword audit", "=")
+    verdict, failed = _verdict(findings)
+    lines = list(verdict)
+    lines.append("")
+    lines.extend(_heading("Keyword audit", "="))
     lines.extend(
         _paragraph(
             "What the checks in test/dialects/keyword_reference_test.py find in "
@@ -1632,7 +1685,10 @@ def _audit_report_of(dialects: dict[str, Dialect], level: str = "warning") -> st
                 "",
             )
         )
-    return "\n".join(lines)
+    lines.append("")
+    lines.append("")
+    lines.extend(verdict)
+    return AuditReport("\n".join(lines), failed)
 
 
 def _parse_args(argv: list[str]) -> tuple[list[str], str]:
@@ -1670,7 +1726,7 @@ def _flat(text: str) -> str:
 
 def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     """Test that the report answers for any dialect it is given."""
-    report = _audit_report(["mysql", "tsql"])
+    report = _audit_report(["mysql", "tsql"]).text
 
     assert "== mysql (audited) ==" in report
     assert "  Nothing to fix." in report
@@ -1693,7 +1749,7 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     dialects = {"zzready": ready.expand(), "zzbroken": broken}
     UNAUDITED_DIALECTS.update(dialects)
     try:
-        report = _audit_report_of(dialects, level="notice")
+        report = _audit_report_of(dialects, level="notice").text
     finally:
         UNAUDITED_DIALECTS.difference_update(dialects)
 
@@ -1721,7 +1777,7 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
     unchecked.claim_exhaustive_reserved(["SELECT"], source="zz")
     UNAUDITED_DIALECTS.add("zzunchecked")
     try:
-        report = _audit_report_of(
+        result = _audit_report_of(
             {
                 "zzauditedbroken": broken,
                 "zzown": own.expand(),
@@ -1731,8 +1787,12 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
         )
     finally:
         UNAUDITED_DIALECTS.discard("zzunchecked")
-
+    report = result.text
     flat = _flat(report)
+
+    assert result.failed
+    assert report.startswith("AUDIT FAILED: 3 of 3 audited dialects have errors or")
+    assert "\nUnaudited, not part of the verdict: zzunchecked " in report
 
     assert "== zzauditedbroken (audited) ==" in report
     assert "In the zzauditedbroken dialect, these words have two statuses" in flat
@@ -1770,8 +1830,8 @@ def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
 
 def test_audit_report_lists_unused_keywords_as_notices() -> None:
     """Test that unused keywords are leads, shown only at notice level."""
-    shown = _audit_report(["mariadb"], level="notice")
-    hidden = _audit_report(["mariadb"])
+    shown = _audit_report(["mariadb"], level="notice").text
+    hidden = _audit_report(["mariadb"]).text
 
     assert "-- Keywords no grammar uses (" in shown
     assert "unreserved) [notice] --" in shown
@@ -1794,13 +1854,26 @@ def test_unused_findings_are_absent_when_everything_is_used() -> None:
 
 def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     """Test that hiding warnings never makes a failing dialect look clean."""
-    report = _audit_report(["tsql"], level="error")
+    report = _audit_report(["tsql"], level="error").text
     flat = _flat(report)
 
     assert "[error]" in report
     assert "[warning]" not in report
     assert "The audit would also fail on" in flat
     assert "Not shown, below --level error:" in flat
+
+
+def test_audit_verdict_passes_fails_and_ignores_unaudited() -> None:
+    """Test the verdict: only audited dialects decide it."""
+    passing = _audit_report(["mysql"])
+    unaudited_only = _audit_report(["tsql"])
+
+    assert not passing.failed
+    assert passing.text.startswith("AUDIT PASSED: 1 audited dialect, no errors")
+    assert passing.text.rstrip().endswith("no errors or warnings.")
+    assert not unaudited_only.failed
+    assert unaudited_only.text.startswith("NO AUDITED DIALECTS")
+    assert "Unaudited, not part of the verdict: tsql " in unaudited_only.text
 
 
 def test_parse_args_reads_names_and_level() -> None:
@@ -1817,7 +1890,12 @@ def test_parse_args_reads_names_and_level() -> None:
 
 
 if __name__ == "__main__":  # pragma: no cover
+    # Piped into head or less, end quietly when the reader stops, like any
+    # Unix tool, instead of Python's BrokenPipeError.
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     # With dialect names as arguments, report on those and their descendants.
     names, level = _parse_args(sys.argv[1:])
     chosen = _with_descendants(names) if names else ALL_DIALECTS
-    print(_audit_report(chosen, level))
+    report = _audit_report(chosen, level)
+    print(report.text)
+    sys.exit(1 if report.failed else 0)
