@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74d22fea5380ae97a5a2ffca0a48df9031fb9c7fa93d3270f685c295fc099948
+_hash: 93bf86a59401e17d3a0617aa3df74c64a15fb99de03444782749e7589f414b9d
 file:
 - statement:
     describe_statement:
@@ -38,6 +38,14 @@ file:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: STORAGE
+    - keyword: CREDENTIAL
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SERVICE
     - keyword: CREDENTIAL
     - object_reference:
         naked_identifier: c
@@ -86,6 +94,26 @@ file:
     - keyword: SCHEMA
     - database_reference:
         naked_identifier: s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: p
+    - keyword: 'ON'
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: p
+    - keyword: 'ON'
+    - keyword: METASTORE
 - statement_terminator: ;
 - statement:
     describe_statement:

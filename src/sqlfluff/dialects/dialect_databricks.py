@@ -2714,7 +2714,6 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("AlterCatalogStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
             Ref("DropCatalogStatementSegment"),
-            Ref("UseCatalogStatementSegment"),
             Ref("AlterVolumeStatementSegment"),
             Ref("CreateVolumeStatementSegment"),
             Ref("DropVolumeStatementSegment"),
@@ -2735,6 +2734,11 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
         ],
+    ).copy(
+        # Ahead of the generic USE, which would read a bare `USE CATALOG` as a
+        # database named `catalog`.
+        insert=[Ref("UseCatalogStatementSegment")],
+        before=Ref("UseStatementSegment"),
     )
 
 
