@@ -8,15 +8,14 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.types import ConfigMappingType
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
-PUBLIC_RULE_NAME = "layout.chained_functions"
-CONVERSION_RULE_NAME = "convention.prefer_chained_functions"
-NATIVE_RULES = ("LT02", "LT16")
+PUBLIC_RULE_NAME = "bigquery.chained_functions"
+NATIVE_RULES = ("LT02", "BQ01")
 
 
 def layout_linter(
     style: str | None = None,
     configs: ConfigMappingType | None = None,
-    rules: tuple[str, ...] = ("LT02", "LT16"),
+    rules: tuple[str, ...] = ("LT02", "BQ01"),
 ) -> Linter:
     """Build an ordinary Linter using the registered native rule settings."""
     config = FluffConfig(
@@ -73,13 +72,30 @@ def test_native_focused_fixes_with_chains(
     style: str, rule: str, sql: str, expected: str, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Real partial reflow must fix SQL without conflicting with chain layout."""
-    linter = layout_linter(style, rules=("LT02", rule, "LT16"))
+    linter = layout_linter(style, rules=("LT02", rule, "BQ01"))
     assert not linter.parse_string(sql).violations
     original = ReflowSequence.from_around_target
-    with patch.object(ReflowSequence, "from_around_target", wraps=original) as spy:
+    native_rule = next(
+        item for item in linter.get_rulepack().rules if item.code == rule
+    )
+    with (
+        patch.object(ReflowSequence, "from_around_target", wraps=original) as spy,
+        patch.object(
+            type(native_rule),
+            "_eval",
+            autospec=True,
+            side_effect=type(native_rule)._eval,
+        ) as evaluation,
+    ):
         result = linter.lint_string(sql, fix=True)
+        assert evaluation.called
+    if rule == "LT03" and style == "indented":
+        # BQ01 now runs before LT02. LT02 can put this operator on its own
+        # line before LT03 evaluates its already-correct boundary shortcut.
+        expected = expected.replace("    || (bar)", "    ||\n    (bar)")
+    else:
         assert spy.called
-    assert any((v.rule_code() == rule for v in result.violations))
+        assert any(v.rule_code() == rule for v in result.violations)
     fixed = result.fix_string()[0]
     assert fixed == expected.format(call=BOUNDARIES[style])
     assert not linter.parse_string(fixed).violations
@@ -144,7 +160,7 @@ def test_focused_operator_fix_preserves_consistent_style(
     expected = (
         f"SELECT\n    {first_chain}\n{operator_lines}(bar){boundary}.UPPER()\nFROM t;\n"
     )
-    linter = layout_linter("consistent", rules=("LT02", "LT03", "LT16"))
+    linter = layout_linter("consistent", rules=("LT02", "LT03", "BQ01"))
     result = linter.lint_string(sql, fix=True)
     assert result.violations
     assert result.fix_string()[0] == expected
@@ -158,7 +174,7 @@ def test_native_lt02_method_is_executed() -> None:
     linter = layout_linter("indented", rules=NATIVE_RULES)
     from sqlfluff.rules.layout.LT02 import Rule_LT02
 
-    assert type(linter.get_rulepack().rules[0]) is Rule_LT02
+    assert any(type(rule) is Rule_LT02 for rule in linter.get_rulepack().rules)
     original_eval = Rule_LT02._eval
     sql = "SELECT\n    (foo).LOWER().TRIM()\nFROM t;\n"
     with patch.object(
@@ -184,6 +200,23 @@ def test_jinja_variable_source_is_preserved() -> None:
     assert fixed == expected
     assert not linter.parse_string(fixed).violations
     assert not linter.lint_string(fixed).violations
+
+
+def test_distinct_removal_preserves_line_comment_boundary() -> None:
+    """Removing brackets must leave the alias and FROM outside a line comment."""
+    linter = layout_linter("indented", rules=("BQ01", "LT02", "ST08"))
+    sql = "SELECT DISTINCT (\n    (foo).LOWER() -- keep\n) AS cleaned FROM t;\n"
+    fixed = linter.lint_string(sql, fix=True).fix_string()[0]
+    parsed = linter.parse_string(fixed)
+    assert parsed.tree is not None and not parsed.violations
+    assert fixed.count("-- keep") == 1
+    assert "-- keep\n" in fixed
+    assert [
+        raw.raw_upper
+        for raw in parsed.tree.raw_segments
+        if raw.is_code and raw.raw_upper in {"AS", "FROM"}
+    ] == ["AS", "FROM"]
+    assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
     assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
 
 
@@ -227,8 +260,8 @@ def test_jinja_loop_source_is_preserved() -> None:
     assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
 
 
-def test_factory_models_each_sequence_once() -> None:
-    """Repeated construction must not accumulate virtual markers in the AST."""
+def test_reflow_preserves_parser_chain_markers() -> None:
+    """Reflow must reuse native grammar markers without adding its own."""
     linter = layout_linter("indented", rules=NATIVE_RULES)
     parsed = linter.parse_string("SELECT (foo).LOWER().TRIM();")
     assert parsed.tree is not None
@@ -237,26 +270,23 @@ def test_factory_models_each_sequence_once() -> None:
     original_ids = {raw.uuid for raw in tree.raw_segments}
     for _ in range(2):
         sequence = ReflowSequence.from_root(tree, linter.config)
-        added = [
-            raw
-            for element in sequence.elements
-            for raw in element.segments
-            if raw.uuid not in original_ids
+        actual_ids = [
+            raw.uuid for element in sequence.elements for raw in element.segments
         ]
-        assert [raw.get_type() for raw in added] == ["indent", "dedent"]
+        assert set(actual_ids) == original_ids
+        assert len(actual_ids) == len(original_ids)
         assert sequence.get_raw() == tree.raw
         assert tree.stringify() == before
 
 
 @pytest.mark.parametrize("style", BOUNDARIES)
-def test_cached_sequence_uses_current_chain_style(style: str) -> None:
-    """Cached base elements must not retain or skip style-specific markers."""
+def test_parser_chain_markers_follow_style_per_parse(style: str) -> None:
+    """Fresh parses select markers; repeated reflow uses the unchanged cache."""
     linter = layout_linter("indented", rules=NATIVE_RULES)
-    parsed = linter.parse_string("SELECT (foo).LOWER().TRIM();")
-    assert parsed.tree is not None and not parsed.violations
-    tree = parsed.tree
-    before = tree.stringify()
-    original_ids = {raw.uuid for raw in tree.raw_segments}
+    sql = "SELECT (foo).LOWER().TRIM();"
+    baseline = layout_linter("aligned").parse_string(sql)
+    assert baseline.tree is not None and not baseline.violations
+    baseline_indents = sum(raw.is_type("indent") for raw in baseline.tree.raw_segments)
     original_factory = ReflowSequence.from_raw_segments
     with (
         patch("sqlfluff.utils.reflow.sequence._from_root_cache", None),
@@ -268,19 +298,24 @@ def test_cached_sequence_uses_current_chain_style(style: str) -> None:
             linter.config.set_value(
                 ("rules", PUBLIC_RULE_NAME, "writing_style"), current_style
             )
+            parsed = linter.parse_string(sql)
+            assert parsed.tree is not None and not parsed.violations
+            tree = parsed.tree
+            before = tree.stringify()
             sequence = ReflowSequence.from_root(tree, linter.config)
-            added = [
-                raw.get_type()
-                for element in sequence.elements
-                for raw in element.segments
-                if raw.uuid not in original_ids
-            ]
             # The single-line input makes consistent resolve to one_liner.
-            expected = ["indent", "dedent"] if current_style == "indented" else []
-            assert added == expected
+            assert sum(raw.is_type("indent") for raw in tree.raw_segments) == (
+                baseline_indents + (2 if current_style == "indented" else 0)
+            )
+            cached = ReflowSequence.from_root(tree, linter.config)
+            assert cached.elements is not sequence.elements
+            assert all(a is b for a, b in zip(cached.elements, sequence.elements))
             assert sequence.get_raw() == tree.raw
             assert tree.stringify() == before
-        assert factory.call_count == 1
+            assert (
+                linter.config.get("indented_chained_functions", ["indentation"]) is None
+            )
+        assert factory.call_count == 3
 
 
 def test_configurations_do_not_leak() -> None:

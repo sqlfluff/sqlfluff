@@ -5,7 +5,7 @@ use pyo3::types::{PyDict, PyList, PyTuple};
 
 use crate::parser::MetaSegment;
 
-use super::match_result::MatchResult;
+use super::match_result::{MatchResult, MetaSegmentExclusions};
 use super::types::NodeTupleValue;
 use super::{Node, ParseError, Parser};
 use sqlfluffrs_dialects::Dialect;
@@ -262,6 +262,20 @@ pub struct PyMatchResult(pub MatchResult);
 
 #[pymethods]
 impl PyMatchResult {
+    /// Inspect accepted parents without transferring the full native match tree.
+    fn matches_with_child_class(&self, name: &str) -> Vec<PyMatchResult> {
+        self.0
+            .matches_with_child_class(name)
+            .into_iter()
+            .map(PyMatchResult)
+            .collect()
+    }
+
+    /// Filter before all tree builders, including the native arena builder.
+    fn without_meta_inserts(&self, exclusions: MetaSegmentExclusions) -> PyMatchResult {
+        PyMatchResult(self.0.without_meta_inserts(&exclusions))
+    }
+
     /// Get the matched slice as a Python tuple (start, stop)
     #[getter]
     fn matched_slice(&self) -> (usize, usize) {

@@ -1,0 +1,162 @@
+rule: BQ01
+configs:
+  core:
+    dialect: bigquery
+
+test_one_liner_pass:
+  pass_str: SELECT (foo).LOWER().TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: one_liner
+
+test_one_liner_removes_only_boundary_whitespace:
+  fail_str: |
+    SELECT (foo)
+        .REPLACE(
+          'a',
+          'b'
+        )
+        .TRIM();
+  fix_str: |
+    SELECT (foo).REPLACE(
+          'a',
+          'b'
+        ).TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: one_liner
+
+test_one_liner_removes_inline_spaces:
+  fail_str: SELECT (foo) .LOWER()  .TRIM();
+  fix_str: SELECT (foo).LOWER().TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: one_liner
+
+test_one_liner_preserves_line_comment:
+  fail_str: |
+    SELECT (foo) -- preserve this comment
+      .LOWER();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: one_liner
+
+test_aligned_inserts_only_newlines:
+  fail_str: SELECT (foo).LOWER().TRIM();
+  fix_str: |-
+    SELECT (foo)
+    .LOWER()
+    .TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: aligned
+
+test_indented_inserts_only_newlines:
+  fail_str: SELECT (foo).LOWER().TRIM();
+  fix_str: |-
+    SELECT (foo)
+    .LOWER()
+    .TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+
+test_aligned_leaves_indentation_to_lt02:
+  pass_str: |
+    SELECT
+        (foo)
+      .LOWER()
+             .TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: aligned
+
+test_indented_leaves_indentation_to_lt02:
+  pass_str: |
+    SELECT
+        (foo)
+    .LOWER()
+               .TRIM();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+
+test_multiline_preserves_comment_boundary:
+  pass_str: |
+    SELECT (foo) -- preserve this comment
+      .LOWER();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: aligned
+
+test_multiline_does_not_cross_inline_comment:
+  fail_str: SELECT (foo) /* preserve */ .LOWER();
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+
+test_consistent_first_one_liner_sets_boundary:
+  fail_str: |
+    SELECT (foo).LOWER(),
+        (bar)
+            .TRIM();
+  fix_str: |
+    SELECT (foo).LOWER(),
+        (bar).TRIM();
+
+test_consistent_first_multiline_sets_boundary:
+  fail_str: |
+    SELECT (foo)
+        .LOWER(),
+        (bar).TRIM();
+  fix_str: |
+    SELECT (foo)
+        .LOWER(),
+        (bar)
+        .TRIM();
+
+test_consistent_first_nested_chain_sets_boundary:
+  fail_str: |
+    SELECT ((foo).LOWER())
+        .TRIM();
+  fix_str: |
+    SELECT ((foo).LOWER()).TRIM();
+
+test_traditional_nested_calls_remain_unchanged:
+  pass_str: SELECT LOWER(TRIM(foo));
+
+test_ansi_functions_remain_unchanged:
+  pass_str: SELECT LOWER(TRIM(foo));
+  configs:
+    core:
+      dialect: ansi

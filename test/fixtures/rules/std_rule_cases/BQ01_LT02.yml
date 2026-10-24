@@ -1,7 +1,297 @@
-rule: LT16
+rule: BQ01,LT02
 configs:
   core:
     dialect: bigquery
+
+test_pass_indented:
+  pass_str: |
+    SELECT
+        (foo)
+            .LOWER()
+            .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_multiple_chains_in_one_expression:
+  fail_str: |
+    SELECT
+        (foo).LOWER() || (bar).TRIM() AS result
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo)
+            .LOWER() || (bar)
+            .TRIM() AS result
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_inline_select_input:
+  fail_str: |
+    SELECT (foo).LOWER().TRIM() AS result FROM t;
+  fix_str: |
+    SELECT (foo)
+        .LOWER()
+        .TRIM() AS result FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_one_line:
+  fail_str: |
+    SELECT
+        (foo).LOWER().TRIM() AS bar
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo)
+            .LOWER()
+            .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_wrong_input_indentation:
+  fail_str: |
+    SELECT
+      (foo).LOWER().TRIM() AS bar
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo)
+            .LOWER()
+            .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_pass_multiline_arguments:
+  pass_str: |
+    SELECT
+        (foo)
+            .REPLACE(
+                'a',
+                'b'
+            )
+            .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_argument_indentation:
+  fail_str: |
+    SELECT
+        (foo)
+            .REPLACE(
+        'a',
+        'b'
+        )
+            .TRIM() AS bar
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo)
+            .REPLACE(
+                'a',
+                'b'
+            )
+            .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_pass_nested_argument_chain:
+  pass_str: |
+    SELECT
+        (foo)
+            .REPLACE(
+                (bar)
+                    .LOWER(),
+                'b'
+            )
+            .TRIM() AS result;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_pass_nested_input_chain:
+  pass_str: |
+    SELECT
+        (
+            (foo)
+                .LOWER()
+        )
+            .TRIM() AS result;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_pass_comments:
+  pass_str: |
+    SELECT
+        (foo) -- input
+            .LOWER()
+            -- normalize the result
+            .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_indent_after_comment:
+  fail_str: |
+    SELECT
+        (foo) -- input
+        .LOWER() AS bar
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo) -- input
+            .LOWER() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_pass_indentation_ends_before_next_target:
+  pass_str: |
+    SELECT
+        (foo)
+            .LOWER() AS first_value,
+        bar AS second_value
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_unrelated_indentation_is_still_checked:
+  fail_str: |
+    SELECT
+        (foo)
+            .LOWER() AS first_value,
+      bar AS second_value
+    FROM t;
+  fix_str: |
+    SELECT
+        (foo)
+            .LOWER() AS first_value,
+        bar AS second_value
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+test_fail_two_space_configuration:
+  fail_str: |
+    SELECT
+      (foo).LOWER().TRIM() AS bar
+    FROM t;
+  fix_str: |
+    SELECT
+      (foo)
+        .LOWER()
+        .TRIM() AS bar
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+    indentation:
+      tab_space_size: 2
+test_fail_tabs:
+  fail_str: "SELECT\n\t(foo).LOWER().TRIM() AS bar\nFROM t;\n"
+  fix_str: "SELECT\n\t(foo)\n\t\t.LOWER()\n\t\t.TRIM() AS bar\nFROM t;\n"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: indented
+    indentation:
+      indent_unit: tab
+test_fail_consistent_keeps_first_indented_chain:
+  fail_str: |
+    SELECT
+        (foo)
+            .LOWER()
+            .TRIM() AS first_value,
+        (bar).LOWER().TRIM() AS second_value;
+  fix_str: |
+    SELECT
+        (foo)
+            .LOWER()
+            .TRIM() AS first_value,
+        (bar)
+            .LOWER()
+            .TRIM() AS second_value;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: consistent
+test_pass_consistent_aligned_uses_no_extra_indent:
+  pass_str: |
+    SELECT
+        (foo)
+        .LOWER()
+        .TRIM() AS first_value,
+        (bar)
+        .LOWER()
+        .TRIM() AS second_value;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: consistent
+test_pass_consistent_one_line:
+  pass_str: |
+    SELECT
+        (foo).LOWER().TRIM() AS first_value,
+        (bar).LOWER().TRIM() AS second_value;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.chained_functions:
+        writing_style: consistent
+
 test_one_liner_pass_one_line:
   pass_str: |
     SELECT
@@ -11,7 +301,7 @@ test_one_liner_pass_one_line:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_aligned:
   fail_str: |
@@ -28,7 +318,7 @@ test_one_liner_fail_aligned:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_indented:
   fail_str: |
@@ -45,7 +335,7 @@ test_one_liner_fail_indented:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_mixed:
   fail_str: |
@@ -61,7 +351,7 @@ test_one_liner_fail_mixed:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_spaces_between_calls:
   fail_str: |
@@ -72,7 +362,7 @@ test_one_liner_fail_spaces_between_calls:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_preserve_multiline_arguments:
   fail_str: |
@@ -95,7 +385,7 @@ test_one_liner_fail_preserve_multiline_arguments:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_preserve_inline_comment:
   fail_str: |
@@ -107,7 +397,7 @@ test_one_liner_fail_preserve_inline_comment:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_preserve_block_comment:
   fail_str: |
@@ -120,7 +410,7 @@ test_one_liner_fail_preserve_block_comment:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_pass_ordinary_function_and_reference:
   pass_str: |
@@ -129,7 +419,7 @@ test_one_liner_pass_ordinary_function_and_reference:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_pass_traditional_nested_calls:
   pass_str: |
@@ -138,7 +428,7 @@ test_one_liner_pass_traditional_nested_calls:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_pass_dot_in_string:
   pass_str: |
@@ -147,7 +437,7 @@ test_one_liner_pass_dot_in_string:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_one_liner_fail_nested_chain:
   fail_str: |
@@ -164,7 +454,7 @@ test_one_liner_fail_nested_chain:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: one_liner
 test_multiline_pass_aligned:
   pass_str: |
@@ -177,7 +467,7 @@ test_multiline_pass_aligned:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_one_line_to_aligned:
   fail_str: |
@@ -194,7 +484,7 @@ test_multiline_fail_one_line_to_aligned:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_indented_to_aligned:
   fail_str: |
@@ -213,7 +503,7 @@ test_multiline_fail_indented_to_aligned:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_mixed_to_aligned:
   fail_str: |
@@ -231,7 +521,7 @@ test_multiline_fail_mixed_to_aligned:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_keep_multiline_arguments:
   fail_str: |
@@ -254,7 +544,7 @@ test_multiline_fail_keep_multiline_arguments:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_multiline_input:
   fail_str: |
@@ -275,7 +565,7 @@ test_multiline_fail_multiline_input:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_pass_comments_in_aligned_chain:
   pass_str: |
@@ -289,19 +579,24 @@ test_multiline_pass_comments_in_aligned_chain:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
-test_multiline_fail_wrong_indent_after_comment_without_fix:
+test_multiline_fail_wrong_indent_after_comment:
   fail_str: |
     SELECT
         (foo) -- input
             .LOWER() AS bar
     FROM t;
+  fix_str: |
+    SELECT
+        (foo) -- input
+        .LOWER() AS bar
+    FROM t;
   configs:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_add_missing_indent:
   fail_str: |
@@ -318,7 +613,7 @@ test_multiline_fail_add_missing_indent:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_two_space_indent:
   fail_str: |
@@ -335,7 +630,7 @@ test_multiline_fail_two_space_indent:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
     indentation:
       tab_space_size: 2
@@ -346,7 +641,7 @@ test_multiline_fail_aligned_tabs:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
     indentation:
       indent_unit: tab
@@ -367,7 +662,7 @@ test_multiline_fail_aligned_to_indented:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: indented
 test_multiline_pass_indented:
   pass_str: |
@@ -380,7 +675,7 @@ test_multiline_pass_indented:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: indented
 test_multiline_fail_one_line_to_indented:
   fail_str: |
@@ -397,7 +692,7 @@ test_multiline_fail_one_line_to_indented:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: indented
 test_multiline_fail_indented_tabs:
   fail_str: "SELECT\n\t(foo).LOWER().TRIM() AS bar\nFROM t;\n"
@@ -406,7 +701,7 @@ test_multiline_fail_indented_tabs:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: indented
     indentation:
       indent_unit: tab
@@ -425,7 +720,7 @@ test_multiline_fail_indented_two_spaces:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: indented
     indentation:
       tab_space_size: 2
@@ -438,7 +733,7 @@ test_multiline_pass_ordinary_function:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_multiline_fail_same_line_block_comment_without_fix:
   fail_str: |
@@ -447,7 +742,7 @@ test_multiline_fail_same_line_block_comment_without_fix:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: aligned
 test_consistent_pass_one_line:
   pass_str: |
@@ -458,7 +753,7 @@ test_consistent_pass_one_line:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_pass_aligned:
   pass_str: |
@@ -473,7 +768,7 @@ test_consistent_pass_aligned:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_pass_indented:
   pass_str: |
@@ -488,7 +783,7 @@ test_consistent_pass_indented:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_first_one_line_sets_style:
   fail_str: |
@@ -505,7 +800,7 @@ test_consistent_fail_first_one_line_sets_style:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_first_aligned_sets_style:
   fail_str: |
@@ -526,7 +821,7 @@ test_consistent_fail_first_aligned_sets_style:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_first_indented_sets_style:
   fail_str: |
@@ -547,7 +842,7 @@ test_consistent_fail_first_indented_sets_style:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_style_survives_successful_calls:
   fail_str: |
@@ -574,7 +869,7 @@ test_consistent_fail_style_survives_successful_calls:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_first_mixed_chain_uses_first_boundary:
   fail_str: |
@@ -592,7 +887,7 @@ test_consistent_fail_first_mixed_chain_uses_first_boundary:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_mixed_multiline_first_chain:
   fail_str: |
@@ -612,7 +907,7 @@ test_consistent_fail_mixed_multiline_first_chain:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_style_applies_across_statements:
   fail_str: |
@@ -635,7 +930,7 @@ test_consistent_fail_style_applies_across_statements:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_pass_ordinary_functions_do_not_choose_style:
   pass_str: |
@@ -648,7 +943,7 @@ test_consistent_pass_ordinary_functions_do_not_choose_style:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent
 test_consistent_fail_single_call_sets_style:
   fail_str: |
@@ -665,5 +960,5 @@ test_consistent_fail_single_call_sets_style:
     core:
       dialect: bigquery
     rules:
-      layout.chained_functions:
+      bigquery.chained_functions:
         writing_style: consistent

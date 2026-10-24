@@ -18,6 +18,9 @@ use sqlfluffrs_types::regex::RegexModeGroup;
 use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{PositionMarker, Token};
 
+/// Optional grammar inserts to omit, keyed by parent class and token range.
+pub type MetaSegmentExclusions = HashMap<(String, usize, usize), Vec<(usize, String)>>;
+
 /// Meta-segment types that can be inserted (like Python's Indent/Dedent)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MetaSegment {
@@ -140,6 +143,96 @@ impl Display for MatchResult {
 }
 
 impl MatchResult {
+    /// Find accepted parents without constructing an AST or recursing.
+    pub fn matches_with_child_class(&self, name: &str) -> Vec<MatchResult> {
+        let mut found = Vec::new();
+        let mut pending = vec![self];
+        while let Some(node) = pending.pop() {
+            if node.child_matches.iter().any(|child| {
+                child
+                    .matched_class
+                    .as_ref()
+                    .is_some_and(|class| class.class_name == name)
+            }) {
+                found.push(node.clone());
+            }
+            pending.extend(node.child_matches.iter().rev().map(|child| child.as_ref()));
+        }
+        found
+    }
+
+    /// Filter grammar metadata while sharing unchanged children and preserving
+    /// the original match for parser caches. Reconstruction is iterative.
+    pub fn without_meta_inserts(&self, exclusions: &MetaSegmentExclusions) -> MatchResult {
+        if exclusions.is_empty() {
+            return self.clone();
+        }
+        let mut pending = vec![(Arc::new(self.clone()), false)];
+        let mut rebuilt: Vec<Arc<MatchResult>> = Vec::new();
+        while let Some((node, visited)) = pending.pop() {
+            if !visited {
+                pending.push((Arc::clone(&node), true));
+                pending.extend(
+                    node.child_matches
+                        .iter()
+                        .rev()
+                        .map(|child| (Arc::clone(child), false)),
+                );
+                continue;
+            }
+            let children = rebuilt.split_off(rebuilt.len() - node.child_matches.len());
+            let name = node
+                .matched_class
+                .as_ref()
+                .map_or("", |class| class.class_name.as_ref());
+            let key = (
+                name.to_string(),
+                node.matched_slice.start,
+                node.matched_slice.end,
+            );
+            let filtered = exclusions.get(&key).map(|excluded| {
+                let mut remaining = excluded.clone();
+                let mut inserts = Vec::new();
+                for &(index, meta) in &node.insert_segments {
+                    let class = match meta {
+                        MetaSegment::Indent { is_implicit: true } => "ImplicitIndent",
+                        MetaSegment::Indent { is_implicit: false } => "Indent",
+                        MetaSegment::Dedent { .. } => "Dedent",
+                    };
+                    if let Some(position) = remaining
+                        .iter()
+                        .position(|item| item.0 == index && item.1 == class)
+                    {
+                        remaining.swap_remove(position);
+                    } else {
+                        inserts.push((index, meta));
+                    }
+                }
+                inserts
+            });
+            let changed = filtered
+                .as_ref()
+                .is_some_and(|inserts| inserts != &node.insert_segments)
+                || children
+                    .iter()
+                    .zip(&node.child_matches)
+                    .any(|(a, b)| !Arc::ptr_eq(a, b));
+            if changed {
+                let mut updated = (*node).clone();
+                updated.child_matches = children;
+                if let Some(inserts) = filtered {
+                    updated.insert_segments = inserts;
+                }
+                rebuilt.push(Arc::new(updated));
+            } else {
+                rebuilt.push(node);
+            }
+        }
+        rebuilt
+            .pop()
+            .map_or_else(|| self.clone(), |node| (*node).clone())
+    }
+
     /// Create an empty match at a position
     pub fn empty_at(idx: usize) -> Self {
         MatchResult {
@@ -856,6 +949,79 @@ fn meta_to_node(meta_type: &MetaSegment, pos_marker: Option<PositionMarker>) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_optional_meta_filter_preserves_original_and_implicit_indent() {
+        let child = Arc::new(MatchResult {
+            matched_slice: 0..1,
+            matched_class: Some(MatchedClass {
+                class_name: "ChildSegment".into(),
+                ..Default::default()
+            }),
+            ..Default::default()
+        });
+        let original = MatchResult {
+            matched_slice: 0..2,
+            matched_class: Some(MatchedClass {
+                class_name: "ParentSegment".into(),
+                ..Default::default()
+            }),
+            child_matches: vec![Arc::clone(&child)],
+            insert_segments: vec![
+                (0, MetaSegment::Indent { is_implicit: true }),
+                (0, MetaSegment::Indent { is_implicit: false }),
+                (0, MetaSegment::Indent { is_implicit: false }),
+                (2, MetaSegment::Dedent { is_implicit: false }),
+            ],
+        };
+        assert_eq!(original.matches_with_child_class("ChildSegment").len(), 1);
+        assert!(original.matches_with_child_class("Other").is_empty());
+        let mut exclusions = MetaSegmentExclusions::new();
+        exclusions.insert(
+            ("ParentSegment".to_string(), 0, 2),
+            vec![(0, "Indent".to_string()), (2, "Dedent".to_string())],
+        );
+        let filtered = original.without_meta_inserts(&exclusions);
+        assert_eq!(original.insert_segments.len(), 4);
+        assert_eq!(filtered.insert_segments.len(), 2);
+        assert_eq!(
+            filtered.insert_segments[0].1,
+            MetaSegment::Indent { is_implicit: true }
+        );
+        assert!(Arc::ptr_eq(&filtered.child_matches[0], &child));
+        assert_eq!(filtered.matched_slice, original.matched_slice);
+    }
+
+    #[test]
+    fn test_optional_meta_filter_handles_deep_matches_iteratively() {
+        let mut original = MatchResult {
+            matched_slice: 0..1,
+            matched_class: Some(MatchedClass {
+                class_name: "ChildSegment".into(),
+                ..Default::default()
+            }),
+            insert_segments: vec![(0, MetaSegment::Indent { is_implicit: false })],
+            ..Default::default()
+        };
+        for _ in 0..1024 {
+            original = MatchResult {
+                matched_slice: 0..1,
+                child_matches: vec![Arc::new(original)],
+                ..Default::default()
+            };
+        }
+        let mut exclusions = MetaSegmentExclusions::new();
+        exclusions.insert(
+            ("ChildSegment".to_string(), 0, 1),
+            vec![(0, "Indent".to_string())],
+        );
+        let filtered = original.without_meta_inserts(&exclusions);
+        let mut leaf = &filtered;
+        for _ in 0..1024 {
+            leaf = &leaf.child_matches[0];
+        }
+        assert!(leaf.insert_segments.is_empty());
+    }
 
     #[test]
     fn test_empty_at() {

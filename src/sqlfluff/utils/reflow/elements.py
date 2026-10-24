@@ -709,6 +709,14 @@ class ReflowPoint(ReflowElement):
         however it exists as a convenience for rules which wish to use it.
         """
         existing_results = lint_results[:]
+        # A focused sequence may end at an indent marker rather than code.
+        # There is no following code boundary to insert whitespace against.
+        if (
+            next_block is None
+            and self.segments
+            and all(seg.is_type("indent", "dedent") for seg in self.segments)
+        ):
+            return existing_results, self
         pre_constraint, post_constraint, strip_newlines = determine_constraints(
             prev_block, next_block, strip_newlines
         )

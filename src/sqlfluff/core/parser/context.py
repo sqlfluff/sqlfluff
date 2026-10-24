@@ -71,6 +71,9 @@ class ParseContext:
                 indentation of certain features. Defaults to None.
         """
         self.dialect = dialect
+        # Source settings for optional dialect policies before AST creation.
+        # Directly constructed contexts need no source configuration.
+        self._config: Optional["FluffConfig"] = None
         # Indentation config is used by Indent and Dedent and used to control
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
@@ -125,7 +128,12 @@ class ParseContext:
         Returns:
             ParseContext: The constructed ParseContext object.
         """
-        indentation_config = config.get_section("indentation") or {}
+        dialect = config.get("dialect_obj")
+        indentation_config = (
+            dialect.get_root_segment().get_indentation_config(config)
+            if dialect
+            else config.get_section("indentation") or {}
+        )
         try:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
         except TypeError:  # pragma: no cover
@@ -137,12 +145,14 @@ class ParseContext:
         max_parse_nodes = config.get("max_parse_nodes")
         assert isinstance(max_parse_depth, int)
         assert isinstance(max_parse_nodes, int)
-        return cls(
-            dialect=config.get("dialect_obj"),
+        context = cls(
+            dialect=dialect,
             indentation_config=indentation_config,
             max_parse_depth=max_parse_depth,
             max_parse_nodes=max_parse_nodes,
         )
+        context._config = config
+        return context
 
     def increment_parse_nodes(self, count: int = 1) -> None:
         """Increment the number of materialized parse nodes.
