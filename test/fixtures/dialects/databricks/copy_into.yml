@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f71c7a8fefee07bf050fc3abb62a2a73ba9184fb4e33c008a0f8c4f41c0b375d
+_hash: 151c4ad8f82ff1915aaafd0bcfebb8dc3b8c814d1d68dedb2c5631fb7dd19600
 file:
 - statement:
     copy_into_table_statement:
@@ -364,4 +364,19 @@ file:
           raw_comparison_operator: '='
         quoted_literal: "'true'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://example-bucket/p'"
+    - keyword: FILEFORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - data_source_format:
+        keyword: CSV
+    - keyword: VALIDATE
 - statement_terminator: ;

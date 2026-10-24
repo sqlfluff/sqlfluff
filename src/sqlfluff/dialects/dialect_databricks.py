@@ -1967,7 +1967,11 @@ class CopyIntoTableStatementSegment(BaseSegment):
         Ref("DataSourceFormatSegment"),
         Sequence(
             "VALIDATE",
-            OneOf("ALL", Sequence(Ref("NumericLiteralSegment"), "ROWS")),
+            OneOf(
+                "ALL",
+                Sequence(Ref("NumericLiteralSegment"), "ROWS"),
+                optional=True,
+            ),
             optional=True,
         ),
         OneOf(

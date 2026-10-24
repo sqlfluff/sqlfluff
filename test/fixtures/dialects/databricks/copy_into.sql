@@ -28,3 +28,5 @@ COPY INTO t FROM 's3://example-bucket/p' WITH (ENCRYPTION (TYPE = 'AWS_SSE_C', M
 COPY INTO t FROM 's3://example-bucket/p' WITH (CREDENTIAL cred ENCRYPTION (TYPE = 'AWS_SSE_C')) FILEFORMAT = CSV;
 
 COPY INTO t (a) FROM 's3://example-bucket/p' FILEFORMAT = CSV VALIDATE 5 ROWS FILES = ('a.csv') FORMAT_OPTIONS (header = 'true') COPY_OPTIONS (force = 'true');
+
+COPY INTO t FROM 's3://example-bucket/p' FILEFORMAT = CSV VALIDATE;
