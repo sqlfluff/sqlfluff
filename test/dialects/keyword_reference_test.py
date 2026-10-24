@@ -35,6 +35,7 @@ from them, as the parser's "not found in the ... dialect" errors suggest.
 
 import functools
 import inspect
+import os
 import re
 import signal
 import sys
@@ -1577,23 +1578,23 @@ def _verdict(
         what = "dialects required to pass this audit"
     failing = [name for name in judged if has_problems(name)]
     if not judged:
-        lines = ["NOTHING TO JUDGE: no dialect in this run is required to pass."]
+        lines = ["*** NO VERDICT *** no dialect in this run is required to pass."]
     elif failing:
         detail = ", ".join(
             f"{name} ({_problem_counts(findings[name])})" for name in failing
         )
         if len(judged) == 1:
-            lines = [f"AUDIT FAILED: {detail}."]
+            lines = [f"*** FAIL *** {detail}."]
         else:
             lines = [
-                f"AUDIT FAILED: {len(failing)} of {len(judged)} {what} "
+                f"*** FAIL *** {len(failing)} of {len(judged)} {what} "
                 f"{'has' if len(failing) == 1 else 'have'} errors or warnings: "
                 f"{detail}."
             ]
     elif len(judged) == 1:
-        lines = [f"AUDIT PASSED: {judged[0]} has no errors or warnings."]
+        lines = [f"*** PASS *** {judged[0]} has no errors or warnings."]
     else:
-        lines = [f"AUDIT PASSED: the {len(judged)} {what} have no errors or warnings."]
+        lines = [f"*** PASS *** the {len(judged)} {what} have no errors or warnings."]
     not_required = [name for name in judged if name in UNAUDITED_DIALECTS]
     for name in not_required:
         if has_problems(name):
@@ -1852,7 +1853,7 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
 
     assert result.failed
     assert report.startswith(
-        "AUDIT FAILED: 3 of 3 dialects required to pass this audit have errors"
+        "*** FAIL *** 3 of 3 dialects required to pass this audit have errors"
     )
     assert "\nNot required to pass this audit yet: zzunchecked " in report
 
@@ -1936,15 +1937,15 @@ def test_audit_verdict_judges_what_was_asked() -> None:
     nothing = _audit_report(["tsql"])
 
     assert not one.failed
-    assert one.text.startswith("AUDIT PASSED: mysql has no errors or warnings.")
-    assert one.text.rstrip().endswith("AUDIT PASSED: mysql has no errors or warnings.")
+    assert one.text.startswith("*** PASS *** mysql has no errors or warnings.")
+    assert one.text.rstrip().endswith("*** PASS *** mysql has no errors or warnings.")
     assert named_tsql.failed
-    assert named_tsql.text.startswith("AUDIT FAILED: tsql (")
+    assert named_tsql.text.startswith("*** FAIL *** tsql (")
     assert "tsql isn't required to pass this audit yet" in named_tsql.text
     assert not everything.failed
-    assert everything.text.startswith("AUDIT PASSED: mysql has no errors or warnings.")
+    assert everything.text.startswith("*** PASS *** mysql has no errors or warnings.")
     assert "Not required to pass this audit yet: tsql " in everything.text
-    assert nothing.text.startswith("NOTHING TO JUDGE")
+    assert nothing.text.startswith("*** NO VERDICT ***")
 
 
 def test_audit_verdict_counts_several_named_dialects() -> None:
@@ -1953,8 +1954,8 @@ def test_audit_verdict_counts_several_named_dialects() -> None:
     mixed = _audit_report(["mysql", "tsql"], named=frozenset({"mysql", "tsql"}))
     with_children = _audit_report(["mysql", "tsql"], named=frozenset({"mysql"}))
 
-    assert passing.text.startswith("AUDIT PASSED: the 2 named dialects have no")
-    assert mixed.text.startswith("AUDIT FAILED: 1 of 2 named dialects has errors")
+    assert passing.text.startswith("*** PASS *** the 2 named dialects have no")
+    assert mixed.text.startswith("*** FAIL *** 1 of 2 named dialects has errors")
     assert "Also shown, not part of the verdict: tsql " in with_children.text
 
 
@@ -1971,6 +1972,38 @@ def test_parse_args_reads_names_and_level() -> None:
         _parse_args(["tsq"])
 
 
+# ANSI colours for the verdict markers, red for FAIL and green for PASS.
+_VERDICT_COLOURS = {"*** FAIL ***": "\033[1;31m", "*** PASS ***": "\033[1;32m"}
+
+
+def _coloured(text: str) -> str:
+    """The report with its verdict markers coloured, for a terminal."""
+    for marker, colour in _VERDICT_COLOURS.items():
+        text = text.replace(marker, f"{colour}{marker}\033[0m")
+    return text
+
+
+def _use_colour(stream: object, environ: Mapping[str, str]) -> bool:
+    """Whether to colour output: only on a terminal, and not under NO_COLOR."""
+    isatty = getattr(stream, "isatty", None)
+    return bool(isatty and isatty()) and "NO_COLOR" not in environ
+
+
+def test_verdict_colour_only_on_a_terminal() -> None:
+    """Test that colour is added on a terminal and nowhere else."""
+
+    class _Terminal:
+        def isatty(self) -> bool:
+            return True
+
+    assert _use_colour(_Terminal(), {})
+    assert not _use_colour(_Terminal(), {"NO_COLOR": "1"})
+    assert not _use_colour(object(), {})
+    coloured = _coloured("*** FAIL *** x\n*** PASS *** y")
+    assert "\033[1;31m*** FAIL ***\033[0m x" in coloured
+    assert "\033[1;32m*** PASS ***\033[0m y" in coloured
+
+
 if __name__ == "__main__":  # pragma: no cover
     # Piped into head or less, end quietly when the reader stops, like any
     # Unix tool, instead of Python's BrokenPipeError.
@@ -1979,5 +2012,8 @@ if __name__ == "__main__":  # pragma: no cover
     names, level = _parse_args(sys.argv[1:])
     chosen = _with_descendants(names) if names else ALL_DIALECTS
     report = _audit_report(chosen, level, frozenset(names))
-    print(report.text)
+    if _use_colour(sys.stdout, os.environ):
+        print(_coloured(report.text))
+    else:
+        print(report.text)
     sys.exit(1 if report.failed else 0)
