@@ -323,28 +323,31 @@ tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 ### Keyword Statuses and the Audit
 
-Each keyword should have one status: reserved, unreserved, future reserved, or
-unimplemented (not a keyword on this dialect's database, though inherited
-grammar uses it; that part of the grammar then doesn't match). A keyword used
-in grammar with no status crashes the parser for every statement that reaches
-that rule, so a word you add to a parent dialect's grammar must exist in every
-child that replaces its keyword lists.
+Each keyword has a status: reserved, unreserved, or unimplemented (not a
+keyword on this dialect's database, though inherited grammar uses it; that
+part of the grammar then doesn't match). These three don't overlap. Future
+reserved is a tag on top: never reserved, but it can be unreserved or
+unimplemented. A keyword used in grammar with no status crashes the parser for
+every statement that reaches that rule.
 
-Dialects whose lists come from their database's source call
-`declare_keyword_sets()` instead of `.sets(...).update(...)`. See its docstring
-in `src/sqlfluff/core/dialects/base.py`. That opts them in to
-`test/dialects/keyword_reference_test.py`, which checks every keyword and
-reference their grammar can reach.
+A dialect inherits every keyword's status from its parent and changes only the
+words it disagrees about, with `categorize_keywords(reserved=[...],
+unreserved=[...], unimplemented=[...], future_reserved=[...])`. Don't
+`sets("reserved_keywords").clear()`: it drops the parent's words. If the
+reserved list is the database's complete list, also call
+`claim_exhaustive_reserved(words, source="<database and version>")`. See the
+docstrings in `src/sqlfluff/core/dialects/base.py`.
 
-After changing any dialect's grammar or keywords, run:
+`test/dialects/keyword_reference_test.py` audits every dialect not in its
+`UNAUDITED_DIALECTS`, on the final keyword sets. After changing any dialect's
+grammar or keywords, run:
 
 ```bash
 python test/dialects/keyword_reference_test.py <dialect>
 ```
 
-It reports missing keywords and segments, with the fix for each, for that
-dialect and every dialect that inherits from it, including those not opted in
-yet.
+It reports problems, with the fix for each, for that dialect and every dialect
+that inherits from it, audited or not.
 
 ## Common Dialect Patterns
 
