@@ -161,4 +161,6 @@ def test__cp03_dispatch__clickhouse_function_names_preserved(
     assert not result.violations
     fixed = result.fix_string()[0]
     assert fixed == sql
-    assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
+    relinted = linter.lint_string(fixed, fix=True)
+    assert not relinted.violations
+    assert relinted.fix_string()[0] == fixed
