@@ -270,8 +270,8 @@ def test__templater_raw():
             # be empty. Unset parameters keep their name.
             "SELECT ${test.nrows}, $npartitions, ${} FROM t;",
             "databricks",
-            "SELECT test.nrows, npartitions, 1 FROM t;",
-            {},
+            "SELECT 100, npartitions, 1 FROM t;",
+            {"test.nrows": "100"},
         ),
         (
             """

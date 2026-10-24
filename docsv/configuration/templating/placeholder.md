@@ -47,7 +47,8 @@ WHERE bla = $my_name or WHERE bla = ${my_name}
 
 -- databricks (notebook widget and dashboard parameters)
 WHERE bla = ${my_name} or WHERE bla = $my_name or
-    WHERE bla = ${dotted.name} or WHERE bla = {{ dashboard_param }}
+    WHERE bla = ${dotted.name} or WHERE bla = {{ dashboard_param }} or
+    WHERE bla = ${}  -- empty widget, filled by position like question_mark
 
 -- dollar_surround (DbUp compatible variable)
 WHERE bla = $my_name$
