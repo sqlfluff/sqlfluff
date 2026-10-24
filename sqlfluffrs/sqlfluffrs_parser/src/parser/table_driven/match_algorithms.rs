@@ -178,7 +178,7 @@ impl Parser<'_> {
                 continue;
             }
             // Found a concrete token before position i
-            let token_type = tok.get_type();
+            let token_type: &str = &tok.token_type;
             let token_raw = tok.raw();
             return tok.is_whitespace()
                 || token_type == "newline"
