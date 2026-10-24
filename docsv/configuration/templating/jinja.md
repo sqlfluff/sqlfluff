@@ -225,6 +225,18 @@ projects. In particular it provides mock objects for:
   linting purposes, this makes no difference and so the provided macro simply
   returns nothing.
 
+With `apply_dbt_builtins = True`, the Jinja templater also provides `fromjson(string,
+default=None)` and `tojson(value, default=None, sort_keys=False)` for converting
+between JSON strings and Python objects. These follow dbt's JSON helpers: a
+`ValueError`, such as invalid JSON or a circular reference, returns `default`;
+invalid argument types still raise `TypeError`. Configured macros and context
+values can override these helpers.
+
+```jinja
+{% set columns = fromjson('["a", "b"]') %}
+SELECT {{ columns | join(', ') }} FROM my_table
+```
+
 It also understands the dbt `{% test %}` and `{% materialization %}` blocks,
 so files which define generic tests or custom materializations can be linted
 like other macro files.
