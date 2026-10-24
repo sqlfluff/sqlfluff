@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     KeywordSegment,
     LiteralSegment,
@@ -354,7 +355,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             "ALL",
             Ref("GroupingSetsClauseSegment"),
