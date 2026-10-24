@@ -541,7 +541,16 @@ databricks_dialect.replace(
                     Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
-            )
+            ),
+            # SHOW GRANTS [ principal ] ON securable_object
+            # GRANT is accepted as an alternative spelling of GRANTS.
+            # https://docs.databricks.com/aws/en/sql/language-manual/security-show-grant
+            Sequence(
+                OneOf("GRANTS", "GRANT"),
+                Ref("RoleReferenceSegment", optional=True),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
         ],
     ),
     NotNullGrammar=Sequence(
@@ -738,6 +747,23 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         insert=[
             Ref.keyword("VOLUME"),
         ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """A securable object, including the Unity Catalog metastore.
+
+    METASTORE is inserted first so it is matched as a keyword rather than as
+    an object reference of the same length.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("METASTORE"),
+        ],
+        at=0,
     )
 
 
@@ -977,6 +1003,35 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
         remove=[
             Ref("LocationGrammar", optional=True),
         ],
+    )
+
+
+class CreateTableStatementSegment(sparksql.CreateTableStatementSegment):
+    """A `CREATE TABLE` statement, including an inline pipeline flow.
+
+    A streaming table may declare one flow inline instead of an AS query:
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    match_grammar = Sequence(
+        OneOf(
+            # Inline FLOW is only valid on a streaming table, so this alternative
+            # requires STREAMING and a flow clause. An optional FLOW clause on the
+            # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
+            # which Databricks rejects.
+            Sequence(
+                "CREATE",
+                Ref("OrRefreshGrammar", optional=True),
+                OneOf(
+                    Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                    Ref.keyword("STREAMING"),
+                ),
+                Ref("TableDefinitionSegment"),
+                Ref("FlowClauseSegment"),
+            ),
+            sparksql.CreateTableStatementSegment.match_grammar,
+        )
     )
 
 
@@ -2270,13 +2325,23 @@ class MagicCellStatementSegment(BaseSegment):
                 # line (`-- MAGIC %md`) or with content after it
                 # (`-- MAGIC %md # Title`). Both may be followed by further
                 # `-- MAGIC` lines: the directive only names the language, it
-                # does not say how many lines the cell has.
+                # does not say how many lines the cell has. A later line may
+                # itself start with `%` (an `%md` cell quoting `%pip`, for
+                # example) without opening another cell, so directive-shaped
+                # lines are body text too.
                 OneOf(
                     Ref("MagicStartGrammar"),
                     Ref("MagicSingleLineGrammar"),
                     optional=True,
                 ),
-                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+                AnyNumberOf(
+                    OneOf(
+                        Ref("MagicLineGrammar"),
+                        Ref("MagicSingleLineGrammar"),
+                        Ref("MagicStartGrammar"),
+                    ),
+                    optional=True,
+                ),
             ),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
@@ -2552,4 +2617,63 @@ class CreateFlowStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
             ),
         ),
+    )
+
+
+class FlowClauseSegment(BaseSegment):
+    """A flow declared inline on a pipeline streaming table.
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    type = "flow_clause"
+
+    match_grammar = Sequence(
+        "FLOW",
+        Indent,
+        OneOf(
+            # FLOW INSERT [ONCE] BY NAME query
+            Sequence(
+                "INSERT",
+                Ref.keyword("ONCE", optional=True),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW AUTO CDC <cdc spec>. The target is the table itself, so
+            # there is no INTO here, unlike the standalone CREATE FLOW form.
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref("CDCSpecificationSegment"),
+            ),
+            # FLOW REPLACE WHERE predicate BY NAME query
+            Sequence(
+                "REPLACE",
+                "WHERE",
+                Ref("ExpressionSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW REPLACE USING ( column_name [, ...] )
+            #   SEQUENCE BY sequence_column BY NAME query
+            #
+            # The list and its SEQUENCE BY column are bound as a pair: the
+            # reference defines replace_using_spec with both, and accepting
+            # them independently is the defect #8509 shipped for the
+            # standalone statement.
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                "SEQUENCE",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+        ),
+        Dedent,
     )
