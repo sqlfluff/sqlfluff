@@ -1919,8 +1919,10 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         "TABLE",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("PartitionSpecGrammar", optional=True),
+        Dedent,
     )
 
 
@@ -1951,15 +1953,19 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         OneOf("INTO", "OVERWRITE"),
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             Sequence(
+                Indent,
                 Ref("PartitionSpecGrammar", optional=True),
                 OneOf(
                     Ref("BracketedColumnReferenceListGrammar"),
                     Sequence("BY", "NAME"),
                     optional=True,
                 ),
+                Dedent,
                 Ref("InsertSourceGrammar"),
             ),
             Sequence(
@@ -1970,7 +1976,9 @@ class InsertStatementSegment(BaseSegment):
             Sequence(
                 "REPLACE",
                 "USING",
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
                 Ref("InsertSourceGrammar"),
             ),
         ),
@@ -2056,11 +2064,15 @@ class FromInsertClauseSegment(BaseSegment):
         "INSERT",
         OneOf("INTO", "OVERWRITE"),
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             Sequence(
+                Indent,
                 Ref("PartitionSpecGrammar", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref(
                     "InsertSourceGrammar",
                     terminators=[Ref.keyword("INSERT")],
@@ -2104,7 +2116,9 @@ class InsertOverwriteDirectorySegment(BaseSegment):
         "OVERWRITE",
         Ref.keyword("LOCAL", optional=True),
         "DIRECTORY",
+        Indent,
         Ref("QuotedLiteralSegment", optional=True),
+        Dedent,
         "USING",
         Ref("DataSourceFormatSegment"),
         Ref("OptionsGrammar", optional=True),
@@ -2131,7 +2145,9 @@ class InsertOverwriteDirectoryHiveFmtSegment(BaseSegment):
         "OVERWRITE",
         Ref.keyword("LOCAL", optional=True),
         "DIRECTORY",
+        Indent,
         Ref("QuotedLiteralSegment"),
+        Dedent,
         Ref("RowFormatClauseSegment", optional=True),
         Ref("StoredAsGrammar", optional=True),
         OneOf(
@@ -3263,6 +3279,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             OneOf(
                 Bracketed(
@@ -3279,6 +3296,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 exclude=OneOf("VALUES"),
             ),
         ),
+        Dedent,
         # LIMIT/ORDER are unreserved in sparksql.
         Ref(
             "AliasExpressionSegment",

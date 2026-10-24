@@ -582,6 +582,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         OneOf(Ref("OrReplaceGrammar"), Ref("OrIgnoreGrammar"), optional=True),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AsAliasExpressionSegment", optional=True),
         OneOf(
@@ -590,6 +591,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Sequence("BY", "NAME"),
             optional=True,
         ),
+        Dedent,
         OneOf(
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
@@ -1585,6 +1587,7 @@ class ValuesClauseSegment(postgres.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -1598,6 +1601,7 @@ class ValuesClauseSegment(postgres.ValuesClauseSegment):
             ),
             allow_trailing=True,
         ),
+        Dedent,
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
