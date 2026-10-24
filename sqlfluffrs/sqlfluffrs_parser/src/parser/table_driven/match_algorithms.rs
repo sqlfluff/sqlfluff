@@ -191,9 +191,8 @@ impl Parser<'_> {
                 // `raw` tokens (the Python parser re-types them), so match on
                 // the raw bracket rather than the segment type.
                 // PYTHON PARITY: `greedy_match()` in `match_algorithms.py`.
-                || token_raw == ")"
-                || token_raw == "]"
-                || token_raw == "}";
+                || (tok.is_code()
+                    && (token_raw == ")" || token_raw == "]" || token_raw == "}"));
         }
         // Went all the way back to start_idx — allow it (first element)
         true
