@@ -23,6 +23,23 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "ANONYMOUS",
+    "CATALOGS",
+    "CLEAN",
+    "CONNECTIONS",
+    "CREDENTIAL",
+    "CREDENTIALS",
+    "DROPPED",
+    "EFFECTIVE",
+    "FILES",
+    "GROUPS",
+    "LOCATIONS",
+    "METADATA",
+    "POLICIES",
+    "PROVIDERS",
+    "RECIPIENTS",
+    "ROOM",
+    "SERVICE",
     "AUTO",
     "CATALOG",
     "CDC",
