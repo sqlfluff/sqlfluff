@@ -41,6 +41,16 @@ KNOWN_STYLES = {
     "dollar": regex.compile(
         r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
     ),
+    # Databricks notebook widget and dashboard parameters:
+    #   ${name}, ${dotted.name} and $name for widgets,
+    #   {{ name }} for dashboard parameters.
+    # The braced widget form may be empty (`${}`).
+    "databricks": regex.compile(
+        r"(?<![:\w\x5c])(?:\$\{(?P<param_name>[A-Za-z_][A-Za-z0-9_.]*)?\}"
+        r"|\{\{\s*(?P<param_name>[A-Za-z_][A-Za-z0-9_.]*)\s*\}\}"
+        r"|\$(?P<param_name>[A-Za-z_][A-Za-z0-9_]*))",
+        regex.UNICODE,
+    ),
     # e.g. WHERE bla = $name$ (DbUp compatible)
     "dollar_surround": regex.compile(
         r"(?<![:\w\x5c])\$(?P<param_name>[-\w]+)\$", regex.UNICODE
@@ -154,11 +164,13 @@ class PlaceholderTemplater(RawTemplater):
         param_counter = 1
         for found_param in regex.finditer(in_str):
             span = found_param.span()
-            if "param_name" not in found_param.groupdict():
+            # A style may have no named group at all (e.g. `question_mark`),
+            # or match one without a name (e.g. an empty Databricks widget
+            # `${}`). Both fall back to a 1-based index.
+            param_name = found_param.groupdict().get("param_name")
+            if param_name is None:
                 param_name = str(param_counter)
                 param_counter += 1
-            else:
-                param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
             if param_name in context:
                 replacement = str(context[param_name])
