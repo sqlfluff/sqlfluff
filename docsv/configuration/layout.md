@@ -708,6 +708,44 @@ ON condition1
 AND condition2
 ```
 
+There is also an `indented_using_on_newline` config (defaulted to
+`False`) which can be set to `True` to indent the `USING` or `ON`
+clause one level deeper than a joined table on its own line.
+For example, with `indented_using_on_newline` set to `True` and
+`implicit_indents` set to `allow`:
+
+```sql
+SELECT
+   a,
+   b
+FROM my_table
+JOIN
+   another_table
+      ON condition1
+         AND condition2
+JOIN
+   yet_another_table
+      USING (id_field)
+```
+
+A join written on a single line (e.g. `JOIN another_table ON condition1`)
+is unaffected. However, when `indented_using_on_newline` is set to `True`
+and the `ON` or `USING` clause is on its own line, the joined table is
+expected to be on its own line too, so the following:
+
+```sql
+JOIN another_table
+   ON condition1
+```
+
+would become:
+
+```sql
+JOIN
+   another_table
+      ON condition1
+```
+
 There is also a similar `indented_ctes` config (defaulted to
 `False`) which can be set to `True` to enforce CTEs to be
 indented within the `WITH` clause:
