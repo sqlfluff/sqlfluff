@@ -22,6 +22,13 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 " when linting line lengths?"
             ),
         },
+        "ignore_aliases": {
+            "validation": [True, False],
+            "definition": (
+                "Should aliases which begin within the configured line length be"
+                " ignored when linting line lengths?"
+            ),
+        },
         "maximum_empty_lines_between_statements": {
             "validation": range(1000),
             "definition": (
