@@ -564,7 +564,7 @@ databricks_dialect.replace(
             r"[A-Z_][A-Z0-9_]*",
             WordSegment,
             type="function_name_identifier",
-            anti_template=r"IDENTIFIER",
+            anti_template=r"^IDENTIFIER$",
         ),
         Ref("BackQuotedIdentifierSegment"),
     ),
