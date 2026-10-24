@@ -2052,8 +2052,7 @@ class AlterCredentialStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "ALTER",
-        Ref.keyword("STORAGE", optional=True),
-        Ref.keyword("SERVICE", optional=True),
+        OneOf("STORAGE", "SERVICE", optional=True),
         "CREDENTIAL",
         Ref("SingleIdentifierGrammar"),
         OneOf(
