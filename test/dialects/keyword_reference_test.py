@@ -35,6 +35,7 @@ from them, as the parser's "not found in the ... dialect" errors suggest.
 
 import functools
 import inspect
+import re
 import signal
 import sys
 import textwrap
@@ -1663,7 +1664,7 @@ def _audit_report_of(
             )
         )
     ready: list[str] = []
-    hidden: list[str] = []
+    hidden: dict[str, list[str]] = {}
     for name, found in findings.items():
         audited = name not in UNAUDITED_DIALECTS
         counts = _level_counts(found)
@@ -1688,7 +1689,7 @@ def _audit_report_of(
                 ready.append(name)
         for finding in found:
             if finding.level not in shown_levels:
-                hidden.append(
+                hidden.setdefault(finding.level, []).append(
                     f"{finding.number_text or finding.number} "
                     f"{finding.title.lower()} in {name}"
                 )
@@ -1714,7 +1715,9 @@ def _audit_report_of(
             lines.extend(_heading(f"{never.title} ({never.number}) [notice]", "="))
             lines.extend(_render_message(never.message))
         else:
-            hidden.append(f"{never.number} {never.title.lower()}")
+            hidden.setdefault(never.level, []).append(
+                f"{never.number} {never.title.lower()}"
+            )
     if ready:
         lines.append("")
         lines.append("")
@@ -1729,13 +1732,18 @@ def _audit_report_of(
     if hidden:
         lines.append("")
         lines.append("")
-        lines.extend(
-            _paragraph(
-                f"Not shown, below --level {level}: {'; '.join(hidden)}. Run with "
-                "--level notice to see everything.",
-                "",
+    # Each line starts with what the hidden findings are, so a reader scanning
+    # the footer doesn't take notices for warnings.
+    for hidden_level in LEVELS:
+        items = hidden.get(hidden_level)
+        if items:
+            lines.extend(
+                _paragraph(
+                    f"{hidden_level.capitalize()}s not shown ({len(items)}): "
+                    f"{'; '.join(items)}. Show them with --level {hidden_level}.",
+                    "",
+                )
             )
-        )
     lines.append("")
     lines.append("")
     lines.extend(verdict)
@@ -1893,7 +1901,8 @@ def test_audit_report_lists_unused_keywords_as_notices() -> None:
     assert "== Keywords no grammar in these dialects uses (" in shown
     assert "These do no harm" in _flat(shown)
     assert "Keywords no grammar uses (" not in hidden
-    assert "Run with --level notice to see everything." in _flat(hidden)
+    assert re.search(r"Notices not shown \(\d+\): ", _flat(hidden))
+    assert "Show them with --level notice." in _flat(hidden)
 
 
 def test_unused_findings_are_absent_when_everything_is_used() -> None:
@@ -1914,7 +1923,9 @@ def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     assert "[error]" in report
     assert "[warning]" not in report
     assert "The audit would also fail on" in flat
-    assert "Not shown, below --level error:" in flat
+    assert "Warnings not shown (" in flat
+    assert "Show them with --level warning." in flat
+    assert "Notices not shown (" in flat
 
 
 def test_audit_verdict_judges_what_was_asked() -> None:
