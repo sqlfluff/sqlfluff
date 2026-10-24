@@ -35,6 +35,7 @@ from them, as the parser's "not found in the ... dialect" errors suggest.
 
 import inspect
 import sys
+import textwrap
 from collections.abc import Iterator, Mapping
 from difflib import get_close_matches
 from itertools import combinations
@@ -386,6 +387,8 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
         f"The {name} dialect's grammar uses keywords that {name} doesn't "
         "recognize, so any statement reaching that grammar would crash."
     ]
+    # Words a parent already lists, that this dialect lost: one fix for all.
+    dropped: dict[str, list[tuple[str, str]]] = {}
     for word, owners in sorted(keywords.items()):
         segments, modules = _segments_and_files(owners)
         match = get_close_matches(word, known, n=1, cutoff=0.8)
@@ -407,12 +410,6 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
                 "aren't keywords but are needed to parse."
             )
             continue
-        decide = (
-            f"Give it {name}'s status in {_dialect_file(own_module)}, with "
-            f"{_paste(name, 'unreserved', [word])} if {name}'s server has it, "
-            f"or {_paste(name, 'unimplemented', [word])} if it doesn't. If you "
-            "can't check, use unreserved."
-        )
         parents = " and ".join(module.removeprefix("dialect_") for module in modules)
         knowers = sorted(
             module.removeprefix("dialect_")
@@ -420,12 +417,7 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
             if _dialect_knows(module.removeprefix("dialect_"), word)
         )
         if knowers:
-            lines.append(
-                f"- {word} (in {segments}, which {name} inherits from {parents}):"
-                f" {' and '.join(knowers)} already lists it, so {name}, or a "
-                "dialect between them, dropped it when it replaced its keyword "
-                f"lists. {decide}"
-            )
+            dropped.setdefault(" and ".join(knowers), []).append((word, segments))
             continue
         files = " and ".join(_keyword_file(module) for module in modules)
         lines.append(
@@ -435,6 +427,21 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
             f"then inherits it. Only if you know {name}'s server doesn't "
             f"recognize {word}: instead, {_paste(name, 'unimplemented', [word])} "
             f"in {_dialect_file(own_module)}."
+        )
+    for listed_by, words in sorted(dropped.items()):
+        width = max(len(word) for word, _ in words)
+        listed = [word for word, _ in words]
+        lines.append(
+            f"- {len(words)} that {listed_by} already lists, lost when {name}, or a "
+            "dialect between them, replaced its keyword lists:"
+        )
+        for word, segments in words:
+            lines.append(f"    {word.ljust(width)}  in {segments}")
+        lines.append(
+            f"  Give each its {name} status in {_dialect_file(own_module)}: "
+            f"{_paste(name, 'unreserved', listed)} for those {name}'s server has, "
+            f"and categorize_keywords(unimplemented=[...]) for any it doesn't. If "
+            "you can't check, use unreserved for all of them."
         )
     return "\n".join(lines) + _docs_line(dialect)
 
@@ -1175,17 +1182,27 @@ def _unused_keyword_report(dialect_names: list[str]) -> str:
     it may be syntax sqlfluff doesn't parse yet, a word that can go, or a
     function name the function-name parser matches, like ABS.
     """
-    lines = [
-        "Keywords no grammar uses. Two ways to read this:",
-        "- Missing grammar: where a dialect's keyword lists come from the "
-        "database's own source, an unused keyword often marks syntax the "
-        "database has and sqlfluff doesn't parse yet.",
-        "- Clean-up: a word that isn't a keyword of the database at all can go. "
-        "Check first: used means referred to as a keyword, so a function name "
-        "like ABS, matched as a name, shows up here too, and reserved words "
-        "stop names even when no grammar uses them.",
-        "",
-    ]
+    lines = _heading("Keywords no grammar uses", "=")
+    lines.append("")
+    lines.extend(_paragraph("Two ways to read this:", ""))
+    lines.extend(
+        _paragraph(
+            "* Missing grammar: where a dialect's keyword lists come from the "
+            "database's own source, an unused keyword often marks syntax the "
+            "database has and sqlfluff doesn't parse yet.",
+            "  ",
+        )
+    )
+    lines.extend(
+        _paragraph(
+            "* Clean-up: a word that isn't a keyword of the database at all can "
+            "go. Check first: used means referred to as a keyword, so a function "
+            "name like ABS, matched as a name, shows up here too, and reserved "
+            "words stop names even when no grammar uses them.",
+            "  ",
+        )
+    )
+    lines.append("")
     used_anywhere: set[str] = set()
     listed_anywhere: set[str] = set()
     for name in dialect_names:
@@ -1203,21 +1220,31 @@ def _unused_keyword_report(dialect_names: list[str]) -> str:
                 inherited |= parent.sets(label)
         from_parent = [word for word in unused if word in inherited]
         own = [word for word in unused if word not in inherited]
-        lines.append(
-            f"{name}: {len(unused)} unreserved keywords its grammar doesn't use"
+        lines.append("")
+        lines.extend(
+            _heading(
+                f"{name}: {len(unused)} unreserved keywords its grammar doesn't use",
+                "-",
+            )
         )
         if from_parent:
+            lines.append("")
             lines.append(f"  {len(from_parent)} also in {parent_name}'s keywords:")
             lines.extend(_wrapped(from_parent))
         if own:
+            lines.append("")
             lines.append(f"  {len(own)} only in {name}'s keywords:")
             lines.extend(_wrapped(own))
-        lines.append("")
     never = sorted(listed_anywhere - used_anywhere)
-    lines.append(
-        f"{len(never)} reserved or unreserved keywords that no grammar in these "
-        "dialects uses:"
+    lines.append("")
+    lines.extend(
+        _heading(
+            f"{len(never)} reserved or unreserved keywords that no grammar in these "
+            "dialects uses",
+            "-",
+        )
     )
+    lines.append("")
     lines.extend(_wrapped(never))
     return "\n".join(lines)
 
@@ -1266,94 +1293,249 @@ def _switched_off(dialect: Dialect) -> dict[str, set[Owner]]:
     return found
 
 
+REPORT_WIDTH = 88
+
+
+def _heading(text: str, rule: str) -> list[str]:
+    """A heading line padded with a rule to the report width."""
+    return [f"{rule}{rule} {text} ".ljust(REPORT_WIDTH, rule)]
+
+
+def _paragraph(text: str, indent: str) -> list[str]:
+    """Text wrapped to the report width, keeping words (and pasted calls) whole."""
+    return textwrap.wrap(
+        text,
+        width=REPORT_WIDTH,
+        initial_indent=indent,
+        subsequent_indent=indent,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
+
+
+def _render_message(message: str) -> list[str]:
+    """A check's message laid out for reading: paragraphs, then one item each.
+
+    The messages are written for pytest: an introduction, items starting "- "
+    (a word or reference and its advice), rows indented by four spaces (a
+    list under an item), lines indented by two (more advice for the item),
+    and closing notes. Here each item gets its own block, separated by blank
+    lines, wrapped with hanging indents.
+    """
+    lines: list[str] = []
+    for line in message.splitlines():
+        if line.startswith("    "):
+            lines.append("      " + line.strip())
+        elif line.startswith("  "):
+            lines.extend(_paragraph(line.strip(), "      "))
+        elif line.startswith("- "):
+            item = line[2:]
+            if item.endswith(":"):
+                head, rest = item, ""
+            elif "): " in item:
+                head, _, rest = item.partition("): ")
+                head += "):"
+            else:
+                head, _, rest = item.partition(": ")
+                head += ":"
+            lines.append("")
+            lines.extend(
+                textwrap.wrap(
+                    f"* {head}",
+                    width=REPORT_WIDTH,
+                    initial_indent="  ",
+                    subsequent_indent="    ",
+                    break_long_words=False,
+                    break_on_hyphens=False,
+                )
+            )
+            if rest:
+                lines.extend(_paragraph(rest, "      "))
+        else:
+            lines.append("")
+            lines.extend(_paragraph(line, "  "))
+    return lines
+
+
+def _audit_findings(name: str, dialect: Dialect) -> list[tuple[str, int, str]]:
+    """Each kind of problem found in a dialect: (title, count, message)."""
+    unresolved = _unresolved_references(dialect)
+    keywords = {
+        reference[: -len("KeywordSegment")].upper(): owners
+        for reference, owners in unresolved.items()
+        if reference.endswith("KeywordSegment")
+    }
+    segments = {
+        reference: owners
+        for reference, owners in unresolved.items()
+        if not reference.endswith("KeywordSegment")
+    }
+    overlaps = _overlaps(dialect)
+    vanished = _vanished(dialect)
+    future_only = _future_only_uses(dialect)
+    own_unimplemented = _unimplemented_in_own_grammar(dialect)
+    claim_problems = _claim_problems(dialect)
+    findings: list[tuple[str, int, str]] = []
+    if keywords:
+        findings.append(
+            (
+                "Missing keywords",
+                len(keywords),
+                _missing_keywords_message(dialect, keywords),
+            )
+        )
+    if segments:
+        findings.append(
+            (
+                "Missing segments",
+                len(segments),
+                _missing_segments_message(dialect, segments),
+            )
+        )
+    if overlaps:
+        findings.append(
+            ("Two statuses", len(overlaps), _overlaps_message(dialect, overlaps))
+        )
+    if vanished:
+        findings.append(
+            (
+                "Inherited keywords with no status",
+                len(vanished),
+                _vanished_message(dialect, vanished),
+            )
+        )
+    if future_only:
+        findings.append(
+            (
+                "Grammar keywords only future reserved",
+                len(future_only),
+                _future_only_message(dialect, future_only),
+            )
+        )
+    if own_unimplemented:
+        findings.append(
+            (
+                "Unimplemented words in own grammar",
+                len(own_unimplemented),
+                _unimplemented_in_own_grammar_message(dialect, own_unimplemented),
+            )
+        )
+    if claim_problems:
+        findings.append(
+            (
+                "Exhaustive claim doesn't hold",
+                sum(len(words) for words in claim_problems.values()),
+                _claim_message(dialect, claim_problems),
+            )
+        )
+    if name in UNAUDITED_DIALECTS and dialect.exhaustive_reserved_claim:
+        findings.append(
+            ("Claim on an unaudited dialect", 1, _unaudited_claims_message([name]))
+        )
+    return findings
+
+
 def _audit_report_of(dialects: dict[str, Dialect]) -> str:
     """The audit report for these dialects, by name."""
-    lines = [
-        "Audit: what the checks in this file find in each dialect. For an "
-        "audited dialect, pytest fails on these. For one in UNAUDITED_DIALECTS, "
-        "they are what auditing it would bring.",
-        "",
-    ]
-    ready: list[str] = []
-    for name, dialect in dialects.items():
-        audited = name not in UNAUDITED_DIALECTS
-        unresolved = _unresolved_references(dialect)
-        keywords = {
-            reference[: -len("KeywordSegment")].upper(): owners
-            for reference, owners in unresolved.items()
-            if reference.endswith("KeywordSegment")
-        }
-        segments = {
-            reference: owners
-            for reference, owners in unresolved.items()
-            if not reference.endswith("KeywordSegment")
-        }
-        overlaps = _overlaps(dialect)
-        own_unimplemented = _unimplemented_in_own_grammar(dialect)
-        vanished = _vanished(dialect)
-        future_only = _future_only_uses(dialect)
-        claim_problems = _claim_problems(dialect)
-        messages = []
-        if keywords:
-            messages.append(_missing_keywords_message(dialect, keywords))
-        if segments:
-            messages.append(_missing_segments_message(dialect, segments))
-        if overlaps:
-            messages.append(_overlaps_message(dialect, overlaps))
-        if vanished:
-            messages.append(_vanished_message(dialect, vanished))
-        if future_only:
-            messages.append(_future_only_message(dialect, future_only))
-        if own_unimplemented:
-            messages.append(
-                _unimplemented_in_own_grammar_message(dialect, own_unimplemented)
+    findings = {name: _audit_findings(name, d) for name, d in dialects.items()}
+    lines = _heading("Keyword audit", "=")
+    lines.extend(
+        _paragraph(
+            "What the checks in test/dialects/keyword_reference_test.py find in "
+            "each dialect. For an audited dialect, pytest fails on these. For one "
+            "in UNAUDITED_DIALECTS, they are what auditing it would bring.",
+            "",
+        )
+    )
+    lines.append("")
+    width = max(len(name) for name in dialects)
+    for name, found in findings.items():
+        status = "unaudited" if name in UNAUDITED_DIALECTS else "audited"
+        if found:
+            summary = ", ".join(f"{count} {title.lower()}" for title, count, _ in found)
+        else:
+            summary = "nothing to fix"
+        lines.extend(
+            textwrap.wrap(
+                f"{name.ljust(width)}  {status:9}  {summary}",
+                width=REPORT_WIDTH,
+                initial_indent="  ",
+                subsequent_indent=" " * (2 + width + 2 + 9 + 2),
+                break_long_words=False,
             )
-        if claim_problems:
-            messages.append(_claim_message(dialect, claim_problems))
-        if not audited and dialect.exhaustive_reserved_claim:
-            messages.append(_unaudited_claims_message([name]))
-        if not messages:
+        )
+    ready: list[str] = []
+    for name, found in findings.items():
+        dialect = dialects[name]
+        audited = name not in UNAUDITED_DIALECTS
+        lines.append("")
+        lines.append("")
+        lines.extend(_heading(f"{name} ({'audited' if audited else 'unaudited'})", "="))
+        if not found:
+            lines.append("")
             if audited:
-                lines.append(f"{name}: audited, nothing to fix.")
+                lines.append("  Nothing to fix.")
             else:
-                lines.append(
-                    f'{name} passes every check. Lock it in: remove "{name}" from '
-                    "UNAUDITED_DIALECTS in test/dialects/keyword_reference_test.py. "
-                    f"CI then audits {name} on every change."
+                lines.extend(
+                    _paragraph(
+                        f'{name} passes every check. Lock it in: remove "{name}" '
+                        "from UNAUDITED_DIALECTS in "
+                        "test/dialects/keyword_reference_test.py. CI then audits "
+                        f"{name} on every change.",
+                        "  ",
+                    )
                 )
                 ready.append(name)
-        else:
-            if audited:
-                lines.append(f"{name} (audited, so pytest fails on these):")
-            else:
-                lines.append(f"{name} (unaudited):")
-            lines.extend(messages)
+        for title, count, message in found:
+            lines.append("")
+            lines.extend(_heading(f"{title} ({count})", "-"))
+            lines.extend(_render_message(message))
         switched_off = _switched_off(dialect)
         if switched_off:
-            lines.append(
-                f"  Inherited grammar {name}'s unimplemented words switch off "
-                "(check these are features its server lacks):"
+            lines.append("")
+            lines.extend(
+                _heading(f"Inherited grammar switched off ({len(switched_off)})", "-")
             )
+            lines.append("")
+            lines.extend(
+                _paragraph(
+                    f"Inherited grammar {name}'s unimplemented words switch off. "
+                    "Check these are features its server lacks.",
+                    "  ",
+                )
+            )
+            lines.append("")
             for word, owners in sorted(switched_off.items()):
                 users, _ = _segments_and_files(owners)
-                lines.append(f"    {word}: {users}")
-        lines.append("")
+                lines.extend(_paragraph(f"{word}: {users}", "    "))
     if ready:
-        lines.append(
-            f"Ready to audit: {', '.join(ready)}. Remove "
-            f"{'it' if len(ready) == 1 else 'them'} from UNAUDITED_DIALECTS in "
-            "test/dialects/keyword_reference_test.py."
+        lines.append("")
+        lines.append("")
+        lines.extend(
+            _paragraph(
+                f"Ready to audit: {', '.join(ready)}. Remove "
+                f"{'it' if len(ready) == 1 else 'them'} from UNAUDITED_DIALECTS in "
+                "test/dialects/keyword_reference_test.py.",
+                "",
+            )
         )
     return "\n".join(lines)
+
+
+def _flat(text: str) -> str:
+    """Text with every run of whitespace as one space, to match across wraps."""
+    return " ".join(text.split())
 
 
 def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     """Test that the report answers for any dialect it is given."""
     report = _audit_report(["mysql", "tsql"])
 
-    assert "mysql: audited, nothing to fix." in report
-    assert "tsql (unaudited):" in report
-    assert "MARK" in report
+    assert "== mysql (audited) ==" in report
+    assert "  Nothing to fix." in report
+    assert "== tsql (unaudited) ==" in report
+    assert "* MARK (in TransactionStatementSegment" in report
+    assert "mysql  audited    nothing to fix" in report
 
 
 def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
@@ -1373,11 +1555,13 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     finally:
         UNAUDITED_DIALECTS.difference_update(dialects)
 
-    assert 'zzready passes every check. Lock it in: remove "zzready"' in report
-    assert "Ready to audit: zzready." in report
-    assert "refers to segments or grammars that don't exist" in report
-    assert "two statuses that can't go together" in report
-    assert "Inherited grammar zzbroken's unimplemented words switch off" in report
+    flat = _flat(report)
+
+    assert 'zzready passes every check. Lock it in: remove "zzready"' in flat
+    assert "Ready to audit: zzready." in flat
+    assert "refers to segments or grammars that don't exist" in flat
+    assert "two statuses that can't go together" in flat
+    assert "-- Inherited grammar switched off (1) --" in report
     assert "    ZONE: " in report
 
 
@@ -1406,12 +1590,15 @@ def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
     finally:
         UNAUDITED_DIALECTS.discard("zzunchecked")
 
-    assert "zzauditedbroken (audited, so pytest fails on these):" in report
-    assert "In the zzauditedbroken dialect, these words have two statuses" in report
-    assert "zzown (audited, so pytest fails on these):" in report
-    assert "- ZZOWNWORD (in _OwnGrammarSegment)" in report
-    assert "zzclaimer's reserved list is marked exhaustive (source: zz)" in report
-    assert "nothing checks the claim: zzunchecked" in report
+    flat = _flat(report)
+
+    assert "== zzauditedbroken (audited) ==" in report
+    assert "In the zzauditedbroken dialect, these words have two statuses" in flat
+    assert "== zzown (audited) ==" in report
+    assert "* ZZOWNWORD (in _OwnGrammarSegment):" in report
+    assert "zzclaimer's reserved list is marked exhaustive (source: zz)" in flat
+    assert "nothing checks the claim: zzunchecked" in flat
+    assert "-- Claim on an unaudited dialect (1) --" in report
 
 
 def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
@@ -1434,7 +1621,8 @@ def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
 
     message = _missing_keywords_message(expanded, {word: keywords[word]})
 
-    assert "ansi already lists it, so zzdropped" in message
+    assert "- 1 that ansi already lists, lost when zzdropped" in message
+    assert f"    {word}  in " in message
     assert f'zzdropped_dialect.categorize_keywords(unreserved=["{word}"])' in message
 
 
@@ -1442,9 +1630,9 @@ def test_unused_keyword_report_has_both_sections() -> None:
     """Test that the report lists per-dialect and cross-dialect unused words."""
     report = _unused_keyword_report(["mariadb"])
 
-    assert "mariadb: " in report
+    assert "-- mariadb: " in report
     assert "also in mysql's keywords:" in report
-    assert "that no grammar in these dialects uses:" in report
+    assert "that no grammar in these dialects uses --" in report
 
 
 if __name__ == "__main__":  # pragma: no cover
