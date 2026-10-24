@@ -993,7 +993,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     match_grammar: Matchable = Sequence(
         "ORDER",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             Sequence(
                 OneOf(
@@ -1022,7 +1022,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 "ALL",

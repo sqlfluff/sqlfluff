@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Dedent,
     Delimited,
+    ImplicitIndent,
     Indent,
     KeywordSegment,
     Matchable,
@@ -544,7 +545,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Sequence(
             Delimited(
                 Sequence(

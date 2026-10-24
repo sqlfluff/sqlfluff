@@ -1790,7 +1790,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     match_grammar: Matchable = Sequence(
         "ORDER",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             Sequence(
                 OneOf(
@@ -2189,7 +2189,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),

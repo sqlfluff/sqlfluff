@@ -6531,7 +6531,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Ref.keyword("ALL", optional=True),
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
@@ -6611,7 +6611,7 @@ class OrderByClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "ORDER",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             Sequence(
                 OneOf(
