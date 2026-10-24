@@ -1721,3 +1721,20 @@ test_fail_bigquery_with_expression_variable_in_own_subquery:
     rules:
       references.from:
         force_enable: true
+
+test_fail_bigquery_dbt_max_partition_without_dbt:
+  fail_str: SELECT DATE(_dbt_max_partition) FROM events
+  configs:
+    core:
+      dialect: bigquery
+      templater: raw
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_bigquery_dbt_max_partition_default_disabled:
+  pass_str: SELECT DATE(_dbt_max_partition) FROM events
+  configs:
+    core:
+      dialect: bigquery
+      templater: raw
