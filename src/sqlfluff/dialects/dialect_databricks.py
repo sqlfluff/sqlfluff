@@ -1862,19 +1862,17 @@ class ScriptingConditionValuesGrammar(BaseSegment):
     """`condition_values` of a handler declaration."""
 
     type = "scripting_condition_values"
-    match_grammar = OneOf(
-        "SQLEXCEPTION",
-        Sequence("NOT", "FOUND"),
-        Delimited(
-            OneOf(
-                Sequence(
-                    "SQLSTATE",
-                    Ref.keyword("VALUE", optional=True),
-                    Ref("QuotedLiteralSegment"),
-                ),
-                Ref("SingleIdentifierGrammar"),
-            )
-        ),
+    match_grammar = Delimited(
+        OneOf(
+            "SQLEXCEPTION",
+            Sequence("NOT", "FOUND"),
+            Sequence(
+                "SQLSTATE",
+                Ref.keyword("VALUE", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("SingleIdentifierGrammar"),
+        )
     )
 
 
@@ -2179,7 +2177,7 @@ class ScriptingBlockStatementSegment(BaseSegment):
         Ref("ScriptingLabelGrammar", optional=True),
         "BEGIN",
         Ref.keyword("ATOMIC", optional=True),
-        Ref("ScriptingBodyGrammar"),
+        Ref("ScriptingBodyGrammar", optional=True),
         "END",
         Ref("SingleIdentifierGrammar", optional=True),
     )
@@ -2190,9 +2188,7 @@ class ProcedureParameterGrammar(BaseSegment):
 
     type = "procedure_parameter"
     match_grammar = Sequence(
-        Ref.keyword("INOUT", optional=True),
-        Ref.keyword("OUT", optional=True),
-        Ref.keyword("IN", optional=True),
+        OneOf("IN", "OUT", "INOUT", optional=True),
         Ref("SingleIdentifierGrammar"),
         Ref("DatatypeSegment"),
         Sequence(
@@ -2222,7 +2218,7 @@ class CreateProcedureStatementSegment(BaseSegment):
             optional=True,
         ),
         AnyNumberOf(
-            Sequence("LANGUAGE", OneOf("SQL", "PYTHON", "SCALA", "JAVA")),
+            Sequence("LANGUAGE", "SQL"),
             Sequence("SQL", "SECURITY", OneOf("INVOKER", "DEFINER")),
             Sequence("NOT", "DETERMINISTIC"),
             Ref("CommentGrammar"),

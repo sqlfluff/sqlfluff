@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 672f5f439defa2466828bca9f81df6f79af13b2e20a1c02f0f4fe53d87ec2407
+_hash: 4f7ded378b3f890537407480ec7a3dbf3f72b6382fc19b0475f32ae04299e3ba
 file:
 - statement:
     scripting_block_statement:
@@ -116,6 +116,22 @@ file:
               - keyword: END
       - statement_terminator: ;
       - statement:
+          scripting_declare_statement:
+          - keyword: DECLARE
+          - keyword: CONTINUE
+          - keyword: HANDLER
+          - keyword: FOR
+          - scripting_condition_values:
+            - keyword: SQLEXCEPTION
+            - comma: ','
+            - keyword: NOT
+            - keyword: FOUND
+          - statement:
+              scripting_block_statement:
+              - keyword: BEGIN
+              - keyword: END
+      - statement_terminator: ;
+      - statement:
           set_statement:
             keyword: SET
             property_name_identifier:
@@ -135,5 +151,10 @@ file:
                   naked_identifier: a
               end_bracket: )
       - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
     - keyword: END
 - statement_terminator: ;

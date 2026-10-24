@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7af7f5876871775a270b18ccc5c0da28bf5b3086efd66f773ffb7bda7f0e82d9
+_hash: 41192bf7a0ca6ba7253e10225e0db3df8bb7d08a9ffc837102c78bfa172d9125
 file:
 - statement:
     scripting_block_statement:
@@ -78,7 +78,18 @@ file:
     scripting_block_statement:
     - keyword: BEGIN
     - scripting_body:
-        statement:
+      - statement:
+          declare_or_replace_variable_statement:
+          - keyword: DECLARE
+          - naked_identifier: choice
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '3'
+      - statement_terminator: ;
+      - statement:
           scripting_case_statement:
           - keyword: CASE
           - expression:
@@ -125,14 +136,25 @@ file:
               statement_terminator: ;
           - keyword: END
           - keyword: CASE
-        statement_terminator: ;
+      - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
 - statement:
     scripting_block_statement:
     - keyword: BEGIN
     - scripting_body:
-        statement:
+      - statement:
+          declare_or_replace_variable_statement:
+          - keyword: DECLARE
+          - naked_identifier: choice
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - keyword: DEFAULT
+          - expression:
+              numeric_literal: '3'
+      - statement_terminator: ;
+      - statement:
           scripting_case_statement:
           - keyword: CASE
           - keyword: WHEN
@@ -184,6 +206,6 @@ file:
               statement_terminator: ;
           - keyword: END
           - keyword: CASE
-        statement_terminator: ;
+      - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;

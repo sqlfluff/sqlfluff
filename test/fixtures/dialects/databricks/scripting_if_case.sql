@@ -13,6 +13,7 @@ BEGIN
 END;
 
 BEGIN
+    DECLARE choice INT DEFAULT 3;
     CASE choice
         WHEN 1 THEN VALUES (1);
         WHEN 2 THEN VALUES (2);
@@ -21,6 +22,7 @@ BEGIN
 END;
 
 BEGIN
+    DECLARE choice INT DEFAULT 3;
     CASE
         WHEN choice < 2 THEN VALUES (1);
         WHEN choice < 4 THEN VALUES (2);
