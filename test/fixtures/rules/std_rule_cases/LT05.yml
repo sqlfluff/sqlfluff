@@ -1193,3 +1193,35 @@ test_fail_no_fix_list_wrapping_fill_jinja:
       max_line_length: 45
     indentation:
       list_wrapping: fill
+
+test_fail_aliases_by_default:
+  fail_str: |
+    SELECT
+        short_col
+            AS this_is_a_very_long_column_alias_name
+  configs:
+    core:
+      max_line_length: 40
+
+test_pass_ignore_aliases:
+  pass_str: |
+    SELECT short_col AS this_is_a_very_long_column_alias_name
+    FROM short_table AS this_is_a_very_long_table_alias_name
+  configs:
+    core:
+      max_line_length: 40
+    rules:
+      layout.long_lines:
+        ignore_aliases: true
+
+test_fail_ignore_aliases_when_expression_is_too_long:
+  fail_str: |
+    SELECT
+        this_expression_is_already_longer_than_the_limit
+            AS short_alias
+  configs:
+    core:
+      max_line_length: 40
+    rules:
+      layout.long_lines:
+        ignore_aliases: true
