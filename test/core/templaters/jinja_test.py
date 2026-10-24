@@ -652,6 +652,96 @@ def test__templater_jinja_dynamic_variable_no_violations():
     assert len(vs) == 0
 
 
+@pytest.mark.parametrize(
+    "instr,expected",
+    [
+        (
+            '{% set columns = fromjson(\'["a", "b"]\') %}'
+            "SELECT {{ columns | join(', ') }} FROM my_table",
+            "SELECT a, b FROM my_table",
+        ),
+        (
+            "SELECT {{ fromjson('invalid', default=[1]) | join(', ') }}",
+            "SELECT 1",
+        ),
+        (
+            "SELECT '{{ tojson({'b': 2, 'a': 1}, sort_keys=True) }}'",
+            'SELECT \'{"a": 1, "b": 2}\'',
+        ),
+        (
+            "SELECT {{ fromjson(tojson([1, 2])) | join(', ') }}",
+            "SELECT 1, 2",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_json(instr, expected):
+    """JSON helpers render SQL through the Jinja templater."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    outstr, violations = JinjaTemplater().process(
+        in_str=instr, fname="test.sql", config=config
+    )
+    assert str(outstr) == expected
+    assert not violations
+
+
+@pytest.mark.parametrize("apply_dbt_builtins", [True, False])
+def test__templater_jinja_dbt_json_enabled(apply_dbt_builtins):
+    """JSON helpers respect the existing builtin configuration switch."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": apply_dbt_builtins}},
+        }
+    )
+    _, context, _ = JinjaTemplater().construct_render_func(config=config)
+    assert ("fromjson" in context) is apply_dbt_builtins
+    assert ("tojson" in context) is apply_dbt_builtins
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson"])
+def test__templater_jinja_dbt_json_override(name):
+    """Configured macros take precedence over JSON builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "jinja": {
+                    "apply_dbt_builtins": True,
+                    "macros": {
+                        "custom_json": f"{{% macro {name}(value) %}}42{{% endmacro %}}"
+                    },
+                }
+            },
+        }
+    )
+    outstr, violations = JinjaTemplater().process(
+        in_str=f"SELECT {{{{ {name}('input') }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson"])
+@pytest.mark.parametrize(
+    "override,call",
+    [(42, ""), (lambda value: 42, "('input')")],
+    ids=["value", "callable"],
+)
+def test__templater_jinja_dbt_json_context_override(name, override, call):
+    """Context values and callables take precedence over JSON builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": True}},
+        }
+    )
+    outstr, violations = JinjaTemplater(override_context={name: override}).process(
+        in_str=f"SELECT {{{{ {name}{call} }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
 def test__templater_jinja_dbt_builtin_function():
     """Test that dbt's `function()` builtin mock is available in Jinja templater."""
     config = FluffConfig.from_string(

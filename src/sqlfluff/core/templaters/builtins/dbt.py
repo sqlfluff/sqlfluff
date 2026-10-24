@@ -1,5 +1,6 @@
 """Defines the jinja builtins for dbt."""
 
+import json
 from typing import Any, Callable, Union
 
 from jinja2.runtime import Context, Macro
@@ -69,6 +70,22 @@ def _builtin_return(value: Any) -> None:
     raise MacroReturn(value)
 
 
+def _builtin_fromjson(string: str, default: Any = None) -> Any:
+    """Deserialize JSON, returning the default for ValueError as dbt does."""
+    try:
+        return json.loads(string)
+    except ValueError:
+        return default
+
+
+def _builtin_tojson(value: Any, default: Any = None, sort_keys: bool = False) -> Any:
+    """Serialize JSON, returning the default for ValueError as dbt does."""
+    try:
+        return json.dumps(value, sort_keys=sort_keys)
+    except ValueError:
+        return default
+
+
 class DbtSandboxedEnvironment(SandboxedEnvironment):
     """Handle dbt returns at every macro call, including same-file calls."""
 
@@ -136,4 +153,6 @@ DBT_BUILTINS = {
         ),
     ),
     "return": FunctionWrapper("return", _builtin_return),
+    "fromjson": FunctionWrapper("fromjson", _builtin_fromjson),
+    "tojson": FunctionWrapper("tojson", _builtin_tojson),
 }
