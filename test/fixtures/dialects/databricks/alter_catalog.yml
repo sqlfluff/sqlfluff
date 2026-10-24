@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd67227b4eed4431b88abf26495f9917c01d6e1e42c40fee273166373341772b
+_hash: 65603c5cc38196e546a68ec227d241855b44bc292df3f7d7a27bcce9e3cc291c
 file:
 - statement:
     alter_catalog_statement:
@@ -207,4 +207,22 @@ file:
           naked_identifier: host
         quoted_literal: "'h'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: c
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: port
+      - numeric_literal: '5432'
+      - comma: ','
+      - object_reference:
+          naked_identifier: ssl
+      - boolean_literal: 'true'
+      - end_bracket: )
 - statement_terminator: ;

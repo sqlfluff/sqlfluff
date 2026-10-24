@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 590cec0746f6edfbd948020e814d23882088b738aa3e428bb25f5bccf6a8ab1f
+_hash: 60fe5efa0785efaffb3490caac639015253f3c92ec0a7160a96028675bbe36cd
 file:
 - statement:
-    alter_view_statement:
+    alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -18,7 +18,7 @@ file:
     - quoted_identifier: '`u`'
 - statement_terminator: ;
 - statement:
-    alter_view_statement:
+    alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -53,7 +53,7 @@ file:
     - keyword: HOURS
 - statement_terminator: ;
 - statement:
-    alter_view_statement:
+    alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW

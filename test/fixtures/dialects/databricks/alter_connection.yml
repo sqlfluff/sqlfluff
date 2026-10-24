@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7c686b57ab03479034ae629af77be6639a5c608b84333c2b9ef26213e5b75f04
+_hash: 6c0019e95f07e356c0a7f31d1fdefd7f7767bcd22a67b5386c02c64d2498752b
 file:
 - statement:
     alter_connection_statement:
@@ -60,5 +60,18 @@ file:
             - expression:
                 quoted_literal: "'u'"
             - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: port
+        numeric_literal: '5432'
         end_bracket: )
 - statement_terminator: ;

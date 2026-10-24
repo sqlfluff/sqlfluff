@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2dd768c2a1a8d6dacec53ace81e90386d335fe654b0cec47f6eb097fe42593c
+_hash: d8c45b8c9aa7c2ab377744837ef7471899d94cef69dd25a990d74f7758eade87
 file:
 - statement:
     alter_share_statement:
@@ -137,4 +137,35 @@ file:
     - keyword: SCHEMA
     - object_reference:
         naked_identifier: sc
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: mv
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: v
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: m
 - statement_terminator: ;

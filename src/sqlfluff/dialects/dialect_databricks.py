@@ -877,7 +877,7 @@ class AlterCatalogStatementSegment(BaseSegment):
                                 Ref("QuotedLiteralSegment"),
                             ),
                             OneOf(
-                                Ref("QuotedLiteralSegment"),
+                                Ref("LiteralGrammar"),
                                 Ref("FunctionSegment"),
                             ),
                         )
@@ -1999,7 +1999,7 @@ class AlterConnectionStatementSegment(BaseSegment):
                                 Ref("QuotedLiteralSegment"),
                             ),
                             OneOf(
-                                Ref("QuotedLiteralSegment"),
+                                Ref("LiteralGrammar"),
                                 Ref("FunctionSegment"),
                             ),
                         )
@@ -2083,31 +2083,26 @@ class AlterGroupStatementSegment(BaseSegment):
     )
 
 
-class AlterMaterializedViewStatementSegment(BaseSegment):
-    """An `ALTER MATERIALIZED VIEW` statement.
-
-    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-alter-materialized-view
-    """
-
-    type = "alter_materialized_view_statement"
-
-    _schedule_clause = OneOf(
-        Sequence(
-            "EVERY",
-            Ref("NumericLiteralSegment"),
-            OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
-        ),
-        Sequence(
-            "CRON",
-            Ref("QuotedLiteralSegment"),
-            Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True),
-        ),
-    )
-    _schedule = OneOf(
+databricks_dialect.add(
+    # The `schedule` of ALTER MATERIALIZED VIEW and ALTER STREAMING TABLE.
+    AlterScheduleGrammar=OneOf(
         Sequence(
             "SCHEDULE",
             Ref.keyword("REFRESH", optional=True),
-            _schedule_clause,
+            OneOf(
+                Sequence(
+                    "EVERY",
+                    Ref("NumericLiteralSegment"),
+                    OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
+                ),
+                Sequence(
+                    "CRON",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True
+                    ),
+                ),
+            ),
         ),
         Sequence(
             "TRIGGER",
@@ -2121,8 +2116,9 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
-    )
-    _column_clause = Sequence(
+    ),
+    # The `column_clause` of the same two statements.
+    AlterColumnClauseGrammar=Sequence(
         Ref("ColumnReferenceSegment"),
         OneOf(
             Ref("CommentGrammar"),
@@ -2131,7 +2127,17 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
             Ref("SetTagsGrammar"),
             Ref("UnsetTagsGrammar"),
         ),
-    )
+    ),
+)
+
+
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """An `ALTER MATERIALIZED VIEW` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-alter-materialized-view
+    """
+
+    type = "alter_materialized_view_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -2139,9 +2145,9 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("TableReferenceSegment"),
         OneOf(
-            Sequence(OneOf("ADD", "ALTER"), _schedule),
+            Sequence(OneOf("ADD", "ALTER"), Ref("AlterScheduleGrammar")),
             Sequence("DROP", "SCHEDULE"),
-            Sequence("ALTER", "COLUMN", _column_clause),
+            Sequence("ALTER", "COLUMN", Ref("AlterColumnClauseGrammar")),
             Sequence("SET", Ref("RowFilterClauseGrammar")),
             Sequence("DROP", "ROW", "FILTER"),
             Ref("SetTagsGrammar"),
@@ -2165,16 +2171,9 @@ class AlterStreamingTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         OneOf(
-            Sequence(
-                OneOf("ADD", "ALTER"),
-                AlterMaterializedViewStatementSegment._schedule,
-            ),
+            Sequence(OneOf("ADD", "ALTER"), Ref("AlterScheduleGrammar")),
             Sequence("DROP", "SCHEDULE"),
-            Sequence(
-                "ALTER",
-                "COLUMN",
-                AlterMaterializedViewStatementSegment._column_clause,
-            ),
+            Sequence("ALTER", "COLUMN", Ref("AlterColumnClauseGrammar")),
             Sequence("SET", Ref("RowFilterClauseGrammar")),
             Sequence("DROP", "ROW", "FILTER"),
             Ref("SetTagsGrammar"),
@@ -2766,7 +2765,6 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("AlterExternalLocationStatementSegment"),
             Ref("AlterCredentialStatementSegment"),
             Ref("AlterGroupStatementSegment"),
-            Ref("AlterMaterializedViewStatementSegment"),
             Ref("AlterStreamingTableStatementSegment"),
             Ref("AlterRecipientStatementSegment"),
             Ref("AlterProviderStatementSegment"),
@@ -2793,6 +2791,11 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateFlowStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
         ],
+    ).copy(
+        # Ahead of the generic ALTER VIEW, which also accepts `MATERIALIZED`,
+        # so the clauses both statements share parse as the specialised one.
+        insert=[Ref("AlterMaterializedViewStatementSegment")],
+        before=Ref("AlterViewStatementSegment"),
     )
 
 
