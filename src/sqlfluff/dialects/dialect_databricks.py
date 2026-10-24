@@ -426,8 +426,7 @@ databricks_dialect.replace(
             ),
             Sequence("CONNECTION", Ref("ObjectReferenceSegment")),
             Sequence(
-                Ref.keyword("STORAGE", optional=True),
-                Ref.keyword("SERVICE", optional=True),
+                OneOf("STORAGE", "SERVICE", optional=True),
                 "CREDENTIAL",
                 Ref("ObjectReferenceSegment"),
             ),
@@ -571,8 +570,7 @@ databricks_dialect.replace(
             ),
             Sequence("CONNECTIONS"),
             Sequence(
-                Ref.keyword("STORAGE", optional=True),
-                Ref.keyword("SERVICE", optional=True),
+                OneOf("STORAGE", "SERVICE", optional=True),
                 "CREDENTIALS",
             ),
             Sequence("EXTERNAL", "LOCATIONS"),
@@ -2148,7 +2146,7 @@ class CreateGroupStatementSegment(BaseSegment):
         "GROUP",
         Ref("ObjectReferenceSegment"),
         Sequence(
-            Ref.keyword("WITH", optional=True),
+            "WITH",
             AnyNumberOf(
                 OneOf(
                     Sequence("USER", Delimited(Ref("ObjectReferenceSegment"))),
