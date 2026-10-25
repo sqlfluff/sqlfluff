@@ -1836,15 +1836,21 @@ def _audit_report_of(
     for name, found in findings.items():
         status = "not yet" if name in UNAUDITED_DIALECTS else "required"
         counts = _level_counts(found)
-        parts = [_level_count(counts[lvl], lvl) for lvl in LEVELS if counts[lvl]]
-        if not counts["error"] and not counts["warning"]:
-            parts.insert(0, "nothing to fix")
+        passes = not counts["error"] and not counts["warning"]
+        # Errors and warnings decide, so they are always shown, zeros too;
+        # notices and info only when there are some.
+        parts = [
+            _level_count(counts[lvl], lvl)
+            for lvl in LEVELS
+            if lvl in ("error", "warning") or counts[lvl]
+        ]
         lines.extend(
             textwrap.wrap(
-                f"{name.ljust(width)}  {status:8}  {', '.join(parts)}",
+                f"{name.ljust(width)}  {status:8}  {'PASS' if passes else 'FAIL'}  "
+                f"{', '.join(parts)}",
                 width=REPORT_WIDTH,
                 initial_indent="  ",
-                subsequent_indent=" " * (2 + width + 2 + 8 + 2),
+                subsequent_indent=" " * (2 + width + 2 + 8 + 2 + 4 + 2),
                 break_long_words=False,
             )
         )
@@ -1982,8 +1988,9 @@ def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     assert "  No errors or warnings." in report
     assert "== tsql (not required to pass yet) ==" in report
     assert "* MARK (in TransactionStatementSegment" in report
-    assert "mysql  required  nothing to fix, " in report
-    assert re.search(r"mysql  required  [^\n]* \d+ info\b", report)
+    assert "mysql  required  PASS  0 errors, 0 warnings, " in report
+    assert re.search(r"mysql  required  PASS  [^\n]* \d+ info\b", report)
+    assert re.search(r"tsql   not yet   FAIL  \d+ errors, \d+ warnings", report)
     assert "* MARK (in TransactionStatementSegment" in report
 
 
