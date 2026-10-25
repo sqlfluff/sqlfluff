@@ -52,11 +52,14 @@ exasol_dialect = ansi_dialect.copy_as(
     docstring="The dialect for `Exasol <https://www.exasol.com/>`_.",
 )
 
-# Clear ANSI Keywords and add all EXASOL keywords
-exasol_dialect.sets("unreserved_keywords").clear()
-exasol_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-exasol_dialect.sets("reserved_keywords").clear()
-exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+# EXASOL's keywords. Reserved is the complete list, so reserved_mode is replace.
+exasol_dialect.declare_keyword_sets(
+    reserved=RESERVED_KEYWORDS,
+    reserved_mode="replace",
+    unreserved=UNRESERVED_KEYWORDS,
+    unimplemented=[],
+    future_reserved=[],
+)
 exasol_dialect.sets("bare_functions").clear()
 exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 exasol_dialect.sets("session_parameters").clear()

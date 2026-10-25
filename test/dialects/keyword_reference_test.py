@@ -70,7 +70,6 @@ UNAUDITED_DIALECTS = {
     "databricks",
     "db2",
     "duckdb",
-    "exasol",
     "flink",
     "greenplum",
     "hive",
@@ -80,11 +79,6 @@ UNAUDITED_DIALECTS = {
     "postgres",
     "redshift",
     "snowflake",
-    "soql",
-    "sparksql",
-    "sqlite",
-    "teradata",
-    "trino",
     "tsql",
     "vertica",
 }
@@ -1994,7 +1988,7 @@ def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     assert "* MARK (in TransactionStatementSegment" in report
     assert "mysql  required  PASS  0 errors, 0 warnings, " in report
     assert re.search(r"mysql  required  PASS  [^\n]* \d+ info\b", report)
-    assert re.search(r"tsql   not yet   FAIL  \d+ errors, \d+ warnings", report)
+    assert re.search(r"tsql   not yet   FAIL  \d+ errors?, \d+ warnings?", report)
     assert "* MARK (in TransactionStatementSegment" in report
 
 

@@ -56,14 +56,12 @@ trino_dialect.sets("bare_functions").update(
 )
 
 # Set keywords
-trino_dialect.sets("unreserved_keywords").clear()
-trino_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", trino_unreserved_keywords
-)
-
-trino_dialect.sets("reserved_keywords").clear()
-trino_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", trino_reserved_keywords
+trino_dialect.declare_keyword_sets(
+    reserved=trino_reserved_keywords.split(),
+    reserved_mode="replace",
+    unreserved=trino_unreserved_keywords.split(),
+    unimplemented=[],
+    future_reserved=[],
 )
 
 trino_dialect.insert_lexer_matchers(

@@ -54,18 +54,24 @@ teradata_dialect.patch_lexer_matchers(
     ]
 )
 
-# Remove unused keywords from the dialect.
-teradata_dialect.sets("unreserved_keywords").difference_update(
-    [
-        # 'auto_increment',
-        # The following are moved to being reserved keywords
+teradata_dialect.declare_keyword_sets(
+    reserved=[
+        "LOCKING",
         "UNION",
+        "REPLACE",
         "TIMESTAMP",
-    ]
-)
-
-teradata_dialect.sets("unreserved_keywords").update(
-    [
+        # The data-type attribute keywords are reserved words in Teradata.
+        # Keeping them reserved also ensures that an attribute postfix such as
+        # `col (UPPERCASE)` or `col (NOT CS)` is parsed as an expression with a
+        # data-type attribute, rather than as a function call `col(...)` with
+        # a column argument named UPPERCASE/CS.
+        "CASESPECIFIC",
+        "CS",
+        "UC",
+        "UPPERCASE",
+    ],
+    reserved_mode="add",
+    unreserved=[
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
         "DAYS",
@@ -103,25 +109,9 @@ teradata_dialect.sets("unreserved_keywords").update(
         "STATISTICS",
         "SUMMARY",
         "THRESHOLD",
-    ]
-)
-
-teradata_dialect.sets("reserved_keywords").update(
-    [
-        "LOCKING",
-        "UNION",
-        "REPLACE",
-        "TIMESTAMP",
-        # The data-type attribute keywords are reserved words in Teradata.
-        # Keeping them reserved also ensures that an attribute postfix such as
-        # `col (UPPERCASE)` or `col (NOT CS)` is parsed as an expression with a
-        # data-type attribute, rather than as a function call `col(...)` with
-        # a column argument named UPPERCASE/CS.
-        "CASESPECIFIC",
-        "CS",
-        "UC",
-        "UPPERCASE",
-    ]
+    ],
+    unimplemented=[],
+    future_reserved=[],
 )
 
 teradata_dialect.sets("bare_functions").update(["DATE"])

@@ -58,10 +58,13 @@ The dialect for `SQLite <https://www.sqlite.org/>`_.
 """,
 )
 
-sqlite_dialect.sets("reserved_keywords").clear()
-sqlite_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
-sqlite_dialect.sets("unreserved_keywords").clear()
-sqlite_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+sqlite_dialect.declare_keyword_sets(
+    reserved=RESERVED_KEYWORDS,
+    reserved_mode="replace",
+    unreserved=UNRESERVED_KEYWORDS,
+    unimplemented=[],
+    future_reserved=[],
+)
 
 sqlite_dialect.patch_lexer_matchers(
     [
