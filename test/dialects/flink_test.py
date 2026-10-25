@@ -1,5 +1,7 @@
 """Tests for the FlinkSQL dialect."""
 
+import pytest
+
 from sqlfluff.core import FluffConfig, Linter
 
 
@@ -390,3 +392,22 @@ class TestFlinkSQLComplexExamples:
         """
         result = linter.lint_string(sql)
         assert result is not None
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "CREATE TABLE Orders (order_id INT) DISTRIBUTED BY HASH(order_id) INTO 4 BUCKETS;\n",
+            "CREATE TABLE Orders (order_id INT) DISTRIBUTED BY (order_id) INTO 4 BUCKETS;\n",
+            "CREATE TABLE Orders (order_id INT) DISTRIBUTED BY RANGE(order_id) INTO 4 BUCKETS;\n",
+            "CREATE TABLE Orders (order_id INT) DISTRIBUTED INTO 4 BUCKETS;\n",
+            "CREATE TABLE Orders (order_id INT) DISTRIBUTED BY HASH(order_id);\n",
+        ],
+    )
+    def test_flink_distribution_buckets(self, sql):
+        """Test FlinkSQL table distribution syntax with BUCKETS keyword."""
+        config = FluffConfig(overrides={"dialect": "flink"})
+        linter = Linter(config=config)
+        result = linter.lint_string(sql)
+        assert result is not None
+        parsing_errors = [v for v in result.violations if v.rule.code.startswith("PRS")]
+        assert len(parsing_errors) == 0

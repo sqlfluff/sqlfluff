@@ -138,6 +138,8 @@ UNRESERVED_KEYWORDS = [
     "AVRO",
     "BEGIN",
     "BIGQUERY",
+    "BUCKET",
+    "BUCKETS",
     "BYTES",
     "CALL",
     "CANAL",
