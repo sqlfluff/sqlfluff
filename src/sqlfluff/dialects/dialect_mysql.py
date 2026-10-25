@@ -211,17 +211,15 @@ mysql_dialect.insert_lexer_matchers(
 # Set Keywords
 # Inherited ANSI keywords keep their status unless listed here. Do not clear
 # the inherited unreserved ansi keywords: too many are needed to parse well.
-mysql_dialect.categorize_keywords(
+# Reserved is the complete list (MySQL 8.4.11 and 9.7.2,
+# INFORMATION_SCHEMA.KEYWORDS: the words with RESERVED = 1 on both), so
+# reserved_mode is replace.
+mysql_dialect.declare_keyword_sets(
     reserved=mysql_reserved_keywords.split(),
+    reserved_mode="replace",
     unreserved=mysql_unreserved_keywords.split(),
     unimplemented=mysql_unimplemented_keywords.split(),
-)
-mysql_dialect.claim_exhaustive_reserved(
-    mysql_reserved_keywords.split(),
-    source=(
-        "MySQL 8.4.11 and 9.7.2, INFORMATION_SCHEMA.KEYWORDS: the words with "
-        "RESERVED = 1 on both"
-    ),
+    future_reserved=[],
 )
 
 # Set the datetime units

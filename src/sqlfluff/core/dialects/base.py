@@ -2,8 +2,7 @@
 
 import sys
 from collections.abc import Sequence
-from itertools import combinations
-from typing import Any, NamedTuple, Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -19,65 +18,43 @@ from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
 
 # The statuses a dialect can give a keyword, and the sets that hold them.
 #
+# Whether a word can be a name:
 #   reserved      A keyword everywhere: never a bare name.
 #   unreserved    A keyword in some positions, an ordinary name elsewhere.
-#   unimplemented Not a keyword on this dialect's server, though grammar the
-#                 dialect inherits uses it as one.
-#   future        The vendor says it will become reserved. A tag rather than a
-#                 status: never reserved, but it may also be unreserved or
-#                 unimplemented (a word that isn't a keyword yet, but will be).
+# A word is in at most one of these two.
 #
-# Reserved, unreserved and unimplemented are disjoint. The dialect tests check
-# that, for the dialects they audit, and that future reserved is never reserved.
+# Two tags that can go with either, or with neither:
+#   unimplemented The dialect's server doesn't implement the word. (It doesn't
+#                 mean sqlfluff hasn't implemented something yet.) The parts
+#                 of inherited grammar that need the word stop matching in
+#                 this dialect; the rest of each rule still works. MariaDB
+#                 inherits MySQL's FLUSH grammar but has no OPTIMIZER_COSTS, so
+#                 FLUSH OPTIMIZER_COSTS doesn't parse in MariaDB, while FLUSH
+#                 TABLES still does. Plain unimplemented is just a name; with
+#                 unreserved, lint rules still treat the word as a keyword.
+#   future        The vendor says it will become reserved: never reserved yet.
 #
 # Reserved, unreserved and future words are matched as keywords, and lint
 # rules treat them as keywords. Only reserved words are kept from being names.
 #
-# An unimplemented word records that inherited grammar using that literal
-# word doesn't apply to this dialect: its server has no such keyword. Only
-# the part of a rule that needs the word stops matching, which is the right
-# behaviour, and it doesn't crash either; the rest of the rule still applies.
-# The word is an ordinary name. MariaDB inherits MySQL's FLUSH grammar, but
-# MariaDB has no OPTIMIZER_COSTS, so FLUSH OPTIMIZER_COSTS doesn't parse in
-# MariaDB while FLUSH TABLES and FLUSH PRIVILEGES still do. "Not a keyword"
-# isn't "missing": MariaDB has DENSE_RANK() as a function, but DENSE_RANK
-# isn't a MariaDB keyword.
-#
 # A word that grammar needs but that has no status at all is a bug, usually a
-# typo ("SELEECT"). Looking it up fails, and the dialect tests report it.
+# typo ("SELEECT"): any statement that reaches that grammar crashes, even when
+# it doesn't contain the word. Looking it up fails, and the dialect tests
+# report it.
 #
 # A dialect inherits every keyword's status from its parent (copy_as() copies
-# the sets) and changes only the words it disagrees about, with
-# categorize_keywords(). Nothing is inferred from a word it doesn't mention.
+# the sets) and changes the words it lists, usually with
+# declare_keyword_sets(). Moving a word to another status is fine; dropping it
+# from every status is the bug above, waiting for grammar to reach it.
 #
 # The checks are in test/dialects/keyword_reference_test.py. Run it directly,
-# with dialect names as arguments, for a report on any dialect, including one
-# it doesn't audit yet.
+# with dialect names as arguments, for a report on any dialect.
 KEYWORD_STATUS_SETS = (
     "reserved_keywords",
     "unreserved_keywords",
     "future_reserved_keywords",
     "unimplemented_keywords",
 )
-
-# The statuses that are disjoint. Future reserved is a tag that may overlap
-# unreserved or unimplemented; it is only kept apart from reserved.
-DISJOINT_KEYWORD_STATUS_SETS = (
-    "reserved_keywords",
-    "unreserved_keywords",
-    "unimplemented_keywords",
-)
-
-
-class ExhaustiveReservedClaim(NamedTuple):
-    """A dialect's promise that its reserved keywords are exactly these words.
-
-    Recorded by claim_exhaustive_reserved(); the dialect tests hold the dialect
-    to it.
-    """
-
-    words: frozenset[str]
-    source: str
 
 
 def _reference_audit_tip(dialect_name: str) -> str:
@@ -109,6 +86,40 @@ def _keyword_words(words: Sequence[str], function: str, argument: str) -> set[st
             "multi-line string with .split() in that file."
         )
     return {word.upper() for word in words}
+
+
+# Pairs of declare_keyword_sets() lists that can't share a word. A keyword is
+# reserved or unreserved, not both; an unimplemented word is one the server
+# doesn't have, so it is neither; a word the vendor will reserve isn't
+# reserved yet. Future reserved may go with unreserved or unimplemented.
+_EXCLUSIVE_KEYWORD_LISTS = (
+    ("reserved", "unreserved"),
+    ("reserved", "unimplemented"),
+    ("unreserved", "unimplemented"),
+    ("reserved", "future_reserved"),
+)
+
+
+def _refuse_overlapping_keyword_lists(listed: dict[str, set[str]]) -> None:
+    """Refuse a call that lists a word under two lists that exclude each other.
+
+    Only the call's own lists are checked. Inherited sets are resolved, not
+    refused, because a child can't fix its parent's lists.
+    """
+    clashes = []
+    for first, second in _EXCLUSIVE_KEYWORD_LISTS:
+        for word in sorted(listed[first] & listed[second]):
+            clashes.append(f"{word} ({first} and {second})")
+    if clashes:
+        raise ValueError(
+            "declare_keyword_sets() was given words in two lists that exclude "
+            "each other: " + ", ".join(clashes) + ". A keyword is reserved or "
+            "unreserved, not both. Unimplemented means the server doesn't have "
+            "the word, so it can't also be a keyword. A future reserved word "
+            "isn't reserved yet. Keep each word in one of its two lists. If the "
+            "server has a word but not a parent's syntax that uses it, keep the "
+            "word a keyword and override that syntax in the dialect."
+        )
 
 
 class Dialect:
@@ -150,9 +161,6 @@ class Dialect:
         # keyword reference error here: how to look up a keyword in this
         # dialect. Printed as is in those errors. Not inherited.
         self.keyword_reference_error_docs = keyword_reference_error_docs
-        # Set by claim_exhaustive_reserved(). Not inherited: the claim is about
-        # this dialect's own reserved list.
-        self.exhaustive_reserved_claim: Optional[ExhaustiveReservedClaim] = None
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Dialect: {self.name}>"
@@ -185,7 +193,6 @@ class Dialect:
             keyword_reference_error_docs=self.keyword_reference_error_docs,
         )
         expanded_copy.inherits_from = self.inherits_from
-        expanded_copy.exhaustive_reserved_claim = self.exhaustive_reserved_claim
         # Expand any callable elements of the dialect.
         for key in expanded_copy._library:
             seg_gen = expanded_copy._library[key]
@@ -256,104 +263,121 @@ class Dialect:
             [n.strip().upper() for n in values.strip().split("\n")]
         )
 
-    def categorize_keywords(
+    def declare_keyword_sets(
         self,
         *,
-        reserved: Sequence[str] = (),
-        unreserved: Sequence[str] = (),
-        unimplemented: Sequence[str] = (),
-        future_reserved: Sequence[str] = (),
+        reserved: Sequence[str],
+        reserved_mode: str,
+        unreserved: Sequence[str],
+        unimplemented: Sequence[str],
+        future_reserved: Sequence[str],
     ) -> None:
-        """Give each listed keyword a status, moving it out of any other.
+        """Give this dialect's keywords their statuses: what you list is what you get.
 
-        A dialect inherits every keyword's status from its parent; this
-        changes only the words listed. A word that isn't listed keeps the
-        status it inherited.
-
-        Args:
-            reserved: Words that are keywords everywhere and never names. Each
-                leaves unreserved, unimplemented and future reserved.
-            unreserved: Words that are keywords in some places and names
-                elsewhere. Each leaves reserved and unimplemented.
-            unimplemented: Words this dialect's server doesn't have, though
-                inherited grammar uses them; that grammar stops matching. Each
-                leaves reserved and unreserved.
-            future_reserved: Words the vendor says will become reserved. Each
-                leaves reserved only, and may stay unreserved or unimplemented.
-
-        Each argument is a list of words; a string is refused, because it
-        would be read one letter at a time. Giving a word two statuses in one
-        call is an error, except future reserved with unreserved or
-        unimplemented.
-        """
-        statuses = {
-            "reserved_keywords": _keyword_words(
-                reserved, "categorize_keywords", "reserved"
-            ),
-            "unreserved_keywords": _keyword_words(
-                unreserved, "categorize_keywords", "unreserved"
-            ),
-            "unimplemented_keywords": _keyword_words(
-                unimplemented, "categorize_keywords", "unimplemented"
-            ),
-        }
-        future = _keyword_words(
-            future_reserved, "categorize_keywords", "future_reserved"
-        )
-        conflicts = [
-            (first, second, statuses[first] & statuses[second])
-            for first, second in combinations(statuses, 2)
-        ]
-        conflicts.append(
-            (
-                "reserved_keywords",
-                "future_reserved_keywords",
-                statuses["reserved_keywords"] & future,
-            )
-        )
-        for first, second, both in conflicts:
-            if both:
-                raise ValueError(
-                    f"categorize_keywords() was given these words as both "
-                    f"{first} and {second} in the {self.name} dialect: "
-                    f"{sorted(both)}. Give each word one status."
-                )
-
-        for label, words in statuses.items():
-            for other in statuses:
-                if other != label:
-                    self.sets(other).difference_update(words)
-            self.sets(label).update(words)
-        self.sets("future_reserved_keywords").difference_update(
-            statuses["reserved_keywords"]
-        )
-        self.sets("reserved_keywords").difference_update(future)
-        self.sets("future_reserved_keywords").update(future)
-
-    def claim_exhaustive_reserved(self, words: Sequence[str], *, source: str) -> None:
-        """Record that these are exactly this dialect's reserved keywords.
-
-        This changes no sets: give the words their status with
-        categorize_keywords(reserved=...) as well. The dialect tests then
-        check that the dialect's reserved keywords are exactly these words, so
-        a word reserved only because the parent reserves it, or one reserved
-        or moved out later, fails with instructions.
+        The dialect starts with every keyword's status from its parent. Each
+        word listed here gets the status it's listed under, moving out of
+        whatever it inherited; a word that isn't listed keeps its inherited
+        status, except as reserved_mode says. Nothing is ever dropped: a word
+        that leaves reserved becomes unreserved, never statusless, because the
+        parent's grammar may use it.
 
         Args:
-            words: The complete list of reserved keywords, as a list of words.
-            source: Where the list comes from and for which versions, e.g.
-                "MySQL 8.4.11 and 9.7.2, INFORMATION_SCHEMA.KEYWORDS". It is
-                shown in the errors, so a contributor knows where to look.
+            reserved: Words that are keywords everywhere and never names.
+            reserved_mode: What happens to inherited reserved words that aren't
+                listed anywhere here. "add": they stay reserved; the parent's
+                reserved list still applies, and this adds to it. "replace":
+                ``reserved`` is the complete list, however it was built, so
+                they become unreserved: keywords that can also be names.
+            unreserved: Words that are keywords in some places and names in
+                others.
+            unimplemented: Words the dialect's server doesn't implement (not
+                words sqlfluff hasn't implemented). The parts of inherited
+                grammar that need them stop matching. Such a word is just a
+                name: it leaves any inherited reserved or unreserved status, so
+                lint rules don't flag it.
+            future_reserved: Words the vendor says will become reserved. A tag
+                that may go with unreserved or unimplemented.
+
+        Every argument is required, even when empty, so a reader sees all
+        four. Each is a list of words; a string is refused, because it would
+        be read one letter at a time. A word may not be listed under two lists
+        that exclude each other: reserved and unreserved, unimplemented and
+        either of those, or reserved and future_reserved. The check costs about
+        a microsecond per call.
+
+        This only moves words between sets. Any other way of building the
+        sets is fine too, as long as the dialect tests' checks pass.
         """
-        if not source.strip():
+        if reserved_mode not in ("add", "replace"):
             raise ValueError(
-                "claim_exhaustive_reserved() needs a source: where the list "
-                "comes from and for which versions."
+                'declare_keyword_sets() takes reserved_mode="add" or "replace", '
+                f"not {reserved_mode!r}."
             )
-        self.exhaustive_reserved_claim = ExhaustiveReservedClaim(
-            frozenset(_keyword_words(words, "claim_exhaustive_reserved", "words")),
-            source,
+        listed_reserved = _keyword_words(reserved, "declare_keyword_sets", "reserved")
+        listed_unreserved = _keyword_words(
+            unreserved, "declare_keyword_sets", "unreserved"
         )
+        listed_unimplemented = _keyword_words(
+            unimplemented, "declare_keyword_sets", "unimplemented"
+        )
+        listed_future = _keyword_words(
+            future_reserved, "declare_keyword_sets", "future_reserved"
+        )
+        _refuse_overlapping_keyword_lists(
+            {
+                "reserved": listed_reserved,
+                "unreserved": listed_unreserved,
+                "unimplemented": listed_unimplemented,
+                "future_reserved": listed_future,
+            }
+        )
+
+        inherited_reserved = set(self.sets("reserved_keywords"))
+        inherited_unreserved = set(self.sets("unreserved_keywords"))
+        inherited_unimplemented = set(self.sets("unimplemented_keywords"))
+        inherited_future = set(self.sets("future_reserved_keywords"))
+
+        if reserved_mode == "replace":
+            new_reserved = listed_reserved
+            # Unlisted inherited reserved words become unreserved. A word the
+            # call lists anywhere gets exactly what it says instead.
+            demoted = (
+                inherited_reserved
+                - listed_reserved
+                - listed_unreserved
+                - listed_unimplemented
+            )
+        else:
+            new_reserved = (
+                inherited_reserved
+                - listed_unreserved
+                - listed_future
+                - listed_unimplemented
+            ) | listed_reserved
+            demoted = set()
+        new_unreserved = (
+            inherited_unreserved | listed_unreserved | demoted
+        ) - new_reserved
+        # Listing a word as a keyword here switches inherited grammar that
+        # needs it back on.
+        new_unimplemented = (
+            inherited_unimplemented - listed_reserved - listed_unreserved
+        ) | listed_unimplemented
+        # Unimplemented wins over an inherited keyword status, as it does in
+        # expand(), so the sets never overlap.
+        new_reserved -= new_unimplemented
+        new_unreserved -= new_unimplemented
+        new_future = (inherited_future | listed_future) - new_reserved
+
+        for label, words in (
+            ("reserved_keywords", new_reserved),
+            ("unreserved_keywords", new_unreserved),
+            ("unimplemented_keywords", new_unimplemented),
+            ("future_reserved_keywords", new_future),
+        ):
+            keyword_set = self.sets(label)
+            keyword_set.clear()
+            keyword_set.update(words)
 
     def copy_as(
         self,

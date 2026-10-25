@@ -46,17 +46,15 @@ starrocks_dialect = mysql_dialect.copy_as(
         "antlr/com/starrocks/grammar"
     ),
 )
-starrocks_dialect.categorize_keywords(
+# Reserved is the complete list (StarRocks 4.1.6: keyword tokens in
+# StarRocksLex.g4 that StarRocks.g4's nonReserved rule doesn't list), so
+# reserved_mode is replace.
+starrocks_dialect.declare_keyword_sets(
     reserved=starrocks_reserved_keywords.split(),
+    reserved_mode="replace",
     unreserved=starrocks_unreserved_keywords.split(),
     unimplemented=starrocks_unimplemented_keywords.split(),
-)
-starrocks_dialect.claim_exhaustive_reserved(
-    starrocks_reserved_keywords.split(),
-    source=(
-        "StarRocks 4.1.6: "
-        "keyword tokens in StarRocksLex.g4 that StarRocks.g4's nonReserved rule doesn't list"
-    ),
+    future_reserved=[],
 )
 
 

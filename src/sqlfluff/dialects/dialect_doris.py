@@ -41,17 +41,15 @@ doris_dialect = mysql_dialect.copy_as(
         "antlr4/org/apache/doris/nereids"
     ),
 )
-doris_dialect.categorize_keywords(
+# Reserved is the complete list (Apache Doris 4.1.5-release: keyword tokens in
+# DorisLexer.g4 that DorisParser.g4's nonReserved rule doesn't list), so
+# reserved_mode is replace.
+doris_dialect.declare_keyword_sets(
     reserved=doris_reserved_keywords.split(),
+    reserved_mode="replace",
     unreserved=doris_unreserved_keywords.split(),
     unimplemented=doris_unimplemented_keywords.split(),
-)
-doris_dialect.claim_exhaustive_reserved(
-    doris_reserved_keywords.split(),
-    source=(
-        "Apache Doris 4.1.5-release: "
-        "keyword tokens in DorisLexer.g4 that DorisParser.g4's nonReserved rule doesn't list"
-    ),
+    future_reserved=[],
 )
 
 
