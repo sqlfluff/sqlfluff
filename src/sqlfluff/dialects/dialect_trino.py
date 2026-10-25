@@ -1037,6 +1037,26 @@ class CommentOnStatementSegment(BaseSegment):
     )
 
 
+class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
+    """This is the body of a `CREATE FUNCTION` statement in Trino."""
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "AS",
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                "LANGUAGE",
+                Ref("NakedIdentifierSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "RETURN",
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
 class LambdaExpressionSegment(BaseSegment):
     """Lambda function used in a function."""
 
