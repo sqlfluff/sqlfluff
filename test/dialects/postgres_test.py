@@ -222,6 +222,20 @@ def test_priority_keyword_merge() -> None:
     assert sorted(result_4) == sorted(expected_result_4)
 
 
+def test_priority_keyword_merge_leaves_its_inputs_alone() -> None:
+    """Test that merging doesn't change the lists it was given."""
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    result = priority_keyword_merge(kw_list_1, kw_list_2)
+    single = priority_keyword_merge(kw_list_1)
+
+    assert kw_list_1 == [("A", "not-keyword"), ("B", "non-reserved")]
+    assert kw_list_2 == [("A", "reserved"), ("C", "non-reserved")]
+    assert result is not kw_list_1
+    assert single is not kw_list_1
+
+
 def test_get_keywords() -> None:
     """Test keyword filtering works as expected."""
     kw_list = [

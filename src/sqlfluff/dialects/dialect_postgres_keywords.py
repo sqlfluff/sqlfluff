@@ -17,7 +17,9 @@ def priority_keyword_merge(*args: list[tuple[str, str]]) -> list[tuple[str, str]
     (keyword, type)
 
     """
-    keyword_lists = [*args]
+    # Copy each list, not just the outer one: the merge below edits the first
+    # list in place, and the callers' lists must stay as they are.
+    keyword_lists = [list(keyword_list) for keyword_list in args]
     base_list = []
     if len(keyword_lists) == 1:
         return keyword_lists[0]
