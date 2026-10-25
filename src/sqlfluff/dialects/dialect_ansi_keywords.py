@@ -24,9 +24,6 @@ SET
 NATURAL
 """
 
-# END-EXEC is a keyword in the SQL standard (it ends embedded SQL in a host
-# language), but it isn't here: the lexer splits it into END, - and EXEC, so
-# no keyword can ever match it.
 ansi_unreserved_keywords = """ABORT
 ABS
 ABSOLUTE
@@ -252,6 +249,7 @@ ENCLOSED
 ENCODING
 ENCRYPTED
 END
+END-EXEC
 ENUM
 EQUALS
 ERRLVL
