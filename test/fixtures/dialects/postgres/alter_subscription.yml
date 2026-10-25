@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 80f75ff91af0193f6cee4b0bd0906f7592a44d343373cac63a7e7f97d2ee55c3
+_hash: 7cbed9fe4f7f2a57ded5aa2665674c2183393564a5b5308433e0a4efdc38fddc
 file:
 - statement:
     alter_subscription:
@@ -23,4 +23,25 @@ file:
     - keyword: PUBLICATION
     - publication_reference:
         naked_identifier: insert_only
+- statement_terminator: ;
+- statement:
+    alter_subscription:
+    - keyword: ALTER
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+        naked_identifier: mysub
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_owner
+- statement_terminator: ;
+- statement:
+    alter_subscription:
+    - keyword: ALTER
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+        naked_identifier: mysub
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
 - statement_terminator: ;

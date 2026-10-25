@@ -3994,7 +3994,7 @@ class AlterSubscriptionStatementSegment(BaseSegment):
                     Ref("ObjectReferenceSegment"),
                     "CURRENT_ROLE",
                     "CURRENT_USER",
-                    "CURRENT_SESSION",
+                    "SESSION_USER",
                 ),
             ),
             Sequence("RENAME", "TO", Ref("SubscriptionReferenceSegment")),
@@ -7456,7 +7456,7 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
             Sequence(
                 Sequence(
                     "ALTER",
-                    Ref("COLUMN", optional=True),
+                    Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),

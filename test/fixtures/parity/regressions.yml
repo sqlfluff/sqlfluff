@@ -90,9 +90,10 @@ doris_flush_optimizer_costs:
 postgres_alter_foreign_table_column_keyword:
   sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
   dialect: postgres
-  expect: error
-  pins: postgres ALTER FOREIGN TABLE has Ref('COLUMN'), a segment ref where the COLUMN
-    keyword was intended; both engines raise the identical dangling-ref RuntimeError.
+  expect: clean_tree
+  pins: postgres ALTER FOREIGN TABLE had Ref('COLUMN'), a segment ref where the COLUMN
+    keyword was intended, so both engines raised a dangling-ref RuntimeError; it is
+    Ref.keyword("COLUMN") now, and the statement parses.
 parser_created_segments_drop_token_trim_chars:
   sql: SET @errmsg = 'x';
   dialect: mysql
