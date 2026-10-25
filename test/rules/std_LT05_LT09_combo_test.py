@@ -72,6 +72,17 @@ def test__rules__std_LT05_LT09_target_with_terminator_exceeds_max_line_length():
     assert sqlfluff.fix(result, config=config) == sql
 
 
+def test__rules__std_LT05_LT09_distinct_modifier_exceeds_max_line_length():
+    """Verify LT09 accounts for clause modifier when projecting line length."""
+    # SELECT (7) + DISTINCT (9) + 65 chars = 81 chars (> 80).
+    col = "x" * 65
+    sql = f"SELECT\n    DISTINCT\n    {col};\n"
+    config = FluffConfig(overrides={"dialect": "postgres", "rules": "LT05,LT09"})
+    result = sqlfluff.fix(sql, config=config)
+    assert result == sql
+    assert sqlfluff.fix(result, config=config) == sql
+
+
 @pytest.mark.parametrize(
     "exclude_rules,expected",
     [

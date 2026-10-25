@@ -328,40 +328,29 @@ class Rule_LT09(BaseRule):
                     select_targets_info.select_idx : select_targets_info.first_new_line_idx
                 ]
             )
-            modifier = select_children.select(
+            clause_modifier = select_children.select(
                 sp.is_type("select_clause_modifier")
             ).first()
             if (
-                modifier
-                and select_children.index(modifier.get())
+                clause_modifier
+                and select_children.index(clause_modifier.get())
                 >= select_targets_info.first_new_line_idx
             ):
-                prefix += f" {modifier[0].raw}"
+                prefix += f" {clause_modifier[0].raw}"
             trailing_len = 0
-            found_newline = False
-            for seg in select_children[target_idx + 1 :]:
-                if "\n" in seg.raw:
-                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
-                    found_newline = True
-                    break
-                trailing_len += len(seg.raw)
-
-            if not found_newline and context.parent_stack:
+            following_segments = list(select_children[target_idx + 1 :])
+            if context.parent_stack:
                 child_seg = select_clause.get()
                 for parent in reversed(context.parent_stack):
-                    try:
-                        idx = parent.segments.index(child_seg)
-                    except ValueError:
-                        break
-                    for seg in parent.segments[idx + 1 :]:
-                        if "\n" in seg.raw:
-                            trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
-                            found_newline = True
-                            break
-                        trailing_len += len(seg.raw)
-                    if found_newline:
-                        break
+                    idx = parent.segments.index(child_seg)
+                    following_segments.extend(parent.segments[idx + 1 :])
                     child_seg = parent
+
+            for seg in following_segments:
+                if "\n" in seg.raw:
+                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
+                    break
+                trailing_len += len(seg.raw)
 
             resulting_line_length = (
                 select_keyword.pos_marker.working_line_pos
