@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     ImplicitIndent,
     Indent,
+    KeywordSegment,
     LiteralKeywordSegment,
     LiteralSegment,
     Matchable,
@@ -545,6 +546,10 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    # `provider` is a default in `CREATE COLLATION`, but it isn't a PostgreSQL
+    # keyword. Defining it here lets the grammar reference it without adding it
+    # to the keyword sets, where it would be flagged as an identifier by RF04.
+    ProviderKeywordSegment=StringParser("PROVIDER", KeywordSegment, type="keyword"),
     # Colon prefix for psql variables (:var, :'var', :"var"). Distinct from
     # ColonSegment so the global `spacing_before = touch` on type "colon"
     # doesn't collapse the space before the variable (e.g. in
@@ -6842,7 +6847,7 @@ class CreateCollationStatementSegment(BaseSegment):
                         Ref("QuotedLiteralSegment"),
                     ),
                     Sequence(
-                        "PROVIDER",
+                        Ref("ProviderKeywordSegment"),
                         Ref("EqualsSegment"),
                         OneOf("ICU", "LIBC"),
                     ),
