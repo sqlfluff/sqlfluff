@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07be5568f916ca3d57308adc9194820c4ed61b012a12368e78e3f0e52939f9e7
+_hash: d5fc5abdeabd8b95ff4605f20a90065f118e6006e378ce34f12304981349b927
 file:
   batch:
   - statement:
@@ -85,4 +85,31 @@ file:
         - naked_identifier: OrderSeq
       - alter_sequence_options_segment:
           keyword: CACHE
+  - statement_terminator: ;
+  - statement:
+      alter_sequence_statement:
+      - keyword: ALTER
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Countdown
+      - alter_sequence_options_segment:
+        - keyword: RESTART
+        - keyword: WITH
+        - sign_indicator: '-'
+        - numeric_literal: '1'
+      - alter_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - sign_indicator: '-'
+        - numeric_literal: '1'
+      - alter_sequence_options_segment:
+          keyword: MINVALUE
+          sign_indicator: '-'
+          numeric_literal: '100'
+      - alter_sequence_options_segment:
+          keyword: MAXVALUE
+          sign_indicator: '-'
+          numeric_literal: '1'
   - statement_terminator: ;

@@ -4039,12 +4039,30 @@ class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
     match_grammar = OneOf(
         Sequence(
             "RESTART",
-            Sequence("WITH", Ref("NumericLiteralSegment"), optional=True),
+            Sequence(
+                "WITH",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
         ),
-        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
-        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MINVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
         Sequence("NO", "MINVALUE"),
-        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence(
+            "MAXVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
         Sequence("NO", "MAXVALUE"),
         Sequence(
             Sequence("NO", optional=True),
