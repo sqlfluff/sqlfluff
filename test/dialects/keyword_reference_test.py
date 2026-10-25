@@ -1853,10 +1853,8 @@ def _audit_report_of(
             "without crashing; notices are leads worth a look, not problems; info "
             "is an inventory. Passing means nothing crashes and no check fails; "
             "it doesn't mean a dialect's keyword lists match its server. For a "
-            "dialect "
-            "required to pass this audit, its tests fail on errors and "
-            "warnings. For one in UNAUDITED_DIALECTS, they are what requiring it "
-            "would bring.",
+            "dialect required to pass this audit, its tests fail on errors and "
+            "warnings.",
             "",
         )
     )
