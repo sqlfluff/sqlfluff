@@ -1913,10 +1913,15 @@ def _audit_report_of(
         lines.append("")
         lines.append("")
     # Each line starts with what the hidden findings are, so a reader scanning
-    # the footer doesn't take notices for warnings.
+    # the footer doesn't take notices for warnings. A blank line separates the
+    # levels.
+    groups_written = 0
     for hidden_level in LEVELS:
         items = hidden.get(hidden_level)
         if items:
+            if groups_written:
+                lines.append("")
+            groups_written += 1
             lines.append(
                 f"{_LEVEL_PLURALS[hidden_level]} not shown ({len(items)}). Show them "
                 f"with --level {hidden_level}:"
@@ -2090,6 +2095,8 @@ def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     assert "Warnings not shown (" in flat
     assert "Show them with --level warning:" in flat
     assert "Info not shown (" in flat
+    # Each hidden level is its own block, a blank line before the next.
+    assert re.search(r"\n  \d[^\n]*\n\nInfo not shown \(", report)
 
 
 def test_audit_verdict_judges_what_was_asked() -> None:
