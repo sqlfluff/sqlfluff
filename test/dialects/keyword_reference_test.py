@@ -414,8 +414,16 @@ def _not_a_word(word: str) -> str:
 
 
 # A keyword is matched against one word token: letters, digits, _ and $, not
-# starting with a digit. Anything else in grammar or a keyword list is a bug.
+# starting with a digit. Anything else in grammar is a bug.
 WORD = re.compile(r"^[A-Za-z_][A-Za-z0-9_$]*$")
+
+# A keyword list may also hold words joined by - or a space, as vendors publish
+# them (the SQL standard's END-EXEC, T-SQL's WITHIN GROUP). No grammar can
+# match one, but RF04 still flags it as a quoted identifier ("END-EXEC").
+# Anything else in a keyword list is a bug.
+KEYWORD_LIST_ENTRY = re.compile(
+    r"^[A-Za-z_][A-Za-z0-9_$]*(?:[- ][A-Za-z_][A-Za-z0-9_$]*)*$"
+)
 
 
 def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]]) -> str:
@@ -639,11 +647,11 @@ def _future_only_message(dialect: Dialect, found: dict[str, set[Owner]]) -> str:
 
 
 def _non_word_keywords(dialect: Dialect) -> dict[str, list[str]]:
-    """Entries in the dialect's keyword sets that aren't single words."""
+    """Entries in the dialect's keyword sets that aren't words or phrases."""
     found: dict[str, list[str]] = {}
     for label in KEYWORD_STATUS_SETS:
         for entry in dialect.sets(label):
-            if not WORD.match(entry):
+            if not KEYWORD_LIST_ENTRY.match(entry):
                 found.setdefault(entry, []).append(label)
     return found
 
@@ -674,16 +682,16 @@ def _keyword_source_file(dialect_name: str) -> str:
 
 
 def _non_word_keywords_message(dialect: Dialect, found: dict[str, list[str]]) -> str:
-    """Say which keyword list entries can never be keywords, and where to delete them.
+    """Say which keyword list entries aren't words, and where to delete them.
 
     A non-word can't be referenced by any grammar, so deleting it can't crash
     anything; the only question is where it was written.
     """
     name = dialect.name
     lines = [
-        f"These entries in {name}'s keyword sets aren't single words. A keyword "
-        "is matched against one token, and the lexer splits these (END-EXEC "
-        "becomes END, -, EXEC), so they can never match: dead entries, bugs in "
+        f"These entries in {name}'s keyword sets aren't words. A keyword list "
+        "holds words, or words joined by - or a space as a vendor publishes "
+        "them (END-EXEC, WITHIN GROUP). These are neither, so they are bugs in "
         "the lists. Nothing crashes, and since no grammar can refer to them, "
         "deleting them can't break anything."
     ]
@@ -1106,25 +1114,27 @@ def test_checker_says_a_symbol_or_number_is_not_a_keyword() -> None:
 
 
 def test_checker_finds_keyword_list_entries_that_are_not_words() -> None:
-    """Test that phrases and punctuation in keyword lists are reported."""
+    """Test that punctuation in keyword lists is reported, and phrases aren't."""
     ansi = load_raw_dialect("ansi")
     # A non-word in ansi's own set, so the message has to trace it back there.
-    ansi.sets("unreserved_keywords").add("ZZ-INHERITED")
+    ansi.sets("unreserved_keywords").add("ZZ,")
     try:
         dialect = ansi.copy_as("zzlists")
-        _declare(dialect, reserved=["WITHIN GROUP"], unreserved=["Arrow"])
+        _declare(
+            dialect,
+            reserved=["=", "WITHIN GROUP"],
+            unreserved=["Arrow", "ZZ-PHRASE"],
+        )
         found = _non_word_keywords(dialect)
         message = _non_word_keywords_message(dialect, found)
     finally:
-        ansi.sets("unreserved_keywords").discard("ZZ-INHERITED")
+        ansi.sets("unreserved_keywords").discard("ZZ,")
 
-    # Whatever ansi's real lists hold, these two must be found.
-    assert {"WITHIN GROUP", "ZZ-INHERITED"} <= set(found)
-    assert "ARROW" not in found
+    assert set(found) == {"=", "ZZ,"}
     flat = _flat(message)
-    assert "'WITHIN GROUP' (reserved, in zzlists's own lists)" in flat
+    assert "'=' (reserved, in zzlists's own lists)" in flat
     assert "delete it from zzlists's reserved list" in flat
-    assert "'ZZ-INHERITED' (unreserved, inherited from ansi)" in flat
+    assert "'ZZ,' (unreserved, inherited from ansi)" in flat
     assert "delete it from ansi's unreserved list" in flat
 
 
@@ -1802,6 +1812,7 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     broken.sets("unreserved_keywords").add("SELECT")
     # ZONE is used by inherited ansi grammar (AT TIME ZONE).
     broken.sets("unimplemented_keywords").add("ZONE")
+    broken.sets("unreserved_keywords").add("ZZ,")
     dialects = {"zzready": ready.expand(), "zzbroken": broken}
     UNAUDITED_DIALECTS.update(dialects)
     try:
@@ -1818,6 +1829,7 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     assert "two statuses that can't go together" in flat
     assert "-- Inherited grammar that stops matching (1) [notice] --" in report
     assert "* ZONE:" in report
+    assert "-- Keyword list entries that aren't words (1) [warning] --" in report
 
 
 def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
