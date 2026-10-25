@@ -1707,6 +1707,13 @@ def _level_counts(findings: list[Finding]) -> dict[str, int]:
     return counts
 
 
+def _level_count(count: int, level: str) -> str:
+    """A count of findings at a level: '2 notices', '631 info'."""
+    if level == "info":
+        return f"{count} info"
+    return _plural(count, level)
+
+
 def _plural(count: int, word: str) -> str:
     """A count and a word, plural unless the count is one."""
     return f"{count} {word}" if count == 1 else f"{count} {word}s"
@@ -1829,9 +1836,9 @@ def _audit_report_of(
     for name, found in findings.items():
         status = "not yet" if name in UNAUDITED_DIALECTS else "required"
         counts = _level_counts(found)
-        parts = [_plural(counts[lvl], lvl) for lvl in LEVELS if counts[lvl]]
+        parts = [_level_count(counts[lvl], lvl) for lvl in LEVELS if counts[lvl]]
         if not counts["error"] and not counts["warning"]:
-            parts.insert(0, "nothing to fix")
+            parts.insert(0, "no errors or warnings")
         lines.extend(
             textwrap.wrap(
                 f"{name.ljust(width)}  {status:8}  {', '.join(parts)}",
@@ -1853,7 +1860,7 @@ def _audit_report_of(
         if not counts["error"] and not counts["warning"]:
             lines.append("")
             if audited:
-                lines.append("  Nothing to fix.")
+                lines.append("  No errors or warnings.")
             else:
                 lines.extend(
                     _paragraph(
@@ -1972,10 +1979,11 @@ def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     report = _audit_report(["mysql", "tsql"]).text
 
     assert "== mysql (required to pass) ==" in report
-    assert "  Nothing to fix." in report
+    assert "  No errors or warnings." in report
     assert "== tsql (not required to pass yet) ==" in report
     assert "* MARK (in TransactionStatementSegment" in report
-    assert "mysql  required  nothing to fix, " in report
+    assert "mysql  required  no errors or warnings, " in report
+    assert re.search(r"mysql  required  [^\n]* \d+ info\b", report)
     assert "* MARK (in TransactionStatementSegment" in report
 
 
