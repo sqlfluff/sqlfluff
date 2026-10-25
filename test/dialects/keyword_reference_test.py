@@ -4,15 +4,16 @@ Every dialect is audited unless UNAUDITED_DIALECTS below lists it, so a new
 dialect is audited from the start. An audited dialect is held to these rules,
 checked on its final keyword sets however it built them:
 
-- No word is both reserved and unreserved, and a future reserved word is never
-  reserved. (Unimplemented is a tag and may go with anything.)
-- No keyword it inherits loses every status: a grammar keyword with no status
-  crashes the parser on any statement that reaches the rule using it, even
-  when the statement doesn't contain the word.
+- No word has two statuses that exclude each other: reserved and unreserved,
+  unimplemented and either of those, or reserved and future reserved.
 - Every keyword and reference its grammar can reach resolves: keywords,
   segments, bracket pairs, and those inside a Ref's exclude= and terminators=.
-  A keyword the grammar uses can't be only future reserved, which says nothing
-  about what it is now.
+  One that doesn't crashes the parser on any statement that reaches the rule
+  using it, even when the statement doesn't contain the word. A keyword the
+  grammar uses can't be only future reserved, which says nothing about what it
+  is now.
+- Every keyword its grammar uses is one token to its lexer, so it can match.
+- Its keyword lists hold only words, or words joined by - or a space.
 - Its own grammar doesn't use its unimplemented words.
 
 The failure messages are written for someone who has never touched the
@@ -21,14 +22,15 @@ change and how. The tests at the end check the checker itself, so that a gap
 in it fails rather than quietly checking less.
 
 Run this file directly, ``python test/dialects/keyword_reference_test.py``, for
-a report. It never fails anything. It shows what these checks find in each
-dialect: for an audited one, the failures pytest would show; for an unaudited
-one, what auditing it would bring, and when it passes, that it can come off the
-list. It also lists, for every dialect, inherited grammar its unimplemented
-words switch off, and the keywords no grammar uses: leads to syntax sqlfluff
-doesn't parse yet, or to words that can come out of a keyword list. Name
-dialects as arguments to report on just those and the dialects that inherit
-from them, as the parser's "not found in the ... dialect" errors suggest.
+a report, which ends in PASS or FAIL and exits 1 on FAIL. It shows what these
+checks find in each dialect: for an audited one, the failures pytest would
+show; for an unaudited one, what auditing it would bring, and when it passes,
+that it can come off the list. As notices, it also lists inherited grammar that
+unimplemented words switch off and keyword data known to be a stopgap
+(KEYWORD_STOPGAPS); as info, the keywords no grammar uses. --level error,
+warning, notice or info sets how much is shown. Name dialects as arguments to
+report on just those and the dialects that inherit from them, as the parser's
+"not found in the ... dialect" errors suggest.
 """
 
 import functools
@@ -683,30 +685,6 @@ def _known_keywords(dialect: Dialect) -> set[str]:
     return known
 
 
-def _vanished(dialect: Dialect) -> list[str]:
-    """Keywords the parent gives a status that the dialect gives none."""
-    if not dialect.inherits_from:
-        return []
-    parent = load_raw_dialect(dialect.inherits_from)
-    return sorted(_known_keywords(parent) - _known_keywords(dialect))
-
-
-def _vanished_message(dialect: Dialect, words: list[str]) -> str:
-    """Say which inherited keywords lost every status, and why it matters."""
-    name = dialect.name
-    parent = dialect.inherits_from
-    lines = [
-        f"{len(words)} keywords {parent} gives a status have none in {name}. "
-        f"Nothing crashes yet, but the day grammar {name} reaches uses one: "
-        f"{CRASH_EFFECT} {name}'s keyword setup drops words it inherits; "
-        "declare_keyword_sets() never drops them, in either mode.",
-        "- the words:",
-        *_word_rows(words),
-        f"  {_status_needed(dialect)}",
-    ]
-    return "\n".join(lines) + _docs_line(dialect)
-
-
 def _future_only_uses(dialect: Dialect) -> dict[str, set[Owner]]:
     """Keywords the grammar uses whose only status is future reserved."""
     current: set[str] = set()
@@ -891,15 +869,6 @@ def test_keyword_statuses_are_disjoint(dialect_name: str) -> None:
     overlaps = _overlaps(dialect)
 
     assert not overlaps, _overlaps_message(dialect, overlaps)
-
-
-@pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
-def test_no_inherited_keyword_vanishes(dialect_name: str) -> None:
-    """Test that every keyword the parent has still has a status."""
-    dialect = dialect_selector(dialect_name)
-    vanished = _vanished(dialect)
-
-    assert not vanished, _vanished_message(dialect, vanished)
 
 
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
@@ -1255,20 +1224,6 @@ def test_checker_finds_keyword_list_entries_that_are_not_words() -> None:
     assert "delete it from zzlists's reserved list" in flat
     assert "'ZZ,' (unreserved, inherited from ansi)" in flat
     assert "delete it from ansi's unreserved list" in flat
-
-
-def test_checker_finds_vanished_inherited_keywords() -> None:
-    """Test that keywords dropped by a clear() are found, with a fix to paste."""
-    dialect = load_raw_dialect("ansi").copy_as("zzcleared")
-    dialect.sets("unreserved_keywords").clear()
-
-    vanished = _vanished(dialect)
-    message = _vanished_message(dialect, vanished)
-
-    assert "SELECT" not in vanished
-    assert "ZONE" in vanished
-    assert "keyword setup drops words it inherits" in _flat(message)
-    assert "Each needs a status in zzcleared" in _flat(message)
 
 
 class _FutureSegment(BaseSegment):
@@ -1634,7 +1589,6 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
         if not reference.endswith("KeywordSegment")
     }
     overlaps = _overlaps(dialect)
-    vanished = _vanished(dialect)
     future_only = _future_only_uses(dialect)
     own_unimplemented = _unimplemented_in_own_grammar(dialect)
     switched_off = _switched_off(dialect)
@@ -1693,15 +1647,6 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "warning",
                 len(overlaps),
                 _overlaps_message(dialect, overlaps),
-            )
-        )
-    if vanished:
-        findings.append(
-            Finding(
-                "Inherited keywords with no status",
-                "warning",
-                len(vanished),
-                _vanished_message(dialect, vanished),
             )
         )
     if future_only:
@@ -2037,8 +1982,6 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     # ZONE is used by inherited ansi grammar (AT TIME ZONE).
     broken.sets("unimplemented_keywords").add("ZONE")
     broken.sets("unreserved_keywords").add("ZZ,")
-    # A word ansi gives a status that this dialect drops.
-    broken.sets("unreserved_keywords").discard("ABORT")
     dialects = {"zzready": ready.expand(), "zzbroken": broken}
     UNAUDITED_DIALECTS.update(dialects)
     try:
@@ -2056,7 +1999,6 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     assert "-- Inherited grammar that stops matching (1) [notice] --" in report
     assert "* ZONE:" in report
     assert "-- Keyword list entries that aren't words (1) [warning] --" in report
-    assert "-- Inherited keywords with no status (" in report
 
 
 def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
