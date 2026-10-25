@@ -64,7 +64,8 @@ The dialect for `ClickHouse <https://clickhouse.com/>`_.""",
 # guide, so it means checking against the server what it accepts as a bare
 # name, and every word moved changes where sqlfluff thinks a name ends, so the
 # clickhouse fixtures need checking too. Run
-# `python test/dialects/keyword_reference_test.py clickhouse` after any change.
+# `python test/dialects/keyword_reference_test.py clickhouse` after any change;
+# it reports this stopgap as a notice (KEYWORD_STOPGAPS there) until it's fixed.
 #
 # clickhouse's keyword list repeats a few of ansi's reserved words (NOT,
 # INTERVAL, and the Null output format, which is NULL). A word can't be both,

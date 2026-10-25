@@ -86,6 +86,21 @@ ALL_DIALECTS = sorted(info.label for info in dialect_readout())
 
 AUDITED_DIALECTS = sorted(set(ALL_DIALECTS) - UNAUDITED_DIALECTS)
 
+# Dialects whose keyword data passes the audit but is known not to be right:
+# a stopgap that stops crashes without matching the server. Passing doesn't
+# mean correct, so each is reported as a notice. The dialect's file says the
+# same where it sets its keywords.
+KEYWORD_STOPGAPS = {
+    "clickhouse": (
+        "clickhouse's reserved words are ansi's. That is a stopgap, not "
+        "ClickHouse's real list: its docs say it reserves none, which "
+        "sqlfluff's grammar can't work with, and the real list has to be "
+        "found by checking what the server accepts as a bare name. "
+        "MANAGEMENT, REFRESH and SETTING are unreserved only so that its "
+        "grammar stops crashing; nobody has checked them against ClickHouse."
+    ),
+}
+
 # What a missing keyword does, said wherever one is reported.
 CRASH_EFFECT = (
     "Any statement that reaches that grammar crashes the parser, and the whole "
@@ -812,12 +827,24 @@ def test_keyword_lists_hold_only_words(dialect_name: str) -> None:
     assert not found, _non_word_keywords_message(dialect, found)
 
 
+def test_stopgap_dialects_get_a_notice() -> None:
+    """Test that known stopgap keyword data shows as a notice, not a failure."""
+    findings = _audit_findings("clickhouse", dialect_selector("clickhouse"))
+    stopgaps = [f for f in findings if f.title == "Keyword data is a stopgap"]
+
+    assert [f.level for f in stopgaps] == ["notice"]
+    assert "nobody has checked them against ClickHouse" in stopgaps[0].message
+
+
 def test_unaudited_dialects_all_exist() -> None:
-    """Test that the unaudited list names only real dialects."""
-    not_dialects = sorted(UNAUDITED_DIALECTS - set(ALL_DIALECTS))
+    """Test that the unaudited and stopgap lists name only real dialects."""
+    not_dialects = sorted(
+        (UNAUDITED_DIALECTS | set(KEYWORD_STOPGAPS)) - set(ALL_DIALECTS)
+    )
 
     assert not not_dialects, (
-        f"UNAUDITED_DIALECTS names dialects that don't exist: {not_dialects}. "
+        f"UNAUDITED_DIALECTS or KEYWORD_STOPGAPS names dialects that don't "
+        f"exist: {not_dialects}. "
         "Remove them, or fix the spelling."
     )
 
@@ -1681,6 +1708,9 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 _future_only_message(dialect, future_only),
             )
         )
+    stopgap = KEYWORD_STOPGAPS.get(name)
+    if stopgap:
+        findings.append(Finding("Keyword data is a stopgap", "notice", 1, stopgap))
     if switched_off:
         findings.append(
             Finding(
@@ -1821,7 +1851,9 @@ def _audit_report_of(
             "What the checks in test/dialects/keyword_reference_test.py find in "
             "each dialect. Errors crash the parser; warnings fail the audit "
             "without crashing; notices are leads worth a look, not problems; info "
-            "is an inventory. For a dialect "
+            "is an inventory. Passing means nothing crashes and no check fails; "
+            "it doesn't mean a dialect's keyword lists match its server. For a "
+            "dialect "
             "required to pass this audit, its tests fail on errors and "
             "warnings. For one in UNAUDITED_DIALECTS, they are what requiring it "
             "would bring.",
@@ -2002,6 +2034,8 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     # ZONE is used by inherited ansi grammar (AT TIME ZONE).
     broken.sets("unimplemented_keywords").add("ZONE")
     broken.sets("unreserved_keywords").add("ZZ,")
+    # A word ansi gives a status that this dialect drops.
+    broken.sets("unreserved_keywords").discard("ABORT")
     dialects = {"zzready": ready.expand(), "zzbroken": broken}
     UNAUDITED_DIALECTS.update(dialects)
     try:
@@ -2019,6 +2053,7 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     assert "-- Inherited grammar that stops matching (1) [notice] --" in report
     assert "* ZONE:" in report
     assert "-- Keyword list entries that aren't words (1) [warning] --" in report
+    assert "-- Inherited keywords with no status (" in report
 
 
 def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
