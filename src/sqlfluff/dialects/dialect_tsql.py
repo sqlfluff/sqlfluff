@@ -4030,6 +4030,37 @@ class CreateSequenceOptionsSegment(BaseSegment):
     )
 
 
+class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
+    """Options for Alter Sequence statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-sequence-transact-sql
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "RESTART",
+            Sequence("WITH", Ref("NumericLiteralSegment"), optional=True),
+        ),
+        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
+        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MINVALUE"),
+        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MAXVALUE"),
+        Sequence(
+            Sequence("NO", optional=True),
+            "CYCLE",
+        ),
+        Sequence(
+            "CACHE",
+            Ref("NumericLiteralSegment", optional=True),
+        ),
+        Sequence(
+            "NO",
+            "CACHE",
+        ),
+    )
+
+
 class NextValueSequenceSegment(BaseSegment):
     """Segment to get next value from a sequence.
 
@@ -6123,7 +6154,12 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("DISTRIBUTED", optional=True),
             Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
-            Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
+            Sequence(
+                "WITH",
+                "MARK",
+                Ref("QuotedLiteralSegmentOptWithN", optional=True),
+                optional=True,
+            ),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
@@ -7978,7 +8014,6 @@ class PermissionsSegment(BaseSegment):
                 Sequence("ALTER", "SERVER", "STATE"),
                 Sequence("ALTER", "SETTINGS"),
                 Sequence("ALTER", "TRACE"),
-                Sequence("APPLY", "MASKING", "POLICY"),
                 "AUTHENTICATE",
                 Sequence("AUTHENTICATE", "SERVER"),
                 Sequence("BACKUP", "DATABASE"),

@@ -1,0 +1,88 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07be5568f916ca3d57308adc9194820c4ed61b012a12368e78e3f0e52939f9e7
+file:
+  batch:
+  - statement:
+      alter_sequence_statement:
+      - keyword: ALTER
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: Test
+        - dot: .
+        - naked_identifier: CountBy1
+      - alter_sequence_options_segment:
+        - keyword: RESTART
+        - keyword: WITH
+        - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      alter_sequence_statement:
+      - keyword: ALTER
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: Test
+        - dot: .
+        - naked_identifier: CountBy1
+      - alter_sequence_options_segment:
+          keyword: RESTART
+  - statement_terminator: ;
+  - statement:
+      alter_sequence_statement:
+      - keyword: ALTER
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: OrderSeq
+      - alter_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '5'
+      - alter_sequence_options_segment:
+          keyword: MINVALUE
+          numeric_literal: '100'
+      - alter_sequence_options_segment:
+        - keyword: 'NO'
+        - keyword: MAXVALUE
+      - alter_sequence_options_segment:
+          keyword: CYCLE
+      - alter_sequence_options_segment:
+          keyword: CACHE
+          numeric_literal: '20'
+  - statement_terminator: ;
+  - statement:
+      alter_sequence_statement:
+      - keyword: ALTER
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: OrderSeq
+      - alter_sequence_options_segment:
+        - keyword: 'NO'
+        - keyword: MINVALUE
+      - alter_sequence_options_segment:
+          keyword: MAXVALUE
+          numeric_literal: '1000'
+      - alter_sequence_options_segment:
+        - keyword: 'NO'
+        - keyword: CYCLE
+      - alter_sequence_options_segment:
+        - keyword: 'NO'
+        - keyword: CACHE
+  - statement_terminator: ;
+  - statement:
+      alter_sequence_statement:
+      - keyword: ALTER
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: OrderSeq
+      - alter_sequence_options_segment:
+          keyword: CACHE
+  - statement_terminator: ;
