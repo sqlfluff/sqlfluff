@@ -66,7 +66,6 @@ from sqlfluff.core.parser.matchable import Matchable
 UNAUDITED_DIALECTS = {
     "athena",
     "bigquery",
-    "clickhouse",
     "databricks",
     "db2",
     "duckdb",

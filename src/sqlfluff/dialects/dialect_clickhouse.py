@@ -59,11 +59,16 @@ The dialect for `ClickHouse <https://clickhouse.com/>`_.""",
 # ClickHouse's docs say its keywords aren't reserved, but sqlfluff's grammar
 # needs reserved words to know where a name stops: with none, ON in
 # `LEFT JOIN b ON ...` parses as an alias of b. So clickhouse reserves exactly
-# what ansi reserves, as it always has. Its keyword list repeats a few of those
-# words (NOT, INTERVAL, and the Null output format, which is NULL), and a word
-# can't be both, so they are taken out of the unreserved list here and stay
-# reserved. Someone who knows ClickHouse well should decide which words it
-# really reserves.
+# what ansi reserves, as it always has. That is a stopgap, not ClickHouse's
+# real list, and finding the real list is hard: the docs aren't a reliable
+# guide, so it means checking against the server what it accepts as a bare
+# name, and every word moved changes where sqlfluff thinks a name ends, so the
+# clickhouse fixtures need checking too. Run
+# `python test/dialects/keyword_reference_test.py clickhouse` after any change.
+#
+# clickhouse's keyword list repeats a few of ansi's reserved words (NOT,
+# INTERVAL, and the Null output format, which is NULL). A word can't be both,
+# so they are taken out of the unreserved list here and stay reserved.
 ansi_reserved_keywords = set(ansi_dialect.sets("reserved_keywords"))
 clickhouse_dialect.declare_keyword_sets(
     reserved=sorted(ansi_reserved_keywords),
@@ -72,7 +77,13 @@ clickhouse_dialect.declare_keyword_sets(
         word
         for word in UNRESERVED_KEYWORDS
         if word.upper() not in ansi_reserved_keywords
-    ],
+    ]
+    # clickhouse's own grammar uses these, but its keyword list never had them,
+    # so any statement reaching that grammar crashed. Unreserved keeps the
+    # grammar working until someone checks them against ClickHouse:
+    # ACCESS MANAGEMENT and SYSTEM REFRESH privileges, ALTER TABLE ... MODIFY
+    # SETTING.
+    + ["MANAGEMENT", "REFRESH", "SETTING"],
     unimplemented=[],
     future_reserved=[],
 )
