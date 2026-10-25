@@ -432,3 +432,22 @@ test_pass_differently_cased_clickhouse_indexed_columns_no_else:
   configs:
     core:
       dialect: clickhouse
+
+test_fail_unnecessary_case_negated_in_expression_is_null:
+  fail_str: |
+    SELECT CASE WHEN TRUE THEN FALSE ELSE TRUE END IS NULL;
+  fix_str: |
+    SELECT (not coalesce(TRUE, false)) IS NULL;
+
+test_fail_unnecessary_case_negated_in_expression_comparison:
+  fail_str: |
+    SELECT CASE WHEN a > 0 THEN FALSE ELSE TRUE END = TRUE;
+  fix_str: |
+    SELECT (not coalesce(a > 0, false)) = TRUE;
+
+test_fail_unnecessary_case_in_expression_is_null:
+  fail_str: |
+    SELECT CASE WHEN TRUE THEN TRUE ELSE FALSE END IS NULL;
+  fix_str: |
+    SELECT coalesce(TRUE, false) IS NULL;
+

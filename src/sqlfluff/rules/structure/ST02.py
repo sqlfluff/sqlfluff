@@ -132,6 +132,18 @@ class Rule_ST02(BaseRule):
             ]
             edits = not_edits + edits
 
+            parent = context.parent_stack[-1] if context.parent_stack else None
+            if (
+                parent
+                and parent.is_type("expression")
+                and len([s for s in parent.segments if s.is_code]) > 1
+            ):
+                edits = [
+                    SymbolSegment("(", type="start_bracket"),
+                    *edits,
+                    SymbolSegment(")", type="end_bracket"),
+                ]
+
         fixes = [
             LintFix.replace(
                 context.segment,
