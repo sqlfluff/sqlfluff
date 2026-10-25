@@ -67,7 +67,6 @@ UNAUDITED_DIALECTS = {
     "athena",
     "bigquery",
     "databricks",
-    "db2",
     "duckdb",
     "flink",
     "greenplum",
@@ -98,6 +97,12 @@ KEYWORD_STOPGAPS = {
         "found by checking what the server accepts as a bare name. "
         "MANAGEMENT, REFRESH and SETTING are unreserved only so that its "
         "grammar stops crashing; nobody has checked them against ClickHouse."
+    ),
+    "db2": (
+        "db2's keyword list repeats words ansi reserves, such as SELECT, JOIN "
+        "and ON, so they are taken out of its unreserved list and stay "
+        "reserved, as they always have. That is a stopgap, not Db2's real "
+        "list; it has to be checked against the server."
     ),
 }
 

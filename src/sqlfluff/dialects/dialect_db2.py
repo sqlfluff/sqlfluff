@@ -39,8 +39,31 @@ db2_dialect = ansi_dialect.copy_as(
     formatted_name="IBM Db2",
     docstring="The dialect for IBM `Db2 <https://www.ibm.com/analytics/db2>`_.",
 )
-db2_dialect.sets("reserved_keywords").remove("NATURAL")
-db2_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+# db2's keyword list repeats words ansi reserves (SELECT, JOIN, ON and more).
+# A word can't be both, and unreserving them would let them parse as names
+# (ON as an alias, for one), so they are taken out of the unreserved list here
+# and stay reserved, as they always have. That is a stopgap, not Db2's real
+# list; someone who knows Db2 should check it against the server. Run
+# `python test/dialects/keyword_reference_test.py db2` after any change; it
+# reports this stopgap as a notice (KEYWORD_STOPGAPS there) until it's fixed.
+ansi_reserved_keywords = set(ansi_dialect.sets("reserved_keywords"))
+db2_dialect.declare_keyword_sets(
+    reserved=[],
+    reserved_mode="add",
+    unreserved=[
+        word
+        for word in UNRESERVED_KEYWORDS
+        if word.upper() not in ansi_reserved_keywords
+    ]
+    # db2's own grammar uses INVALID (IGNORE INVALID VALUES and REJECT INVALID
+    # VALUES in XmlTypeClauseGrammar), but its keyword list never had it, so any
+    # statement reaching that grammar crashed.
+    + ["INVALID"],
+    # Db2 has no NATURAL JOIN (NaturalJoinKeywordsGrammar is Nothing() below),
+    # so NATURAL is just a name here.
+    unimplemented=["NATURAL"],
+    future_reserved=[],
+)
 
 
 db2_dialect.replace(
