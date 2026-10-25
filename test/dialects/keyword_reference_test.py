@@ -1583,7 +1583,9 @@ def _switched_off_message(name: str, switched_off: dict[str, set[Owner]]) -> str
     lines = [
         f"These words are tagged unimplemented in {name}: its server doesn't "
         "implement them, so the parts of inherited grammar that need them stop "
-        "matching. Check that these are features the server really lacks."
+        "matching. Check that these are features the server really lacks. "
+        "Many of them at once is suspicious: it usually means a keyword list "
+        "was copied or replaced wholesale, not checked word by word."
     ]
     for word, owners in sorted(switched_off.items()):
         users, _ = _segments_and_files(owners)
