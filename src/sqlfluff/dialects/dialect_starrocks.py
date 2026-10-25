@@ -25,7 +25,6 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_starrocks_keywords import (
     starrocks_reserved_keywords,
-    starrocks_unimplemented_keywords,
     starrocks_unreserved_keywords,
 )
 
@@ -46,14 +45,14 @@ starrocks_dialect = mysql_dialect.copy_as(
         "antlr/com/starrocks/grammar"
     ),
 )
-# Reserved is the complete list (StarRocks 4.1.6: keyword tokens in
-# StarRocksLex.g4 that StarRocks.g4's nonReserved rule doesn't list), so
-# reserved_mode is replace.
+# Reserved is StarRocks's complete reserved list, so reserved_mode is replace:
+# a reserved word starrocks inherits from mysql and doesn't list becomes
+# unreserved.
 starrocks_dialect.declare_keyword_sets(
     reserved=starrocks_reserved_keywords.split(),
     reserved_mode="replace",
     unreserved=starrocks_unreserved_keywords.split(),
-    unimplemented=starrocks_unimplemented_keywords.split(),
+    unimplemented=[],
     future_reserved=[],
 )
 
