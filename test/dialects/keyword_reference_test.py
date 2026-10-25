@@ -1838,7 +1838,7 @@ def _audit_report_of(
         counts = _level_counts(found)
         parts = [_level_count(counts[lvl], lvl) for lvl in LEVELS if counts[lvl]]
         if not counts["error"] and not counts["warning"]:
-            parts.insert(0, "no errors or warnings")
+            parts.insert(0, "nothing to fix")
         lines.extend(
             textwrap.wrap(
                 f"{name.ljust(width)}  {status:8}  {', '.join(parts)}",
@@ -1982,7 +1982,7 @@ def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     assert "  No errors or warnings." in report
     assert "== tsql (not required to pass yet) ==" in report
     assert "* MARK (in TransactionStatementSegment" in report
-    assert "mysql  required  no errors or warnings, " in report
+    assert "mysql  required  nothing to fix, " in report
     assert re.search(r"mysql  required  [^\n]* \d+ info\b", report)
     assert "* MARK (in TransactionStatementSegment" in report
 
