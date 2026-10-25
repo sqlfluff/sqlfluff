@@ -539,7 +539,7 @@ class Bracketed(Sequence):
             return MatchResult.empty_at(idx)
 
         # Get position after content for end bracket check
-        gap_start = end_bracket_idx = content_match.matched_slice.stop
+        end_bracket_idx = content_match.matched_slice.stop
 
         # Skip whitespace if allowed
         if self.allow_gaps:
@@ -547,22 +547,21 @@ class Bracketed(Sequence):
                 segments, end_bracket_idx
             )
 
-        # If there's a gap, add it as a child match
+        # Assemble the child matches: start bracket, content, end bracket.
+        # NOTE: Any non-code between the start bracket and the content, or
+        # between the content and the end bracket, is deliberately *not*
+        # represented by a child match. `MatchResult.apply()` passes any
+        # segments not covered by a child match through unchanged, so an
+        # empty "gap" match would add nothing. The Rust implementation
+        # (`sqlfluffrs_parser::parser::table_driven::bracketed`) leaves
+        # those gaps uncovered in the same way, so the two stay in step.
+        # See https://github.com/sqlfluff/sqlfluff/issues/6925
         child_matches: tuple[MatchResult, ...] = (start_match,)
         if not is_zero_slice(content_match.matched_slice):
             if content_match.matched_class:
                 child_matches += (content_match,)
             else:
                 child_matches += content_match.child_matches
-        if end_bracket_idx > gap_start:
-            gap_match = MatchResult(
-                matched_slice=slice(gap_start, end_bracket_idx),
-                matched_class=None,
-                segment_kwargs={},
-                insert_segments=(),
-                child_matches=(),
-            )
-            child_matches += (gap_match,)
 
         # Check if we've run out of segments
         if end_bracket_idx >= len(segments):
