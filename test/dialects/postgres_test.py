@@ -223,7 +223,13 @@ def test_priority_keyword_merge() -> None:
 
 
 def test_priority_keyword_merge_leaves_its_inputs_alone() -> None:
-    """Test that merging doesn't change the lists it was given."""
+    """Test that merging doesn't change the lists it was given.
+
+    It used to append every later list into the first one, so after import
+    postgres_docs_keywords held all the layers, not just the docs. Postgres has
+    several child dialects; one that merges postgres's layers with its own
+    must get them as written, and must not change postgres's lists by doing so.
+    """
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
     kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
 
