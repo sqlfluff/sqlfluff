@@ -27,7 +27,6 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
-    mariadb_unimplemented_keywords,
     mariadb_unreserved_keywords,
 )
 
@@ -43,14 +42,14 @@ Identifiers: |back_quotes|.
 
 The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
 )
-# Reserved is the complete list (MariaDB 11.8.6: INFORMATION_SCHEMA.KEYWORDS
-# words the server rejects as a bare column name), so reserved_mode is
-# replace.
+# Reserved is MariaDB's complete reserved list, so reserved_mode is replace:
+# a reserved word mariadb inherits from mysql and doesn't list becomes
+# unreserved.
 mariadb_dialect.declare_keyword_sets(
     reserved=mariadb_reserved_keywords.split(),
     reserved_mode="replace",
     unreserved=mariadb_unreserved_keywords.split(),
-    unimplemented=mariadb_unimplemented_keywords.split(),
+    unimplemented=[],
     future_reserved=[],
 )
 
