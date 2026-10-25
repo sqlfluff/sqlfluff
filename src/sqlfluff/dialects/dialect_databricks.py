@@ -426,12 +426,6 @@ databricks_dialect.replace(
         ],
         at=0,
     ),
-    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
-    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[
-            Ref("ParameterizedSegment"),
-        ]
-    ),
     FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
         "FunctionContentsExpressionGrammar"
     ).copy(insert=[Ref("NamedArgumentSegment")]),
@@ -1853,25 +1847,6 @@ class OptimizeTableStatementSegment(BaseSegment):
     )
 
 
-class LimitClauseSegment(sparksql.LimitClauseSegment):
-    """A `LIMIT` clause like in `SELECT`.
-
-    Enhanced from SparkSQL to support parameterized values.
-    """
-
-    match_grammar = Sequence(
-        "LIMIT",
-        Indent,
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            "ALL",
-            Ref("FunctionSegment"),
-            Ref("ParameterizedSegment"),  # Add support for parameters
-        ),
-        Dedent,
-    )
-
-
 class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement.
 
@@ -2896,7 +2871,10 @@ class ParameterizedSegment(BaseSegment):
         # Colon-based parameters: :param_name
         Sequence(
             Ref("ColonSegment"),
-            Ref("NakedIdentifierSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("BackQuotedIdentifierSegment"),
+            ),
             allow_gaps=False,
         ),
         # Pipeline parameters: ${param_name}
