@@ -1216,12 +1216,64 @@ test_pass_ignore_aliases:
 
 test_fail_ignore_aliases_when_expression_is_too_long:
   fail_str: |
+    SELECT this_expression_is_already_longer_than_the_limit AS short_alias
+  fix_str: |
     SELECT
         this_expression_is_already_longer_than_the_limit
             AS short_alias
+  violations_after_fix:
+    - code: LT05
+      description: Line is too long (52 > 40).
+      end_file_pos: 59
+      end_line_no: 2
+      end_line_pos: 53
+      fixes: []
+      name: layout.long_lines
+      start_file_pos: 11
+      start_line_no: 2
+      start_line_pos: 5
+      warning: false
   configs:
     core:
       max_line_length: 40
+    rules:
+      layout.long_lines:
+        ignore_aliases: true
+
+test_fail_ignore_aliases_when_overflow_follows_alias:
+  fail_str: |
+    SELECT * FROM orders AS o WHERE this_condition_is_longer_than_the_limit = 1
+  fix_str: |
+    SELECT *
+    FROM orders AS o
+    WHERE
+        this_condition_is_longer_than_the_limit
+        = 1
+  violations_after_fix:
+    - code: LT05
+      description: Line is too long (43 > 40).
+      end_file_pos: 75
+      end_line_no: 4
+      end_line_pos: 44
+      fixes: []
+      name: layout.long_lines
+      start_file_pos: 36
+      start_line_no: 4
+      start_line_pos: 5
+      warning: false
+  configs:
+    core:
+      max_line_length: 40
+    rules:
+      layout.long_lines:
+        ignore_aliases: true
+
+test_pass_ignore_alias_starting_at_limit:
+  pass_str: |
+    SELECT short_col AS this_is_a_very_long_column_alias_name
+  configs:
+    core:
+      max_line_length: 18
     rules:
       layout.long_lines:
         ignore_aliases: true
