@@ -1384,8 +1384,9 @@ def _unused_finding(name: str, dialect: Dialect) -> "Finding | None":
     own = [word for word in unused if word not in inherited]
     lines = [
         "These do no harm: nothing refers to them, so they can't change any "
-        "parse. RF04 (off by default) treats them as keywords. They are leads: "
-        "syntax sqlfluff may not parse yet, or words that can come out of a list."
+        "parse. RF04 (off by default) treats them as keywords. This is an "
+        "inventory: syntax sqlfluff may not parse yet, or words that can come "
+        "out of a list."
     ]
     if from_parent:
         lines.append(f"- {len(from_parent)} also in {parent_name}'s keywords:")
@@ -1395,7 +1396,7 @@ def _unused_finding(name: str, dialect: Dialect) -> "Finding | None":
         lines.extend(_word_rows(own))
     return Finding(
         "Keywords no grammar uses",
-        "notice",
+        "info",
         len(unused),
         "\n".join(lines),
         f"{len(unused)} of {len(unreserved)} unreserved",
@@ -1422,7 +1423,7 @@ def _never_used_finding(dialects: dict[str, Dialect]) -> "Finding | None":
         ]
     )
     return Finding(
-        "Keywords no grammar in these dialects uses", "notice", len(never), message
+        "Keywords no grammar in these dialects uses", "info", len(never), message
     )
 
 
@@ -1551,14 +1552,23 @@ def _render_message(message: str) -> list[str]:
     return lines
 
 
-LEVELS = ("error", "warning", "notice")
+LEVELS = ("error", "warning", "notice", "info")
+
+# How the footer names each level's hidden findings.
+_LEVEL_PLURALS = {
+    "error": "Errors",
+    "warning": "Warnings",
+    "notice": "Notices",
+    "info": "Info",
+}
 
 
 class Finding(NamedTuple):
     """One kind of problem, or lead, found in a dialect.
 
     error: a statement reaching the grammar crashes. warning: the audit fails
-    on it, but nothing crashes. notice: a lead, not a problem.
+    on it, but nothing crashes. notice: a lead worth a person's look, not a
+    problem. info: an inventory of facts about the dialect.
     """
 
     title: str
@@ -1710,7 +1720,7 @@ class AuditReport(NamedTuple):
 
 
 def _problem_counts(found: list[Finding]) -> str:
-    """'5 errors, 39 warnings', leaving out notices and zero counts."""
+    """'5 errors, 39 warnings', leaving out notices, info and zero counts."""
     counts = _level_counts(found)
     return ", ".join(
         _plural(counts[lvl], lvl) for lvl in ("error", "warning") if counts[lvl]
@@ -1729,7 +1739,7 @@ def _verdict(
     """
 
     def has_problems(name: str) -> bool:
-        return any(finding.level != "notice" for finding in findings[name])
+        return any(finding.level in ("error", "warning") for finding in findings[name])
 
     if named:
         judged = [name for name in findings if name in named]
@@ -1806,7 +1816,8 @@ def _audit_report_of(
         _paragraph(
             "What the checks in test/dialects/keyword_reference_test.py find in "
             "each dialect. Errors crash the parser; warnings fail the audit "
-            "without crashing; notices are leads, not problems. For a dialect "
+            "without crashing; notices are leads worth a look, not problems; info "
+            "is an inventory. For a dialect "
             "required to pass this audit, its tests fail on errors and "
             "warnings. For one in UNAUDITED_DIALECTS, they are what requiring it "
             "would bring.",
@@ -1879,7 +1890,9 @@ def _audit_report_of(
         if never.level in shown_levels:
             lines.append("")
             lines.append("")
-            lines.extend(_heading(f"{never.title} ({never.number}) [notice]", "="))
+            lines.extend(
+                _heading(f"{never.title} ({never.number}) [{never.level}]", "=")
+            )
             lines.extend(_render_message(never.message))
         else:
             hidden.setdefault(never.level, []).append(
@@ -1905,7 +1918,7 @@ def _audit_report_of(
         items = hidden.get(hidden_level)
         if items:
             lines.append(
-                f"{hidden_level.capitalize()}s not shown ({len(items)}). Show them "
+                f"{_LEVEL_PLURALS[hidden_level]} not shown ({len(items)}). Show them "
                 f"with --level {hidden_level}:"
             )
             for item in items:
@@ -1919,7 +1932,7 @@ def _audit_report_of(
 def _parse_args(argv: list[str]) -> tuple[list[str], str]:
     """The dialect names and the level from the command line.
 
-    Usage: keyword_reference_test.py [--level error|warning|notice] [dialect ...]
+    Usage: keyword_reference_test.py [--level error|warning|notice|info] [dialect ...]
     """
     level = "warning"
     names: list[str] = []
@@ -2038,19 +2051,21 @@ def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
     assert f"    {word}  in " in message
 
 
-def test_audit_report_lists_unused_keywords_as_notices() -> None:
-    """Test that unused keywords are leads, shown only at notice level."""
-    shown = _audit_report(["mariadb"], level="notice").text
-    hidden = _audit_report(["mariadb"]).text
+def test_audit_report_lists_unused_keywords_as_info() -> None:
+    """Test that unused keywords are an inventory, shown only at info level."""
+    shown = _audit_report(["mariadb"], level="info").text
+    hidden = _audit_report(["mariadb"], level="notice").text
 
     assert "-- Keywords no grammar uses (" in shown
-    assert "unreserved) [notice] --" in shown
+    assert "unreserved) [info] --" in shown
     assert "also in mysql's keywords:" in shown
-    assert "== Keywords no grammar in these dialects uses (" in shown
+    assert re.search(
+        r"== Keywords no grammar in these dialects uses \(\d+\) \[info\]", shown
+    )
     assert "These do no harm" in _flat(shown)
     assert "Keywords no grammar uses (" not in hidden
     assert re.search(
-        r"\nNotices not shown \(\d+\)\. Show them with --level notice:\n  \d", hidden
+        r"\nInfo not shown \(\d+\)\. Show them with --level info:\n  \d", hidden
     )
 
 
@@ -2074,7 +2089,7 @@ def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     assert "The audit would also fail on" in flat
     assert "Warnings not shown (" in flat
     assert "Show them with --level warning:" in flat
-    assert "Notices not shown (" in flat
+    assert "Info not shown (" in flat
 
 
 def test_audit_verdict_judges_what_was_asked() -> None:
