@@ -60,11 +60,15 @@ db2_dialect.declare_keyword_sets(
     # VALUES in XmlTypeClauseGrammar), but its keyword list never had it, so any
     # statement reaching that grammar crashed.
     + ["INVALID"],
-    # Db2 has no NATURAL JOIN (NaturalJoinKeywordsGrammar is Nothing() below),
-    # so NATURAL is just a name here.
-    unimplemented=["NATURAL"],
+    unimplemented=[],
     future_reserved=[],
 )
+# Db2 has no NATURAL JOIN, and NaturalJoinKeywordsGrammar is Nothing() below, the
+# only ansi grammar that uses NATURAL. It gets no status at all, rather than
+# unimplemented: if grammar db2 reaches ever uses NATURAL again, the parser and
+# the keyword audit fail on it, so someone decides, instead of that grammar
+# quietly not matching.
+db2_dialect.sets("reserved_keywords").remove("NATURAL")
 
 
 db2_dialect.replace(
