@@ -57,6 +57,7 @@ from sqlfluff.core.dialects.base import (
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.grammar.base import Ref
 from sqlfluff.core.parser.grammar.sequence import Sequence
+from sqlfluff.core.parser.lexer import PyLexer
 from sqlfluff.core.parser.matchable import Matchable
 
 # Dialects these checks don't run for yet. Every other dialect, including any
@@ -400,6 +401,11 @@ def _not_a_word(word: str) -> str:
     """The hint for a "keyword" that isn't a word at all, or nothing."""
     if WORD.match(word):
         return ""
+    if KEYWORD_LIST_ENTRY.match(word):
+        return (
+            f" {word!r} is several tokens to the lexer, so no keyword can match "
+            "it. Each keyword reference has to name one token."
+        )
     meant = _SYMBOL_SEGMENTS.get(word)
     if meant:
         guess = f'Ref("{meant}")'
@@ -424,6 +430,82 @@ WORD = re.compile(r"^[A-Za-z_][A-Za-z0-9_$]*$")
 KEYWORD_LIST_ENTRY = re.compile(
     r"^[A-Za-z_][A-Za-z0-9_$]*(?:[- ][A-Za-z_][A-Za-z0-9_$]*)*$"
 )
+
+
+# One lexer per dialect object, built from that dialect's own lexer matchers.
+_LEXERS: "WeakKeyDictionary[Dialect, PyLexer]" = WeakKeyDictionary()
+
+
+def _lexed_as(dialect: Dialect, word: str) -> list[str]:
+    """The tokens the dialect's lexer makes of the word on its own.
+
+    PyLexer takes its matchers from a config's dialect, and a dialect built in
+    a test has no config, so it is given the dialect's matchers directly. The
+    Rust lexer is generated from the same matchers.
+    """
+    lexer = _LEXERS.get(dialect)
+    if lexer is None:
+        lexer = PyLexer(dialect="ansi")
+        lexer.lexer_matchers = dialect.get_lexer_matchers()
+        _LEXERS[dialect] = lexer
+    segments, _ = lexer.lex(word)
+    return [segment.raw for segment in segments if segment.raw.strip()]
+
+
+def _unmatchable_keywords(dialect: Dialect) -> dict[str, tuple[list[str], set[Owner]]]:
+    """Keywords the grammar uses that the dialect's lexer never makes one token.
+
+    A keyword matches one token whose text is the word. If the lexer makes
+    anything else of the word, no input can match it, and the grammar that
+    needs it is dead. A keyword with no status is left to the missing keyword
+    check, which already fails for it.
+    """
+    found: dict[str, tuple[list[str], set[Owner]]] = {}
+    for name, owners in _reference_uses(dialect).items():
+        if not name.endswith("KeywordSegment"):
+            continue
+        word = name[: -len("KeywordSegment")].upper()
+        tokens = _lexed_as(dialect, word)
+        if [token.upper() for token in tokens] == [word]:
+            continue
+        try:
+            dialect.ref(name)
+        except RuntimeError:
+            continue
+        found[word] = (tokens, owners)
+    return found
+
+
+def _unmatchable_keywords_message(
+    dialect: Dialect, found: dict[str, tuple[list[str], set[Owner]]]
+) -> str:
+    """Say which grammar keywords can never match, and what the lexer makes of them."""
+    name = dialect.name
+    own_module = f"dialect_{name}"
+    lines = [
+        f"{name}'s grammar uses keywords that {name}'s lexer never makes into one "
+        "token, so the grammar that needs them can never match. Nothing "
+        "crashes, but those parts of the grammar are dead: input that needs "
+        "them is unparsable."
+    ]
+    for word, (tokens, owners) in sorted(found.items()):
+        segments, modules = _segments_and_files(owners)
+        if own_module in modules:
+            where = f"{name}'s own grammar"
+        else:
+            where = "defined in " + " and ".join(
+                module.removeprefix("dialect_") for module in modules
+            )
+        lines.append(
+            f"- {word!r} (in {segments}: {where}): the lexer makes "
+            f"{', '.join(tokens) or 'nothing'} of it."
+        )
+    lines.append(
+        "  Each keyword reference has to name one token. A phrase is separate "
+        'keywords in sequence, e.g. Sequence("WITHIN", "GROUP"). A word the '
+        "server reads as one token needs the lexer to produce that token first."
+    )
+    return "\n".join(lines)
 
 
 def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]]) -> str:
@@ -714,6 +796,18 @@ def _non_word_keywords_message(dialect: Dialect, found: dict[str, list[str]]) ->
                 )
             )
     return "\n".join(lines)
+
+
+@pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
+def test_grammar_keywords_can_match(dialect_name: str) -> None:
+    """Test that every keyword the grammar uses is one token to the lexer.
+
+    Every dialect passes, so this runs for all of them, audited or not.
+    """
+    dialect = dialect_selector(dialect_name)
+    found = _unmatchable_keywords(dialect)
+
+    assert not found, _unmatchable_keywords_message(dialect, found)
 
 
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
@@ -1184,6 +1278,61 @@ def test_checker_finds_a_grammar_keyword_that_is_only_future_reserved() -> None:
     assert not _future_only_uses(with_status)
 
 
+class _SharedUnmatchableSegment(BaseSegment):
+    """A segment from another module whose grammar uses WITHIN GROUP."""
+
+    type = "zz_shared_unmatchable"
+    match_grammar = Sequence(Ref.keyword("WITHIN GROUP"))
+
+
+class _UnmatchableSegment(BaseSegment):
+    """A dialect's own segment whose grammar uses END-EXEC as a keyword."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        Ref.keyword("END-EXEC"),
+        Ref("ZzSharedUnmatchableSegment"),
+        Ref.keyword("ZZ-NO-STATUS"),
+    )
+
+
+_UnmatchableSegment.__module__ = "sqlfluff.dialects.dialect_zzunmatchable"
+
+
+def test_checker_finds_grammar_keywords_that_can_never_match() -> None:
+    """Test that a keyword the lexer splits is reported, with the split.
+
+    END-EXEC has a status (ansi lists it), so it resolves and silently never
+    matches. ZZ-NO-STATUS has none, so the missing keyword check owns it and
+    names it as several tokens instead.
+    """
+    dialect = load_raw_dialect("ansi").copy_as("zzunmatchable")
+    dialect.replace(SelectClauseModifierSegment=_UnmatchableSegment)
+    dialect.add(ZzSharedUnmatchableSegment=_SharedUnmatchableSegment)
+    _declare(dialect, unreserved=["WITHIN GROUP"])
+    expanded = dialect.expand()
+
+    found = _unmatchable_keywords(expanded)
+    message = _flat(_unmatchable_keywords_message(expanded, found))
+
+    assert set(found) == {"END-EXEC", "WITHIN GROUP"}
+    assert "'END-EXEC' (in _UnmatchableSegment: zzunmatchable's own grammar)" in message
+    assert "the lexer makes END, -, EXEC of it." in message
+    assert (
+        "'WITHIN GROUP' (in _SharedUnmatchableSegment: defined in "
+        "keyword_reference_test): the lexer makes WITHIN, GROUP of it."
+    ) in message
+    assert "is several tokens to the lexer" in _not_a_word("ZZ-NO-STATUS")
+
+    dialects = {"zzunmatchable": expanded}
+    UNAUDITED_DIALECTS.update(dialects)
+    try:
+        report = _audit_report_of(dialects).text
+    finally:
+        UNAUDITED_DIALECTS.difference_update(dialects)
+    assert "-- Grammar keywords that can never match (2) [warning] --" in report
+
+
 def _keywords_used(dialect: Dialect) -> set[str]:
     """The words the dialect's grammar refers to as keywords."""
     return {
@@ -1476,6 +1625,16 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "warning",
                 len(own_unimplemented),
                 _unimplemented_in_own_grammar_message(dialect, own_unimplemented),
+            )
+        )
+    unmatchable = _unmatchable_keywords(dialect)
+    if unmatchable:
+        findings.append(
+            Finding(
+                "Grammar keywords that can never match",
+                "warning",
+                len(unmatchable),
+                _unmatchable_keywords_message(dialect, unmatchable),
             )
         )
     non_words = _non_word_keywords(dialect)
