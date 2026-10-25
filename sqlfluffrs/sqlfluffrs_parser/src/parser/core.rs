@@ -1384,6 +1384,96 @@ impl<'a> Parser<'a> {
         true
     }
 
+    /// Skip whitespace, comment and meta tokens forwards from `idx`.
+    ///
+    /// Comments count as gaps rather than code here, so that a delimiter
+    /// followed by a trailing comment on the same line (`/ -- run it`) still
+    /// stands alone.
+    fn skip_gaps_forward(&self, mut idx: usize) -> usize {
+        while idx < self.tokens.len() {
+            let tok = &self.tokens[idx];
+            if tok.is_meta
+                || tok.token_type.as_ref() == "whitespace"
+                || tok.token_type.contains("comment")
+            {
+                idx += 1;
+            } else {
+                break;
+            }
+        }
+        idx
+    }
+
+    /// Skip whitespace, comment and meta tokens backwards from `idx`.
+    fn skip_gaps_backward(&self, mut idx: isize) -> isize {
+        while idx >= 0 {
+            let tok = &self.tokens[idx as usize];
+            if tok.is_meta
+                || tok.token_type.as_ref() == "whitespace"
+                || tok.token_type.contains("comment")
+            {
+                idx -= 1;
+            } else {
+                break;
+            }
+        }
+        idx
+    }
+
+    /// Check whether `idx` (which may be out of bounds) sits on a line boundary.
+    ///
+    /// Out of bounds means the start or end of the stream, which counts as a
+    /// boundary.
+    fn is_line_boundary(&self, idx: isize) -> bool {
+        if idx < 0 || idx as usize >= self.tokens.len() {
+            return true;
+        }
+        self.tokens[idx as usize].token_type.as_ref() == "newline"
+    }
+
+    /// Handle StandaloneLine using table-driven approach.
+    ///
+    /// Matches the inner raw string only when it is the sole code token on its
+    /// line: the nearest code tokens on either side must be newlines, or the
+    /// start / end of the stream.
+    pub(crate) fn handle_standalone_line(
+        &mut self,
+        grammar_id: GrammarId,
+    ) -> Result<MatchResult, ParseError> {
+        if self.pos >= self.tokens.len() {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+        if !self.tokens[self.pos].is_code() {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let prev = self.skip_gaps_backward(self.pos as isize - 1);
+        if !self.is_line_boundary(prev) {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let next = self.skip_gaps_forward(self.pos + 1);
+        if !self.is_line_boundary(next as isize) {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let tables = self.grammar_ctx.tables();
+        let aux_offset = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let expected = tables.get_string(tables.aux_data[aux_offset]);
+
+        if self.tokens[self.pos].raw_upper() != expected {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let token_pos = self.pos;
+        self.bump();
+
+        Ok(MatchResult {
+            matched_slice: token_pos..token_pos + 1,
+            ..Default::default()
+        })
+    }
+
     /// Handle Token using table-driven approach
     pub(crate) fn handle_token(
         &mut self,

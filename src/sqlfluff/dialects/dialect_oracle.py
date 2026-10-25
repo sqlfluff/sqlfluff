@@ -42,6 +42,7 @@ from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.grammar.standalone import StandaloneLineMatcher
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1827,7 +1828,13 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            # NOTE: The SQL*Plus `/` delimiter only terminates a statement when
+            # it sits on a line of its own. Using the raw batch delimiter as a
+            # terminator here would also match division, e.g. `SELECT 1 / 100`.
+            terminators=[
+                StandaloneLineMatcher(StringParser("/", SymbolSegment, type="slash"))
+            ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
