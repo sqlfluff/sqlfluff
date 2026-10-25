@@ -1,0 +1,186 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b6763dbd8476773ec3d904abc7467810bb1400b0d114f1cc534241cbe87fdde3
+file:
+- statement:
+    describe_statement:
+      keyword: DESCRIBE
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: DESC
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: describe
+      table_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: "'data.csv'"
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: DESCRIBE
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: DESCRIBE
+      select_statement:
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: ALL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLES
+    - keyword: FROM
+    - schema_reference:
+        naked_identifier: x
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: DESCRIBE
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      table_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - schema_reference:
+        naked_identifier: memory
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - schema_reference:
+      - naked_identifier: memory
+      - dot: .
+      - naked_identifier: main
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VARIABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      select_statement:
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+- statement_terminator: ;

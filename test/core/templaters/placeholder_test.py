@@ -98,6 +98,24 @@ def test__templater_raw():
             ),
         ),
         (
+            # A colon inside a word, a time literal or an array slice is not
+            # a parameter. Only the standalone :user_id is replaced.
+            """
+            SELECT '2021-10-01 12:30:00'::timestamp, tags[1:3]
+            FROM users_data
+            WHERE userid = :user_id AND note = 'a\\:b'
+            """,
+            "colon_optional_quotes",
+            """
+            SELECT '2021-10-01 12:30:00'::timestamp, tags[1:3]
+            FROM users_data
+            WHERE userid = 42 AND note = 'a\\:b'
+            """,
+            dict(
+                user_id="42",
+            ),
+        ),
+        (
             """
             SELECT user_mail, city_id
             FROM users_data:table_suffix
@@ -229,6 +247,31 @@ def test__templater_raw():
                 city_id="(1, 2, 3, 45)",
                 date="'2020-10-01'",
             ),
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = ${user_id} AND city = {{ city }}
+            """,
+            "databricks",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = 42 AND city = 'London'
+            """,
+            dict(
+                user_id="42",
+                city="'London'",
+            ),
+        ),
+        (
+            # Databricks widget names may be dotted and the braced form may
+            # be empty. Unset parameters keep their name.
+            "SELECT ${test.nrows}, $npartitions, ${} FROM t;",
+            "databricks",
+            "SELECT 100, npartitions, 1 FROM t;",
+            {"test.nrows": "100"},
         ),
         (
             """
@@ -376,6 +419,7 @@ def test__templater_raw():
         "colon_accept_block_at_end",
         "colon_tuple_substitution",
         "colon_quoted",
+        "colon_quoted_embedded_colons_ignored",
         "colon_nospaces",
         "colon_nospaces_double_colon_ignored",
         "colon_double_colon_cast",
@@ -383,6 +427,8 @@ def test__templater_raw():
         "numeric_colon",
         "pyformat",
         "dollar",
+        "databricks_widgets_and_dashboard",
+        "databricks_unset_and_empty",
         "numeric_dollar",
         "numeric_dollar_with_braces",
         "numeric_dollar_with_braces_and_string",

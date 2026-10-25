@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d4607a601878ef206249772ec6e5f0e81fd713ad5b7f14f7370e93846ed89546
+file:
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          wildcard_identifier:
+            naked_identifier: db1
+            dot: .
+            star: '*'
+      - keyword: TO
+      - role_reference:
+          keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          wildcard_identifier:
+            naked_identifier: db1
+            dot: .
+            star: '*'
+      - keyword: TO
+      - role_reference:
+          keyword: CURRENT_USER
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: SELECT
+      - keyword: 'ON'
+      - access_object:
+          wildcard_identifier:
+            naked_identifier: db1
+            dot: .
+            star: '*'
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            keyword: CURRENT_USER
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;

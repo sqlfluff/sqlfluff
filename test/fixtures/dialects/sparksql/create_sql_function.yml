@@ -1,0 +1,348 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bf3d4f7411ec7926e4b78fb166d0811067f81f8fcb0b18e335a5d1b394fd683e
+file:
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: RETURN
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: CONCAT
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'x'"
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: a
+                      keyword: AS
+                      data_type:
+                        primitive_type:
+                          keyword: STRING
+                      end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - comma: ','
+        - parameter: b
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: RETURN
+    - expression:
+      - column_reference:
+          naked_identifier: a
+      - binary_operator: +
+      - column_reference:
+          naked_identifier: b
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - comma: ','
+        - parameter: b
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - end_bracket: )
+    - keyword: RETURN
+    - expression:
+      - column_reference:
+          naked_identifier: a
+      - binary_operator: +
+      - column_reference:
+          naked_identifier: b
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: RETURN
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: MAX
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: a
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: RETURN
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: MAX
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - keyword: DEFAULT
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+        - comma: ','
+        - parameter: b
+        - data_type:
+            primitive_type:
+              keyword: STRING
+        - keyword: DEFAULT
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: CONCAT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'x'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'y'"
+                - end_bracket: )
+        - comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'c'"
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: NOT
+    - keyword: DETERMINISTIC
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'adds nothing'"
+    - keyword: CONTAINS
+    - keyword: SQL
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: x
+      - data_type:
+          primitive_type:
+            keyword: INT
+      - keyword: COMMENT
+      - quoted_literal: "'x'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: y
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - end_bracket: )
+    - keyword: READS
+    - keyword: SQL
+    - keyword: DATA
+    - keyword: RETURN
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "'b'"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - keyword: RETURN
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+- statement_terminator: ;

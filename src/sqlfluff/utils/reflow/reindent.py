@@ -1942,9 +1942,23 @@ def lint_indent_points(
 
         # Convert remaining newlines to spaces at tracked positions.
         if implicit_indent_locs:
+            # NOTE: Use the original `elements` rather than the working copy.
+            # The line pass above may have swapped points in `elem_buffer` for
+            # ones holding newly created segments, which can't be fix anchors.
             implicit_results = _convert_newlines_to_spaces(
-                elem_buffer, implicit_indent_locs
+                elements, implicit_indent_locs
             )
+            # The line break is being removed, so drop any indent results for
+            # the same point. Otherwise they would be conflicting fixes on the
+            # same anchor, and neither would be applied.
+            collapsed_anchors = {
+                fix.anchor.uuid for res in implicit_results for fix in res.fixes
+            }
+            results = [
+                res
+                for res in results
+                if not any(fix.anchor.uuid in collapsed_anchors for fix in res.fixes)
+            ]
             results = implicit_results + results
 
     return elem_buffer, results
@@ -2153,6 +2167,22 @@ def _increment_balance(
     return balance, matched_indents
 
 
+def _is_point_before_final_statement_terminator(
+    elements: ReflowSequenceType, point_idx: int
+) -> bool:
+    """Whether a point is followed only by a final statement terminator."""
+    found_terminator = False
+    for element in elements[point_idx + 1 :]:
+        for segment in element.segments:
+            if segment.is_type("statement_terminator"):
+                found_terminator = True
+            elif segment.is_type("newline"):
+                return found_terminator
+            elif segment.is_code:
+                return False
+    return found_terminator
+
+
 def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: dict[int, int],
@@ -2183,6 +2213,8 @@ def _match_indents(
         if indent_stats.implicit_indents:
             implicit_indent_dict[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
+        if _is_point_before_final_statement_terminator(line_elements, idx):
+            continue
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
             matched_indents[b].extend(indices)
@@ -2270,6 +2302,14 @@ def _fix_long_line_with_comment(
         "before",
     ), f"Unexpected value for `trailing_comments`: {trailing_comments!r}"
 
+    # If the source of the comment contains a template tag, neither move is
+    # safe. Moving it before the line rebuilds it from its rendered text, so
+    # the tags are lost. The placeholders for the tags sit before the comment,
+    # so a break before the comment splits its source.
+    if comment_seg.pos_marker and not comment_seg.pos_marker.is_literal():
+        reflow_logger.debug("    Unfixable because comment contains template tags.")
+        return elements, []
+
     # The simpler case if if we're moving the comment to the line
     # _after_. In that case we just coerce the point before it to
     # be an indent.
@@ -2333,6 +2373,61 @@ def _fix_long_line_with_comment(
     )
 
     return elements, fixes
+
+
+def _is_comma_break(elements: ReflowSequenceType, e_idx: int) -> bool:
+    """Is the point at this index a break before or after a comma?"""
+    return (
+        "comma" in elements[e_idx - 1].class_types
+        or "comma" in elements[e_idx + 1].class_types
+    )
+
+
+def _fill_breaks(
+    elements: ReflowSequenceType,
+    target_breaks: list[int],
+    line_start: int,
+    line_end: int,
+    first_indent: str,
+    next_indent: str,
+    line_length_limit: int,
+) -> list[int]:
+    """Choose a subset of target breaks which fills each line.
+
+    Each break is only taken if the line would otherwise run past the
+    next break (or the end of the line) and go over the limit. Lengths
+    are measured the same way as in `lint_line_length`.
+
+    If no earlier break is taken, the last one is checked against the
+    whole line, which is already too long, so at least one break is
+    always taken.
+
+    This is a helper function within .lint_line_length().
+    """
+    chosen: list[int] = []
+    start_idx = line_start
+    indent_len = len(first_indent)
+    idx = 0
+    while idx < len(target_breaks):
+        # A comma with `line_position = alone` has a break on each side.
+        # Take both or neither, so the comma is never left trailing.
+        group_len = 1
+        if (
+            idx + 1 < len(target_breaks)
+            and target_breaks[idx + 1] == target_breaks[idx] + 2
+        ):
+            group_len = 2
+        group = target_breaks[idx : idx + group_len]
+        idx += group_len
+        next_idx = target_breaks[idx] if idx < len(target_breaks) else line_end
+        if (
+            indent_len + _source_char_len(elements[start_idx:next_idx])
+            > line_length_limit
+        ):
+            chosen += group
+            start_idx = group[-1] + 1
+            indent_len = len(next_indent)
+    return chosen
 
 
 def _fix_long_line_with_fractional_targets(
@@ -2480,6 +2575,7 @@ def lint_line_length(
     line_length_limit: int,
     implicit_indents: str = "forbid",
     trailing_comments: str = "before",
+    list_wrapping: str = "one_per_line",
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
@@ -2698,6 +2794,22 @@ def lint_line_length(
                             current_indent,
                         )
                     else:
+                        # All the commas of one list share a balance, so by
+                        # default the list is split at every comma. With
+                        # "fill", only split where the line would be too long.
+                        if list_wrapping == "fill" and all(
+                            _is_comma_break(elem_buffer, e_idx)
+                            for e_idx in target_breaks
+                        ):
+                            target_breaks = _fill_breaks(
+                                elem_buffer,
+                                target_breaks,
+                                i - len(line_buffer),
+                                i,
+                                current_indent,
+                                desired_indent,
+                                line_length_limit,
+                            )
                         line_results = _fix_long_line_with_fractional_targets(
                             elem_buffer, target_breaks, desired_indent
                         )

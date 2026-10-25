@@ -1,0 +1,147 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8cfc401aef2502d779cc055538b0334dbaad151fba31f2ec40c473cefc84b509
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+        - quoted_identifier: "'u'"
+        - at_sign_literal: '@'
+        - quoted_identifier: "'localhost'"
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+      - keyword: 'NO'
+      - keyword: SQL
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'header order'"
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          keyword: CURRENT_USER
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter_direction: IN
+        - parameter: a
+        - data_type:
+            data_type_identifier: INT
+        - comma: ','
+        - parameter_direction: OUT
+        - parameter: b
+        - data_type:
+            data_type_identifier: INT
+        - end_bracket: )
+    - characteristic_statement:
+      - keyword: READS
+      - keyword: SQL
+      - keyword: DATA
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+            statement:
+              set_statement:
+              - keyword: SET
+              - variable: b
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - variable: a
+            statement_terminator: ;
+        - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+        keyword: DETERMINISTIC
+    - function_definition:
+        compound_statement:
+        - naked_identifier: fbody
+        - colon: ':'
+        - keyword: BEGIN
+        - statement_list:
+          - statement:
+              if_then_statement:
+              - keyword: IF
+              - expression:
+                  column_reference:
+                    naked_identifier: a
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '0'
+              - keyword: THEN
+              - statement_list:
+                  statement:
+                    leave_statement:
+                      keyword: LEAVE
+                      naked_identifier: fbody
+                  statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  column_reference:
+                    naked_identifier: a
+          - statement_terminator: ;
+        - keyword: END
+        - naked_identifier: fbody
+- statement_terminator: ;

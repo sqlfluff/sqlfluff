@@ -33,7 +33,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: "docs-beta-latest"
+  group: "docs-publish"
   cancel-in-progress: false
 
 env:
@@ -41,6 +41,7 @@ env:
   DOCS_R2_PREFIX: site
   SQLFLUFF_DOCS_BASE: /en/latest/
   SQLFLUFF_DOCS_NOINDEX: "1"
+  SQLFLUFF_DOCS_INDEXING_MODE: ${{ vars.DOCS_INDEXING_MODE || 'production' }}
 
 jobs:
   publish:
@@ -52,6 +53,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version || github.ref }}
+
+      # Release and manual version rebuilds use their tag's content, but
+      # deployment policy and redirects come from main. Otherwise rebuilding
+      # an old tag can restore obsolete headers or permalink targets.
+      - name: Checkout current docs deployment scripts
+        uses: actions/checkout@v7
+        with:
+          path: .docs-deploy
+          ref: ${{ (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.version != '')) && 'main' || github.ref }}
 
       # Resolves the three trigger paths — push, release, and manual dispatch —
       # into one set of outputs, so the build and assemble steps below share a
@@ -245,12 +255,14 @@ jobs:
       - name: Assemble latest site
         if: ${{ steps.docs-target.outputs.build_latest == 'true' }}
         run: >-
-          python docsv/scripts/assemble-site.py
+          python .docs-deploy/docsv/scripts/assemble-site.py
           --dist docsv/.vitepress/dist
           --output-dir ${{ env.DOCS_SITE_DIR }}
           --channel latest
           --title Development
           --kind channel
+          --shared-dir .docs-deploy/docsv/shared
+          --redirects .docs-deploy/docsv/.vitepress/redirects.json
 
       - name: ⚒️ Build VitePress release docs
         if: ${{ steps.docs-target.outputs.build_release == 'true' }}
@@ -277,6 +289,8 @@ jobs:
               --channel "${VERSION}"
               --title "${VERSION}"
               --kind release
+              --shared-dir .docs-deploy/docsv/shared
+              --redirects .docs-deploy/docsv/.vitepress/redirects.json
           )
 
           if [ -n "${PUBLISHED_AT}" ]; then
@@ -287,13 +301,13 @@ jobs:
               args+=(--prerelease)
           fi
 
-          python docsv/scripts/assemble-site.py "${args[@]}"
+          python .docs-deploy/docsv/scripts/assemble-site.py "${args[@]}"
 
       - name: ⚒️ Build VitePress stable docs
         if: ${{ steps.docs-target.outputs.build_stable == 'true' }}
         env:
           SQLFLUFF_DOCS_BASE: /en/stable/
-          SQLFLUFF_DOCS_NOINDEX: ${{ env.SQLFLUFF_DOCS_NOINDEX }}
+          SQLFLUFF_DOCS_NOINDEX: ${{ env.SQLFLUFF_DOCS_INDEXING_MODE == 'production' && '0' || '1' }}
         working-directory: docsv
         run: corepack pnpm run docs:build
 
@@ -302,20 +316,22 @@ jobs:
         env:
           VERSION: ${{ steps.docs-target.outputs.version }}
         run: |
-          python docsv/scripts/assemble-site.py \
+          python .docs-deploy/docsv/scripts/assemble-site.py \
               --dist docsv/.vitepress/dist \
               --output-dir "${DOCS_SITE_DIR}" \
               --channel stable \
               --title Stable \
               --kind channel \
-              --stable-release "${VERSION}"
+              --stable-release "${VERSION}" \
+              --shared-dir .docs-deploy/docsv/shared \
+              --redirects .docs-deploy/docsv/.vitepress/redirects.json
 
       # Runs after every assemble step and before anything leaves the runner, so
       # a tree which would 404 or advertise a version it did not build fails the
       # run instead of reaching R2 and Netlify.
       - name: Smoke check assembled site
         run: >-
-          python docsv/scripts/smoke-check-assembled-site.py
+          python .docs-deploy/docsv/scripts/smoke-check-assembled-site.py
           --site-dir ${{ env.DOCS_SITE_DIR }}
 
       - name: ⬆️ Upload assembled site artifact

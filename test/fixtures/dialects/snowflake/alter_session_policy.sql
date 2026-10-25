@@ -1,0 +1,23 @@
+ALTER SESSION POLICY my_session_policy SET SESSION_IDLE_TIMEOUT_MINS = 15;
+
+ALTER SESSION POLICY IF EXISTS my_db.my_schema.my_session_policy SET
+    SESSION_IDLE_TIMEOUT_MINS = 30
+    SESSION_UI_IDLE_TIMEOUT_MINS = 30
+    COMMENT = 'session policy';
+
+ALTER SESSION POLICY my_db.my_schema.my_session_policy SET
+    ALLOWED_SECONDARY_ROLES = ();
+
+ALTER SESSION POLICY my_session_policy SET
+    ALLOWED_SECONDARY_ROLES = ('ALL')
+    BLOCKED_SECONDARY_ROLES = ();
+
+ALTER SESSION POLICY my_session_policy SET TAG my_tag = 'tag_value';
+
+ALTER SESSION POLICY my_session_policy UNSET TAG my_tag;
+
+ALTER SESSION POLICY IF EXISTS my_session_policy UNSET SESSION_IDLE_TIMEOUT_MINS, COMMENT;
+
+ALTER SESSION POLICY my_session_policy UNSET ALLOWED_SECONDARY_ROLES;
+
+ALTER SESSION POLICY my_session_policy RENAME TO my_new_session_policy;

@@ -1,0 +1,1307 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3c12b8a3fdeaca4e717cb1042e3ad646ecebe2211cdd828a3cfcbb79f6a0dbb5
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x1
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x2
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x3
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '128'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x4
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '127'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x5
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '128'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x6
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0xFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x7
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '0x80'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x8
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0377'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x9
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '0177'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x10
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0xFFFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x11
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0xFFFFFFFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x12
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 123e2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x13
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0x123p4
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x14
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '0.'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x15
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '.0'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x16
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0.'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x17
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0xFFFFFFFFFFFFFFFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x18
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0x123456789ABCDEF01'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x19
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '0xFFFFFFFFFFFFFFFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x20
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '0x7FFFFFFFFFFFFFFF'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x21
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 0x1P1023
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x22
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 0x1p-1022
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x23
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: inf
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x24
+      - comma: ','
+      - select_clause_element:
+          expression:
+            sign_indicator: '-'
+            column_reference:
+              naked_identifier: inf
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x25
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: nan
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x26
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - numeric_literal: '0'
+          - binary_operator: /
+          - numeric_literal: '0'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x27
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0.01e-300'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x28
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1000.1000'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x29
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1_000.1_000'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x30
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1000.'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x31
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1_000.'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x32
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '.1000'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x33
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '.1_000'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x34
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1000'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x35
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1_000'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x36
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 1000.1000e10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x37
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 1_000.1_000e1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x38
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '1000.E-10'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x39
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 1_000.e10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x40
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: .1000E10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x41
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: .1_000e-1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x42
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 1000e10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x43
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 1_000e1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x44
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0b100'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x45
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0b1_00'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x46
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0xab34_cd'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x47
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0xab34_cd.
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x48
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34_CD
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x49
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34_CD.
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x50
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0xab34_cd.ab34_cd
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x51
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34_cd.AB34_CD
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x52
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '0xab34'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x53
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 0xab34.
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x54
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 0XAB34
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x55
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34.
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x56
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0xab34_cdp10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x57
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0xab34_cd.P1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x58
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34_CDp-10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x59
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34_CD.P-1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x60
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0xab34_cd.ab34_cdp-10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x61
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34_cd.AB34_CDP-1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x62
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0xab34p10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x63
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 0xab34.p1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x64
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: 0XAB34P10
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x65
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 0XAB34.P-1_0
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x66
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x2
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x3
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x4
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x5
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x6
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x7
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x8
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x9
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x10
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x11
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x12
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x13
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x14
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x15
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x16
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x17
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x18
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x19
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x20
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x21
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x22
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x23
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x24
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x25
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x26
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x27
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x28
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x29
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x30
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x31
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x32
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x33
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x34
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x35
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x36
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x37
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x38
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x39
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x40
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x41
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x42
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x43
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x44
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x45
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x46
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x47
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x48
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x49
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x50
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x51
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x52
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x53
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x54
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x55
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x56
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x57
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x58
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x59
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x60
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x61
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x62
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x63
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x64
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x65
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x66
+                end_bracket: )
+  statement_terminator: ;
