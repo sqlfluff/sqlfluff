@@ -820,3 +820,21 @@ test_fail_oracle_redundant_quoted_alias:
   configs:
     core:
       dialect: oracle
+
+test_fix_mysql_quoted_qualified_function_name:
+  fail_str: |
+    SELECT `app`.`my_func`(1) FROM t;
+  fix_str: |
+    SELECT app.my_func(1) FROM t;
+  configs:
+    core:
+      dialect: mysql
+
+test_fix_mariadb_quoted_qualified_function_name:
+  fail_str: |
+    SELECT `app`.`my_func`(1) FROM t;
+  fix_str: |
+    SELECT app.my_func(1) FROM t;
+  configs:
+    core:
+      dialect: mariadb
