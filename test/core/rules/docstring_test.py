@@ -79,7 +79,7 @@ def test_default_config_keys_are_config_keywords():
     rule_defaults = defaults["rules"]
     for plugin_rules in plugin_manager.hook.get_rules():
         for rule in plugin_rules:
-            section = rule_defaults.get(rule.name, {})
+            section = rule_defaults.get(rule.get_config_ref(), {})
             assert isinstance(section, dict)
             undeclared = set(section) - set(rule.config_keywords)
             assert not undeclared, (
