@@ -321,7 +321,7 @@ class Rule_LT09(BaseRule):
         # violation. LT05 may have moved the target below SELECT to keep an
         # overlong line from oscillating between the two layouts.
         select_keyword = select_children[select_targets_info.select_idx]
-        if select_keyword.pos_marker and context.config.get("max_line_length"):
+        if select_keyword.pos_marker and context.config.get("max_line_length") > 0:
             prefix = "".join(
                 segment.raw
                 for segment in select_children[
