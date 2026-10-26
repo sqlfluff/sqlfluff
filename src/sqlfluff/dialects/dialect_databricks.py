@@ -276,12 +276,12 @@ databricks_dialect.add(
             Ref("FunctionSegment"),
         ),
     ),
-    ConstraintOptionGrammar=Sequence(
-        Sequence("ENABLE", "NOVALIDATE", optional=True),
-        Sequence("NOT", "ENFORCED", optional=True),
-        Sequence("DEFERRABLE", optional=True),
-        Sequence("INITIALLY", "DEFERRED", optional=True),
-        OneOf("NORELY", "RELY", optional=True),
+    ConstraintOptionGrammar=AnySetOf(
+        Sequence("ENABLE", "NOVALIDATE"),
+        Sequence("NOT", "ENFORCED"),
+        "DEFERRABLE",
+        Sequence("INITIALLY", "DEFERRED"),
+        OneOf("NORELY", "RELY"),
     ),
     ForeignKeyOptionGrammar=Sequence(
         Sequence("MATCH", "FULL", optional=True),
