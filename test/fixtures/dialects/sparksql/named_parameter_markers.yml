@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1fef1a459388094f4e459ad82168f88aef6ac17f6227a0091fb07e380dd21ec4
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  parameterized_expression:
+                    colon: ':'
+                    naked_identifier: start_time
+                keyword: AS
+                data_type:
+                  primitive_type:
+                    keyword: DATE
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: d
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: a
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - parameterized_expression:
+            colon: ':'
+            naked_identifier: a
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: b
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - parameterized_expression:
+            colon: ':'
+            naked_identifier: min_b
+      limit_clause:
+        keyword: LIMIT
+        parameterized_expression:
+          colon: ':'
+          naked_identifier: max_rows
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: j
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: name
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: j
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: address
+            - colon: ':'
+            - semi_structured_element: city
+      - comma: ','
+      - select_clause_element:
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: param_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: j
+          semi_structured_expression:
+            colon: ':'
+            semi_structured_element: id
+          comparison_operator:
+            raw_comparison_operator: '>'
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: min_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          parameterized_expression:
+            colon: ':'
+            quoted_identifier: '`my param`'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: a
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: x
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            quoted_identifier: '`other param`'
+- statement_terminator: ;

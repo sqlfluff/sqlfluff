@@ -426,12 +426,6 @@ databricks_dialect.replace(
         ],
         at=0,
     ),
-    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
-    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[
-            Ref("ParameterizedSegment"),
-        ]
-    ),
     FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
         "FunctionContentsExpressionGrammar"
     ).copy(insert=[Ref("NamedArgumentSegment")]),
@@ -541,15 +535,31 @@ databricks_dialect.replace(
                     Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
-            )
+            ),
+            # SHOW GRANTS [ principal ] ON securable_object
+            # GRANT is accepted as an alternative spelling of GRANTS.
+            # https://docs.databricks.com/aws/en/sql/language-manual/security-show-grant
+            Sequence(
+                OneOf("GRANTS", "GRANT"),
+                Ref("RoleReferenceSegment", optional=True),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
         ],
     ),
     NotNullGrammar=Sequence(
         "NOT",
         "NULL",
     ),
+    # `IDENTIFIER` heads the identifier clause, not a function, so it is
+    # excluded from function names (which otherwise accept any word).
     FunctionNameIdentifierSegment=OneOf(
-        TypedParser("word", WordSegment, type="function_name_identifier"),
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            WordSegment,
+            type="function_name_identifier",
+            anti_template=r"^IDENTIFIER$",
+        ),
         Ref("BackQuotedIdentifierSegment"),
     ),
     PreTableFunctionKeywordsGrammar=OneOf("STREAM"),
@@ -667,6 +677,17 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     )
 
 
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to a column, field or alias.
+
+    Inherits the Databricks object reference so `IDENTIFIER( ... )` can appear
+    as a column (`SELECT IDENTIFIER('col')`); the ANSI column reference
+    captures the ANSI grammar, which does not carry the identifier clause.
+    """
+
+    type = "column_reference"
+
+
 class DatabaseReferenceSegment(ObjectReferenceSegment):
     """A reference to a database."""
 
@@ -696,6 +717,33 @@ class TableExpressionSegment(sparksql.TableExpressionSegment):
             Ref("IdentifierClauseSegment"),
         ],
         before=Ref("ValuesClauseSegment"),
+    )
+
+
+class FromExpressionElementSegment(sparksql.FromExpressionElementSegment):
+    """A table in a FROM clause, with Databricks `STREAM` support.
+
+    `STREAM` marks a streaming read (`FROM STREAM read_files(…)`,
+    `FROM STREAM source`), but it may only be a prefix keyword when a table
+    expression follows it. Making it a plain optional prefix, as the shared
+    grammar allows, makes a table named `stream` unparsable.
+    """
+
+    match_grammar = sparksql.FromExpressionElementSegment.match_grammar.copy(
+        insert=[
+            OneOf(
+                Sequence(
+                    "STREAM",
+                    OptionallyBracketed(Ref("TableExpressionSegment")),
+                ),
+                OptionallyBracketed(Ref("TableExpressionSegment")),
+            )
+        ],
+        at=0,
+        remove=[
+            Ref("PreTableFunctionKeywordsGrammar", optional=True),
+            OptionallyBracketed(Ref("TableExpressionSegment")),
+        ],
     )
 
 
@@ -738,6 +786,23 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         insert=[
             Ref.keyword("VOLUME"),
         ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """A securable object, including the Unity Catalog metastore.
+
+    METASTORE is inserted first so it is matched as a keyword rather than as
+    an object reference of the same length.
+
+    https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference
+    """
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("METASTORE"),
+        ],
+        at=0,
     )
 
 
@@ -977,6 +1042,35 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
         remove=[
             Ref("LocationGrammar", optional=True),
         ],
+    )
+
+
+class CreateTableStatementSegment(sparksql.CreateTableStatementSegment):
+    """A `CREATE TABLE` statement, including an inline pipeline flow.
+
+    A streaming table may declare one flow inline instead of an AS query:
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    match_grammar = Sequence(
+        OneOf(
+            # Inline FLOW is only valid on a streaming table, so this alternative
+            # requires STREAMING and a flow clause. An optional FLOW clause on the
+            # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
+            # which Databricks rejects.
+            Sequence(
+                "CREATE",
+                Ref("OrRefreshGrammar", optional=True),
+                OneOf(
+                    Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                    Ref.keyword("STREAMING"),
+                ),
+                Ref("TableDefinitionSegment"),
+                Ref("FlowClauseSegment"),
+            ),
+            sparksql.CreateTableStatementSegment.match_grammar,
+        )
     )
 
 
@@ -1261,6 +1355,24 @@ class MaskStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class PrimitiveTypeSegment(sparksql.PrimitiveTypeSegment):
+    """Databricks primitive data types, adding the geospatial types.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/data-types/geography-type
+    https://docs.databricks.com/aws/en/sql/language-manual/data-types/geometry-type
+    """
+
+    match_grammar = sparksql.PrimitiveTypeSegment.match_grammar.copy(
+        insert=[
+            # GEOGRAPHY and GEOMETRY take an SRID or `ANY`.
+            Sequence(
+                OneOf("GEOGRAPHY", "GEOMETRY"),
+                Bracketed(OneOf(Ref("NumericLiteralSegment"), "ANY")),
+            ),
+        ]
     )
 
 
@@ -1735,25 +1847,6 @@ class OptimizeTableStatementSegment(BaseSegment):
     )
 
 
-class LimitClauseSegment(sparksql.LimitClauseSegment):
-    """A `LIMIT` clause like in `SELECT`.
-
-    Enhanced from SparkSQL to support parameterized values.
-    """
-
-    match_grammar = Sequence(
-        "LIMIT",
-        Indent,
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            "ALL",
-            Ref("FunctionSegment"),
-            Ref("ParameterizedSegment"),  # Add support for parameters
-        ),
-        Dedent,
-    )
-
-
 class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement.
 
@@ -1780,6 +1873,427 @@ class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     )
 
 
+class ScriptingLabelGrammar(BaseSegment):
+    """An optional `label :` prefix for a scripting statement."""
+
+    type = "scripting_label"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("ColonSegment"),
+    )
+
+
+class ScriptingBodyGrammar(BaseSegment):
+    """A `{ statement ; } [...]` body of a scripting statement."""
+
+    type = "scripting_body"
+    match_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+        min_times=1,
+    )
+
+
+class ScriptingConditionValuesGrammar(BaseSegment):
+    """`condition_values` of a handler declaration."""
+
+    type = "scripting_condition_values"
+    match_grammar = Delimited(
+        OneOf(
+            "SQLEXCEPTION",
+            Sequence("NOT", "FOUND"),
+            Sequence(
+                "SQLSTATE",
+                Ref.keyword("VALUE", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("SingleIdentifierGrammar"),
+        )
+    )
+
+
+class ScriptingDeclareStatementSegment(BaseSegment):
+    """A handler, condition or cursor `DECLARE` inside a scripting block.
+
+    Variables use `DeclareOrReplaceVariableStatementSegment`.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/compound-stmt
+    """
+
+    type = "scripting_declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        OneOf(
+            # DECLARE handler_type HANDLER FOR condition_values handler_action
+            Sequence(
+                OneOf("EXIT", "CONTINUE"),
+                "HANDLER",
+                "FOR",
+                Ref("ScriptingConditionValuesGrammar"),
+                Ref("StatementSegment"),
+            ),
+            # DECLARE condition_name CONDITION [ FOR SQLSTATE [ VALUE ] sqlstate ]
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                "CONDITION",
+                Sequence(
+                    "FOR",
+                    "SQLSTATE",
+                    Ref.keyword("VALUE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # DECLARE cursor_name [ ASENSITIVE | INSENSITIVE ] CURSOR FOR query
+            # [ FOR READ ONLY ]
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                OneOf("ASENSITIVE", "INSENSITIVE", optional=True),
+                "CURSOR",
+                "FOR",
+                Ref("SelectableGrammar"),
+                Sequence("FOR", "READ", "ONLY", optional=True),
+            ),
+        ),
+    )
+
+
+class ScriptingIfStatementSegment(BaseSegment):
+    """An `IF ... THEN ... END IF` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/if-stmt
+    """
+
+    type = "scripting_if_statement"
+    match_grammar = Sequence(
+        "IF",
+        Ref("ExpressionSegment"),
+        "THEN",
+        Ref("ScriptingBodyGrammar"),
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Ref("ScriptingBodyGrammar"),
+            )
+        ),
+        Sequence("ELSE", Ref("ScriptingBodyGrammar"), optional=True),
+        "END",
+        "IF",
+    )
+
+
+class ScriptingCaseStatementSegment(BaseSegment):
+    """A `CASE ... END CASE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/case-stmt
+    """
+
+    type = "scripting_case_statement"
+    match_grammar = Sequence(
+        "CASE",
+        OneOf(
+            # Simple CASE: an operand followed by the WHEN branches.
+            Sequence(
+                Ref("ExpressionSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        "WHEN",
+                        Ref("ExpressionSegment"),
+                        "THEN",
+                        Ref("ScriptingBodyGrammar"),
+                    ),
+                    min_times=1,
+                ),
+            ),
+            # Searched CASE: no operand, only the WHEN branches.
+            AnyNumberOf(
+                Sequence(
+                    "WHEN",
+                    Ref("ExpressionSegment"),
+                    "THEN",
+                    Ref("ScriptingBodyGrammar"),
+                ),
+                min_times=1,
+            ),
+        ),
+        Sequence("ELSE", Ref("ScriptingBodyGrammar"), optional=True),
+        "END",
+        "CASE",
+    )
+
+
+class ScriptingWhileStatementSegment(BaseSegment):
+    """A `WHILE ... DO ... END WHILE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/while-stmt
+    """
+
+    type = "scripting_while_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "WHILE",
+        Ref("ExpressionSegment"),
+        "DO",
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        "WHILE",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingLoopStatementSegment(BaseSegment):
+    """A `LOOP ... END LOOP` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/loop-stmt
+    """
+
+    type = "scripting_loop_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "LOOP",
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        "LOOP",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingRepeatStatementSegment(BaseSegment):
+    """A `REPEAT ... UNTIL ... END REPEAT` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/repeat-stmt
+    """
+
+    type = "scripting_repeat_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "REPEAT",
+        Ref("ScriptingBodyGrammar"),
+        "UNTIL",
+        Ref("ExpressionSegment"),
+        "END",
+        "REPEAT",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingForStatementSegment(BaseSegment):
+    """A `FOR ... DO ... END FOR` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/for-stmt
+    """
+
+    type = "scripting_for_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "FOR",
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "AS",
+            optional=True,
+        ),
+        Ref("SelectableGrammar", terminators=[Ref.keyword("DO")]),
+        "DO",
+        Ref("ScriptingBodyGrammar"),
+        "END",
+        "FOR",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ScriptingLeaveStatementSegment(BaseSegment):
+    """A `LEAVE label` statement."""
+
+    type = "scripting_leave_statement"
+    match_grammar = Sequence("LEAVE", Ref("SingleIdentifierGrammar"))
+
+
+class ScriptingIterateStatementSegment(BaseSegment):
+    """An `ITERATE label` statement."""
+
+    type = "scripting_iterate_statement"
+    match_grammar = Sequence("ITERATE", Ref("SingleIdentifierGrammar"))
+
+
+class ScriptingResignalStatementSegment(BaseSegment):
+    """A `RESIGNAL` statement."""
+
+    type = "scripting_resignal_statement"
+    match_grammar = Sequence("RESIGNAL")
+
+
+class ScriptingSignalStatementSegment(BaseSegment):
+    """A `SIGNAL` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/signal-stmt
+    """
+
+    type = "scripting_signal_statement"
+    match_grammar = Sequence(
+        "SIGNAL",
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "SET",
+                    OneOf(
+                        Sequence(
+                            "MESSAGE_ARGUMENTS",
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                        Sequence(
+                            "MESSAGE_TEXT",
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SQLSTATE",
+                Ref.keyword("VALUE", optional=True),
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "SET",
+                    "MESSAGE_TEXT",
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class ScriptingGetDiagnosticsStatementSegment(BaseSegment):
+    """A `GET DIAGNOSTICS` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/get-diagnostics-stmt
+    """
+
+    type = "scripting_get_diagnostics_statement"
+    match_grammar = Sequence(
+        "GET",
+        "DIAGNOSTICS",
+        Sequence(
+            "CONDITION",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    "MESSAGE_TEXT",
+                    "RETURNED_SQLSTATE",
+                    "MESSAGE_ARGUMENTS",
+                    "CONDITION_IDENTIFIER",
+                    "LINE_NUMBER",
+                    "TRANSACTION_ACTIVE",
+                    "ROW_COUNT",
+                ),
+            )
+        ),
+    )
+
+
+class ScriptingBlockStatementSegment(BaseSegment):
+    """A `BEGIN [ATOMIC] ... END` compound statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/control-flow/compound-stmt
+    """
+
+    type = "scripting_block_statement"
+    match_grammar = Sequence(
+        Ref("ScriptingLabelGrammar", optional=True),
+        "BEGIN",
+        Ref.keyword("ATOMIC", optional=True),
+        Ref("ScriptingBodyGrammar", optional=True),
+        "END",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ProcedureParameterGrammar(BaseSegment):
+    """A parameter of a `CREATE PROCEDURE` statement."""
+
+    type = "procedure_parameter"
+    match_grammar = Sequence(
+        OneOf("IN", "OUT", "INOUT", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        Ref("CommentGrammar", optional=True),
+    )
+
+
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    """
+
+    type = "create_procedure_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(Ref("ProcedureParameterGrammar")),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence("LANGUAGE", "SQL"),
+            Sequence("SQL", "SECURITY", OneOf("INVOKER", "DEFINER")),
+            Sequence("NOT", "DETERMINISTIC"),
+            Ref("CommentGrammar"),
+            Sequence(
+                "DEFAULT",
+                "COLLATION",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence("MODIFIES", "SQL", "DATA"),
+        ),
+        "AS",
+        Ref("StatementSegment"),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement."""
+
+    type = "drop_procedure_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-call
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence("CALL", Ref("FunctionSegment"))
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1788,6 +2302,22 @@ class StatementSegment(sparksql.StatementSegment):
         remove=[Ref("CreateSqlFunctionStatementSegment")],
         # Segments defined in Databricks SQL dialect
         insert=[
+            Ref("ScriptingBlockStatementSegment"),
+            Ref("ScriptingDeclareStatementSegment"),
+            Ref("ScriptingIfStatementSegment"),
+            Ref("ScriptingCaseStatementSegment"),
+            Ref("ScriptingWhileStatementSegment"),
+            Ref("ScriptingLoopStatementSegment"),
+            Ref("ScriptingRepeatStatementSegment"),
+            Ref("ScriptingForStatementSegment"),
+            Ref("ScriptingLeaveStatementSegment"),
+            Ref("ScriptingIterateStatementSegment"),
+            Ref("ScriptingResignalStatementSegment"),
+            Ref("ScriptingSignalStatementSegment"),
+            Ref("ScriptingGetDiagnosticsStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("CallStatementSegment"),
             # Unity Catalog
             Ref("AlterCatalogStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
@@ -1961,27 +2491,52 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
     than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
     unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
     not allowed in Spark and so the definition of this segment must depart from ANSI.
+    It differs from the SparkSQL segment in also excluding `FOR`, so that the
+    anonymous form of `PIVOT (agg FOR col IN (...))` is not read as an alias.
     """
 
     match_grammar = Sequence(
         Indent,
-        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
-            # maybe table alias and column aliases
+            # An explicit alias may be any identifier except the words the
+            # reference reserves as table aliases, even when it shares its
+            # name with a following clause (`AS PIVOT`, `AS KEYS`).
             Sequence(
-                Ref("SingleIdentifierGrammar", optional=True),
-                Bracketed(Ref("SingleIdentifierListSegment")),
+                Ref("AsAliasOperatorSegment"),
+                OneOf(
+                    # maybe table alias and column aliases
+                    Sequence(
+                        Ref("SingleIdentifierGrammar", optional=True),
+                        Bracketed(Ref("SingleIdentifierListSegment")),
+                    ),
+                    # just a table alias
+                    Ref("SingleIdentifierGrammar"),
+                    exclude=OneOf(
+                        "LATERAL",
+                        Ref("JoinTypeKeywords"),
+                        "FROM",
+                        "FOR",
+                    ),
+                ),
             ),
-            # just a table alias
-            Ref("SingleIdentifierGrammar"),
-            exclude=OneOf(
-                "LATERAL",
-                Ref("JoinTypeKeywords"),
-                "WINDOW",
-                "PIVOT",
-                "KEYS",
-                "FROM",
-                "FOR",
+            # An implicit alias must not consume a following clause keyword.
+            OneOf(
+                # maybe table alias and column aliases
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True),
+                    Bracketed(Ref("SingleIdentifierListSegment")),
+                ),
+                # just a table alias
+                Ref("SingleIdentifierGrammar"),
+                exclude=OneOf(
+                    "LATERAL",
+                    Ref("JoinTypeKeywords"),
+                    "WINDOW",
+                    "PIVOT",
+                    "KEYS",
+                    "FROM",
+                    "FOR",
+                ),
             ),
         ),
         Dedent,
@@ -2175,7 +2730,7 @@ class DeclareOrReplaceVariableStatementSegment(BaseSegment):
         Ref.keyword("DECLARE"),
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("VARIABLE", optional=True),
-        Ref("SingleIdentifierGrammar"),  # Variable name
+        Delimited(Ref("SingleIdentifierGrammar")),  # Variable names
         Ref("DatatypeSegment", optional=True),  # Variable type
         Sequence(
             OneOf("DEFAULT", Ref("EqualsSegment")),
@@ -2270,13 +2825,23 @@ class MagicCellStatementSegment(BaseSegment):
                 # line (`-- MAGIC %md`) or with content after it
                 # (`-- MAGIC %md # Title`). Both may be followed by further
                 # `-- MAGIC` lines: the directive only names the language, it
-                # does not say how many lines the cell has.
+                # does not say how many lines the cell has. A later line may
+                # itself start with `%` (an `%md` cell quoting `%pip`, for
+                # example) without opening another cell, so directive-shaped
+                # lines are body text too.
                 OneOf(
                     Ref("MagicStartGrammar"),
                     Ref("MagicSingleLineGrammar"),
                     optional=True,
                 ),
-                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+                AnyNumberOf(
+                    OneOf(
+                        Ref("MagicLineGrammar"),
+                        Ref("MagicSingleLineGrammar"),
+                        Ref("MagicStartGrammar"),
+                    ),
+                    optional=True,
+                ),
             ),
             # One `bare_magic_cell` token per line (see the lexer subdivider).
             AnyNumberOf(
@@ -2306,7 +2871,10 @@ class ParameterizedSegment(BaseSegment):
         # Colon-based parameters: :param_name
         Sequence(
             Ref("ColonSegment"),
-            Ref("NakedIdentifierSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("BackQuotedIdentifierSegment"),
+            ),
             allow_gaps=False,
         ),
         # Pipeline parameters: ${param_name}
@@ -2552,4 +3120,63 @@ class CreateFlowStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
             ),
         ),
+    )
+
+
+class FlowClauseSegment(BaseSegment):
+    """A flow declared inline on a pipeline streaming table.
+
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    """
+
+    type = "flow_clause"
+
+    match_grammar = Sequence(
+        "FLOW",
+        Indent,
+        OneOf(
+            # FLOW INSERT [ONCE] BY NAME query
+            Sequence(
+                "INSERT",
+                Ref.keyword("ONCE", optional=True),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW AUTO CDC <cdc spec>. The target is the table itself, so
+            # there is no INTO here, unlike the standalone CREATE FLOW form.
+            Sequence(
+                "AUTO",
+                "CDC",
+                Ref("CDCSpecificationSegment"),
+            ),
+            # FLOW REPLACE WHERE predicate BY NAME query
+            Sequence(
+                "REPLACE",
+                "WHERE",
+                Ref("ExpressionSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+            # FLOW REPLACE USING ( column_name [, ...] )
+            #   SEQUENCE BY sequence_column BY NAME query
+            #
+            # The list and its SEQUENCE BY column are bound as a pair: the
+            # reference defines replace_using_spec with both, and accepting
+            # them independently is the defect #8509 shipped for the
+            # standalone statement.
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                "SEQUENCE",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                "BY",
+                "NAME",
+                Ref("SelectableGrammar"),
+            ),
+        ),
+        Dedent,
     )

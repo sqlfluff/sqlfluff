@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65708814a09d082cf513eb10c1609ee3a80f9f5e4b1f0b4a8e88df3b18015832
+_hash: 86b8b3335811853ffa73649ea4756c2ba14e6f2c0b72db2717c51bbd6a3cef7e
 file:
 - statement:
     select_statement:
@@ -84,4 +84,249 @@ file:
                     identifier_list:
                       naked_identifier: c1
                     end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: owner
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+              colon: ':'
+              start_square_bracket: '['
+              semi_structured_element: "'owner'"
+              end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: store
+            - dot: .
+            - semi_structured_element: fruit
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: store
+            - dot: .
+            - semi_structured_element: bicycle
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+              colon: ':'
+              start_square_bracket: '['
+              semi_structured_element: "'store'"
+              end_square_bracket: ']'
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  quoted_literal: "'bicycle'"
+                end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: store
+            - dot: .
+            - semi_structured_element: basket
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '2'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: v
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: field
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: store
+            - dot: .
+            - semi_structured_element: book
+            - start_square_bracket: '['
+            - star: '*'
+            - end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+              colon: ':'
+              start_square_bracket: '['
+              star: '*'
+              end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+              colon: ':'
+              quoted_identifier: '`full name`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw
+            semi_structured_expression:
+              colon: ':'
+              quoted_identifier: '`fb:testid`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
 - statement_terminator: ;

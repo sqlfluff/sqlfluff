@@ -5354,6 +5354,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
+            Ref("CreateTablespaceStatementSegment"),
+            Ref("AlterTablespaceStatementSegment"),
+            Ref("DropTablespaceStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
@@ -6876,6 +6879,76 @@ class DropCollationStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateTablespaceStatementSegment(BaseSegment):
+    """A `CREATE TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtablespace.html
+    """
+
+    type = "create_tablespace_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLESPACE",
+        Ref("TablespaceReferenceSegment"),
+        Sequence(
+            "OWNER",
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                Ref("RoleReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
+    )
+
+
+class AlterTablespaceStatementSegment(BaseSegment):
+    """An `ALTER TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-altertablespace.html
+    """
+
+    type = "alter_tablespace_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLESPACE",
+        Ref("TablespaceReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TablespaceReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence(OneOf("SET", "RESET"), Ref("RelationOptionsSegment")),
+        ),
+    )
+
+
+class DropTablespaceStatementSegment(BaseSegment):
+    """A `DROP TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droptablespace.html
+    """
+
+    type = "drop_tablespace_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TABLESPACE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TablespaceReferenceSegment"),
     )
 
 

@@ -2099,6 +2099,57 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class ShowStatementSegment(BaseSegment):
+    """A `SHOW` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW.html
+    """
+
+    type = "show_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            "ALL",
+            Sequence(
+                "DATABASES",
+            ),
+            Sequence(
+                "SCHEMAS",
+                Sequence(
+                    "FROM",
+                    "DATABASE",
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    "FROM",
+                    "SCHEMA",
+                    Ref("SchemaReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMNS",
+                "FROM",
+                Sequence(
+                    "TABLE",
+                    optional=True,
+                ),
+                Ref("TableReferenceSegment"),
+            ),
+            "PRIVILEGES",
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
 class GrantUsageDatashareStatementSegment(BaseSegment):
     """A `GRANT DATASHARES` statement.
 
@@ -2412,6 +2463,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DescDatashareStatementSegment"),
             Ref("DropDatashareStatementSegment"),
             Ref("ShowDatasharesStatementSegment"),
+            # The generic SHOW segment is listed after the dedicated ShowModel
+            # and ShowDatashares segments so those still match first.
+            Ref("ShowStatementSegment"),
             Ref("AltereDatashareStatementSegment"),
             Ref("DeclareStatementSegment"),
             Ref("FetchStatementSegment"),

@@ -687,6 +687,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("SetSchemaStatementSegment"),
         Ref("ShowStatementSegment"),
         Ref("TransactionStatementSegment"),
+        Ref("TruncateStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("UseStatementSegment"),
         Ref("SetSessionStatementSegment"),

@@ -4647,12 +4647,17 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     type = "create_procedure_statement"
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        Sequence("SECURE", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "PROCEDURE",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                Sequence("SECURE", optional=True),
+                Ref("TemporaryGrammar", optional=True),
+                "PROCEDURE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", Sequence("SECURE", optional=True), "PROCEDURE"),
+        ),
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListSegment"),
         Sequence("COPY", "GRANTS", optional=True),
@@ -6716,16 +6721,7 @@ class CreateTaskSegment(BaseSegment):
 
     type = "create_task_statement"
 
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "CREATE",
-                Ref("AlterOrReplaceGrammar", optional=True),
-                "TASK",
-                Ref("IfNotExistsGrammar", optional=True),
-            ),
-            Sequence("DEFINE", "TASK"),
-        ),
+    _task_definition = Sequence(
         Ref("ObjectReferenceSegment"),
         Indent,
         # https://docs.snowflake.com/en/sql-reference/sql/create-task#optional-parameters
@@ -6822,12 +6818,28 @@ class CreateTaskSegment(BaseSegment):
             Dedent,
             optional=True,
         ),
-        Sequence(
-            Ref.keyword("AS"),
-            Indent,
-            Ref("StatementSegment"),
-            Dedent,
+    )
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "TASK",
+                Ref("IfNotExistsGrammar", optional=True),
+                _task_definition,
+            ),
+            Sequence(
+                "DEFINE",
+                "TASK",
+                _task_definition,
+                OneOf("STARTED", "SUSPENDED", optional=True),
+            ),
         ),
+        Ref.keyword("AS"),
+        Indent,
+        Ref("StatementSegment"),
+        Dedent,
     )
 
 
@@ -7986,6 +7998,7 @@ class CreateFileFormatSegment(BaseSegment):
             Sequence("DEFINE", "FILE", "FORMAT"),
         ),
         Ref("ObjectReferenceSegment"),
+        Indent,
         # TYPE = <FILE_FORMAT> is included in below parameter segments.
         # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
         OneOf(
@@ -8003,6 +8016,7 @@ class CreateFileFormatSegment(BaseSegment):
             Ref("CommentEqualsClauseSegment"),
             optional=True,
         ),
+        Dedent,
     )
 
 
@@ -8022,6 +8036,7 @@ class AlterFileFormatSegment(BaseSegment):
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
             Sequence(
                 "SET",
+                Indent,
                 OneOf(
                     Ref("CsvFileFormatTypeParameters"),
                     Ref("JsonFileFormatTypeParameters"),
@@ -8030,14 +8045,15 @@ class AlterFileFormatSegment(BaseSegment):
                     Ref("ParquetFileFormatTypeParameters"),
                     Ref("XmlFileFormatTypeParameters"),
                 ),
+                Sequence(
+                    # Use a Sequence and include an optional CommaSegment here.
+                    # This allows a preceding comma when above parameters are delimited.
+                    Ref("CommaSegment", optional=True),
+                    Ref("CommentEqualsClauseSegment"),
+                    optional=True,
+                ),
+                Dedent,
             ),
-        ),
-        Sequence(
-            # Use a Sequence and include an optional CommaSegment here.
-            # This allows a preceding comma when above parameters are delimited.
-            Ref("CommaSegment", optional=True),
-            Ref("CommentEqualsClauseSegment"),
-            optional=True,
         ),
     )
 
@@ -9532,10 +9548,15 @@ class CreateStreamStatementSegment(BaseSegment):
     type = "create_stream_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Ref("AlterOrReplaceGrammar", optional=True),
-        "STREAM",
-        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "STREAM",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "STREAM"),
+        ),
         Ref("ObjectReferenceSegment"),
         Ref("TagBracketedEqualsSegment", optional=True),
         Sequence("COPY", "GRANTS", optional=True),
