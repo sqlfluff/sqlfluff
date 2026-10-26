@@ -2899,6 +2899,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("PrimaryKeyGrammar"),
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
             ),
+            Ref("DataMetricFunctionActionSegment"),
             Ref("AlterTableTableColumnActionSegment"),
             # UNSET Table options
             Sequence(
@@ -2988,6 +2989,131 @@ class DataGovernancePolicyTagActionSegment(BaseSegment):
             "STORAGE",
             "LIFECYCLE",
             "POLICY",
+        ),
+    )
+
+
+class DataMetricFunctionActionSegment(BaseSegment):
+    """Add, drop or modify data metric functions on a table or view.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table
+    https://docs.snowflake.com/en/sql-reference/sql/alter-view
+    """
+
+    type = "data_metric_function_action"
+
+    # ON ( <col_name> [ , ... ] [ , TABLE <table_name>( <col_name> [ , ... ] ) ] )
+    _on_columns = Sequence(
+        "ON",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    "TABLE",
+                    OneOf(
+                        Sequence(
+                            Ref("TableReferenceSegment"),
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        ),
+                        Bracketed(
+                            Ref("TableReferenceSegment"),
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        ),
+                    ),
+                ),
+                Ref("ColumnReferenceSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+    _expectations = Delimited(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+    )
+
+    _properties = AnySetOf(
+        Sequence(
+            "ANOMALY_DETECTION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence("SENSITIVITY", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "DATA_QUALITY_NOTIFICATION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+    )
+
+    _add_options = AnySetOf(
+        Sequence(
+            "WITHIN",
+            "GROUP",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Sequence("GROUP", "LIMIT", Ref("NumericLiteralSegment"), optional=True),
+        ),
+        Sequence("FILTER", Bracketed(Ref("ExpressionSegment"))),
+        Sequence("EXPECTATION", _expectations),
+        Sequence("EXECUTE", "AS", "ROLE", Ref("RoleReferenceSegment")),
+        Sequence(
+            "ANOMALY_DETECTION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence("SENSITIVITY", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+    _modify_action = OneOf(
+        "SUSPEND",
+        "RESUME",
+        Sequence(OneOf("ADD", "MODIFY"), "EXPECTATION", _expectations),
+        Sequence(
+            "DROP",
+            "EXPECTATION",
+            Delimited(Ref("SingleIdentifierGrammar")),
+        ),
+        Sequence("FILTER", Bracketed(Ref("ExpressionSegment", optional=True))),
+        Sequence("SET", _properties),
+    )
+
+    match_grammar = OneOf(
+        # ADD DATA METRIC FUNCTION <name> ON (...) [ options ] [ , <name> ON (...) ... ]
+        Sequence(
+            "ADD",
+            "DATA",
+            "METRIC",
+            "FUNCTION",
+            Delimited(
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    _on_columns,
+                    Sequence(_add_options, optional=True),
+                ),
+            ),
+        ),
+        # DROP DATA METRIC FUNCTION <name> ON (...) [ , <name> ON (...) ... ]
+        Sequence(
+            "DROP",
+            "DATA",
+            "METRIC",
+            "FUNCTION",
+            Delimited(Sequence(Ref("FunctionNameSegment"), _on_columns)),
+        ),
+        # MODIFY DATA METRIC FUNCTION <name> [ ON (...) ] <action> [ , ... ]
+        Sequence(
+            "MODIFY",
+            "DATA",
+            "METRIC",
+            "FUNCTION",
+            Delimited(
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    Sequence(_on_columns, optional=True),
+                    _modify_action,
+                ),
+            ),
         ),
     )
 
@@ -7858,6 +7984,11 @@ class AlterViewStatementSegment(BaseSegment):
                         ),
                     ),
                     Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "DATA_METRIC_SCHEDULE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                     min_times=1,
                 ),
             ),
@@ -7866,6 +7997,7 @@ class AlterViewStatementSegment(BaseSegment):
                 Delimited(
                     "SECURE",
                     "COMMENT",
+                    "DATA_METRIC_SCHEDULE",
                     Sequence("CONTACT", Ref("PurposeGrammar")),
                     Sequence("DCM", "PROJECT"),
                 ),
@@ -7874,6 +8006,7 @@ class AlterViewStatementSegment(BaseSegment):
             Ref("AggregationPolicyActionGrammar"),
             Ref("JoinPolicyActionGrammar"),
             Sequence("DROP", "ALL", "ROW", "ACCESS", "POLICIES"),
+            Ref("DataMetricFunctionActionSegment"),
             Delimited(
                 Sequence(
                     "ADD",

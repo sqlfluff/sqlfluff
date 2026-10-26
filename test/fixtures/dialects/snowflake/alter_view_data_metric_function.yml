@@ -1,0 +1,119 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6664f544d2cf8dd30032775296a2b97c62f688e21c8bea56e248e98a1dbb1f04
+file:
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
+    - data_metric_function_action:
+      - keyword: DROP
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: SET
+    - keyword: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'5 MINUTE'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: SET
+    - keyword: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TRIGGER_ON_CHANGES'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: UNSET
+    - keyword: DATA_METRIC_SCHEDULE
+- statement_terminator: ;

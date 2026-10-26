@@ -1,0 +1,600 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7e75b196934e082c06cd2e3b03b78dc879c5ba6026ce485baf126308519fadfa
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: hr
+      - dot: .
+      - naked_identifier: tables
+      - dot: .
+      - naked_identifier: empl_info
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: duplicate_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - comma: ','
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: governance
+        - dot: .
+        - naked_identifier: dmfs
+        - dot: .
+        - function_name_identifier: count_positive
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: amount
+          end_bracket: )
+      - keyword: EXPECTATION
+      - naked_identifier: amount_ok
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: VALUE
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '0'
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: recent_ok
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: VALUE
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '10'
+          end_bracket: )
+      - keyword: EXECUTE
+      - keyword: AS
+      - keyword: ROLE
+      - role_reference:
+          naked_identifier: dq_role
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - keyword: FILTER
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: region
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'EU'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: row_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - keyword: WITHIN
+      - keyword: GROUP
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: region
+        - comma: ','
+        - column_reference:
+            naked_identifier: country
+        - end_bracket: )
+      - keyword: GROUP
+      - keyword: LIMIT
+      - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: row_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - keyword: ANOMALY_DETECTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: SENSITIVITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'HIGH'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - data_metric_function_action:
+      - keyword: ADD
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: governance
+        - dot: .
+        - naked_identifier: dmfs
+        - dot: .
+        - function_name_identifier: referential_check
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: customer_id
+          comma: ','
+          keyword: TABLE
+          table_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+          - dot: .
+          - naked_identifier: customers
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: DROP
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: DROP
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - comma: ','
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: duplicate_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - keyword: RESUME
+      - comma: ','
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: duplicate_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: governance
+        - dot: .
+        - naked_identifier: dmfs
+        - dot: .
+        - function_name_identifier: count_positive
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: amount
+          end_bracket: )
+      - keyword: ADD
+      - keyword: EXPECTATION
+      - naked_identifier: amount_ok
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: VALUE
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '0'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: governance
+        - dot: .
+        - naked_identifier: dmfs
+        - dot: .
+        - function_name_identifier: count_positive
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: amount
+          end_bracket: )
+      - keyword: MODIFY
+      - keyword: EXPECTATION
+      - naked_identifier: amount_ok
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: VALUE
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            numeric_literal: '5'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: governance
+        - dot: .
+        - naked_identifier: dmfs
+        - dot: .
+        - function_name_identifier: count_positive
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: amount
+          end_bracket: )
+      - keyword: DROP
+      - keyword: EXPECTATION
+      - naked_identifier: amount_ok
+      - comma: ','
+      - naked_identifier: recent_ok
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - keyword: FILTER
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: region
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'US'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: null_count
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: email
+          end_bracket: )
+      - keyword: FILTER
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: row_count
+      - keyword: SET
+      - keyword: ANOMALY_DETECTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: SENSITIVITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'LOW'"
+      - keyword: DATA_QUALITY_NOTIFICATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - parameter: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 8 * * * UTC'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - parameter: DATA_METRIC_SCHEDULE
+- statement_terminator: ;
