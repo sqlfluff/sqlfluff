@@ -1,6 +1,6 @@
 """Implementation of Rule LT09."""
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
@@ -337,27 +337,22 @@ class Rule_LT09(BaseRule):
                 >= select_targets_info.first_new_line_idx
             ):
                 prefix += f" {clause_modifier[0].raw}"
-            trailing_len = 0
-            for seg in select_children[target_idx + 1 :]:
-                if "\n" in seg.raw:
-                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
-                    break
-                trailing_len += len(seg.raw)
-            else:
-                # Scan ancestors only if the select clause has no line break after the target.
+
+            def following_segments() -> Iterator[BaseSegment]:
+                yield from select_children[target_idx + 1 :]
                 child_seg = select_clause.get()
                 for parent in reversed(context.parent_stack):
                     idx = parent.segments.index(child_seg)
                     for sibling_idx in range(idx + 1, len(parent.segments)):
-                        seg = parent.segments[sibling_idx]
-                        if "\n" in seg.raw:
-                            trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
-                            break
-                        trailing_len += len(seg.raw)
-                    else:
-                        child_seg = parent
-                        continue
+                        yield parent.segments[sibling_idx]
+                    child_seg = parent
+
+            trailing_len = 0
+            for seg in following_segments():
+                if "\n" in seg.raw:
+                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
                     break
+                trailing_len += len(seg.raw)
 
             resulting_line_length = (
                 select_keyword.pos_marker.working_line_pos
