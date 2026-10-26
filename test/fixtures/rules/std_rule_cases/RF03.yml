@@ -1586,6 +1586,13 @@ test_pass_sqlite_order_by_aggregate:
     core:
       dialect: sqlite
 
+test_pass_sqlite_group_by_ordinal:
+  # Numeric literals were affected the same way (`p.p.1`).
+  pass_str: SELECT p.a, COUNT(*) FROM t AS p GROUP BY 1 ORDER BY 2 DESC
+  configs:
+    core:
+      dialect: sqlite
+
 test_fail_sqlite_order_by_function_with_unqualified_reference:
   fail_str: SELECT p.a, b FROM t AS p ORDER BY COUNT(*), LOWER(c)
   fix_str: SELECT p.a, p.b FROM t AS p ORDER BY COUNT(*), LOWER(p.c)
