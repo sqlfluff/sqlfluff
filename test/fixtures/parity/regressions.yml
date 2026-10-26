@@ -79,9 +79,9 @@ mysql_exchange_partition_table_reference:
 postgres_alter_foreign_table_column_keyword:
   sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
   dialect: postgres
-  expect: error
-  pins: postgres ALTER FOREIGN TABLE has Ref('COLUMN'), a segment ref where the COLUMN
-    keyword was intended; both engines raise the identical dangling-ref RuntimeError.
+  expect: tree
+  pins: postgres ALTER FOREIGN TABLE has Ref.keyword('COLUMN'), resolving the dangling-ref
+    RuntimeError in AlterForeignTableActionSegment (#8887).
 parser_created_segments_drop_token_trim_chars:
   sql: SET @errmsg = 'x';
   dialect: mysql
