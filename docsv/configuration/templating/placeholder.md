@@ -110,3 +110,23 @@ instead.
 Also consider making a pull request to the project to have your style added,
 it may be useful to other people and simplify your configuration.
 :::
+
+## Overriding an inherited matcher
+
+Set an inherited `param_style` or `param_regex` to `None` in a nested
+`.sqlfluff` file before selecting the other matcher. For example, to replace
+an inherited named style with a custom regex:
+
+```ini
+[sqlfluff:templater:placeholder]
+param_style = None
+param_regex = __(?P<param_name>[\w_]+)__
+my_name = 'john'
+```
+
+To switch back to a named style, set `param_regex = None` and provide
+`param_style`. Exactly one matcher must have a non-`None` value.
+
+An empty `param_regex` (a setting with no value after `=`) does not clear the
+inherited matcher. It compiles to an empty regular expression that matches
+at every position in the input. Use `None` to clear it instead.
