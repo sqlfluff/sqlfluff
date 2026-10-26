@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad9795136883fa1c0e8e71fb78dbef708f7b00b7c27eb135a3f632c22e6b2703
+_hash: fc545bced9552f9978a0423d2d452eaf606cab01a7047641dbc8ea668538fdbd
 file:
 - statement:
     create_group_statement:
@@ -131,6 +131,14 @@ file:
     - keyword: MSCK
     - keyword: REPAIR
     - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    msck_repair_privileges_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
     - database_reference:
         naked_identifier: s
     - keyword: PRIVILEGES

@@ -568,7 +568,7 @@ databricks_dialect.replace(
                     optional=True,
                 ),
             ),
-            Sequence("CONNECTIONS"),
+            OneOf("CONNECTIONS", "SERVERS"),
             Sequence(
                 OneOf("STORAGE", "SERVICE", optional=True),
                 "CREDENTIALS",
@@ -2235,9 +2235,12 @@ class MsckRepairPrivilegesStatementSegment(BaseSegment):
         "MSCK",
         "REPAIR",
         OneOf(
-            Sequence(OneOf("SCHEMA", "DATABASE"), Ref("DatabaseReferenceSegment")),
+            Sequence(
+                OneOf("SCHEMA", "DATABASE", optional=True),
+                Ref("DatabaseReferenceSegment"),
+            ),
             Sequence("FUNCTION", Ref("FunctionNameSegment")),
-            Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+            Sequence("TABLE", Ref("TableReferenceSegment")),
             Sequence("VIEW", Ref("TableReferenceSegment")),
             Sequence("ANONYMOUS", "FUNCTION"),
             Sequence("ANY", "FILE"),
