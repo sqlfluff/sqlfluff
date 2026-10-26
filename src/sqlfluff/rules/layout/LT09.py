@@ -338,19 +338,26 @@ class Rule_LT09(BaseRule):
             ):
                 prefix += f" {clause_modifier[0].raw}"
             trailing_len = 0
-            following_segments = list(select_children[target_idx + 1 :])
-            if context.parent_stack:
-                child_seg = select_clause.get()
-                for parent in reversed(context.parent_stack):
-                    idx = parent.segments.index(child_seg)
-                    following_segments.extend(parent.segments[idx + 1 :])
-                    child_seg = parent
-
-            for seg in following_segments:
+            for seg in select_children[target_idx + 1 :]:
                 if "\n" in seg.raw:
                     trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
                     break
                 trailing_len += len(seg.raw)
+            else:
+                # Scan ancestors only if the select clause has no line break after the target.
+                child_seg = select_clause.get()
+                for parent in reversed(context.parent_stack):
+                    idx = parent.segments.index(child_seg)
+                    for sibling_idx in range(idx + 1, len(parent.segments)):
+                        seg = parent.segments[sibling_idx]
+                        if "\n" in seg.raw:
+                            trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
+                            break
+                        trailing_len += len(seg.raw)
+                    else:
+                        child_seg = parent
+                        continue
+                    break
 
             resulting_line_length = (
                 select_keyword.pos_marker.working_line_pos
