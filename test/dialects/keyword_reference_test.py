@@ -891,6 +891,17 @@ def test_keyword_lists_hold_only_words(dialect_name: str) -> None:
     assert not found, _non_word_keywords_message(dialect, found)
 
 
+def test_settled_unimplemented_words_are_info() -> None:
+    """Test that db2's NATURAL, unimplemented and unused, is listed as info."""
+    findings = _audit_findings("db2", dialect_selector("db2"))
+    settled = [
+        f for f in findings if f.title == "Unimplemented keywords no grammar uses"
+    ]
+
+    assert [f.level for f in settled] == ["info"]
+    assert "NATURAL" in settled[0].message
+
+
 def test_stopgap_dialects_get_a_notice() -> None:
     """Test that known stopgap keyword data shows as a notice, not a failure."""
     findings = _audit_findings("clickhouse", dialect_selector("clickhouse"))
@@ -1549,6 +1560,30 @@ def _switched_off(dialect: Dialect) -> dict[str, set[Owner]]:
     return found
 
 
+def _settled_unimplemented(dialect: Dialect) -> list[str]:
+    """Unimplemented words that no grammar the dialect can reach uses.
+
+    The end state for a word the server lacks: researched, and the grammar
+    that needed it overridden or never inherited.
+    """
+    return sorted(
+        set(dialect.sets("unimplemented_keywords")) - set(_switched_off(dialect))
+    )
+
+
+def _settled_unimplemented_message(name: str, words: list[str]) -> str:
+    """List unimplemented words that no longer hide any grammar."""
+    return "\n".join(
+        [
+            f"Tagged unimplemented in {name}, and no grammar {name} reaches uses "
+            "them: grammar that needed them is overridden, or was never "
+            "inherited. This is where a word the server lacks should end up.",
+            "- the words:",
+            *_word_rows(words),
+        ]
+    )
+
+
 REPORT_WIDTH = 88
 
 
@@ -1751,6 +1786,16 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "notice",
                 len(switched_off),
                 _switched_off_message(name, switched_off),
+            )
+        )
+    settled = _settled_unimplemented(dialect)
+    if settled:
+        findings.append(
+            Finding(
+                "Unimplemented keywords no grammar uses",
+                "info",
+                len(settled),
+                _settled_unimplemented_message(name, settled),
             )
         )
     unused = _unused_finding(name, dialect)
