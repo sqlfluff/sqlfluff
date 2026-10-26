@@ -1573,3 +1573,29 @@ test_pass_tsql_cross_apply_outer_table_variable_named_unqualified_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_sqlite_order_by_aggregate:
+  # SQLite used to parse a bare function in ORDER BY as a column_reference,
+  # so the fix produced `p.p.COUNT(*)`.
+  pass_str: |
+    SELECT p.diagnosis
+    FROM patient AS p
+    GROUP BY p.diagnosis
+    ORDER BY COUNT(*) DESC
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_group_by_ordinal:
+  # Numeric literals were affected the same way (`p.p.1`).
+  pass_str: SELECT p.a, COUNT(*) FROM t AS p GROUP BY 1 ORDER BY 2 DESC
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_sqlite_order_by_function_with_unqualified_reference:
+  fail_str: SELECT p.a, b FROM t AS p ORDER BY COUNT(*), LOWER(c)
+  fix_str: SELECT p.a, p.b FROM t AS p ORDER BY COUNT(*), LOWER(p.c)
+  configs:
+    core:
+      dialect: sqlite
