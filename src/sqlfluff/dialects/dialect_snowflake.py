@@ -3039,7 +3039,11 @@ class DataMetricFunctionActionSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
         ),
-        Sequence("SENSITIVITY", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "SENSITIVITY",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+        ),
         Sequence(
             "DATA_QUALITY_NOTIFICATION",
             Ref("EqualsSegment"),
@@ -3062,7 +3066,11 @@ class DataMetricFunctionActionSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
         ),
-        Sequence("SENSITIVITY", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "SENSITIVITY",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+        ),
     )
 
     _modify_action = OneOf(

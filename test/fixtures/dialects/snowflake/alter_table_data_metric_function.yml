@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e75b196934e082c06cd2e3b03b78dc879c5ba6026ce485baf126308519fadfa
+_hash: ea3b35674cb02233cd1dd29f1b97c88545d1f9db856728db5d151149fe721c04
 file:
 - statement:
     alter_table_statement:
@@ -597,4 +597,27 @@ file:
         naked_identifier: t
     - keyword: UNSET
     - parameter: DATA_METRIC_SCHEDULE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - data_metric_function_action:
+      - keyword: MODIFY
+      - keyword: DATA
+      - keyword: METRIC
+      - keyword: FUNCTION
+      - function_name:
+        - naked_identifier: snowflake
+        - dot: .
+        - naked_identifier: core
+        - dot: .
+        - function_name_identifier: row_count
+      - keyword: SET
+      - keyword: SENSITIVITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: HIGH
 - statement_terminator: ;
