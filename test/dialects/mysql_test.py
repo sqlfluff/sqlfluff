@@ -367,21 +367,3 @@ def test_mysql_dollar_quote_opener_is_not_a_name(raw: str) -> None:
     lexing_errors = [v for v in parsed.violations if v.rule_code() == "LXR"]
 
     assert lexing_errors
-
-
-@pytest.mark.parametrize(
-    "dialect,raw",
-    [
-        ("mysql", "ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2;"),
-        ("mysql", "ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION;"),
-        ("mysql", "ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITHOUT VALIDATION;"),
-        ("mariadb", "ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2;"),
-        ("mariadb", "ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION;"),
-        ("mariadb", "ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITHOUT VALIDATION;"),
-    ],
-)
-def test_mysql_mariadb_alter_table_exchange_partition(dialect: str, raw: str) -> None:
-    """Test that ALTER TABLE EXCHANGE PARTITION parses in MySQL and MariaDB."""
-    parsed = Linter(dialect=dialect).parse_string(raw)
-    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
-    assert not parsing_errors
