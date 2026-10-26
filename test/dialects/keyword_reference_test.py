@@ -114,6 +114,7 @@ report on just those and the dialects that inherit from them, as the parser's
 "not found in the ... dialect" errors suggest.
 """
 
+import contextlib
 import functools
 import inspect
 import os
@@ -892,23 +893,32 @@ def test_keyword_lists_hold_only_words(dialect_name: str) -> None:
 
 
 def test_settled_unimplemented_words_are_info() -> None:
-    """Test that db2's NATURAL, unimplemented and unused, is listed as info."""
-    findings = _audit_findings("db2", dialect_selector("db2"))
+    """Test that an unimplemented word no grammar uses is info, not a notice.
+
+    ZONE is used by inherited ansi grammar (AT TIME ZONE), so it switches that
+    off and stays a notice; ZZSETTLED is used by nothing.
+    """
+    dialect = load_raw_dialect("ansi").copy_as("zzsettled")
+    _declare(dialect, unimplemented=["ZONE", "ZZSETTLED"])
+    findings = _audit_findings("zzsettled", dialect.expand())
     settled = [
         f for f in findings if f.title == "Unimplemented keywords no grammar uses"
     ]
 
     assert [f.level for f in settled] == ["info"]
-    assert "NATURAL" in settled[0].message
+    assert "ZZSETTLED" in settled[0].message
+    assert "ZONE" not in settled[0].message
 
 
-def test_stopgap_dialects_get_a_notice() -> None:
+def test_stopgap_dialects_get_a_notice(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test that known stopgap keyword data shows as a notice, not a failure."""
-    findings = _audit_findings("clickhouse", dialect_selector("clickhouse"))
+    monkeypatch.setitem(KEYWORD_STOPGAPS, "zzstopgap", "A stopgap, for this test.")
+    findings = _audit_findings("zzstopgap", _ready_dialect("zzstopgap"))
     stopgaps = [f for f in findings if f.title == "Keyword data is a stopgap"]
 
-    assert [f.level for f in stopgaps] == ["notice"]
-    assert "nobody has checked them against ClickHouse" in stopgaps[0].message
+    assert [(f.level, f.message) for f in stopgaps] == [
+        ("notice", "A stopgap, for this test.")
+    ]
 
 
 def test_unaudited_dialects_all_exist() -> None:
@@ -1030,6 +1040,32 @@ def _faulty_dialect(name: str) -> Dialect:
         ("zz", "ZzStartSegment", "ZzEndSegment", True)
     )
     return dialect.expand()
+
+
+def _ready_dialect(name: str) -> Dialect:
+    """An expanded ansi copy that passes every check."""
+    dialect = load_raw_dialect("ansi").copy_as(name)
+    # The two keywords ansi's GRANT grammar used without listing, so this
+    # dialect is ready however ansi itself stands.
+    dialect.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
+    return dialect.expand()
+
+
+def _failing_dialect(name: str) -> Dialect:
+    """A _faulty_dialect that also has a warning: SELECT in two statuses."""
+    dialect = _faulty_dialect(name)
+    dialect.sets("unreserved_keywords").add("SELECT")
+    return dialect
+
+
+@contextlib.contextmanager
+def _unaudited(*names: str) -> Iterator[None]:
+    """Treat these test dialects as not required to pass, for a while."""
+    UNAUDITED_DIALECTS.update(names)
+    try:
+        yield
+    finally:
+        UNAUDITED_DIALECTS.difference_update(names)
 
 
 def test_checker_finds_every_kind_of_unresolved_reference() -> None:
@@ -1348,6 +1384,8 @@ def test_checker_finds_a_grammar_keyword_that_is_only_future_reserved() -> None:
     assert "- ZZFUTURE: in _FutureSegment" in message
     assert "usually unreserved, keeping the future tag" in _flat(message)
     assert not _future_only_uses(with_status)
+    finding_titles = [f.title for f in _audit_findings("zzfuture", only_future)]
+    assert "Grammar keywords only future reserved" in finding_titles
 
 
 class _SharedUnmatchableSegment(BaseSegment):
@@ -2089,16 +2127,20 @@ def _flat(text: str) -> str:
 
 def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
     """Test that the report answers for any dialect it is given."""
-    report = _audit_report(["mysql", "tsql"]).text
+    dialects = {
+        "zzclean": _ready_dialect("zzclean"),
+        "zzfailing": _failing_dialect("zzfailing"),
+    }
+    with _unaudited("zzfailing"):
+        report = _audit_report_of(dialects).text
 
-    assert "== mysql (required to pass) ==" in report
+    assert "== zzclean (required to pass) ==" in report
     assert "  No errors or warnings." in report
-    assert "== tsql (not required to pass yet) ==" in report
-    assert "* MARK (in TransactionStatementSegment" in report
-    assert "mysql  required  PASS  0 errors, 0 warnings, " in report
-    assert re.search(r"mysql  required  PASS  [^\n]* \d+ info\b", report)
-    assert re.search(r"tsql   not yet   FAIL  \d+ errors?, \d+ warnings?", report)
-    assert "* MARK (in TransactionStatementSegment" in report
+    assert "== zzfailing (not required to pass yet) ==" in report
+    assert "ZZPLAIN (in _FaultySegment" in report
+    assert "zzclean    required  PASS  0 errors, 0 warnings, " in report
+    assert re.search(r"zzclean    required  PASS  [^\n]* \d+ info\b", report)
+    assert re.search(r"zzfailing  not yet   FAIL  \d+ errors?, \d+ warnings?", report)
 
 
 def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
@@ -2180,12 +2222,16 @@ def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
 
 def test_audit_report_lists_unused_keywords_as_info() -> None:
     """Test that unused keywords are an inventory, shown only at info level."""
-    shown = _audit_report(["mariadb"], level="info").text
-    hidden = _audit_report(["mariadb"], level="notice").text
+    dialect = load_raw_dialect("ansi").copy_as("zzunused")
+    dialect.sets("unreserved_keywords").update(["FORMATS", "POLICIES", "ZZNOGRAMMAR"])
+    dialects = {"zzunused": dialect.expand()}
+    shown = _audit_report_of(dialects, level="info").text
+    hidden = _audit_report_of(dialects, level="notice").text
 
     assert "-- Keywords no grammar uses (" in shown
     assert "unreserved) [info] --" in shown
-    assert "also in mysql's keywords:" in shown
+    assert "also in ansi's keywords:" in shown
+    assert "only in zzunused's keywords:" in shown
     assert re.search(
         r"== Keywords no grammar in these dialects uses \(\d+\) \[info\]", shown
     )
@@ -2208,7 +2254,10 @@ def test_unused_findings_are_absent_when_everything_is_used() -> None:
 
 def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     """Test that hiding warnings never makes a failing dialect look clean."""
-    report = _audit_report(["tsql"], level="error").text
+    with _unaudited("zzfailing"):
+        report = _audit_report_of(
+            {"zzfailing": _failing_dialect("zzfailing")}, level="error"
+        ).text
     flat = _flat(report)
 
     assert "[error]" in report
@@ -2221,34 +2270,56 @@ def test_audit_report_at_error_level_still_mentions_warnings() -> None:
     assert re.search(r"\n  \d[^\n]*\n\nInfo not shown \(", report)
 
 
+def test_audit_report_reads_real_dialects_by_name() -> None:
+    """Test the by-name entry point the command line uses.
+
+    Only the shape is checked, so no dialect has to be in any state for it.
+    """
+    report = _audit_report(["ansi"], level="info").text
+
+    assert "== ansi (" in report
+    assert re.search(r"\*\*\* (PASS|FAIL) \*\*\*", report)
+
+
 def test_audit_verdict_judges_what_was_asked() -> None:
     """Test the verdict: named dialects decide; with none, the required ones."""
-    one = _audit_report(["mysql"], named=frozenset({"mysql"}))
-    named_tsql = _audit_report(["tsql"], named=frozenset({"tsql"}))
-    everything = _audit_report(["mysql", "tsql"])
-    nothing = _audit_report(["tsql"])
+    clean = {"zzclean": _ready_dialect("zzclean")}
+    failing = {"zzfailing": _failing_dialect("zzfailing")}
+    with _unaudited("zzfailing"):
+        one = _audit_report_of(clean, named=frozenset({"zzclean"}))
+        named_failing = _audit_report_of(failing, named=frozenset({"zzfailing"}))
+        everything = _audit_report_of(clean | failing)
+        nothing = _audit_report_of(failing)
 
     assert not one.failed
-    assert one.text.startswith("*** PASS *** mysql has no errors or warnings.")
-    assert one.text.rstrip().endswith("*** PASS *** mysql has no errors or warnings.")
-    assert named_tsql.failed
-    assert named_tsql.text.startswith("*** FAIL *** tsql (")
-    assert "tsql isn't required to pass this audit yet" in named_tsql.text
+    assert one.text.startswith("*** PASS *** zzclean has no errors or warnings.")
+    assert one.text.rstrip().endswith("*** PASS *** zzclean has no errors or warnings.")
+    assert named_failing.failed
+    assert named_failing.text.startswith("*** FAIL *** zzfailing (")
+    assert "zzfailing isn't required to pass this audit yet" in named_failing.text
     assert not everything.failed
-    assert everything.text.startswith("*** PASS *** mysql has no errors or warnings.")
-    assert "Not required to pass this audit yet:\n  tsql " in everything.text
+    assert everything.text.startswith("*** PASS *** zzclean has no errors or warnings.")
+    assert "Not required to pass this audit yet:\n  zzfailing " in everything.text
     assert nothing.text.startswith("*** NO VERDICT ***")
 
 
 def test_audit_verdict_counts_several_named_dialects() -> None:
     """Test the wording when several named dialects pass or one fails."""
-    passing = _audit_report(["mysql", "mariadb"], named=frozenset({"mysql", "mariadb"}))
-    mixed = _audit_report(["mysql", "tsql"], named=frozenset({"mysql", "tsql"}))
-    with_children = _audit_report(["mysql", "tsql"], named=frozenset({"mysql"}))
+    clean = {"zzclean": _ready_dialect("zzclean"), "zztidy": _ready_dialect("zztidy")}
+    failing = {"zzfailing": _failing_dialect("zzfailing")}
+    with _unaudited("zzfailing"):
+        passing = _audit_report_of(clean, named=frozenset(clean))
+        mixed = _audit_report_of(
+            {"zzclean": clean["zzclean"]} | failing,
+            named=frozenset({"zzclean", "zzfailing"}),
+        )
+        with_children = _audit_report_of(
+            {"zzclean": clean["zzclean"]} | failing, named=frozenset({"zzclean"})
+        )
 
     assert passing.text.startswith("*** PASS *** the 2 named dialects have no")
     assert mixed.text.startswith("*** FAIL *** 1 of 2 named dialects has errors")
-    assert "Also shown, not part of the verdict:\n  tsql " in with_children.text
+    assert "Also shown, not part of the verdict:\n  zzfailing " in with_children.text
 
 
 def test_parse_args_reads_names_and_level() -> None:
