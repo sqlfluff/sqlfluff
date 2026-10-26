@@ -529,6 +529,7 @@ YEAR
 # Because Doris dialect is inherit from MySQL
 doris_unreserved_keywords += """
 BLOOM_FILTER
+OPTIMIZER_COSTS
 STORED
 VIRTUAL
 """
