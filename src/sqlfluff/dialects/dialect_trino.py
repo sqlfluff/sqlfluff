@@ -1041,15 +1041,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION` statement in Trino."""
 
     match_grammar: Matchable = OneOf(
-        Sequence(
-            "AS",
-            Ref("QuotedLiteralSegment"),
-            Sequence(
-                "LANGUAGE",
-                Ref("NakedIdentifierSegment"),
-                optional=True,
-            ),
-        ),
+        ansi.FunctionDefinitionGrammar.match_grammar,
         Sequence(
             "RETURN",
             Ref("ExpressionSegment"),
