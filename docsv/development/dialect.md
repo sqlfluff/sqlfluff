@@ -259,9 +259,9 @@ Each keyword has a status:
 - **Reserved**: a keyword everywhere. It can't be used as a bare name, such
   as a column called `select`.
 - **Unreserved**: a keyword in some places, and an ordinary name in others.
-- **Unimplemented**: not a keyword on this dialect's database, but grammar
-  the dialect inherits uses it. That part of the inherited grammar doesn't
-  match in this dialect. The rest of the rule still does.
+- **Unimplemented**: the dialect's database doesn't have it, so it is just a
+  name. The parts of inherited grammar that need it don't match in this
+  dialect; the rest of each rule still does.
 - **Future reserved**: the vendor says it will become reserved. This is a tag
   rather than a status: it is never reserved, but it can also be unreserved
   or unimplemented.
@@ -280,56 +280,48 @@ The parser raises this as soon as a statement reaches the rule that uses the
 word, even if the statement doesn't contain it. So one missing keyword can stop
 whole statements from parsing.
 
-### Inheriting keywords
+### Setting keywords
 
-A dialect inherits every keyword's status from its parent. It changes only the
-words it disagrees about, with `categorize_keywords()` in its dialect file:
+A dialect inherits every keyword's status from its parent and sets its own with
+one call in its dialect file:
 
 ```python
-mariadb_dialect.categorize_keywords(
+mariadb_dialect.declare_keyword_sets(
     reserved=mariadb_reserved_keywords.split(),
+    reserved_mode="replace",
     unreserved=mariadb_unreserved_keywords.split(),
-    unimplemented=mariadb_unimplemented_keywords.split(),
+    unimplemented=[],
+    future_reserved=[],
 )
 ```
 
-Each listed word gets that status and leaves the others. A word that isn't
-listed keeps its parent's status: nothing is inferred from a word the dialect
-doesn't mention. Avoid `sets("reserved_keywords").clear()`: it drops the
+Each listed word gets that status. With `reserved_mode="replace"` the reserved
+list is the complete list, and any reserved word the dialect inherits but
+doesn't list becomes unreserved; with `"add"` the parent's reserved words stay.
+Nothing is ever dropped. Avoid `sets("reserved_keywords").clear()`: it drops the
 parent's words, and any of the parent's grammar that uses one then crashes in
 your dialect.
 
-If the dialect's reserved list is the database's complete list, say so, and
-where it comes from:
-
-```python
-mariadb_dialect.claim_exhaustive_reserved(
-    mariadb_reserved_keywords.split(),
-    source="MariaDB 11.8.6: INFORMATION_SCHEMA.KEYWORDS words the server "
-    "rejects as a bare column name",
-)
-```
-
-The claim changes nothing by itself. The tests then hold the dialect to it: if
-the parent later reserves a new word, your dialect's test fails and asks you to
-give the word your database's status, with the line to paste.
+The full guide, from the essentials to reconciling every keyword with your
+database, is in the docstring at the top of
+`test/dialects/keyword_reference_test.py`.
 
 ### The keyword audit
 
 `test/dialects/keyword_reference_test.py` audits every dialect not listed in
 its `UNAUDITED_DIALECTS`. For an audited dialect it fails if:
 
-- a word is in two statuses that can't go together;
-- a keyword the parent has has no status in the dialect;
+- a word has two statuses that can't go together;
 - grammar refers to a keyword or segment the dialect doesn't have, or uses a
   keyword whose only status is future reserved;
-- the dialect's own grammar uses one of its unimplemented words;
-- the dialect's reserved keywords differ from its exhaustive claim.
+- grammar uses a keyword the lexer can never make into one token;
+- a keyword list holds something that isn't a word;
+- the dialect's own grammar uses one of its unimplemented words.
 
-Each failure says which file to change and how, and is written for someone who
-changed a parent dialect and doesn't know this one. If you change a parent
-such as ANSI or MySQL, its children's tests tell you what your change does to
-them. ANSI, MySQL, MariaDB, Doris and StarRocks are audited.
+Each failure says what is wrong, where, and what has to become true, and is
+written for someone who changed a parent dialect and doesn't know this one. If
+you change a parent such as ANSI or MySQL, its children's tests tell you what
+your change does to them.
 
 ### Finding these problems in any dialect
 
@@ -339,12 +331,13 @@ Run the test file directly, with dialect names as arguments:
 python test/dialects/keyword_reference_test.py tsql
 ```
 
-This never fails. It shows what the checks find in each named dialect and in
-every dialect that inherits from it, including unaudited ones, and says when an
-unaudited dialect passes and can come off the list. It also lists inherited
-grammar each dialect's unimplemented words switch off, and the keywords no
-grammar uses. An unused keyword can mean syntax that sqlfluff doesn't parse
-yet, or a word that can come out of the list.
+It shows what the checks find in each named dialect and in every dialect that
+inherits from it, including unaudited ones, says when an unaudited dialect
+passes and can come off the list, and ends in PASS or FAIL. `--level notice`
+adds inherited grammar each dialect's unimplemented words switch off, and
+keyword data known to be a stopgap; `--level info` adds the keywords no grammar
+uses. Passing means nothing crashes and no check fails, not that a dialect's
+keyword lists match its database.
 
 ## Where to find the grammar for your database
 -------------------------------------------

@@ -1,8 +1,85 @@
-"""Keyword and reference checks for the dialects this file audits.
+"""Keyword and reference checks for the dialects, and how to set up keywords.
 
-Every dialect is audited unless UNAUDITED_DIALECTS below lists it, so a new
-dialect is audited from the start. An audited dialect is held to these rules,
-checked on its final keyword sets however it built them:
+How to set up a dialect's keywords
+==================================
+
+Every keyword has a status: reserved (never a name), unreserved (a keyword
+that can also be a name), or unimplemented (the dialect's server doesn't have
+it). These don't overlap. Future reserved is a tag that can go with unreserved
+or unimplemented. A dialect sets its statuses with one call to
+declare_keyword_sets() (see its docstring in src/sqlfluff/core/dialects/
+base.py). A word the grammar uses with no status at all crashes the parser.
+
+The essentials. You get these almost for free by using declare_keyword_sets(),
+and for an audited dialect (every dialect not in UNAUDITED_DIALECTS below) the
+audit tests lock them in, in CI.
+
+1. Get the reserved keywords from the docs, or better, from the server's own
+   grammar or keyword table: docs can be wrong. Pass them as reserved=, with
+   reserved_mode="replace", so the list is exhaustive and any reserved word
+   you inherit and don't list becomes unreserved.
+2. Get the unreserved keywords the same way and pass them as unreserved=.
+   Also add any words sqlfluff's grammar needs that aren't in the docs.
+   Postgres manages this well internally (dialect_postgres_keywords.py), but
+   other ways are fine; it's up to the dialect.
+
+   Too many unreserved words costs almost nothing: RF04 and RF06 (both off by
+   default) treat them as keywords and may flag names they arguably needn't.
+   So this is a good place to stop. You never have to do step 3 or later, but
+   if you want RF04 cleaned up, or you know for sure your server doesn't use a
+   word, do step 3 too.
+
+Optional.
+
+3. When the docs, or anything else you know about this server, show that it
+   doesn't implement a word, pass it in unimplemented=. That does two things:
+   if the parent dialect adds grammar that uses the word, that grammar won't
+   match in your dialect, and RF04 is more accurate, if anyone turns it on.
+   Only do this with evidence. A word missing from a vendor's grammar file
+   isn't evidence: the server may still accept it as a plain identifier.
+
+Even more optional.
+
+4. Run ``python test/dialects/keyword_reference_test.py <dialect> --level
+   notice`` to see the inherited grammar your unimplemented words switch off.
+   If you picked those words correctly, every entry is right. If you didn't,
+   this finds grammar support that a wrong choice is hiding. Check each one:
+
+   - If your server supports it, move the word from unimplemented= to
+     unreserved=.
+   - If it doesn't, you can override that grammar in your own dialect, with
+     Nothing() or with a copy of the parent's grammar minus the parts your
+     server lacks, so anyone reading the code later can see it was on
+     purpose. The word then drops off the notice list, which makes the next
+     audit easy after the parent dialect (usually ansi) changes.
+
+5. Update your keyword lists from the server's docs or source at least every
+   few years, to keep the dialect current.
+
+A perfectly maintained dialect ends up with every unimplemented word
+researched, and the grammar that needed it overridden with Nothing() or a
+trimmed copy, so no grammar it reaches uses the word. db2's NATURAL is an
+example. So the audit never asks a dialect to remove an unimplemented word
+just because no grammar uses it.
+
+If you have to guess to stop a crash, as clickhouse and db2 do, say so in a
+comment at the call, and add the dialect to KEYWORD_STOPGAPS below, so that
+passing the audit doesn't look like being right.
+
+Why declare_keyword_sets():
+
+1. When a parent dialect adds a keyword, it never crashes a child with a
+   missing ref, and a poorly kept child puts no burden on whoever adds the
+   feature. To see where a keyword isn't supported, run the audit with
+   --level notice or --level info.
+2. It gives every dialect a clear path toward better keyword lists, without
+   making that work the price of not crashing.
+
+What this file checks
+=====================
+
+An audited dialect is held to these rules, checked on its final keyword sets
+however it built them:
 
 - No word has two statuses that exclude each other: reserved and unreserved,
   unimplemented and either of those, or reserved and future reserved.
@@ -17,17 +94,21 @@ checked on its final keyword sets however it built them:
 - Its own grammar doesn't use its unimplemented words.
 
 The failure messages are written for someone who has never touched the
-dialect, usually because they changed its parent: each says which file to
-change and how. The tests at the end check the checker itself, so that a gap
-in it fails rather than quietly checking less.
+dialect, usually because they changed its parent: each says what is wrong,
+where, and what has to become true. The tests at the end check the checker
+itself, so that a gap in it fails rather than quietly checking less.
+
+The report
+==========
 
 Run this file directly, ``python test/dialects/keyword_reference_test.py``, for
-a report, which ends in PASS or FAIL and exits 1 on FAIL. It shows what these
-checks find in each dialect: for an audited one, the failures pytest would
-show; for an unaudited one, what auditing it would bring, and when it passes,
-that it can come off the list. As notices, it also lists inherited grammar that
-unimplemented words switch off and keyword data known to be a stopgap
-(KEYWORD_STOPGAPS); as info, the keywords no grammar uses. --level error,
+a report, which ends in PASS or FAIL and exits 1 on FAIL. Passing means nothing
+crashes and no check fails, not that the keyword lists are right. It shows
+what these checks find in each dialect: for an audited one, the failures
+pytest would show; for an unaudited one, what auditing it would bring, and
+when it passes, that it can come off the list. As notices, it also lists
+inherited grammar that unimplemented words switch off and keyword data known
+to be a stopgap; as info, the keywords no grammar uses. --level error,
 warning, notice or info sets how much is shown. Name dialects as arguments to
 report on just those and the dialects that inherit from them, as the parser's
 "not found in the ... dialect" errors suggest.
@@ -1567,7 +1648,9 @@ def _switched_off_message(name: str, switched_off: dict[str, set[Owner]]) -> str
         "large group can be right when the server lacks a whole feature, such "
         "as stored procedures. Words that don't share a reason are the "
         "suspicious ones; they often mean a keyword list was copied or "
-        "replaced wholesale, not checked word by word."
+        "replaced wholesale, not checked word by word. Step 4 of the guide "
+        "at the top of test/dialects/keyword_reference_test.py says what to "
+        "do with each."
     ]
     for word, owners in sorted(switched_off.items()):
         users, _ = _segments_and_files(owners)
@@ -1804,7 +1887,9 @@ def _audit_report_of(
             "is an inventory. Passing means nothing crashes and no check fails; "
             "it doesn't mean a dialect's keyword lists match its server. For a "
             "dialect required to pass this audit, its tests fail on errors and "
-            "warnings.",
+            "warnings. How to set up a dialect's keywords, and reconcile them "
+            "with its server as far as you want to go, is in the docstring at "
+            "the top of test/dialects/keyword_reference_test.py.",
             "",
         )
     )
