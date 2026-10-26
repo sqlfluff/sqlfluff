@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6664f544d2cf8dd30032775296a2b97c62f688e21c8bea56e248e98a1dbb1f04
+_hash: 263c03da46e3fc9a54f59fc5678599a1a3f94cb04650db4b9fcdc6be49596911
 file:
 - statement:
     alter_view_statement:
@@ -106,7 +106,7 @@ file:
     - keyword: DATA_METRIC_SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'TRIGGER_ON_CHANGES'"
+    - quoted_literal: "'USING CRON 0 8 * * * UTC'"
 - statement_terminator: ;
 - statement:
     alter_view_statement:
