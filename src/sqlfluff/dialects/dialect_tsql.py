@@ -521,6 +521,9 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
+    PartitionFunctionPrefixSegment=RegexParser(
+        r"\$PARTITION", CodeSegment, type="partition_function_prefix"
+    ),
     DatatypeMethodNameIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
             r"^(" + r"|".join(sorted(dialect.sets("datatype_methods"))) + r")$",
@@ -4879,6 +4882,26 @@ class JsonAggFunctionNameSegment(BaseSegment):
     match_grammar = OneOf("JSON_ARRAYAGG", "JSON_OBJECTAGG")
 
 
+class PartitionFunctionNameSegment(BaseSegment):
+    """The $PARTITION.<partition_function_name> function name.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/partition-transact-sql
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence(
+        # Optional database name.
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), optional=True),
+        Ref("PartitionFunctionPrefixSegment"),
+        Ref("DotSegment"),
+        Ref("SingleIdentifierGrammar"),
+        allow_gaps=False,
+    )
+
+
 class RankFunctionNameSegment(BaseSegment):
     """Rank function name segment.
 
@@ -5316,6 +5339,10 @@ class FunctionSegment(BaseSegment):
             Ref("WithinGroupFunctionNameSegment"),
             Ref("FunctionContentsSegment"),
             Ref("WithinGroupClause", optional=True),
+        ),
+        Sequence(
+            Ref("PartitionFunctionNameSegment"),
+            Ref("FunctionContentsSegment"),
         ),
         Sequence(
             OneOf(
