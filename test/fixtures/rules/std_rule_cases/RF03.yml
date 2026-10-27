@@ -1599,3 +1599,64 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+
+test_pass_postgres_update_where_exists_correlated_unqualified_8714:
+  # The subquery in WHERE EXISTS can see the target table of the UPDATE statement,
+  # so unqualifying references must not collapse `l.id = o.id` to `id = id`.
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  pass_str: |
+    update orders as o set x = 1 where exists (select 1 from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_update_set_subquery_correlated_unqualified_8714:
+  # The scalar subquery in the SET clause can see the target table of the UPDATE.
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  pass_str: |
+    update orders as o set x = (select l.x from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_delete_where_exists_correlated_unqualified_8714:
+  # The subquery in WHERE EXISTS of a DELETE statement can see the target table.
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  pass_str: |
+    delete from orders as o where exists (select 1 from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_update_cross_apply_correlated_unqualified_8714:
+  # The APPLY subquery in UPDATE ... FROM can see the target and joined tables.
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  pass_str: |
+    update o set x = s.j from orders as o cross apply (select l.x as j from lines as l where l.id = o.id) as s;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_merge_update_subquery_correlated_unqualified_8714:
+  # The subquery in the UPDATE SET clause of a MERGE statement can see target and source tables.
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  pass_str: |
+    merge into t using s on t.id = s.id when matched then update set t.y = (select m.y from m where m.id = t.id);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified

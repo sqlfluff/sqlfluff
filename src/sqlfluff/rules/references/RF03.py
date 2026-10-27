@@ -26,7 +26,14 @@ from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
-_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+_START_TYPES = [
+    "delete_statement",
+    "merge_statement",
+    "select_statement",
+    "set_expression",
+    "update_statement",
+    "with_compound_statement",
+]
 
 
 class Rule_RF03(BaseRule):
@@ -120,8 +127,14 @@ class Rule_RF03(BaseRule):
             select_info = selectable.select_info
             if select_info:
                 for alias in select_info.table_aliases:
-                    if subquery and alias.from_expression_element.path_to(
-                        subquery.selectables[0].selectable
+                    if (
+                        subquery
+                        and alias.from_expression_element.is_type(
+                            "from_expression_element"
+                        )
+                        and alias.from_expression_element.path_to(
+                            subquery.selectables[0].selectable
+                        )
                     ):
                         # Skip the subquery alias itself
                         continue

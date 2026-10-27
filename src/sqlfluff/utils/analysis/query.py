@@ -88,24 +88,17 @@ class Selectable:
             # source), see the "Examples" section of the Postgres docs page:
             # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
-            alias_expressions = values.children(sp.is_type("alias_expression"))
             table_aliases: list[AliasInfo] = []
-            if alias_expressions:
-                # A VALUES clause carries its alias as a direct child.
-                for alias_expression in alias_expressions:
-                    name = (
-                        Segments(alias_expression)
-                        .children()
-                        .first(sp.is_type("naked_identifier", "quoted_identifier"))
-                    )
-                    table_aliases.append(
-                        AliasInfo(
-                            name[0].raw if name else "",
-                            name[0] if name else None,
-                            bool(name),
-                            self.selectable,
-                            alias_expression,
-                            None,
+            dialect_name = self.dialect.name if self.dialect else None
+
+            # In some dialects (e.g. T-SQL, Postgres) target tables or joined
+            # tables in DML live inside a from_clause.
+            if values.children(sp.is_type("from_clause")):
+                for from_clause in values.children(sp.is_type("from_clause")):
+                    table_aliases.extend(
+                        alias
+                        for _, alias in get_from_clause_aliases(
+                            from_clause, dialect_name
                         )
                     )
             elif values.children(sp.is_type("from_expression")):
@@ -117,13 +110,105 @@ class Selectable:
                 # aliases here, so joined and nested targets resolve exactly as
                 # they do in a SELECT.
                 # https://github.com/sqlfluff/sqlfluff/issues/6147
-                dialect_name = self.dialect.name if self.dialect else None
                 table_aliases = [
                     alias
                     for _, alias in get_from_clause_aliases(
                         self.selectable, dialect_name
                     )
                 ]
+
+            if self.selectable.is_type(*SUBSELECT_TYPES):
+                dml_tables: list[tuple[BaseSegment, Optional[BaseSegment]]] = []
+                clauses_to_skip = {
+                    "where_clause",
+                    "set_clause_list",
+                    "from_clause",
+                    "from_expression",
+                    "merge_match",
+                    "select_statement",
+                }
+                direct_refs = [
+                    seg
+                    for seg in self.selectable.segments
+                    if seg.is_type("table_reference")
+                ]
+                if not direct_refs and not table_aliases:
+                    for tr in self.selectable.recursive_crawl(
+                        "table_reference",
+                        recurse_into=False,
+                        no_recursive_seg_type=list(clauses_to_skip),
+                    ):
+                        direct_refs.append(tr)
+
+                for tr in direct_refs:
+                    idx = (
+                        self.selectable.segments.index(tr)
+                        if tr in self.selectable.segments
+                        else -1
+                    )
+                    alias_expr = None
+                    if idx != -1:
+                        for next_seg in self.selectable.segments[idx + 1 :]:
+                            if next_seg.is_type("alias_expression"):
+                                alias_expr = next_seg
+                                break
+                            elif next_seg.is_code:
+                                break
+                    dml_tables.append((tr, alias_expr))
+
+                for tr, alias_expr in dml_tables:
+                    alias_name = ""
+                    alias_id_seg = None
+                    aliased = False
+                    if alias_expr:
+                        alias_id_seg = next(
+                            alias_expr.recursive_crawl(
+                                "naked_identifier", "quoted_identifier"
+                            ),
+                            None,
+                        )
+                        if alias_id_seg:
+                            alias_name = alias_id_seg.raw
+                            aliased = True
+
+                    name = alias_name if aliased else tr.raw
+                    id_seg = (
+                        alias_id_seg
+                        if aliased
+                        else (tr.segments[0] if tr.segments else None)
+                    )
+                    if not any(a.ref_str == name for a in table_aliases):
+                        table_aliases.append(
+                            AliasInfo(
+                                name,
+                                id_seg,
+                                aliased,
+                                tr,
+                                alias_expr,
+                                tr,
+                            )
+                        )
+
+            if not table_aliases:
+                alias_expressions = values.children(sp.is_type("alias_expression"))
+                if alias_expressions:
+                    # A VALUES clause carries its alias as a direct child.
+                    for alias_expression in alias_expressions:
+                        name = (
+                            Segments(alias_expression)
+                            .children()
+                            .first(sp.is_type("naked_identifier", "quoted_identifier"))
+                        )
+                        table_aliases.append(
+                            AliasInfo(
+                                name[0].raw if name else "",
+                                name[0] if name else None,
+                                bool(name),
+                                self.selectable,
+                                alias_expression,
+                                None,
+                            )
+                        )
 
             if not table_aliases:
                 # Preserve the longstanding behavior of always registering
