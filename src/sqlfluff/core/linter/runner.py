@@ -132,11 +132,11 @@ def _warm_worker_receive_init(shm_info: tuple[str, int]) -> bool:  # pragma: no 
 
 
 def _warm_worker_apply(
-    args: tuple[str, bool, tuple[str, int]],
+    args: tuple[str, bool, tuple[str, int], bool],
 ) -> Union["DelayedException", LintedFile]:
     """Worker function for warm workers that caches the templater.
 
-    Tasks carry ``(fname, fix, shm_ref)`` where ``shm_ref`` is a
+    Tasks carry ``(fname, fix, shm_ref, retain_files)`` where ``shm_ref`` is a
     ``(name, size)`` pair for fallback shared memory access. Normally
     ``_worker_init_data`` is already populated by the broadcast call
     to ``_warm_worker_receive_init`` before any tasks are dispatched.
@@ -147,7 +147,7 @@ def _warm_worker_apply(
 
     global _worker_init_data, _worker_linter_cache
 
-    fname, fix, shm_ref = args
+    fname, fix, shm_ref, retain_files = args
     try:
         if _worker_linter_cache is None:
             # Rebuild linter cache. Normally _worker_init_data was
@@ -200,14 +200,10 @@ def _warm_worker_apply(
             f"render={t_lint - t_render:.3f}s "
             f"lint={t_done - t_lint:.3f}s"
         )
-        # Strip the parsed tree and templated file before pickling
-        # to reduce IPC size by ~90%. The tree is only needed when
-        # --fix mode has violations to persist (fix_string() asserts
-        # both tree and templated_file). Clean files and all lint-only
-        # results skip the tree entirely.
-        if not fix or not result.violations:
-            result = result._replace(tree=None, templated_file=None)
-        return result
+        # Use the same result contract and tree optimisation as the regular
+        # parallel runner. Retained files need their complete results; otherwise
+        # preserve the templated file and segment counts for LintedDir records.
+        return result if retain_files else ParallelRunner._without_unused_tree(result)
     except Exception as e:
         return DelayedException(e, fname=fname)
 
@@ -790,7 +786,9 @@ class WarmWorkerRunner(MultiProcessRunner):
                 templater._warm_shm.name,
                 templater._warm_shm_size,
             )
-            task_iter = ((fname, fix, shm_ref) for fname in file_list)
+            task_iter = (
+                (fname, fix, shm_ref, self.retain_files) for fname in file_list
+            )
             yield from self._dispatch_and_collect(pool, task_iter, fix)
 
         except KeyboardInterrupt:  # pragma: no cover
@@ -809,7 +807,7 @@ class WarmWorkerRunner(MultiProcessRunner):
     def _dispatch_and_collect(
         self,
         pool: multiprocessing.pool.Pool,
-        task_iter: Iterable[tuple[str, bool, tuple[str, int]]],
+        task_iter: Iterable[tuple[str, bool, tuple[str, int], bool]],
         fix: bool,
     ) -> Iterator[LintedFile]:
         """Send tasks to pool and yield results, handling errors."""

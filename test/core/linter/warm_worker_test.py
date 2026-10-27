@@ -262,7 +262,7 @@ class TestWarmWorkerApply:
         try:
             assert runner._worker_linter_cache is None
             result = _warm_worker_apply(
-                ("test/fixtures/linter/passing.sql", False, shm_ref)
+                ("test/fixtures/linter/passing.sql", False, shm_ref, False)
             )
             assert isinstance(result, LintedFile)
             assert runner._worker_linter_cache is not None
@@ -280,13 +280,15 @@ class TestWarmWorkerApply:
         config = FluffConfig(overrides={"dialect": "ansi"})
         shm, shm_ref = self._make_shm(config)
         try:
-            _warm_worker_apply(("test/fixtures/linter/passing.sql", False, shm_ref))
+            _warm_worker_apply(
+                ("test/fixtures/linter/passing.sql", False, shm_ref, False)
+            )
             cache_after_first = runner._worker_linter_cache
 
             # Second task: same shm_ref, but cache already exists so
             # shared memory is not re-read.
             result = _warm_worker_apply(
-                ("test/fixtures/linter/passing.sql", False, shm_ref)
+                ("test/fixtures/linter/passing.sql", False, shm_ref, False)
             )
             assert isinstance(result, LintedFile)
             assert runner._worker_linter_cache is cache_after_first
@@ -300,7 +302,9 @@ class TestWarmWorkerApply:
         runner._worker_init_data = {"from_initializer": "preserved"}
         shm, shm_ref = self._make_shm(config, {"from_task": "added"})
         try:
-            _warm_worker_apply(("test/fixtures/linter/passing.sql", False, shm_ref))
+            _warm_worker_apply(
+                ("test/fixtures/linter/passing.sql", False, shm_ref, False)
+            )
             assert runner._worker_init_data["from_initializer"] == "preserved"
             assert runner._worker_init_data["from_task"] == "added"
             assert isinstance(runner._worker_init_data["root_config"], FluffConfig)
@@ -313,7 +317,9 @@ class TestWarmWorkerApply:
         config = FluffConfig(overrides={"dialect": "ansi"})
         shm, shm_ref = self._make_shm(config)
         try:
-            _warm_worker_apply(("test/fixtures/linter/passing.sql", False, shm_ref))
+            _warm_worker_apply(
+                ("test/fixtures/linter/passing.sql", False, shm_ref, False)
+            )
             assert runner._worker_linter_cache is not None
 
             # Receiving new init data via shared memory should reset the cache.
@@ -333,7 +339,7 @@ class TestWarmWorkerApply:
         config = FluffConfig(overrides={"dialect": "ansi"})
         shm, shm_ref = self._make_shm(config)
         try:
-            result = _warm_worker_apply(("no_such_file.sql", False, shm_ref))
+            result = _warm_worker_apply(("no_such_file.sql", False, shm_ref, False))
             assert isinstance(result, DelayedException)
             assert result.fname == "no_such_file.sql"
             with pytest.raises(Exception):
@@ -345,7 +351,7 @@ class TestWarmWorkerApply:
     def test_error_with_invalid_shm_name(self):
         """Task with invalid shared memory name raises an error."""
         result = _warm_worker_apply(
-            ("test/fixtures/linter/passing.sql", False, ("nonexistent_shm", 100))
+            ("test/fixtures/linter/passing.sql", False, ("nonexistent_shm", 100), False)
         )
         assert isinstance(result, DelayedException)
 
@@ -695,7 +701,12 @@ class TestJinjaWarmWorkers:
         shm.buf[: len(data_bytes)] = data_bytes
         try:
             result = _warm_worker_apply(
-                ("test/fixtures/linter/passing.sql", False, (shm.name, len(data_bytes)))
+                (
+                    "test/fixtures/linter/passing.sql",
+                    False,
+                    (shm.name, len(data_bytes)),
+                    False,
+                )
             )
             assert isinstance(result, LintedFile)
         finally:
@@ -746,7 +757,7 @@ class TestEdgeCases:
         try:
             results = []
             for f in sorted(tmp_path.glob("*.sql")):
-                result = _warm_worker_apply((str(f), False, shm_ref))
+                result = _warm_worker_apply((str(f), False, shm_ref, False))
                 assert isinstance(result, LintedFile)
                 results.append(result)
             assert len(results) == 2
@@ -774,7 +785,7 @@ class TestEdgeCases:
         config = FluffConfig(overrides={"dialect": "ansi", "rules": "CP01"})
         shm, shm_ref = self._make_shm(config)
         try:
-            result = _warm_worker_apply((str(sql_file), True, shm_ref))
+            result = _warm_worker_apply((str(sql_file), True, shm_ref, False))
             assert isinstance(result, LintedFile)
             # CP01 should flag 'select' -> 'SELECT' (or vice versa).
             # With fix=True, the result should contain fix information.
@@ -793,7 +804,7 @@ class TestEdgeCases:
         config = FluffConfig(overrides={"dialect": "ansi", "rules": "CP01"})
         shm, shm_ref = self._make_shm(config)
         try:
-            result = _warm_worker_apply((str(sql_file), True, shm_ref))
+            result = _warm_worker_apply((str(sql_file), True, shm_ref, False))
             assert isinstance(result, LintedFile)
             assert len(result.violations) == 0
         finally:
@@ -853,7 +864,7 @@ class TestEdgeCases:
         )
         shm, shm_ref = self._make_shm(config)
         try:
-            result = _warm_worker_apply((str(sql_file), False, shm_ref))
+            result = _warm_worker_apply((str(sql_file), False, shm_ref, False))
             assert isinstance(result, LintedFile)
         finally:
             shm.close()
@@ -869,7 +880,7 @@ class TestEdgeCases:
         shm, shm_ref = self._make_shm(config, extra)
         try:
             result = _warm_worker_apply(
-                ("test/fixtures/linter/passing.sql", False, shm_ref)
+                ("test/fixtures/linter/passing.sql", False, shm_ref, False)
             )
             assert isinstance(result, LintedFile)
             assert runner._worker_init_data["manifest_data"] == "x" * 1_000_000
@@ -906,6 +917,78 @@ class TestEndToEndMultiprocessing:
             n_files = sum(p.stats()["files"] for p in result.paths)
             assert n_files == 5
         finally:
+            self._cleanup_linter(linter)
+
+    def test_retained_files_and_records_match_sequential_on_reused_pool(self, tmp_path):
+        """Preserve files, statistics and fixes across retention modes."""
+        (tmp_path / "clean.sql").write_text("SELECT a FROM b\n", encoding="utf-8")
+        (tmp_path / "fixable.sql").write_text("SELECT a from b\n", encoding="utf-8")
+        config = FluffConfig(overrides={"dialect": "ansi", "rules": "CP01"})
+        linter = Linter(config=config)
+        pool = None
+        try:
+            for fix in (False, True):
+                expected = linter.lint_paths(
+                    (str(tmp_path),), fix=fix, processes=1, retain_files=True
+                )
+                expected_records = {
+                    r["filepath"]: (r["statistics"], r["violations"])
+                    for r in expected.as_records()
+                }
+                for retain_files in (True, False):
+                    result = linter.lint_paths(
+                        (str(tmp_path),),
+                        fix=fix,
+                        processes=2,
+                        retain_files=retain_files,
+                    )
+                    if pool is None:
+                        pool = linter.templater._warm_pool
+                        assert pool is not None
+                    assert linter.templater._warm_pool is pool
+                    assert {
+                        r["filepath"]: (r["statistics"], r["violations"])
+                        for r in result.as_records()
+                    } == expected_records
+                    files = result.paths[0].files
+                    if retain_files:
+                        assert len(files) == 2
+                        assert all(f.tree is not None for f in files)
+                        assert all(f.templated_file is not None for f in files)
+                    else:
+                        assert not files
+        finally:
+            if pool is not None:
+                pool.terminate()
+                pool.join()
+                linter.templater._warm_pool = None
+            self._cleanup_linter(linter)
+
+    def test_fix_persists_with_files_not_retained(self, tmp_path):
+        """A non-retained file with fixable violations must keep its tree."""
+        bad = tmp_path / "fixable.sql"
+        bad.write_text("SELECT a from b\n", encoding="utf-8")
+        (tmp_path / "clean.sql").write_text("SELECT a FROM b\n", encoding="utf-8")
+        config = FluffConfig(overrides={"dialect": "ansi", "rules": "CP01"})
+        linter = Linter(config=config)
+        pool = None
+        try:
+            result = linter.lint_paths(
+                (str(tmp_path),),
+                fix=True,
+                apply_fixes=True,
+                processes=2,
+                retain_files=False,
+            )
+            pool = linter.templater._warm_pool
+            assert pool is not None
+            assert not result.paths[0].files
+            assert bad.read_text(encoding="utf-8") == "SELECT a FROM b\n"
+        finally:
+            if pool is not None:
+                pool.terminate()
+                pool.join()
+                linter.templater._warm_pool = None
             self._cleanup_linter(linter)
 
     def test_lint_detects_violations(self, tmp_path):
@@ -1228,8 +1311,8 @@ class TestErrorRecoveryAndDeadlocks:
         finally:
             WarmWorkerRunner._terminate_pool(lntr.templater)
 
-    def test_tree_stripping_preserves_violations(self):
-        """Tree stripping in lint mode doesn't lose violation data."""
+    def test_fixable_violations_keep_tree_without_retention(self):
+        """A fixable result preserves the tree and its violation data."""
         from multiprocessing.shared_memory import SharedMemory as SHM
 
         config = FluffConfig(overrides={"dialect": "ansi", "rules": "CP01"})
@@ -1249,13 +1332,15 @@ class TestErrorRecoveryAndDeadlocks:
                 f.write("SELECT a from b\n")
                 fname = f.name
 
-            result = _warm_worker_apply((fname, False, (shm.name, len(data_bytes))))
+            result = _warm_worker_apply(
+                (fname, False, (shm.name, len(data_bytes)), False)
+            )
             from sqlfluff.core.linter import LintedFile
 
             assert isinstance(result, LintedFile)
-            # Tree should be stripped (fix=False).
-            assert result.tree is None
-            assert result.templated_file is None
+            # The shared parallel-runner optimisation keeps fixable trees.
+            assert result.tree is not None
+            assert result.templated_file is not None
             # But violations are preserved.
             assert len(result.violations) > 0
             assert result.path == fname
@@ -1286,7 +1371,9 @@ class TestErrorRecoveryAndDeadlocks:
                 f.write("SELECT a from b\n")
                 fname = f.name
 
-            result = _warm_worker_apply((fname, True, (shm.name, len(data_bytes))))
+            result = _warm_worker_apply(
+                (fname, True, (shm.name, len(data_bytes)), False)
+            )
             from sqlfluff.core.linter import LintedFile
 
             assert isinstance(result, LintedFile)
