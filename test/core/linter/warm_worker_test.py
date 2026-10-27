@@ -296,6 +296,24 @@ class TestWarmWorkerApply:
             shm.close()
             shm.unlink()
 
+    def test_changed_init_data_refreshes_worker_that_missed_broadcast(self):
+        """A reused worker must refresh even if no broadcast reached it."""
+        first = FluffConfig(overrides={"dialect": "ansi"})
+        second = FluffConfig(overrides={"dialect": "postgres"})
+        shm1, ref1 = self._make_shm(first)
+        shm2, ref2 = self._make_shm(second)
+        try:
+            _warm_worker_apply(("test/fixtures/linter/passing.sql", False, ref1, False))
+            old_cache = runner._worker_linter_cache
+            _warm_worker_apply(("test/fixtures/linter/passing.sql", False, ref2, False))
+            assert runner._worker_linter_cache is not old_cache
+            assert runner._worker_init_data["root_config"].get("dialect") == "postgres"
+        finally:
+            shm1.close()
+            shm1.unlink()
+            shm2.close()
+            shm2.unlink()
+
     def test_shm_data_merged_with_initializer_data(self):
         """Shared memory init data merges with pre-existing _worker_init_data."""
         config = FluffConfig(overrides={"dialect": "ansi"})
@@ -437,6 +455,33 @@ class TestWarmWorkerRunnerHelpers:
 
 class TestLptSortFiles:
     """Tests for LPT (Longest Processing Time) file scheduling."""
+
+    def test_runner_dispatches_in_templater_order(self, tmp_path, monkeypatch):
+        """Do not reorder the sequence supplied by the templater by file size."""
+        from unittest.mock import MagicMock
+
+        small = tmp_path / "dependency.sql"
+        large = tmp_path / "dependent.sql"
+        small.write_text("SELECT 1")
+        large.write_text("SELECT " + "col, " * 50 + "1")
+        config = FluffConfig(overrides={"dialect": "ansi"})
+        linter = Linter(config=config)
+        linter.templater = MockWarmTemplater()
+        runner_instance = WarmWorkerRunner(linter, config, processes=2)
+        pool = MagicMock()
+        monkeypatch.setattr(runner_instance, "POOL_TYPE", lambda **kwargs: pool)
+        dispatched = []
+
+        def collect(pool, tasks, fix):
+            dispatched.extend(task[0] for task in tasks)
+            return iter(())
+
+        monkeypatch.setattr(runner_instance, "_dispatch_and_collect", collect)
+        try:
+            list(runner_instance.run([str(small), str(large)], fix=False))
+            assert dispatched == [str(small), str(large)]
+        finally:
+            WarmWorkerRunner._terminate_pool(linter.templater)
 
     def test_sorts_by_size_descending(self, tmp_path):
         """Largest files should be dispatched first."""

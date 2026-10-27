@@ -42,6 +42,7 @@ PartialLintCallable = Callable[[], LintedFile]
 # module-level globals within each worker process.
 _worker_init_data: Optional[dict[str, Any]] = None
 _worker_linter_cache: Optional[Any] = None
+_worker_init_ref: Optional[tuple[str, int]] = None
 
 # Enable verbose warm worker logging via environment variable.
 _WARM_WORKER_DEBUG = os.environ.get("SQLFLUFF_WARM_WORKER_DEBUG", "").lower() in (
@@ -107,11 +108,10 @@ def _warm_worker_initializer(  # pragma: no cover
 def _warm_worker_receive_init(shm_info: tuple[str, int]) -> bool:  # pragma: no cover
     """Receive and merge init data from shared memory in a worker process.
 
-    Called via pool.map to broadcast init data to every worker before
-    dispatching real tasks. This guarantees all workers are initialized
-    regardless of imap_unordered scheduling.
+    Pool scheduling can send several calls to the same worker. Tasks also
+    check the shared-memory reference so workers missed here refresh lazily.
     """
-    global _worker_init_data, _worker_linter_cache
+    global _worker_init_data, _worker_linter_cache, _worker_init_ref
 
     # Reset cache so the next real task rebuilds with fresh init data.
     _worker_linter_cache = None
@@ -127,6 +127,7 @@ def _warm_worker_receive_init(shm_info: tuple[str, int]) -> bool:  # pragma: no 
         _worker_init_data.update(init_data_update)
     else:
         _worker_init_data = init_data_update
+    _worker_init_ref = shm_info
     _warm_worker_log(f"received init data ({shm_size / 1024:.1f} KB) via shared memory")
     return True
 
@@ -137,38 +138,22 @@ def _warm_worker_apply(
     """Worker function for warm workers that caches the templater.
 
     Tasks carry ``(fname, fix, shm_ref, retain_files)`` where ``shm_ref`` is a
-    ``(name, size)`` pair for fallback shared memory access. Normally
-    ``_worker_init_data`` is already populated by the broadcast call
-    to ``_warm_worker_receive_init`` before any tasks are dispatched.
-    The shared memory fallback handles replacement workers spawned by
-    the pool after a crash.
+    ``(name, size)`` pair identifying the current shared initialization data.
+    Each worker refreshes when that reference changes, including workers
+    missed by the pool broadcast and replacement workers after a crash.
     """
     import time
 
-    global _worker_init_data, _worker_linter_cache
+    global _worker_init_data, _worker_linter_cache, _worker_init_ref
 
     fname, fix, shm_ref, retain_files = args
     try:
+        if _worker_init_ref != shm_ref:
+            _warm_worker_receive_init(shm_ref)
         if _worker_linter_cache is None:
-            # Rebuild linter cache. Normally _worker_init_data was
-            # already populated by _warm_worker_receive_init broadcast.
+            # Rebuild after the first task or a change of initialization data.
             t0 = time.perf_counter()
-            if _worker_init_data is None or "root_config" not in _worker_init_data:
-                # Fallback: read from shared memory (replacement worker
-                # that missed the broadcast).
-                shm_name, shm_size = shm_ref
-                shm = SharedMemory(name=shm_name, create=False)
-                try:
-                    assert shm.buf is not None
-                    init_data_update = pickle.loads(shm.buf[:shm_size])
-                finally:
-                    shm.close()
-                if _worker_init_data is not None:
-                    _worker_init_data.update(init_data_update)
-                else:
-                    _worker_init_data = init_data_update
-                _warm_worker_log("fallback: read init data from shared memory")
-
+            assert _worker_init_data is not None
             root_config: FluffConfig = _worker_init_data["root_config"]
             linter = Linter(config=root_config)
             templater = root_config.get_templater()
@@ -755,8 +740,8 @@ class WarmWorkerRunner(MultiProcessRunner):
                 )
 
                 # Broadcast init data to all workers with a timeout
-                # so a hung worker doesn't block the main process
-                # forever. Workers are ready after this returns.
+                # so a hung worker doesn't block the main process forever.
+                # Workers missed by this step initialize on their first task.
                 _warm_worker_log("main: broadcasting init data to all workers")
                 pool.map_async(
                     _warm_worker_receive_init,
@@ -767,18 +752,14 @@ class WarmWorkerRunner(MultiProcessRunner):
                     f"main: reusing pool + manifest, setup {t_manifest - t_start:.3f}s"
                 )
 
-            # Step 5: Materialize file list and apply LPT scheduling.
+            # Step 5: Respect the templater's file ordering. Some templaters
+            # put dependencies first; sorting by size would destroy it.
             file_list = list(
                 templater.sequence_files(fnames, config=self.config, formatter=None)
             )
-            file_list = self._lpt_sort_files(file_list)
 
             if file_list:
-                _warm_worker_log(
-                    f"main: dispatching {len(file_list)} files "
-                    f"(largest={os.path.getsize(file_list[0])}B, "
-                    f"smallest={os.path.getsize(file_list[-1])}B)"
-                )
+                _warm_worker_log(f"main: dispatching {len(file_list)} files")
 
             # Step 6: Dispatch tasks and collect results.
             t_dispatch = time.perf_counter()

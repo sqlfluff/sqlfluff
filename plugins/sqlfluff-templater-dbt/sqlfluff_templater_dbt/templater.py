@@ -184,19 +184,24 @@ def warm_worker_setup(config_bytes: bytes) -> dict:  # pragma: no cover
     dbt_flags = importlib.import_module("dbt.flags")
     dbt_factory = importlib.import_module("dbt.adapters.factory")
     dbt_tracking = importlib.import_module("dbt.tracking")
-    dbt_sys = importlib.import_module("dbt_common.clients.system")
-    dbt_ctx = importlib.import_module("dbt_common.context")
+    templater = DbtTemplater()
+    dbt_version_tuple = templater.dbt_version_tuple
 
     dbt_tracking.do_not_track()
-    dbt_ctx.set_invocation_context(dbt_sys.get_env())
+    if dbt_version_tuple >= (1, 8):
+        dbt_sys = importlib.import_module("dbt_common.clients.system")
+        dbt_ctx = importlib.import_module("dbt_common.context")
+        dbt_ctx.set_invocation_context(dbt_sys.get_env())
+    # Workers have no output formatter. Match the main process's machine-readable
+    # output behavior so dbt event logs cannot corrupt JSON or YAML on stdout.
+    templater.try_silence_dbt_logs()
     dbt_flags.set_from_args(dbt_config, None)
     dbt_factory.FACTORY.load_plugin(dbt_config.credentials.type)
 
-    try:
+    if dbt_version_tuple >= (1, 8):
         dbt_mp = importlib.import_module("dbt.mp_context")
         dbt_factory.register_adapter(dbt_config, dbt_mp.get_mp_context())
-    except (ImportError, ModuleNotFoundError):
-        # dbt.mp_context not available in older dbt versions.
+    else:
         dbt_factory.register_adapter(dbt_config)
 
     return {"dbt_config": dbt_config}
