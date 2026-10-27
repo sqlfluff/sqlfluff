@@ -1,0 +1,82 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 56bdaec275ea8f539685d4a0e9205d6543caf007455bcd873234992ccc6aea00
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_udf
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: my_udf
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
+    - keyword: LANGUAGE
+    - keyword: JAVA
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SYSTEM
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: my_udf
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_udf
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
+    - keyword: LANGUAGE
+    - keyword: SCALA
+    - keyword: USING
+    - keyword: JAR
+    - quoted_literal: "'file:///opt/lib/a.jar'"
+    - comma: ','
+    - keyword: JAR
+    - quoted_literal: "'file:///opt/lib/b.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_udf
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
+    - keyword: USING
+    - keyword: ARTIFACT
+    - quoted_literal: "'s3://bucket/a.jar'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'k'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'v'"
+      - end_bracket: )
+- statement_terminator: ;
