@@ -102,8 +102,8 @@ class SegmentSeekerCrawler(BaseCrawler):
                 context.raw_stack += (cast(RawSegment, context.segment),)
             return
 
-        # Check whether one of the targets is present (set intersection)
-        if not self.types & context.segment.descendant_type_set:
+        # Check whether one of the targets is present.
+        if self.types.isdisjoint(context.segment.descendant_type_set):
             # None present. Don't look further.
             # This aggressive pruning helps performance.
             # Track raw stack if required.
@@ -117,6 +117,31 @@ class SegmentSeekerCrawler(BaseCrawler):
         # Given we know that one is present in here somewhere, search for it.
         new_parent_stack = context.parent_stack + (context.segment,)
         for idx, child in enumerate(context.segment.segments):
+            # Handle children with no children of their own here, and skip
+            # children which neither match nor contain a match, rather than
+            # starting a crawl of each. Either way this does exactly what that
+            # crawl would have done.
+            if not child.segments:
+                if self.is_self_match(child) and self.passes_filter(child):
+                    context.segment = child
+                    context.parent_stack = new_parent_stack
+                    context.segment_idx = idx
+                    yield context
+                    if self.provide_raw_stack:
+                        context.raw_stack += (cast(RawSegment, child),)
+                elif self.provide_raw_stack:
+                    context.raw_stack += (
+                        (cast(RawSegment, child),)
+                        if self.passes_filter(child)
+                        else tuple(child.raw_segments)
+                    )
+                continue
+            if self.types.isdisjoint(
+                child.descendant_type_set
+            ) and not self.is_self_match(child):
+                if self.provide_raw_stack:
+                    context.raw_stack += tuple(child.raw_segments)
+                continue
             # For performance reasons, don't create a new RuleContext for
             # each segment; just modify the existing one in place. This
             # requires some careful bookkeeping, but it avoids creating a
