@@ -152,7 +152,28 @@ class Selectable:
                             if next_seg.is_type("alias_expression"):
                                 alias_expr = next_seg
                                 break
-                            elif next_seg.is_code:
+                            elif next_seg.is_type(
+                                "table_reference",
+                                "where_clause",
+                                "set_clause_list",
+                                "from_clause",
+                                "from_expression",
+                                "merge_match",
+                                "join_on_condition",
+                                "select_statement",
+                            ) or (
+                                next_seg.is_type("keyword")
+                                and next_seg.raw_upper
+                                in {
+                                    "USING",
+                                    "SET",
+                                    "WHERE",
+                                    "ON",
+                                    "WHEN",
+                                    "JOIN",
+                                    "FROM",
+                                }
+                            ):
                                 break
                     dml_tables.append((tr, alias_expr))
 

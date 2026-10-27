@@ -1638,10 +1638,18 @@ test_pass_postgres_delete_where_exists_correlated_unqualified_8714:
         single_table_references: unqualified
 
 test_pass_tsql_update_cross_apply_correlated_unqualified_8714:
-  # The APPLY subquery in UPDATE ... FROM can see the target and joined tables.
+  # The APPLY subquery in UPDATE ... FROM can see both target and joined outer tables.
   # https://github.com/sqlfluff/sqlfluff/issues/8714
   pass_str: |
-    update o set x = s.j from orders as o cross apply (select l.x as j from lines as l where l.id = o.id) as s;
+    update o
+    set x = s.j
+    from orders as o
+    inner join customers as c on o.cust_id = c.id
+    cross apply (
+        select l.x as j
+        from lines as l
+        where l.id = o.id and l.cust_id = c.id
+    ) as s;
   configs:
     core:
       dialect: tsql
@@ -1653,7 +1661,23 @@ test_pass_tsql_merge_update_subquery_correlated_unqualified_8714:
   # The subquery in the UPDATE SET clause of a MERGE statement can see target and source tables.
   # https://github.com/sqlfluff/sqlfluff/issues/8714
   pass_str: |
-    merge into t using s on t.id = s.id when matched then update set t.y = (select m.y from m where m.id = t.id);
+    merge into t using s on t.id = s.id when matched then update set t.y = (select m.y from m where m.id = t.id and m.id = s.id);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_merge_hinted_subquery_correlated_unqualified_8714:
+  # In T-SQL MERGE with a table hint, the alias following `WITH (...)` is recognized.
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  pass_str: |
+    merge into target with (holdlock) as t
+    using source as s on t.id = s.id
+    when matched then update set t.y = (
+        select m.y from m where m.id = t.id and m.id = s.id
+    );
   configs:
     core:
       dialect: tsql
