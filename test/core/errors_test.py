@@ -5,9 +5,10 @@ import pickle
 
 import pytest
 
+from sqlfluff.core import Linter
 from sqlfluff.core.errors import SQLBaseError, SQLLexError, SQLLintError, SQLParseError
-from sqlfluff.core.parser import PositionMarker, RawSegment
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.parser import PositionMarker, RawSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintFix
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 
@@ -49,12 +50,48 @@ def test__error_source_positions(error_class, slice_type, source_slice):
     assert {key: result[key] for key in expected} == expected
 
 
+@pytest.mark.parametrize(
+    "sql,end_file_pos",
+    [("SELECT foo", 10), ("SELECT {{ 'foo' }}", 18)],
+)
+def test__lint_error_source_positions_with_fix(sql, end_file_pos):
+    """A single insertion fix must not replace the diagnostic's source span."""
+    parsed = Linter(dialect="ansi").parse_string(sql)
+    assert parsed.tree
+    segment = next(parsed.tree.recursive_crawl("column_reference"))
+    fix = LintFix.create_before(segment, [WhitespaceSegment()])
+    result = SQLLintError("Foo", segment=segment, rule=Rule_T078, fixes=[fix]).to_dict()
+    expected = {
+        "start_line_no": 1,
+        "start_line_pos": 8,
+        "start_file_pos": 7,
+        "end_line_no": 1,
+        "end_line_pos": end_file_pos + 1,
+        "end_file_pos": end_file_pos,
+    }
+    assert {key: result[key] for key in expected} == expected
+    assert result["fixes"] == [
+        {
+            "type": "create_before",
+            "edit": " ",
+            "start_line_no": 1,
+            "start_line_pos": 8,
+            "start_file_pos": 7,
+            "end_line_no": 1,
+            "end_line_pos": 8,
+            "end_file_pos": 7,
+        }
+    ]
+
+
 def test__parse_error_without_segment_positions():
     """Errors without a source segment retain their supplied start position."""
     result = SQLParseError("Foo", line_no=2, line_pos=3).to_dict()
     assert result["start_line_no"] == 2
     assert result["start_line_pos"] == 3
     assert "start_file_pos" not in result
+    assert "end_line_no" not in result
+    assert "end_line_pos" not in result
     assert "end_file_pos" not in result
 
 
