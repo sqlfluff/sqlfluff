@@ -374,10 +374,7 @@ flink_dialect.add(
             allow_gaps=False,
         ),
         Bracketed(
-            AnyNumberOf(
-                Ref("FlinkPatternTermGrammar"),
-                min_times=1,
-            ),
+            Ref("FlinkPatternSegment"),
         ),
     ),
 )
@@ -399,12 +396,34 @@ class FlinkArrayExpressionSegment(BaseSegment):
     )
 
 
+class FunctionNameSegment(ansi.FunctionNameSegment):
+    """A function name that supports Flink backtick-quoted identifiers."""
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("BackQuotedIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        allow_gaps=False,
+    )
+
+
 flink_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    FunctionNameSegment=FunctionNameSegment,
     # Extended to support TABLE and DESCRIPTOR arguments in TVFs
     FunctionContentsExpressionGrammar=OneOf(
         Ref("TableArgSegment"),
@@ -791,9 +810,12 @@ class FlinkPatternSegment(BaseSegment):
     """A row pattern for FlinkSQL `MATCH_RECOGNIZE`."""
 
     type = "pattern_expression"
-    match_grammar = AnyNumberOf(
-        Ref("FlinkPatternTermGrammar"),
-        min_times=1,
+    match_grammar = Delimited(
+        AnyNumberOf(
+            Ref("FlinkPatternTermGrammar"),
+            min_times=1,
+        ),
+        delimiter=Ref("BitwiseOrSegment"),
     )
 
 

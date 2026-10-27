@@ -33,3 +33,36 @@ FROM Ticker
             D AS TRUE
     ) matches
 ORDER BY symbol;
+
+SELECT *
+FROM Ticker
+    MATCH_RECOGNIZE (
+        PARTITION BY symbol
+        ORDER BY rowtime
+        MEASURES
+            A.price AS price
+        ONE ROW PER MATCH
+        PATTERN (A+ B | C+ D)
+        DEFINE
+            A AS TRUE,
+            B AS TRUE,
+            C AS TRUE,
+            D AS TRUE
+    ) matches;
+
+SELECT *
+FROM Ticker
+    MATCH_RECOGNIZE (
+        PARTITION BY symbol
+        ORDER BY rowtime
+        MEASURES
+            A.price AS price
+        ONE ROW PER MATCH
+        PATTERN ((A B | C D) E)
+        DEFINE
+            A AS TRUE,
+            B AS TRUE,
+            C AS TRUE,
+            D AS TRUE,
+            E AS TRUE
+    ) matches;

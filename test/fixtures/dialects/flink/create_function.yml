@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 56bdaec275ea8f539685d4a0e9205d6543caf007455bcd873234992ccc6aea00
+_hash: bcd441c16c966cb184228e6dd1a167de74028e25abf768c6f0c09c80f5f93628
 file:
 - statement:
     create_function_statement:
@@ -79,4 +79,24 @@ file:
           raw_comparison_operator: '='
       - quoted_literal: "'v'"
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        quoted_identifier: '`my-udf`'
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - quoted_identifier: '`my_db`'
+      - dot: .
+      - quoted_identifier: '`my-udf`'
+    - keyword: AS
+    - quoted_literal: "'com.example.Udf'"
 - statement_terminator: ;

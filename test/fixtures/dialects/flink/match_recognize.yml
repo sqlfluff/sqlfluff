@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 95f66fcee97f3ef2f7e2710d647d0cd122046d136427019df8d25bebfb3ae2bc
+_hash: 1a42004b65f88b76aa73dcc8483a70765b1bc88fad3bf9964557ed5f0d5a830a
 file:
 - statement:
     select_statement:
@@ -270,4 +270,174 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: symbol
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Ticker
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: symbol
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: rowtime
+            - keyword: MEASURES
+            - expression:
+                column_reference:
+                - naked_identifier: A
+                - dot: .
+                - naked_identifier: price
+            - alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: price
+            - keyword: ONE
+            - keyword: ROW
+            - keyword: PER
+            - keyword: MATCH
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                - naked_identifier: A
+                - sign_indicator: +
+                - naked_identifier: B
+                - binary_operator:
+                    pipe: '|'
+                - naked_identifier: C
+                - sign_indicator: +
+                - naked_identifier: D
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: B
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: C
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: D
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - end_bracket: )
+          alias_expression:
+            naked_identifier: matches
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Ticker
+          match_recognize_clause:
+            keyword: MATCH_RECOGNIZE
+            bracketed:
+            - start_bracket: (
+            - partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: symbol
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: rowtime
+            - keyword: MEASURES
+            - expression:
+                column_reference:
+                - naked_identifier: A
+                - dot: .
+                - naked_identifier: price
+            - alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: price
+            - keyword: ONE
+            - keyword: ROW
+            - keyword: PER
+            - keyword: MATCH
+            - keyword: PATTERN
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                  bracketed:
+                    start_bracket: (
+                    pattern_expression:
+                    - naked_identifier: A
+                    - naked_identifier: B
+                    - binary_operator:
+                        pipe: '|'
+                    - naked_identifier: C
+                    - naked_identifier: D
+                    end_bracket: )
+                  naked_identifier: E
+                end_bracket: )
+            - keyword: DEFINE
+            - naked_identifier: A
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: B
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: C
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: D
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - comma: ','
+            - naked_identifier: E
+            - keyword: AS
+            - expression:
+                boolean_literal: 'TRUE'
+            - end_bracket: )
+          alias_expression:
+            naked_identifier: matches
 - statement_terminator: ;
