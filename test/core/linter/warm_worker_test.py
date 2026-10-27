@@ -2,6 +2,7 @@
 
 import os
 import pickle
+import signal
 import sys
 import types
 from multiprocessing.shared_memory import SharedMemory
@@ -175,10 +176,14 @@ class TestWarmWorkerInitializer:
     def setup_method(self):
         """Reset globals before each test."""
         runner._worker_init_data = None
+        self._process_token = runner.is_main_process.set(runner.is_main_process.get())
+        self._sigint_handler = signal.getsignal(signal.SIGINT)
 
     def teardown_method(self):
         """Reset globals after each test."""
         runner._worker_init_data = None
+        runner.is_main_process.reset(self._process_token)
+        signal.signal(signal.SIGINT, self._sigint_handler)
 
     def test_imports_specified_modules(self):
         """Modules listed in init_modules are importable after init."""
