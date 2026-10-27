@@ -49,22 +49,18 @@ class StandaloneLineMatcher(Matchable):
 
     @staticmethod
     def _skip_gaps_forward(segments: Sequence[BaseSegment], idx: int) -> int:
-        """Move ``idx`` forward past any whitespace, comment or meta segments."""
+        """Move ``idx`` forward past any whitespace or meta segments."""
         while idx < len(segments) and (
-            segments[idx].is_meta
-            or segments[idx].is_type("whitespace")
-            or segments[idx].is_type("comment")
+            segments[idx].is_meta or segments[idx].is_type("whitespace")
         ):
             idx += 1
         return idx
 
     @staticmethod
     def _skip_gaps_backward(segments: Sequence[BaseSegment], idx: int) -> int:
-        """Move ``idx`` backward past any whitespace, comment or meta segments."""
+        """Move ``idx`` backward past any whitespace or meta segments."""
         while idx >= 0 and (
-            segments[idx].is_meta
-            or segments[idx].is_type("whitespace")
-            or segments[idx].is_type("comment")
+            segments[idx].is_meta or segments[idx].is_type("whitespace")
         ):
             idx -= 1
         return idx
@@ -79,11 +75,10 @@ class StandaloneLineMatcher(Matchable):
 
         "Alone" means that from the start of the line up to the match, and
         from the end of the match to the end of the line, there is nothing
-        except whitespace, comments, meta segments or the newline itself. A
-        match at the very beginning or end of the file is also considered
-        standalone. Comments are treated as gaps rather than code so that a
-        trailing comment on the same line (``/ -- run it``) does not stop the
-        delimiter from being recognised.
+        except whitespace, meta segments or the newline itself. A match at the
+        very beginning or end of the file is also considered standalone. A
+        comment on the same line prevents the match: SQL*Plus requires its
+        slash command to occupy a line by itself.
         """
         inner_match = self.matcher.match(segments, idx, parse_context)
         if not inner_match:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2c1bdddec9b93f0fcd061823494e5d6e19d5bacc7c7657314d665f5fa103216f
+_hash: 4b48f12e90767c0c9c60afb6846e8a9cb1f5d9830eef513da1f94af8841b1cb4
 file:
 - batch:
   - statement:
@@ -477,35 +477,25 @@ file:
       - keyword: CREATE
       - keyword: VIEW
       - table_reference:
-          naked_identifier: COMMENTED_VIEW
+          naked_identifier: COMMENTED_DIVISION_VIEW
       - keyword: AS
       - select_statement:
           select_clause:
             keyword: SELECT
             select_clause_element:
-              column_reference:
-                naked_identifier: a
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '2'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: RATIO
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    naked_identifier: t
-    slash_buffer_executor:
-      slash: /
-- batch:
-    statement:
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            numeric_literal: '1'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: dual
+                    naked_identifier: DUAL
     statement_terminator: ;

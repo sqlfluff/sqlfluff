@@ -1384,18 +1384,11 @@ impl<'a> Parser<'a> {
         true
     }
 
-    /// Skip whitespace, comment and meta tokens forwards from `idx`.
-    ///
-    /// Comments count as gaps rather than code here, so that a delimiter
-    /// followed by a trailing comment on the same line (`/ -- run it`) still
-    /// stands alone.
+    /// Skip whitespace and meta tokens forwards from `idx`.
     fn skip_gaps_forward(&self, mut idx: usize) -> usize {
         while idx < self.tokens.len() {
             let tok = &self.tokens[idx];
-            if tok.is_meta
-                || tok.token_type.as_ref() == "whitespace"
-                || tok.token_type.contains("comment")
-            {
+            if tok.is_meta || tok.token_type.as_ref() == "whitespace" {
                 idx += 1;
             } else {
                 break;
@@ -1404,14 +1397,11 @@ impl<'a> Parser<'a> {
         idx
     }
 
-    /// Skip whitespace, comment and meta tokens backwards from `idx`.
+    /// Skip whitespace and meta tokens backwards from `idx`.
     fn skip_gaps_backward(&self, mut idx: isize) -> isize {
         while idx >= 0 {
             let tok = &self.tokens[idx as usize];
-            if tok.is_meta
-                || tok.token_type.as_ref() == "whitespace"
-                || tok.token_type.contains("comment")
-            {
+            if tok.is_meta || tok.token_type.as_ref() == "whitespace" {
                 idx -= 1;
             } else {
                 break;
@@ -1433,9 +1423,9 @@ impl<'a> Parser<'a> {
 
     /// Handle StandaloneLine using table-driven approach.
     ///
-    /// Matches the inner raw string only when it is the sole code token on its
-    /// line: the nearest code tokens on either side must be newlines, or the
-    /// start / end of the stream.
+    /// Matches the inner raw string only when it is the sole non-whitespace,
+    /// non-meta token on its line. Comments therefore prevent a match, as the
+    /// SQL*Plus slash command must occupy the line by itself.
     pub(crate) fn handle_standalone_line(
         &mut self,
         grammar_id: GrammarId,

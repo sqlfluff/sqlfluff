@@ -63,14 +63,15 @@ def test_standalone_line_matcher_no_match(
     assert not slash_matcher.match(segments, idx, ctx)
 
 
-def _replace_with_comment(generate_test_segments, seeds, elem):
-    """Generate the segments, then swap one element for a real CommentSegment.
+def _generate_segments_with_comment(generate_test_segments, seeds, elem):
+    """Generate segments, replacing block comments with a CommentSegment.
 
-    ``generate_test_segments`` has no way of producing comments, so the segment
-    is generated as code first and then replaced with a comment carrying the
-    same position marker.
+    ``generate_test_segments`` already emits inline ``--`` comments. It does
+    not recognise block comments, so only that form needs replacing here.
     """
     segments = list(generate_test_segments(seeds))
+    if elem.startswith("--"):
+        return segments
     idx = seeds.index(elem)
     original = segments[idx]
     segments[idx] = CommentSegment(original.raw, pos_marker=original.pos_marker)
@@ -80,21 +81,19 @@ def _replace_with_comment(generate_test_segments, seeds, elem):
 @pytest.mark.parametrize(
     "seeds,idx",
     [
-        # A trailing comment on the delimiter's line is not code.
+        # A trailing inline comment occupies the delimiter's line.
         (["\n", "/", " ", "-- note", "\n"], 1),
-        # A leading block comment on the delimiter's line is not code either.
+        # A leading block comment also occupies the delimiter's line.
         (["\n", "/* note */", " ", "/", "\n"], 3),
     ],
 )
-def test_standalone_line_matcher_ignores_comments(
+def test_standalone_line_matcher_rejects_comments(
     generate_test_segments, slash_matcher, ctx, seeds, idx
 ):
-    """Comments count as gaps, so a delimiter sharing their line still matches."""
+    """A delimiter sharing its line with a comment is not standalone."""
     comment = next(elem for elem in seeds if "note" in elem)
-    segments = _replace_with_comment(generate_test_segments, seeds, comment)
-    match = slash_matcher.match(segments, idx, ctx)
-    assert match
-    assert match.matched_slice == slice(idx, idx + 1)
+    segments = _generate_segments_with_comment(generate_test_segments, seeds, comment)
+    assert not slash_matcher.match(segments, idx, ctx)
 
 
 def test_standalone_line_matcher_returns_inner_match(
