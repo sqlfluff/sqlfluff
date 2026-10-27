@@ -259,6 +259,7 @@ class Rule_CV06(BaseRule):
         return LintResult(
             anchor=info.anchor_segment,
             fixes=fixes,
+            description="Semi-colon should be immediately after the statement.",
         )
 
     def _handle_semicolon_newline(
@@ -340,6 +341,9 @@ class Rule_CV06(BaseRule):
         return LintResult(
             anchor=anchor_segment,
             fixes=fixes,
+            description=(
+                "Semi-colon should be on a new line after a multi-line statement."
+            ),
         )
 
     def _create_semicolon_and_delete_whitespace(
