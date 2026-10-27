@@ -119,8 +119,10 @@ class SegmentSeekerCrawler(BaseCrawler):
         for idx, child in enumerate(context.segment.segments):
             # Handle children with no children of their own here, and skip
             # children which neither match nor contain a match, rather than
-            # starting a crawl of each. Either way this does exactly what that
-            # crawl would have done.
+            # starting a crawl of each. The result is the same as this method
+            # gives for that child, as long as is_self_match() and
+            # passes_filter() have no side effects. A subclass's override of
+            # crawl() is not called for these children.
             if not child.segments:
                 if self.is_self_match(child) and self.passes_filter(child):
                     context.segment = child
