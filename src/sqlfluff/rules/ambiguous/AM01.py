@@ -48,12 +48,12 @@ class Rule_AM01(BaseRule):
         # Do we have a group by clause
         if segment.children(sp.is_type("groupby_clause")):
             # Do we have the "DISTINCT" keyword in the select clause
-            distinct = (
-                segment.children(sp.is_type("select_clause"))
-                .children(sp.is_type("select_clause_modifier"))
-                .children(sp.is_type("keyword"))
-                .select(sp.is_keyword("distinct"))
+            modifier = segment.children(sp.is_type("select_clause")).children(
+                sp.is_type("select_clause_modifier")
             )
-            if distinct:
+            distinct = modifier.children(sp.is_keyword("distinct"))
+            # DISTINCT ON (...) keeps one row per value of its expressions,
+            # so GROUP BY doesn't make it redundant.
+            if distinct and not modifier.children(sp.is_keyword("on")):
                 return LintResult(anchor=distinct[0])
         return None
