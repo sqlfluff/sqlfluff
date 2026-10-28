@@ -2648,9 +2648,12 @@ class AlterTableStatementSegment(BaseSegment):
             Sequence(
                 "WITH",
                 "TABLE",
-                Ref("TableReference"),
-                OneOf("WITH", "WITHOUT"),
-                "VALIDATION",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    OneOf("WITH", "WITHOUT"),
+                    "VALIDATION",
+                    optional=True,
+                ),
                 optional=True,
             ),
             Sequence(
