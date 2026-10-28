@@ -35,6 +35,23 @@ def _byte_positions(value: str) -> dict[int, int]:
     return positions
 
 
+def _validate_blocks(sliced: list[TemplatedFileSlice]) -> None:
+    """Reject invalid layout before it can underflow the lexer's block stack."""
+    depth = 0
+    for item in sliced:
+        if item.slice_type == "block_start":
+            depth += 1
+        elif item.slice_type == "block_end":
+            if not depth:
+                raise ValueError(
+                    "unmatched block_end in dbt trace at source offset "
+                    f"{item.source_slice.start}; update the dbt trace exporter"
+                )
+            depth -= 1
+    if depth:
+        raise ValueError("unclosed Jinja blocks in dbt trace")
+
+
 def trace_to_templated_file(
     trace: dict[str, Any], source: str, fname: str
 ) -> TemplatedFile:
@@ -166,6 +183,7 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
         omitted(len(source))
     if not sliced:
         sliced = [TemplatedFileSlice("literal", slice(0, 0), slice(0, 0))]
+    _validate_blocks(sliced)
     return TemplatedFile(
         source_str=source,
         fname=fname,

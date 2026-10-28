@@ -1,6 +1,8 @@
 """Validate real upstream provenance and reject unsafe source mappings."""
 
 import copy
+import json
+from pathlib import Path
 
 import pytest
 from sqlfluff_templater_dbt2.trace import normalize_newlines, trace_to_templated_file
@@ -115,3 +117,14 @@ def test_protocol_compatibility_not_commit_identity(traces):
     trace["dbt_version"] = "2.99.0"
     trace["new_optional_metadata"] = True
     assert trace_to_templated_file(trace, trace["source"], "m.sql").templated_str
+
+
+def test_elif_duplicate_close_is_a_templater_error():
+    """The original producer bug must not reach the Rust lexer's block stack."""
+    trace = json.loads(
+        (Path(__file__).parent / "fixtures/elif_duplicate.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    with pytest.raises(SQLTemplaterError, match="unmatched block_end"):
+        trace_to_templated_file(trace, trace["source"], "model.sql")

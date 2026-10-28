@@ -88,6 +88,9 @@ macro output remains nonliteral and is not eligible for direct source fixes.
 The trace describes Jinja SQL **before ephemeral CTE injection**. The consumer
 uses the trace's own `rendered` string, not the final compiled SQL file.
 Unknown, stale, ambiguous or incomplete provenance is rejected.
+Unbalanced Jinja layout is rejected before lexer work is dispatched, so malformed
+traces from an older exporter produce templater errors instead of block-stack
+panics in lint workers.
 
 ## Tests
 

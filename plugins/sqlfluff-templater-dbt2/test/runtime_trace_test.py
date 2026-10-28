@@ -1,5 +1,8 @@
 """Run SQLFluff's real lexer, linter and fixer on upstream render provenance."""
 
+import json
+from pathlib import Path
+
 import pytest
 from sqlfluff_templater_dbt2.templater import Dbt2Templater
 from sqlfluff_templater_dbt2.trace import normalize_newlines
@@ -65,3 +68,19 @@ def test_project_trace(traces, monkeypatch):
     )
     assert result.fix_string()[0] == expected
     assert result.check_tuples()[0] == ("CP01", 3, 1)
+
+
+def test_invalid_elif_layout_does_not_crash_linting(monkeypatch):
+    """Surface invalid upstream provenance before lexer work is dispatched."""
+    trace = json.loads(
+        (Path(__file__).parent / "fixtures/elif_duplicate.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    monkeypatch.setattr(Dbt2Templater, "_runtime", lambda *_: trace)
+    result = Linter(config=make_config()).lint_string(
+        trace["source"], fname="model.sql", fix=True
+    )
+    errors = result.get_violations(types=SQLTemplaterError)
+    assert len(errors) == 1
+    assert "unmatched block_end" in str(errors[0])
