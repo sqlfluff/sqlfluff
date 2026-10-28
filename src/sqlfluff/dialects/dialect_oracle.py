@@ -1805,6 +1805,67 @@ class FetchClauseSegment(ansi.FetchClauseSegment):
     )
 
 
+# Keywords which can begin a statement. A comment is only accepted on the
+# delimiter's line when what follows starts a new statement: otherwise a
+# line-leading slash is more likely a division whose right operand is on the
+# following line, and treating that as a delimiter truncates the statement.
+ORACLE_STATEMENT_STARTERS = frozenset(
+    {
+        "ACCEPT",
+        "ALTER",
+        "ANALYZE",
+        "AUDIT",
+        "BEGIN",
+        "CALL",
+        "COLUMN",
+        "COMMENT",
+        "COMMIT",
+        "CONNECT",
+        "CREATE",
+        "DECLARE",
+        "DEFINE",
+        "DELETE",
+        "DESC",
+        "DESCRIBE",
+        "DISCONNECT",
+        "DROP",
+        "EXEC",
+        "EXECUTE",
+        "EXIT",
+        "EXPLAIN",
+        "FLASHBACK",
+        "GRANT",
+        "HOST",
+        "INSERT",
+        "LOCK",
+        "MERGE",
+        "NOAUDIT",
+        "PAUSE",
+        "PRINT",
+        "PROMPT",
+        "PURGE",
+        "REM",
+        "REMARK",
+        "RENAME",
+        "REVOKE",
+        "ROLLBACK",
+        "SAVEPOINT",
+        "SELECT",
+        "SET",
+        "SHOW",
+        "SPOOL",
+        "START",
+        "TRUNCATE",
+        "UNDEFINE",
+        "UPDATE",
+        "VALIDATE",
+        "VARIABLE",
+        "WHENEVER",
+        "WITH",
+    }
+)
+
+
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement."""
 
@@ -1833,7 +1894,10 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             # it sits on a line of its own. Using the raw batch delimiter as a
             # terminator here would also match division, e.g. `SELECT 1 / 100`.
             terminators=[
-                StandaloneLineMatcher(StringParser("/", SymbolSegment, type="slash"))
+                StandaloneLineMatcher(
+                    StringParser("/", SymbolSegment, type="slash"),
+                    resume_keywords=sorted(ORACLE_STATEMENT_STARTERS),
+                )
             ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),

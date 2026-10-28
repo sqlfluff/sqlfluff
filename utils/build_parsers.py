@@ -1326,7 +1326,15 @@ class TableBuilder:
 
         template_id = self._add_string(inner.template)
         aux_offset = len(self.aux_data)
+        # The aux block is [template_id, keyword_count, keyword_ids...]. The
+        # count keeps the block self-delimiting: neighbouring grammars can
+        # have smaller or absent aux offsets, so the next offset is not a
+        # reliable end bound (see aux_block_bounds in parser/core.rs).
         self.aux_data.append(template_id)
+        self.aux_data.append(len(grammar.resume_keywords))
+        self.aux_data.extend(
+            self._add_string(word) for word in sorted(grammar.resume_keywords)
+        )
 
         hint_id = self._add_simple_hint(grammar, parse_context)
 

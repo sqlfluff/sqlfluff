@@ -1442,13 +1442,54 @@ impl<'a> Parser<'a> {
             return Ok(MatchResult::empty_at(self.pos));
         }
 
+        let tables = self.grammar_ctx.tables();
+        let (aux_offset, aux_end) = aux_block_bounds(tables, grammar_id);
+        // aux block: [template_id, keyword_count, keyword_ids...]. The count
+        // keeps the keyword list self-delimiting: aux_data blocks are not
+        // stored in grammar-id order, so `aux_end` can only be an upper bound.
+        let keyword_start = aux_offset + 2;
+        let keyword_count = if aux_offset + 1 < aux_end {
+            tables.aux_data[aux_offset + 1] as usize
+        } else {
+            0
+        };
+        let keyword_ids: &[u32] = if keyword_start < aux_end {
+            &tables.aux_data[keyword_start..(keyword_start + keyword_count).min(aux_end)]
+        } else {
+            &[]
+        };
         let next = self.skip_gaps_forward(self.pos + 1);
         if !self.is_line_boundary(next as isize) {
-            return Ok(MatchResult::empty_at(self.pos));
+            if keyword_ids.is_empty() || !self.tokens[next].is_comment() {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+            let mut i = next;
+            while i < self.tokens.len()
+                && (self.tokens[i].is_comment()
+                    || self.tokens[i].is_meta
+                    || self.tokens[i].token_type.as_ref() == "whitespace")
+            {
+                i += 1;
+            }
+            if i < self.tokens.len() && self.tokens[i].token_type.as_ref() != "newline" {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+            while i < self.tokens.len()
+                && (self.tokens[i].is_comment()
+                    || self.tokens[i].is_meta
+                    || self.tokens[i].token_type.as_ref() == "whitespace"
+                    || self.tokens[i].token_type.as_ref() == "newline")
+            {
+                i += 1;
+            }
+            if i < self.tokens.len()
+                && !keyword_ids
+                    .iter()
+                    .any(|id| self.tokens[i].raw_upper() == tables.get_string(*id))
+            {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
         }
-
-        let tables = self.grammar_ctx.tables();
-        let aux_offset = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let expected = tables.get_string(tables.aux_data[aux_offset]);
 
         if self.tokens[self.pos].raw_upper() != expected {

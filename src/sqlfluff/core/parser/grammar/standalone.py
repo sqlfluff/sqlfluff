@@ -30,8 +30,9 @@ class StandaloneLineMatcher(Matchable):
             :func:`sqlfluff.core.parser.match_algorithms.next_match`.
     """
 
-    def __init__(self, matcher: Matchable) -> None:
+    def __init__(self, matcher: Matchable, resume_keywords: Sequence[str] = ()) -> None:
         self.matcher = matcher
+        self.resume_keywords = frozenset(k.upper() for k in resume_keywords)
 
     def is_optional(self) -> bool:
         """A standalone line matcher is never optional."""
@@ -45,7 +46,15 @@ class StandaloneLineMatcher(Matchable):
 
     def cache_key(self) -> str:
         """Get the cache key for the matcher."""
-        return "standalone-line-" + self.matcher.cache_key()
+        return (
+            "standalone-line-"
+            + self.matcher.cache_key()
+            + (
+                "-" + ",".join(sorted(self.resume_keywords))
+                if self.resume_keywords
+                else ""
+            )
+        )
 
     @staticmethod
     def _skip_gaps_forward(segments: Sequence[BaseSegment], idx: int) -> int:
@@ -92,6 +101,49 @@ class StandaloneLineMatcher(Matchable):
         # Check the content of the line after the match.
         after = self._skip_gaps_forward(segments, inner_match.matched_slice.stop)
         if after < len(segments) and not segments[after].is_type("newline"):
-            return MatchResult.empty_at(idx)
-
+            # A comment may share the delimiter's line, but only if the line
+            # after it starts a new statement. Otherwise the slash is more
+            # likely a division whose right operand is on the next line.
+            if not self.resume_keywords or not self._comment_closes_line(
+                segments, after
+            ):
+                return MatchResult.empty_at(idx)
         return inner_match
+
+    def _comment_closes_line(self, segments: Sequence[BaseSegment], idx: int) -> bool:
+        """Check whether a trailing comment ends its line and starts nothing.
+
+        Args:
+            segments: The sequence being matched.
+            idx: Index of the first segment after the delimiter. It must be a
+                comment for this check to have anything to allow.
+
+        Returns:
+            True if only gaps and then a newline (or the end of the sequence)
+            follow the comment, and the next line starts a new statement.
+        """
+        if not segments[idx].is_type("comment"):
+            return False
+        idx += 1
+        while idx < len(segments) and (
+            segments[idx].is_meta
+            or segments[idx].is_type("whitespace")
+            or segments[idx].is_type("comment")
+        ):
+            idx += 1
+        if idx >= len(segments):
+            return True  # End of file: the comment is the last thing.
+        if not segments[idx].is_type("newline"):
+            return False
+        # Skip the newline and any blank or commented-out lines to see what
+        # the next statement starts with.
+        while idx < len(segments) and (
+            segments[idx].is_meta
+            or segments[idx].is_type("whitespace")
+            or segments[idx].is_type("comment")
+            or segments[idx].is_type("newline")
+        ):
+            idx += 1
+        if idx >= len(segments):
+            return True
+        return segments[idx].raw.upper() in self.resume_keywords

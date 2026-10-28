@@ -123,3 +123,52 @@ def test_standalone_line_matcher_cache_key(slash_matcher):
         slash_matcher.cache_key()
         == "standalone-line-" + slash_matcher.matcher.cache_key()
     )
+
+
+def test_standalone_line_matcher_cache_key_with_keywords():
+    """Configured resume keywords are part of the cache key, in sorted order."""
+    lenient = StandaloneLineMatcher(
+        StringParser("/", SymbolSegment, type="slash"),
+        resume_keywords=("SELECT", "create"),
+    )
+    assert lenient.cache_key() == (
+        "standalone-line-" + lenient.matcher.cache_key() + "-CREATE,SELECT"
+    )
+    # An empty keyword set leaves the strict key unchanged.
+    strict = StandaloneLineMatcher(
+        StringParser("/", SymbolSegment, type="slash"), resume_keywords=()
+    )
+    assert strict.cache_key() == "standalone-line-" + strict.matcher.cache_key()
+
+
+@pytest.mark.parametrize(
+    "seeds,idx,keywords,expected",
+    [
+        # The comment ends the file, so the delimiter line cannot continue.
+        (["\n", "/", " ", "-- note"], 1, ("CREATE",), True),
+        # The next line starts a statement.
+        (["\n", "/", " ", "-- note", "\n", "CREATE"], 1, ("CREATE",), True),
+        # Blank and comment-only lines between the delimiter and the statement.
+        (
+            ["\n", "/", " ", "-- note", "\n", "\n", "-- more", "\n", "SELECT"],
+            1,
+            ("SELECT",),
+            True,
+        ),
+        # The comment is not the last thing on its line.
+        (["\n", "/", " ", "-- note", " ", "b", "\n"], 1, ("CREATE",), False),
+        # The next line continues the expression instead of starting a statement.
+        (["\n", "/", " ", "-- note", "\n", "b"], 1, ("CREATE",), False),
+        # Without configured keywords a trailing comment is always rejected.
+        (["\n", "/", " ", "-- note", "\n", "CREATE"], 1, (), False),
+    ],
+)
+def test_standalone_line_matcher_comment_lookahead(
+    generate_test_segments, ctx, seeds, idx, keywords, expected
+):
+    """A configured matcher only accepts a comment before a new statement."""
+    segments = generate_test_segments(seeds)
+    matcher = StandaloneLineMatcher(
+        StringParser("/", SymbolSegment, type="slash"), resume_keywords=keywords
+    )
+    assert bool(matcher.match(segments, idx, ctx)) is expected
