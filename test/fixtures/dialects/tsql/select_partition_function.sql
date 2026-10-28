@@ -6,6 +6,7 @@ SELECT $PARTITION.myRangePF1(c1) FROM dbo.t1;
 SELECT c1, $PARTITION.pf1(c2) AS part_num
 FROM dbo.t1
 WHERE $PARTITION.pf1(c2) = 2;
+GO
 
 CREATE PROCEDURE [dbo].[get_test_partitions_at_partition]
 AS
@@ -13,6 +14,7 @@ BEGIN
     SELECT $PARTITION.pf_test(col1) AS partition_num
     FROM [dbo].[test_table];
 END;
+GO
 
 SELECT $IDENTITY FROM dbo.t1;
 

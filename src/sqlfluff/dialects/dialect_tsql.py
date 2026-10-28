@@ -573,6 +573,7 @@ tsql_dialect.replace(
     # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
     # T-SQL allows unreserved keywords as identifiers, so only block reserved keywords.
     # Also allow leading $ for system functions and pseudo-columns ($PARTITION, $IDENTITY, $ROWGUID, $node_id).
+    # $ACTION is excluded to ensure it matches ActionParameterSegment in MERGE OUTPUT expressions.
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords only
         lambda dialect: RegexParser(
@@ -581,7 +582,7 @@ tsql_dialect.replace(
             type="naked_identifier",
             anti_template=r"^("
             + r"|".join(sorted(dialect.sets("reserved_keywords")))
-            + r")$",
+            + r"|\$ACTION)$",
             casefold=str.upper,
         )
     ),

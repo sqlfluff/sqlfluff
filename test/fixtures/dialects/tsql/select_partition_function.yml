@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8da551bf9b3b5670842686cda9e02a826b1a96e775e4a4db0e0784973b3403fc
+_hash: 0a0f77b97e875711a6610eea1904fa2e3d9c4e122ab7a64d4c9f89e092960498
 file:
-  batch:
+- batch:
   - statement:
       select_statement:
         select_clause:
@@ -86,7 +86,10 @@ file:
               raw_comparison_operator: '='
             integer_literal: '2'
   - statement_terminator: ;
-  - statement:
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
       create_procedure_statement:
       - keyword: CREATE
       - keyword: PROCEDURE
@@ -96,7 +99,7 @@ file:
         - quoted_identifier: '[get_test_partitions_at_partition]'
       - keyword: AS
       - procedure_statement:
-        - statement:
+          statement:
             begin_end_block:
             - keyword: BEGIN
             - statement:
@@ -131,59 +134,62 @@ file:
                           - quoted_identifier: '[test_table]'
             - statement_terminator: ;
             - keyword: END
-        - statement_terminator: ;
-        - statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: $IDENTITY
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: t1
-        - statement_terminator: ;
-        - statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: $ROWGUID
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: t1
-        - statement_terminator: ;
-        - statement:
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    naked_identifier: $node_id
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    naked_identifier: name
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: Person
-        - statement_terminator: ;
+          statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: $IDENTITY
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: t1
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: $ROWGUID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: t1
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: $node_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+  - statement_terminator: ;
