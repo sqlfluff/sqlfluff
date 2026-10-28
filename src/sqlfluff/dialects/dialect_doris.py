@@ -500,4 +500,3 @@ class StatementSegment(mysql.StatementSegment):
             Ref("FlushStatementSegment"),
         ],
     )
-
