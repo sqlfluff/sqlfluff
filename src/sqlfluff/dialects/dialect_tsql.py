@@ -222,8 +222,9 @@ tsql_dialect.insert_lexer_matchers(
             r"[@][a-zA-Z0-9_@$#\p{L}]+",
             CodeSegment,
         ),
-        # Note: $ can only appear in subsequent positions of identifiers, not as prefix
-        # $ACTION is handled separately by ActionParameterSegment parser
+        # Note: $ is allowed in identifiers including as prefix for system functions
+        # ($PARTITION, $IDENTITY, $ROWGUID) and pseudo-columns ($node_id, etc.).
+        # $ACTION is handled separately by ActionParameterSegment parser.
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
@@ -342,11 +343,10 @@ tsql_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        # Patch word lexer to allow @, $, # in identifiers (subsequent positions)
-        # According to Microsoft spec, these can appear anywhere in identifier
-        # except $ cannot be first character (first must be letter, _, @, or #)
+        # Patch word lexer to allow @, $, # in identifiers.
         # The special prefix lexers (atsign, hash_prefix) will match first for
-        # @, # prefixed identifiers which have semantic meaning (variables, temp tables)
+        # @, # prefixed identifiers which have semantic meaning (variables, temp tables).
+        # $ can appear in identifiers including leading positions ($PARTITION, $IDENTITY).
         RegexLexer("word", r"[0-9a-zA-Z_#@$\p{L}]+", WordSegment),
     ]
 )
@@ -571,11 +571,12 @@ tsql_dialect.add(
 tsql_dialect.replace(
     # Overriding to cover TSQL allowed identifier name characters
     # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
-    # T-SQL allows unreserved keywords as identifiers, so only block reserved keywords
+    # T-SQL allows unreserved keywords as identifiers, so only block reserved keywords.
+    # Also allow leading $ for system functions and pseudo-columns ($PARTITION, $IDENTITY, $ROWGUID, $node_id).
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords only
         lambda dialect: RegexParser(
-            r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
+            r"[$A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
