@@ -20,4 +20,3 @@ PARTITION BY RANGE(id) (
   PARTITION p1 VALUES (("1"), ("10")),
   PARTITION p2 VALUES (("10"), ("20"))
 );
-
