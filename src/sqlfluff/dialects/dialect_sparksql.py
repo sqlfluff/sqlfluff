@@ -3204,7 +3204,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("JoinTargetGrammar"),
-            Dedent,
+            Conditional(Dedent, indented_using_on_newline=False),
             Conditional(Indent, indented_using_on=True),
             # NB: this is optional
             OneOf(
@@ -3231,6 +3231,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                 optional=True,
             ),
             Conditional(Dedent, indented_using_on=True),
+            Conditional(Dedent, indented_using_on_newline=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
