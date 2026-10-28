@@ -382,30 +382,9 @@ class ParallelRunner(BaseRunner):
                 self._apply,
                 self.iter_partials(fnames, fix=fix),
             ):
-                if isinstance(lint_result, DelayedException):
-                    if isinstance(lint_result.ee, SQLFluffSkipFile):
-                        # A file was skipped (e.g. exceeded
-                        # large_file_skip_byte_limit). Log a plain warning,
-                        # not the "please report as bug" message.
-                        linter_logger.warning(str(lint_result.ee))
-                        self.skipped_file_count += 1
-                    else:
-                        try:
-                            lint_result.reraise()
-                        except Exception as e:
-                            self._handle_lint_path_exception(lint_result.fname, e)
-                else:
-                    # It's a LintedDir.
-                    if self.linter.formatter:
-                        self.linter.formatter.dispatch_file_violations(
-                            lint_result.path,
-                            lint_result,
-                            only_fixable=fix,
-                            warn_unused_ignores=self.linter.config.get(
-                                "warn_unused_ignores"
-                            ),
-                        )
-                    yield lint_result
+                handled = self._handle_result(lint_result, fix)
+                if handled is not None:
+                    yield handled
         except KeyboardInterrupt:  # pragma: no cover
             # On keyboard interrupt (Ctrl-C), terminate the workers.
             # Notify the user we've received the signal and are cleaning up,
@@ -684,18 +663,25 @@ class WarmWorkerRunner(MultiProcessRunner):
                 f"main: pool created in {t_pool - t_config:.3f}s, compiling manifest..."
             )
 
-        # Step 3: Ensure manifest/project state is compiled (overlapped
-        # with pool init on first call, instant on subsequent calls).
-        if hasattr(templater, "prepare_warm_worker_state"):
-            templater.prepare_warm_worker_state(self.config, phase="manifest")
-
-        t_manifest = time.perf_counter()
-
-        # Steps 4-6 are wrapped in try/except so that any failure
-        # (broadcast hang, worker crash, etc.) terminates the pool
-        # and cleans up shared memory, ensuring the next call starts
+        # Steps 3-6 are wrapped in try/except so that any failure (manifest
+        # compilation, broadcast hang, worker crash, etc.) terminates the
+        # pool and cleans up shared memory, ensuring the next call starts
         # fresh rather than reusing a broken pool.
+        file_list: list[str] = []
+        t_manifest = t_start
+        t_dispatch = t_start
         try:
+            # Step 3: Ensure manifest/project state is compiled (overlapped
+            # with pool init on first call, instant on subsequent calls).
+            # This can raise (e.g. a dbt compilation error), and the pool and
+            # its workers already exist by now, so it belongs inside the
+            # cleanup scope: otherwise a failed compile leaves the workers
+            # running and the templater holding a broken pool.
+            if hasattr(templater, "prepare_warm_worker_state"):
+                templater.prepare_warm_worker_state(self.config, phase="manifest")
+
+            t_manifest = time.perf_counter()
+
             # Step 4: Broadcast init data if config/manifest changed.
             state_changed = not pool_is_new and (
                 getattr(templater, "_warm_pool_config", None) is not self.config
@@ -806,26 +792,18 @@ class WarmWorkerRunner(MultiProcessRunner):
         Called on any error to ensure the next lint_paths() call
         starts with a fresh pool rather than reusing a broken one.
 
-        Uses a join timeout to prevent deadlock if a worker is stuck
-        in a C extension (pickle, Jinja) and doesn't respond to
-        SIGTERM from pool.terminate().
+        The teardown itself lives on ``RawTemplater._shutdown_warm_workers``
+        so that ``__del__`` and the runner share one implementation (and a
+        fix such as the join timeout only needs making once). Uses a join
+        timeout to prevent deadlock if a worker is stuck in a C extension
+        (pickle, Jinja) and doesn't respond to SIGTERM from pool.terminate().
         """
-        pool = getattr(templater, "_warm_pool", None)
-        if pool is not None:
-            try:
-                pool.terminate()
-                pool.join(timeout=5)
-            except Exception:
-                pass
-            templater._warm_pool = None
-        shm = getattr(templater, "_warm_shm", None)
-        if shm is not None:
-            try:
-                shm.close()
-                shm.unlink()
-            except Exception:
-                pass
-            templater._warm_shm = None
+        # Import here to avoid a circular import at module load time, and
+        # call unbound so duck-typed templaters which don't inherit from
+        # RawTemplater are torn down by the same code.
+        from sqlfluff.core.templaters.base import RawTemplater
+
+        RawTemplater._shutdown_warm_workers(templater)
 
     @staticmethod
     def _lpt_sort_files(fnames: list[str]) -> list[str]:

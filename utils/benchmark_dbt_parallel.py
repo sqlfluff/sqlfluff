@@ -266,6 +266,14 @@ def generate_dbt_project(
     ]:
         (project / subdir).mkdir(parents=True, exist_ok=True)
 
+    # Remove models left by an earlier run: generating into an existing
+    # project would otherwise leave obsolete files behind (e.g. when rerunning
+    # with a smaller model_count), and those stale models would be benchmarked
+    # along with the new ones.
+    for model_subdir in ("staging", "intermediate", "marts", "ephemeral"):
+        for stale in (project / "models" / model_subdir).glob("*.sql"):
+            stale.unlink()
+
     # Write configs
     (project / "dbt_project.yml").write_text(_DBT_PROJECT_YML)
     (project / "profiles_yml" / "profiles.yml").write_text(_PROFILES_YML)
@@ -379,17 +387,28 @@ def compile_dbt_project(project_dir: Path, profiles_dir: Path) -> None:
 
     if result.returncode != 0:
         print(f"Error: dbt compile failed (exit {result.returncode}):", file=sys.stderr)
-        print(
-            result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr,
-            file=sys.stderr,
-        )
+        # dbt puts much of its diagnostics on stdout, so show both streams.
+        for stream_label, stream_text in (
+            ("stdout", result.stdout),
+            ("stderr", result.stderr),
+        ):
+            tail = stream_text[-2000:] if len(stream_text) > 2000 else stream_text
+            if tail.strip():
+                print(f"--- dbt {stream_label} ---\n{tail}", file=sys.stderr)
         sys.exit(1)
 
     print(f"dbt compile completed in {elapsed:.1f}s")
 
 
 def _get_peak_memory_mb() -> float:
-    """Get peak memory usage of the current process in MB."""
+    """Get the current process's peak working set in MB.
+
+    This is a *lifetime* peak for the parent process, so within one benchmark
+    run it never decreases between iterations, and it does not include the
+    memory of worker processes (each of which is a separate process). Read it
+    as an upper bound on parent memory, not as a per-iteration measurement and
+    not as the total memory of a parallel run.
+    """
     if platform.system() == "Windows":
         import ctypes
         from ctypes import wintypes
@@ -523,19 +542,21 @@ def run_benchmark(
             n_files = sum(p.stats()["files"] for p in result.paths)
             n_violations = result.num_violations()
 
-            phase = "cold" if (reuse_linter and i == 0) else "warm"
+            # A fresh pool is built for every iteration unless the linter is
+            # reused, so without reuse_linter only "cold" is accurate.
+            phase = "cold" if (not reuse_linter or i == 0) else "warm"
 
             if is_warmup:
                 print(
                     f"  {label}: {wall_clock:.1f}s "
                     f"({n_files} files, {n_violations} violations, "
-                    f"{peak_mem:.0f}MB) [{phase}, discarded]"
+                    f"{peak_mem:.0f}MB parent-peak) [{phase}, discarded]"
                 )
             else:
                 print(
                     f"  {label}: {wall_clock:.1f}s "
                     f"({n_files} files, {n_violations} violations, "
-                    f"{peak_mem:.0f}MB) [{phase}]"
+                    f"{peak_mem:.0f}MB parent-peak) [{phase}]"
                 )
                 results.append(
                     {
@@ -575,89 +596,102 @@ def run_fix_benchmark(
         for path, content in originals.items():
             path.write_text(content)
 
-    for n_procs in process_counts:
-        mode_label = "persistent pool" if reuse_linter and n_procs > 1 else "standard"
-        print(f"\n--- Fix mode with --processes {n_procs} ({mode_label}) ---")
-
-        config = FluffConfig(
-            overrides={"templater": "dbt", "dialect": "duckdb"},
-            configs={
-                "templater": {
-                    "dbt": {
-                        "project_dir": str(project_dir),
-                        "profiles_dir": str(profiles_dir),
-                    }
-                }
-            },
-        )
-        linter = Linter(config=config)
-
-        # Restore originals before fixing.
-        _restore()
-
-        # Step 1: Lint to count violations before fixing.
-        pre_result = linter.lint_paths(
-            (str(models_dir),), processes=n_procs, retain_files=True
-        )
-        violations_before = pre_result.num_violations()
-        fixable = pre_result.num_violations(fixable=True)
-        print(f"  pre-fix:  {violations_before} violations ({fixable} fixable)")
-
-        # Step 2: Fix in a loop until no violations remain or no
-        # progress is made. Each pass may resolve cascading violations.
-        _restore()
-        max_passes = 10
-        total_fix_time = 0.0
-        pass_num = 0
-        remaining = violations_before
-
-        for pass_num in range(1, max_passes + 1):
-            fix_linter = Linter(config=config)
-            t0 = time.perf_counter()
-            fix_result = fix_linter.lint_paths(
-                (str(models_dir),),
-                processes=n_procs,
-                fix=True,
-                apply_fixes=True,
-                retain_files=True,
+    try:
+        for n_procs in process_counts:
+            mode_label = (
+                "persistent pool" if reuse_linter and n_procs > 1 else "standard"
             )
-            pass_time = time.perf_counter() - t0
-            total_fix_time += pass_time
-            fixed_count = fix_result.num_violations(fixable=True)
+            print(f"\n--- Fix mode with --processes {n_procs} ({mode_label}) ---")
 
-            # Re-lint to count remaining violations.
-            verify_linter = Linter(config=config)
-            verify_result = verify_linter.lint_paths(
+            config = FluffConfig(
+                overrides={"templater": "dbt", "dialect": "duckdb"},
+                configs={
+                    "templater": {
+                        "dbt": {
+                            "project_dir": str(project_dir),
+                            "profiles_dir": str(profiles_dir),
+                        }
+                    }
+                },
+            )
+            linter = Linter(config=config)
+
+            # Restore originals before fixing.
+            _restore()
+
+            # Step 1: Lint to count violations before fixing.
+            pre_result = linter.lint_paths(
                 (str(models_dir),), processes=n_procs, retain_files=True
             )
-            new_remaining = verify_result.num_violations()
+            violations_before = pre_result.num_violations()
+            fixable = pre_result.num_violations(fixable=True)
+            print(f"  pre-fix:  {violations_before} violations ({fixable} fixable)")
 
+            # Step 2: Fix in a loop until no violations remain or no
+            # progress is made. Each pass may resolve cascading violations.
+            _restore()
+            max_passes = 10
+            total_fix_time = 0.0
+            pass_num = 0
+            prev_remaining = violations_before
+
+            for pass_num in range(1, max_passes + 1):
+                # With --reuse-linter one Linter (and therefore one persistent
+                # warm worker pool) spans every pass; otherwise each pass gets
+                # a fresh pool, which is what the default mode measures.
+                fix_linter = linter if reuse_linter else Linter(config=config)
+                t0 = time.perf_counter()
+                fix_linter.lint_paths(
+                    (str(models_dir),),
+                    processes=n_procs,
+                    fix=True,
+                    apply_fixes=True,
+                    retain_files=True,
+                )
+                pass_time = time.perf_counter() - t0
+                total_fix_time += pass_time
+
+                # Re-lint to count remaining violations.
+                verify_linter = linter if reuse_linter else Linter(config=config)
+                verify_result = verify_linter.lint_paths(
+                    (str(models_dir),), processes=n_procs, retain_files=True
+                )
+                new_remaining = verify_result.num_violations()
+                # Violations this pass actually removed. This is a real delta
+                # between two scans: num_violations(fixable=True) on the fix
+                # result reports what looked fixable before the pass ran, and
+                # stays the same even on a pass that fixes nothing.
+                fixed_count = prev_remaining - new_remaining
+
+                print(
+                    f"  pass {pass_num}:   {pass_time:.1f}s "
+                    f"({fixed_count} fixed, {new_remaining} remaining)"
+                )
+
+                if new_remaining == 0:
+                    prev_remaining = 0
+                    break
+                if new_remaining >= prev_remaining:
+                    # No progress — remaining violations are unfixable.
+                    prev_remaining = new_remaining
+                    break
+                prev_remaining = new_remaining
+
+            remaining = prev_remaining
+            resolved = violations_before - remaining
             print(
-                f"  pass {pass_num}:   {pass_time:.1f}s "
-                f"({fixed_count} fixed, {new_remaining} remaining)"
+                f"  total:    {total_fix_time:.1f}s over {pass_num} passes, "
+                f"{resolved}/{violations_before} resolved"
             )
-
-            if new_remaining == 0:
-                remaining = 0
-                break
-            if new_remaining >= remaining:
-                # No progress — remaining violations are unfixable.
-                remaining = new_remaining
-                break
-            remaining = new_remaining
-
-        resolved = violations_before - remaining
-        print(
-            f"  total:    {total_fix_time:.1f}s over {pass_num} passes, "
-            f"{resolved}/{violations_before} resolved"
-        )
-        if remaining == 0:
-            print("  result:   PASS — all violations resolved")
-        else:
-            print(f"  result:   {remaining} unfixable violations remain")
-
-    # Restore originals at the end.
-    _restore()
+            if remaining == 0:
+                print("  result:   PASS — all violations resolved")
+            else:
+                print(f"  result:   {remaining} unfixable violations remain")
+    finally:
+        # Always restore: fix mode rewrites the benchmark project in place, so
+        # an exception or Ctrl-C mid-pass would otherwise leave the sources
+        # modified (and the benchmark project is not always disposable).
+        _restore()
 
 
 def print_results(results: list[dict]) -> None:
@@ -670,12 +704,23 @@ def print_results(results: list[dict]) -> None:
     print("  dbt Parallel Templating Benchmark Results")
     print("=" * 78)
 
-    baseline: Optional[float] = None
+    # The baseline is the row with the fewest processes, which is not
+    # necessarily serial: a run of only ``--processes 4,8`` has no serial
+    # measurement to normalise against. Efficiency is therefore scaled by the
+    # baseline's own process count, so 100% means "linear scaling relative to
+    # the baseline" and a serial baseline keeps the usual definition.
+    baseline_procs = min(by_procs)
+    baseline: Optional[float] = statistics.mean(by_procs[baseline_procs])
     print(
         f"\n{'Processes':>10} | {'Mean (s)':>10} | {'Std (s)':>10} | "
         f"{'Min (s)':>10} | {'Speedup':>8} | {'Efficiency':>10}"
     )
     print("-" * 78)
+    if baseline_procs > 1:
+        print(
+            f"  (relative to {baseline_procs} processes — no serial baseline "
+            f"was measured)"
+        )
 
     for n_procs in sorted(by_procs.keys()):
         times = by_procs[n_procs]
@@ -683,11 +728,10 @@ def print_results(results: list[dict]) -> None:
         min_t = min(times)
         std_t = statistics.stdev(times) if len(times) > 1 else 0.0
 
-        if baseline is None:
-            baseline = mean_t
-
         speedup = baseline / mean_t if mean_t > 0 else 0
-        efficiency = (baseline / (mean_t * n_procs)) * 100 if mean_t > 0 else 0
+        efficiency = (
+            (baseline * baseline_procs) / (mean_t * n_procs) * 100 if mean_t > 0 else 0
+        )
         print(
             f"{n_procs:>10} | {mean_t:>10.1f} | {std_t:>10.2f} | "
             f"{min_t:>10.1f} | {speedup:>7.2f}x | {efficiency:>9.0f}%"

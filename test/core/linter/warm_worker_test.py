@@ -666,7 +666,9 @@ class TestDbtTemplaterProtocol:
         assert isinstance(modules, list)
 
     def test_prepare_warm_worker_state_stores_config(self):
-        """prepare_warm_worker_state config phase stores the config reference."""
+        """prepare_warm_worker_state(config) stores config and derives dirs."""
+        from unittest.mock import PropertyMock, patch
+
         t = self.DbtTemplater()
         config = FluffConfig(
             overrides={"dialect": "duckdb", "templater": "dbt"},
@@ -679,15 +681,20 @@ class TestDbtTemplaterProtocol:
                 }
             },
         )
-        # Only test that the method stores config and sets dirs from it.
-        # Don't call phase="config" fully (triggers dbt_config which needs
-        # a real project). Instead verify the method exists and accepts args.
-        t.sqlfluff_config = config
-        t.project_dir = t._get_project_dir()
-        t.profiles_dir = t._get_profiles_dir()
+        # The real dbt_config access needs a compiled dbt project, so it is
+        # stubbed: what's under test is that the method stores the config and
+        # derives both directories (and touches dbt_config, which is what
+        # warms the adapter in a real run).
+        with (
+            patch.object(type(t), "dbt_config", new_callable=PropertyMock),
+            patch.object(type(t), "_get_project_dir", return_value="/tmp/proj"),
+            patch.object(type(t), "_get_profiles_dir", return_value="/tmp/profs"),
+        ):
+            t.prepare_warm_worker_state(config, phase="config")
+
         assert t.sqlfluff_config is config
-        assert t.project_dir is not None
-        assert t.profiles_dir is not None
+        assert t.project_dir == "/tmp/proj"
+        assert t.profiles_dir == "/tmp/profs"
 
     def test_pool_storage_inherited_from_base(self):
         """Pool attrs come from RawTemplater, not redefined in DbtTemplater."""
@@ -794,11 +801,16 @@ class TestEdgeCases:
         shm.buf[: len(data_bytes)] = data_bytes
         return shm, (shm.name, len(data_bytes))
 
-    def test_more_workers_than_files(self, tmp_path):
-        """Warm workers handle processes > file count without errors."""
+    def test_warm_worker_apply_handles_every_file(self, tmp_path):
+        """_warm_worker_apply lints each file against the same init data.
+
+        This exercises the worker-side entry point one task at a time. The
+        "more workers than files" case is about pool sizing and is covered by
+        the pool-level tests (the worker function itself never sees a
+        process count).
+        """
         from sqlfluff.core.linter import LintedFile
 
-        # Create just 2 files but use 8 processes worth of init data.
         for i in range(2):
             (tmp_path / f"f{i}.sql").write_text(f"SELECT {i}\n")
 
@@ -832,14 +844,29 @@ class TestEdgeCases:
         sql_file = tmp_path / "fixable.sql"
         sql_file.write_text("select a from b\n")
 
+        # CP01's default policy is "consistent", which accepts all-lowercase,
+        # so ask for upper. It goes in a .sqlfluff file because render_file
+        # re-derives the config per path, which drops in-memory rule configs.
+        (tmp_path / ".sqlfluff").write_text(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "rules = CP01\n"
+            "[sqlfluff:rules:capitalisation.keywords]\n"
+            "capitalisation_policy = upper\n"
+        )
+
         config = FluffConfig(overrides={"dialect": "ansi", "rules": "CP01"})
         shm, shm_ref = self._make_shm(config)
         try:
             result = _warm_worker_apply((str(sql_file), True, shm_ref, False))
             assert isinstance(result, LintedFile)
-            # CP01 should flag 'select' -> 'SELECT' (or vice versa).
-            # With fix=True, the result should contain fix information.
-            assert result.violations is not None
+            # CP01 should flag the lowercase keywords and offer a fix. Assert
+            # on the produced fix (not merely that a list exists) so the test
+            # fails if fix mode stops computing one.
+            assert result.violations
+            fixed_sql, has_fix = result.fix_string()
+            assert has_fix
+            assert "SELECT" in fixed_sql
         finally:
             shm.close()
             shm.unlink()
@@ -1273,14 +1300,21 @@ class TestHandleResult:
         result = r._handle_result(exc, fix=False)
         assert result is None
 
-    def test_handle_result_reraises_non_skip_exception(self):
-        """Non-skip exceptions are re-raised via _handle_lint_path_exception."""
+    def test_handle_result_reports_non_skip_exception(self):
+        """Non-skip exceptions are reported, not swallowed and not re-raised."""
+        import unittest.mock
+
         r = self._make_runner()
         exc = DelayedException(RuntimeError("unexpected"), fname="broken.sql")
-        # _handle_result calls _handle_lint_path_exception which logs
-        # a warning but doesn't raise (it's a handled path error).
-        result = r._handle_result(exc, fix=False)
+        with unittest.mock.patch.object(
+            r, "_handle_lint_path_exception"
+        ) as mock_handle:
+            result = r._handle_result(exc, fix=False)
         assert result is None
+        # The failure is attributed to the right file with the original error.
+        fname, err = mock_handle.call_args.args
+        assert fname == "broken.sql"
+        assert isinstance(err, RuntimeError)
 
 
 # --- Error recovery and deadlock prevention ---
@@ -1289,7 +1323,7 @@ class TestHandleResult:
 class TestErrorRecoveryAndDeadlocks:
     """Tests for error recovery, timeout, and deadlock prevention."""
 
-    def test_terminate_pool_called_on_exception(self, tmp_path):
+    def test_terminate_pool_called_on_exception(self):
         """Any exception during dispatch terminates the pool."""
         import unittest.mock
 
@@ -1297,32 +1331,46 @@ class TestErrorRecoveryAndDeadlocks:
         lntr = Linter(config=config)
 
         r = WarmWorkerRunner(lntr, config, processes=2)
-        # Patch _dispatch_and_collect to raise.
+        templater = lntr.templater
+        # Patch _dispatch_and_collect to raise. The real teardown is left in
+        # place, so this also covers that no pool or shared memory leaks.
         with unittest.mock.patch.object(
             WarmWorkerRunner,
             "_dispatch_and_collect",
             side_effect=RuntimeError("boom"),
         ):
-            with unittest.mock.patch.object(
-                WarmWorkerRunner, "_terminate_pool"
-            ) as mock_term:
-                try:
-                    list(r.run([], fix=False))
-                except RuntimeError:
-                    pass
-                # _terminate_pool should have been called.
-                assert mock_term.called
+            with pytest.raises(RuntimeError):
+                list(r.run([], fix=False))
+        assert templater._warm_pool is None
+        assert templater._warm_shm is None
 
-    def test_broadcast_timeout_is_set(self):
-        """Broadcast uses map_async with a timeout, not blocking map."""
-        import inspect
-        import textwrap
+    def test_broadcast_wait_uses_timeout(self):
+        """The init broadcast waits with an explicit timeout, never blocking map."""
+        import unittest.mock
 
-        source = textwrap.dedent(inspect.getsource(WarmWorkerRunner.run))
-        # Verify map_async().get(timeout=...) pattern exists (not bare map).
-        assert "map_async" in source
-        assert "timeout" in source
-        assert "pool.map(" not in source.replace("pool.map_async", "")
+        config = FluffConfig(overrides={"dialect": "ansi"})
+        lntr = Linter(config=config)
+        r = WarmWorkerRunner(lntr, config, processes=2)
+
+        # Mock a pool whose map_async().get() raises TimeoutError.
+        mock_pool = unittest.mock.MagicMock()
+        mock_pool.map_async.return_value.get.side_effect = TimeoutError(
+            "broadcast hung"
+        )
+
+        with unittest.mock.patch.object(
+            WarmWorkerRunner, "POOL_TYPE", return_value=mock_pool
+        ):
+            with pytest.raises(TimeoutError):
+                list(r.run([], fix=False))
+
+        mock_pool.map_async.assert_called_once()
+        _, get_kwargs = mock_pool.map_async.return_value.get.call_args
+        assert get_kwargs.get("timeout")
+        # The blocking map() would deadlock on a stuck worker.
+        mock_pool.map.assert_not_called()
+        # The error path cleaned up the pool pointer it was handed.
+        assert lntr.templater._warm_pool is None
 
     def test_sequential_runner_handles_exception_gracefully(self, tmp_path):
         """SequentialRunner logs errors but doesn't crash the loop."""
@@ -1439,12 +1487,18 @@ class TestErrorRecoveryAndDeadlocks:
             runner._worker_linter_cache = None
 
     def test_terminate_pool_join_has_timeout(self):
-        """pool.join() in _terminate_pool uses a timeout to prevent deadlock."""
-        import inspect
-        import textwrap
+        """pool.join() is called with a timeout to prevent deadlock."""
+        join_kwargs: dict = {}
 
-        source = textwrap.dedent(inspect.getsource(WarmWorkerRunner._terminate_pool))
-        assert "join(timeout=" in source
+        def _record_join(*args, **kwargs):
+            join_kwargs.update(kwargs)
+
+        t = MockWarmTemplater()
+        t._warm_pool = types.SimpleNamespace(terminate=lambda: None, join=_record_join)
+        WarmWorkerRunner._terminate_pool(t)
+        # multiprocessing.Pool.join() takes the timeout as a keyword.
+        assert join_kwargs.get("timeout") is not None
+        assert t._warm_pool is None
 
     def test_terminate_pool_survives_join_timeout(self):
         """_terminate_pool doesn't hang if pool.join times out."""
@@ -1459,45 +1513,27 @@ class TestErrorRecoveryAndDeadlocks:
         WarmWorkerRunner._terminate_pool(t)
         assert t._warm_pool is None
 
-    def test_broadcast_timeout_triggers_pool_cleanup(self):
-        """When broadcast times out, except Exception calls _terminate_pool."""
-        import unittest.mock
-
-        config = FluffConfig(overrides={"dialect": "ansi"})
-        lntr = Linter(config=config)
-        r = WarmWorkerRunner(lntr, config, processes=2)
-
-        # Mock a pool whose map_async().get() raises TimeoutError.
-        mock_pool = unittest.mock.MagicMock()
-        mock_pool.map_async.return_value.get.side_effect = TimeoutError(
-            "broadcast hung"
-        )
-        lntr.templater._warm_pool = mock_pool
-        lntr.templater._warm_pool_processes = 2
-
-        with unittest.mock.patch.object(
-            WarmWorkerRunner, "_terminate_pool"
-        ) as mock_term:
-            try:
-                list(r.run([], fix=False))
-            except TimeoutError:
-                pass
-            assert mock_term.called
-
-    def test_pool_reuse_after_early_generator_close(self, tmp_path):
-        """Pool survives generator close (early break) and works next call."""
+    def test_pool_survives_early_generator_close(self, tmp_path):
+        """Pool survives a generator closed before it is exhausted."""
         for i in range(3):
             (tmp_path / f"f{i}.sql").write_text("SELECT 1\n")
+        fnames = [str(f) for f in sorted(tmp_path.glob("*.sql"))]
 
         config = FluffConfig(overrides={"dialect": "ansi"})
         lntr = Linter(config=config)
+        templater = lntr.templater
         try:
-            # Call lint_paths twice. If the pool were corrupted by
-            # an abandoned imap_unordered iterator from the first
-            # call, the second would deadlock or error.
-            r1 = lntr.lint_paths((str(tmp_path),), processes=2, retain_files=True)
-            r2 = lntr.lint_paths((str(tmp_path),), processes=2, retain_files=True)
-            assert sum(p.stats()["files"] for p in r1.paths) == 3
-            assert sum(p.stats()["files"] for p in r2.paths) == 3
+            # Take one result and abandon the generator: this leaves the
+            # pool's pending tasks behind. If that corrupted the pool, the
+            # next run would deadlock or fail.
+            gen = WarmWorkerRunner(lntr, config, processes=2).run(fnames, fix=False)
+            next(gen)
+            gen.close()
+            assert templater._warm_pool is not None
+
+            results = list(
+                WarmWorkerRunner(lntr, config, processes=2).run(fnames, fix=False)
+            )
+            assert len(results) == 3
         finally:
-            WarmWorkerRunner._terminate_pool(lntr.templater)
+            WarmWorkerRunner._terminate_pool(templater)

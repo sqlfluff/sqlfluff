@@ -532,7 +532,11 @@ class RawTemplater:
     # templater (``_warm_shm``) for reuse across lint_paths() calls
     # and is replaced when init data changes.
     #
-    # Templaters that opt in must implement these methods:
+    # Templaters that opt in provide these hooks. Only the two checked by
+    # the runner's ``_use_warm_workers()`` (``get_worker_init_data`` and
+    # ``get_worker_config_bytes``) are required; the rest are optional and
+    # are detected with ``hasattr``, falling back to the defaults below.
+    # (Jinja, for example, opts in without overriding any of them.)
     #
     #   prepare_warm_worker_state(config, phase: str) -> None
     #       Called in the main process. phase="config" before pool
@@ -580,13 +584,20 @@ class RawTemplater:
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
-    def __del__(self) -> None:  # pragma: no cover
-        """Shut down the persistent warm worker pool and shared memory on cleanup.
+    def _shutdown_warm_workers(self) -> None:
+        """Shut down the persistent warm worker pool and shared memory.
 
-        The pool and shared memory are created by WarmWorkerRunner but stored
-        on the templater because the templater outlives the runner (runners
-        are recreated per lint_paths call, while the templater persists on the
-        Linter). Cleanup lives here as the last owner of these references.
+        The pool and shared memory are created by ``WarmWorkerRunner`` but
+        stored here, because the templater outlives the runner (runners are
+        recreated per ``lint_paths`` call, the templater persists on the
+        Linter). Both the runner's error path and ``__del__`` call this, so
+        the teardown logic only needs fixing in one place.
+
+        Uses a join timeout to prevent deadlock if a worker is stuck in a C
+        extension (pickle, Jinja) and doesn't respond to the SIGTERM that
+        ``pool.terminate()`` sends. ``getattr`` is used throughout so that
+        duck-typed templaters which don't inherit from this class can be
+        passed in.
         """
         pool = getattr(self, "_warm_pool", None)
         if pool is not None:
@@ -604,6 +615,16 @@ class RawTemplater:
             except Exception:
                 pass
             self._warm_shm = None
+
+    def __del__(self) -> None:  # pragma: no cover
+        """Shut down the persistent warm worker pool and shared memory on cleanup.
+
+        The pool and shared memory are created by WarmWorkerRunner but stored
+        on the templater because the templater outlives the runner (runners
+        are recreated per lint_paths call, while the templater persists on the
+        Linter). Cleanup lives here as the last owner of these references.
+        """
+        self._shutdown_warm_workers()
 
     # --- Default warm worker protocol implementations ---
     # Subclasses that set supports_warm_workers = True get these for free.

@@ -493,8 +493,9 @@ class DbtTemplater(JinjaTemplater):
         self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
 
         # dbt_config comes from the pool initializer (warm_worker_setup),
-        # merged into data by the runner's _warm_worker_apply function
-        # (read from shared memory on the worker's first task).
+        # which sets it in the module-level worker state. When the runner
+        # broadcasts init data, _warm_worker_receive_init merges the pickled
+        # data over that initializer state, so dbt_config is preserved.
         _dbt_config = data["dbt_config"]
 
         # Inject pre-compiled objects into the instance, bypassing

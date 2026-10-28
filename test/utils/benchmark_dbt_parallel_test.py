@@ -5,7 +5,6 @@ without requiring dbt or dbt-duckdb to be installed.
 """
 
 import csv
-import io
 import random
 import re
 import sys
@@ -335,29 +334,31 @@ def test_print_results_single_iteration_no_crash(capsys):
 
 
 def test_find_dbt_prefers_venv_over_path():
-    """When dbt exists in the venv, PATH is not consulted."""
-    with patch.object(Path, "exists", return_value=True):
+    """When dbt exists next to the interpreter, PATH is not consulted."""
+    venv_dbt = Path(sys.executable).parent / (
+        "dbt.exe" if sys.platform == "win32" else "dbt"
+    )
+    with (
+        patch.object(
+            Path, "exists", autospec=True, side_effect=lambda self: self == venv_dbt
+        ),
+        patch.object(bench.shutil, "which", return_value="/on/PATH/dbt") as which,
+    ):
         result = bench._find_dbt_executable()
-        # Should return the venv path, not a shutil.which result
-        assert "dbt" in result
+    assert Path(result) == venv_dbt
+    which.assert_not_called()
 
 
 def test_find_dbt_falls_back_to_path():
     """When venv dbt doesn't exist, falls back to shutil.which."""
     sentinel = "/custom/path/dbt"
-    original_exists = Path.exists
-
-    def _mock_exists(self):
-        if "dbt" in str(self) and "venv" not in str(self).lower():
-            return original_exists(self)
-        if "dbt" in self.name:
-            return False
-        return original_exists(self)
-
-    with patch.object(Path, "exists", _mock_exists):
-        with patch("benchmark_dbt_parallel.shutil.which", return_value=sentinel):
-            result = bench._find_dbt_executable()
-            assert result == sentinel
+    with (
+        patch.object(Path, "exists", autospec=True, return_value=False),
+        patch.object(bench.shutil, "which", return_value=sentinel) as which,
+    ):
+        result = bench._find_dbt_executable()
+    assert result == sentinel
+    which.assert_called_once_with("dbt")
 
 
 def test_find_dbt_exits_when_missing():
@@ -506,41 +507,74 @@ def test_write_csv_to_stdout(capsys):
     assert "standard,1,1,8.0" in output
 
 
-def test_write_csv_includes_mode_field():
+def test_write_csv_includes_mode_field(tmp_path):
     """CSV output includes the mode field for compare filtering."""
     results = _make_results("standard", {4: [5.0]}) + _make_results("warm", {4: [3.0]})
-    buf = io.StringIO()
-    writer = csv.DictWriter(
-        buf,
-        fieldnames=[
-            "mode",
-            "processes",
-            "iteration",
-            "wall_clock",
-            "files",
-            "violations",
-            "phase",
-        ],
-    )
-    writer.writeheader()
-    writer.writerows(results)
-    buf.seek(0)
-    reader = csv.DictReader(buf)
-    rows = list(reader)
-    modes = {r["mode"] for r in rows}
-    assert modes == {"standard", "warm"}
+    out = tmp_path / "results.csv"
+    bench.write_csv(results, str(out))
+
+    with out.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert {r["mode"] for r in rows} == {"standard", "warm"}
+    # Guard the header against drifting from write_csv's own fieldnames:
+    # compare filtering relies on this column existing.
+    assert "peak_memory_mb" in rows[0]
 
 
 # -- run_benchmark mode field -------------------------------------------------
 
 
-def test_run_benchmark_results_include_mode():
-    """Result dicts from run_benchmark include the mode field."""
-    # We can't run a real benchmark without dbt, but we can verify
-    # that the mode parameter is wired through by checking the function
-    # signature accepts it.
-    import inspect
+def test_run_benchmark_results_include_mode(tmp_path):
+    """Every row produced by run_benchmark carries the mode label.
 
-    sig = inspect.signature(bench.run_benchmark)
-    assert "mode" in sig.parameters
-    assert sig.parameters["mode"].default == "standard"
+    A real benchmark needs dbt, so the linter is replaced with a stub that
+    still goes through the row-building code path.
+    """
+
+    class _FakePaths:
+        def stats(self):
+            return {"files": 1}
+
+    class _FakeResult:
+        paths = [_FakePaths()]
+
+        def num_violations(self, fixable=False):
+            return 0
+
+    class _FakeLinter:
+        def __init__(self, config=None):
+            pass
+
+        def lint_paths(self, *args, **kwargs):
+            return _FakeResult()
+
+    project = tmp_path / "project"
+    (project / "models").mkdir(parents=True)
+
+    def _run(reuse_linter: bool) -> list[dict]:
+        with (
+            patch.object(bench, "Linter", _FakeLinter),
+            # The real FluffConfig would reject templater "dbt" when the dbt
+            # templater plugin isn't installed.
+            patch.object(bench, "FluffConfig"),
+            patch.object(bench, "_get_peak_memory_mb", return_value=1.0),
+        ):
+            return bench.run_benchmark(
+                project,
+                tmp_path,
+                process_counts=[1, 4],
+                iterations=2,
+                warmup=0,
+                reuse_linter=reuse_linter,
+                mode="warm",
+            )
+
+    results = _run(reuse_linter=True)
+    assert results
+    assert {r["mode"] for r in results} == {"warm"}
+    # With a reused linter the first iteration builds the pool and the
+    # second reuses it, so both phases are reported.
+    assert {r["phase"] for r in results} == {"cold", "warm"}
+
+    # Without reuse every iteration builds a fresh pool: nothing is warm.
+    assert {r["phase"] for r in _run(reuse_linter=False)} == {"cold"}
