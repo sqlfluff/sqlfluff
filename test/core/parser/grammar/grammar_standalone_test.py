@@ -146,6 +146,10 @@ def test_standalone_line_matcher_cache_key_with_keywords():
     [
         # The comment ends the file, so the delimiter line cannot continue.
         (["\n", "/", " ", "-- note"], 1, ("CREATE",), True),
+        # Only blank lines and comments remain after the comment.
+        (["\n", "/", " ", "-- note", "\n", "\n", "  ", "\n"], 1, ("CREATE",), True),
+        # A non-comment token on the delimiter's line is never a statement end.
+        (["\n", "/", " ", "b", "\n"], 1, ("CREATE",), False),
         # The next line starts a statement.
         (["\n", "/", " ", "-- note", "\n", "CREATE"], 1, ("CREATE",), True),
         # Blank and comment-only lines between the delimiter and the statement.
