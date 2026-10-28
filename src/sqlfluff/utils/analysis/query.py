@@ -119,26 +119,11 @@ class Selectable:
 
             if self.selectable.is_type(*SUBSELECT_TYPES):
                 dml_tables: list[tuple[BaseSegment, Optional[BaseSegment]]] = []
-                clauses_to_skip = {
-                    "where_clause",
-                    "set_clause_list",
-                    "from_clause",
-                    "from_expression",
-                    "merge_match",
-                    "select_statement",
-                }
                 direct_refs = [
                     seg
                     for seg in self.selectable.segments
                     if seg.is_type("table_reference")
                 ]
-                if not direct_refs and not table_aliases:
-                    for tr in self.selectable.recursive_crawl(
-                        "table_reference",
-                        recurse_into=False,
-                        no_recursive_seg_type=list(clauses_to_skip),
-                    ):
-                        direct_refs.append(tr)
 
                 for tr in direct_refs:
                     idx = (
@@ -215,16 +200,16 @@ class Selectable:
                 if alias_expressions:
                     # A VALUES clause carries its alias as a direct child.
                     for alias_expression in alias_expressions:
-                        name = (
+                        alias_name_segs = (
                             Segments(alias_expression)
                             .children()
                             .first(sp.is_type("naked_identifier", "quoted_identifier"))
                         )
                         table_aliases.append(
                             AliasInfo(
-                                name[0].raw if name else "",
-                                name[0] if name else None,
-                                bool(name),
+                                alias_name_segs[0].raw if alias_name_segs else "",
+                                alias_name_segs[0] if alias_name_segs else None,
+                                bool(alias_name_segs),
                                 self.selectable,
                                 alias_expression,
                                 None,
