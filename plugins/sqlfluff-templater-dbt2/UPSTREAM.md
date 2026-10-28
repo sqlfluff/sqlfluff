@@ -13,14 +13,7 @@ the plugin does not pin or inspect commit hashes.
 
 ## Build the prerequisite
 
-For Linux x86-64 with glibc 2.35 or newer, the fork's
-[preview-wheel workflow](https://github.com/alanmcruickshank/dbt/actions/workflows/render-trace-preview.yml)
-builds an experimental CPython ABI3 wheel (Python 3.10+). Download the artifact
-from a successful run, extract it, check `SHA256SUMS` and `producer.json`, then
-install the wheel into the SQLFluff environment. Artifacts expire after 14 days;
-they are development builds of the PR, not published dbt releases.
-
-To build locally on another platform, follow dbt's
+To build locally, follow dbt's
 [contributor prerequisites](https://github.com/alanmcruickshank/dbt/blob/codex/render-trace-export/CONTRIBUTING.md),
 including its Rust toolchain and the separate Protocol Buffers compiler
 (`protoc`). Check `protoc --version` before building; alternatively set `PROTOC`
