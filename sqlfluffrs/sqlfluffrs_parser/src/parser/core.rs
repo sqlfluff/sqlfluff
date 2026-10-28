@@ -1423,9 +1423,9 @@ impl<'a> Parser<'a> {
 
     /// Handle StandaloneLine using table-driven approach.
     ///
-    /// Matches the inner raw string only when it is the sole non-whitespace,
-    /// non-meta token on its line. Comments therefore prevent a match, as the
-    /// SQL*Plus slash command must occupy the line by itself.
+    /// Matches the inner raw string on its own line, ignoring whitespace and meta.
+    /// By default, comments prevent a match. A configured resume-keyword list
+    /// allows a trailing comment when the next non-gap token is a keyword or EOF.
     pub(crate) fn handle_standalone_line(
         &mut self,
         grammar_id: GrammarId,
