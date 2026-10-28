@@ -417,6 +417,25 @@ class TestWarmWorkerRunnerHelpers:
         )()
         assert WarmWorkerRunner._get_init_modules(t) == ["json"]
 
+    def test_get_init_modules_without_any_module_hook(self):
+        """A templater implementing only the required hooks pre-imports nothing.
+
+        Pre-importing is an optimisation, so the documented duck-typed
+        contract (``get_worker_init_data`` + ``get_worker_config_bytes``) must
+        not raise just because no module hook is defined.
+        """
+
+        class _MinimalT:
+            supports_warm_workers = True
+
+            def get_worker_init_data(self):
+                return {}
+
+            def get_worker_config_bytes(self):
+                return b""
+
+        assert WarmWorkerRunner._get_init_modules(_MinimalT()) == []
+
     def test_get_setup_func_ref_from_templater(self):
         """Returns the (module, name) tuple from the templater."""
         t = type(
@@ -1486,30 +1505,37 @@ class TestErrorRecoveryAndDeadlocks:
             runner._worker_init_data = None
             runner._worker_linter_cache = None
 
-    def test_terminate_pool_join_has_timeout(self):
-        """pool.join() is called with a timeout to prevent deadlock."""
-        join_kwargs: dict = {}
+    def test_shutdown_calls_join_with_no_arguments(self):
+        """join() is called the way multiprocessing.Pool.join() accepts it.
 
-        def _record_join(*args, **kwargs):
-            join_kwargs.update(kwargs)
+        ``multiprocessing.pool.Pool.join()` takes no arguments, so passing a
+        timeout raises TypeError, which the shutdown swallows -- leaving the
+        join silently undone. This stand-in pool has the real signature, so it
+        fails if a timeout is passed again.
+        """
+        calls: list[str] = []
+
+        class _StrictPool:
+            def terminate(self) -> None:
+                calls.append("terminate")
+
+            def join(self) -> None:
+                calls.append("join")
 
         t = MockWarmTemplater()
-        t._warm_pool = types.SimpleNamespace(terminate=lambda: None, join=_record_join)
+        t._warm_pool = _StrictPool()
         WarmWorkerRunner._terminate_pool(t)
-        # multiprocessing.Pool.join() takes the timeout as a keyword.
-        assert join_kwargs.get("timeout") is not None
+        assert calls == ["terminate", "join"]
         assert t._warm_pool is None
 
-    def test_terminate_pool_survives_join_timeout(self):
-        """_terminate_pool doesn't hang if pool.join times out."""
+    def test_terminate_pool_survives_failing_join(self):
+        """_terminate_pool still clears the pool if join() raises."""
         t = MockWarmTemplater()
 
-        def _hang_join(timeout=None):
-            # Simulate join timing out (returns without raising).
-            pass
+        def _failing_join():
+            raise RuntimeError("join failed")
 
-        t._warm_pool = types.SimpleNamespace(terminate=lambda: None, join=_hang_join)
-        # Should complete without hanging.
+        t._warm_pool = types.SimpleNamespace(terminate=lambda: None, join=_failing_join)
         WarmWorkerRunner._terminate_pool(t)
         assert t._warm_pool is None
 

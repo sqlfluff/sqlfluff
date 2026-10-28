@@ -818,12 +818,21 @@ class WarmWorkerRunner(MultiProcessRunner):
 
     @staticmethod
     def _get_init_modules(templater: Any) -> list[str]:
-        """Get the list of modules to pre-import in warm workers."""
+        """Get the list of modules to pre-import in warm workers.
+
+        Pre-importing is an optimisation, so a templater that only implements
+        the hooks checked by ``_use_warm_workers()`` gets an empty list rather
+        than an ``AttributeError``.
+        """
         if hasattr(templater, "get_warm_worker_init_modules"):
             result: list[str] = templater.get_warm_worker_init_modules()
             return result
-        # Fallback to legacy single-module methods.
-        modules: list[str] = [templater.get_warm_worker_module()]
+        # Fallback to legacy single-module methods, which were the whole
+        # contract before the plural hook existed.
+        get_module = getattr(templater, "get_warm_worker_module", None)
+        if get_module is None:
+            return []
+        modules: list[str] = [get_module()]
         if hasattr(templater, "get_warm_worker_adapter_module"):
             adapter = templater.get_warm_worker_adapter_module()
             if adapter:

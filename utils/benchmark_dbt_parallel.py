@@ -704,6 +704,10 @@ def print_results(results: list[dict]) -> None:
     print("  dbt Parallel Templating Benchmark Results")
     print("=" * 78)
 
+    if not by_procs:
+        print("\n  No iterations were run, so there is nothing to summarise.")
+        return
+
     # The baseline is the row with the fewest processes, which is not
     # necessarily serial: a run of only ``--processes 4,8`` has no serial
     # measurement to normalise against. Efficiency is therefore scaled by the
@@ -939,6 +943,16 @@ def main():
     process_counts = [int(x.strip()) for x in args.processes.split(",")]
     if any(c < 1 for c in process_counts):
         print("Error: --processes values must be positive integers.", file=sys.stderr)
+        sys.exit(1)
+
+    if args.iterations < 1:
+        print(
+            "Error: --iterations must be at least 1 (nothing would be timed).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if args.warmup < 0:
+        print("Error: --warmup must not be negative.", file=sys.stderr)
         sys.exit(1)
 
     # Only require dbt-duckdb when generating a synthetic project

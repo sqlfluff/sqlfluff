@@ -330,6 +330,13 @@ def test_print_results_single_iteration_no_crash(capsys):
     bench.print_results(results)
 
 
+def test_print_results_without_results(capsys):
+    """An empty result set prints a note instead of raising from min()."""
+    bench.print_results([])
+    out = capsys.readouterr().out
+    assert "No iterations were run" in out
+
+
 # -- dbt executable discovery ------------------------------------------------
 
 

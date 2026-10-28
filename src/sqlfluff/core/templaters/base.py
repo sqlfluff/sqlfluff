@@ -593,17 +593,18 @@ class RawTemplater:
         Linter). Both the runner's error path and ``__del__`` call this, so
         the teardown logic only needs fixing in one place.
 
-        Uses a join timeout to prevent deadlock if a worker is stuck in a C
-        extension (pickle, Jinja) and doesn't respond to the SIGTERM that
-        ``pool.terminate()`` sends. ``getattr`` is used throughout so that
-        duck-typed templaters which don't inherit from this class can be
-        passed in.
+        ``pool.terminate()`` is what joins the workers, and it does so without
+        a bound, so a worker stuck in a C extension (pickle, Jinja) can still
+        delay shutdown; the standard pool API offers no join timeout to cap
+        that. The following ``pool.join()`` only reaps the pool's helper
+        threads. ``getattr`` is used throughout so that duck-typed templaters
+        which don't inherit from this class can be passed in.
         """
         pool = getattr(self, "_warm_pool", None)
         if pool is not None:
             try:
                 pool.terminate()
-                pool.join(timeout=5)
+                pool.join()
             except Exception:
                 pass
             self._warm_pool = None
