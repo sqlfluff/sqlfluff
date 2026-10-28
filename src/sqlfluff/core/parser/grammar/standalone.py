@@ -85,9 +85,11 @@ class StandaloneLineMatcher(Matchable):
         "Alone" means that from the start of the line up to the match, and
         from the end of the match to the end of the line, there is nothing
         except whitespace, meta segments or the newline itself. A match at the
-        very beginning or end of the file is also considered standalone. A
-        comment on the same line prevents the match: SQL*Plus requires its
-        slash command to occupy a line by itself.
+        very beginning or end of the file is also considered standalone.
+        By default, a same-line comment prevents a match. When
+        resume_keywords is configured, a trailing comment is accepted if
+        only gaps follow it until EOF or the next non-gap segment matches
+        a configured keyword. This is a heuristic for dialects that allow it.
         """
         inner_match = self.matcher.match(segments, idx, parse_context)
         if not inner_match:
