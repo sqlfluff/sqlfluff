@@ -82,3 +82,48 @@ def test_diff_quality_skips_missing_or_non_sql_files(src_paths, monkeypatch, tmp
     reporter = diff_quality_plugin.diff_cover_report_quality()
     reporter.driver_tool_installed = True
     assert not reporter.violations_batch(src_paths)
+
+
+@pytest.mark.parametrize(
+    "options,configured_rules,expected_violations",
+    [
+        (None, "CP01", [(1, "Keywords must be upper case.")]),
+        ("--rules CP01", "LT12", [(1, "Keywords must be upper case.")]),
+        ("--rules LT12", "CP01", []),
+        ("--exclude-rules CP01", "CP01", []),
+    ],
+)
+def test_diff_quality_rule_options(
+    options, configured_rules, expected_violations, monkeypatch, tmp_path
+):
+    """Rule options must affect lint results, not just appear in the command (#1759)."""
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        f"rules = {configured_rules}\n"
+        "[sqlfluff:rules:capitalisation.keywords]\n"
+        "capitalisation_policy = upper\n"
+    )
+    (tmp_path / "example.sql").write_text("select 1\n")
+
+    def execute(command, exit_codes):
+        # Use the real CLI via the same in-process seam as the integration tests
+        # above, avoiding a subprocess while preserving option/config precedence.
+        args = [
+            c.decode(sys.getfilesystemencoding()) if isinstance(c, bytes) else c
+            for c in command
+        ]
+        result = invoke_assert_code(
+            ret_code=1 if expected_violations else 0,
+            args=[lint, args[2:]],
+        )
+        return result.output, ""
+
+    monkeypatch.setattr(diff_quality_plugin, "execute", execute)
+    reporter = diff_quality_plugin.diff_cover_report_quality(options=options)
+    reporter.driver_tool_installed = True
+    violations = reporter.violations_batch(["example.sql"])
+    assert [
+        (v.line, v.message) for v in violations["example.sql"]
+    ] == expected_violations
