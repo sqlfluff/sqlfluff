@@ -52,6 +52,29 @@ def _validate_blocks(sliced: list[TemplatedFileSlice]) -> None:
         raise ValueError("unclosed Jinja blocks in dbt trace")
 
 
+def _protect_unrendered_tail(
+    raw: list[RawFileSlice], sliced: list[TemplatedFileSlice], start: int
+) -> list[RawFileSlice]:
+    """Keep renderer-stripped text out of patches for wholly literal segments."""
+    if not raw or raw[-1].slice_type != "literal":
+        return raw
+    tail = raw[-1]
+    start = max(start, tail.source_idx)
+    if start >= tail.end_source_idx() or any(
+        item.source_slice.stop > start
+        and item.templated_slice.stop > item.templated_slice.start
+        for item in sliced
+    ):
+        return raw
+    split = start - tail.source_idx
+    prefix = [tail._replace(raw=tail.raw[:split])] if split else []
+    return [
+        *raw[:-1],
+        *prefix,
+        tail._replace(raw=tail.raw[split:], source_idx=start, slice_type="templated"),
+    ]
+
+
 def trace_to_templated_file(
     trace: dict[str, Any], source: str, fname: str
 ) -> TemplatedFile:
@@ -180,6 +203,9 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
         source_cursor = src.stop
     fill_gap(len(rendered))
     if source_cursor < len(source):
+        # dbt strips the final newline. It remains source text, but must not be
+        # included in a literal patch whose replacement is only rendered SQL.
+        raw = _protect_unrendered_tail(raw, sliced, source_cursor)
         omitted(len(source))
     if not sliced:
         sliced = [TemplatedFileSlice("literal", slice(0, 0), slice(0, 0))]

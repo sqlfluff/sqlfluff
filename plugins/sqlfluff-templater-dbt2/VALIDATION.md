@@ -6,8 +6,8 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
 
 ## Checks
 
-- Passed 70 ordinary consumer tests, seven legacy-plugin version-selection
-  tests and three live integration tests (80 tests total).
+- Passed 71 ordinary consumer tests, seven legacy-plugin version-selection
+  tests and three live integration tests (81 tests total).
 - Passed the repository's complete pre-commit checks, including formatting,
   linting, type checking, spelling and YAML checks.
 - Built the source distribution and a `py3-none-any` wheel. The wheel contains
@@ -22,11 +22,13 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
   CLI vars and manifest/source identity, and reject stale or ambiguous traces.
 - Version-selection tests check both templaters' guidance and lazy import
   behavior, including dbt v2 prereleases and legacy Python dbt.
-- The opt-in live tests compiles the DuckDB fixture using the actual upstream
+- The opt-in live tests compile the DuckDB fixture using the actual upstream
   build, checks a pre-injection trace with an ephemeral dependency, fixes source,
   recompiles idempotently and persists a source fix through the real SQLFluff CLI.
   A two-model pass, including elif, uses one real compile with two lint workers.
   A disabled model produces a skip warning without a templater error.
+  Fixes also preserve the source's final newline when dbt strips it from a
+  wholly literal model's rendered output.
 
 The debug runtime needed `RUST_LOG=debug` and `DBT_LOG_LEVEL=debug` in the test
 environment. Those are inherited by child processes, not forced by the plugin.

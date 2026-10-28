@@ -106,7 +106,7 @@ def test_live_batch_with_elif_and_parallel_workers(tmp_path, monkeypatch):
         encoding="utf-8",
     )
     second = project / "models/second.sql"
-    second.write_text("select {{ 2 }}\n", encoding="utf-8")
+    second.write_text("select 2\n", encoding="utf-8")
     (project / ".sqlfluff").write_text(
         "[sqlfluff]\ntemplater = dbt2\ndialect = duckdb\nrules = CP01\n"
         f"[sqlfluff:templater:dbt2]\nproject_dir = {project}\nprofiles_dir = {project}\n"
@@ -136,7 +136,7 @@ def test_live_batch_with_elif_and_parallel_workers(tmp_path, monkeypatch):
     assert fixes["probe.sql"] == (
         "{% if false %}select 0{% elif true %}SELECT 1{% else %}select 2{% endif %}\n"
     )
-    assert fixes["second.sql"] == "SELECT {{ 2 }}\n"
+    assert fixes["second.sql"] == "SELECT 2\n"
 
 
 def test_live_disabled_models_warn_without_template_errors(

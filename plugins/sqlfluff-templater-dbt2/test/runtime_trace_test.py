@@ -30,6 +30,7 @@ def make_config(**settings):
 @pytest.mark.parametrize(
     "case,expected",
     [
+        ("literal", "SELECT 1\n"),
         ("expression", "SELECT {{ var('value') }} AS x FROM t\n"),
         ("branch_false", "{% if var('flag') %}select 1{% else %}SELECT 1{% endif %}\n"),
         ("loop", "{% for n in [1,2,3] %}SELECT {{ n }} AS x;\n{% endfor %}"),
