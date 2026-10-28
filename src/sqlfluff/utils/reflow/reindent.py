@@ -1709,15 +1709,17 @@ def _lint_line_buffer_indents(
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
     )
-    reflow_logger.debug(
-        "  Line Content: %s",
-        [
-            repr(elem.raw)
-            for elem in elements[
-                indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
-            ]
-        ],
-    )
+    # Only build the line content when it will be logged.
+    if reflow_logger.isEnabledFor(logging.DEBUG):
+        reflow_logger.debug(
+            "  Line Content: %s",
+            [
+                repr(elem.raw)
+                for elem in elements[
+                    indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
+                ]
+            ],
+        )
     reflow_logger.debug("  Indent Line: %s", indent_line)
     reflow_logger.debug("  Forced Indents: %s", forced_indents)
     reflow_logger.debug("  Imbalanced Indent Locs: %s", imbalanced_indent_locs)
