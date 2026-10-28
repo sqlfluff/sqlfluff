@@ -198,6 +198,7 @@ UNRESERVED_KEYWORDS = [
     "INTEGRITY",
     "INTERSECT",
     "INTO",
+    "INVALID",
     "IS",
     "ISNULL",
     "ISOBID",
