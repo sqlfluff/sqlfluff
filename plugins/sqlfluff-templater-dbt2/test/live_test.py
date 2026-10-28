@@ -92,6 +92,8 @@ def test_live_lint_fix_and_cli(tmp_path, monkeypatch):
         },
     )
     assert run.returncode == 0, (run.stdout, run.stderr)
+    assert run.stdout.count("=== [dbt2 templater] Compiling dbt project...") == 1
+    assert run.stdout.count("=== [dbt2 templater] Project Compiled.") == 1
     assert model.read_text(encoding="utf-8") == expected
 
 

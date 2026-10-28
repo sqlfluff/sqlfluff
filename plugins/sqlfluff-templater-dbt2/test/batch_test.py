@@ -1,7 +1,5 @@
 """Share one fresh compilation across all files in a lint pass."""
 
-import json
-import subprocess
 from pathlib import Path
 
 import pytest
@@ -19,48 +17,6 @@ def make_config(project, target="dev"):
             "templater": {"dbt2": {"project_dir": str(project), "target": target}},
         }
     )
-
-
-@pytest.fixture
-def batch_runtime(tmp_path, monkeypatch, traces):
-    """Emulate one dbt invocation emitting all selected models and a manifest."""
-    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
-    monkeypatch.setattr(Dbt2Templater, "_command", lambda *_: ["dbt"])
-    paths = [tmp_path / "first.sql", tmp_path / "second.sql"]
-    for path in paths:
-        path.write_text(traces["literal"]["source"], encoding="utf-8")
-    calls = []
-    failures = []
-
-    def run(command, **kwargs):
-        calls.append(command)
-        if failures:
-            return subprocess.CompletedProcess(command, 1, "", "compile failed")
-        target = Path(command[command.index("--target-path") + 1])
-        target.mkdir()
-        manifest = {"metadata": {"invocation_id": "invocation"}, "nodes": {}}
-        selectors = command[command.index("--select") + 1 : command.index("--feature")]
-        for selector in selectors:
-            path = tmp_path / selector.removeprefix("path:")
-            uid = f"model.example.{path.stem}"
-            trace = {
-                **traces["literal"],
-                "source_path": str(path),
-                "filename": str(path),
-                "unique_id": uid,
-                "invocation_id": "invocation",
-            }
-            (target / f"{path.stem}.render_trace.json").write_text(
-                json.dumps(trace), encoding="utf-8"
-            )
-            manifest["nodes"][uid] = {
-                "original_file_path": path.relative_to(tmp_path).as_posix()
-            }
-        (target / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        return subprocess.CompletedProcess(command, 0, "", "")
-
-    monkeypatch.setattr(subprocess, "run", run)
-    return paths, calls, failures
 
 
 def test_one_compile_serves_multiple_files(batch_runtime):

@@ -64,6 +64,20 @@ sqlfluff lint path/to/model.sql
 sqlfluff fix path/to/model.sql
 ```
 
+The CLI reports compilation progress once for the selected batch, before the
+individual file results:
+
+```text
+=== [dbt2 templater] Compiling dbt project...
+=== [dbt2 templater] Project Compiled.
+```
+
+A failed compilation reports `Compilation Failed.` and the usual templater
+errors. Quiet mode and machine-readable output suppress these status messages.
+Use `-vvvv` for debug logging of captured dbt stdout/stderr, batch size, loaded
+artifacts and per-file trace reuse. Library calls without a formatter emit no
+progress output.
+
 The Python plugin intentionally does not declare a dependency on a released dbt
 version that lacks the proposed exporter. Before publication, that requirement
 must name the first upstream release shipping a supported trace API. The

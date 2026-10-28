@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import subprocess
 import sys
@@ -21,6 +22,8 @@ from sqlfluff_templater_dbt2.trace import normalize_newlines, trace_to_templated
 if TYPE_CHECKING:
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.formatter import FormatterInterface
+
+templater_logger = logging.getLogger("sqlfluff.templater")
 
 TRACE_PR = "https://github.com/dbt-labs/dbt/pull/16870"
 LEGACY_DBT = (
@@ -74,7 +77,7 @@ class Dbt2Templater(RawTemplater):
             self._batch_paths = set(paths)
             try:
                 self._batch = self._compile(
-                    settings, project, list(dict.fromkeys(paths))
+                    settings, project, list(dict.fromkeys(paths)), formatter
                 )
             except (SQLTemplaterError, SQLFluffUserError) as error:
                 # Surface a failed batch through each file's normal render path,
@@ -103,7 +106,7 @@ class Dbt2Templater(RawTemplater):
         """Compile on-disk SQL with upstream dbt and consume its trace sidecar."""
         settings = self._settings(config)
         try:
-            trace = self._runtime(in_str, fname, settings)
+            trace = self._runtime(in_str, fname, settings, formatter)
             return trace_to_templated_file(trace, in_str, fname), []
         except (
             OSError,
@@ -122,6 +125,9 @@ class Dbt2Templater(RawTemplater):
             errors="strict",
             timeout=timeout,
         )
+        for stream, output in (("stdout", result.stdout), ("stderr", result.stderr)):
+            if output:
+                templater_logger.debug("dbt2 %s:\n%s", stream, output.rstrip())
         if result.returncode:
             raise SQLTemplaterError(
                 f"dbt exited {result.returncode}:\n"
@@ -160,7 +166,11 @@ class Dbt2Templater(RawTemplater):
         return command
 
     def _runtime(
-        self, source: str, fname: str, settings: dict[str, Any]
+        self,
+        source: str,
+        fname: str,
+        settings: dict[str, Any],
+        formatter: FormatterInterface | None = None,
     ) -> dict[str, Any]:
         path = Path(fname).resolve()
         if fname == "stdin" or not path.is_file():
@@ -182,10 +192,42 @@ class Dbt2Templater(RawTemplater):
             if self._batch_error is not None:
                 raise self._batch_error
             if self._batch is not None:
+                templater_logger.debug("Using batched dbt2 render trace for %s", path)
                 return self._batch.trace_for(path, source)
-        return self._compile(settings, project, [path]).trace_for(path, source)
+        return self._compile(settings, project, [path], formatter).trace_for(
+            path, source
+        )
 
     def _compile(
+        self,
+        settings: dict[str, Any],
+        project: Path,
+        paths: list[Path],
+        formatter: FormatterInterface | None = None,
+    ) -> RenderArtifacts:
+        """Report progress through the CLI's existing output policy."""
+        # Compilation headers are an optional extension to FormatterInterface,
+        # used by the legacy dbt templater and SQLFluff's CLI formatter.
+        dispatch_header = getattr(formatter, "dispatch_compilation_header", None)
+        if dispatch_header:
+            dispatch_header("dbt2 templater", "Compiling dbt project...")
+        templater_logger.debug(
+            "Compiling dbt2 project %s for %d selected files", project, len(paths)
+        )
+        try:
+            artifacts = self._compile_project(settings, project, paths)
+        except Exception:
+            if dispatch_header:
+                dispatch_header("dbt2 templater", "Compilation Failed.")
+            raise
+        templater_logger.debug(
+            "Loaded dbt2 render artifacts for %d source files", len(artifacts.traces)
+        )
+        if dispatch_header:
+            dispatch_header("dbt2 templater", "Project Compiled.")
+        return artifacts
+
+    def _compile_project(
         self, settings: dict[str, Any], project: Path, paths: list[Path]
     ) -> RenderArtifacts:
         """Invoke dbt once and load all emitted JSON before deleting temporary files."""

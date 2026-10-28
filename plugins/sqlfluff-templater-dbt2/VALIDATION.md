@@ -6,8 +6,8 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
 
 ## Checks
 
-- Passed 71 ordinary consumer tests, seven legacy-plugin version-selection
-  tests and three live integration tests (81 tests total).
+- Passed 83 ordinary consumer tests, seven legacy-plugin version-selection
+  tests and three live integration tests (93 tests total).
 - Passed the repository's complete pre-commit checks, including formatting,
   linting, type checking, spelling and YAML checks.
 - Built the source distribution and a `py3-none-any` wheel. The wheel contains
@@ -20,6 +20,10 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
   identical branches, loops, captures, macros, Unicode/CRLF, whitespace and noqa.
 - Runtime invocation tests check the upstream feature flag, fresh target paths,
   CLI vars and manifest/source identity, and reject stale or ambiguous traces.
+- Progress tests check compilation headers before runtime startup, one pair per
+  batch, failure reporting, individual-file fallback and silent API calls.
+  Real CLI tests exercise human, quiet and JSON output on success and failure;
+  debug logging exposes captured dbt output and per-file trace reuse.
 - Version-selection tests check both templaters' guidance and lazy import
   behavior, including dbt v2 prereleases and legacy Python dbt.
 - The opt-in live tests compile the DuckDB fixture using the actual upstream
