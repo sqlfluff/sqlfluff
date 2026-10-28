@@ -6,8 +6,8 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
 
 ## Checks
 
-- Passed 63 ordinary consumer tests, seven legacy-plugin version-selection
-  tests and two live integration tests (72 tests total).
+- Passed 70 ordinary consumer tests, seven legacy-plugin version-selection
+  tests and three live integration tests (80 tests total).
 - Passed the repository's complete pre-commit checks, including formatting,
   linting, type checking, spelling and YAML checks.
 - Built the source distribution and a `py3-none-any` wheel. The wheel contains
@@ -26,6 +26,7 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
   build, checks a pre-injection trace with an ephemeral dependency, fixes source,
   recompiles idempotently and persists a source fix through the real SQLFluff CLI.
   A two-model pass, including elif, uses one real compile with two lint workers.
+  A disabled model produces a skip warning without a templater error.
 
 The debug runtime needed `RUST_LOG=debug` and `DBT_LOG_LEVEL=debug` in the test
 environment. Those are inherited by child processes, not forced by the plugin.
@@ -37,5 +38,5 @@ unreleased API is stable or that all Fusion/dbt v2 projects are supported.
 Validation does not cover live warehouse introspection, all adapters,
 product-specific factories, release builds or other operating systems.
 The reference implementation deliberately rejects unsaved source and
-unmappable inputs; snapshot rewriting, disabled models, branch exploration and
+unmappable inputs; snapshot rewriting, branch exploration and
 broader compatibility coverage remains follow-up work.

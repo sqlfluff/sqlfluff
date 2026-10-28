@@ -1,5 +1,6 @@
 """Opt-in end-to-end validation against an installed dbt#16870 runtime build."""
 
+import logging
 import os
 import shutil
 import subprocess
@@ -136,3 +137,37 @@ def test_live_batch_with_elif_and_parallel_workers(tmp_path, monkeypatch):
         "{% if false %}select 0{% elif true %}SELECT 1{% else %}select 2{% endif %}\n"
     )
     assert fixes["second.sql"] == "SELECT {{ 2 }}\n"
+
+
+def test_live_disabled_models_warn_without_template_errors(
+    tmp_path, monkeypatch, caplog
+):
+    """A successful batch distinguishes a disabled model from missing provenance."""
+    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
+    project = tmp_path / "project"
+    shutil.copytree(Path(__file__).parent / "fixtures/project", project)
+    disabled = project / "models/disabled.sql"
+    disabled.write_text("{{ config(enabled=false) }}\nselect 3\n", encoding="utf-8")
+    (project / ".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = dbt2\ndialect = duckdb\nrules = CP01\n"
+        f"[sqlfluff:templater:dbt2]\nproject_dir = {project}\nprofiles_dir = {project}\n",
+        encoding="utf-8",
+    )
+    config = FluffConfig.from_path(str(project))
+    execute = Dbt2Templater._execute
+    calls = []
+
+    def counted(command, timeout):
+        calls.append(command)
+        return execute(command, timeout)
+
+    monkeypatch.setattr(Dbt2Templater, "_execute", staticmethod(counted))
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+        result = Linter(config=config).lint_paths([str(disabled)], processes=1)
+    assert "Skipped disabled dbt model" in caplog.text
+    assert all(
+        not file.get_violations(types=SQLTemplaterError)
+        for directory in result.paths
+        for file in directory.files
+    )
+    assert len(calls) == 1

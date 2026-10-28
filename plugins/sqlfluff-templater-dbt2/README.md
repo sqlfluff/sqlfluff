@@ -89,6 +89,10 @@ macro output remains nonliteral and is not eligible for direct source fixes.
 The trace describes Jinja SQL **before ephemeral CTE injection**. The consumer
 uses the trace's own `rendered` string, not the final compiled SQL file.
 Unknown, stale, ambiguous or incomplete provenance is rejected.
+After a successful compile, a missing trace is skipped with a warning only
+when the same invocation's manifest explicitly lists that source as disabled.
+An enabled or unknown model without a trace still produces a templater error;
+a failed compilation is never interpreted as a disabled model.
 Unbalanced Jinja layout is rejected before lexer work is dispatched, so malformed
 traces from an older exporter produce templater errors instead of block-stack
 panics in lint workers.
@@ -129,7 +133,7 @@ selected files in one invocation and reuses those traces for that lint pass.
 A new pass recompiles; changed per-file settings use a separate invocation,
 and source edited after the batch is rejected. Direct process() calls outside
 a lint pass compile individually.
-Unsaved buffers, disabled models, source-rewritten snapshots and alternate
+Unsaved buffers, source-rewritten snapshots and alternate
 branch renders still need work. Broad adapter/warehouse and product-specific
 Fusion compatibility remain unvalidated.
 

@@ -54,6 +54,8 @@ describe the format. SQLFluff depends on:
   UTF-8 byte ranges. Repeated source ranges and nested macro ranges are allowed.
 - Source, model and invocation identity matching the freshly emitted manifest.
 - A requested trace coming from a fresh render, even when compiled SQL is cached.
+- Disabled nodes emit no stub. Their full source path and explicit disabled status
+  in the same invocation's manifest distinguish a skip from missing output.
 
 The Python adapter validates these assumptions before constructing writable
 source mappings. It accepts compatible producer versions without an exact dbt
