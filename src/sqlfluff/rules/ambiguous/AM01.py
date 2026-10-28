@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -46,14 +47,36 @@ class Rule_AM01(BaseRule):
         # We know it's a select_statement from the seeker crawler
         assert segment.all(sp.is_type("select_statement"))
         # Do we have a group by clause
-        if segment.children(sp.is_type("groupby_clause")):
+        group_by = segment.children(sp.is_type("groupby_clause"))
+        if group_by:
             # Do we have the "DISTINCT" keyword in the select clause
             modifier = segment.children(sp.is_type("select_clause")).children(
                 sp.is_type("select_clause_modifier")
             )
             distinct = modifier.children(sp.is_keyword("distinct"))
-            # DISTINCT ON (...) keeps one row per value of its expressions,
-            # so GROUP BY doesn't make it redundant.
-            if distinct and not modifier.children(sp.is_keyword("on")):
-                return LintResult(anchor=distinct[0])
+            if not distinct:
+                return None
+            # DISTINCT ON (...) keeps one row per value of its expressions. It is
+            # only redundant when every GROUP BY term is one of those expressions,
+            # because the grouped rows are then already unique on that key.
+            on_list = modifier.children(sp.is_type("bracketed"))
+            if modifier.children(sp.is_keyword("on")) and on_list:
+                group_terms = self._list_terms(group_by[0])
+                if not group_terms or not group_terms <= self._list_terms(on_list[0]):
+                    return None
+            return LintResult(anchor=distinct[0])
         return None
+
+    @staticmethod
+    def _list_terms(segment: BaseSegment) -> set[str]:
+        """Return the normalised terms of a comma separated list.
+
+        Keywords, commas and brackets are skipped. Each term is compared by its
+        upper-cased code, so whitespace, comments and case don't matter.
+        """
+        return {
+            "".join(raw.raw_upper for raw in child.raw_segments if raw.is_code)
+            for child in segment.segments
+            if child.is_code
+            and not child.is_type("keyword", "comma", "start_bracket", "end_bracket")
+        }

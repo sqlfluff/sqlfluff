@@ -8,8 +8,8 @@ test_fail_distinct_and_group_by:
   fail_str: select distinct a from b group by a
 
 test_pass_distinct_on_and_group_by:
-  # DISTINCT ON keeps one row per value of its expressions, which GROUP BY
-  # doesn't do, so the two aren't redundant.
+  # DISTINCT ON (a) keeps one row per value of a, but grouping by a and b can
+  # give several rows per a, so DISTINCT ON still removes rows here.
   pass_str: select distinct on (a) a, b from t group by a, b
   configs:
     core:
@@ -20,6 +20,28 @@ test_pass_distinct_on_and_group_by_duckdb:
   configs:
     core:
       dialect: duckdb
+
+test_pass_distinct_on_and_group_by_all:
+  # GROUP BY ALL has no terms to compare against, so don't flag it.
+  pass_str: select distinct on (a) a, b from t group by all
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_distinct_on_matching_group_by:
+  # Every GROUP BY term is in the DISTINCT ON list, so the grouped rows are
+  # already unique on that key and DISTINCT ON is redundant.
+  fail_str: select distinct on (a) a from t group by a
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_distinct_on_matching_group_by_reordered:
+  # Order, case and whitespace don't matter when comparing the terms.
+  fail_str: select distinct on (a, lower(b)) a from t group by LOWER( b ), a
+  configs:
+    core:
+      dialect: postgres
 
 test_fail_distinct_and_group_by_postgres:
   # Plain DISTINCT is still flagged in dialects that support DISTINCT ON.
