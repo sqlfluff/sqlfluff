@@ -92,3 +92,47 @@ def test_live_lint_fix_and_cli(tmp_path, monkeypatch):
     )
     assert run.returncode == 0, (run.stdout, run.stderr)
     assert model.read_text(encoding="utf-8") == expected
+
+
+def test_live_batch_with_elif_and_parallel_workers(tmp_path, monkeypatch):
+    """One real compile serves multiple worker jobs, including the reported elif case."""
+    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
+    project = tmp_path / "project"
+    shutil.copytree(Path(__file__).parent / "fixtures/project", project)
+    first = project / "models/probe.sql"
+    first.write_text(
+        "{% if false %}select 0{% elif true %}select 1{% else %}select 2{% endif %}\n",
+        encoding="utf-8",
+    )
+    second = project / "models/second.sql"
+    second.write_text("select {{ 2 }}\n", encoding="utf-8")
+    (project / ".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = dbt2\ndialect = duckdb\nrules = CP01\n"
+        f"[sqlfluff:templater:dbt2]\nproject_dir = {project}\nprofiles_dir = {project}\n"
+        "[sqlfluff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n",
+        encoding="utf-8",
+    )
+    config = FluffConfig.from_path(str(project))
+    execute = Dbt2Templater._execute
+    calls = []
+
+    def counted(command, timeout):
+        calls.append(command)
+        return execute(command, timeout)
+
+    monkeypatch.setattr(Dbt2Templater, "_execute", staticmethod(counted))
+    result = Linter(config=config).lint_paths(
+        [str(first), str(second)], fix=True, processes=2
+    )
+    files = [file for directory in result.paths for file in directory.files]
+    assert len(files) == 2
+    assert all(
+        not file.get_violations(types=(SQLTemplaterError, SQLParseError))
+        for file in files
+    )
+    assert len(calls) == 1
+    fixes = {Path(file.path).name: file.fix_string()[0] for file in files}
+    assert fixes["probe.sql"] == (
+        "{% if false %}select 0{% elif true %}SELECT 1{% else %}select 2{% endif %}\n"
+    )
+    assert fixes["second.sql"] == "SELECT {{ 2 }}\n"

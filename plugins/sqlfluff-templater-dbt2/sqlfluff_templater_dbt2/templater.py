@@ -15,6 +15,7 @@ from packaging.version import Version
 
 from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import RawTemplater, TemplatedFile, large_file_check
+from sqlfluff_templater_dbt2.artifacts import RenderArtifacts
 from sqlfluff_templater_dbt2.trace import normalize_newlines, trace_to_templated_file
 
 if TYPE_CHECKING:
@@ -34,6 +35,62 @@ class Dbt2Templater(RawTemplater):
     name = "dbt2"
     templates_in_worker = False
 
+    def __init__(self, override_context: dict[str, Any] | None = None) -> None:
+        super().__init__(override_context=override_context)
+        self._batch: RenderArtifacts | None = None
+        self._batch_key: str | None = None
+        self._batch_paths: set[Path] = set()
+        self._batch_error: SQLTemplaterError | SQLFluffUserError | None = None
+
+    @staticmethod
+    def _settings(config: FluffConfig | None) -> dict[str, Any]:
+        return dict(config.get_section(("templater", "dbt2")) or {}) if config else {}
+
+    def _settings_key(self, settings: dict[str, Any]) -> str:
+        return json.dumps(
+            [settings, self.override_context], sort_keys=True, default=str
+        )
+
+    def sequence_files(
+        self,
+        fnames: list[str],
+        config: FluffConfig | None = None,
+        formatter: FormatterInterface | None = None,
+    ) -> list[str]:
+        """Compile selected files together, retaining artifacts for this pass only."""
+        self._batch = None
+        self._batch_error = None
+        self._batch_key = None
+        self._batch_paths = set()
+        settings = self._settings(config)
+        project = Path(settings.get("project_dir", ".")).expanduser().resolve()
+        paths = [
+            Path(name).resolve()
+            for name in fnames
+            if Path(name).is_file() and Path(name).resolve().is_relative_to(project)
+        ]
+        if paths:
+            self._batch_key = self._settings_key(settings)
+            self._batch_paths = set(paths)
+            try:
+                self._batch = self._compile(
+                    settings, project, list(dict.fromkeys(paths))
+                )
+            except (SQLTemplaterError, SQLFluffUserError) as error:
+                # Surface a failed batch through each file's normal render path,
+                # rather than aborting the runner while it sequences files.
+                self._batch_error = error
+            except (
+                OSError,
+                subprocess.SubprocessError,
+                UnicodeError,
+                json.JSONDecodeError,
+            ) as error:
+                self._batch_error = SQLTemplaterError(
+                    f"dbt2 trace export failed: {error}"
+                )
+        return fnames
+
     @large_file_check
     def process(
         self,
@@ -44,9 +101,7 @@ class Dbt2Templater(RawTemplater):
         formatter: FormatterInterface | None = None,
     ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Compile on-disk SQL with upstream dbt and consume its trace sidecar."""
-        settings = (
-            (config.get_section(("templater", self.name)) or {}) if config else {}
-        )
+        settings = self._settings(config)
         try:
             trace = self._runtime(in_str, fname, settings)
             return trace_to_templated_file(trace, in_str, fname), []
@@ -116,10 +171,24 @@ class Dbt2Templater(RawTemplater):
             raise SQLTemplaterError("dbt2 requires the current on-disk source")
         project = Path(settings.get("project_dir", ".")).expanduser().resolve()
         try:
-            relative = path.relative_to(project).as_posix()
+            path.relative_to(project)
         except ValueError as error:
             raise SQLTemplaterError("Model must be inside dbt2 project_dir") from error
 
+        if (
+            self._batch_key == self._settings_key(settings)
+            and path in self._batch_paths
+        ):
+            if self._batch_error is not None:
+                raise self._batch_error
+            if self._batch is not None:
+                return self._batch.trace_for(path, source)
+        return self._compile(settings, project, [path]).trace_for(path, source)
+
+    def _compile(
+        self, settings: dict[str, Any], project: Path, paths: list[Path]
+    ) -> RenderArtifacts:
+        """Invoke dbt once and load all emitted JSON before deleting temporary files."""
         command = self._command(settings)
         with tempfile.TemporaryDirectory(prefix="sqlfluff-dbt2-") as temporary:
             target = Path(temporary) / "target"
@@ -132,7 +201,7 @@ class Dbt2Templater(RawTemplater):
                 "--log-path",
                 str(Path(temporary) / "logs"),
                 "--select",
-                f"path:{relative}",
+                *[f"path:{path.relative_to(project).as_posix()}" for path in paths],
                 "--feature",
                 "write_render_trace",
             ]
@@ -146,58 +215,11 @@ class Dbt2Templater(RawTemplater):
             if context:
                 command.extend(["--vars", json.dumps(context)])
             self._execute(command, int(settings.get("timeout", 300)))
-            return self._read_trace(target, project, path, source)
+            return RenderArtifacts.load(target, project)
 
     @staticmethod
     def _read_trace(
         target: Path, project: Path, model: Path, source: str
     ) -> dict[str, Any]:
-        """Check source and invocation identity before exposing writable mappings."""
-        candidates = []
-        for artifact in target.rglob("*.render_trace.json"):
-            trace = json.loads(artifact.read_text(encoding="utf-8"))
-            if not isinstance(trace, dict) or not isinstance(
-                trace.get("source_path"), str
-            ):
-                raise SQLTemplaterError("Invalid dbt2 trace source identity")
-            trace_path = Path(trace["source_path"])
-            if not trace_path.is_absolute():
-                trace_path = project / trace_path
-            if trace_path.resolve() == model:
-                candidates.append(trace)
-        if len(candidates) != 1:
-            raise SQLTemplaterError(
-                "dbt did not export exactly one render trace for this source file. "
-                f"Use a build containing {TRACE_PR}. Disabled models and rewritten "
-                "snapshot inputs are not supported by this reference implementation."
-            )
-        trace = candidates[0]
-        manifest_path = target / "manifest.json"
-        if not manifest_path.is_file():
-            raise SQLTemplaterError("dbt2 trace has no matching invocation manifest")
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if not isinstance(manifest, dict) or not isinstance(
-            manifest.get("nodes"), dict
-        ):
-            raise SQLTemplaterError("Invalid dbt2 invocation manifest")
-        if not isinstance(trace.get("unique_id"), str):
-            raise SQLTemplaterError("Invalid dbt2 model identity")
-        node = manifest.get("nodes", {}).get(trace.get("unique_id"), {})
-        if (
-            not isinstance(node, dict)
-            or not isinstance(node.get("original_file_path"), str)
-            or not isinstance(manifest.get("metadata"), dict)
-            or not trace.get("invocation_id")
-            or trace["invocation_id"]
-            != manifest.get("metadata", {}).get("invocation_id")
-            or Path(node["original_file_path"]).as_posix()
-            != model.relative_to(project).as_posix()
-        ):
-            raise SQLTemplaterError(
-                "dbt2 trace model/invocation identity does not match"
-            )
-        if not isinstance(trace.get("source"), str) or normalize_newlines(
-            trace["source"]
-        ) != normalize_newlines(source):
-            raise SQLTemplaterError("dbt2 source differs from the compiled source")
-        return trace
+        """Read and validate a single model from a completed invocation."""
+        return RenderArtifacts.load(target, project).trace_for(model, source)

@@ -71,8 +71,9 @@ eventual normal installation can then obtain the upstream runtime through pip.
 
 ## How the consumer works
 
-1. Compile the selected model with `--feature write_render_trace`, using fresh
-   temporary target and log directories.
+1. Compile the selected models together once per lint pass with `--feature write_render_trace`, using fresh
+   temporary target and log directories. Load the manifest and sidecars once,
+   then serve per-file traces from memory after removing the temporary output.
 2. Read the model's `*.render_trace.json` sidecar. Verify its source path, exact
    input, node identity and invocation against that compilation's manifest.
 3. Validate protocol version, render stage, UTF-8 byte boundaries, literal
@@ -123,9 +124,13 @@ See [VALIDATION.md](VALIDATION.md) for executed checks.
 ## Scope of this draft
 
 This is a reference implementation, not a claim of Core-templater parity.
-It compiles one selected file at a time and requires its current on-disk source.
-Unsaved buffers, disabled models, source-rewritten snapshots, alternate branch
-renders and batching still need work. Broad adapter/warehouse and product-specific
+It requires current on-disk source. The normal CLI/lint-paths flow compiles all
+selected files in one invocation and reuses those traces for that lint pass.
+A new pass recompiles; changed per-file settings use a separate invocation,
+and source edited after the batch is rejected. Direct process() calls outside
+a lint pass compile individually.
+Unsaved buffers, disabled models, source-rewritten snapshots and alternate
+branch renders still need work. Broad adapter/warehouse and product-specific
 Fusion compatibility remain unvalidated.
 
 The upstream flag and schema are experimental. A stable upstream contract and
