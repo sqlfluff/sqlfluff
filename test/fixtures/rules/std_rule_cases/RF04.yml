@@ -245,3 +245,14 @@ test_fail_mysql_keyword_column_name_still_flagged:
     rules:
       references.keywords:
         unquoted_identifiers_policy: all
+
+# Issue #7691: 'provider' is not a reserved keyword in postgres and should not trigger RF04
+test_pass_postgres_unreserved_column_name_provider:
+  pass_str: CREATE TABLE test (provider TEXT NOT NULL)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+

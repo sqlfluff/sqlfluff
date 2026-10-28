@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     ImplicitIndent,
     Indent,
+    KeywordSegment,
     LiteralKeywordSegment,
     LiteralSegment,
     Matchable,
@@ -6842,7 +6843,7 @@ class CreateCollationStatementSegment(BaseSegment):
                         Ref("QuotedLiteralSegment"),
                     ),
                     Sequence(
-                        "PROVIDER",
+                        StringParser("PROVIDER", KeywordSegment),
                         Ref("EqualsSegment"),
                         OneOf("ICU", "LIBC"),
                     ),
