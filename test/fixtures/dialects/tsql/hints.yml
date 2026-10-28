@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75c89d4f99d4e2455148bd3891465dd1f2468cacb1a26f09c86f6e3d06625349
+_hash: b6e192db6e920b6769958eb9bb5268d91019f785e9f0d43e14bc0facb13c0c12
 file:
 - batch:
     statement:
@@ -1025,5 +1025,34 @@ file:
                     query_hint_segment:
                       keyword: NOLOCK
                     end_bracket: )
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: v_orders
+        option_clause:
+          keyword: OPTION
+          bracketed:
+            start_bracket: (
+            query_hint_segment:
+            - keyword: EXPAND
+            - keyword: VIEWS
+            end_bracket: )
+    statement_terminator: ;
     go_statement:
       keyword: GO

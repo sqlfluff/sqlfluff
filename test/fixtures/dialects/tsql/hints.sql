@@ -110,3 +110,8 @@ GO
 SELECT ID
 FROM dbo.tableX (NOLOCK)
 GO
+
+SELECT *
+FROM dbo.v_orders
+OPTION (EXPAND VIEWS);
+GO
