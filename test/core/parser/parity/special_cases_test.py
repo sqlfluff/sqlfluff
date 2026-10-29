@@ -92,7 +92,13 @@ def test__parity__codegen_lexer_patterns_hash_seed_stable():
 
 @pytest.mark.parametrize("dialect_name", ["ansi", "postgres", "tsql"])
 def test__parity__codegen_hint_table_matches_python(dialect_name):
-    """The generated hint table says exactly what each grammar's simple() says.
+    """Every hint codegen computes says exactly what the grammar's simple() says.
+
+    This covers each grammar codegen asks for a hint, through
+    _add_simple_hint(): the position it stores in the instruction, and the
+    table entry at that position. Grammars codegen gives no hint without
+    asking, such as a segment class that forwards to its match_grammar, are
+    not covered.
 
     simple() has three answers, and the Rust tables must keep them apart:
     None (no hint, try a full match) is NO_SIMPLE_HINT; an empty hint (can
