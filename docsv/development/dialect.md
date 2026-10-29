@@ -299,9 +299,9 @@ mariadb_dialect.declare_keyword_sets(
 Each listed word gets that status. With `reserved_mode="replace"` the reserved
 list is the complete list, and any reserved word the dialect inherits but
 doesn't list becomes unreserved; with `"add"` the parent's reserved words stay.
-Nothing is ever dropped. Avoid `sets("reserved_keywords").clear()`: it drops the
-parent's words, and any of the parent's grammar that uses one then crashes in
-your dialect.
+Nothing is ever dropped from having a present status. Avoid
+`sets("reserved_keywords").clear()`: it drops the parent's words, and any of
+the parent's grammar that uses one then crashes in your dialect.
 
 The full guide, from the essentials to reconciling every keyword with your
 database, is in the docstring at the top of
