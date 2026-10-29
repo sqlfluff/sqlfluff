@@ -370,7 +370,7 @@ oracle_dialect.add(
         Ref("DotSegment"),
         Ref("DotSegment"),
         Ref("IterationBoundsGrammar"),
-        Sequence("BY", "STEP", optional=True),
+        Sequence("BY", Ref("IterationBoundsGrammar"), optional=True),
     ),
     ParallelEnableClauseGrammar=Sequence(
         "PARALLEL_ENABLE",
