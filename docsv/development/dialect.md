@@ -251,8 +251,8 @@ match this.
 
 Most dialects have a keywords file, `dialect_<name>_keywords.py`, listing
 the keywords. Some dialects just inherit their parent's keywords and then add
-or remove some. Not quite as accurate as managing the actual keywords, but a
-lot quicker and easier to manage usually!
+or recategorize some. Not quite as accurate as managing the actual keywords,
+but a lot quicker and easier to manage usually!
 
 Each keyword has a status:
 
