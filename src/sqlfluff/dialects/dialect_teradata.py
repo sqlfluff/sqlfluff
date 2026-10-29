@@ -112,6 +112,7 @@ teradata_dialect.declare_keyword_sets(
     ],
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 teradata_dialect.sets("bare_functions").update(["DATE"])

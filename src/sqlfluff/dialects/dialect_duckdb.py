@@ -100,6 +100,7 @@ duckdb_dialect.declare_keyword_sets(
     ],
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Add plural datetime units for interval expressions

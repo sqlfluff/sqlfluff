@@ -88,6 +88,7 @@ clickhouse_dialect.declare_keyword_sets(
     + ["MANAGEMENT", "REFRESH", "SETTING"],
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 clickhouse_dialect.insert_lexer_matchers(

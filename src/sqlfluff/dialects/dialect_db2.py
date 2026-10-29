@@ -64,6 +64,7 @@ db2_dialect.declare_keyword_sets(
     # so NATURAL is just a name here.
     unimplemented=["NATURAL"],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 

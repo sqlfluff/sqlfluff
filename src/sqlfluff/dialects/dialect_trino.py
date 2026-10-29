@@ -62,6 +62,7 @@ trino_dialect.declare_keyword_sets(
     unreserved=trino_unreserved_keywords.split(),
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 trino_dialect.insert_lexer_matchers(

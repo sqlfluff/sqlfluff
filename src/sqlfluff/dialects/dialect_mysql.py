@@ -220,6 +220,7 @@ mysql_dialect.declare_keyword_sets(
     unreserved=mysql_unreserved_keywords.split(),
     unimplemented=mysql_unimplemented_keywords.split(),
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Set the datetime units

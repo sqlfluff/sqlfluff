@@ -51,6 +51,7 @@ mariadb_dialect.declare_keyword_sets(
     unreserved=mariadb_unreserved_keywords.split(),
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # MariaDB has no gb18030 character set, so `_gb18030'x'` is the column

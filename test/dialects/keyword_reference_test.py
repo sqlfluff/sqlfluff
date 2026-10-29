@@ -1028,6 +1028,7 @@ def _declare(dialect: Dialect, mode: str = "add", **lists: list[str]) -> None:
         unreserved=lists.get("unreserved", []),
         unimplemented=lists.get("unimplemented", []),
         future_reserved=lists.get("future_reserved", []),
+        future_reserved_mode="replace",
     )
 
 

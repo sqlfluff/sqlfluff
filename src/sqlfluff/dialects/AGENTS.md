@@ -72,6 +72,7 @@ tsql_dialect.declare_keyword_sets(
     unreserved=[],
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Define new segments specific to T-SQL
@@ -327,6 +328,7 @@ tsql_dialect.declare_keyword_sets(
     unreserved=UNRESERVED_KEYWORDS,
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 ```
 

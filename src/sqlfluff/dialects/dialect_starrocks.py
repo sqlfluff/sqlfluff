@@ -54,6 +54,7 @@ starrocks_dialect.declare_keyword_sets(
     unreserved=starrocks_unreserved_keywords.split(),
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 

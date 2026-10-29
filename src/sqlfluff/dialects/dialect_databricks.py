@@ -52,6 +52,7 @@ databricks_dialect.declare_keyword_sets(
     unreserved=UNRESERVED_KEYWORDS,
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])

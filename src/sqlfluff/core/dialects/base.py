@@ -16,110 +16,14 @@ from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
 
-# The statuses a dialect can give a keyword, and the sets that hold them.
-#
-# Whether a word can be a name:
-#   reserved      A keyword everywhere: never a bare name.
-#   unreserved    A keyword in some positions, an ordinary name elsewhere.
-# A word is in at most one of these two.
-#
-# Two tags that can go with either, or with neither:
-#   unimplemented The dialect's server doesn't implement the word. (It doesn't
-#                 mean sqlfluff hasn't implemented something yet.) The parts
-#                 of inherited grammar that need the word stop matching in
-#                 this dialect; the rest of each rule still works. MariaDB
-#                 inherits MySQL's FLUSH grammar but has no OPTIMIZER_COSTS, so
-#                 FLUSH OPTIMIZER_COSTS doesn't parse in MariaDB, while FLUSH
-#                 TABLES still does. Plain unimplemented is just a name; with
-#                 unreserved, lint rules still treat the word as a keyword.
-#   future        The vendor says it will become reserved: never reserved yet.
-#
-# Reserved, unreserved and future words are matched as keywords, and lint
-# rules treat them as keywords. Only reserved words are kept from being names.
-#
-# A word that grammar needs but that has no status at all is a bug, usually a
-# typo ("SELEECT"): any statement that reaches that grammar crashes, even when
-# it doesn't contain the word. Looking it up fails, and the dialect tests
-# report it.
-#
-# A dialect inherits every keyword's status from its parent (copy_as() copies
-# the sets) and changes the words it lists, usually with
-# declare_keyword_sets(). Moving a word to another status is fine; dropping it
-# from every status is the bug above, waiting for grammar to reach it.
-#
-# The checks are in test/dialects/keyword_reference_test.py. Run it directly,
-# with dialect names as arguments, for a report on any dialect.
+# The sets that hold a dialect's keyword statuses. declare_keyword_sets()
+# explains them, and test/dialects/keyword_reference_test.py checks them.
 KEYWORD_STATUS_SETS = (
     "reserved_keywords",
     "unreserved_keywords",
     "future_reserved_keywords",
     "unimplemented_keywords",
 )
-
-
-def _reference_audit_tip(dialect_name: str) -> str:
-    """Point someone changing the dialect at the report of every such problem.
-
-    Only someone working in a sqlfluff checkout has the test file, so the
-    message says so.
-    """
-    return (
-        "\n\nIf you are changing this dialect in a sqlfluff checkout, run "
-        f"`python test/dialects/keyword_reference_test.py {dialect_name}`. "
-        "It lists every keyword and segment that grammar refers to but a "
-        f"dialect doesn't have, in {dialect_name} and in the dialects that "
-        "inherit from it, and what to do about each."
-    )
-
-
-def _keyword_words(words: Sequence[str], function: str, argument: str) -> set[str]:
-    """The upper-cased keywords in a list of words, refusing a string.
-
-    A string is itself a sequence, one character at a time, so passing one
-    where a list of words is expected would quietly use every letter as a
-    keyword.
-    """
-    if isinstance(words, str):
-        raise TypeError(
-            f"{function}() takes {argument} as a list of words, not a string. "
-            'Pass one word as a list, e.g. ["LIBRARY"]; split a keyword file\'s '
-            "multi-line string with .split() in that file."
-        )
-    return {word.upper() for word in words}
-
-
-# Pairs of declare_keyword_sets() lists that can't share a word. A keyword is
-# reserved or unreserved, not both; an unimplemented word is one the server
-# doesn't have, so it is neither; a word the vendor will reserve isn't
-# reserved yet. Future reserved may go with unreserved or unimplemented.
-_EXCLUSIVE_KEYWORD_LISTS = (
-    ("reserved", "unreserved"),
-    ("reserved", "unimplemented"),
-    ("unreserved", "unimplemented"),
-    ("reserved", "future_reserved"),
-)
-
-
-def _refuse_overlapping_keyword_lists(listed: dict[str, set[str]]) -> None:
-    """Refuse a call that lists a word under two lists that exclude each other.
-
-    Only the call's own lists are checked. Inherited sets are resolved, not
-    refused, because a child can't fix its parent's lists.
-    """
-    clashes = []
-    for first, second in _EXCLUSIVE_KEYWORD_LISTS:
-        for word in sorted(listed[first] & listed[second]):
-            clashes.append(f"{word} ({first} and {second})")
-    if clashes:
-        raise ValueError(
-            "declare_keyword_sets() was given words in two lists that exclude "
-            "each other: " + ", ".join(clashes) + ". A keyword is reserved or "
-            "unreserved, not both. Unimplemented means the server doesn't have "
-            "the word, so it can't also be a keyword. A future reserved word "
-            "isn't reserved yet. Keep each word in one of its two lists. If the "
-            "server has a word but not a parent's syntax that uses it, keep the "
-            "word a keyword and override that syntax in the dialect."
-        )
 
 
 class Dialect:
@@ -263,6 +167,50 @@ class Dialect:
             [n.strip().upper() for n in values.strip().split("\n")]
         )
 
+    @staticmethod
+    def _keyword_words(words: Sequence[str], function: str, argument: str) -> set[str]:
+        """The upper-cased keywords in a list of words."""
+        if isinstance(words, str):
+            # Refuse strings because they would be treated as a sequence of letters.
+            raise TypeError(
+                f"{function}() takes {argument} as a list of words, not a string. "
+                'Pass one word as a list, e.g. ["LIBRARY"]; split a keyword file\'s '
+                "multi-line string with .split() in that file."
+            )
+        return {word.upper() for word in words}
+
+    @staticmethod
+    def _refuse_overlapping_keyword_lists(listed: dict[str, set[str]]) -> None:
+        """Refuse a call that lists a word under two lists that exclude each other.
+
+        Only the call's own lists are checked. Inherited sets are resolved, not
+        refused, because a child can't fix its parent's lists.
+        """
+        # Pairs of lists that can't share a word. A keyword is reserved or
+        # unreserved, not both; an unimplemented word is one the server
+        # doesn't have, so it is neither; a word the vendor will reserve isn't
+        # reserved yet. Future reserved may go with unreserved or unimplemented.
+        exclusive_lists = (
+            ("reserved", "unreserved"),
+            ("reserved", "unimplemented"),
+            ("unreserved", "unimplemented"),
+            ("reserved", "future_reserved"),
+        )
+        clashes = []
+        for first, second in exclusive_lists:
+            for word in sorted(listed[first] & listed[second]):
+                clashes.append(f"{word} ({first} and {second})")
+        if clashes:
+            raise ValueError(
+                "declare_keyword_sets() was given words in two lists that exclude "
+                "each other: " + ", ".join(clashes) + ". A keyword is reserved or "
+                "unreserved, not both. Unimplemented means the server doesn't have "
+                "the word, so it can't also be a keyword. A future reserved word "
+                "isn't reserved yet. Keep each word in one of its two lists. If the "
+                "server has a word but not a parent's syntax that uses it, keep the "
+                "word a keyword and override that syntax in the dialect."
+            )
+
     def declare_keyword_sets(
         self,
         *,
@@ -271,59 +219,71 @@ class Dialect:
         unreserved: Sequence[str],
         unimplemented: Sequence[str],
         future_reserved: Sequence[str],
+        future_reserved_mode: str,
     ) -> None:
-        """Give this dialect's keywords their statuses: what you list is what you get.
+        """Safely assign and inherit keywords by changing, not dropping, present status.
 
         The dialect starts with every keyword's status from its parent. Each
-        word listed here gets the status it's listed under, moving out of
-        whatever it inherited; a word that isn't listed keeps its inherited
-        status, except as reserved_mode says. Nothing is ever dropped: a word
-        that leaves reserved becomes unreserved, never statusless, because the
-        parent's grammar may use it.
+        word may be in no more than one of reserved, unreserved and
+        unimplemented, and always gets the present status it's listed under,
+        losing any contradictory inherited present status.
 
         Args:
             reserved: Words that are keywords everywhere and never names.
             reserved_mode: What happens to inherited reserved words that aren't
-                listed anywhere here. "add": they stay reserved; the parent's
-                reserved list still applies, and this adds to it. "replace":
-                ``reserved`` is the complete list, however it was built, so
-                they become unreserved: keywords that can also be names.
+                explicitly given another status by the caller.
+                "add": they are kept reserved
+                "replace": they become unreserved
             unreserved: Words that are keywords in some places and names in
                 others.
-            unimplemented: Words the dialect's server doesn't implement (not
-                words sqlfluff hasn't implemented). The parts of inherited
-                grammar that need them stop matching. Such a word is just a
-                name: it leaves any inherited reserved or unreserved status, so
-                lint rules don't flag it.
+            unimplemented: Words the dialect's server (not sqlfluff) doesn't
+                implement. The parts of inherited grammar evaluate to Nothing()
+                and stop matching. You can see which ones block grammar with
+                keyword_reference_test.py <dialect> --level notice
             future_reserved: Words the vendor says will become reserved. A tag
-                that may go with unreserved or unimplemented.
+                that may go with unreserved, unimplemented, or unlisted words.
+            future_reserved_mode:
+                "add": parent future_reserved are kept, unless reserved above.
+                "replace" (usual): parent future_reserved are completely
+                replaced, dropping any existing ones from the category.
 
-        Every argument is required, even when empty, so a reader sees all
-        four. Each is a list of words; a string is refused, because it would
-        be read one letter at a time. A word may not be listed under two lists
-        that exclude each other: reserved and unreserved, unimplemented and
-        either of those, or reserved and future_reserved. The check costs about
-        a microsecond per call.
+        A word may not lose all present status, as inherited grammar may use it
+        either now or after future parent edits. This allows effortless feature
+        inheritance, stops crashes from the parent adding a feature, and
+        protects a parent from the maintenance burden of a poorly maintained
+        child.
 
-        This only moves words between sets. Any other way of building the
-        sets is fine too, as long as the dialect tests' checks pass.
+        A future_reserved word may be nothing, unreserved, or unimplemented, but
+        not reserved.
+
+        Exclusively using this function in child dialects to assign present
+        keyword status is strongly recommended. This does not and should not
+        address other sets, as they don't tend to cause bad refs on inheritance
+        as grammar does not look for a single member and fail as they would
+        with one of the above addressed keyword sets.
         """
-        if reserved_mode not in ("add", "replace"):
-            raise ValueError(
-                'declare_keyword_sets() takes reserved_mode="add" or "replace", '
-                f"not {reserved_mode!r}."
-            )
-        listed_reserved = _keyword_words(reserved, "declare_keyword_sets", "reserved")
-        listed_unreserved = _keyword_words(
+        for argument, mode in (
+            ("reserved_mode", reserved_mode),
+            ("future_reserved_mode", future_reserved_mode),
+        ):
+            if mode not in ("add", "replace"):
+                raise ValueError(
+                    f'declare_keyword_sets() takes {argument}="add" or '
+                    f'"replace", not {mode!r}.'
+                )
+        listed_reserved = self._keyword_words(
+            reserved, "declare_keyword_sets", "reserved"
+        )
+        listed_unreserved = self._keyword_words(
             unreserved, "declare_keyword_sets", "unreserved"
         )
-        listed_unimplemented = _keyword_words(
+        listed_unimplemented = self._keyword_words(
             unimplemented, "declare_keyword_sets", "unimplemented"
         )
-        listed_future = _keyword_words(
+        listed_future = self._keyword_words(
             future_reserved, "declare_keyword_sets", "future_reserved"
         )
-        _refuse_overlapping_keyword_lists(
+        self._refuse_overlapping_keyword_lists(
             {
                 "reserved": listed_reserved,
                 "unreserved": listed_unreserved,
@@ -354,7 +314,10 @@ class Dialect:
                 - listed_future
                 - listed_unimplemented
             ) | listed_reserved
-            demoted = set()
+            # A future reserved word isn't reserved yet, so an inherited
+            # reserved word listed as future becomes unreserved (or stays
+            # unimplemented, if it's listed that way too: see below).
+            demoted = inherited_reserved & listed_future
         new_unreserved = (
             inherited_unreserved | listed_unreserved | demoted
         ) - new_reserved
@@ -367,7 +330,15 @@ class Dialect:
         # expand(), so the sets never overlap.
         new_reserved -= new_unimplemented
         new_unreserved -= new_unimplemented
-        new_future = (inherited_future | listed_future) - new_reserved
+        if future_reserved_mode == "replace":
+            new_future = listed_future - new_reserved
+            # A dropped future tag must not take a word's last status with it:
+            # a word that was only future reserved still gets matched as a
+            # keyword, so it becomes unreserved.
+            untagged = inherited_future - new_future - new_reserved
+            new_unreserved |= untagged - new_unimplemented
+        else:
+            new_future = (inherited_future | listed_future) - new_reserved
 
         for label, words in (
             ("reserved_keywords", new_reserved),
@@ -544,6 +515,21 @@ class Dialect:
                 f"with get_segment - type{type(segment)}"
             )
 
+    @staticmethod
+    def _reference_audit_tip(dialect_name: str) -> str:
+        """Point someone changing the dialect at the report of every such problem.
+
+        Only someone working in a sqlfluff checkout has the test file, so the
+        message says so.
+        """
+        return (
+            "\n\nIf you are changing this dialect in a sqlfluff checkout, run "
+            f"`python test/dialects/keyword_reference_test.py {dialect_name}`. "
+            "It lists every keyword and segment that grammar refers to but a "
+            f"dialect doesn't have, in {dialect_name} and in the dialects that "
+            "inherit from it, and what to do about each."
+        )
+
     def ref(self, name: str) -> Matchable:
         """Return an object which acts as a late binding reference to the element named.
 
@@ -574,7 +560,7 @@ class Dialect:
                 "Or, even better, see this guide on how to help contribute"
                 " keyword and/or dialect updates:\n"
                 "https://docs.sqlfluff.com/en/stable/perma/contribute_dialect_keywords.html"
-                f"{_reference_audit_tip(self.name)}"
+                f"{self._reference_audit_tip(self.name)}"
             )
             # Keyword errors are common so avoid printing the whole, scary,
             # traceback as not that useful and confusing to people.
@@ -588,7 +574,7 @@ class Dialect:
         else:  # pragma: no cover
             raise RuntimeError(
                 "Grammar refers to {!r} which was not found in the {} dialect.{}".format(
-                    name, self.name, _reference_audit_tip(self.name)
+                    name, self.name, self._reference_audit_tip(self.name)
                 )
             )
 

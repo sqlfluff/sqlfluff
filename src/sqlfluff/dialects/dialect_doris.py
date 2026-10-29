@@ -48,6 +48,7 @@ doris_dialect.declare_keyword_sets(
     unreserved=doris_unreserved_keywords.split(),
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 

@@ -95,6 +95,7 @@ soql_dialect.declare_keyword_sets(
     unreserved=[],
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 soql_dialect.sets("bare_functions").update(date_literals)

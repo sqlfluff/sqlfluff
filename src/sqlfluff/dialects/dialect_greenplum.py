@@ -39,6 +39,7 @@ greenplum_dialect.declare_keyword_sets(
     unreserved=get_keywords(greenplum_keywords, "non-reserved"),
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Greenplum adds its own `col_name_keyword`s (e.g. CUBE, ROLLUP, MEDIAN);

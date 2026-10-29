@@ -1,5 +1,7 @@
 """Tests for declare_keyword_sets(), expand() and unimplemented keywords."""
 
+from typing import Any
+
 import pytest
 
 from sqlfluff.core.dialects import dialect_selector, load_raw_dialect
@@ -20,6 +22,7 @@ def _declare(
     unreserved: tuple[str, ...] = (),
     unimplemented: tuple[str, ...] = (),
     future_reserved: tuple[str, ...] = (),
+    future_reserved_mode: str = "replace",
 ) -> None:
     """Call declare_keyword_sets() with empty lists for those not given."""
     dialect.declare_keyword_sets(
@@ -28,6 +31,7 @@ def _declare(
         unreserved=list(unreserved),
         unimplemented=list(unimplemented),
         future_reserved=list(future_reserved),
+        future_reserved_mode=future_reserved_mode,
     )
 
 
@@ -78,7 +82,8 @@ def test_a_call_cant_list_a_word_twice(first: str, second: str) -> None:
     """Test that the call's own lists must not overlap where they exclude."""
     child = _child_of_ansi()
     with pytest.raises(ValueError, match=rf"ZZBOTH \({first} and {second}\)"):
-        _declare(child, **{first: ("ZZBOTH",), second: ("ZZBOTH",)})
+        lists: dict[str, Any] = {first: ("ZZBOTH",), second: ("ZZBOTH",)}
+        _declare(child, **lists)
 
 
 def test_future_reserved_goes_with_unreserved_or_unimplemented() -> None:
@@ -89,6 +94,7 @@ def test_future_reserved_goes_with_unreserved_or_unimplemented() -> None:
         unreserved=("ZZSOON",),
         unimplemented=("ZZLATER",),
         future_reserved=("ZZSOON", "ZZLATER"),
+        future_reserved_mode="replace",
     )
 
     assert _status(child, "ZZSOON") == [
@@ -152,7 +158,11 @@ def test_future_reserved_is_never_reserved() -> None:
         "unreserved_keywords",
         "future_reserved_keywords",
     ]
-    assert _status(child, "SELECT") == ["future_reserved_keywords"]
+    # SELECT leaves reserved but keeps a present status.
+    assert _status(child, "SELECT") == [
+        "unreserved_keywords",
+        "future_reserved_keywords",
+    ]
 
 
 @pytest.mark.parametrize("mode", ["add", "replace"])
@@ -168,10 +178,55 @@ def test_no_inherited_word_is_dropped(mode: str) -> None:
         unreserved=("ROWS",),
         unimplemented=("JOIN",),
         future_reserved=("ORDER",),
+        future_reserved_mode="replace",
     )
     after = set().union(*(child.sets(label) for label in KEYWORD_STATUS_SETS))
 
     assert known <= after
+
+
+def _with_future_parent() -> Dialect:
+    """An ansi copy whose own keywords include ZZSOON, only future reserved."""
+    parent = _child_of_ansi()
+    _declare(parent, unreserved=("ZZLATER",), future_reserved=("ZZSOON", "ZZLATER"))
+    return parent
+
+
+def test_future_reserved_replace_mode_drops_the_parents_tags() -> None:
+    """Test that replace keeps only this call's future list, and drops no word.
+
+    ZZSOON had no present status, only the tag, and grammar may match it as a
+    keyword; losing the tag mustn't lose the word, so it becomes unreserved.
+    """
+    child = _with_future_parent().copy_as("declare_keyword_sets_grandchild")
+    _declare(child, future_reserved=("ZZNEW",), future_reserved_mode="replace")
+
+    assert child.sets("future_reserved_keywords") == {"ZZNEW"}
+    assert _status(child, "ZZSOON") == ["unreserved_keywords"]
+    assert _status(child, "ZZLATER") == ["unreserved_keywords"]
+
+
+def test_future_reserved_add_mode_keeps_the_parents_tags() -> None:
+    """Test that add keeps the parent's future list and adds to it."""
+    child = _with_future_parent().copy_as("declare_keyword_sets_grandchild")
+    _declare(child, future_reserved=("ZZNEW",), future_reserved_mode="add")
+
+    assert child.sets("future_reserved_keywords") == {"ZZNEW", "ZZSOON", "ZZLATER"}
+
+
+def test_a_reserved_word_listed_as_future_is_unreserved_in_add_mode() -> None:
+    """Test that listing an inherited reserved word as future keeps a status.
+
+    Future reserved isn't reserved yet, so the word leaves reserved, and has to
+    land somewhere present: unreserved.
+    """
+    child = _child_of_ansi()
+    _declare(child, "add", future_reserved=("SELECT",))
+
+    assert _status(child, "SELECT") == [
+        "unreserved_keywords",
+        "future_reserved_keywords",
+    ]
 
 
 def test_declare_keyword_sets_refuses_a_bad_mode_and_strings() -> None:
@@ -179,6 +234,10 @@ def test_declare_keyword_sets_refuses_a_bad_mode_and_strings() -> None:
     child = _child_of_ansi()
     with pytest.raises(ValueError, match='reserved_mode="add" or "replace"'):
         _declare(child, "merge")
+    with pytest.raises(
+        ValueError, match='future_reserved_mode="add" or "replace", not .merge.'
+    ):
+        _declare(child, future_reserved_mode="merge")
     with pytest.raises(TypeError, match="list of words, not a string"):
         child.declare_keyword_sets(
             reserved="SELECT",
@@ -186,6 +245,7 @@ def test_declare_keyword_sets_refuses_a_bad_mode_and_strings() -> None:
             unreserved=[],
             unimplemented=[],
             future_reserved=[],
+            future_reserved_mode="replace",
         )
     with pytest.raises(TypeError):
         child.declare_keyword_sets(reserved=[], reserved_mode="add")  # type: ignore[call-arg]

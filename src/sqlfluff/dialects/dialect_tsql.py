@@ -67,6 +67,7 @@ tsql_dialect.declare_keyword_sets(
     unreserved=UNRESERVED_KEYWORDS,
     unimplemented=[],
     future_reserved=FUTURE_RESERVED_KEYWORDS,
+    future_reserved_mode="replace",
 )
 tsql_dialect.sets("datatype_methods").clear()
 tsql_dialect.sets("datatype_methods").update(DATATYPE_METHODS)

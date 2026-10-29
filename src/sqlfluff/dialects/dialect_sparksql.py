@@ -277,6 +277,7 @@ sparksql_dialect.declare_keyword_sets(
     unreserved=UNRESERVED_KEYWORDS,
     unimplemented=[],
     future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Set Angle Bracket Pairs
