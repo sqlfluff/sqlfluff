@@ -57,9 +57,11 @@ trino_dialect.sets("bare_functions").update(
 
 # Set keywords
 trino_dialect.declare_keyword_sets(
-    reserved=trino_reserved_keywords.split(),
+    reserved=trino_dialect.keywords_set_from_multiline_string(trino_reserved_keywords),
     reserved_mode="replace",
-    unreserved=trino_unreserved_keywords.split(),
+    unreserved=trino_dialect.keywords_set_from_multiline_string(
+        trino_unreserved_keywords
+    ),
     unimplemented=[],
     future_reserved=[],
     future_reserved_mode="replace",

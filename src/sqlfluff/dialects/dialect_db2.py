@@ -48,18 +48,15 @@ db2_dialect = ansi_dialect.copy_as(
 # after any change; it reports this stopgap as a notice (KEYWORD_STOPGAPS
 # there) until it's fixed.
 ansi_reserved_keywords = set(ansi_dialect.sets("reserved_keywords"))
+# db2's own grammar uses INVALID (IGNORE INVALID VALUES and REJECT INVALID VALUES
+# in XmlTypeClauseGrammar), but its keyword list never had it, so any statement
+# reaching that grammar crashed.
+unlisted_grammar_keywords = {"INVALID"}
 db2_dialect.declare_keyword_sets(
     reserved=[],
     reserved_mode="add",
-    unreserved=[
-        word
-        for word in UNRESERVED_KEYWORDS
-        if word.upper() not in ansi_reserved_keywords
-    ]
-    # db2's own grammar uses INVALID (IGNORE INVALID VALUES and REJECT INVALID
-    # VALUES in XmlTypeClauseGrammar), but its keyword list never had it, so any
-    # statement reaching that grammar crashed.
-    + ["INVALID"],
+    unreserved=(set(UNRESERVED_KEYWORDS) - ansi_reserved_keywords)
+    | unlisted_grammar_keywords,
     # Db2 has no NATURAL JOIN (NaturalJoinKeywordsGrammar is Nothing() below),
     # so NATURAL is just a name here.
     unimplemented=["NATURAL"],

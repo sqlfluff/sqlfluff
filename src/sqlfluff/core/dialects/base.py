@@ -1,7 +1,8 @@
 """Defines the base dialect class."""
 
 import sys
-from collections.abc import Sequence
+from collections import Counter
+from collections.abc import Collection
 from typing import Any, Optional, Union, cast
 
 from sqlfluff.core.parser import (
@@ -162,12 +163,30 @@ class Dialect:
         self, set_label: str, values: str
     ) -> None:
         """Special function to update a keywords set from a multi-line string."""
-        self.sets(set_label).update(
-            [n.strip().upper() for n in values.strip().split("\n")]
-        )
+        self.sets(set_label).update(self.keywords_set_from_multiline_string(values))
 
     @staticmethod
-    def _keyword_words(words: Sequence[str], function: str, argument: str) -> set[str]:
+    def keywords_set_from_multiline_string(values: str) -> set[str]:
+        """The keywords in a multi-line string, one per line, as a set.
+
+        Lines, not spaces, separate the entries, so an entry like WITHIN GROUP
+        stays whole. Each line is stripped and upper-cased, and blank lines are
+        skipped. A word listed twice is refused: it is a mistake in the
+        keyword file, which a set would otherwise hide.
+        """
+        words = [line.strip().upper() for line in values.splitlines() if line.strip()]
+        repeated = sorted(word for word, count in Counter(words).items() if count > 1)
+        if repeated:
+            raise ValueError(
+                f"These keywords are listed more than once: {', '.join(repeated)}. "
+                "Keep one of each."
+            )
+        return set(words)
+
+    @staticmethod
+    def _keyword_words(
+        words: Collection[str], function: str, argument: str
+    ) -> set[str]:
         """The upper-cased keywords in a list of words."""
         if isinstance(words, str):
             # Refuse strings because they would be treated as a sequence of letters.
@@ -213,11 +232,11 @@ class Dialect:
     def declare_keyword_sets(
         self,
         *,
-        reserved: Sequence[str],
+        reserved: Collection[str],
         reserved_mode: str,
-        unreserved: Sequence[str],
-        unimplemented: Sequence[str],
-        future_reserved: Sequence[str],
+        unreserved: Collection[str],
+        unimplemented: Collection[str],
+        future_reserved: Collection[str],
         future_reserved_mode: str,
     ) -> None:
         """Safely assign and inherit keywords by changing, not dropping, present status.

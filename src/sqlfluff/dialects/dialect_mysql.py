@@ -215,10 +215,14 @@ mysql_dialect.insert_lexer_matchers(
 # INFORMATION_SCHEMA.KEYWORDS: the words with RESERVED = 1 on both), so
 # reserved_mode is replace.
 mysql_dialect.declare_keyword_sets(
-    reserved=mysql_reserved_keywords.split(),
+    reserved=mysql_dialect.keywords_set_from_multiline_string(mysql_reserved_keywords),
     reserved_mode="replace",
-    unreserved=mysql_unreserved_keywords.split(),
-    unimplemented=mysql_unimplemented_keywords.split(),
+    unreserved=mysql_dialect.keywords_set_from_multiline_string(
+        mysql_unreserved_keywords
+    ),
+    unimplemented=mysql_dialect.keywords_set_from_multiline_string(
+        mysql_unimplemented_keywords
+    ),
     future_reserved=[],
     future_reserved_mode="replace",
 )

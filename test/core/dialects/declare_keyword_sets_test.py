@@ -240,6 +240,26 @@ def test_a_reserved_word_listed_as_future_is_unreserved_in_add_mode() -> None:
     ]
 
 
+def test_keywords_set_from_multiline_string_reads_one_word_per_line() -> None:
+    """Test that lines, not spaces, separate entries, and blanks are skipped."""
+    words = Dialect.keywords_set_from_multiline_string(
+        """
+        select
+        WITHIN GROUP
+
+        End-Exec
+        """
+    )
+
+    assert words == {"SELECT", "WITHIN GROUP", "END-EXEC"}
+
+
+def test_keywords_set_from_multiline_string_refuses_a_repeated_word() -> None:
+    """Test that a word listed twice is refused instead of merged away."""
+    with pytest.raises(ValueError, match="listed more than once: SELECT"):
+        Dialect.keywords_set_from_multiline_string("SELECT\nJOIN\nselect")
+
+
 def test_declare_keyword_sets_refuses_a_bad_mode_and_strings() -> None:
     """Test the argument checks: a known mode, lists not strings, all named."""
     child = _child_of_ansi()
