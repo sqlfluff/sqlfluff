@@ -2284,9 +2284,10 @@ def _audit_report_of(
             )
             for item in items:
                 lines.extend(_paragraph(item, "  "))
-    # A parent's report is mostly its children's, so the way to see only the
-    # parent is given where a reader ends up after scrolling.
-    if children_shown:
+    # At notice and info a parent's report is mostly its children's, so the
+    # way to see only the parent is given where a reader ends up after
+    # scrolling, just above the verdict.
+    if children_shown and level in ("notice", "info"):
         lines.append("")
         lines.append("")
         lines.extend(
@@ -2601,23 +2602,30 @@ def test_audit_report_without_children_still_judges_them() -> None:
 
 
 def test_audit_report_with_children_says_how_to_hide_them() -> None:
-    """Test that a report showing children ends with how to leave them out."""
+    """Test that a long report showing children ends with how to hide them.
+
+    Only at notice and info, where the children's sections are long.
+    """
     dialects = {
         "zzclean": _ready_dialect("zzclean"),
         "zztidy": _ready_dialect("zztidy"),
     }
-    with_children = _flat(_audit_report_of(dialects, named=frozenset({"zzclean"})).text)
+    with_children = _flat(
+        _audit_report_of(dialects, "info", named=frozenset({"zzclean"})).text
+    )
+    at_warning = _flat(_audit_report_of(dialects, named=frozenset({"zzclean"})).text)
     leaf = _flat(
         _audit_report_of(
-            {"zzclean": dialects["zzclean"]}, named=frozenset({"zzclean"})
+            {"zzclean": dialects["zzclean"]}, "info", named=frozenset({"zzclean"})
         ).text
     )
-    everything = _flat(_audit_report_of(dialects).text)
+    everything = _flat(_audit_report_of(dialects, "info").text)
 
     assert (
         "This report includes 1 dialect(s) that inherit from zzclean. "
         "Add --no-children to see only the named ones"
     ) in with_children
+    assert "--no-children" not in at_warning
     assert "--no-children" not in leaf
     assert "--no-children" not in everything
 
