@@ -67,13 +67,6 @@ ansi_grant_all_file_formats:
   expect: clean_tree
   pins: ansi grammar referenced the FORMATS keyword without listing it, the same
     dangling-keyword class as POLICIES; parses now that ansi lists FORMATS.
-mysql_exchange_partition_table_reference:
-  sql: ALTER TABLE t EXCHANGE PARTITION p WITH TABLE t2 WITH VALIDATION
-  dialect: mysql
-  expect: clean_tree
-  pins: mysql EXCHANGE PARTITION used to have Ref('TableReference'), a typo for
-    TableReferenceSegment, so both engines raised a dangling-ref RuntimeError. With the
-    typo fixed (#8878) it parses, as it runs on MySQL 8.4.
 mysql_grant_all_masking_policies_unimplemented:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
   dialect: mysql
@@ -84,10 +77,9 @@ mysql_grant_all_masking_policies_unimplemented:
 postgres_alter_foreign_table_column_keyword:
   sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
   dialect: postgres
-  expect: clean_tree
-  pins: postgres ALTER FOREIGN TABLE had Ref('COLUMN'), a segment ref where the COLUMN
-    keyword was intended, so both engines raised a dangling-ref RuntimeError; it is
-    Ref.keyword("COLUMN") now (#8887), and the statement parses.
+  expect: tree
+  pins: postgres ALTER FOREIGN TABLE has Ref.keyword('COLUMN'), resolving the dangling-ref
+    RuntimeError in AlterForeignTableActionSegment (#8887).
 parser_created_segments_drop_token_trim_chars:
   sql: SET @errmsg = 'x';
   dialect: mysql
