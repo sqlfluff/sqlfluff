@@ -176,7 +176,7 @@ class CreateTableStatementSegment(hive.CreateTableStatementSegment):
                     "CACHED",
                     "IN",
                     # CACHED IN 'pool_name': an HDFS cache pool, named by a string.
-                    Delimited(Ref("QuotedLiteralSegment")),
+                    Ref("QuotedLiteralSegment"),
                     Sequence(
                         "WITH",
                         "REPLICATION",
@@ -244,7 +244,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
                     "CACHED",
                     "IN",
                     # CACHED IN 'pool_name': an HDFS cache pool, named by a string.
-                    Delimited(Ref("QuotedLiteralSegment")),
+                    Ref("QuotedLiteralSegment"),
                     Sequence(
                         "WITH",
                         "REPLICATION",
