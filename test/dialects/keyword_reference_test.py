@@ -422,6 +422,22 @@ def _docs_line(dialect: Dialect) -> str:
     return f"\nHow to look up a {dialect.name} keyword: {docs}"
 
 
+def _where_keywords_are_set(dialect_name: str) -> str:
+    """Where a dialect sets its keywords, as a sentence.
+
+    The keyword setup is in the dialect file. Many dialects keep the lists it
+    reads in a separate keyword file, and a fix may belong in either.
+    """
+    dialect_file = _dialect_file(f"dialect_{dialect_name}")
+    keyword_file = _keyword_source_file(dialect_name)
+    if keyword_file == dialect_file:
+        return f"{dialect_name} sets its keywords in {dialect_file}."
+    return (
+        f"{dialect_name} sets its keywords in {dialect_file}, from the lists in "
+        f"{keyword_file}."
+    )
+
+
 def _status_needed(dialect: Dialect) -> str:
     """What a word without a status needs to become, without saying how.
 
@@ -438,7 +454,7 @@ def _status_needed(dialect: Dialect) -> str:
         f"if {vendor}'s server doesn't implement it, which stops the parts of "
         "grammar that need it from matching. If you can't check, unreserved "
         f"keeps the grammar working, as the rest of what {name} inherits does. "
-        f"{name} sets its keywords in {_dialect_file(f'dialect_{name}')}."
+        f"{_where_keywords_are_set(name)}"
     )
 
 
@@ -713,8 +729,8 @@ def _overlaps_message(dialect: Dialect, overlaps: dict[str, list[str]]) -> str:
         f"These words have two statuses that can't go together in {name}. They "
         "behave as reserved: keywords that can't be names. Nothing crashes. Each "
         "needs one status; declare_keyword_sets() never leaves a word in both, "
-        f"so something set these directly. {name} sets its keywords in "
-        f"{_dialect_file(f'dialect_{name}')}."
+        "so something set these directly. "
+        f"{_where_keywords_are_set(name)}"
     ]
     for word, labels in sorted(overlaps.items()):
         lines.append(f"- {word}: {' and '.join(labels)}")
@@ -848,6 +864,24 @@ def test_grammar_keywords_can_match(dialect_name: str) -> None:
     assert not found, _unmatchable_keywords_message(dialect, found)
 
 
+def test_where_keywords_are_set_names_the_keyword_file() -> None:
+    """Test that a dialect with a keyword file gets both files named.
+
+    postgres keeps its lists in dialect_postgres_keywords.py; zzchild, built
+    in a test, has only a dialect file.
+    """
+    with_lists = _where_keywords_are_set("postgres")
+    without = _where_keywords_are_set("zzchild")
+
+    assert with_lists == (
+        "postgres sets its keywords in src/sqlfluff/dialects/dialect_postgres.py, "
+        "from the lists in src/sqlfluff/dialects/dialect_postgres_keywords.py."
+    )
+    assert without == (
+        "zzchild sets its keywords in src/sqlfluff/dialects/dialect_zzchild.py."
+    )
+
+
 @pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
 def test_unimplemented_keywords_have_no_own_segment(dialect_name: str) -> None:
     """Test that no unimplemented word also has a hand-written keyword segment.
@@ -934,8 +968,7 @@ def _unimplemented_in_own_grammar_message(
         "that grammar never matches. Unimplemented is for grammar inherited "
         f"from a parent. Either {vendor} does implement them, and they need a "
         "keyword status instead of the tag, or the grammar that uses them is "
-        f"wrong for {name}. {name} sets its keywords in "
-        f"{_dialect_file(f'dialect_{name}')}."
+        f"wrong for {name}. {_where_keywords_are_set(name)}"
     ]
     for word, owners in sorted(found.items()):
         segments, _ = _segments_and_files(owners)
