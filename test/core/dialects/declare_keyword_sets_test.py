@@ -102,8 +102,8 @@ def test_future_reserved_goes_with_unreserved_or_unimplemented() -> None:
         "future_reserved_keywords",
     ]
     assert _status(child, "ZZLATER") == [
-        "future_reserved_keywords",
         "unimplemented_keywords",
+        "future_reserved_keywords",
     ]
 
 
@@ -193,17 +193,18 @@ def _with_future_parent() -> Dialect:
 
 
 def test_future_reserved_replace_mode_drops_the_parents_tags() -> None:
-    """Test that replace keeps only this call's future list, and drops no word.
+    """Test that replace keeps only this call's future list.
 
-    ZZSOON had no present status, only the tag, and grammar may match it as a
-    keyword; losing the tag mustn't lose the word, so it becomes unreserved.
+    Future reserved is a tag, not a present status, so dropping it leaves a
+    word's present status alone: ZZLATER stays unreserved, and ZZSOON, which
+    only had the tag, ends up with nothing.
     """
     child = _with_future_parent().copy_as("declare_keyword_sets_grandchild")
     _declare(child, future_reserved=("ZZNEW",), future_reserved_mode="replace")
 
     assert child.sets("future_reserved_keywords") == {"ZZNEW"}
-    assert _status(child, "ZZSOON") == ["unreserved_keywords"]
     assert _status(child, "ZZLATER") == ["unreserved_keywords"]
+    assert _status(child, "ZZSOON") == []
 
 
 def test_future_reserved_add_mode_keeps_the_parents_tags() -> None:

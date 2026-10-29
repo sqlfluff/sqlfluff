@@ -21,8 +21,8 @@ from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
 KEYWORD_STATUS_SETS = (
     "reserved_keywords",
     "unreserved_keywords",
-    "future_reserved_keywords",
     "unimplemented_keywords",
+    "future_reserved_keywords",
 )
 
 
@@ -107,11 +107,10 @@ class Dialect:
                 expanded_copy.replace(**{key: seg_gen.expand(expanded_copy)})
         # Expand any keyword sets.
         unimplemented = expanded_copy.sets("unimplemented_keywords")
-        for keyword_set in [
-            "unreserved_keywords",
-            "reserved_keywords",
-            "future_reserved_keywords",
-        ]:  # e.g. reserved_keywords, (JOIN, ...)
+        for keyword_set in KEYWORD_STATUS_SETS:  # e.g. reserved_keywords, (JOIN, ...)
+            if keyword_set == "unimplemented_keywords":
+                # Handled below: these resolve to Nothing().
+                continue
             # Make sure the values are available as KeywordSegments
             keyword_sets = expanded_copy.sets(keyword_set)
             for kw in keyword_sets:
@@ -237,15 +236,14 @@ class Dialect:
             unreserved: Words that are keywords in some places and names in
                 others.
             unimplemented: Words the dialect's server (not sqlfluff) doesn't
-                implement. The parts of inherited grammar evaluate to Nothing()
+                implement. In inherited grammar, evaluates to Nothing()
                 and stop matching. You can see which ones block grammar with
                 keyword_reference_test.py <dialect> --level notice
             future_reserved: Words the vendor says will become reserved. A tag
                 that may go with unreserved, unimplemented, or unlisted words.
             future_reserved_mode:
                 "add": parent future_reserved are kept, unless reserved above.
-                "replace" (usual): parent future_reserved are completely
-                replaced, dropping any existing ones from the category.
+                "replace": parent future_reserved are dropped.
 
         A word may not lose all present status, as inherited grammar may use it
         either now or after future parent edits. This allows effortless feature
@@ -332,23 +330,19 @@ class Dialect:
         new_unreserved -= new_unimplemented
         if future_reserved_mode == "replace":
             new_future = listed_future - new_reserved
-            # A dropped future tag must not take a word's last status with it:
-            # a word that was only future reserved still gets matched as a
-            # keyword, so it becomes unreserved.
-            untagged = inherited_future - new_future - new_reserved
-            new_unreserved |= untagged - new_unimplemented
         else:
             new_future = (inherited_future | listed_future) - new_reserved
 
-        for label, words in (
-            ("reserved_keywords", new_reserved),
-            ("unreserved_keywords", new_unreserved),
-            ("unimplemented_keywords", new_unimplemented),
-            ("future_reserved_keywords", new_future),
-        ):
+        new_sets = {
+            "reserved_keywords": new_reserved,
+            "unreserved_keywords": new_unreserved,
+            "unimplemented_keywords": new_unimplemented,
+            "future_reserved_keywords": new_future,
+        }
+        for label in KEYWORD_STATUS_SETS:
             keyword_set = self.sets(label)
             keyword_set.clear()
-            keyword_set.update(words)
+            keyword_set.update(new_sets[label])
 
     def copy_as(
         self,
