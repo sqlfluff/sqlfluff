@@ -367,6 +367,38 @@ def test__rust_parser__parse_error_from_exception():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__missing_ref_raises_like_python():
+    """Test a missing grammar ref from Rust raises the dialect's own error.
+
+    Rust reports a dangling ref as an RsParseError starting with
+    MISSING_REF_PREFIX, and RustParser re-raises it through the dialect's
+    ref(), so both engines give the same RuntimeError. No shipped dialect
+    has a dangling ref (the keyword audit fails on one), so the Rust parser
+    is replaced with one that reports a ref the dialect doesn't have.
+    """
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluffrs import MISSING_REF_PREFIX, RsParseError
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+    parser = RustParser(config=config)
+    segments, _ = Lexer(config=config).lex("SELECT 1")
+
+    class MissingRefParser:
+        def parse_match_result_from_tokens(self, tokens):
+            raise RsParseError(MISSING_REF_PREFIX + "NoSuchSegment")
+
+    parser._rs_parser = MissingRefParser()
+
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert str(exc_info.value).startswith(
+        "Grammar refers to 'NoSuchSegment' which was not found in the ansi dialect."
+    )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__trailing_non_code_segments():
     """Test RustParser handles trailing non-code segments correctly.
 
