@@ -59,12 +59,11 @@ Even more optional.
    few years, to keep the dialect current.
 
 To make the above work, the audit can't encourage dialects to remove words
-from unimplemented if the dialect's grammar doesn't use them. The final state
-of a perfectly maintained dialect's grammar is unsupported grammar overridden
-with Nothing(), or replaced by a custom version of the parent's with the
-unsupported parts removed; in either case the grammar won't use them. That is
-the correct final state of a researched and categorized word in many cases.
-db2's NATURAL is an example.
+from unimplemented if the dialect's grammar doesn't use them. A dialect that
+has really researched a word may have overridden the grammar that needed it
+with Nothing(), or with a custom version of the parent's minus the unsupported
+parts; then no grammar uses the word, and that's correct. db2's NATURAL is an
+example. Few dialects will get that far, and none has to.
 
 If you have to guess to stop a crash, as clickhouse and db2 do, say so in a
 comment at the call: the lists aren't great and need help.
