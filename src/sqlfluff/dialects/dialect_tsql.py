@@ -6458,6 +6458,34 @@ class WhereCurrentOfCursorSegment(BaseSegment):
     )
 
 
+class TruncateStatementSegment(ansi.TruncateStatementSegment):
+    """`TRUNCATE TABLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/truncate-table-transact-sql
+    """
+
+    match_grammar: Matchable = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                "PARTITIONS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("NumericLiteralSegment"),
+                            Sequence("TO", Ref("NumericLiteralSegment"), optional=True),
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
