@@ -1675,6 +1675,7 @@ def _audit_report(
     dialect_names: list[str],
     level: str = "warning",
     named: frozenset[str] = frozenset(),
+    show_children: bool = True,
 ) -> "AuditReport":
     """What the checks in this file find in each of these dialects.
 
@@ -1683,7 +1684,10 @@ def _audit_report(
     auditing it.
     """
     return _audit_report_of(
-        {name: _report_dialect(name) for name in dialect_names}, level, named
+        {name: _report_dialect(name) for name in dialect_names},
+        level,
+        named,
+        show_children,
     )
 
 
@@ -2116,16 +2120,25 @@ def _audit_report_of(
     dialects: dict[str, Dialect],
     level: str = "warning",
     named: frozenset[str] = frozenset(),
+    show_children: bool = True,
 ) -> AuditReport:
     """The audit report for these dialects, by name, down to a level.
 
     named are the dialects asked about, which decide the verdict; with none,
     the dialects required to pass this audit decide. Findings below the level
-    are counted in a footer, never silently dropped.
+    are counted in a footer, never silently dropped. Without show_children,
+    the named dialects' descendants are audited and counted in the verdict
+    and the summary, but get no sections of their own.
     """
     shown_levels = LEVELS[: LEVELS.index(level) + 1]
     findings = {name: _audit_findings(name, d) for name, d in dialects.items()}
-    never = _never_used_finding(dialects)
+    if show_children or not named:
+        sectioned = list(findings)
+        never = _never_used_finding(dialects)
+    else:
+        sectioned = [name for name in findings if name in named]
+        never = None
+    children_not_shown = [name for name in findings if name not in sectioned]
     verdict_lines, failed = _verdict(findings, set(named))
     verdict = [
         wrapped
@@ -2172,9 +2185,20 @@ def _audit_report_of(
                 break_long_words=False,
             )
         )
+    if children_not_shown:
+        lines.append("")
+        lines.extend(
+            _paragraph(
+                f"Not shown (--no-children): {', '.join(children_not_shown)}. "
+                "They are still audited, and count toward the verdict. Run "
+                "without --no-children to see them.",
+                "  ",
+            )
+        )
     ready: list[str] = []
     hidden: dict[str, list[str]] = {}
-    for name, found in findings.items():
+    for name in sectioned:
+        found = findings[name]
         audited = name not in UNAUDITED_DIALECTS
         counts = _level_counts(found)
         lines.append("")
@@ -2265,16 +2289,20 @@ def _audit_report_of(
     return AuditReport("\n".join(lines), failed)
 
 
-def _parse_args(argv: list[str]) -> tuple[list[str], str]:
-    """The dialect names and the level from the command line.
+def _parse_args(argv: list[str]) -> tuple[list[str], str, bool]:
+    """The dialect names, the level and whether to show children.
 
-    Usage: keyword_reference_test.py [--level error|warning|notice|info] [dialect ...]
+    Usage: keyword_reference_test.py [--level error|warning|notice|info]
+    [--no-children] [dialect ...]
     """
     level = "warning"
     names: list[str] = []
+    show_children = True
     args = iter(argv)
     for arg in args:
-        if arg == "--level":
+        if arg == "--no-children":
+            show_children = False
+        elif arg == "--level":
             level = next(args, "")
             if level not in LEVELS:
                 raise SystemExit(f"--level takes one of: {', '.join(LEVELS)}.")
@@ -2290,7 +2318,9 @@ def _parse_args(argv: list[str]) -> tuple[list[str], str]:
             f"Unknown dialect(s): {', '.join(unknown)}. "
             f"Dialects: {', '.join(ALL_DIALECTS)}."
         )
-    return names, level
+    if not show_children and not names:
+        raise SystemExit("--no-children needs dialect names: it hides their children.")
+    return names, level, show_children
 
 
 def _flat(text: str) -> str:
@@ -2522,15 +2552,36 @@ def test_audit_verdict_counts_required_descendants() -> None:
 
 def test_parse_args_reads_names_and_level() -> None:
     """Test the command line: dialect names, --level, and their errors."""
-    assert _parse_args([]) == ([], "warning")
-    assert _parse_args(["mysql", "--level", "notice"]) == (["mysql"], "notice")
-    assert _parse_args(["--level=error", "tsql"]) == (["tsql"], "error")
+    assert _parse_args([]) == ([], "warning", True)
+    assert _parse_args(["mysql", "--level", "notice"]) == (["mysql"], "notice", True)
+    assert _parse_args(["--level=error", "tsql"]) == (["tsql"], "error", True)
+    assert _parse_args(["--no-children", "mysql"]) == (["mysql"], "warning", False)
     with pytest.raises(SystemExit, match="--level takes one of"):
         _parse_args(["--level", "loud"])
     with pytest.raises(SystemExit, match="--level takes one of"):
         _parse_args(["--level=loud"])
     with pytest.raises(SystemExit, match="Unknown dialect"):
         _parse_args(["tsq"])
+    with pytest.raises(SystemExit, match="--no-children needs dialect names"):
+        _parse_args(["--no-children"])
+
+
+def test_audit_report_without_children_still_judges_them() -> None:
+    """Test --no-children: a child gets no section, but still decides."""
+    dialects = {
+        "zzclean": _ready_dialect("zzclean"),
+        "zzfailing": _failing_dialect("zzfailing"),
+    }
+    report = _audit_report_of(
+        dialects, named=frozenset({"zzclean"}), show_children=False
+    )
+    flat = _flat(report.text)
+
+    assert report.failed
+    assert "== zzclean (required to pass)" in flat
+    assert "== zzfailing" not in flat
+    assert "Not shown (--no-children): zzfailing." in flat
+    assert "zzfailing required FAIL" in flat
 
 
 # ANSI colours for the verdict markers, red for FAIL and green for PASS.
@@ -2571,9 +2622,9 @@ if __name__ == "__main__":  # pragma: no cover
     if hasattr(signal, "SIGPIPE"):
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     # With dialect names as arguments, report on those and their descendants.
-    names, level = _parse_args(sys.argv[1:])
+    names, level, show_children = _parse_args(sys.argv[1:])
     chosen = _with_descendants(names) if names else ALL_DIALECTS
-    report = _audit_report(chosen, level, frozenset(names))
+    report = _audit_report(chosen, level, frozenset(names), show_children)
     if _use_colour(sys.stdout, os.environ):
         print(_coloured(report.text))
     else:

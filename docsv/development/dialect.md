@@ -337,8 +337,10 @@ inherits from it, including unaudited ones, says when an unaudited dialect
 passes and can come off the list, and ends in PASS or FAIL. `--level notice`
 adds inherited grammar each dialect's unimplemented words switch off;
 `--level info` adds the keywords no grammar uses, and words that are only
-future reserved. Passing means nothing crashes and no check fails, not that a
-dialect's keyword lists match its database.
+future reserved. `--no-children` leaves out the sections for the dialects
+that inherit from the named ones; they are still audited, and still count
+toward PASS or FAIL. Passing means nothing crashes and no check fails, not
+that a dialect's keyword lists match its database.
 
 ## Where to find the grammar for your database
 -------------------------------------------
