@@ -139,8 +139,8 @@ from sqlfluff.core.dialects.base import (
     KEYWORD_STATUS_SETS,
     Dialect,
 )
-from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.parser.grammar.base import Ref
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, StringParser
+from sqlfluff.core.parser.grammar.base import Nothing, Ref
 from sqlfluff.core.parser.grammar.sequence import Sequence
 from sqlfluff.core.parser.lexer import PyLexer
 from sqlfluff.core.parser.matchable import Matchable
@@ -208,12 +208,13 @@ def _defining_module(dialect: Dialect, element_name: str) -> str:
     """The dialect module where a named library element was first defined.
 
     Dialects inherit their parent's library as is, so the defining dialect is
-    the furthest ancestor still holding the very same object.
+    the furthest ancestor still holding the very same object. A dialect built
+    in a test isn't loadable by name, so the walk starts from it as given.
     """
     try:
         current = load_raw_dialect(dialect.name)
     except KeyError:
-        return f"dialect_{dialect.name}"
+        current = dialect
     element = current._library.get(element_name)
     while current.inherits_from:
         parent = load_raw_dialect(current.inherits_from)
@@ -798,6 +799,43 @@ def _non_word_keywords_message(dialect: Dialect, found: dict[str, list[str]]) ->
     return "\n".join(lines)
 
 
+def _unimplemented_with_own_segment(dialect: Dialect) -> dict[str, str]:
+    """Unimplemented words with a keyword segment defined by hand.
+
+    expand() resolves an unimplemented word to Nothing() only where no
+    <Word>KeywordSegment is defined already, so a hand-written one survives
+    and grammar still matches the word. Returns each word with the dialect
+    module that defined its segment.
+    """
+    found: dict[str, str] = {}
+    for word in dialect.sets("unimplemented_keywords"):
+        segment_name = word.capitalize() + "KeywordSegment"
+        element = dialect._library.get(segment_name)
+        if element is not None and not isinstance(element, Nothing):
+            found[word] = _defining_module(dialect, segment_name)
+    return found
+
+
+def _unimplemented_with_own_segment_message(
+    dialect: Dialect, found: dict[str, str]
+) -> str:
+    """Say which unimplemented words also have a hand-written keyword segment."""
+    name = dialect.name
+    lines = [
+        f"These words are unimplemented in {name}, but a <Word>KeywordSegment "
+        "is also defined for them by hand. One says the word doesn't exist in "
+        f"{name}, the other gives it a matcher, and the matcher wins: grammar "
+        "still matches the word. Nothing crashes, but the two can't both be "
+        "right, so decide which: if the database has the word, give it a "
+        "present status other than unimplemented; if it doesn't, the segment "
+        f"is wrong for {name}."
+    ]
+    for word, module in sorted(found.items()):
+        segment_name = word.capitalize() + "KeywordSegment"
+        lines.append(f"- {word}: {segment_name}, defined in {_dialect_file(module)}")
+    return "\n".join(lines) + _docs_line(dialect)
+
+
 @pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
 def test_grammar_keywords_can_match(dialect_name: str) -> None:
     """Test that every keyword the grammar uses is one token to the lexer.
@@ -808,6 +846,43 @@ def test_grammar_keywords_can_match(dialect_name: str) -> None:
     found = _unmatchable_keywords(dialect)
 
     assert not found, _unmatchable_keywords_message(dialect, found)
+
+
+@pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
+def test_unimplemented_keywords_have_no_own_segment(dialect_name: str) -> None:
+    """Test that no unimplemented word also has a hand-written keyword segment.
+
+    The two contradict each other, so this runs for every dialect, audited or
+    not.
+    """
+    dialect = _report_dialect(dialect_name)
+    found = _unimplemented_with_own_segment(dialect)
+
+    assert not found, _unimplemented_with_own_segment_message(dialect, found)
+
+
+def test_unimplemented_with_own_segment_is_found() -> None:
+    """Test the check finds a dialect's own segment and an inherited one.
+
+    hive defines TextfileKeywordSegment, so a child of hive that declares
+    TEXTFILE unimplemented inherits the contradiction from hive.
+    """
+    own = load_raw_dialect("ansi").copy_as("zzownsegment")
+    own.add(ZzownKeywordSegment=StringParser("zzown", KeywordSegment))
+    _declare(own, unimplemented=["ZZOWN"])
+    own_found = _unimplemented_with_own_segment(own.expand())
+    inherited = load_raw_dialect("hive").copy_as("zzhivechild")
+    _declare(inherited, unimplemented=["TEXTFILE"])
+    inherited_expanded = inherited.expand()
+    inherited_found = _unimplemented_with_own_segment(inherited_expanded)
+    message = _flat(
+        _unimplemented_with_own_segment_message(inherited_expanded, inherited_found)
+    )
+
+    assert own_found == {"ZZOWN": "dialect_zzownsegment"}
+    assert inherited_found == {"TEXTFILE": "dialect_hive"}
+    assert "- TEXTFILE: TextfileKeywordSegment, defined in" in message
+    assert "dialect_hive.py" in message
 
 
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
@@ -1727,6 +1802,16 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "warning",
                 len(unmatchable),
                 _unmatchable_keywords_message(dialect, unmatchable),
+            )
+        )
+    own_segment = _unimplemented_with_own_segment(dialect)
+    if own_segment:
+        findings.append(
+            Finding(
+                "Unimplemented words with their own segment",
+                "warning",
+                len(own_segment),
+                _unimplemented_with_own_segment_message(dialect, own_segment),
             )
         )
     non_words = _non_word_keywords(dialect)
