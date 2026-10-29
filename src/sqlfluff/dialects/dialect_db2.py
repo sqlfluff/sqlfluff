@@ -42,11 +42,10 @@ db2_dialect = ansi_dialect.copy_as(
 # db2's keyword list repeats words ansi reserves (SELECT, JOIN, ON and more).
 # A word can't be both, and unreserving them would let them parse as names
 # (ON as an alias, for one), so they are taken out of the unreserved list here
-# and stay reserved, as they always have. That is a stopgap, not Db2's real
-# list; someone who knows Db2 should check it against the server. Run
+# and stay reserved, as they always have. db2's keyword lists aren't great and
+# need help from someone who knows Db2, checked against the server. Run
 # `python test/dialects/keyword_reference_test.py db2 --level notice`
-# after any change; it reports this stopgap as a notice (KEYWORD_STOPGAPS
-# there) until it's fixed.
+# after any change.
 ansi_reserved_keywords = set(ansi_dialect.sets("reserved_keywords"))
 # db2's own grammar uses INVALID (IGNORE INVALID VALUES and REJECT INVALID VALUES
 # in XmlTypeClauseGrammar), but its keyword list never had it, so any statement

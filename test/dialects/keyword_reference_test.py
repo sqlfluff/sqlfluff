@@ -63,8 +63,7 @@ example. So the audit never asks a dialect to remove an unimplemented word
 just because no grammar uses it.
 
 If you have to guess to stop a crash, as clickhouse and db2 do, say so in a
-comment at the call, and add the dialect to KEYWORD_STOPGAPS below, so that
-passing the audit doesn't look like being right.
+comment at the call: the lists aren't great and need help.
 
 Why declare_keyword_sets():
 
@@ -107,8 +106,8 @@ crashes and no check fails, not that the keyword lists are right. It shows
 what these checks find in each dialect: for an audited one, the failures
 pytest would show; for an unaudited one, what auditing it would bring, and
 when it passes, that it can come off the list. As notices, it also lists
-inherited grammar that unimplemented words switch off and keyword data known
-to be a stopgap; as info, the keywords no grammar uses. --level error,
+inherited grammar that unimplemented words switch off; as info, the keywords no
+grammar uses. --level error,
 warning, notice or info sets how much is shown. Name dialects as arguments to
 report on just those and the dialects that inherit from them, as the parser's
 "not found in the ... dialect" errors suggest.
@@ -168,27 +167,6 @@ UNAUDITED_DIALECTS = {
 ALL_DIALECTS = sorted(info.label for info in dialect_readout())
 
 AUDITED_DIALECTS = sorted(set(ALL_DIALECTS) - UNAUDITED_DIALECTS)
-
-# Dialects whose keyword data passes the audit but is known not to be right:
-# a stopgap that stops crashes without matching the server. Passing doesn't
-# mean correct, so each is reported as a notice. The dialect's file says the
-# same where it sets its keywords.
-KEYWORD_STOPGAPS = {
-    "clickhouse": (
-        "clickhouse's reserved words are ansi's. That is a stopgap, not "
-        "ClickHouse's real list: its docs say it reserves none, which "
-        "sqlfluff's grammar can't work with, and the real list has to be "
-        "found by checking what the server accepts as a bare name. "
-        "MANAGEMENT, REFRESH and SETTING are unreserved only so that its "
-        "grammar stops crashing; nobody has checked them against ClickHouse."
-    ),
-    "db2": (
-        "db2's keyword list repeats words ansi reserves, such as SELECT, JOIN "
-        "and ON, so they are taken out of its unreserved list and stay "
-        "reserved, as they always have. That is a stopgap, not Db2's real "
-        "list; it has to be checked against the server."
-    ),
-}
 
 # What a missing keyword does, said wherever one is reported.
 CRASH_EFFECT = (
@@ -910,26 +888,12 @@ def test_settled_unimplemented_words_are_info() -> None:
     assert "ZONE" not in settled[0].message
 
 
-def test_stopgap_dialects_get_a_notice(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test that known stopgap keyword data shows as a notice, not a failure."""
-    monkeypatch.setitem(KEYWORD_STOPGAPS, "zzstopgap", "A stopgap, for this test.")
-    findings = _audit_findings("zzstopgap", _ready_dialect("zzstopgap"))
-    stopgaps = [f for f in findings if f.title == "Keyword data is a stopgap"]
-
-    assert [(f.level, f.message) for f in stopgaps] == [
-        ("notice", "A stopgap, for this test.")
-    ]
-
-
 def test_unaudited_dialects_all_exist() -> None:
-    """Test that the unaudited and stopgap lists name only real dialects."""
-    not_dialects = sorted(
-        (UNAUDITED_DIALECTS | set(KEYWORD_STOPGAPS)) - set(ALL_DIALECTS)
-    )
+    """Test that the unaudited list names only real dialects."""
+    not_dialects = sorted(UNAUDITED_DIALECTS - set(ALL_DIALECTS))
 
     assert not not_dialects, (
-        f"UNAUDITED_DIALECTS or KEYWORD_STOPGAPS names dialects that don't "
-        f"exist: {not_dialects}. "
+        f"UNAUDITED_DIALECTS names dialects that don't exist: {not_dialects}. "
         "Remove them, or fix the spelling."
     )
 
@@ -1815,9 +1779,6 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 _future_only_message(dialect, future_only),
             )
         )
-    stopgap = KEYWORD_STOPGAPS.get(name)
-    if stopgap:
-        findings.append(Finding("Keyword data is a stopgap", "notice", 1, stopgap))
     if switched_off:
         findings.append(
             Finding(

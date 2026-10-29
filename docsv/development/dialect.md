@@ -335,9 +335,8 @@ python test/dialects/keyword_reference_test.py tsql
 It shows what the checks find in each named dialect and in every dialect that
 inherits from it, including unaudited ones, says when an unaudited dialect
 passes and can come off the list, and ends in PASS or FAIL. `--level notice`
-adds inherited grammar each dialect's unimplemented words switch off, and
-keyword data known to be a stopgap; `--level info` adds the keywords no grammar
-uses. Passing means nothing crashes and no check fails, not that a dialect's
+adds inherited grammar each dialect's unimplemented words switch off;
+`--level info` adds the keywords no grammar uses. Passing means nothing crashes and no check fails, not that a dialect's
 keyword lists match its database.
 
 ## Where to find the grammar for your database
