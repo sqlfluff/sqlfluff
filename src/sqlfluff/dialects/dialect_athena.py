@@ -50,8 +50,19 @@ The dialect for `Athena <https://aws.amazon.com/athena/>`_
 on Amazon Web Services (AWS).""",
 )
 
-athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
-athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)
+# A word athena lists as unreserved that is reserved, in its own list or in the
+# ANSI keywords it adds to, stays reserved, as it always behaved.
+athena_reserved = set(athena_reserved_keywords)
+athena_dialect.declare_keyword_sets(
+    reserved=athena_reserved,
+    reserved_mode="add",
+    unreserved=set(athena_unreserved_keywords)
+    - athena_reserved
+    - set(ansi_dialect.sets("reserved_keywords")),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 
 athena_dialect.insert_lexer_matchers(
     # Array Operations: https://prestodb.io/docs/0.217/functions/array.html

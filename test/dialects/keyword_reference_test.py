@@ -149,14 +149,10 @@ from sqlfluff.core.parser.matchable import Matchable
 # new one, is audited. To audit one of these, run this file with its name as
 # an argument, fix what the report shows, and remove it from here.
 UNAUDITED_DIALECTS = {
-    "athena",
-    "bigquery",
     "databricks",
     "flink",
-    "hive",
     "impala",
     "oracle",
-    "snowflake",
     "tsql",
     "vertica",
 }

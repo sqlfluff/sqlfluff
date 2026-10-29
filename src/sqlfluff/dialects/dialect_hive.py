@@ -40,13 +40,20 @@ hive_dialect = ansi_dialect.copy_as(
     docstring="The dialect for Apache `Hive <https://hive.apache.org/>`_.",
 )
 
-# Clear ANSI Keywords and add all Hive keywords
-# Commented clearing for now as some are needed for some statements imported
-# from ANSI to work
-# hive_dialect.sets("unreserved_keywords").clear()
-hive_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-# hive_dialect.sets("reserved_keywords").clear()
-hive_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+# Hive adds its keywords to ANSI's, which statements imported from ANSI need.
+# A word hive lists as unreserved that is reserved, in its own list or in the
+# ANSI keywords it adds to, stays reserved, as it always behaved.
+hive_reserved = set(RESERVED_KEYWORDS)
+hive_dialect.declare_keyword_sets(
+    reserved=hive_reserved,
+    reserved_mode="add",
+    unreserved=set(UNRESERVED_KEYWORDS)
+    - hive_reserved
+    - set(ansi_dialect.sets("reserved_keywords")),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 
 hive_dialect.insert_lexer_matchers(
     [
