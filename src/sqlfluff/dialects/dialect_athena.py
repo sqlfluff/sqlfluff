@@ -125,10 +125,22 @@ athena_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
     RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
-    OrcKeywordSegment=StringParser("ORC", KeywordSegment, type="file_format"),
-    ParquetKeywordSegment=StringParser("PARQUET", KeywordSegment, type="file_format"),
-    AvroKeywordSegment=StringParser("AVRO", KeywordSegment, type="file_format"),
-    IonKeywordSegment=StringParser("ION", KeywordSegment, type="file_format"),
+    # Athena documents ORC, PARQUET, AVRO and ION. Before this, these matched
+    # only ORCFILE, PARQUETFILE, AVROFILE and IONFILE, so those still parse:
+    # Hive, whose DDL Athena's is based on, takes the first three, and IONFILE
+    # is kept because it parsed here before, though no source names it.
+    OrcKeywordSegment=MultiStringParser(
+        ["ORC", "ORCFILE"], KeywordSegment, type="file_format"
+    ),
+    ParquetKeywordSegment=MultiStringParser(
+        ["PARQUET", "PARQUETFILE"], KeywordSegment, type="file_format"
+    ),
+    AvroKeywordSegment=MultiStringParser(
+        ["AVRO", "AVROFILE"], KeywordSegment, type="file_format"
+    ),
+    IonKeywordSegment=MultiStringParser(
+        ["ION", "IONFILE"], KeywordSegment, type="file_format"
+    ),
     SequencefileKeywordSegment=StringParser(
         "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
