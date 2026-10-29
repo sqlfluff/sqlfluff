@@ -215,6 +215,15 @@ def test_future_reserved_add_mode_keeps_the_parents_tags() -> None:
     assert child.sets("future_reserved_keywords") == {"ZZNEW", "ZZSOON", "ZZLATER"}
 
 
+@pytest.mark.parametrize("future_mode", ["add", "replace"])
+def test_a_future_word_listed_as_reserved_loses_the_tag(future_mode: str) -> None:
+    """Test that reserving an inherited future reserved word drops its tag."""
+    child = _with_future_parent().copy_as("declare_keyword_sets_grandchild")
+    _declare(child, reserved=("ZZSOON",), future_reserved_mode=future_mode)
+
+    assert _status(child, "ZZSOON") == ["reserved_keywords"]
+
+
 def test_a_reserved_word_listed_as_future_is_unreserved_in_add_mode() -> None:
     """Test that listing an inherited reserved word as future keeps a status.
 

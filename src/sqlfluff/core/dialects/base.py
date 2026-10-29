@@ -236,7 +236,7 @@ class Dialect:
             unreserved: Words that are keywords in some places and names in
                 others.
             unimplemented: Words the dialect's server (not sqlfluff) doesn't
-                implement. In inherited grammar, evaluates to Nothing()
+                implement. In inherited grammar, they evaluate to Nothing()
                 and stop matching. You can see which ones block grammar with
                 keyword_reference_test.py <dialect> --level notice
             future_reserved: Words the vendor says will become reserved. A tag
