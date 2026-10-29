@@ -13,6 +13,8 @@ import sys
 import weakref
 from pathlib import Path
 
+import pytest
+
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
@@ -86,3 +88,67 @@ def test__parity__codegen_lexer_patterns_hash_seed_stable():
         )
         outputs.add(proc.stdout)
     assert len(outputs) == 1, "lexer matcher patterns vary with the hash seed"
+
+
+@pytest.mark.parametrize("dialect_name", ["ansi", "postgres", "tsql"])
+def test__parity__codegen_hint_table_matches_python(dialect_name):
+    """The generated hint table says exactly what each grammar's simple() says.
+
+    simple() has three answers, and the Rust tables must keep them apart:
+    None (no hint, try a full match) is a missing id; an empty hint (can never
+    match, e.g. Nothing) is an id whose entry has no words and no types; any
+    other hint is an id whose entry decodes back to its words and types.
+    Rust prunes options and scans for terminators with these, so a hint that
+    decodes differently makes Rust try or skip different grammars from Python.
+    """
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    from sqlfluff.core.dialects import dialect_selector
+    from utils.build_parsers import DummyParseContext, TableBuilder
+
+    dialect = dialect_selector(dialect_name)
+    ctx = DummyParseContext(dialect=dialect, uuid=0)
+    builder = TableBuilder()
+    recorded = []
+    add_simple_hint = builder._add_simple_hint
+
+    def recording_add_simple_hint(grammar, parse_context):
+        hint_id = add_simple_hint(grammar, parse_context)
+        recorded.append((grammar, hint_id))
+        return hint_id
+
+    builder._add_simple_hint = recording_add_simple_hint
+    for _, element in sorted(dialect._library.items()):
+        builder.flatten_grammar(element, ctx)
+
+    def decode(start, count):
+        return frozenset(
+            builder.strings[builder.hint_string_indices[i]]
+            for i in range(start, start + count)
+        )
+
+    states = {"none": 0, "empty": 0, "words or types": 0}
+    for grammar, hint_id in recorded:
+        try:
+            expected = grammar.simple(ctx)
+        except (RuntimeError, AttributeError):
+            # The builder records these as no hint, the same as None: a raw
+            # segment class such as LiteralSegment has no match_grammar.
+            expected = None
+        if hint_id is None:
+            assert expected is None, grammar
+            states["none"] += 1
+            continue
+        assert 1 <= hint_id <= len(builder.simple_hints), (grammar, hint_id)
+        data = builder.simple_hints[hint_id - 1]
+        decoded = (
+            decode(data.raw_values_start, data.raw_values_count),
+            decode(data.token_types_start, data.token_types_count),
+        )
+        assert decoded == expected, grammar
+        states[
+            "empty" if decoded == (frozenset(), frozenset()) else "words or types"
+        ] += 1
+
+    # Every state actually occurs, so the test can't pass by checking nothing.
+    assert all(states.values()), states

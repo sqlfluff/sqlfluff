@@ -703,7 +703,7 @@ pub mod patterns {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::grammar_tables::SimpleHintData;
+    use crate::grammar_tables::{SimpleHintData, SimpleHintId};
 
     #[test]
     fn test_grammar_context() {
@@ -722,7 +722,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
+        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] = &[None, None, None]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -737,7 +737,7 @@ mod tests {
             regex_patterns: REGEX_PATTERNS,
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_indices: SIMPLE_HINT_INDICES,
+            simple_hint_ids: SIMPLE_HINT_IDS,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: CASEFOLD_SPARSE,
@@ -777,7 +777,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
+        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] = &[None, None, None, None]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -792,7 +792,7 @@ mod tests {
             regex_patterns: REGEX_PATTERNS,
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_indices: SIMPLE_HINT_INDICES,
+            simple_hint_ids: SIMPLE_HINT_IDS,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: CASEFOLD_SPARSE,

@@ -313,7 +313,7 @@ def next_match(
     type_simple_map: DefaultDict[str, list[int]] = defaultdict(list)
     for _idx, matcher in enumerate(matchers):
         simple = matcher.simple(parse_context=parse_context)
-        if not simple:  # pragma: no cover
+        if simple is None:  # pragma: no cover
             # NOTE: For all bundled dialects, this clause is true, but until
             # the RegexMatcher is completely deprecated (and therefore that
             # `.simple()` must provide a result), it is still _possible_

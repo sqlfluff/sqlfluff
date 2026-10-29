@@ -39,6 +39,8 @@
 //! TERMINATORS = [3, ...]    // ID of Ref("semicolon")
 //! ```
 
+use std::num::NonZeroU32;
+
 use crate::grammar_inst::{GrammarId, GrammarInst};
 
 /// Grammar tables for a single dialect
@@ -108,10 +110,12 @@ pub struct GrammarTables {
     /// Each entry is an index into the strings table.
     pub hint_string_indices: &'static [u32],
 
-    /// Per-instruction simple hint index (indexed by GrammarId).
+    /// Per-instruction simple hint (indexed by GrammarId).
     ///
-    /// 0 means no hint available. Non-zero indices into simple_hints array.
-    pub simple_hint_indices: &'static [u32],
+    /// None is Python's `simple()` returning None: no hint, so the caller
+    /// must try a full match. Some(id) is an entry of `simple_hints`, which
+    /// may be empty: a grammar that can never match, such as `Nothing`.
+    pub simple_hint_ids: &'static [Option<SimpleHintId>],
 
     /// Per-instruction segment type offsets into the strings table (or 0xFFFFFFFF)
     pub segment_type_offsets: &'static [u32],
@@ -202,35 +206,16 @@ impl GrammarTables {
         }
     }
 
-    /// Get simple hint by index
-    #[inline]
-    pub fn get_simple_hint(&self, idx: u32) -> &SimpleHintData {
-        &self.simple_hints[idx as usize]
-    }
-
     /// Get simple hint for a grammar by its ID
     ///
-    /// Returns None if the grammar has no hint (hint_idx = 0), so the caller
-    /// must try a full match. This is Python's `simple()` returning None.
-    /// SIMPLE_HINTS[0] is only a placeholder that keeps real hints at 1 and up;
-    /// it is never returned, because an empty hint means something else (see
+    /// Returns None if the grammar has no hint, so the caller must try a full
+    /// match. This is Python's `simple()` returning None. An empty hint is
+    /// still a hint: it means the grammar can never match (see
     /// `hint_can_match`).
     #[inline]
     pub fn get_simple_hint_for_grammar(&self, id: GrammarId) -> Option<&SimpleHintData> {
-        if id.get() as usize >= self.simple_hint_indices.len() {
-            return None;
-        }
-        let hint_idx = self.simple_hint_indices[id.get() as usize] as usize;
-        if hint_idx == 0 {
-            return None;
-        }
-        if hint_idx >= self.simple_hints.len() {
-            // Out of bounds - this shouldn't happen but handle gracefully
-            None
-        } else {
-            // hint_idx is a direct index into simple_hints array
-            Some(&self.simple_hints[hint_idx])
-        }
+        let hint_id = (*self.simple_hint_ids.get(id.get() as usize)?)?;
+        self.simple_hints.get(hint_id.index())
     }
 
     /// Check if a hint can match a token
@@ -373,9 +358,34 @@ impl TableMemoryStats {
     }
 }
 
+/// Which entry of `GrammarTables::simple_hints` a grammar's hint is.
+///
+/// Ids count from 1, so `Option<SimpleHintId>` fits in four bytes, with no
+/// placeholder entry and no "0 means none" convention: a grammar with no hint
+/// is `None`. `index()` turns the id into the position in `simple_hints`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SimpleHintId(NonZeroU32);
+
+impl SimpleHintId {
+    /// The hint at position `id - 1` of `simple_hints`. For generated tables;
+    /// an id of 0 fails at compile time there.
+    pub const fn new(id: u32) -> Self {
+        match NonZeroU32::new(id) {
+            Some(id) => Self(id),
+            None => panic!("simple hint ids count from 1"),
+        }
+    }
+
+    /// The hint's position in `simple_hints`.
+    #[inline]
+    pub const fn index(self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
+
 /// Simple hint data (pre-computed for fast pruning)
 ///
-/// Compact representation of SimpleHint for table storage.
+/// Compact representation of a hint for table storage.
 /// Instead of storing HashSets, we store sorted arrays of indices
 /// into the string table.
 #[derive(Debug, Clone)]
@@ -560,7 +570,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
+        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] = &[None, None, None]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[]; // No casefold in this test
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -575,7 +585,7 @@ mod tests {
             regex_patterns: REGEX_PATTERNS,
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_indices: SIMPLE_HINT_INDICES,
+            simple_hint_ids: SIMPLE_HINT_IDS,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: CASEFOLD_SPARSE,
@@ -629,7 +639,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0]; // One per instruction
+        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] = &[None, None]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[]; // No casefold in this test
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -644,7 +654,7 @@ mod tests {
             regex_patterns: REGEX_PATTERNS,
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_indices: SIMPLE_HINT_INDICES,
+            simple_hint_ids: SIMPLE_HINT_IDS,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: CASEFOLD_SPARSE,
@@ -693,11 +703,9 @@ mod tests {
         static STRINGS: &[&str] = &["SELECT"];
         static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0];
         static SIMPLE_HINTS: &[SimpleHintData] = &[
-            // [0] placeholder: index 0 means "no hint"
+            // id 1, Nothing: no words, no types
             SimpleHintData::empty(),
-            // [1] Nothing: no words, no types
-            SimpleHintData::empty(),
-            // [2] the word SELECT
+            // id 2, the word SELECT
             SimpleHintData {
                 raw_values_start: 0,
                 raw_values_count: 1,
@@ -706,7 +714,8 @@ mod tests {
             },
         ];
         static HINT_STRING_INDICES: &[u32] = &[0];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 1, 2];
+        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] =
+            &[None, Some(SimpleHintId::new(1)), Some(SimpleHintId::new(2))];
 
         let tables = GrammarTables {
             instructions: INSTRUCTIONS,
@@ -718,7 +727,7 @@ mod tests {
             regex_patterns: &[],
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_indices: SIMPLE_HINT_INDICES,
+            simple_hint_ids: SIMPLE_HINT_IDS,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: &[],
