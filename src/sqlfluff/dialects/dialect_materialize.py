@@ -31,13 +31,21 @@ materialize_dialect = postgres_dialect.copy_as(
     formatted_name="Materialize",
     docstring="The dialect for `Materialize <https://materialize.com/>`_.",
 )
-materialize_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", materialize_unreserved_keywords
+# Reserved is Materialize's complete list, so reserved_mode is replace. A word
+# in both of materialize's lists stays reserved, as it always behaved.
+materialize_reserved = materialize_dialect.keywords_set_from_multiline_string(
+    materialize_reserved_keywords
 )
-
-materialize_dialect.sets("reserved_keywords").clear()
-materialize_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", materialize_reserved_keywords
+materialize_dialect.declare_keyword_sets(
+    reserved=materialize_reserved,
+    reserved_mode="replace",
+    unreserved=materialize_dialect.keywords_set_from_multiline_string(
+        materialize_unreserved_keywords
+    )
+    - materialize_reserved,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 

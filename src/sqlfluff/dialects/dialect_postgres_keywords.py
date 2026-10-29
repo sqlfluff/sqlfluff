@@ -738,7 +738,8 @@ postgres_docs_keywords = [
     ("SMALLSERIAL", "non-reserved-(cannot-be-function-or-type)"),
     ("SNAPSHOT", "non-reserved"),
     ("SOME", "reserved"),
-    ("SOURCE", "not-keyword"),
+    # Blank in PG13's table; non-reserved since PG17 (MERGE ... BY SOURCE).
+    ("SOURCE", "non-reserved"),
     ("SPACE", "not-keyword"),
     ("SPECIFIC", "not-keyword"),
     ("SPECIFICTYPE", "not-keyword"),
@@ -939,6 +940,8 @@ postgres_nondocs_keywords = [
     ("DETERMINISTIC", "non-reserved"),
     ("DISABLE_PAGE_SKIPPING", "non-reserved"),
     ("EXECUTION", "not-keyword"),
+    # Non-reserved since PG17 (MERGE ... BY TARGET); not in PG13's table.
+    ("TARGET", "non-reserved"),
     ("EXTENDED", "non-reserved"),
     ("FILE", "non-reserved"),
     ("FORCE_NOT_NULL", "non-reserved"),

@@ -366,19 +366,17 @@ postgres_dialect.patch_lexer_matchers(
     ]
 )
 
-postgres_dialect.sets("reserved_keywords").clear()
-postgres_dialect.sets("reserved_keywords").update(
-    get_keywords(postgres_keywords, "reserved")
-)
-postgres_dialect.sets("unreserved_keywords").update(
-    get_keywords(postgres_keywords, "non-reserved")
-)
-postgres_dialect.sets("reserved_keywords").difference_update(
-    get_keywords(postgres_keywords, "not-keyword")
-)
-
-postgres_dialect.sets("unreserved_keywords").difference_update(
-    get_keywords(postgres_keywords, "not-keyword")
+# Reserved is PostgreSQL's complete list, so reserved_mode is replace. Its
+# "not-keyword" words, the ANSI keywords PostgreSQL doesn't have, are
+# unimplemented: just names, and grammar inherited from ANSI that needs one
+# doesn't match.
+postgres_dialect.declare_keyword_sets(
+    reserved=get_keywords(postgres_keywords, "reserved"),
+    reserved_mode="replace",
+    unreserved=get_keywords(postgres_keywords, "non-reserved"),
+    unimplemented=get_keywords(postgres_keywords, "not-keyword"),
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Track the `col_name_keyword` class (PostgreSQL's
@@ -390,13 +388,6 @@ postgres_dialect.sets("unreserved_keywords").difference_update(
 postgres_dialect.sets("cannot_be_type_keywords").update(
     get_keywords(postgres_keywords, "non-reserved-(cannot-be-function-or-type)")
 )
-
-# `SOURCE` and `TARGET` are not PostgreSQL keywords in general, but the
-# `MERGE ... WHEN NOT MATCHED BY {SOURCE,TARGET}` clauses (added in PostgreSQL
-# 17) need them. Register them as unreserved so they remain usable as ordinary
-# identifiers (e.g. a table aliased `AS source`) while the merge grammar can
-# still match them.
-postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 
 # Add datetime units
 postgres_dialect.sets("datetime_units").update(
