@@ -6,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    ClassVar,
     Optional,
     TypeVar,
     Union,
@@ -494,19 +493,16 @@ class Nothing(BaseGrammar):
     dialects.
     """
 
-    # Nothing starts with no word and no type.
-    _SIMPLE_HINT: ClassVar[SimpleHintType] = (frozenset(), frozenset())
-
+    @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Nothing starts with no word and no type.
 
         An empty hint, rather than none, lets option pruning drop it and
         lets it sit among terminators, where every matcher needs a hint.
-        Pruning calls this often, so the hint is built once.
         """
-        return self._SIMPLE_HINT
+        return (frozenset(), frozenset())
 
     def match(
         self,
