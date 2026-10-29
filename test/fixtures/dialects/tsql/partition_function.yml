@@ -1,0 +1,208 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c44245a8182543ae0469ebdf7dedd3c1e436d8662f3677a6cf95fceb0b6ff330
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                partition_function_keyword: $PARTITION
+                dot: .
+                function_name_identifier: TransactionRangePF1
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: TransactionDate
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: Partition
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: COUNT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: Ra
+                    - dot: .
+                    - naked_identifier: TransactionID
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: Records
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: TransactionHistoryRa
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - expression:
+            function:
+              function_name:
+                partition_function_keyword: $PARTITION
+                dot: .
+                function_name_identifier: TransactionRangePF1
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: TransactionDate
+                  end_bracket: )
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: Partition
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: Ra
+            - dot: .
+            - naked_identifier: TransactionDate
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: Ra
+            - dot: .
+            - naked_identifier: TransactionID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: TransactionHistoryRa
+        where_clause:
+          keyword: WHERE
+          expression:
+            function:
+              function_name:
+                partition_function_keyword: $PARTITION
+                dot: .
+                function_name_identifier: TransactionRangePF1
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: TransactionDate
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '5'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+              - naked_identifier: my_database
+              - dot: .
+              - partition_function_keyword: $PARTITION
+              - dot: .
+              - function_name_identifier: my_pf
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: id
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: test_partitions
+  - statement_terminator: ;
+  - statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[get_test_partitions_at_partition]'
+      - procedure_parameter_list:
+          parameter: '@partition_number'
+          data_type:
+            keyword: INT
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: shenanigans
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: test_partitions
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      function:
+                        function_name:
+                          partition_function_keyword: $PARTITION
+                          dot: .
+                          function_name_identifier: pf_test
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: id
+                            end_bracket: )
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      parameter: '@partition_number'
+            - keyword: END
+  - go_statement:
+      keyword: GO

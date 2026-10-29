@@ -521,6 +521,9 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
+    PartitionFunctionPrefixSegment=RegexParser(
+        r"\$PARTITION", CodeSegment, type="partition_function_keyword"
+    ),
     DatatypeMethodNameIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
             r"^(" + r"|".join(sorted(dialect.sets("datatype_methods"))) + r")$",
@@ -1709,10 +1712,13 @@ class FunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar: Matchable = Sequence(
-        # Project name, schema identifier, etc.
+        # Project name, schema identifier, or $PARTITION prefix
         AnyNumberOf(
             Sequence(
-                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("PartitionFunctionPrefixSegment"),
+                ),
                 Ref("DotSegment"),
             ),
             terminators=[Ref("BracketedSegment")],
