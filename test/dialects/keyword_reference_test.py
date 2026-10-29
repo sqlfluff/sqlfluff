@@ -56,11 +56,13 @@ Even more optional.
 5. Update your keyword lists from the server's docs or source at least every
    few years, to keep the dialect current.
 
-A perfectly maintained dialect ends up with every unimplemented word
-researched, and the grammar that needed it overridden with Nothing() or a
-trimmed copy, so no grammar it reaches uses the word. db2's NATURAL is an
-example. So the audit never asks a dialect to remove an unimplemented word
-just because no grammar uses it.
+To make the above work, the audit can't encourage dialects to remove words
+from unimplemented if the dialect's grammar doesn't use them. The final state
+of a perfectly maintained dialect's grammar is unsupported grammar overridden
+with Nothing(), or replaced by a custom version of the parent's with the
+unsupported parts removed; in either case the grammar won't use them. That is
+the correct final state of a researched and categorized word in many cases.
+db2's NATURAL is an example.
 
 If you have to guess to stop a crash, as clickhouse and db2 do, say so in a
 comment at the call: the lists aren't great and need help.
