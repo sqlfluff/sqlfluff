@@ -151,8 +151,6 @@ from sqlfluff.core.parser.matchable import Matchable
 UNAUDITED_DIALECTS = {
     "databricks",
     "flink",
-    "impala",
-    "oracle",
     "tsql",
     "vertica",
 }
