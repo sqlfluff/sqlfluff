@@ -313,8 +313,8 @@ database, is in the docstring at the top of
 its `UNAUDITED_DIALECTS`. For an audited dialect it fails if:
 
 - a word has two statuses that can't go together;
-- grammar refers to a keyword or segment the dialect doesn't have, or uses a
-  keyword whose only status is future reserved;
+- grammar refers to a keyword or segment the dialect doesn't have (a word that
+  is only future reserved counts: future reserved is a tag, not a status);
 - grammar uses a keyword the lexer can never make into one token;
 - a keyword list holds something that isn't a word;
 - the dialect's own grammar uses one of its unimplemented words.

@@ -88,9 +88,8 @@ however it built them:
 - Every keyword and reference its grammar can reach resolves: keywords,
   segments, bracket pairs, and those inside a Ref's exclude= and terminators=.
   One that doesn't crashes the parser on any statement that reaches the rule
-  using it, even when the statement doesn't contain the word. A keyword the
-  grammar uses can't be only future reserved, which says nothing about what it
-  is now.
+  using it, even when the statement doesn't contain the word. A word that is
+  only future reserved doesn't resolve: future reserved is a tag, not a status.
 - Every keyword its grammar uses is one token to its lexer, so it can match.
 - Its keyword lists hold only words, or words joined by - or a space.
 - Its own grammar doesn't use its unimplemented words.
@@ -110,7 +109,7 @@ what these checks find in each dialect: for an audited one, the failures
 pytest would show; for an unaudited one, what auditing it would bring, and
 when it passes, that it can come off the list. As notices, it also lists
 inherited grammar that unimplemented words switch off; as info, the keywords no
-grammar uses. --level error,
+grammar uses and words that are only future reserved. --level error,
 warning, notice or info sets how much is shown. Name dialects as arguments to
 report on just those and the dialects that inherit from them, as the parser's
 "not found in the ... dialect" errors suggest.
@@ -419,18 +418,14 @@ def _segments_and_files(owners: set[Owner]) -> tuple[str, list[str]]:
 
 
 def _dialect_knows(dialect_name: str, word: str) -> bool:
-    """Whether a dialect gives the word any status other than unimplemented."""
+    """Whether a dialect gives the word a keyword status: reserved or unreserved."""
     try:
         dialect = _report_dialect(dialect_name)
     except KeyError:
         return False
     return any(
         word in dialect.sets(label)
-        for label in (
-            "reserved_keywords",
-            "unreserved_keywords",
-            "future_reserved_keywords",
-        )
+        for label in ("reserved_keywords", "unreserved_keywords")
     )
 
 
@@ -597,13 +592,8 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
     own_module = f"dialect_{name}"
     # Unimplemented words aren't keywords of this dialect, so they are never
     # suggested as what was meant.
-    known: set[str] = set()
-    for label in (
-        "reserved_keywords",
-        "unreserved_keywords",
-        "future_reserved_keywords",
-    ):
-        known.update(dialect.sets(label))
+    known = dialect.sets("reserved_keywords") | dialect.sets("unreserved_keywords")
+    future = dialect.sets("future_reserved_keywords")
     lines = [
         f"{name}'s grammar uses keywords that have no status in {name}. {CRASH_EFFECT}"
     ]
@@ -626,6 +616,12 @@ def _missing_keywords_message(dialect: Dialect, keywords: dict[str, set[Owner]])
             defined = " and ".join(m.removeprefix("dialect_") for m in modules)
             where = f"defined in {defined}"
         hint = _not_a_word(word)
+        if not hint and word in future:
+            hint = (
+                f" {word} is only future reserved, which is a tag for what the "
+                "vendor plans, not a status, so it doesn't resolve on its own. It "
+                "needs a present status too, usually unreserved, keeping the tag."
+            )
         if not hint:
             match = get_close_matches(word, known, n=1, cutoff=0.8)
             if match:
@@ -746,40 +742,6 @@ def _known_keywords(dialect: Dialect) -> set[str]:
     for label in KEYWORD_STATUS_SETS:
         known.update(dialect.sets(label))
     return known
-
-
-def _future_only_uses(dialect: Dialect) -> dict[str, set[Owner]]:
-    """Keywords the grammar uses whose only status is future reserved."""
-    current: set[str] = set()
-    for label in (
-        "reserved_keywords",
-        "unreserved_keywords",
-        "unimplemented_keywords",
-    ):
-        current.update(dialect.sets(label))
-    uses = _reference_uses(dialect)
-    found: dict[str, set[Owner]] = {}
-    for word in dialect.sets("future_reserved_keywords") - current:
-        owners = uses.get(word.capitalize() + "KeywordSegment")
-        if owners:
-            found[word] = owners
-    return found
-
-
-def _future_only_message(dialect: Dialect, found: dict[str, set[Owner]]) -> str:
-    """Say which grammar keywords have only the future reserved tag."""
-    name = dialect.name
-    lines = [
-        f"{name}'s grammar uses these words as keywords, but their only status "
-        "is future reserved, which says what the vendor plans, not what the word "
-        "is now. Each needs a status for now as well, usually unreserved, keeping "
-        f"the future tag. {name} sets its keywords in "
-        f"{_dialect_file(f'dialect_{name}')}."
-    ]
-    for word, owners in sorted(found.items()):
-        segments, _ = _segments_and_files(owners)
-        lines.append(f"- {word}: in {segments}")
-    return "\n".join(lines) + _docs_line(dialect)
 
 
 def _non_word_keywords(dialect: Dialect) -> dict[str, list[str]]:
@@ -938,15 +900,6 @@ def test_keyword_statuses_are_disjoint(dialect_name: str) -> None:
     overlaps = _overlaps(dialect)
 
     assert not overlaps, _overlaps_message(dialect, overlaps)
-
-
-@pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
-def test_grammar_keywords_are_not_only_future_reserved(dialect_name: str) -> None:
-    """Test that a keyword the grammar uses has a status for now."""
-    dialect = _report_dialect(dialect_name)
-    found = _future_only_uses(dialect)
-
-    assert not found, _future_only_message(dialect, found)
 
 
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
@@ -1340,20 +1293,28 @@ def _future_dialect(name: str, also_unreserved: bool) -> Dialect:
     return dialect.expand()
 
 
-def test_checker_finds_a_grammar_keyword_that_is_only_future_reserved() -> None:
-    """Test that future reserved alone isn't enough for a grammar keyword."""
+def test_a_grammar_keyword_that_is_only_future_reserved_is_missing() -> None:
+    """Test that the future tag alone doesn't make a grammar keyword resolve.
+
+    The audit reports it as a missing keyword, says why, and lists every
+    future-only word as info, so nobody is puzzled by one.
+    """
     only_future = _future_dialect("zzfuture", also_unreserved=False)
     with_status = _future_dialect("zzfuture", also_unreserved=True)
 
-    found = _future_only_uses(only_future)
-    message = _future_only_message(only_future, found)
+    unresolved = _unresolved_references(only_future)
+    message = _flat(
+        _missing_keywords_message(
+            only_future, {"ZZFUTURE": unresolved["ZzfutureKeywordSegment"]}
+        )
+    )
+    findings = {f.title: f for f in _audit_findings("zzfuture", only_future)}
 
-    assert set(found) == {"ZZFUTURE"}
-    assert "- ZZFUTURE: in _FutureSegment" in message
-    assert "usually unreserved, keeping the future tag" in _flat(message)
-    assert not _future_only_uses(with_status)
-    finding_titles = [f.title for f in _audit_findings("zzfuture", only_future)]
-    assert "Grammar keywords only future reserved" in finding_titles
+    assert "ZzfutureKeywordSegment" in unresolved
+    assert "ZZFUTURE is only future reserved, which is a tag" in message
+    assert "ZzfutureKeywordSegment" not in _unresolved_references(with_status)
+    assert findings["Keywords only future reserved"].level == "info"
+    assert "ZZFUTURE" in findings["Keywords only future reserved"].message
 
 
 class _SharedUnmatchableSegment(BaseSegment):
@@ -1590,6 +1551,37 @@ def _settled_unimplemented_message(name: str, words: list[str]) -> str:
     )
 
 
+def _future_only_words(dialect: Dialect) -> list[str]:
+    """Words whose only mark in the dialect is the future reserved tag."""
+    present = set().union(
+        *(
+            dialect.sets(label)
+            for label in (
+                "reserved_keywords",
+                "unreserved_keywords",
+                "unimplemented_keywords",
+            )
+        )
+    )
+    return sorted(dialect.sets("future_reserved_keywords") - present)
+
+
+def _future_only_message(name: str, words: list[str]) -> str:
+    """Explain words that are only future reserved, so they don't puzzle anyone."""
+    return "\n".join(
+        [
+            f"These words have only the future reserved tag in {name}. The vendor "
+            "plans to reserve them, but they have no present status, so they "
+            "aren't keywords now: grammar can't use them (a reference to one "
+            "doesn't resolve), and lint rules see them only as future reserved. "
+            f"Give one a present status, usually unreserved, if {name}'s grammar "
+            "needs it.",
+            "- the words:",
+            *_word_rows(words),
+        ]
+    )
+
+
 REPORT_WIDTH = 88
 
 
@@ -1713,7 +1705,6 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
         if not reference.endswith("KeywordSegment")
     }
     overlaps = _overlaps(dialect)
-    future_only = _future_only_uses(dialect)
     own_unimplemented = _unimplemented_in_own_grammar(dialect)
     switched_off = _switched_off(dialect)
     findings: list[Finding] = []
@@ -1773,13 +1764,14 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 _overlaps_message(dialect, overlaps),
             )
         )
+    future_only = _future_only_words(dialect)
     if future_only:
         findings.append(
             Finding(
-                "Grammar keywords only future reserved",
-                "warning",
+                "Keywords only future reserved",
+                "info",
                 len(future_only),
-                _future_only_message(dialect, future_only),
+                _future_only_message(name, future_only),
             )
         )
     if switched_off:

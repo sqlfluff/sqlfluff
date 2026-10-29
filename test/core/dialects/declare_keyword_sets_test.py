@@ -328,9 +328,9 @@ def test_unimplemented_keyword_resolves_to_nothing() -> None:
 def test_unimplemented_wins_over_every_other_status() -> None:
     """Test that an unimplemented word never matches, whatever else it is.
 
-    expand() builds keyword parsers for reserved, unreserved and future
-    reserved words, so without the unimplemented check first the grammar that
-    needs the word would silently stay on. declare_keyword_sets() never leaves
+    expand() builds keyword parsers for reserved and unreserved words, so
+    without the unimplemented check first the grammar that needs the word
+    would silently stay on. declare_keyword_sets() never leaves
     such an overlap, so this builds the sets by hand, as a dialect that doesn't
     use it might.
     """
@@ -420,3 +420,20 @@ def test_a_parent_change_never_takes_a_word_from_a_child() -> None:
             ("reserved_keywords", "future_reserved_keywords"),
         ):
             assert not child.sets(first) & child.sets(second), context
+
+
+def test_a_word_that_is_only_future_reserved_does_not_resolve() -> None:
+    """Test that the future tag alone gives a word no keyword parser.
+
+    Future reserved is a tag, not a present status: grammar that uses such a
+    word fails to resolve, so the audit reports it, and lint rules still see
+    the tag in the set.
+    """
+    child = _child_of_ansi()
+    _declare(child, unreserved=("ZZSOON",), future_reserved=("ZZSOON", "ZZLATER"))
+    expanded = child.expand()
+
+    assert isinstance(expanded.ref("ZzsoonKeywordSegment"), StringParser)
+    with pytest.raises(RuntimeError, match="ZZLATER"):
+        expanded.ref("ZzlaterKeywordSegment")
+    assert "ZZLATER" in expanded.sets("future_reserved_keywords")

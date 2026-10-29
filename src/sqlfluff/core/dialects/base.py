@@ -106,17 +106,15 @@ class Dialect:
                 # dialect and store the result in its place.
                 # Use the .replace() method for its error handling.
                 expanded_copy.replace(**{key: seg_gen.expand(expanded_copy)})
-        # Expand any keyword sets.
+        # Expand any keyword sets. A word with a present status that makes it
+        # a keyword gets a parser. Unimplemented words resolve to Nothing()
+        # below. Future reserved is a tag, not a present status, so a word
+        # that only has it gets nothing: grammar that uses it fails to resolve.
         unimplemented = expanded_copy.sets("unimplemented_keywords")
-        for keyword_set in KEYWORD_STATUS_SETS:  # e.g. reserved_keywords, (JOIN, ...)
-            if keyword_set == "unimplemented_keywords":
-                # Handled below: these resolve to Nothing().
-                continue
-            # Make sure the values are available as KeywordSegments
-            keyword_sets = expanded_copy.sets(keyword_set)
-            for kw in keyword_sets:
-                # A future reserved word can also be unimplemented (not a
-                # keyword yet on this server); unimplemented decides the grammar.
+        for keyword_set in ("reserved_keywords", "unreserved_keywords"):
+            for kw in expanded_copy.sets(keyword_set):
+                # Sets built by hand can overlap; unimplemented decides the
+                # grammar.
                 if kw in unimplemented:
                     continue
                 n = kw.capitalize() + "KeywordSegment"
