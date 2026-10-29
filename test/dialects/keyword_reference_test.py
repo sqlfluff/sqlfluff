@@ -440,7 +440,7 @@ def _segments_and_files(owners: set[Owner]) -> tuple[str, list[str]]:
 def _dialect_knows(dialect_name: str, word: str) -> bool:
     """Whether a dialect gives the word any status other than unimplemented."""
     try:
-        dialect = dialect_selector(dialect_name)
+        dialect = _report_dialect(dialect_name)
     except KeyError:
         return False
     return any(
@@ -877,7 +877,7 @@ def test_grammar_keywords_can_match(dialect_name: str) -> None:
 
     Every dialect passes, so this runs for all of them, audited or not.
     """
-    dialect = dialect_selector(dialect_name)
+    dialect = _report_dialect(dialect_name)
     found = _unmatchable_keywords(dialect)
 
     assert not found, _unmatchable_keywords_message(dialect, found)
@@ -886,7 +886,7 @@ def test_grammar_keywords_can_match(dialect_name: str) -> None:
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
 def test_keyword_lists_hold_only_words(dialect_name: str) -> None:
     """Test that every keyword set entry is a single word."""
-    dialect = dialect_selector(dialect_name)
+    dialect = _report_dialect(dialect_name)
     found = _non_word_keywords(dialect)
 
     assert not found, _non_word_keywords_message(dialect, found)
@@ -958,7 +958,7 @@ def _unimplemented_in_own_grammar_message(
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
 def test_unimplemented_keywords_are_not_in_own_grammar(dialect_name: str) -> None:
     """Test that no unimplemented keyword is used by the dialect's own grammar."""
-    dialect = dialect_selector(dialect_name)
+    dialect = _report_dialect(dialect_name)
     found = _unimplemented_in_own_grammar(dialect)
 
     assert not found, _unimplemented_in_own_grammar_message(dialect, found)
@@ -967,7 +967,7 @@ def test_unimplemented_keywords_are_not_in_own_grammar(dialect_name: str) -> Non
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
 def test_keyword_statuses_are_disjoint(dialect_name: str) -> None:
     """Test that no word has two statuses that can't go together."""
-    dialect = dialect_selector(dialect_name)
+    dialect = _report_dialect(dialect_name)
     overlaps = _overlaps(dialect)
 
     assert not overlaps, _overlaps_message(dialect, overlaps)
@@ -976,7 +976,7 @@ def test_keyword_statuses_are_disjoint(dialect_name: str) -> None:
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
 def test_grammar_keywords_are_not_only_future_reserved(dialect_name: str) -> None:
     """Test that a keyword the grammar uses has a status for now."""
-    dialect = dialect_selector(dialect_name)
+    dialect = _report_dialect(dialect_name)
     found = _future_only_uses(dialect)
 
     assert not found, _future_only_message(dialect, found)
@@ -985,7 +985,7 @@ def test_grammar_keywords_are_not_only_future_reserved(dialect_name: str) -> Non
 @pytest.mark.parametrize("dialect_name", AUDITED_DIALECTS)
 def test_grammar_references_resolve(dialect_name: str) -> None:
     """Test that every reference the dialect's grammar can reach resolves."""
-    dialect = dialect_selector(dialect_name)
+    dialect = _report_dialect(dialect_name)
     unresolved = _unresolved_references(dialect)
     keywords = {
         name[: -len("KeywordSegment")].upper(): owners
