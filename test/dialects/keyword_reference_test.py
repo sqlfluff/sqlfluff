@@ -66,7 +66,7 @@ parts; then no grammar uses the word, and that's correct. db2's NATURAL is an
 example. Few dialects will get that far, and none has to.
 
 If you have to guess to stop a crash, as clickhouse and db2 do, say so in a
-comment at the call. The lists aren't great and need help.
+comment at the call. The lists are not always up to date, and may need help.
 
 Why declare_keyword_sets():
 
