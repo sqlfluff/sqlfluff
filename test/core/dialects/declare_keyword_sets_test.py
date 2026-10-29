@@ -1,5 +1,6 @@
 """Tests for declare_keyword_sets(), expand() and unimplemented keywords."""
 
+import random
 from typing import Any
 
 import pytest
@@ -325,3 +326,77 @@ def test_unimplemented_wins_over_every_other_status() -> None:
 
     for word in ("Zzres", "Zzunres", "Zznotyet"):
         assert isinstance(expanded.ref(f"{word}KeywordSegment"), Nothing), word
+
+
+# A small vocabulary, so that random calls collide often: made-up words, and
+# ansi words that start reserved (SELECT, JOIN) and unreserved (ZONE, ABORT).
+_VOCABULARY = (
+    "ZZW0",
+    "ZZW1",
+    "ZZW2",
+    "ZZW3",
+    "ZZW4",
+    "SELECT",
+    "JOIN",
+    "ZONE",
+    "ABORT",
+)
+_PRESENT_SETS = ("reserved_keywords", "unreserved_keywords", "unimplemented_keywords")
+
+
+def _random_call(rng: random.Random) -> dict[str, Any]:
+    """Arguments for one valid declare_keyword_sets() call, chosen at random.
+
+    Each word gets at most one present status, and future reserved never goes
+    with reserved, so the call is one the function must accept.
+    """
+    lists: dict[str, list[str]] = {
+        "reserved": [],
+        "unreserved": [],
+        "unimplemented": [],
+        "future_reserved": [],
+    }
+    for word in _VOCABULARY:
+        present = rng.choice(["reserved", "unreserved", "unimplemented", None])
+        if present:
+            lists[present].append(word)
+        if present != "reserved" and rng.random() < 0.3:
+            lists["future_reserved"].append(word)
+    return {
+        **lists,
+        "reserved_mode": rng.choice(["add", "replace"]),
+        "future_reserved_mode": rng.choice(["add", "replace"]),
+    }
+
+
+def _present_words(dialect: Dialect) -> set[str]:
+    """Every word with a present status in the dialect."""
+    return set().union(*(dialect.sets(label) for label in _PRESENT_SETS))
+
+
+def test_a_parent_change_never_takes_a_word_from_a_child() -> None:
+    """Test, over random parents and children, the promise the function makes.
+
+    However a parent sets its keywords, a child calling declare_keyword_sets()
+    keeps every word the parent has with some present status, and its sets
+    stay valid: one present status per word, future reserved never reserved.
+    Seeded, so a failure repeats; the message has the trial's calls.
+    """
+    rng = random.Random(8906)
+    for trial in range(2000):
+        parent = _child_of_ansi()
+        parent_call = _random_call(rng)
+        parent.declare_keyword_sets(**parent_call)
+        child = parent.copy_as("declare_keyword_sets_grandchild")
+        child_call = _random_call(rng)
+        child.declare_keyword_sets(**child_call)
+        context = f"trial {trial}: parent {parent_call}, child {child_call}"
+
+        assert _present_words(parent) <= _present_words(child), context
+        for first, second in (
+            ("reserved_keywords", "unreserved_keywords"),
+            ("reserved_keywords", "unimplemented_keywords"),
+            ("unreserved_keywords", "unimplemented_keywords"),
+            ("reserved_keywords", "future_reserved_keywords"),
+        ):
+            assert not child.sets(first) & child.sets(second), context
