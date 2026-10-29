@@ -1,5 +1,7 @@
 """Tests specific to the ClickHouse dialect."""
 
+import pytest
+
 from sqlfluff.core import Linter
 
 
@@ -20,3 +22,19 @@ def test_group_by_modifiers_are_inside_indent() -> None:
     )
 
     assert segment_types.index("indent") < totals_index < segment_types.index("dedent")
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "ALTER TABLE t ADD COLUMN a UInt8, ;",
+        "ALTER TABLE t ADD COLUMN a UInt8,, ADD COLUMN b UInt8;",
+        "ALTER TABLE t , ADD COLUMN a UInt8;",
+    ],
+)
+def test_alter_table_rejects_malformed_action_lists(sql: str) -> None:
+    """A comma must separate two complete ALTER TABLE actions."""
+    parsed = Linter(dialect="clickhouse").parse_string(sql)
+    parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
+
+    assert parsing_errors
