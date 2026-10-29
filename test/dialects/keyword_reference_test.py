@@ -148,12 +148,7 @@ from sqlfluff.core.parser.matchable import Matchable
 # Dialects these checks don't run for yet. Every other dialect, including any
 # new one, is audited. To audit one of these, run this file with its name as
 # an argument, fix what the report shows, and remove it from here.
-UNAUDITED_DIALECTS = {
-    "databricks",
-    "flink",
-    "tsql",
-    "vertica",
-}
+UNAUDITED_DIALECTS: set[str] = set()
 
 ALL_DIALECTS = sorted(info.label for info in dialect_readout())
 
