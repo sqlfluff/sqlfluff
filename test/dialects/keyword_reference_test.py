@@ -2041,20 +2041,40 @@ def _verdict(
     """The pass or fail lines for the report, and whether it failed.
 
     Named dialects are what was asked about, so they decide, whether or not
-    they are required to pass this audit yet. With none named, the dialects
-    required to pass decide; the rest would fail it forever, so they are
-    counted on a line of their own.
+    they are required to pass this audit yet. Their descendants are in the
+    report because a change to a dialect reaches them, so those required to
+    pass decide too: a parent's change that breaks a child fails. With none
+    named, the dialects required to pass decide. Dialects in the report that
+    aren't required to pass would fail it forever, so they are counted on a
+    line of their own.
     """
 
     def has_problems(name: str) -> bool:
         return any(finding.level in ("error", "warning") for finding in findings[name])
 
     if named:
-        judged = [name for name in findings if name in named]
-        what = "named dialects"
+        judged = [
+            name for name in findings if name in named or name not in UNAUDITED_DIALECTS
+        ]
+        named_judged = [name for name in judged if name in named]
+        inherited = len(judged) - len(named_judged)
+        if len(named_judged) == 1:
+            subject = named_judged[0]
+        else:
+            subject = f"the {len(named_judged)} named dialects"
+        if inherited:
+            parent = "it" if len(named_judged) == 1 else "them"
+            scope = (
+                f"{subject} and the {inherited} dialect(s) that inherit from {parent}"
+            )
+            what = f"dialects checked ({scope})"
+        else:
+            scope = subject
+            what = "named dialects"
     else:
         judged = [name for name in findings if name not in UNAUDITED_DIALECTS]
         what = "dialects required to pass this audit"
+        scope = f"the {len(judged)} {what}"
     failing = [name for name in judged if has_problems(name)]
     if not judged:
         lines = ["*** NO VERDICT *** no dialect in this run is required to pass."]
@@ -2073,7 +2093,7 @@ def _verdict(
     elif len(judged) == 1:
         lines = [f"*** PASS *** {judged[0]} has no errors or warnings."]
     else:
-        lines = [f"*** PASS *** the {len(judged)} {what} have no errors or warnings."]
+        lines = [f"*** PASS *** {scope} have no errors or warnings."]
     not_required = [name for name in judged if name in UNAUDITED_DIALECTS]
     for name in not_required:
         if has_problems(name):
@@ -2087,12 +2107,7 @@ def _verdict(
         if name not in judged and has_problems(name)
     ]
     if others:
-        label = (
-            "Also shown, not part of the verdict"
-            if named
-            else "Not required to pass this audit yet"
-        )
-        lines.append(f"{label}:")
+        lines.append("Not required to pass this audit yet:")
         lines.extend(f"  {other}" for other in others)
     return lines, bool(failing)
 
@@ -2477,7 +2492,32 @@ def test_audit_verdict_counts_several_named_dialects() -> None:
 
     assert passing.text.startswith("*** PASS *** the 2 named dialects have no")
     assert mixed.text.startswith("*** FAIL *** 1 of 2 named dialects has errors")
-    assert "Also shown, not part of the verdict:\n  zzfailing " in with_children.text
+    assert "Not required to pass this audit yet:\n  zzfailing " in with_children.text
+
+
+def test_audit_verdict_counts_required_descendants() -> None:
+    """Test that a named parent fails when a child required to pass fails.
+
+    The report holds the named dialect and its descendants; zzfailing stands
+    in for a child, required to pass in the first report and not in the second.
+    """
+    clean = {"zzclean": _ready_dialect("zzclean")}
+    failing = {"zzfailing": _failing_dialect("zzfailing")}
+    required_child = _audit_report_of(clean | failing, named=frozenset({"zzclean"}))
+    with _unaudited("zzfailing"):
+        unaudited_child = _audit_report_of(
+            clean | failing, named=frozenset({"zzclean"})
+        )
+
+    assert required_child.failed
+    assert _flat(required_child.text).startswith(
+        "*** FAIL *** 1 of 2 dialects checked (zzclean and the 1 dialect(s) "
+        "that inherit from it) has errors or warnings: zzfailing ("
+    )
+    assert not unaudited_child.failed
+    assert unaudited_child.text.startswith(
+        "*** PASS *** zzclean has no errors or warnings."
+    )
 
 
 def test_parse_args_reads_names_and_level() -> None:
