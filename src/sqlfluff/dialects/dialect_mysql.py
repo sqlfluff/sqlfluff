@@ -1353,15 +1353,34 @@ class ExplainStatementSegment(ansi.ExplainStatementSegment):
                 Sequence("INTO", Ref("SessionVariableNameSegment"), optional=True),
                 OneOf(
                     Sequence("FOR", "CONNECTION", Ref("NumericLiteralSegment")),
-                    Ref("SelectableGrammar"),
-                    Ref("InsertStatementSegment"),
-                    Ref("ReplaceSegment"),
-                    Ref("UpdateStatementSegment"),
-                    Ref("DeleteStatementSegment"),
+                    Sequence(
+                        Sequence(
+                            "FOR",
+                            OneOf("SCHEMA", "DATABASE"),
+                            Ref("DatabaseReferenceSegment"),
+                            optional=True,
+                        ),
+                        OneOf(
+                            Ref("SelectableGrammar"),
+                            Ref("InsertStatementSegment"),
+                            Ref("ReplaceSegment"),
+                            Ref("UpdateStatementSegment"),
+                            Ref("DeleteStatementSegment"),
+                        ),
+                    ),
                 ),
             ),
         ),
     )
+
+
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """In MySQL `DESCRIBE` is a synonym of `EXPLAIN`.
+
+    It is handled by `ExplainStatementSegment`.
+    """
+
+    match_grammar: Matchable = Nothing()
 
 
 class InsertStatementSegment(BaseSegment):

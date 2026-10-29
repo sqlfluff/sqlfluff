@@ -33,3 +33,9 @@ explain format = json into @plan select 1;
 explain for connection 4;
 
 explain format = json for connection 4;
+
+describe tbl col1;
+
+explain for schema db1 select * from tbl;
+
+explain format = json for database db1 select 1;

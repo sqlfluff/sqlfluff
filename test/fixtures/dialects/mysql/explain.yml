@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e331fc7b41f8453901b56d99be75d09e21526eae5a2ec64f686c0df4ec559100
+_hash: 4e049f770b344894fbe1e7505b3786b715c1695d68808a96b0525c339ba6d52f
 file:
 - statement:
     explain_statement:
@@ -248,4 +248,51 @@ file:
     - keyword: for
     - keyword: connection
     - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: describe
+      table_reference:
+        naked_identifier: tbl
+      column_reference:
+        naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: for
+    - keyword: schema
+    - database_reference:
+        naked_identifier: db1
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: json
+    - keyword: for
+    - keyword: database
+    - database_reference:
+        naked_identifier: db1
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
 - statement_terminator: ;
