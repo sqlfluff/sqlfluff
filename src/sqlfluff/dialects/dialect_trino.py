@@ -901,6 +901,22 @@ class WithOrdinalityClauseSegment(BaseSegment):
     )
 
 
+class TemporalQuerySegment(ansi.TemporalQuerySegment):
+    """A time travel query: `FOR TIMESTAMP AS OF` or `FOR VERSION AS OF`.
+
+    https://trino.io/docs/current/connector/iceberg.html#time-travel-queries
+    https://trino.io/docs/current/connector/delta-lake.html#time-travel-queries
+    """
+
+    match_grammar = Sequence(
+        "FOR",
+        OneOf("TIMESTAMP", "VERSION"),
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    )
+
+
 class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
 
