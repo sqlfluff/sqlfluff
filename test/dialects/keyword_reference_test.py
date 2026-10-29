@@ -18,6 +18,7 @@ audit tests lock them in, in CI.
    grammar or keyword table: docs can be wrong. Pass them as reserved=, with
    reserved_mode="replace", so the list is exhaustive and any reserved word
    you inherit and don't list becomes unreserved.
+
 2. Get the unreserved keywords the same way and pass them as unreserved=.
    Also add any words sqlfluff's grammar needs that aren't in the docs.
    Postgres manages this well internally (dialect_postgres_keywords.py), but
@@ -25,9 +26,10 @@ audit tests lock them in, in CI.
 
    Too many unreserved words costs almost nothing: RF04 and RF06 (both off by
    default) treat them as keywords and may flag names they arguably needn't.
-   So this is a good place to stop. You never have to do step 3 or later, but
-   if you want RF04 cleaned up, or you know for sure your server doesn't use a
-   word, do step 3 too.
+
+This is a good place to stop. You never have to do step 3 or later, but if you
+want RF04 cleaned up, or you know for sure your server doesn't use a word, do
+step 3 too.
 
 Optional.
 
