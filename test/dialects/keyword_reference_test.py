@@ -139,7 +139,12 @@ from sqlfluff.core.dialects.base import (
     KEYWORD_STATUS_SETS,
     Dialect,
 )
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, StringParser
+from sqlfluff.core.parser import (
+    BaseSegment,
+    KeywordSegment,
+    MultiStringParser,
+    StringParser,
+)
 from sqlfluff.core.parser.grammar.base import Nothing, Ref
 from sqlfluff.core.parser.grammar.sequence import Sequence
 from sqlfluff.core.parser.lexer import PyLexer
@@ -815,6 +820,58 @@ def _non_word_keywords_message(dialect: Dialect, found: dict[str, list[str]]) ->
     return "\n".join(lines)
 
 
+def _misnamed_keyword_parsers(dialect: Dialect) -> dict[str, tuple[str, str]]:
+    """Keyword parsers named for one word that don't match that word.
+
+    Grammar that uses a word reaches <Word>KeywordSegment, so a parser
+    registered under that name has to match the word, though it may match
+    other forms too, such as a plural. Segment classes are left out: a class
+    lands in the library under its own name whenever a dialect module
+    imports it, as ansi does LiteralKeywordSegment. Returns each word with
+    what its parser matches and the dialect module that defined it.
+    """
+    found: dict[str, tuple[str, str]] = {}
+    for segment_name, element in dialect._library.items():
+        if segment_name == "KeywordSegment":
+            continue
+        if not segment_name.endswith("KeywordSegment"):
+            continue
+        word = segment_name[: -len("KeywordSegment")].upper()
+        if isinstance(element, StringParser):
+            matches = {element.template}
+        elif isinstance(element, MultiStringParser):
+            matches = set(element.templates)
+        else:
+            continue
+        if word not in matches:
+            found[word] = (
+                ", ".join(sorted(matches)),
+                _defining_module(dialect, segment_name),
+            )
+    return found
+
+
+def _misnamed_keyword_parsers_message(
+    dialect: Dialect, found: dict[str, tuple[str, str]]
+) -> str:
+    """Say which keyword parsers don't match the word they are named for."""
+    name = dialect.name
+    lines = [
+        f"These keyword parsers in {name} don't match the word they are named "
+        "for. Grammar that uses the word reaches the parser by its name, so it "
+        "matches what the parser matches instead, and the word itself never "
+        "parses. Nothing crashes. Make each parser match its word, as well as "
+        "any other forms it should accept."
+    ]
+    for word, (matches, module) in sorted(found.items()):
+        segment_name = word.capitalize() + "KeywordSegment"
+        lines.append(
+            f"- {word}: {segment_name} matches {matches}, defined in "
+            f"{_dialect_file(module)}"
+        )
+    return "\n".join(lines) + _docs_line(dialect)
+
+
 def _unimplemented_with_own_segment(dialect: Dialect) -> dict[str, str]:
     """Unimplemented words with a keyword segment defined by hand.
 
@@ -880,6 +937,38 @@ def test_where_keywords_are_set_names_the_keyword_file() -> None:
     assert without == (
         "zzchild sets its keywords in src/sqlfluff/dialects/dialect_zzchild.py."
     )
+
+
+@pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
+def test_keyword_parsers_match_their_word(dialect_name: str) -> None:
+    """Test that every <Word>KeywordSegment parser matches its word.
+
+    A misnamed one makes the word unparsable wherever grammar uses it, so
+    this runs for every dialect, audited or not.
+    """
+    dialect = _report_dialect(dialect_name)
+    found = _misnamed_keyword_parsers(dialect)
+
+    assert not found, _misnamed_keyword_parsers_message(dialect, found)
+
+
+def test_misnamed_keyword_parsers_are_found() -> None:
+    """Test the check finds a parser for another word, and allows extra forms.
+
+    ZZJAR also matching its plural is fine; ZZORC matching only ZZORCFILE isn't.
+    LiteralKeywordSegment, a segment class, is left out.
+    """
+    dialect = load_raw_dialect("ansi").copy_as("zzmisnamed")
+    dialect.add(
+        ZzorcKeywordSegment=StringParser("ZZORCFILE", KeywordSegment),
+        ZzjarKeywordSegment=MultiStringParser(["ZZJAR", "ZZJARS"], KeywordSegment),
+    )
+    expanded = dialect.expand()
+    found = _misnamed_keyword_parsers(expanded)
+    message = _flat(_misnamed_keyword_parsers_message(expanded, found))
+
+    assert found == {"ZZORC": ("ZZORCFILE", "dialect_zzmisnamed")}
+    assert "- ZZORC: ZzorcKeywordSegment matches ZZORCFILE, defined in" in message
 
 
 @pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
@@ -1835,6 +1924,16 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "warning",
                 len(unmatchable),
                 _unmatchable_keywords_message(dialect, unmatchable),
+            )
+        )
+    misnamed = _misnamed_keyword_parsers(dialect)
+    if misnamed:
+        findings.append(
+            Finding(
+                "Keyword parsers that don't match their word",
+                "warning",
+                len(misnamed),
+                _misnamed_keyword_parsers_message(dialect, misnamed),
             )
         )
     own_segment = _unimplemented_with_own_segment(dialect)
