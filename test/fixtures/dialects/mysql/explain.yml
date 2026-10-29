@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77b5d16c2cddca62f5fb8d333728260a2f33be4f0e46cecfdc10d68bf5e4d542
+_hash: e331fc7b41f8453901b56d99be75d09e21526eae5a2ec64f686c0df4ec559100
 file:
 - statement:
     explain_statement:
@@ -78,4 +78,174 @@ file:
             start_bracket: (
             numeric_literal: '123'
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      replace_statement:
+      - keyword: replace
+      - keyword: into
+      - table_reference:
+          naked_identifier: tbl
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - values_clause:
+          keyword: values
+          bracketed:
+            start_bracket: (
+            numeric_literal: '123'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: describe
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: desc
+      table_reference:
+        naked_identifier: tbl
+      column_reference:
+        naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: describe
+      table_reference:
+        naked_identifier: tbl
+      quoted_literal: "'col%'"
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: describe
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: json
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: tree
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: traditional
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: analyze
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: analyze
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: tree
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: json
+    - keyword: into
+    - variable: '@plan'
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: for
+    - keyword: connection
+    - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: json
+    - keyword: for
+    - keyword: connection
+    - numeric_literal: '4'
 - statement_terminator: ;
