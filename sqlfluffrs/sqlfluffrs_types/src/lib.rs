@@ -17,8 +17,8 @@ pub use config::fluffconfig::FluffConfig;
 pub use grammar_api::{patterns as grammar_patterns, GrammarContext};
 pub use grammar_inst::{GrammarFlags, GrammarId, GrammarInst, GrammarVariant};
 pub use grammar_tables::{
-    ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, SimpleHintId, TableMemoryStats,
-    TerminatorsIter,
+    ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, TableMemoryStats, TerminatorsIter,
+    NO_SIMPLE_HINT,
 };
 pub use marker::PositionMarker;
 pub use matcher::{BracketPairEntry, BracketPairSet, LexMatcher, LexMatcherConfig};

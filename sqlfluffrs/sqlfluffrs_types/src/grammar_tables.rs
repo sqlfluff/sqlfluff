@@ -39,8 +39,6 @@
 //! TERMINATORS = [3, ...]    // ID of Ref("semicolon")
 //! ```
 
-use std::num::NonZeroU32;
-
 use crate::grammar_inst::{GrammarId, GrammarInst};
 
 /// Grammar tables for a single dialect
@@ -110,12 +108,11 @@ pub struct GrammarTables {
     /// Each entry is an index into the strings table.
     pub hint_string_indices: &'static [u32],
 
-    /// Per-instruction simple hint (indexed by GrammarId).
-    ///
-    /// None is Python's `simple()` returning None: no hint, so the caller
-    /// must try a full match. Some(id) is an entry of `simple_hints`, which
-    /// may be empty: a grammar that can never match, such as `Nothing`.
-    pub simple_hint_ids: &'static [Option<SimpleHintId>],
+    /// Per-instruction position in `simple_hints` (indexed by GrammarId), or
+    /// `NO_SIMPLE_HINT`: Python's `simple()` returning None, so the caller
+    /// must try a full match. A hint may be empty: a grammar that can never
+    /// match, such as `Nothing`.
+    pub simple_hint_indices: &'static [u32],
 
     /// Per-instruction segment type offsets into the strings table (or 0xFFFFFFFF)
     pub segment_type_offsets: &'static [u32],
@@ -214,8 +211,11 @@ impl GrammarTables {
     /// `hint_can_match`).
     #[inline]
     pub fn get_simple_hint_for_grammar(&self, id: GrammarId) -> Option<&SimpleHintData> {
-        let hint_id = (*self.simple_hint_ids.get(id.get() as usize)?)?;
-        self.simple_hints.get(hint_id.index())
+        let index = *self.simple_hint_indices.get(id.get() as usize)?;
+        if index == NO_SIMPLE_HINT {
+            return None;
+        }
+        self.simple_hints.get(index as usize)
     }
 
     /// Check if a hint can match a token
@@ -358,30 +358,10 @@ impl TableMemoryStats {
     }
 }
 
-/// Which entry of `GrammarTables::simple_hints` a grammar's hint is.
-///
-/// Ids count from 1, so `Option<SimpleHintId>` fits in four bytes, with no
-/// placeholder entry and no "0 means none" convention: a grammar with no hint
-/// is `None`. `index()` turns the id into the position in `simple_hints`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SimpleHintId(NonZeroU32);
-
-impl SimpleHintId {
-    /// The hint at position `id - 1` of `simple_hints`. For generated tables;
-    /// an id of 0 fails at compile time there.
-    pub const fn new(id: u32) -> Self {
-        match NonZeroU32::new(id) {
-            Some(id) => Self(id),
-            None => panic!("simple hint ids count from 1"),
-        }
-    }
-
-    /// The hint's position in `simple_hints`.
-    #[inline]
-    pub const fn index(self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-}
+/// In `GrammarTables::simple_hint_indices`: the grammar has no hint, so the
+/// caller must try a full match (Python's `simple()` returning None). Like the
+/// tables' other `0xFFFFFFFF` markers, only the accessor reads it.
+pub const NO_SIMPLE_HINT: u32 = u32::MAX;
 
 /// Simple hint data (pre-computed for fast pruning)
 ///
@@ -570,7 +550,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] = &[None, None, None]; // One per instruction
+        static SIMPLE_HINT_INDICES: &[u32] = &[NO_SIMPLE_HINT, NO_SIMPLE_HINT, NO_SIMPLE_HINT]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[]; // No casefold in this test
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -585,7 +565,7 @@ mod tests {
             regex_patterns: REGEX_PATTERNS,
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_ids: SIMPLE_HINT_IDS,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: CASEFOLD_SPARSE,
@@ -639,7 +619,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] = &[None, None]; // One per instruction
+        static SIMPLE_HINT_INDICES: &[u32] = &[NO_SIMPLE_HINT, NO_SIMPLE_HINT]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[]; // No casefold in this test
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -654,7 +634,7 @@ mod tests {
             regex_patterns: REGEX_PATTERNS,
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_ids: SIMPLE_HINT_IDS,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: CASEFOLD_SPARSE,
@@ -703,9 +683,9 @@ mod tests {
         static STRINGS: &[&str] = &["SELECT"];
         static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0];
         static SIMPLE_HINTS: &[SimpleHintData] = &[
-            // id 1, Nothing: no words, no types
+            // [0] Nothing: no words, no types
             SimpleHintData::empty(),
-            // id 2, the word SELECT
+            // [1] the word SELECT
             SimpleHintData {
                 raw_values_start: 0,
                 raw_values_count: 1,
@@ -714,8 +694,7 @@ mod tests {
             },
         ];
         static HINT_STRING_INDICES: &[u32] = &[0];
-        static SIMPLE_HINT_IDS: &[Option<SimpleHintId>] =
-            &[None, Some(SimpleHintId::new(1)), Some(SimpleHintId::new(2))];
+        static SIMPLE_HINT_INDICES: &[u32] = &[NO_SIMPLE_HINT, 0, 1];
 
         let tables = GrammarTables {
             instructions: INSTRUCTIONS,
@@ -727,7 +706,7 @@ mod tests {
             regex_patterns: &[],
             simple_hints: SIMPLE_HINTS,
             hint_string_indices: HINT_STRING_INDICES,
-            simple_hint_ids: SIMPLE_HINT_IDS,
+            simple_hint_indices: SIMPLE_HINT_INDICES,
             segment_type_offsets: &[],
             segment_class_offsets: &[],
             casefold_sparse: &[],

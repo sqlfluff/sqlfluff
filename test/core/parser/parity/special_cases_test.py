@@ -95,9 +95,9 @@ def test__parity__codegen_hint_table_matches_python(dialect_name):
     """The generated hint table says exactly what each grammar's simple() says.
 
     simple() has three answers, and the Rust tables must keep them apart:
-    None (no hint, try a full match) is a missing id; an empty hint (can never
-    match, e.g. Nothing) is an id whose entry has no words and no types; any
-    other hint is an id whose entry decodes back to its words and types.
+    None (no hint, try a full match) is NO_SIMPLE_HINT; an empty hint (can
+    never match, e.g. Nothing) is an entry with no words and no types; any
+    other hint is an entry that decodes back to its words and types.
     Rust prunes options and scans for terminators with these, so a hint that
     decodes differently makes Rust try or skip different grammars from Python.
     """
@@ -139,8 +139,8 @@ def test__parity__codegen_hint_table_matches_python(dialect_name):
             assert expected is None, grammar
             states["none"] += 1
             continue
-        assert 1 <= hint_id <= len(builder.simple_hints), (grammar, hint_id)
-        data = builder.simple_hints[hint_id - 1]
+        assert 0 <= hint_id < len(builder.simple_hints), (grammar, hint_id)
+        data = builder.simple_hints[hint_id]
         decoded = (
             decode(data.raw_values_start, data.raw_values_count),
             decode(data.token_types_start, data.token_types_count),
