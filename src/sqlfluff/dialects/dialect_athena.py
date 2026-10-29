@@ -125,12 +125,10 @@ athena_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
     RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
-    OrcKeywordSegment=StringParser("ORCFILE", KeywordSegment, type="file_format"),
-    ParquetKeywordSegment=StringParser(
-        "PARQUETFILE", KeywordSegment, type="file_format"
-    ),
-    AvroKeywordSegment=StringParser("AVROFILE", KeywordSegment, type="file_format"),
-    IonKeywordSegment=StringParser("IONFILE", KeywordSegment, type="file_format"),
+    OrcKeywordSegment=StringParser("ORC", KeywordSegment, type="file_format"),
+    ParquetKeywordSegment=StringParser("PARQUET", KeywordSegment, type="file_format"),
+    AvroKeywordSegment=StringParser("AVRO", KeywordSegment, type="file_format"),
+    IonKeywordSegment=StringParser("ION", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
         "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
