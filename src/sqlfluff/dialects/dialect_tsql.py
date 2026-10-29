@@ -5014,6 +5014,43 @@ class WithinGroupClause(BaseSegment):
     )
 
 
+class PartitionFunctionNameSegment(BaseSegment):
+    """The name part of a T-SQL $PARTITION function call.
+
+    Covers '$PARTITION.partition_function_name'.
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/partition-transact-sql
+    """
+
+    type = "function_name"
+    match_grammar = Sequence(
+        RegexParser(
+            r"\$PARTITION",
+            CodeSegment,
+            type="function_name_identifier",
+        ),
+        Ref("DotSegment"),
+        Ref("FunctionNameIdentifierSegment"),
+        allow_gaps=False,
+    )
+
+
+class PartitionFunctionCallSegment(BaseSegment):
+    """A T-SQL $PARTITION function call.
+
+    Resolves the partition number for a given set of partitioning column values.
+    Syntax: $PARTITION.partition_function_name(expression)
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/partition-transact-sql
+    """
+
+    type = "partition_function_call"
+    match_grammar = Sequence(
+        Ref("PartitionFunctionNameSegment"),
+        Ref("FunctionContentsSegment"),
+        allow_gaps=False,
+    )
+
+
 class PartitionClauseSegment(ansi.PartitionClauseSegment):
     """PARTITION BY clause.
 
@@ -5334,6 +5371,12 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = OneOf(
+        # $PARTITION.func_name(expr) — handled first because the $ prefix is
+        # unambiguous and avoids falling through to generic function matching.
+        Sequence(
+            Ref("PartitionFunctionNameSegment"),
+            Ref("FunctionContentsSegment"),
+        ),
         Ref("ReservedKeywordBareFunctionNameSegment"),
         Sequence(
             # Treat functions which take date parts separately
