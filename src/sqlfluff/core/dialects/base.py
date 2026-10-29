@@ -64,7 +64,8 @@ class Dialect:
         # A message from this dialect's maintainers to a contributor who is
         # probably working on another dialect, usually a parent, and has hit a
         # keyword reference error here: how to look up a keyword in this
-        # dialect. Printed as is in those errors. Not inherited.
+        # dialect. Printed as is in the keyword audit's report on this
+        # dialect (test/dialects/keyword_reference_test.py). Not inherited.
         self.keyword_reference_error_docs = keyword_reference_error_docs
 
     def __repr__(self) -> str:  # pragma: no cover
@@ -376,10 +377,10 @@ class Dialect:
         keyword_reference_error_docs is a message from the new dialect's
         maintainers to a contributor who is probably working on another
         dialect, usually a parent, and has hit a keyword reference error in
-        this one: how to look up a keyword here. It is printed as is in those
-        errors. Write whatever helps for this dialect: a link to the vendor's
-        keyword list, or which source file and grammar rule to read. It is
-        optional and not inherited.
+        this one: how to look up a keyword here. It is printed as is in the
+        keyword audit's report on this dialect. Write whatever helps for this
+        dialect: a link to the vendor's keyword list, or which source file and
+        grammar rule to read. It is optional and not inherited.
         """
         # Are we already expanded?
         if self.expanded:  # pragma: no cover

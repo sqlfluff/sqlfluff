@@ -73,12 +73,12 @@ mysql_exchange_partition_table_reference:
   expect: clean_tree
   pins: mysql EXCHANGE PARTITION used to have Ref('TableReference'), a typo for
     TableReferenceSegment, so both engines raised a dangling-ref RuntimeError. With the
-    typo fixed it parses, as it runs on MySQL 8.4.
+    typo fixed (#8878) it parses, as it runs on MySQL 8.4.
 mysql_grant_all_masking_policies_unimplemented:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
   dialect: mysql
   expect: tree
-  pins: POLICIES is an unimplemented keyword in mysql (categorize_keywords), so the GRANT
+  pins: POLICIES is an unimplemented keyword in mysql (declare_keyword_sets), so the GRANT
     grammar mysql inherits from ansi never matches it. Both engines give the same
     unparsable tree instead of a RuntimeError; MySQL itself rejects the statement.
 postgres_alter_foreign_table_column_keyword:
@@ -87,7 +87,7 @@ postgres_alter_foreign_table_column_keyword:
   expect: clean_tree
   pins: postgres ALTER FOREIGN TABLE had Ref('COLUMN'), a segment ref where the COLUMN
     keyword was intended, so both engines raised a dangling-ref RuntimeError; it is
-    Ref.keyword("COLUMN") now, and the statement parses.
+    Ref.keyword("COLUMN") now (#8887), and the statement parses.
 parser_created_segments_drop_token_trim_chars:
   sql: SET @errmsg = 'x';
   dialect: mysql
