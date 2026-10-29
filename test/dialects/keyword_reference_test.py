@@ -2310,8 +2310,9 @@ def test_verdict_colour_only_on_a_terminal() -> None:
 
 if __name__ == "__main__":  # pragma: no cover
     # Piped into head or less, end quietly when the reader stops, like any
-    # Unix tool, instead of Python's BrokenPipeError.
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    # Unix tool, instead of Python's BrokenPipeError. Windows has no SIGPIPE.
+    if hasattr(signal, "SIGPIPE"):
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     # With dialect names as arguments, report on those and their descendants.
     names, level = _parse_args(sys.argv[1:])
     chosen = _with_descendants(names) if names else ALL_DIALECTS
