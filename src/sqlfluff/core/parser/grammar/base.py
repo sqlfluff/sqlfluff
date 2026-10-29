@@ -11,8 +11,9 @@ from typing import (
     TypeVar,
     Union,
 )
-from uuid import UUID, uuid4
+from uuid import UUID
 
+from sqlfluff.core.helpers.identity import get_cache_key
 from sqlfluff.core.helpers.string import curtail_string
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_algorithms import greedy_match
@@ -164,7 +165,7 @@ class BaseGrammar(Matchable):
         )
         self.parse_mode = parse_mode
         # Generate a cache key
-        self._cache_key = uuid4().hex
+        self._cache_key = get_cache_key()
 
     def cache_key(self) -> str:
         """Get the cache key for this grammar.

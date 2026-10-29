@@ -501,3 +501,13 @@ class InsertStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
         ),
     )
+
+
+class StatementSegment(mysql.StatementSegment):
+    """Overriding StatementSegment to remove unsupported MySQL statements."""
+
+    match_grammar = mysql.StatementSegment.match_grammar.copy(
+        remove=[
+            Ref("FlushStatementSegment"),
+        ],
+    )

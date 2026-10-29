@@ -12,6 +12,6 @@ ALTER FOREIGN TABLE test ADD COLUMN new_column int8, OPTIONS (SET table $$(selec
 
 ALTER FOREIGN TABLE test RENAME TO test_renamed;
 
-ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v');
+ALTER FOREIGN TABLE distributors ALTER COLUMN street OPTIONS (ADD opt1 'value', SET opt2 'value2', DROP opt3);
 
-ALTER FOREIGN TABLE ft ALTER c OPTIONS (SET opt 'w');
+ALTER FOREIGN TABLE distributors ALTER street OPTIONS (ADD opt1 'value');

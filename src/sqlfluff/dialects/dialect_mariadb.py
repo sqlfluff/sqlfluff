@@ -1173,8 +1173,11 @@ class AlterTableStatementSegment(mysql.AlterTableStatementSegment):
                 "WITH",
                 "TABLE",
                 Ref("TableReferenceSegment"),
-                OneOf("WITH", "WITHOUT"),
-                "VALIDATION",
+                Sequence(
+                    OneOf("WITH", "WITHOUT"),
+                    "VALIDATION",
+                    optional=True,
+                ),
                 optional=True,
             ),
             Sequence(

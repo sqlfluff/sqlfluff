@@ -5,7 +5,7 @@ FlinkSQL is based on ANSI SQL standard but includes additional features
 for stream processing and table operations.
 
 Based on:
-https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/
+https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -15,8 +15,10 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -51,7 +53,7 @@ FlinkSQL supports advanced features like:
 - Computed columns and metadata columns
 - Temporal table functions
 
-.. _`Flink SQL`: https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/
+.. _`Flink SQL`: https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/
 """,
 )
 
@@ -101,14 +103,15 @@ flink_dialect.patch_lexer_matchers(
             ),
             CodeSegment,
         ),
-        # Support for string literals with single quotes
+        # Support for string literals with single quotes, including
+        # doubled quotes used to escape a quote.
         RegexLexer(
             "single_quote",
-            r"'([^'\\]|\\.)*'",
+            r"'([^'\\]|\\.|'')*'",
             CodeSegment,
             segment_kwargs={
-                "quoted_value": (r"'((?:[^'\\]|\\.)*)'", 1),
-                "escape_replacements": [(r"''", "'"), (r"\\'", "'")],
+                "quoted_value": (r"'((?:[^'\\]|\\.|'')*)'", 1),
+                "escape_replacements": [(r"\\'|''", "'")],
             },
         ),
         # Support for == equality operator
@@ -191,6 +194,8 @@ flink_dialect.add(
     ),
     # Double equals operator for connector options
     DoubleEqualsSegment=StringParser("==", SymbolSegment, type="double_equals"),
+    # Row pattern quantifier used by MATCH_RECOGNIZE
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     FlinkPropertyNamePartSegment=Sequence(
         Ref("SingleIdentifierGrammar"),
         AnyNumberOf(
@@ -344,7 +349,84 @@ flink_dialect.add(
         "TABLE",
         Ref("TableReferenceSegment"),
     ),
+    # Row pattern quantifiers for MATCH_RECOGNIZE.
+    FlinkPatternQuantifierGrammar=Sequence(
+        OneOf(
+            Ref("PositiveSegment"),
+            Ref("StarSegment"),
+            Ref("QuestionMarkSegment"),
+            Bracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                    ),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                bracket_type="curly",
+                bracket_pairs_set="bracket_pairs",
+            ),
+        ),
+        allow_gaps=False,
+    ),
+    FlinkPatternTermGrammar=OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("FlinkPatternQuantifierGrammar", optional=True),
+            allow_gaps=False,
+        ),
+        Bracketed(
+            Ref("FlinkPatternSegment"),
+        ),
+    ),
 )
+
+
+class FlinkArrayExpressionSegment(BaseSegment):
+    """An `ARRAY[...]` constructor for FlinkSQL."""
+
+    type = "array_expression"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Delimited(
+                Ref("BaseExpressionElementGrammar"),
+                optional=True,
+            ),
+            bracket_type="square",
+        ),
+    )
+
+
+class FunctionNameSegment(ansi.FunctionNameSegment):
+    """A function name that supports Flink backtick-quoted identifiers."""
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("BackQuotedIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        allow_gaps=False,
+    )
+
 
 flink_dialect.replace(
     SingleIdentifierGrammar=OneOf(
@@ -352,11 +434,27 @@ flink_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    FunctionNameSegment=FunctionNameSegment,
     # Extended to support TABLE and DESCRIPTOR arguments in TVFs
     FunctionContentsExpressionGrammar=OneOf(
         Ref("TableArgSegment"),
         Ref("DescriptorSegment"),
         Ref("ExpressionSegment"),
+    ),
+    # Flink supports ARRAY[...] and MAP[...] constructors.
+    ArrayExpressionSegment=FlinkArrayExpressionSegment,
+    Expression_D_Potential_Select_Statement_Without_Brackets=flink_dialect.get_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets"
+    ).copy(
+        insert=[Ref("FlinkMapExpressionSegment")],
+        before=Ref("ColumnReferenceSegment"),
+    ),
+    # Flink supports LATERAL TABLE(...) in a FROM clause.
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    # Flink supports MATCH_RECOGNIZE as a join-like clause.
+    JoinLikeClauseGrammar=Sequence(
+        Ref("MatchRecognizeClauseSegment"),
+        Ref("AliasExpressionSegment", optional=True),
     ),
 )
 
@@ -590,7 +688,9 @@ class StatementSegment(ansi.StatementSegment):
             # FlinkSQL-specific statements
             Ref("CreateCatalogStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
+            Ref("CreateFunctionStatementSegment"),
             Ref("DescribeStatementSegment"),
+            Ref("ExecuteStatementSetSegment"),
             Ref("ShowStatementsSegment"),
             Ref("SetStatementSegment"),
         ],
@@ -617,6 +717,181 @@ class UseStatementSegment(ansi.UseStatementSegment):
     )
 
 
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/create/#create-function
+    """
+
+    type = "create_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        "AS",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "LANGUAGE",
+            OneOf("JAVA", "SCALA", "PYTHON"),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    OneOf("JAR", "ARTIFACT"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("CreateTableConnectorOptionsSegment", optional=True),
+    )
+
+
+class ExecuteStatementSetSegment(BaseSegment):
+    """An `EXECUTE STATEMENT SET` block for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/insert/#insert-into-multiple-tables
+    """
+
+    type = "execute_statement_set"
+    match_grammar = OneOf(
+        Sequence(
+            "EXECUTE",
+            "STATEMENT",
+            "SET",
+            "BEGIN",
+            Indent,
+            AnyNumberOf(
+                Sequence(
+                    Ref("InsertStatementSegment"),
+                    Ref("DelimiterGrammar"),
+                ),
+                min_times=1,
+            ),
+            Dedent,
+            "END",
+        ),
+        Sequence(
+            "BEGIN",
+            "STATEMENT",
+            "SET",
+            Ref("DelimiterGrammar"),
+            Indent,
+            AnyNumberOf(
+                Sequence(
+                    Ref("InsertStatementSegment"),
+                    Ref("DelimiterGrammar"),
+                ),
+                min_times=1,
+            ),
+            Dedent,
+            "END",
+        ),
+    )
+
+
+class FlinkMapExpressionSegment(BaseSegment):
+    """A `MAP[...]` constructor for FlinkSQL."""
+
+    type = "map_expression"
+    match_grammar = Sequence(
+        "MAP",
+        Bracketed(
+            Delimited(
+                Ref("BaseExpressionElementGrammar"),
+                optional=True,
+            ),
+            bracket_type="square",
+        ),
+    )
+
+
+class FlinkPatternSegment(BaseSegment):
+    """A row pattern for FlinkSQL `MATCH_RECOGNIZE`."""
+
+    type = "pattern_expression"
+    match_grammar = Delimited(
+        AnyNumberOf(
+            Ref("FlinkPatternTermGrammar"),
+            min_times=1,
+        ),
+        delimiter=Ref("BitwiseOrSegment"),
+    )
+
+
+class MatchRecognizeClauseSegment(BaseSegment):
+    """A `MATCH_RECOGNIZE` clause for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/queries/match_recognize/
+    """
+
+    type = "match_recognize_clause"
+    match_grammar = Sequence(
+        "MATCH_RECOGNIZE",
+        Bracketed(
+            Ref("PartitionClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Sequence(
+                "MEASURES",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "ONE",
+                "ROW",
+                "PER",
+                "MATCH",
+                optional=True,
+            ),
+            Sequence(
+                "AFTER",
+                "MATCH",
+                "SKIP",
+                OneOf(
+                    Sequence("PAST", "LAST", "ROW"),
+                    Sequence("TO", "NEXT", "ROW"),
+                    Sequence("TO", "LAST", Ref("SingleIdentifierGrammar")),
+                    Sequence("TO", "FIRST", Ref("SingleIdentifierGrammar")),
+                ),
+                optional=True,
+            ),
+            "PATTERN",
+            Bracketed(
+                Ref("FlinkPatternSegment"),
+            ),
+            Sequence(
+                "WITHIN",
+                Ref("IntervalExpressionSegment"),
+                optional=True,
+            ),
+            "DEFINE",
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "AS",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 class RowDataTypeSegment(BaseSegment):
     """A ROW data type for FlinkSQL."""
 
@@ -630,6 +905,7 @@ class RowDataTypeSegment(BaseSegment):
                     Sequence(
                         Ref("SingleIdentifierGrammar"),  # field name
                         Ref("DatatypeSegment"),  # field type
+                        Sequence("NOT", "NULL", optional=True),
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
                 ),
@@ -642,6 +918,7 @@ class RowDataTypeSegment(BaseSegment):
                     Sequence(
                         Ref("SingleIdentifierGrammar"),  # field name
                         Ref("DatatypeSegment"),  # field type
+                        Sequence("NOT", "NULL", optional=True),
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
                 ),
@@ -662,7 +939,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(
             "ARRAY",
             Bracketed(
-                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("DatatypeSegment"),
+                    Sequence("NOT", "NULL", optional=True),
+                ),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
             ),
@@ -675,6 +955,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     Ref("DatatypeSegment"),  # key type
                     Ref("CommaSegment"),
                     Ref("DatatypeSegment"),  # value type
+                    Sequence("NOT", "NULL", optional=True),
                 ),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
@@ -684,7 +965,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(
             "MULTISET",
             Bracketed(
-                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("DatatypeSegment"),
+                    Sequence("NOT", "NULL", optional=True),
+                ),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
             ),

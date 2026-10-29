@@ -1331,6 +1331,66 @@ class InsertRowAliasSegment(BaseSegment):
     )
 
 
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
+    """An `EXPLAIN` statement, or its synonyms `DESCRIBE` and `DESC`.
+
+    https://dev.mysql.com/doc/refman/8.4/en/explain.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf("EXPLAIN", "DESCRIBE", "DESC"),
+        OneOf(
+            # Table structure: EXPLAIN tbl_name [col_name | wild]
+            Sequence(
+                Ref("TableReferenceSegment"),
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # Execution plan
+            Sequence(
+                Ref.keyword("ANALYZE", optional=True),
+                Sequence(
+                    "FORMAT",
+                    Ref("EqualsSegment"),
+                    OneOf("TRADITIONAL", "JSON", "TREE"),
+                    optional=True,
+                ),
+                Sequence("INTO", Ref("SessionVariableNameSegment"), optional=True),
+                OneOf(
+                    Sequence("FOR", "CONNECTION", Ref("NumericLiteralSegment")),
+                    Sequence(
+                        Sequence(
+                            "FOR",
+                            OneOf("SCHEMA", "DATABASE"),
+                            Ref("DatabaseReferenceSegment"),
+                            optional=True,
+                        ),
+                        OneOf(
+                            Ref("SelectableGrammar"),
+                            Ref("InsertStatementSegment"),
+                            Ref("ReplaceSegment"),
+                            Ref("UpdateStatementSegment"),
+                            Ref("DeleteStatementSegment"),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """In MySQL `DESCRIBE` is a synonym of `EXPLAIN`.
+
+    It is handled by `ExplainStatementSegment`.
+    """
+
+    match_grammar: Matchable = Nothing()
+
+
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -2056,6 +2116,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterEventStatementSegment"),
             Ref("DropEventStatementSegment"),
             Ref("SetDefaultRoleStatementSegment"),
+            Ref("ShowStatementSegment"),
         ],
         remove=[
             # handle CREATE SCHEMA in CreateDatabaseStatementSegment
@@ -2657,8 +2718,11 @@ class AlterTableStatementSegment(BaseSegment):
                 "WITH",
                 "TABLE",
                 Ref("TableReferenceSegment"),
-                OneOf("WITH", "WITHOUT"),
-                "VALIDATION",
+                Sequence(
+                    OneOf("WITH", "WITHOUT"),
+                    "VALIDATION",
+                    optional=True,
+                ),
                 optional=True,
             ),
             Sequence(
@@ -4478,4 +4542,262 @@ class NullSafeEqualsSegment(CompositeComparisonOperatorSegment):
         Ref("RawEqualsSegment"),
         Ref("RawGreaterThanSegment"),
         allow_gaps=False,
+    )
+
+
+class ShowStatementSegment(BaseSegment):
+    """A `SHOW` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/9.7/en/show.html
+    """
+
+    type = "show_statement"
+
+    # ``LIKE 'pattern' | WHERE expr``, shared by many SHOW variants.
+    _like_or_where = OneOf(
+        Sequence("LIKE", Ref("QuotedLiteralSegment")),
+        Ref("WhereClauseSegment"),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            # SHOW BINARY LOG STATUS
+            Sequence("BINARY", "LOG", "STATUS"),
+            # SHOW BINARY LOGS
+            Sequence("BINARY", "LOGS"),
+            # SHOW BINLOG EVENTS [IN 'log_name'] [FROM pos] [LIMIT ...]
+            Sequence(
+                "BINLOG",
+                "EVENTS",
+                Sequence("IN", Ref("QuotedLiteralSegment"), optional=True),
+                Sequence("FROM", Ref("NumericLiteralSegment"), optional=True),
+                Ref("LimitClauseSegment", optional=True),
+            ),
+            # SHOW {CHARACTER SET | CHARSET} [LIKE ... | WHERE ...]
+            Sequence(
+                OneOf(Sequence("CHARACTER", "SET"), "CHARSET"),
+                _like_or_where,
+            ),
+            # SHOW COLLATION [LIKE ... | WHERE ...]
+            Sequence("COLLATION", _like_or_where),
+            # SHOW [EXTENDED] [FULL] {COLUMNS | FIELDS} ...
+            Sequence(
+                OneOf("EXTENDED", optional=True),
+                OneOf("FULL", optional=True),
+                OneOf("COLUMNS", "FIELDS"),
+                OneOf("FROM", "IN"),
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_or_where,
+            ),
+            # SHOW CREATE ...
+            Sequence(
+                "CREATE",
+                OneOf(
+                    Sequence(
+                        OneOf("DATABASE", "SCHEMA"),
+                        Ref("IfNotExistsGrammar", optional=True),
+                        Ref("DatabaseReferenceSegment"),
+                    ),
+                    Sequence("EVENT", Ref("ObjectReferenceSegment")),
+                    Sequence("FUNCTION", Ref("FunctionNameSegment")),
+                    Sequence("LIBRARY", Ref("ObjectReferenceSegment")),
+                    Sequence("MASKING", "POLICY", Ref("ObjectReferenceSegment")),
+                    Sequence("PROCEDURE", Ref("FunctionNameSegment")),
+                    Sequence("TABLE", Ref("TableReferenceSegment")),
+                    Sequence("TRIGGER", Ref("TriggerReferenceSegment")),
+                    Sequence("USER", Ref("RoleReferenceSegment")),
+                    Sequence("VIEW", Ref("TableReferenceSegment")),
+                ),
+            ),
+            # SHOW {DATABASES | SCHEMAS} [LIKE ... | WHERE ...]
+            Sequence(OneOf("DATABASES", "SCHEMAS"), _like_or_where),
+            # SHOW ENGINE engine_name {STATUS | MUTEX}
+            Sequence(
+                "ENGINE",
+                Ref("NakedIdentifierSegment"),
+                OneOf("STATUS", "MUTEX"),
+            ),
+            # SHOW [STORAGE] ENGINES
+            Sequence(OneOf("STORAGE", optional=True), "ENGINES", _like_or_where),
+            # SHOW ERRORS [LIMIT ...]
+            Sequence("ERRORS", Ref("LimitClauseSegment", optional=True)),
+            # SHOW COUNT(*) ERRORS
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Bracketed(Ref("StarSegment")),
+                "ERRORS",
+            ),
+            # SHOW EVENTS [{FROM | IN} schema_name] [LIKE ... | WHERE ...]
+            Sequence(
+                "EVENTS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_or_where,
+            ),
+            # SHOW FUNCTION CODE func_name
+            Sequence("FUNCTION", "CODE", Ref("FunctionNameSegment")),
+            # SHOW FUNCTION STATUS [LIKE ... | WHERE ...]
+            Sequence("FUNCTION", "STATUS", _like_or_where),
+            # SHOW GRANTS [FOR user_or_role [USING role [, role] ...]]
+            Sequence(
+                "GRANTS",
+                Sequence(
+                    "FOR",
+                    Ref("RoleReferenceSegment"),
+                    Sequence(
+                        "USING",
+                        Delimited(Ref("RoleReferenceSegment")),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+            # SHOW [EXTENDED] {INDEX | INDEXES | KEYS} ...
+            Sequence(
+                OneOf("EXTENDED", optional=True),
+                OneOf("INDEX", "INDEXES", "KEYS"),
+                OneOf("FROM", "IN"),
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+            # SHOW LIBRARY STATUS [LIKE ... | WHERE ...]
+            Sequence("LIBRARY", "STATUS", _like_or_where),
+            # SHOW OPEN TABLES [{FROM | IN} db_name] [LIKE ... | WHERE ...]
+            Sequence(
+                "OPEN",
+                "TABLES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_or_where,
+            ),
+            # SHOW PARSE_TREE select_statement
+            Sequence("PARSE_TREE", Ref("SelectableGrammar")),
+            # SHOW PLUGINS
+            "PLUGINS",
+            # SHOW PRIVILEGES
+            "PRIVILEGES",
+            # SHOW PROCEDURE CODE proc_name
+            Sequence("PROCEDURE", "CODE", Ref("FunctionNameSegment")),
+            # SHOW PROCEDURE STATUS [LIKE ... | WHERE ...]
+            Sequence("PROCEDURE", "STATUS", _like_or_where),
+            # SHOW [FULL] PROCESSLIST
+            Sequence(OneOf("FULL", optional=True), "PROCESSLIST"),
+            # SHOW PROFILE [type [, type] ...] [FOR QUERY n] [LIMIT ...]
+            Sequence(
+                "PROFILE",
+                Delimited(
+                    OneOf(
+                        "ALL",
+                        Sequence("BLOCK", "IO"),
+                        Sequence("CONTEXT", "SWITCHES"),
+                        "CPU",
+                        "IPC",
+                        "MEMORY",
+                        Sequence("PAGE", "FAULTS"),
+                        "SOURCE",
+                        "SWAPS",
+                    ),
+                    optional=True,
+                ),
+                Sequence("FOR", "QUERY", Ref("NumericLiteralSegment"), optional=True),
+                Ref("LimitClauseSegment", optional=True),
+            ),
+            # SHOW PROFILES
+            "PROFILES",
+            # SHOW RELAYLOG EVENTS [IN 'log_name'] [FROM pos] [LIMIT ...]
+            Sequence(
+                "RELAYLOG",
+                "EVENTS",
+                Sequence("IN", Ref("QuotedLiteralSegment"), optional=True),
+                Sequence("FROM", Ref("NumericLiteralSegment"), optional=True),
+                Ref("LimitClauseSegment", optional=True),
+            ),
+            # SHOW REPLICA STATUS [FOR CHANNEL channel]
+            Sequence(
+                "REPLICA",
+                "STATUS",
+                Sequence(
+                    "FOR",
+                    "CHANNEL",
+                    OneOf(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # SHOW REPLICAS
+            "REPLICAS",
+            # SHOW [GLOBAL | SESSION] STATUS [LIKE ... | WHERE ...]
+            Sequence(
+                OneOf("GLOBAL", "SESSION", optional=True),
+                "STATUS",
+                _like_or_where,
+            ),
+            # SHOW TABLE STATUS [{FROM | IN} db_name] [LIKE ... | WHERE ...]
+            Sequence(
+                "TABLE",
+                "STATUS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_or_where,
+            ),
+            # SHOW [EXTENDED] [FULL] TABLES [{FROM | IN} db_name] [LIKE ... | WHERE ...]
+            Sequence(
+                OneOf("EXTENDED", optional=True),
+                OneOf("FULL", optional=True),
+                "TABLES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_or_where,
+            ),
+            # SHOW TRIGGERS [{FROM | IN} db_name] [LIKE ... | WHERE ...]
+            Sequence(
+                "TRIGGERS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                _like_or_where,
+            ),
+            # SHOW [GLOBAL | SESSION] VARIABLES [LIKE ... | WHERE ...]
+            Sequence(
+                OneOf("GLOBAL", "SESSION", optional=True),
+                "VARIABLES",
+                _like_or_where,
+            ),
+            # SHOW WARNINGS [LIMIT ...]
+            Sequence("WARNINGS", Ref("LimitClauseSegment", optional=True)),
+            # SHOW COUNT(*) WARNINGS
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Bracketed(Ref("StarSegment")),
+                "WARNINGS",
+            ),
+        ),
     )
