@@ -2139,6 +2139,7 @@ def _audit_report_of(
         sectioned = [name for name in findings if name in named]
         never = None
     children_not_shown = [name for name in findings if name not in sectioned]
+    children_shown = [name for name in sectioned if named and name not in named]
     verdict_lines, failed = _verdict(findings, set(named))
     verdict = [
         wrapped
@@ -2283,6 +2284,20 @@ def _audit_report_of(
             )
             for item in items:
                 lines.extend(_paragraph(item, "  "))
+    # A parent's report is mostly its children's, so the way to see only the
+    # parent is given where a reader ends up after scrolling.
+    if children_shown:
+        lines.append("")
+        lines.append("")
+        lines.extend(
+            _paragraph(
+                f"This report includes {len(children_shown)} dialect(s) that "
+                f"inherit from {', '.join(sorted(named))}. Add --no-children to "
+                "see only the named ones; the others are still audited, and still "
+                "count toward the verdict.",
+                "",
+            )
+        )
     lines.append("")
     lines.append("")
     lines.extend(verdict)
@@ -2582,6 +2597,29 @@ def test_audit_report_without_children_still_judges_them() -> None:
     assert "== zzfailing" not in flat
     assert "Not shown (--no-children): zzfailing." in flat
     assert "zzfailing required FAIL" in flat
+    assert "Add --no-children" not in flat
+
+
+def test_audit_report_with_children_says_how_to_hide_them() -> None:
+    """Test that a report showing children ends with how to leave them out."""
+    dialects = {
+        "zzclean": _ready_dialect("zzclean"),
+        "zztidy": _ready_dialect("zztidy"),
+    }
+    with_children = _flat(_audit_report_of(dialects, named=frozenset({"zzclean"})).text)
+    leaf = _flat(
+        _audit_report_of(
+            {"zzclean": dialects["zzclean"]}, named=frozenset({"zzclean"})
+        ).text
+    )
+    everything = _flat(_audit_report_of(dialects).text)
+
+    assert (
+        "This report includes 1 dialect(s) that inherit from zzclean. "
+        "Add --no-children to see only the named ones"
+    ) in with_children
+    assert "--no-children" not in leaf
+    assert "--no-children" not in everything
 
 
 # ANSI colours for the verdict markers, red for FAIL and green for PASS.
