@@ -71,17 +71,11 @@ The dialect for `ClickHouse <https://clickhouse.com/>`_.""",
 # INTERVAL, and the Null output format, which is NULL). A word can't be both,
 # so they are taken out of the unreserved list here and stay reserved.
 ansi_reserved_keywords = set(ansi_dialect.sets("reserved_keywords"))
-# clickhouse's own grammar uses these, but its keyword list never had them, so
-# any statement reaching that grammar crashed. Unreserved keeps the grammar
-# working until someone checks them against ClickHouse: ACCESS MANAGEMENT and
-# SYSTEM REFRESH privileges, ALTER TABLE ... MODIFY SETTING.
-unlisted_grammar_keywords = {"MANAGEMENT", "REFRESH", "SETTING"}
 clickhouse_unreserved_keywords = {word.upper() for word in UNRESERVED_KEYWORDS}
 clickhouse_dialect.declare_keyword_sets(
     reserved=ansi_reserved_keywords,
     reserved_mode="replace",
-    unreserved=(clickhouse_unreserved_keywords - ansi_reserved_keywords)
-    | unlisted_grammar_keywords,
+    unreserved=clickhouse_unreserved_keywords - ansi_reserved_keywords,
     unimplemented=[],
     future_reserved=[],
     future_reserved_mode="replace",
