@@ -348,6 +348,7 @@ sparksql_dialect.replace(
         insert=[
             Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
+            Ref("ParameterizedSegment"),
         ]
     ),
     NaturalJoinKeywordsGrammar=Sequence(
@@ -1764,6 +1765,25 @@ class CreateSqlFunctionStatementSegment(BaseSegment):
     )
 
 
+class ParameterizedSegment(BaseSegment):
+    """A named parameter marker, e.g. `:start_date`.
+
+    The value is bound when the statement is executed.
+
+    https://spark.apache.org/docs/latest/sql-ref-parameter-markers.html
+    """
+
+    type = "parameterized_expression"
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("BackQuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement using a Data Source or Like.
 
@@ -2302,6 +2322,7 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             Ref("NumericLiteralSegment"),
             "ALL",
             Ref("FunctionSegment"),
+            Ref("ParameterizedSegment"),
         ),
         Dedent,
     )
@@ -3183,7 +3204,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("JoinTargetGrammar"),
-            Dedent,
+            Conditional(Dedent, indented_using_on_newline=False),
             Conditional(Indent, indented_using_on=True),
             # NB: this is optional
             OneOf(
@@ -3210,6 +3231,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                 optional=True,
             ),
             Conditional(Dedent, indented_using_on=True),
+            Conditional(Dedent, indented_using_on_newline=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(

@@ -1294,7 +1294,7 @@ class AlterTableActionSegment(BaseSegment):
                     "ActivePartitionCount", OneOf(Ref("IntegerSegment"), "DEFAULT")
                 ),
                 Sequence("IMMUTABLE", "ROWS"),
-                Sequence("MERGEOUT", OneOf("1", "2")),
+                Sequence("MERGEOUT", OneOf(Ref("IntegerSegment"), "DEFAULT")),
             ),
         ),
     )
