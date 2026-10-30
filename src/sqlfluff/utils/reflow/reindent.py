@@ -688,10 +688,55 @@ def _revise_skipped_source_lines(
     there's one at the end of a loop. In all of these cases, if we find an
     unrendered {% if %} block, which is rendered elsewhere in the template
     we skip that line.
+
+    We also skip complete SQL-empty blocks containing skipped source across
+    one or more template-only lines, even without a rendered alternative.
     """
     reflow_logger.debug("# Revise skipped source lines.")
     if_locs = defaultdict(list)
     skipped_source_blocks = []
+    # Match actual occurrences rather than UUIDs alone: loops can repeat a UUID.
+    # Store the opening segment, line index, skipped-source count and whether
+    # the opening is the first block segment on its line.
+    open_blocks: list[tuple[TemplateSegment, int, int, bool]] = []
+    skipped_source_count = 0
+    ignored_span_boundaries = [0] * (len(lines) + 1)
+    for line_idx, line in enumerate(lines):
+        if not line.is_all_templates(elements):
+            open_blocks.clear()
+            continue
+        segments = list(line.iter_block_segments(elements))
+        for seg_idx, seg in enumerate(segments):
+            if not seg.is_type("placeholder"):
+                continue
+            template_seg = cast(TemplateSegment, seg)
+            if template_seg.block_type == "block_start":
+                open_blocks.append(
+                    (template_seg, line_idx, skipped_source_count, seg_idx == 0)
+                )
+            elif template_seg.block_type == "skipped_source":
+                skipped_source_count += 1
+            elif template_seg.block_type == "block_end":
+                if not open_blocks:
+                    continue
+                opening, opening_idx, skipped_before, is_first = open_blocks.pop()
+                if opening.block_uuid != template_seg.block_uuid:
+                    # An unmatched inner end cannot close an outer occurrence.
+                    open_blocks.clear()
+                    continue
+                if (
+                    opening.block_uuid is not None
+                    and is_first
+                    and seg_idx == len(segments) - 1
+                    and skipped_source_count > skipped_before
+                    and opening.pos_marker.source_position()[0]
+                    != template_seg.pos_marker.source_position()[0]
+                ):
+                    # An entirely SQL-empty occurrence cannot reliably impose
+                    # its zero-depth placement on a rendered source alternative.
+                    # Mark interval boundaries to avoid rescanning nested spans.
+                    ignored_span_boundaries[opening_idx] += 1
+                    ignored_span_boundaries[line_idx + 1] -= 1
 
     # Slice to avoid copying
     for idx, line in enumerate(lines[:]):
@@ -738,6 +783,16 @@ def _revise_skipped_source_lines(
                     f"{(source_loc, template_loc)} at {other_template_loc}"
                 )
                 ignore_locs.append(template_loc)
+
+    # Filter original line occurrences once, preserving other identities/balances
+    # even when source or templated positions coincide.
+    retained_lines = []
+    ignored_span_depth = 0
+    for line_idx, line in enumerate(lines):
+        ignored_span_depth += ignored_span_boundaries[line_idx]
+        if not ignored_span_depth:
+            retained_lines.append(line)
+    lines[:] = retained_lines
 
     # Now go back through the lines, and remove any which we can ignore.
     # Slice to avoid copying
