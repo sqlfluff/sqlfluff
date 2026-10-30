@@ -872,6 +872,56 @@ def _misnamed_keyword_parsers_message(
     return "\n".join(lines) + _docs_line(dialect)
 
 
+def _keywords_without_a_parser(dialect: Dialect) -> dict[str, tuple[str, str]]:
+    """Reserved or unreserved words whose keyword segment isn't a parser.
+
+    A word with one of these statuses is a keyword, so <Word>KeywordSegment
+    must be a parser for it. expand() makes none when the name is already
+    taken, so a Nothing(), a Sequence or any other grammar registered there
+    by hand means the word never parses as a keyword. Parsers are checked by
+    _misnamed_keyword_parsers() and segment classes by
+    _keyword_names_taken_by_classes(). Returns each word with what is
+    registered and the dialect module that registered it.
+    """
+    found: dict[str, tuple[str, str]] = {}
+    keywords = dialect.sets("reserved_keywords") | dialect.sets("unreserved_keywords")
+    for word in keywords:
+        segment_name = word.capitalize() + "KeywordSegment"
+        element = dialect._library.get(segment_name)
+        if element is None:
+            continue
+        if isinstance(element, (StringParser, MultiStringParser)):
+            continue
+        if isinstance(element, type):
+            continue
+        found[word] = (
+            type(element).__name__,
+            _defining_module(dialect, segment_name),
+        )
+    return found
+
+
+def _keywords_without_a_parser_message(
+    dialect: Dialect, found: dict[str, tuple[str, str]]
+) -> str:
+    """Say which keywords have something other than a parser under their name."""
+    name = dialect.name
+    lines = [
+        f"These words are reserved or unreserved in {name}, but what is "
+        "registered under their <Word>KeywordSegment name isn't a parser for "
+        "them. expand() makes no parser when the name is taken, so the word "
+        "never parses as a keyword. Nothing crashes. Remove the entry so "
+        "expand() makes the parser, or, if the database doesn't have the word, "
+        "declare it unimplemented instead."
+    ]
+    for word, (kind, module) in sorted(found.items()):
+        segment_name = word.capitalize() + "KeywordSegment"
+        lines.append(
+            f"- {word}: {segment_name} is a {kind}, defined in {_dialect_file(module)}"
+        )
+    return "\n".join(lines) + _docs_line(dialect)
+
+
 def _unimplemented_with_own_segment(dialect: Dialect) -> dict[str, str]:
     """Unimplemented words with a keyword segment defined by hand.
 
@@ -1128,6 +1178,44 @@ def test_keyword_names_taken_by_classes_are_found_in_descendants(monkeypatch) ->
         "zzlitchild": expected,
         "zzlitgrandchild": expected,
     }
+
+
+@pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
+def test_keywords_have_a_parser(dialect_name: str) -> None:
+    """Test that every reserved or unreserved word's segment is a parser.
+
+    A Nothing() or other grammar under a keyword's name means the keyword
+    never parses, so this runs for every dialect, audited or not.
+    """
+    dialect = _report_dialect(dialect_name)
+    found = _keywords_without_a_parser(dialect)
+
+    assert not found, _keywords_without_a_parser_message(dialect, found)
+
+
+def test_keywords_without_a_parser_are_found() -> None:
+    """Test Nothing() and a Sequence under unreserved words' names.
+
+    ZZFOO and ZZSEQ are unreserved, so each needs a parser. ZZOFF is
+    unimplemented, where Nothing() is what expand() would make anyway.
+    """
+    dialect = load_raw_dialect("ansi").copy_as("zznoparser")
+    dialect.add(
+        ZzfooKeywordSegment=Nothing(),
+        ZzseqKeywordSegment=Sequence("SELECT", "FROM"),
+        ZzoffKeywordSegment=Nothing(),
+    )
+    _declare(dialect, unreserved=["ZZFOO", "ZZSEQ"], unimplemented=["ZZOFF"])
+    expanded = dialect.expand()
+    found = _keywords_without_a_parser(expanded)
+    message = _flat(_keywords_without_a_parser_message(expanded, found))
+
+    assert found == {
+        "ZZFOO": ("Nothing", "dialect_zznoparser"),
+        "ZZSEQ": ("Sequence", "dialect_zznoparser"),
+    }
+    assert not _unimplemented_with_own_segment(expanded)
+    assert "- ZZFOO: ZzfooKeywordSegment is a Nothing, defined in" in message
 
 
 def test_unimplemented_with_own_segment_is_found() -> None:
@@ -2094,6 +2182,16 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "warning",
                 len(misnamed),
                 _misnamed_keyword_parsers_message(dialect, misnamed),
+            )
+        )
+    no_parser = _keywords_without_a_parser(dialect)
+    if no_parser:
+        findings.append(
+            Finding(
+                "Keywords without a parser",
+                "warning",
+                len(no_parser),
+                _keywords_without_a_parser_message(dialect, no_parser),
             )
         )
     taken = _keyword_names_taken_by_classes(dialect)
