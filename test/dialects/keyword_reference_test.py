@@ -1092,6 +1092,44 @@ def test_keyword_names_taken_by_classes_are_found() -> None:
     assert "- LITERAL (used by grammar): LiteralKeywordSegment is a class" in message
 
 
+def test_keyword_names_taken_by_classes_are_found_in_descendants(monkeypatch) -> None:
+    """Test that a collision declared in a parent is found in every descendant.
+
+    The parent lists LITERAL, whose name ansi's LiteralKeywordSegment takes;
+    the child and grandchild inherit both. The test-built dialects aren't
+    loadable by name, so they are registered for the lookup that names where
+    the class was defined.
+    """
+    made: dict[str, Dialect] = {}
+    real_load = load_raw_dialect
+
+    def load(name: str) -> Dialect:
+        if name in made:
+            return made[name]
+        return real_load(name)
+
+    monkeypatch.setitem(globals(), "load_raw_dialect", load)
+    parent = load("ansi").copy_as("zzlitparent")
+    _declare(parent, unreserved=["LITERAL"])
+    made[parent.name] = parent
+    child = parent.copy_as("zzlitchild")
+    made[child.name] = child
+    grandchild = child.copy_as("zzlitgrandchild")
+    made[grandchild.name] = grandchild
+
+    found = {
+        dialect.name: _keyword_names_taken_by_classes(dialect.expand())
+        for dialect in (parent, child, grandchild)
+    }
+
+    expected = {"LITERAL": ("in a keyword list", "dialect_ansi")}
+    assert found == {
+        "zzlitparent": expected,
+        "zzlitchild": expected,
+        "zzlitgrandchild": expected,
+    }
+
+
 def test_unimplemented_with_own_segment_is_found() -> None:
     """Test the check finds a dialect's own segment and an inherited one.
 
