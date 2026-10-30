@@ -673,11 +673,13 @@ class StatementSegment(ansi.StatementSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateRoleStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
+        Ref("CreateMaterializedViewStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("DescribeStatementSegment"),
         Ref("DropFunctionStatementSegment"),
+        Ref("DropMaterializedViewStatementSegment"),
         Ref("DropRoleStatementSegment"),
         Ref("DropSchemaStatementSegment"),
         Ref("DropTableStatementSegment"),
@@ -1110,6 +1112,54 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
         # Create like syntax
         Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+    )
+
+
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    https://trino.io/docs/current/sql/create-materialized-view.html
+    """
+
+    type = "create_materialized_view_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence("GRACE", "PERIOD", Ref("IntervalExpressionSegment"), optional=True),
+        Ref("CommentClauseSegment", optional=True),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A `DROP MATERIALIZED VIEW` statement.
+
+    https://trino.io/docs/current/sql/drop-materialized-view.html
+    """
+
+    type = "drop_materialized_view_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
     )
 
 
