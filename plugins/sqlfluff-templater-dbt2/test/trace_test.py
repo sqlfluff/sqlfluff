@@ -30,6 +30,10 @@ from sqlfluff.core.templaters.base import RawFileSlice
         "comment",
         "layout",
         "project",
+        "continued",
+        "broken",
+        "returned",
+        "block_returned",
     ],
 )
 def test_upstream_traces(case, traces):

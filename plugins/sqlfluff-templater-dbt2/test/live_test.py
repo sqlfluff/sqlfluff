@@ -205,6 +205,22 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
             "{% for n in [1, 2, 3] if n > 3 %}select {{ n }};{% endfor %}select 0\n",
             "{% for n in [1, 2, 3] if n > 3 %}select {{ n }};{% endfor %}SELECT 0\n",
         ),
+        "continued": (
+            "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% continue %}{% endif %}{% endfor %}select 9\n",
+            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% continue %}{% endif %}{% endfor %}SELECT 9\n",
+        ),
+        "broken": (
+            "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}select 9\n",
+            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}SELECT 9\n",
+        ),
+        "returned": (
+            "select 0 {{ return('select 1') }}\n",
+            "select 0 {{ return('select 1') }}\n",
+        ),
+        "block_returned": (
+            "select {% block columns %}0{{ return('1') }}{% endblock %} as n\n",
+            "SELECT {% block columns %}0{{ return('1') }}{% endblock %} AS n\n",
+        ),
     }
     paths = []
     for name, (source, _) in cases.items():
@@ -223,5 +239,7 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
     files = [file for directory in result.paths for file in directory.files]
     assert len(files) == len(cases)
     for file in files:
-        assert not file.get_violations(types=(SQLTemplaterError, SQLParseError))
+        assert not file.get_violations(types=(SQLTemplaterError, SQLParseError)), (
+            file.path
+        )
         assert file.fix_string()[0] == cases[Path(file.path).stem][1]

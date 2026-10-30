@@ -882,6 +882,303 @@
       }
     ]
   },
+  "continued": {
+    "protocol_version": 1,
+    "dbt_version": "2.0.8",
+    "invocation_id": "00000000-0000-4000-8000-000000000001",
+    "unique_id": "model.sqlfluff_dbt2_probe.probe",
+    "filename": "models/probe.sql",
+    "source_path": "models/probe.sql",
+    "render_stage": "jinja_before_ephemeral_injection",
+    "source": "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% continue %}{% endif %}{% endfor %}select 9\n",
+    "rendered": "select 1;select 2;select 9",
+    "events": [
+      {
+        "kind": "block_start",
+        "source_start": 0,
+        "source_end": 21,
+        "rendered_start": 0,
+        "rendered_end": 0
+      },
+      {
+        "kind": "block_start",
+        "source_start": 21,
+        "source_end": 35,
+        "rendered_start": 0,
+        "rendered_end": 0
+      },
+      {
+        "kind": "literal",
+        "source_start": 35,
+        "source_end": 42,
+        "rendered_start": 0,
+        "rendered_end": 7
+      },
+      {
+        "kind": "variable",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 7,
+        "rendered_end": 7
+      },
+      {
+        "kind": "templated",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 7,
+        "rendered_end": 8
+      },
+      {
+        "kind": "macro",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 7,
+        "rendered_end": 8
+      },
+      {
+        "kind": "literal",
+        "source_start": 49,
+        "source_end": 50,
+        "rendered_start": 8,
+        "rendered_end": 9
+      },
+      {
+        "kind": "block_end",
+        "source_start": 64,
+        "source_end": 75,
+        "rendered_start": 9,
+        "rendered_end": 9
+      },
+      {
+        "kind": "block_end",
+        "source_start": 75,
+        "source_end": 87,
+        "rendered_start": 9,
+        "rendered_end": 9
+      },
+      {
+        "kind": "loop_iteration",
+        "source_start": 0,
+        "source_end": 21,
+        "rendered_start": 9,
+        "rendered_end": 9
+      },
+      {
+        "kind": "block_start",
+        "source_start": 21,
+        "source_end": 35,
+        "rendered_start": 9,
+        "rendered_end": 9
+      },
+      {
+        "kind": "literal",
+        "source_start": 35,
+        "source_end": 42,
+        "rendered_start": 9,
+        "rendered_end": 16
+      },
+      {
+        "kind": "variable",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 16,
+        "rendered_end": 16
+      },
+      {
+        "kind": "templated",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 16,
+        "rendered_end": 17
+      },
+      {
+        "kind": "macro",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 16,
+        "rendered_end": 17
+      },
+      {
+        "kind": "literal",
+        "source_start": 49,
+        "source_end": 50,
+        "rendered_start": 17,
+        "rendered_end": 18
+      },
+      {
+        "kind": "block_end",
+        "source_start": 64,
+        "source_end": 75,
+        "rendered_start": 18,
+        "rendered_end": 18
+      },
+      {
+        "kind": "block_end",
+        "source_start": 75,
+        "source_end": 87,
+        "rendered_start": 18,
+        "rendered_end": 18
+      },
+      {
+        "kind": "macro",
+        "source_start": 21,
+        "source_end": 87,
+        "rendered_start": 9,
+        "rendered_end": 18
+      },
+      {
+        "kind": "literal",
+        "source_start": 87,
+        "source_end": 95,
+        "rendered_start": 18,
+        "rendered_end": 26
+      }
+    ]
+  },
+  "broken": {
+    "protocol_version": 1,
+    "dbt_version": "2.0.8",
+    "invocation_id": "00000000-0000-4000-8000-000000000001",
+    "unique_id": "model.sqlfluff_dbt2_probe.probe",
+    "filename": "models/probe.sql",
+    "source_path": "models/probe.sql",
+    "render_stage": "jinja_before_ephemeral_injection",
+    "source": "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}select 9\n",
+    "rendered": "select 1;select 9",
+    "events": [
+      {
+        "kind": "block_start",
+        "source_start": 0,
+        "source_end": 21,
+        "rendered_start": 0,
+        "rendered_end": 0
+      },
+      {
+        "kind": "block_start",
+        "source_start": 21,
+        "source_end": 35,
+        "rendered_start": 0,
+        "rendered_end": 0
+      },
+      {
+        "kind": "literal",
+        "source_start": 35,
+        "source_end": 42,
+        "rendered_start": 0,
+        "rendered_end": 7
+      },
+      {
+        "kind": "variable",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 7,
+        "rendered_end": 7
+      },
+      {
+        "kind": "templated",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 7,
+        "rendered_end": 8
+      },
+      {
+        "kind": "macro",
+        "source_start": 42,
+        "source_end": 49,
+        "rendered_start": 7,
+        "rendered_end": 8
+      },
+      {
+        "kind": "literal",
+        "source_start": 49,
+        "source_end": 50,
+        "rendered_start": 8,
+        "rendered_end": 9
+      },
+      {
+        "kind": "block_end",
+        "source_start": 61,
+        "source_end": 72,
+        "rendered_start": 9,
+        "rendered_end": 9
+      },
+      {
+        "kind": "block_end",
+        "source_start": 90,
+        "source_end": 102,
+        "rendered_start": 9,
+        "rendered_end": 9
+      },
+      {
+        "kind": "macro",
+        "source_start": 21,
+        "source_end": 102,
+        "rendered_start": 0,
+        "rendered_end": 9
+      },
+      {
+        "kind": "literal",
+        "source_start": 102,
+        "source_end": 110,
+        "rendered_start": 9,
+        "rendered_end": 17
+      }
+    ]
+  },
+  "returned": {
+    "protocol_version": 1,
+    "dbt_version": "2.0.8",
+    "invocation_id": "00000000-0000-4000-8000-000000000001",
+    "unique_id": "model.sqlfluff_dbt2_probe.probe",
+    "filename": "models/probe.sql",
+    "source_path": "models/probe.sql",
+    "render_stage": "jinja_before_ephemeral_injection",
+    "source": "select 0 {{ return('select 1') }}\n",
+    "rendered": "select 1",
+    "events": [
+      {
+        "kind": "templated",
+        "source_start": 0,
+        "source_end": 0,
+        "rendered_start": 0,
+        "rendered_end": 8
+      }
+    ]
+  },
+  "block_returned": {
+    "protocol_version": 1,
+    "dbt_version": "2.0.8",
+    "invocation_id": "00000000-0000-4000-8000-000000000001",
+    "unique_id": "model.sqlfluff_dbt2_probe.probe",
+    "filename": "models/probe.sql",
+    "source_path": "models/probe.sql",
+    "render_stage": "jinja_before_ephemeral_injection",
+    "source": "select {% block columns %}0{{ return('1') }}{% endblock %} as n\n",
+    "rendered": "select 1 as n",
+    "events": [
+      {
+        "kind": "literal",
+        "source_start": 0,
+        "source_end": 7,
+        "rendered_start": 0,
+        "rendered_end": 7
+      },
+      {
+        "kind": "templated",
+        "source_start": 0,
+        "source_end": 0,
+        "rendered_start": 7,
+        "rendered_end": 8
+      },
+      {
+        "kind": "literal",
+        "source_start": 58,
+        "source_end": 63,
+        "rendered_start": 8,
+        "rendered_end": 13
+      }
+    ]
+  },
   "project": {
     "protocol_version": 1,
     "dbt_version": "2.0.8",

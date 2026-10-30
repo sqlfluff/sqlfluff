@@ -37,6 +37,19 @@ def make_config(**settings):
         ("capture", "{% set query %}select 1{% endset %}{{ query }}\n"),
         ("comment", "{# hidden #}select 1 -- noqa: CP01\n"),
         ("unicode_crlf", "SELECT 'é😀' AS {{ var('column') }}\nFROM t\n"),
+        (
+            "continued",
+            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% continue %}{% endif %}{% endfor %}SELECT 9\n",
+        ),
+        (
+            "broken",
+            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}SELECT 9\n",
+        ),
+        ("returned", "select 0 {{ return('select 1') }}\n"),
+        (
+            "block_returned",
+            "SELECT {% block columns %}0{{ return('1') }}{% endblock %} AS n\n",
+        ),
     ],
 )
 def test_fix_original_source(case, expected, traces, monkeypatch):

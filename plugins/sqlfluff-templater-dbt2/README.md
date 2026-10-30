@@ -102,6 +102,10 @@ macro output remains nonliteral and is not eligible for direct source fixes.
 Whitespace omitted by Jinja2's source tokenization is retained as source-only
 text. Replacements within a proven literal emission use that exact source span;
 edits crossing emission boundaries retain SQLFluff's conservative mapping.
+Loop-control tags are standalone source-only statements. Generated output with
+a zero-width producer anchor has no editable source origin; the consumer uses
+the whole input as a conservative nonliteral boundary to prevent source
+insertions.
 
 The trace describes Jinja SQL **before ephemeral CTE injection**. The consumer
 uses the trace's own `rendered` string, not the final compiled SQL file.
@@ -116,7 +120,7 @@ panics in lint workers.
 
 ## Tests
 
-Ordinary tests use 14 artifacts captured from the actual upstream PR runtime.
+Ordinary tests use 18 artifacts captured from the actual upstream PR runtime.
 They require no dbt installation or Rust compiler:
 
 ```sh

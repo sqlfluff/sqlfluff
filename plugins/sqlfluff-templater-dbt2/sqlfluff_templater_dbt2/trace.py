@@ -60,6 +60,10 @@ def _raw_slices(source: str, env: Environment) -> list[RawFileSlice]:
     result = []
     cursor = 0
     for item in raw:
+        # The shared analyzer guesses that unknown extension tags open blocks.
+        # Loop-control tags are standalone source-only statements.
+        if item.tag in {"break", "continue"}:
+            item = item._replace(slice_type="templated")
         start = source.index(item.raw, cursor)
         gap = source[cursor:start]
         if gap:
@@ -182,6 +186,11 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
         dst = slice(
             rendered_positions[rendered_start], rendered_positions[rendered_end]
         )
+        if kind == "templated" and src.start == src.stop and dst.start < dst.stop:
+            # An empty producer anchor means no editable source origin. Core
+            # treats empty source ranges as safe insertions, so use the whole
+            # input as a conservative nonliteral diagnostic/fix boundary.
+            src = slice(0, len(source))
         if kind == "macro":
             macros.append((src, dst))
         elif kind not in {"variable", "loop_skipped"}:

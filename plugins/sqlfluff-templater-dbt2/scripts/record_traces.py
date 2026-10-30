@@ -41,6 +41,19 @@ CASES = {
         "{% if not loop.last %},{% endif %}\n{% endfor %}from t\n",
         {},
     ),
+    "continued": (
+        "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% continue %}{% endif %}{% endfor %}select 9\n",
+        {},
+    ),
+    "broken": (
+        "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}select 9\n",
+        {},
+    ),
+    "returned": ("select 0 {{ return('select 1') }}\n", {}),
+    "block_returned": (
+        "select {% block columns %}0{{ return('1') }}{% endblock %} as n\n",
+        {},
+    ),
 }
 
 
