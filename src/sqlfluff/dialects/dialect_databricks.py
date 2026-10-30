@@ -457,6 +457,12 @@ databricks_dialect.replace(
         ],
         at=0,
     ),
+    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
+    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ParameterizedSegment"),
+        ]
+    ),
     FunctionContentsExpressionGrammar=sparksql_dialect.get_grammar(
         "FunctionContentsExpressionGrammar"
     ).copy(insert=[Ref("NamedArgumentSegment")]),
@@ -3173,8 +3179,13 @@ class FunctionNameSegment(BaseSegment):
             ),
             terminators=[Ref("BracketedSegment")],
         ),
-        # Base function name
-        Ref("FunctionNameIdentifierSegment", terminators=[Ref("BracketedSegment")]),
+        # Base function name. `TABLE(...)` is a table argument, not a function
+        # call, and Databricks' function names would otherwise accept it.
+        Ref(
+            "FunctionNameIdentifierSegment",
+            terminators=[Ref("BracketedSegment")],
+            exclude=Ref.keyword("TABLE"),
+        ),
         allow_gaps=False,
     )
 
