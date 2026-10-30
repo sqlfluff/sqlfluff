@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralSegment,
     Matchable,
@@ -982,7 +983,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             "ALL",
             Ref("CubeRollupClauseSegment"),

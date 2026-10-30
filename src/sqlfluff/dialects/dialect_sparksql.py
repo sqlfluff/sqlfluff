@@ -2431,7 +2431,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             "ALL",
             Delimited(

@@ -2507,7 +2507,7 @@ class OrderByClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ORDER",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             Sequence(
                 OneOf(
@@ -2617,7 +2617,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             "ALL",
             Ref("GroupingSetsClauseSegment"),

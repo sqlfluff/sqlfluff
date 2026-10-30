@@ -3439,3 +3439,150 @@ test_pass_snowflake_create_file_format_single_line:
   configs:
     core:
       dialect: snowflake
+
+# Issue 4539: Implicit indents for GROUP BY and ORDER BY clauses
+test_pass_groupby_implicit_indent_allow:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY a,
+        b
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_pass_orderby_implicit_indent_allow:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    ORDER BY a,
+        b
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_fail_groupby_implicit_indent_forbid:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY a,
+        b
+  fix_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY
+        a,
+        b
+  configs:
+    indentation:
+      implicit_indents: forbid
+
+test_fail_orderby_implicit_indent_forbid:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    ORDER BY a,
+        b
+  fix_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    ORDER BY
+        a,
+        b
+  configs:
+    indentation:
+      implicit_indents: forbid
+
+test_require_implicit_indents_groupby:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY
+        a,
+        b
+  fix_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY a,
+        b
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_orderby:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    ORDER BY
+        a,
+        b
+  fix_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    ORDER BY a,
+        b
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_pass_postgres_groupby_implicit_indent_allow:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY a,
+        b
+  configs:
+    core:
+      dialect: postgres
+    indentation:
+      implicit_indents: allow
+
+test_pass_snowflake_groupby_implicit_indent_allow:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY a,
+        b
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      implicit_indents: allow
+
+test_pass_tsql_groupby_implicit_indent_allow:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM table1
+    GROUP BY a,
+        b
+  configs:
+    core:
+      dialect: tsql
+    indentation:
+      implicit_indents: allow

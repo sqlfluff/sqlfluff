@@ -15,7 +15,6 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     ImplicitIndent,
-    Indent,
     LiteralKeywordSegment,
     Matchable,
     Nothing,
@@ -3275,7 +3274,7 @@ class GroupByClauseSegment(postgres.GroupByClauseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 "ALL",

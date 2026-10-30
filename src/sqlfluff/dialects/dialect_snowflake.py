@@ -1960,7 +1960,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             "ALL",
             Ref("GroupByContentsGrammar"),
@@ -11381,7 +11381,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     match_grammar = Sequence(
         "ORDER",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             Sequence(
                 OneOf(
