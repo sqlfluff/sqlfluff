@@ -729,6 +729,45 @@ class FormatClauseSegment(BaseSegment):
     )
 
 
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` statement, with ClickHouse's trailing `FORMAT` clause.
+
+    ClickHouse allows a `FORMAT` clause after the values/select source (for
+    both external-data ingestion and plain SQL inserts), and also allows
+    `FORMAT` to stand in for the values/select source entirely, with the row
+    data supplied out of band (e.g. over client stdin) rather than as SQL.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/insert-into
+    """
+
+    type = "insert_statement"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Ref.keyword("OVERWRITE", optional=True),
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("SelectableGrammar"),
+                Ref("FormatClauseSegment", optional=True),
+            ),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                OneOf(
+                    Sequence(
+                        Ref("SelectableGrammar"),
+                        Ref("FormatClauseSegment", optional=True),
+                    ),
+                    Ref("FormatClauseSegment"),
+                ),
+            ),
+            Ref("DefaultValuesGrammar"),
+            # No VALUES/SELECT at all: the row data is supplied separately.
+            Ref("FormatClauseSegment"),
+        ),
+    )
+
+
 class MergeTreesOrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause for the MergeTree family engine."""
 

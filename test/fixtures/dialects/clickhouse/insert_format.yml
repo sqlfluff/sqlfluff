@@ -1,0 +1,109 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 366d3297985c123fc2370093d12383252745085409727d3af2a2ccb0921057f4
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: x
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: CSV
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: x
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '2'
+          comma: ','
+          quoted_literal: "'b'"
+          end_bracket: )
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: JSONEachRow
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: CSV
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: JSONEachRow
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+        format_clause:
+        - keyword: FORMAT
+        - keyword: TabSeparated
+- statement_terminator: ;
