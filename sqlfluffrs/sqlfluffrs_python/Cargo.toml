@@ -5,7 +5,13 @@ edition = "2021"
 rust-version.workspace = true
 
 [dependencies]
-pyo3.workspace = true
+# Not workspace-inherited: the workspace pyo3 hard-enables `extension-module`,
+# and inheritance can only add features, not subtract them. This crate is also
+# linked into an *embedding* binary (the `sqlfluffrs_cli` `sqlfluff-rs` tool),
+# where libpython must be linked, so `extension-module` is feature-gated (on by
+# default) and embedders depend on this crate with `default-features = false`.
+# Keep the version in sync with `pyo3` in the workspace manifest.
+pyo3 = { version = "0.29.0", default-features = false, features = ["abi3-py310", "macros", "hashbrown", "uuid"] }
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 hashbrown.workspace = true
 uuid.workspace = true
@@ -13,3 +19,9 @@ once_cell.workspace = true
 bincode.workspace = true
 serde.workspace = true
 log.workspace = true
+
+[features]
+default = ["extension-module"]
+# Suppresses linking libpython (for building a Python extension module).
+# Embedding binaries depend on this crate with `default-features = false`.
+extension-module = ["pyo3/extension-module"]

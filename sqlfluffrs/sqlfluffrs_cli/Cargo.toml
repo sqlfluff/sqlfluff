@@ -1,0 +1,33 @@
+[package]
+name = "sqlfluffrs_cli"
+version.workspace = true
+edition = "2021"
+
+[[bin]]
+name = "sqlfluff-rs"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+serde_yaml_ng = "0.10.0"
+sqlfluffrs_engine = { path = "../sqlfluffrs_engine" }
+sqlfluffrs_types = { path = "../sqlfluffrs_types" }
+sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
+sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }
+sqlfluffrs_parser = { path = "../sqlfluffrs_parser" }
+# Only pulled in for the embedded-Python templater bridge. Depends on the
+# python bridge crate WITHOUT its `extension-module` default so libpython is
+# linked into this binary (embedding, not extension).
+sqlfluffrs_python = { path = "../sqlfluffrs_python", default-features = false, optional = true }
+pyo3 = { version = "0.29.0", default-features = false, features = ["abi3-py310", "macros", "auto-initialize"], optional = true }
+toml = "1.1.2"
+hashbrown = "0.16.1"
+
+[features]
+# Reverse-dispatch templating to the Python templaters via an embedded
+# interpreter. Off by default so the crate builds (lex/parse/raw-render) with no
+# libpython present. See AGENTS.md / the CLI README for the runtime requirement.
+embed-python = ["dep:pyo3", "dep:sqlfluffrs_python"]
