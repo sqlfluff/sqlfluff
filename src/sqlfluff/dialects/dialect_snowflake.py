@@ -4454,6 +4454,8 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         ),
         Sequence("APPLY", "MASKING", "POLICY"),
         Sequence("APPLY", "ROW", "ACCESS", "POLICY"),
+        Sequence("APPLY", "AGGREGATION", "POLICY"),
+        Sequence("APPLY", "PROJECTION", "POLICY"),
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
