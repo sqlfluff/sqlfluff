@@ -710,11 +710,15 @@ def _keyword_meant(dialect: Dialect, missing: str) -> str:
 def _overlaps(dialect: Dialect) -> dict[str, list[str]]:
     """Each word in two statuses that can't go together, and those statuses.
 
-    A word is reserved or unreserved, not both, and a future reserved word is
-    never reserved. Unimplemented is a tag that may go with anything.
+    A word has at most one present status (reserved, unreserved or
+    unimplemented), and a future reserved word is never reserved. These are
+    the pairs declare_keyword_sets() refuses, so an overlap means something
+    set the lists directly.
     """
     pairs = [
         ("reserved_keywords", "unreserved_keywords"),
+        ("reserved_keywords", "unimplemented_keywords"),
+        ("unreserved_keywords", "unimplemented_keywords"),
         ("reserved_keywords", "future_reserved_keywords"),
     ]
     overlaps: dict[str, list[str]] = {}
@@ -727,18 +731,34 @@ def _overlaps(dialect: Dialect) -> dict[str, list[str]]:
     return overlaps
 
 
+def _overlap_behaviour(labels: list[str]) -> str:
+    """How a word with these overlapping statuses behaves, as a sentence.
+
+    expand() lets unimplemented win in grammar, so such a word never
+    parses as a keyword; reserved also keeps it from being a bare name.
+    """
+    reserved = "reserved_keywords" in labels
+    if "unimplemented_keywords" in labels:
+        if reserved:
+            return (
+                "It never parses as a keyword, and being reserved, it can't be "
+                "a bare name either."
+            )
+        return "It never parses as a keyword."
+    return "It behaves as reserved: a keyword that can't be a name."
+
+
 def _overlaps_message(dialect: Dialect, overlaps: dict[str, list[str]]) -> str:
     """Say which words have two statuses, how they behave, and what's needed."""
     name = dialect.name
     lines = [
-        f"These words have two statuses that can't go together in {name}. They "
-        "behave as reserved: keywords that can't be names. Nothing crashes. Each "
-        "needs one status; declare_keyword_sets() never leaves a word in both, "
-        "so something set these directly. "
+        f"These words have two statuses that can't go together in {name}. "
+        "Nothing crashes. Each needs one status; declare_keyword_sets() never "
+        "leaves a word in two, so something set these directly. "
         f"{_where_keywords_are_set(name)}"
     ]
     for word, labels in sorted(overlaps.items()):
-        lines.append(f"- {word}: {' and '.join(labels)}")
+        lines.append(f"- {word}: {' and '.join(labels)}. {_overlap_behaviour(labels)}")
     return "\n".join(lines) + _docs_line(dialect)
 
 
@@ -885,6 +905,9 @@ def _keywords_without_a_parser(dialect: Dialect) -> dict[str, tuple[str, str]]:
     """
     found: dict[str, tuple[str, str]] = {}
     keywords = dialect.sets("reserved_keywords") | dialect.sets("unreserved_keywords")
+    # A word that is also unimplemented gets Nothing() from expand() itself;
+    # _overlaps() reports that contradiction.
+    keywords -= dialect.sets("unimplemented_keywords")
     for word in keywords:
         segment_name = word.capitalize() + "KeywordSegment"
         element = dialect._library.get(segment_name)
@@ -1481,21 +1504,35 @@ def test_checker_finds_and_explains_an_overlap() -> None:
     dialect.sets("future_reserved_keywords").add("SELECT")
     # A future reserved word may also be unreserved.
     dialect.sets("unreserved_keywords").add("ZZLATER")
+    # Unimplemented is a present status too, so it can't join another.
+    dialect.sets("unreserved_keywords").add("ZZBOTH")
+    dialect.sets("unimplemented_keywords").update(["ZZBOTH", "ZZRES"])
+    dialect.sets("reserved_keywords").add("ZZRES")
 
     overlaps = _overlaps(dialect)
-    message = _overlaps_message(dialect, overlaps)
+    message = _flat(_overlaps_message(dialect, overlaps))
+    expanded = dialect.expand()
 
     assert overlaps == {
         "SELECT": [
             "reserved_keywords",
             "unreserved_keywords",
             "future_reserved_keywords",
-        ]
+        ],
+        "ZZBOTH": ["unreserved_keywords", "unimplemented_keywords"],
+        "ZZRES": ["reserved_keywords", "unimplemented_keywords"],
     }
     assert (
         "- SELECT: reserved_keywords and unreserved_keywords and "
-        "future_reserved_keywords" in message
+        "future_reserved_keywords. It behaves as reserved" in message
     )
+    assert (
+        "- ZZBOTH: unreserved_keywords and unimplemented_keywords. "
+        "It never parses as a keyword." in message
+    )
+    assert "can't be a bare name either" in message
+    # The overlap is reported once, here, not again as a missing parser.
+    assert not _keywords_without_a_parser(expanded)
     assert "src/sqlfluff/dialects/dialect_zzoverlap.py" in message
 
 
