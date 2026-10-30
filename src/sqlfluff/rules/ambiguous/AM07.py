@@ -54,7 +54,7 @@ class Rule_AM07(BaseRule):
     name = "ambiguous.set_columns"
     aliases = ("L068",)
     groups: tuple[str, ...] = ("all", "ambiguous")
-    crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
+    crawl_behaviour = SegmentSeekerCrawler({"set_expression"})
 
     def __resolve_wild_query(
         self,
