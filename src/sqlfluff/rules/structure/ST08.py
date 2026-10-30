@@ -132,10 +132,18 @@ class Rule_ST08(BaseRule):
         # Remove the brackets and strip any meta segments.
         anchor = bracketed.get()
         assert anchor
+        content = self.filter_meta(anchor.segments)[1:-1]
+        if not any(raw.is_comment for raw in anchor.raw_segments):
+            # Whitespace inside the removed brackets must not duplicate the
+            # surrounding line breaks. Keep comment boundaries intact.
+            while content and content[0].is_whitespace:
+                content = content[1:]
+            while content and content[-1].is_whitespace:
+                content = content[:-1]
         seq = ReflowSequence.from_around_target(
             anchor,
             context.parent_stack[0],
             config=context.config,
             sides="before",
-        ).replace(anchor, self.filter_meta(anchor.segments)[1:-1])
+        ).replace(anchor, content)
         return anchor, seq

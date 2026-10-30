@@ -22,6 +22,7 @@
   "perma/guides": "guide/index",
   "perma/contribute_dialect_keywords": "development/dialect#keywords",
   "perma/rule/TQ01": "reference/rules/tsql#tq01",
+  "perma/rule/BQ01": "reference/rules/bigquery#bq01",
   "perma/rule/TQ02": "reference/rules/tsql#tq02",
   "perma/rule/TQ03": "reference/rules/tsql#tq03",
   "perma/rule/ST01": "reference/rules/structure#st01",

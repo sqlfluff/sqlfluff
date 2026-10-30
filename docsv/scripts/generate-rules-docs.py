@@ -458,6 +458,8 @@ def _convert_rst_reference_links(text: str) -> str:
 
 def get_bundle_name(bundle_key: str) -> str:
     """Get display name for a bundle."""
+    if bundle_key == "bigquery":
+        return "BigQuery"
     # Capitalize first letter of bundle name
     return bundle_key.capitalize()
 
@@ -672,6 +674,7 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
             "references": "Column and table reference validation",
             "jinja": "Jinja templating best practices",
             "tsql": "T-SQL specific conventions",
+            "bigquery": "BigQuery-specific chained function layout",
         }
         index_content += descriptions.get(bundle_key, "SQL linting rules")
         index_content += "\n\n"

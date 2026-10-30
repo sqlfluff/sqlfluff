@@ -1,11 +1,15 @@
 """Definition of the BaseFileSegment."""
 
 from abc import abstractmethod
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.metadata import MatchResultLike, MetaSegmentExclusions
 from sqlfluff.core.parser.segments.base import BaseSegment, UnparsableSegment
+
+if TYPE_CHECKING:
+    from sqlfluff.core.config import FluffConfig
 
 
 class BaseFileSegment(BaseSegment):
@@ -39,6 +43,22 @@ class BaseFileSegment(BaseSegment):
     @abstractmethod
     def get_table_references(self) -> set[str]:
         """Use parsed tree to extract table references."""
+
+    @classmethod
+    def get_indentation_config(cls, config: "FluffConfig") -> dict[str, Any]:
+        """Return parser indentation settings, allowing dialect-derived flags."""
+        return dict(config.get_section("indentation") or {})
+
+    @classmethod
+    def get_meta_exclusions(
+        cls,
+        match: MatchResultLike,
+        segments: tuple[BaseSegment, ...],
+        config: Optional["FluffConfig"],
+        offset: int = 0,
+    ) -> MetaSegmentExclusions:
+        """Select optional grammar inserts after matching and before AST creation."""
+        return {}
 
     @classmethod
     def root_parse(
@@ -89,6 +109,9 @@ class BaseFileSegment(BaseSegment):
             )
 
         parse_context.logger.info("Root Match:\n%s", match)
+        exclusions = cls.get_meta_exclusions(match, segments, parse_context._config)
+        if exclusions:
+            match = match.without_meta_inserts(exclusions)
         _matched = match.apply(segments, parse_context=parse_context)
         _unmatched = segments[match.matched_slice.stop : _end_idx]
 

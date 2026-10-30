@@ -168,6 +168,10 @@ class RsMatchResult:
     escape_replacements: Optional[List[tuple[str, str]]]
     insert_segments: Optional[List[tuple[int, str, bool]]]
 
+    def matches_with_child_class(self, name: str) -> List["RsMatchResult"]: ...
+    def without_meta_inserts(
+        self, exclusions: dict[tuple[str, int, int], tuple[tuple[int, str], ...]]
+    ) -> "RsMatchResult": ...
     def apply_as_tree(
         self,
         tokens: List[RsToken],

@@ -6,6 +6,10 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
+from collections.abc import Iterator
+from collections.abc import Sequence as SequenceType
+from typing import TYPE_CHECKING, Any, Optional
+
 from sqlfluff.core.dialects import common as dialect_common
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
@@ -16,6 +20,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     BracketedSegment,
     CodeSegment,
+    Conditional,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -39,11 +44,20 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
+from sqlfluff.core.parser.metadata import (
+    MatchResultLike,
+    MetaSegmentExclusions,
+    match_bounds,
+    match_class_name,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
 )
+
+if TYPE_CHECKING:
+    from sqlfluff.core.config import FluffConfig
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as(
@@ -426,7 +440,11 @@ bigquery_dialect.replace(
     AccessorGrammar=Sequence(
         AnyNumberOf(
             Ref("ArrayAccessorSegment"),
-            Ref("ChainedFunctionCallSegment"),
+            Sequence(
+                Conditional(Indent, indented_chained_functions=True),
+                AnyNumberOf(Ref("ChainedFunctionCallSegment"), min_times=1),
+                Conditional(Dedent, indented_chained_functions=True),
+            ),
             # Add in semi structured expressions
             Ref("SemiStructuredAccessorSegment"),
         ),
@@ -739,6 +757,73 @@ class FileSegment(BaseFileSegment):
         ),
         AnyNumberOf(Ref("DelimiterGrammar")),
     )
+
+    @classmethod
+    def get_indentation_config(cls, config: "FluffConfig") -> dict[str, Any]:
+        """Derive grammar indentation from the one public chain-style setting."""
+        settings = super().get_indentation_config(config)
+        settings["indented_chained_functions"] = config.get(
+            "writing_style",
+            ["rules", "bigquery.chained_functions"],
+            default="consistent",
+        ) in ("indented", "consistent")
+        return settings
+
+    @classmethod
+    def get_meta_exclusions(
+        cls,
+        match: MatchResultLike,
+        segments: tuple[BaseSegment, ...],
+        config: Optional["FluffConfig"],
+        offset: int = 0,
+    ) -> MetaSegmentExclusions:
+        """Resolve consistent from accepted matches before materializing the AST."""
+        if (
+            config is None
+            or config.get(
+                "writing_style",
+                ["rules", "bigquery.chained_functions"],
+                default="consistent",
+            )
+            != "consistent"
+        ):
+            return {}
+        # Cache each child list: native match getters expose lightweight copies.
+        parents = [
+            (parent, parent.child_matches)
+            for parent in match.matches_with_child_class("ChainedFunctionCallSegment")
+        ]
+        if not parents:
+            return {}
+        parent, children, index = min(
+            (
+                (parent, children, index)
+                for parent, children in parents
+                for index, child in enumerate(children)
+                if match_class_name(child) == "ChainedFunctionCallSegment"
+            ),
+            key=lambda item: match_bounds(item[1][item[2]])[0],
+        )
+        if _chain_match_is_indented(
+            parent,
+            children,
+            index,
+            segments,
+            offset,
+            config.get("tab_space_size", ["indentation"]),
+        ):
+            return {}
+        exclusions = {}
+        for parent, children in parents:
+            skipped = tuple(
+                item
+                for first, last in _chain_match_groups(children, segments, offset)
+                for item in ((first, "Indent"), (last, "Dedent"))
+            )
+            if skipped:
+                start, stop = match_bounds(parent)
+                exclusions[match_class_name(parent), start, stop] = skipped
+        return exclusions
 
 
 class StatementSegment(ansi.StatementSegment):
@@ -4098,3 +4183,69 @@ class ChainedFunctionCallSegment(BaseSegment):
             ),
         ),
     )
+
+
+def _match_line_indent(segments: SequenceType[BaseSegment], index: int) -> str:
+    """Read a physical line's indentation from the original lexer tokens."""
+    indent = ""
+    for cursor in range(index, -1, -1):
+        segment = segments[cursor]
+        if segment.is_code:
+            indent = ""
+        elif segment.is_type("whitespace"):
+            indent = segment.raw
+        elif segment.is_type("newline"):
+            break
+    return indent
+
+
+def _chain_match_is_indented(
+    parent: MatchResultLike,
+    children: SequenceType[MatchResultLike],
+    index: int,
+    segments: SequenceType[BaseSegment],
+    offset: int,
+    tab_size: int,
+) -> bool:
+    """Classify the first accepted call boundary, including nested input calls."""
+    if index == 0:  # A chain input normally has its own preceding child match.
+        return False
+    start = match_bounds(children[index])[0] + offset
+    input_start, input_end = match_bounds(children[index - 1])
+    input_start += offset
+    input_end += offset
+    if not any(seg.is_type("newline") for seg in segments[input_end:start]):
+        return False
+    base_indent = _match_line_indent(segments, input_start)
+    position = segments[input_start].pos_marker
+    if position and position.working_line_pos > len(base_indent) + 1:
+        base_indent = _match_line_indent(segments, match_bounds(parent)[0] + offset)
+    return len(_match_line_indent(segments, start).expandtabs(tab_size)) > len(
+        base_indent.expandtabs(tab_size)
+    )
+
+
+def _chain_match_groups(
+    children: SequenceType[MatchResultLike],
+    segments: SequenceType[BaseSegment],
+    offset: int,
+) -> Iterator[tuple[int, int]]:
+    """Locate each group's grammar inserts in the backend's own coordinates."""
+    first: Optional[int] = None
+    last = 0
+    for child in children:
+        start, stop = match_bounds(child)
+        if match_class_name(child) == "ChainedFunctionCallSegment":
+            if first is not None and any(
+                seg.is_code for seg in segments[last + offset : start + offset]
+            ):
+                yield first, last
+                first = None
+            if first is None:
+                first = start
+            last = stop
+        elif first is not None:
+            yield first, last
+            first = None
+    if first is not None:
+        yield first, last

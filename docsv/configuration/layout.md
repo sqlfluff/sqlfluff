@@ -296,6 +296,37 @@ at any line length. It is one of the rules which `sqlfluff format`
 applies. To also fill the select targets, add `LT09` to `exclude_rules`.
 :::
 
+### Chained function calls
+
+The [`bigquery.chained_functions` rule (BQ01)](../reference/rules/bigquery#bq01)
+controls boundaries between BigQuery chained calls such as
+`(value).TRIM().LOWER()`. Use it with LT02 for the layouts below; both rules are
+enabled by default and included in `sqlfluff format`:
+
+| `writing_style` | Behavior |
+| --- | --- |
+| `consistent` (default) | Infer the style from the first chain and apply it throughout the file. |
+| `one_liner` | Keep each call adjacent to its preceding expression. |
+| `aligned` | Start each call on a new line, aligned with the input expression. |
+| `indented` | Start each call on a new line, one configured indentation unit beyond the input. |
+
+```ini
+[sqlfluff:rules:bigquery.chained_functions]
+writing_style = indented
+```
+
+For a mixed first chain, its first call boundary determines the consistent style.
+The rule enforces line breaks; LT02 corrects indentation. BQ01 alone preserves
+existing indentation and uses the current line's indent when inserting a break.
+The rule preserves multiline arguments. Line length rules can still wrap long
+argument lists, and comments can prevent an automatic fix across a boundary.
+For `indented`, the BigQuery grammar supplies an indentation level around each
+group of calls, which LT02 uses when calculating indentation. In `consistent`
+mode, the parser retains that level only when the first chain is indented.
+
+Traditional nested calls, such as `LOWER(TRIM(foo))`, are not converted by this
+layout rule.
+
 
 ## Indentation
 

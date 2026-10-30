@@ -42,7 +42,7 @@ parser_logger = logging.getLogger("sqlfluff.parser")
 # RustParser.parse() is a fast Rust core wrapped in O(nodes) Python work. To find
 # out where the time actually goes (Rust parse vs. the Python re-conversion vs.
 # building the BaseSegment tree vs. building the Rust arena tree (_rs_tree)),
-# the four internal stages can be timed individually.
+# the internal stages can be timed individually.
 #
 # This is OFF by default (zero overhead). Enable it either by setting the
 # SQLFLUFF_RS_PROFILE environment variable, or by calling set_profiling(True)
@@ -78,6 +78,7 @@ def get_parse_profile() -> dict[str, float]:
     profiling is enabled (see set_profiling / the SQLFLUFF_RS_PROFILE env var).
     Keys, in execution order:
         rust_core      - the Rust parse (parse_match_result_from_tokens)
+        meta_policy    - selecting optional grammar indentation inserts
         convert        - Python rebuild of the tree as a MatchResult
         apply          - building the BaseSegment tree (MatchResult.apply)
         apply_as_tree  - building the Rust arena tree (_rs_tree)
@@ -163,7 +164,7 @@ try:
             # config layer can produce int 1 for a truthy setting like
             # `indented_joins = 1`, and filtering by isinstance(v, bool)
             # would silently drop it instead of coercing it.
-            indent_config = self.config.get_section("indentation") or {}
+            indent_config = self.RootSegment.get_indentation_config(self.config)
             if indent_config:
                 indent_config = {k: bool(v) for k, v in indent_config.items()}
 
@@ -291,6 +292,17 @@ try:
                 # PYTHON PARITY: only the code portion (segments[_start_idx:_end_idx])
                 # is passed, since match-result indices are relative to it.
                 code_segments = segments[_start_idx:_end_idx]
+                if _prof is not None:
+                    _ts = time.perf_counter()
+                exclusions = self.RootSegment.get_meta_exclusions(
+                    rs_match, segments, self.config, offset=_start_idx
+                )
+                if exclusions:
+                    # Filter the native match itself so fused, legacy and arena
+                    # materialization all use the same grammar insertions.
+                    rs_match = rs_match.without_meta_inserts(exclusions)
+                if _prof is not None:
+                    _prof["meta_policy"] = time.perf_counter() - _ts
                 if _NATIVE_AST_ENABLED:
                     # Fused path: instantiate segments directly from rs_match in a
                     # single pass (no intermediate Python MatchResult tree).
