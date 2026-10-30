@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9263b377301abd11ea20188e422eec8fbe364b8c6cd2e2d1e1c2e7034f4af6ff
+_hash: e985cd65c7a8e33eadd3cff2abe7329b8ba63a1932bc0910dac29a42ab22381c
 file:
 - statement:
     alter_table_statement:
@@ -87,5 +87,165 @@ file:
                       data_type:
                         keyword: BIGINT
                 - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurements
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: generated_value
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: base_value
+            binary_operator: +
+            numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: measurements
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: generated_value
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: COALESCE
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ABS
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: base_value
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    numeric_literal: '0'
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '"measurements"'
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          quoted_identifier: '"generated value"'
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              quoted_identifier: '"base value"'
+            binary_operator: '*'
+            numeric_literal: '2'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurements
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: generated_value
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: base_value
+            binary_operator: +
+            numeric_literal: '2'
+          end_bracket: )
+    - comma: ','
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: generated_value
+      - keyword: SET
+      - keyword: NOT
+      - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: measurements
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: generated_value
+      - keyword: SET
+      - keyword: EXPRESSION
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: base_value
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  column_reference:
+                    naked_identifier: base_value
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
           end_bracket: )
 - statement_terminator: ;
