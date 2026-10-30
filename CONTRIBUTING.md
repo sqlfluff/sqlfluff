@@ -118,6 +118,26 @@ correctness, and maintainability bar as any other contribution.
 - AI assistance does not bypass the normal review and testing requirements in
   this guide.
 
+### Pull Request Labels
+
+Some labels on pull requests are applied automatically and describe where the
+pull request is in its lifecycle. They are recomputed on selected events and
+every few hours, so there is no need to add or remove them by hand:
+
+- `ci: needs approval`, `ci: passing`, `ci: failing` - the state of the
+  automated checks on the latest commit. For first-time contributors, a
+  maintainer has to approve each CI run before it starts.
+- `review: awaiting author` / `review: awaiting maintainer` - whose turn it
+  is. Pushing a commit or replying moves it back to the maintainers.
+- `review: ai feedback open` - there are unresolved review threads from an
+  automated reviewer. The label clears when those threads are resolved or
+  become outdated.
+- `pr: first-time contributor` and `pr: stale` (waiting on the author for more
+  than 30 days).
+
+The logic lives in `utils/pr_lifecycle.py` and runs from
+`.github/workflows/pr-lifecycle.yml`.
+
 ## Nerdy Details
 
 ### Developing and Running SQLFluff Locally
