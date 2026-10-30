@@ -523,7 +523,7 @@ tsql_dialect.add(
     ),
     # $PARTITION.<partition_function>(), parsed as a function name prefix.
     PartitionFunctionPrefixSegment=RegexParser(
-        r"(?i)\$PARTITION", CodeSegment, type="partition_function_prefix"
+        r"\$PARTITION", CodeSegment, type="partition_function_prefix"
     ),
     DatatypeMethodNameIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
