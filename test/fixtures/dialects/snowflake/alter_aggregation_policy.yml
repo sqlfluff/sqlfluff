@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82f6a436cbf73d0c94e0f680c3c9f3ea6ca84f053d980cfab3f3cb16a72068e5
+_hash: 043cf4d9bc51a7119f2cfbe528c75b0dd2f8850dba653edbf120337875f618b0
 file:
 - statement:
     alter_aggregation_policy_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: AGGREGATION
     - keyword: POLICY
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: SET
     - keyword: BODY
     - function_assigner: ->
@@ -25,8 +25,20 @@ file:
               snowflake_keyword_expression:
                 parameter: MIN_GROUP_SIZE
                 parameter_assigner: =>
-                numeric_literal: '10'
+                numeric_literal: '2'
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: agg_policy_table1
 - statement_terminator: ;
 - statement:
     alter_aggregation_policy_statement:
@@ -36,11 +48,15 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: RENAME
     - keyword: TO
     - object_reference:
-        naked_identifier: new_agg_policy
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: agg_policy_table1
 - statement_terminator: ;
 - statement:
     alter_aggregation_policy_statement:
@@ -48,19 +64,25 @@ file:
     - keyword: AGGREGATION
     - keyword: POLICY
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: SET
     - tag_equals:
-        keyword: TAG
-        tag_reference:
-        - naked_identifier: governance
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: cost_center
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sales'"
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: my_db
         - dot: .
-        - naked_identifier: tags
+        - naked_identifier: my_schema
         - dot: .
         - naked_identifier: owner
-        comparison_operator:
+      - comparison_operator:
           raw_comparison_operator: '='
-        quoted_literal: "'data_team'"
+      - quoted_literal: "'data_team'"
 - statement_terminator: ;
 - statement:
     alter_aggregation_policy_statement:
@@ -68,13 +90,16 @@ file:
     - keyword: AGGREGATION
     - keyword: POLICY
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: UNSET
     - keyword: TAG
     - tag_reference:
-      - naked_identifier: governance
+        naked_identifier: cost_center
+    - comma: ','
+    - tag_reference:
+      - naked_identifier: my_db
       - dot: .
-      - naked_identifier: tags
+      - naked_identifier: my_schema
       - dot: .
       - naked_identifier: owner
 - statement_terminator: ;
@@ -83,8 +108,10 @@ file:
     - keyword: ALTER
     - keyword: AGGREGATION
     - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: SET
     - keyword: COMMENT
     - comparison_operator:
@@ -97,7 +124,7 @@ file:
     - keyword: AGGREGATION
     - keyword: POLICY
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: UNSET
     - keyword: COMMENT
 - statement_terminator: ;

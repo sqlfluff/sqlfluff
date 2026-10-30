@@ -1,17 +1,19 @@
-DROP AGGREGATION POLICY my_agg_policy;
+DROP AGGREGATION POLICY my_aggpolicy;
 
-DROP AGGREGATION POLICY IF EXISTS my_db.my_schema.my_agg_policy;
+DROP PROJECTION POLICY my_db.my_schema.proj_policy_acctnumber;
 
-DROP PROJECTION POLICY IF EXISTS my_proj_policy;
+DESCRIBE AGGREGATION POLICY my_aggpolicy;
 
-DESCRIBE AGGREGATION POLICY my_agg_policy;
-
-DESC PROJECTION POLICY my_db.my_schema.my_proj_policy;
+DESC PROJECTION POLICY my_db.my_schema.proj_policy_acctnumber;
 
 SHOW AGGREGATION POLICIES;
 
 SHOW AGGREGATION POLICIES LIKE 'agg%' IN SCHEMA my_db.my_schema;
 
+SHOW PROJECTION POLICIES IN DATABASE;
+
 SHOW PROJECTION POLICIES IN ACCOUNT;
 
-GRANT APPLY ON AGGREGATION POLICY my_agg_policy TO ROLE governance_role;
+GRANT APPLY ON AGGREGATION POLICY my_aggpolicy TO ROLE governance_role;
+
+GRANT APPLY ON PROJECTION POLICY proj_policy_acctnumber TO ROLE governance_role;

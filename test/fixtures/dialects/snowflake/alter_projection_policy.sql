@@ -1,12 +1,11 @@
-ALTER PROJECTION POLICY my_proj_policy
-    SET BODY -> PROJECTION_CONSTRAINT(ALLOW => true);
+ALTER PROJECTION POLICY mypolicy RENAME TO proj_policy_acctnumber;
 
-ALTER PROJECTION POLICY IF EXISTS my_proj_policy RENAME TO new_proj_policy;
+ALTER PROJECTION POLICY IF EXISTS mypolicy SET BODY -> PROJECTION_CONSTRAINT(ALLOW => true);
 
-ALTER PROJECTION POLICY my_proj_policy SET TAG governance.tags.owner = 'data_team';
+ALTER PROJECTION POLICY mypolicy SET TAG cost_center = 'sales', my_db.my_schema.owner = 'data_team';
 
-ALTER PROJECTION POLICY my_proj_policy UNSET TAG governance.tags.owner;
+ALTER PROJECTION POLICY mypolicy UNSET TAG cost_center, my_db.my_schema.owner;
 
-ALTER PROJECTION POLICY my_proj_policy SET COMMENT = 'updated';
+ALTER PROJECTION POLICY IF EXISTS mypolicy SET COMMENT = 'updated';
 
-ALTER PROJECTION POLICY my_proj_policy UNSET COMMENT;
+ALTER PROJECTION POLICY mypolicy UNSET COMMENT;

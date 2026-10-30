@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4425fa81fb64efe606c1d3b51767151146bda6c8d02f3daf1360fa486601b6e9
+_hash: 1661182b46758a3a1f4a2832e73dfc38fddf300e81f6a3cc6c345bdde0c4b304
 file:
 - statement:
     create_aggregation_policy_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: AGGREGATION
     - keyword: POLICY
     - object_reference:
-        naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -36,19 +36,10 @@ file:
 - statement:
     create_aggregation_policy_statement:
     - keyword: CREATE
-    - keyword: OR
-    - keyword: REPLACE
     - keyword: AGGREGATION
     - keyword: POLICY
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
     - object_reference:
-      - naked_identifier: my_db
-      - dot: .
-      - naked_identifier: my_schema
-      - dot: .
-      - naked_identifier: my_agg_policy
+        naked_identifier: my_policy
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -97,9 +88,70 @@ file:
                       numeric_literal: '5'
                     end_bracket: )
         - keyword: END
+- statement_terminator: ;
+- statement:
+    create_aggregation_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_policy
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: AGGREGATION_CONSTRAINT
+    - function_assigner: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: AGGREGATION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              snowflake_keyword_expression:
+                parameter: MIN_GROUP_SIZE
+                parameter_assigner: =>
+                numeric_literal: '10'
+              end_bracket: )
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        quoted_literal: "'Groups must have at least 5 rows'"
+        quoted_literal: "'Groups must have at least 10 rows'"
+- statement_terminator: ;
+- statement:
+    create_aggregation_policy_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_policy
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: AGGREGATION_CONSTRAINT
+    - function_assigner: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: NO_AGGREGATION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;

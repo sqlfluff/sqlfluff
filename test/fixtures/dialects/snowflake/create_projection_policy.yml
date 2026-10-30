@@ -3,15 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a9898146dd8051976782d96a625564b622add095ea3ecfd4c12554b3216f2b2
+_hash: 2c4aca7de7681890f9b6204ca11bbfc662e37c7488f48ce2820e5bf338de445d
 file:
 - statement:
     create_projection_policy_statement:
     - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
     - keyword: PROJECTION
     - keyword: POLICY
     - object_reference:
-        naked_identifier: my_proj_policy
+        naked_identifier: do_not_project
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -40,15 +42,8 @@ file:
     - keyword: REPLACE
     - keyword: PROJECTION
     - keyword: POLICY
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
     - object_reference:
-      - naked_identifier: my_db
-      - dot: .
-      - naked_identifier: my_schema
-      - dot: .
-      - naked_identifier: my_proj_policy
+        naked_identifier: project_analyst_only
     - keyword: AS
     - function_parameter_list:
         bracketed:
@@ -70,11 +65,9 @@ file:
                   bracketed:
                     start_bracket: (
                     end_bracket: )
-              keyword: IN
-              bracketed:
-                start_bracket: (
-                quoted_literal: "'ANALYST'"
-                end_bracket: )
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'ANALYST'"
           - keyword: THEN
           - expression:
               function:
@@ -96,16 +89,61 @@ file:
                   function_name_identifier: PROJECTION_CONSTRAINT
                 function_contents:
                   bracketed:
-                    start_bracket: (
-                    snowflake_keyword_expression:
+                  - start_bracket: (
+                  - snowflake_keyword_expression:
                       parameter: ALLOW
                       parameter_assigner: =>
                       boolean_literal: 'false'
-                    end_bracket: )
+                  - comma: ','
+                  - snowflake_keyword_expression:
+                      parameter: ENFORCEMENT
+                      parameter_assigner: =>
+                      quoted_literal: "'NULLIFY'"
+                  - end_bracket: )
         - keyword: END
+- statement_terminator: ;
+- statement:
+    create_projection_policy_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: hide_email
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: PROJECTION_CONSTRAINT
+    - function_assigner: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: PROJECTION_CONSTRAINT
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - snowflake_keyword_expression:
+                parameter: ALLOW
+                parameter_assigner: =>
+                boolean_literal: 'false'
+            - comma: ','
+            - snowflake_keyword_expression:
+                parameter: ENFORCEMENT
+                parameter_assigner: =>
+                quoted_literal: "'FAIL'"
+            - end_bracket: )
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        quoted_literal: "'Hide this column from SELECT'"
+        quoted_literal: "'Hide this column from query results'"
 - statement_terminator: ;
