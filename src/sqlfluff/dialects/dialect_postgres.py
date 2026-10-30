@@ -6829,40 +6829,7 @@ class CreateCollationStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        "LOCALE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "LC_COLLATE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "LC_CTYPE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "PROVIDER",
-                        Ref("EqualsSegment"),
-                        OneOf("ICU", "LIBC"),
-                    ),
-                    Sequence(
-                        "DETERMINISTIC",
-                        Ref("EqualsSegment"),
-                        Ref("OptionBooleanGrammar"),
-                    ),
-                    Sequence(
-                        "VERSION",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                )
-            ),
+            Ref("DefinitionParametersSegment"),
             Sequence(
                 "FROM",
                 Ref("ObjectReferenceSegment"),
