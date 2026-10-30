@@ -475,7 +475,9 @@ ansi_dialect.add(
     # rule in BaseExpressionElementGrammar, as mysql does.
     # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC
     TypedLiteralGrammar=Sequence(
-        Ref("DatatypeSegment"),
+        # SELECT is not a data type; without this a bare `SELECT 1` reads as a
+        # typed literal.
+        Ref("DatatypeSegment", exclude=Ref.keyword("SELECT")),
         # Don't use the full LiteralGrammar here
         # because only some of them are applicable.
         # Notably we shouldn't use QualifiedNumericLiteralSegment
@@ -639,7 +641,7 @@ ansi_dialect.add(
         Ref("ExpressionSegment"),
         # A second copy of TypedLiteralGrammar, with a wider literal set.
         Sequence(
-            Ref("DatatypeSegment"),
+            Ref("DatatypeSegment", exclude=Ref.keyword("SELECT")),
             Ref("LiteralGrammar"),
         ),
         # These terminators allow better performance by giving a signal
@@ -894,7 +896,12 @@ class TupleSegment(BaseSegment):
     """
 
     type = "tuple"
-    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
+    match_grammar = Bracketed(
+        OneOf(
+            Ref("SelectStatementExpressionSegment"),
+            Delimited(Ref("BaseExpressionElementGrammar")),
+        )
+    )
 
 
 class ArrayTypeSegment(BaseSegment):
@@ -1648,7 +1655,10 @@ class PartitionClauseSegment(BaseSegment):
         "BY",
         Indent,
         # Brackets are optional in a partition by statement
-        OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
+        OneOf(
+            Bracketed(Ref("SelectStatementExpressionSegment")),
+            OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
+        ),
         Dedent,
     )
 
@@ -2317,7 +2327,6 @@ ansi_dialect.add(
     ),
     LateralColumnAliasExpressionGrammar=Nothing(),
     Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
-        Ref("SelectStatementSegment"),
         Ref("LiteralGrammar"),
         Ref("IntervalExpressionSegment"),
         Ref("TypedStructLiteralSegment"),
@@ -2333,6 +2342,7 @@ ansi_dialect.add(
             Ref("FunctionSegment"),
             Bracketed(
                 OneOf(
+                    Ref("SelectStatementExpressionSegment"),
                     Ref("LateralColumnAliasExpressionGrammar"),
                     # We're using the expression segment here rather than the grammar so
                     # that in the parsed structure we get nested elements.
@@ -2354,7 +2364,7 @@ ansi_dialect.add(
                 ),
                 parse_mode=ParseMode.GREEDY,
             ),
-            # Allow potential select statement without brackets
+            # Non-query expressions which do not require brackets.
             Ref("Expression_D_Potential_Select_Statement_Without_Brackets"),
             # For triggers we allow "NEW.*", and for expressions which pass a
             # whole row to a function we allow "my_table.*". A dedicated segment
@@ -2478,6 +2488,19 @@ class ExpressionSegment(BaseSegment):
 
     type = "expression"
     match_grammar: Matchable = Ref("Expression_A_Grammar")
+
+
+class SelectStatementExpressionSegment(BaseSegment):
+    """A SELECT in an explicitly query-taking context.
+
+    Keep the expression wrapper and comma terminator used by Expression_C_Grammar.
+    Ordinary expression atoms must not reference this segment.
+    """
+
+    type = "expression"
+    match_grammar: Matchable = Ref(
+        "SelectStatementSegment", terminators=[Ref("CommaSegment")]
+    )
 
 
 class WhereClauseSegment(BaseSegment):

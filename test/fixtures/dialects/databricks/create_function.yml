@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f818121dd2dff35fe84b9d56ff428fc7a13949cf7b4adcad7a8f5e05483f39f8
+_hash: 3f4a13343e00f6e6a4bfbd506075eee3a31561e50e1e4dfce9f99937d40fe676
 file:
 - statement:
     create_function_statement:
@@ -116,32 +116,31 @@ file:
       - keyword: LANGUAGE
       - keyword: SQL
       - keyword: RETURN
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: MAX
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: time
-                      end_bracket: )
-                alias_expression:
-                  alias_operator:
-                    keyword: AS
-                  naked_identifier: time
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      naked_identifier: my_table
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: MAX
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: time
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: time
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:
@@ -471,20 +470,19 @@ file:
     - keyword: TABLE
     - function_definition:
         keyword: RETURN
-        expression:
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                column_reference:
-                  naked_identifier: time
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      naked_identifier: my_table
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: time
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:
@@ -560,13 +558,12 @@ file:
           keyword: int
     - function_definition:
         keyword: return
-        expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                column_reference:
-                  naked_identifier: param
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                naked_identifier: param
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:
@@ -594,15 +591,14 @@ file:
     - keyword: TABLE
     - function_definition:
         keyword: RETURN
-        expression:
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                column_reference:
-                  naked_identifier: param1
-                alias_expression:
-                  alias_operator:
-                    keyword: AS
-                  naked_identifier: col
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: param1
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: col
 - statement_terminator: ;
