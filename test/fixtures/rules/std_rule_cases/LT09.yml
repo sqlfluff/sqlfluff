@@ -542,3 +542,16 @@ test_single_target_new_line_policy_with_wildcard:
     rules:
       layout.select_targets:
         single_target_policy: new_line
+
+test_single_target_negative_max_line_length_rejoins:
+  # A negative limit disables line-length checks, including this rejoin guard.
+  fail_str: |
+    SELECT
+        very_long_column_name
+    FROM foo
+  fix_str: |
+    SELECT very_long_column_name
+    FROM foo
+  configs:
+    core:
+      max_line_length: -1

@@ -1,0 +1,158 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 38c3e7d99b9b778f047b964e9a25e320c59a826721d411802932f47d603404b5
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: l
+          - dot: .
+          - naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Match
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: m
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: League
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: l
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: m
+                - dot: .
+                - naked_identifier: league_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: l
+                - dot: .
+                - naked_identifier: id
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: m
+          - dot: .
+          - naked_identifier: season
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'2008/2009'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: schools
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: schools
+          - dot: .
+          - naked_identifier: Virtual
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'F'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: last
+          - dot: .
+          - naked_identifier: milliseconds
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: results
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: last
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: x
+          keyword: MATCH
+          quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: a
+      - keyword: NULLS
+      - keyword: LAST
+- statement_terminator: ;
