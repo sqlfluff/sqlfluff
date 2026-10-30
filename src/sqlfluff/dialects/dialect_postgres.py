@@ -549,7 +549,7 @@ postgres_dialect.add(
     # `provider` is a default in `CREATE COLLATION`, but it isn't a PostgreSQL
     # keyword. Defining it here lets the grammar reference it without adding it
     # to the keyword sets, where it would be flagged as an identifier by RF04.
-    ProviderKeywordSegment=StringParser("PROVIDER", KeywordSegment, type="keyword"),
+    ProviderWordSegment=StringParser("PROVIDER", KeywordSegment, type="keyword"),
     # Colon prefix for psql variables (:var, :'var', :"var"). Distinct from
     # ColonSegment so the global `spacing_before = touch` on type "colon"
     # doesn't collapse the space before the variable (e.g. in
@@ -6847,7 +6847,7 @@ class CreateCollationStatementSegment(BaseSegment):
                         Ref("QuotedLiteralSegment"),
                     ),
                     Sequence(
-                        Ref("ProviderKeywordSegment"),
+                        Ref("ProviderWordSegment"),
                         Ref("EqualsSegment"),
                         OneOf("ICU", "LIBC"),
                     ),
