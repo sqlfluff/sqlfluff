@@ -112,3 +112,21 @@ CREATE FUNCTION example_function (
 RETURNS TABLE
 RETURN
 SELECT param1 AS col;
+
+-- Scala / Java functions and the ENVIRONMENT characteristic.
+CREATE FUNCTION scala_f(x INT) RETURNS INT
+  LANGUAGE SCALA ENVIRONMENT (java_dependencies = '["x.jar"]')
+  HANDLER 'com.example.X.f';
+
+CREATE FUNCTION java_f(x INT) RETURNS INT
+  LANGUAGE JAVA ENVIRONMENT (java_dependencies = '["x.jar"]')
+  HANDLER 'com.example.X.f';
+
+CREATE FUNCTION py_f() RETURNS INT
+  LANGUAGE PYTHON ENVIRONMENT (dependencies = '["a"]')
+  AS $$ return 1 $$;
+
+-- A SQL function with a default collation.
+CREATE FUNCTION collated_f(x STRING) RETURNS STRING
+  DEFAULT COLLATION UTF8_BINARY
+  RETURN x;

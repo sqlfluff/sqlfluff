@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0df327a33f3826f3a0681833b5fe2f4cd1742d5776662034b789f7a129f47025
+_hash: 78dfd5650b07427c22ef8f75b604ccb7372c38906c4fe0cd34492c95d51edff2
 file:
 - statement:
     create_database_statement:
@@ -121,3 +121,69 @@ file:
     - keyword: MANAGED
     - keyword: LOCATION
     - quoted_literal: '"s3://root_database_bucket/"'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: DEFAULT
+    - keyword: COLLATION
+    - naked_identifier: UTF8_BINARY
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: FOR
+    - numeric_literal: '14'
+    - keyword: DAYS
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: FOR
+    - numeric_literal: '0'
+    - keyword: HOURS
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: RETAIN
+    - keyword: DROPPED
+    - keyword: FOR
+    - numeric_literal: '1'
+    - keyword: WEEK
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: s
+    - keyword: COMMENT
+    - quoted_literal: "'a schema'"
+    - keyword: WITH
+    - keyword: DBPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          properties_naked_identifier: k
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'v'"
+        end_bracket: )
+- statement_terminator: ;
