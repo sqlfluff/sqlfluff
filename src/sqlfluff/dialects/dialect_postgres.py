@@ -2183,12 +2183,17 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class GroupByClauseSegment(BaseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY
+    """
 
     type = "groupby_clause"
     match_grammar = Sequence(
         "GROUP",
         "BY",
+        # Set quantifier for grouping sets, e.g. `GROUP BY DISTINCT ROLLUP (a, b)`
+        OneOf("ALL", "DISTINCT", optional=True),
         Indent,
         Delimited(
             OneOf(
