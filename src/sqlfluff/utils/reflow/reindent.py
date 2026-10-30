@@ -1019,6 +1019,10 @@ def _crawl_indent_points(
             # Is the next element a comment? If so - delay the decision until we've
             # got any indents from after the comment too.
             #
+            # Empty rendered expressions also cannot take an indent. Their source
+            # may be an inline conditional comma which renders on other loop
+            # iterations; forcing a break here would append one on every fix.
+            #
             # Also, some templaters might insert custom marker slices that are of zero
             # source string length as a way of marking locations in the middle of
             # templated output.  These don't correspond to real source code, so we
@@ -1026,8 +1030,17 @@ def _crawl_indent_points(
             # to the comment case.
             if "comment" in elements[idx + 1].class_types or (
                 "placeholder" in elements[idx + 1].class_types
-                and cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
-                == ""
+                and (
+                    cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
+                    == ""
+                    or (
+                        not has_newline
+                        and cast(
+                            TemplateSegment, elements[idx + 1].segments[0]
+                        ).block_type
+                        == "templated"
+                    )
+                )
             ):
                 cached_indent_stats = indent_stats
                 # Create parts of a point to use later.
@@ -1709,15 +1722,17 @@ def _lint_line_buffer_indents(
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
     )
-    reflow_logger.debug(
-        "  Line Content: %s",
-        [
-            repr(elem.raw)
-            for elem in elements[
-                indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
-            ]
-        ],
-    )
+    # Only build the line content when it will be logged.
+    if reflow_logger.isEnabledFor(logging.DEBUG):
+        reflow_logger.debug(
+            "  Line Content: %s",
+            [
+                repr(elem.raw)
+                for elem in elements[
+                    indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
+                ]
+            ],
+        )
     reflow_logger.debug("  Indent Line: %s", indent_line)
     reflow_logger.debug("  Forced Indents: %s", forced_indents)
     reflow_logger.debug("  Imbalanced Indent Locs: %s", imbalanced_indent_locs)

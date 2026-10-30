@@ -1577,6 +1577,26 @@ test_fail_alias_shadowed_in_nested_named_window:
     core:
       dialect: postgres
 
+test_fail_outer_alias_shadowed_in_later_union_branch:
+  # The second UNION branch defines its own `x`, so `x.col` there doesn't use
+  # the outer `x`. The query only gains that alias after resolving `a.col`.
+  fail_str: |
+    SELECT sub.col
+    FROM tbl_outer AS x
+    CROSS JOIN (
+        SELECT a.col FROM t1 AS a
+        UNION ALL
+        SELECT x.col FROM t2 AS x
+    ) AS sub
+  fix_str: |
+    SELECT sub.col
+    FROM tbl_outer
+    CROSS JOIN (
+        SELECT a.col FROM t1 AS a
+        UNION ALL
+        SELECT x.col FROM t2 AS x
+    ) AS sub
+
 test_fail_alias_matches_collation_in_named_window:
   fail_str: |
     SELECT SUM(y) OVER w

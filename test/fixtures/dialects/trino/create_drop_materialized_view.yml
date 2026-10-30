@@ -1,0 +1,326 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 64cd10a4f133d44854d519d8b616dc3967231274334b3debcfbfa26bbb121473
+file:
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: test
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: test
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: test
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: orders_by_date
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Summary of orders by date'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: totalprice
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: orderdate
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: orders_by_date
+    - keyword: GRACE
+    - keyword: PERIOD
+    - interval_expression:
+      - keyword: INTERVAL
+      - quoted_literal: "'0'"
+      - keyword: DAY
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: totalprice
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: orderdate
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: orders_by_date
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: partitioned_on
+          comparison_operator:
+            raw_comparison_operator: '='
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+            array_literal:
+              start_square_bracket: '['
+              quoted_literal: "'ds'"
+              end_square_bracket: ']'
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: totalprice
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: orderdate
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: orders_by_date
+    - keyword: GRACE
+    - keyword: PERIOD
+    - interval_expression:
+      - keyword: INTERVAL
+      - quoted_literal: "'1'"
+      - keyword: DAY
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Summary of orders by date'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: partitioned_on
+          comparison_operator:
+            raw_comparison_operator: '='
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+            array_literal:
+              start_square_bracket: '['
+              quoted_literal: "'ds'"
+              end_square_bracket: ']'
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: totalprice
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: orderdate
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: test
+- statement_terminator: ;

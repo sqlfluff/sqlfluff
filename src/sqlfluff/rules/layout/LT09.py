@@ -1,6 +1,6 @@
 """Implementation of Rule LT09."""
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
@@ -316,6 +316,54 @@ class Rule_LT09(BaseRule):
             # parser tree. Hence, we currently don't autofix this. Could be
             # autofixed in the future if/when we have the time.
             return LintResult(anchor=select_clause.get())
+
+        # Do not rejoin a single target when that would recreate a line-length
+        # violation. LT05 may have moved the target below SELECT to keep an
+        # overlong line from oscillating between the two layouts.
+        select_keyword = select_children[select_targets_info.select_idx]
+        if select_keyword.pos_marker and context.config.get("max_line_length") > 0:
+            prefix = "".join(
+                segment.raw
+                for segment in select_children[
+                    select_targets_info.select_idx : select_targets_info.first_new_line_idx
+                ]
+            )
+            clause_modifier = select_children.select(
+                sp.is_type("select_clause_modifier")
+            ).first()
+            if (
+                clause_modifier
+                and select_children.index(clause_modifier.get())
+                >= select_targets_info.first_new_line_idx
+            ):
+                prefix += f" {clause_modifier[0].raw}"
+
+            def following_segments() -> Iterator[BaseSegment]:
+                yield from select_children[target_idx + 1 :]
+                child_seg = select_clause.get()
+                for parent in reversed(context.parent_stack):
+                    idx = parent.segments.index(child_seg)
+                    for sibling_idx in range(idx + 1, len(parent.segments)):
+                        yield parent.segments[sibling_idx]
+                    child_seg = parent
+
+            trailing_len = 0
+            for seg in following_segments():
+                if "\n" in seg.raw:
+                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
+                    break
+                trailing_len += len(seg.raw)
+
+            resulting_line_length = (
+                select_keyword.pos_marker.working_line_pos
+                - 1
+                + len(prefix)
+                + 1
+                + len(target_seg.raw)
+                + trailing_len
+            )
+            if resulting_line_length > context.config.get("max_line_length"):
+                return LintResult(anchor=select_clause.get())
 
         # Prepare the select clause which will be inserted
         insert_buff = [WhitespaceSegment(), target_seg]

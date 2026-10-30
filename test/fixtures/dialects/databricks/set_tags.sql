@@ -15,3 +15,11 @@ UNSET TAG ON DATABASE catalog.database `tag1`;
 UNSET TAG ON TABLE catalog.schema.table `tag1`;
 UNSET TAG ON VIEW catalog.schema.view `tag1`;
 UNSET TAG ON VOLUME volume `tag1`;
+
+SET TAG ON TABLE t cost_center = hr;
+
+SET TAG ON COLUMN t.ssn pii;
+
+SET TAG ON FUNCTION f cost_center;
+
+UNSET TAG ON EXTERNAL METADATA em cost_center;

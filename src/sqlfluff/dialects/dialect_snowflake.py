@@ -2185,6 +2185,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("CreateAggregationPolicyStatementSegment"),
+            Ref("AlterAggregationPolicyStatementSegment"),
+            Ref("CreateProjectionPolicyStatementSegment"),
+            Ref("AlterProjectionPolicyStatementSegment"),
             Ref("CreateStorageLifecyclePolicyStatementSegment"),
             Ref("AlterStorageLifecyclePolicyStatementSegment"),
             Ref("CreateSessionPolicyStatementSegment"),
@@ -4320,6 +4324,8 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("SESSION", "POLICY"),
         Sequence("MASKING", "POLICY"),
         Sequence("ROW", "ACCESS", "POLICY"),
+        Sequence("AGGREGATION", "POLICY"),
+        Sequence("PROJECTION", "POLICY"),
         Sequence("CORTEX", "SEARCH", "SERVICE"),
         Sequence("GIT", "REPOSITORY"),
     )
@@ -4448,6 +4454,8 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         ),
         Sequence("APPLY", "MASKING", "POLICY"),
         Sequence("APPLY", "ROW", "ACCESS", "POLICY"),
+        Sequence("APPLY", "AGGREGATION", "POLICY"),
+        Sequence("APPLY", "PROJECTION", "POLICY"),
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
@@ -10029,6 +10037,8 @@ class ShowStatementSegment(BaseSegment):
         "VIEWS",
         Sequence("MATERIALIZED", "VIEWS"),
         Sequence("MASKING", "POLICIES"),
+        Sequence("AGGREGATION", "POLICIES"),
+        Sequence("PROJECTION", "POLICIES"),
         "COLUMNS",
         Sequence("FILE", "FORMATS"),
         "SEQUENCES",
@@ -10999,6 +11009,18 @@ class DescribeStatementSegment(BaseSegment):
                 "POLICY",
                 Ref("ObjectReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-aggregation-policy
+            Sequence(
+                "AGGREGATION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-projection-policy
+            Sequence(
+                "PROJECTION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-storage-lifecycle-policy
             Sequence(
                 "STORAGE",
@@ -11504,6 +11526,7 @@ class DropObjectStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf(
+                    Sequence("AGGREGATION", "POLICY"),
                     "ALERT",
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
@@ -11517,6 +11540,7 @@ class DropObjectStatementSegment(BaseSegment):
                         "INTEGRATION",
                     ),
                     "PIPE",
+                    Sequence("PROJECTION", "POLICY"),
                     Sequence("ROW", "ACCESS", "POLICY"),
                     "SECRET",
                     Sequence("STORAGE", "LIFECYCLE", "POLICY"),
@@ -12811,6 +12835,120 @@ class AlterRowAccessPolicyStatmentSegment(BaseSegment):
         "ALTER",
         "ROW",
         "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class CreateAggregationPolicyStatementSegment(BaseSegment):
+    """Create Aggregation Policy.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-aggregation-policy
+    """
+
+    type = "create_aggregation_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "AGGREGATION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        "AGGREGATION_CONSTRAINT",
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterAggregationPolicyStatementSegment(BaseSegment):
+    """Alter Aggregation Policy.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-aggregation-policy
+    """
+
+    type = "alter_aggregation_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "AGGREGATION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class CreateProjectionPolicyStatementSegment(BaseSegment):
+    """Create Projection Policy.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-projection-policy
+    """
+
+    type = "create_projection_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PROJECTION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        "PROJECTION_CONSTRAINT",
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterProjectionPolicyStatementSegment(BaseSegment):
+    """Alter Projection Policy.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-projection-policy
+    """
+
+    type = "alter_projection_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PROJECTION",
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
