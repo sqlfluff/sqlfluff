@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b85b9a49d3398df61dc2fd11c83f54c7af9cb301a6c55cc8db87a4328f39642d
+_hash: 5ac7c3bfd543fa0f6824ac5d11ab5912dafd8369a50d6821cb3e31f177245e09
 file:
 - statement:
     alter_view_statement:
@@ -182,7 +182,7 @@ file:
     - keyword: EVOLUTION
 - statement_terminator: ;
 - statement:
-    alter_view_statement:
+    alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -198,7 +198,7 @@ file:
     - quoted_literal: "'America/Los_Angeles'"
 - statement_terminator: ;
 - statement:
-    alter_view_statement:
+    alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -210,7 +210,7 @@ file:
     - quoted_literal: "'0 0/15 * * * ? *'"
 - statement_terminator: ;
 - statement:
-    alter_view_statement:
+    alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8151110e9ecf9954815f89d6b66115d1e383d40ce71fe5e24ffcbb2b83f98def
+_hash: c93311dd56f3cb15d5f99a148ff511c54af01120809e623052f2fa468020e480
 file:
 - statement:
     alter_table_statement:
@@ -908,6 +908,148 @@ file:
       - column_reference:
           naked_identifier: loc
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: a
+    - keyword: COMMENT
+    - quoted_literal: "'x'"
+    - comma: ','
+    - column_reference:
+        naked_identifier: b
+    - keyword: COMMENT
+    - quoted_literal: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: DEFAULT
+    - keyword: COLLATION
+    - naked_identifier: UTF8_BINARY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: EXTERNAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: EXTERNAL
+    - keyword: DRY
+    - keyword: RUN
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: MANAGED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: MANAGED
+    - keyword: TRUNCATE
+    - keyword: UNIFORM
+    - keyword: HISTORY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: MANAGED
+    - keyword: MOVE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: SET
+    - keyword: MANAGED
+    - keyword: COPY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: MANAGED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: UNSET
+    - keyword: MANAGED
+    - keyword: TRUNCATE
+    - keyword: UNIFORM
+    - keyword: HISTORY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: REPLACE
+    - keyword: PARTITIONED
+    - keyword: BY
+    - keyword: WITH
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: a
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: REPLACE
+    - keyword: PARTITIONED
+    - keyword: BY
+    - keyword: WITH
+    - keyword: CLUSTER
+    - keyword: BY
+    - keyword: AUTO
 - statement_terminator: ;
 - statement:
     alter_table_statement:

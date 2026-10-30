@@ -1,0 +1,8 @@
+-- ALTER STREAMING TABLE. https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-alter-streaming-table
+ALTER STREAMING TABLE t ADD TRIGGER ON UPDATE;
+
+ALTER STREAMING TABLE t ALTER SCHEDULE EVERY 1 HOUR;
+
+ALTER STREAMING TABLE t SET OWNER TO `u`;
+
+ALTER STREAMING TABLE t ALTER COLUMN c SET MASK m;
