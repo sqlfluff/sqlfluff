@@ -2244,6 +2244,8 @@ class SetRecipientStatementSegment(BaseSegment):
 
     type = "set_recipient_statement"
     match_grammar = Sequence("SET", "RECIPIENT", Ref("ObjectReferenceSegment"))
+
+
 class CopyIntoTableStatementSegment(BaseSegment):
     """A `COPY INTO` statement.
 
