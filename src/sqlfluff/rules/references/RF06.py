@@ -295,6 +295,12 @@ class Rule_RF06(BaseRule):
             regex.IGNORECASE,
         ):
             return None
+        # Unquoted, a bare function name (e.g. "user" in PostgreSQL) is parsed as a
+        # call to that function rather than as a reference to the identifier.
+        if identifier_contents.upper() in {
+            name.upper() for name in context.dialect.sets("bare_functions")
+        }:
+            return None
 
         return LintResult(
             context.segment,
