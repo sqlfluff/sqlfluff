@@ -1259,23 +1259,24 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
 class CreateTableStatementSegment(sparksql.CreateTableStatementSegment):
     """A `CREATE TABLE` statement, including an inline pipeline flow.
 
-    A streaming table may declare one flow inline instead of an AS query:
+    A streaming or pipeline table may declare one flow inline instead of an
+    AS query:
 
     https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
     """
 
     match_grammar = Sequence(
         OneOf(
-            # Inline FLOW is only valid on a streaming table, so this alternative
-            # requires STREAMING and a flow clause. An optional FLOW clause on the
-            # shared table grammar would also accept `CREATE TABLE t FLOW ...`,
-            # which Databricks rejects.
+            # A flow declared inline instead of an AS query, on a streaming
+            # table or a pipeline table:
+            # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-table-flow
             Sequence(
                 "CREATE",
                 Ref("OrRefreshGrammar", optional=True),
                 OneOf(
                     Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
                     Ref.keyword("STREAMING"),
+                    optional=True,
                 ),
                 Ref("TableDefinitionSegment"),
                 Ref("FlowClauseSegment"),
@@ -2083,6 +2084,17 @@ class OptimizeTableStatementSegment(BaseSegment):
     )
 
 
+databricks_dialect.replace(
+    # MERGE [WITH SCHEMA EVOLUTION] INTO
+    # https://docs.databricks.com/aws/en/sql/language-manual/delta-merge-into
+    MergeIntoLiteralGrammar=Sequence(
+        "MERGE",
+        Sequence("WITH", "SCHEMA", "EVOLUTION", optional=True),
+        "INTO",
+    ),
+)
+
+
 class MergeInsertClauseSegment(sparksql.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement.
 
@@ -2232,6 +2244,190 @@ class SetRecipientStatementSegment(BaseSegment):
 
     type = "set_recipient_statement"
     match_grammar = Sequence("SET", "RECIPIENT", Ref("ObjectReferenceSegment"))
+
+
+class CopyIntoTableStatementSegment(BaseSegment):
+    """A `COPY INTO` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-copy-into
+    """
+
+    type = "copy_into_table_statement"
+
+    # ( { option_name = option_value } [, ...] )
+    _options = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            )
+        )
+    )
+
+    # source [ WITH ( [ CREDENTIAL { credential_name |
+    #                             (temporary_credential_options) } ]
+    #               [ ENCRYPTION (encryption_options) ] ) ]
+    _source_clause = Sequence(
+        OneOf(Ref("QuotedLiteralSegment"), Ref("FileReferenceSegment")),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Sequence(
+                    "CREDENTIAL",
+                    OneOf(Ref("ObjectReferenceSegment"), _options),
+                    optional=True,
+                ),
+                Sequence("ENCRYPTION", _options, optional=True),
+            ),
+            optional=True,
+        ),
+    )
+
+    match_grammar = Sequence(
+        "COPY",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("BY", "POSITION"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        "FROM",
+        OneOf(
+            _source_clause,
+            Bracketed(Ref("SelectStatementSegment")),
+        ),
+        "FILEFORMAT",
+        Ref("EqualsSegment"),
+        Ref("DataSourceFormatSegment"),
+        Sequence(
+            "VALIDATE",
+            OneOf(
+                "ALL",
+                Sequence(Ref("NumericLiteralSegment"), "ROWS"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "FILES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("FORMAT_OPTIONS", _options, optional=True),
+        Sequence("COPY_OPTIONS", _options, optional=True),
+    )
+
+
+class ListStatementSegment(BaseSegment):
+    """A `LIST` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-list
+    """
+
+    type = "list_statement"
+    match_grammar = Sequence(
+        "LIST",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Sequence(
+                    "CREDENTIAL",
+                    Ref("ObjectReferenceSegment"),
+                )
+            ),
+            optional=True,
+        ),
+        Sequence("LIMIT", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+class ReplaceOnConditionSegment(BaseSegment):
+    """The comparison of a `REPLACE ON` ahead of a parenthesised query.
+
+    Typed as an expression so the tree matches the general `REPLACE ON` form.
+    """
+
+    type = "expression"
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"),
+        Ref("ComparisonOperatorGrammar"),
+        Ref("ColumnReferenceSegment"),
+    )
+
+
+class InsertStatementSegment(sparksql.InsertStatementSegment):
+    """An `INSERT` statement.
+
+    Adds `WITH SCHEMA EVOLUTION` and the `REPLACE ON` alternative.
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        Sequence("WITH", "SCHEMA", "EVOLUTION", optional=True),
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("PartitionSpecGrammar", optional=True),
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Sequence("BY", "NAME"),
+                    optional=True,
+                ),
+                Ref("InsertSourceGrammar"),
+            ),
+            Sequence(
+                "REPLACE",
+                Ref("WhereClauseSegment"),
+                Ref("InsertSourceGrammar"),
+            ),
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("InsertSourceGrammar"),
+            ),
+            # A parenthesised query source. It comes before the general
+            # `REPLACE ON` alternative because an expression greedily reads
+            # `s.a (SELECT ...)` as a function call, so the boolean here is
+            # bound tightly enough to leave the query for this grammar.
+            Sequence(
+                Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+                "REPLACE",
+                "ON",
+                Ref("ReplaceOnConditionSegment"),
+                Bracketed(Ref("SelectableGrammar")),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
+                Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+                "REPLACE",
+                "ON",
+                Ref("ExpressionSegment"),
+                OneOf(
+                    Sequence(
+                        Bracketed(Ref("SelectableGrammar")),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                    Ref("InsertSourceGrammar"),
+                ),
+            ),
+        ),
+    )
 
 
 class ScriptingLabelGrammar(BaseSegment):
@@ -2696,6 +2892,8 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateDatabaseStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
+            Ref("CopyIntoTableStatementSegment"),
+            Ref("ListStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("CreateTableCloneStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
