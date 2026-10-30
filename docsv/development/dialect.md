@@ -319,9 +319,18 @@ its `UNAUDITED_DIALECTS`. For an audited dialect it fails if:
 - a word has two statuses that can't go together;
 - grammar refers to a keyword or segment the dialect doesn't have (a word that
   is only future reserved counts: future reserved is a tag, not a status);
-- grammar uses a keyword the lexer can never make into one token;
 - a keyword list holds something that isn't a word;
 - the dialect's own grammar uses one of its unimplemented words.
+
+For every dialect, audited or not, it also fails if:
+
+- grammar uses a keyword the lexer can never make into one token;
+- a parser registered as `<Word>KeywordSegment` doesn't match WORD;
+- a reserved or unreserved word's `<Word>KeywordSegment` isn't a parser (for
+  example a hand-made `Nothing()`);
+- an unimplemented word has a hand-made matcher under its name;
+- a keyword's `<Word>KeywordSegment` name is taken by a segment class, which
+  is an error, since grammar using that keyword crashes the parser.
 
 Each failure says what is wrong, where, and what has to become true, and is
 written for someone who changed a parent dialect and doesn't know this one. If

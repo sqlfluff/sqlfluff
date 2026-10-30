@@ -25,7 +25,8 @@ audit tests lock them in, in CI.
    other ways are fine; it's up to the dialect.
 
    Too many unreserved words costs almost nothing: RF04 and RF06 (both off by
-   default) treat them as keywords and may flag names they arguably shouldn't.
+   default, and RF06 only with prefer_quoted_keywords) treat them as keywords
+   and may flag names they arguably shouldn't.
 
 This is a good place to stop. You never have to do step 3 or later, but if you
 want RF04 cleaned up, or you know for sure your server doesn't use a word, do
@@ -90,9 +91,19 @@ however it built them:
   One that doesn't crashes the parser on any statement that reaches the rule
   using it, even when the statement doesn't contain the word. A word that is
   only future reserved doesn't resolve: future reserved is a tag, not a status.
-- Every keyword its grammar uses is one token to its lexer, so it can match.
 - Its keyword lists hold only words, or words joined by - or a space.
 - Its own grammar doesn't use its unimplemented words.
+
+Every dialect, audited or not, is also held to these:
+
+- Every keyword its grammar uses is one token to its lexer, so it can match.
+- A parser registered as <Word>KeywordSegment matches WORD (it may match
+  other forms too).
+- A reserved or unreserved word's <Word>KeywordSegment is a parser, not
+  Nothing() or other grammar put there by hand.
+- An unimplemented word has no hand-made matcher under its name.
+- No keyword's <Word>KeywordSegment name is taken by a segment class. This one
+  is an error: grammar using such a keyword crashes the parser.
 
 The failure messages are written for someone who has never touched the
 dialect, usually because they changed its parent: each says what is wrong,
@@ -112,7 +123,9 @@ inherited grammar that unimplemented words switch off; as info, the keywords no
 grammar uses and words that are only future reserved. --level error,
 warning, notice or info sets how much is shown. Name dialects as arguments to
 report on just those and the dialects that inherit from them, as the parser's
-"not found in the ... dialect" errors suggest.
+"not found in the ... dialect" errors suggest. The verdict then counts those
+descendants that are required to pass too; --no-children leaves their sections
+out, but they still count.
 """
 
 import contextlib
