@@ -884,9 +884,66 @@ def _unimplemented_with_own_segment(dialect: Dialect) -> dict[str, str]:
     for word in dialect.sets("unimplemented_keywords"):
         segment_name = word.capitalize() + "KeywordSegment"
         element = dialect._library.get(segment_name)
-        if element is not None and not isinstance(element, Nothing):
-            found[word] = _defining_module(dialect, segment_name)
+        if element is None or isinstance(element, Nothing):
+            continue
+        # A segment class under this name is a different collision, reported
+        # by _keyword_names_taken_by_classes().
+        if isinstance(element, type):
+            continue
+        found[word] = _defining_module(dialect, segment_name)
     return found
+
+
+def _keyword_names_taken_by_classes(dialect: Dialect) -> dict[str, tuple[str, str]]:
+    """Keywords whose <Word>KeywordSegment name is taken by a segment class.
+
+    A segment class lands in the library under its own name whenever a
+    dialect module imports it, as ansi does LiteralKeywordSegment. If that
+    name is also the one a keyword resolves to, expand() makes no parser for
+    the word, and grammar that uses it gets the class instead: a statement
+    reaching it fails to parse. Found for any word grammar uses or any word
+    in a keyword set, used or not. Returns each word with why it counts and
+    the dialect module that defined the class.
+    """
+    used = {
+        name[: -len("KeywordSegment")].upper()
+        for name in _reference_uses(dialect)
+        if name.endswith("KeywordSegment") and name != "KeywordSegment"
+    }
+    listed: set[str] = set()
+    for label in KEYWORD_STATUS_SETS:
+        listed.update(dialect.sets(label))
+    found: dict[str, tuple[str, str]] = {}
+    for word in sorted(used | listed):
+        if not word:
+            continue
+        segment_name = word.capitalize() + "KeywordSegment"
+        element = dialect._library.get(segment_name)
+        if isinstance(element, type) and issubclass(element, BaseSegment):
+            why = "used by grammar" if word in used else "in a keyword list"
+            found[word] = (why, _defining_module(dialect, segment_name))
+    return found
+
+
+def _keyword_names_taken_by_classes_message(
+    dialect: Dialect, found: dict[str, tuple[str, str]]
+) -> str:
+    """Say which keywords' segment names are taken by a segment class."""
+    name = dialect.name
+    lines = [
+        f"These keywords' <Word>KeywordSegment names in {name} are taken by a "
+        "segment class, which a dialect module imported or defined. expand() "
+        "makes no parser for such a word, so grammar that uses it gets the "
+        "class instead, and a statement that reaches it fails to parse. "
+        "Rename the class, or stop treating the word as a keyword."
+    ]
+    for word, (why, module) in sorted(found.items()):
+        segment_name = word.capitalize() + "KeywordSegment"
+        lines.append(
+            f"- {word} ({why}): {segment_name} is a class, defined in "
+            f"{_dialect_file(module)}"
+        )
+    return "\n".join(lines) + _docs_line(dialect)
 
 
 def _unimplemented_with_own_segment_message(
@@ -982,6 +1039,57 @@ def test_unimplemented_keywords_have_no_own_segment(dialect_name: str) -> None:
     found = _unimplemented_with_own_segment(dialect)
 
     assert not found, _unimplemented_with_own_segment_message(dialect, found)
+
+
+@pytest.mark.parametrize("dialect_name", ALL_DIALECTS)
+def test_keyword_names_are_not_taken_by_classes(dialect_name: str) -> None:
+    """Test that no keyword's segment name is a segment class.
+
+    Grammar using such a keyword would get the class, not a parser, so this
+    runs for every dialect, audited or not.
+    """
+    dialect = _report_dialect(dialect_name)
+    found = _keyword_names_taken_by_classes(dialect)
+
+    assert not found, _keyword_names_taken_by_classes_message(dialect, found)
+
+
+def test_keyword_names_taken_by_classes_are_found() -> None:
+    """Test LITERAL against ansi's LiteralKeywordSegment, used and only listed.
+
+    Used without a status, the reference resolves to the class, so the
+    missing keyword check doesn't fire; listed but unused, expand() still
+    makes no parser for it. Both are found, at every status.
+    """
+    used = load_raw_dialect("ansi").copy_as("zzlitused")
+    used.replace(SelectClauseModifierSegment=_LiteralModifierSegment)
+    used_found = _keyword_names_taken_by_classes(used.expand())
+    statuses = {}
+    for status in ("reserved", "unreserved", "unimplemented"):
+        listed = load_raw_dialect("ansi").copy_as(f"zzlit{status}")
+        lists: dict[str, list[str]] = {
+            "reserved": [],
+            "unreserved": [],
+            "unimplemented": [],
+        }
+        lists[status] = ["LITERAL"]
+        listed.declare_keyword_sets(
+            reserved=lists["reserved"],
+            reserved_mode="add",
+            unreserved=lists["unreserved"],
+            unimplemented=lists["unimplemented"],
+            future_reserved=[],
+            future_reserved_mode="replace",
+        )
+        listed_expanded = listed.expand()
+        statuses[status] = _keyword_names_taken_by_classes(listed_expanded)
+        assert not _unimplemented_with_own_segment(listed_expanded)
+    message = _flat(_keyword_names_taken_by_classes_message(used.expand(), used_found))
+
+    assert used_found == {"LITERAL": ("used by grammar", "dialect_ansi")}
+    for status, found in statuses.items():
+        assert found == {"LITERAL": ("in a keyword list", "dialect_ansi")}, status
+    assert "- LITERAL (used by grammar): LiteralKeywordSegment is a class" in message
 
 
 def test_unimplemented_with_own_segment_is_found() -> None:
@@ -1131,6 +1239,16 @@ def _declare(dialect: Dialect, mode: str = "add", **lists: list[str]) -> None:
         future_reserved=lists.get("future_reserved", []),
         future_reserved_mode="replace",
     )
+
+
+class _LiteralModifierSegment(BaseSegment):
+    """A select modifier whose grammar uses the keyword LITERAL."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence("DISTINCT", "LITERAL")
+
+
+_LiteralModifierSegment.__module__ = "sqlfluff.dialects.dialect_ansi"
 
 
 def _faulty_dialect(name: str) -> Dialect:
@@ -1938,6 +2056,16 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
                 "warning",
                 len(misnamed),
                 _misnamed_keyword_parsers_message(dialect, misnamed),
+            )
+        )
+    taken = _keyword_names_taken_by_classes(dialect)
+    if taken:
+        findings.append(
+            Finding(
+                "Keyword names taken by a segment class",
+                "warning",
+                len(taken),
+                _keyword_names_taken_by_classes_message(dialect, taken),
             )
         )
     own_segment = _unimplemented_with_own_segment(dialect)
