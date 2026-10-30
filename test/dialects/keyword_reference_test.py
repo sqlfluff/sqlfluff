@@ -745,19 +745,29 @@ def _overlaps(dialect: Dialect) -> dict[str, list[str]]:
 
 
 def _overlap_behaviour(labels: list[str]) -> str:
-    """How a word with these overlapping statuses behaves, as a sentence.
+    """How a word with these overlapping statuses behaves, and what to drop.
 
     expand() lets unimplemented win in grammar, so such a word never
     parses as a keyword; reserved also keeps it from being a bare name.
+    Which status goes depends on whether the database has the word.
     """
     reserved = "reserved_keywords" in labels
     if "unimplemented_keywords" in labels:
+        keyword_lists = " and ".join(
+            label
+            for label in labels
+            if label in ("reserved_keywords", "unreserved_keywords")
+        )
+        advice = (
+            " If the database has the word, take it out of unimplemented_keywords; "
+            f"if it doesn't, out of {keyword_lists}."
+        )
         if reserved:
             return (
                 "It never parses as a keyword, and being reserved, it can't be "
-                "a bare name either."
+                "a bare name either." + advice
             )
-        return "It never parses as a keyword."
+        return "It never parses as a keyword." + advice
     return "It behaves as reserved: a keyword that can't be a name."
 
 
@@ -1541,8 +1551,11 @@ def test_checker_finds_and_explains_an_overlap() -> None:
     )
     assert (
         "- ZZBOTH: unreserved_keywords and unimplemented_keywords. "
-        "It never parses as a keyword." in message
+        "It never parses as a keyword. If the database has the word, take it "
+        "out of unimplemented_keywords; if it doesn't, out of "
+        "unreserved_keywords." in message
     )
+    assert "if it doesn't, out of reserved_keywords." in message
     assert "can't be a bare name either" in message
     # The overlap is reported once, here, not again as a missing parser.
     assert not _keywords_without_a_parser(expanded)
