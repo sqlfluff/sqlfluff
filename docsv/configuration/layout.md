@@ -229,7 +229,7 @@ When controlling line breaks, we are trying to achieve a few different things:
    excessive. Long lines are hard to read, especially given that readers
    may be on varying screen sizes or have multiple windows open. This is
    (of course) configurable, but the default is 80 characters (in line with
-   the [dbt Labs SQL style guide](https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md).)
+   the [dbt Labs SQL style guide](https://docs.getdbt.com/best-practices/how-we-style/2-how-we-style-our-sql).)
 
 2. Is the positioning of *blank lines* (i.e. lines with nothing other
    than whitespace on them) appropriate. There are some circumstances
@@ -478,7 +478,7 @@ drawbacks in legibility. They also enable a style much closer to
 some established style guides.
 
 They are however not recommended by many of the major style guides
-at time of writing (including the [dbt Labs SQL style guide](https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md)
+at time of writing (including the [dbt Labs SQL style guide](https://docs.getdbt.com/best-practices/how-we-style/2-how-we-style-our-sql)
 and the [Mozilla SQL style guide](https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins)), and so are disabled by default.
 To enable them, set the `implicit_indents` flag in
 `sqluff.indentation` to `allow`, or the more strict
@@ -599,7 +599,7 @@ One of the key areas for this is the indentation of the
 
 Semantically, a `JOIN` expression is part of the `FROM` expression
 and therefore would be expected to be indented. However according to many
-of the most common SQL style guides (including the [dbt Labs SQL style guide](https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md)
+of the most common SQL style guides (including the [dbt Labs SQL style guide](https://docs.getdbt.com/best-practices/how-we-style/2-how-we-style-our-sql)
 and the [Mozilla SQL style guide](https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins)) the `JOIN` keyword is expected to at
 the same indent as the `FROM` keyword. By default, *SQLFluff* sides with
 the current consensus, which is to *not* indent the `JOIN` keyword,

@@ -24,7 +24,7 @@ class Rule_AL07(BaseRule):
 
     .. note::
        This rule was taken from the `dbt Style Guide
-       <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_
+       <https://docs.getdbt.com/best-practices/how-we-style/2-how-we-style-our-sql>`_
        which notes that:
 
         Avoid table aliases in join conditions (especially initialisms) - it's

@@ -141,7 +141,7 @@ sqlfluff parse test/fixtures/dialects/tsql/select_top.sql --dialect tsql
 
 ## Resources
 
-- [T-SQL Language Reference](https://learn.microsoft.com/en-us/sql/t-sql/language-reference-database-engine)
+- [T-SQL Language Reference](https://learn.microsoft.com/en-us/sql/t-sql/language-reference)
 - [T-SQL Statements](https://learn.microsoft.com/en-us/sql/t-sql/statements/statements)
 - [T-SQL Functions](https://learn.microsoft.com/en-us/sql/t-sql/functions/functions)
 - [T-SQL Data Types](https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql)
