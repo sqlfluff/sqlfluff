@@ -14,9 +14,27 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This minor release focuses on performance, clearer diagnostics and new layout options, alongside a large wave of Databricks and SparkSQL support and a broad set of dialect improvements and bug fixes.
+
+* **Linting is faster across the board.** A series of performance changes removes quadratic work in the layout rules and `LT09`, reuses whole-file reflow sequences across rules, and skips parse subtrees that can't match. It also cuts fixed costs every linted file pays and sends less data to and from worker processes. The Rust engine also gets lower allocation overhead and a per-process regex cache.
+* **Parse errors are easier to act on.** Unparsable-section messages now name the unexpected token and show the grammar the parser expected. Diagnostics on templated code now carry full source positions.
+* **New layout and convention options.**
+  * `LT05` gains a `list_wrapping = fill` option that puts as many list elements on each line as fit, rather than one per line.
+  * The new `indented_using_on_newline` option indents `ON`/`USING` below a join target on its own line.
+  * `CV03` adds a `require_multiline_forbid_single_line` trailing-comma policy.
+  * `fixed_suffix` can now be set in config, not just on the CLI.
+* **Databricks and SparkSQL support grows a lot**, including:
+  * SQL scripting and stored procedures
+  * Unity Catalog `SHOW`/`DESCRIBE`, privileges and tags
+  * `GEOGRAPHY`/`GEOMETRY` types
+  * `EXECUTE IMMEDIATE` and named parameter markers
+  * SQL-bodied `CREATE FUNCTION`
+  * a Databricks parameter style for the placeholder templater
+* **The Jinja templater supports more dbt behaviour.** It adds dbt materialization blocks and the `fromjson`/`tojson` helpers, and fixes `return` handling in nested macros defined in the same file.
+
+Beyond that, this release expands parsing support across DuckDB, Snowflake, T-SQL, MySQL/MariaDB, PostgreSQL, ClickHouse, SQLite, Trino, Oracle, Redshift, BigQuery, Flink, Db2, StarRocks, Doris and other dialects. Rule fixes stop several autofixes from changing query meaning: `ST02`, `ST06`, `ST08`, `ST09` and `CV06` now preserve precedence, parentheses, operators and statement boundaries. Other fixes reduce false positives in `AL05`, `AM01`, `AM07`, `RF01`, `RF03` and `LT09`. SQLFluff also now supports Click 8.5.
+
+This release also includes first-time contributions from **fifty-five** new contributors. Thank you all for your contributions. 🏆
 
 ## What’s Changed
 
