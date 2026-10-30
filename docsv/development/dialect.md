@@ -287,9 +287,13 @@ one call in its dialect file:
 
 ```python
 mariadb_dialect.declare_keyword_sets(
-    reserved=mariadb_reserved_keywords.split(),
+    reserved=mariadb_dialect.keywords_set_from_multiline_string(
+        mariadb_reserved_keywords
+    ),
     reserved_mode="replace",
-    unreserved=mariadb_unreserved_keywords.split(),
+    unreserved=mariadb_dialect.keywords_set_from_multiline_string(
+        mariadb_unreserved_keywords
+    ),
     unimplemented=[],
     future_reserved=[],
     future_reserved_mode="replace",
