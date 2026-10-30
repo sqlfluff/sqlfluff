@@ -919,6 +919,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropProcedureStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
             Ref("DisableTriggerStatementSegment"),
+            Ref("EnableTriggerStatementSegment"),
             Ref("CreatePartitionFunctionSegment"),
             Ref("AlterPartitionSchemeSegment"),
             Ref("CreateMasterKeySegment"),
@@ -4008,11 +4009,29 @@ class CreateSequenceOptionsSegment(BaseSegment):
             "AS",
             Ref("DatatypeSegment"),
         ),
-        Sequence("START", "WITH", Ref("NumericLiteralSegment")),
-        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
-        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence(
+            "START",
+            "WITH",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MINVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
         Sequence("NO", "MINVALUE"),
-        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence(
+            "MAXVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
         Sequence("NO", "MAXVALUE"),
         Sequence(
             Sequence("NO", optional=True),
@@ -4020,7 +4039,56 @@ class CreateSequenceOptionsSegment(BaseSegment):
         ),
         Sequence(
             "CACHE",
+            Ref("NumericLiteralSegment", optional=True),
+        ),
+        Sequence(
+            "NO",
+            "CACHE",
+        ),
+    )
+
+
+class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
+    """Options for Alter Sequence statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-sequence-transact-sql
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "RESTART",
+            Sequence(
+                "WITH",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            Ref("SignedSegmentGrammar", optional=True),
             Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MINVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence("NO", "MINVALUE"),
+        Sequence(
+            "MAXVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence("NO", "MAXVALUE"),
+        Sequence(
+            Sequence("NO", optional=True),
+            "CYCLE",
+        ),
+        Sequence(
+            "CACHE",
+            Ref("NumericLiteralSegment", optional=True),
         ),
         Sequence(
             "NO",
@@ -6122,7 +6190,12 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("DISTRIBUTED", optional=True),
             Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
-            Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
+            Sequence(
+                "WITH",
+                "MARK",
+                Ref("QuotedLiteralSegmentOptWithN", optional=True),
+                optional=True,
+            ),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
@@ -7834,6 +7907,29 @@ class DisableTriggerStatementSegment(BaseSegment):
     )
 
 
+class EnableTriggerStatementSegment(BaseSegment):
+    """Enable Trigger Statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/enable-trigger-transact-sql
+    """
+
+    type = "enable_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "ENABLE",
+        "TRIGGER",
+        OneOf(
+            Delimited(Ref("TriggerReferenceSegment")),
+            "ALL",
+        ),
+        Sequence(
+            "ON",
+            OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
+            optional=True,
+        ),
+    )
+
+
 class LabelStatementSegment(BaseSegment):
     """Label Statement, for a GOTO statement.
 
@@ -7954,7 +8050,6 @@ class PermissionsSegment(BaseSegment):
                 Sequence("ALTER", "SERVER", "STATE"),
                 Sequence("ALTER", "SETTINGS"),
                 Sequence("ALTER", "TRACE"),
-                Sequence("APPLY", "MASKING", "POLICY"),
                 "AUTHENTICATE",
                 Sequence("AUTHENTICATE", "SERVER"),
                 Sequence("BACKUP", "DATABASE"),

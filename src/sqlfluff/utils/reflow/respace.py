@@ -350,6 +350,44 @@ def process_spacing(
     )
 
 
+def _find_alignment_siblings(
+    parent_segment: BaseSegment, segment_type: str, align_scope: Optional[str]
+) -> list[BaseSegment]:
+    """Find the segments of `segment_type` within a parent to align with.
+
+    Candidates which have a segment of type `align_scope` on the path from
+    `parent_segment` (inclusive) are excluded, because a boundary between them
+    and the parent means they belong to a different alignment group.
+
+    This is equivalent to checking `parent_segment.path_to()` for every
+    candidate, but it does the work in a single walk instead. Calling
+    `path_to()` once per candidate is quadratic in the number of candidates,
+    which is a performance problem on wide statements.
+    """
+    siblings: list[BaseSegment] = []
+    # Each entry is a segment, and whether a boundary lies on the path from
+    # the parent down to it.
+    stack: list[tuple[BaseSegment, bool]] = [(parent_segment, False)]
+    while stack:
+        seg, blocked = stack.pop()
+        if seg.is_type(segment_type):
+            if blocked:
+                reflow_logger.debug(
+                    "    Purging a sibling because they're blocked by a boundary: %s",
+                    seg,
+                )
+            else:
+                siblings.append(seg)
+        # Nothing below this segment can match, so don't walk any further.
+        if segment_type not in seg.descendant_type_set:
+            continue
+        child_blocked = blocked or bool(align_scope and seg.is_type(align_scope))
+        # Reversed, so that the stack yields children in their original order
+        # which matches the order of `recursive_crawl()`.
+        stack.extend((child, child_blocked) for child in reversed(seg.segments))
+    return siblings
+
+
 def _determine_aligned_inline_spacing(
     root_segment: BaseSegment,
     whitespace_seg: RawSegment,
@@ -401,18 +439,7 @@ def _determine_aligned_inline_spacing(
 
     # We've got a parent. Find some siblings.
     reflow_logger.debug("    Determining alignment within: %s", parent_segment)
-    siblings = []
-    for sibling in parent_segment.recursive_crawl(segment_type):
-        # Purge any siblings with a boundary between them
-        if not align_scope or not any(
-            ps.segment.is_type(align_scope) for ps in parent_segment.path_to(sibling)
-        ):
-            siblings.append(sibling)
-        else:
-            reflow_logger.debug(
-                "    Purging a sibling because they're blocked by a boundary: %s",
-                sibling,
-            )
+    siblings = _find_alignment_siblings(parent_segment, segment_type, align_scope)
 
     # Use the segment's position marker if available, fallback to provided position
     if next_seg.pos_marker:
@@ -499,16 +526,22 @@ def _determine_aligned_inline_spacing(
     # Work out the current spacing before each.
     last_code: Optional[RawSegment] = None
     max_desired_line_pos = 0
+    # Index the siblings by their position, so that each raw segment can be
+    # matched with a lookup rather than by comparing it to every sibling.
+    siblings_by_loc: defaultdict[tuple[int, int], list[BaseSegment]] = defaultdict(list)
+    for sibling in siblings:
+        if sibling.pos_marker:
+            siblings_by_loc[sibling.pos_marker.working_loc].append(sibling)
     for seg in parent_segment.raw_segments:
-        for sibling in siblings:
+        matched = (
+            siblings_by_loc.get(seg.pos_marker.working_loc, [])
+            if seg.pos_marker
+            else []
+        )
+        for sibling in matched:
             # NOTE: We're asserting that there must have been
             # a last_code. Otherwise this won't work.
-            if (
-                seg.pos_marker
-                and sibling.pos_marker
-                and seg.pos_marker.working_loc == sibling.pos_marker.working_loc
-                and last_code
-            ):
+            if sibling.pos_marker and last_code:
                 if use_source_positions:
                     end_pm = last_code.pos_marker.end_point_marker()
                     loc = (

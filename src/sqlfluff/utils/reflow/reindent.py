@@ -1455,12 +1455,16 @@ def _lint_line_untaken_positive_indents(
     implicit_indent_locs: set[int],
 ) -> tuple[list[LintResult], list[int]]:
     """Check for positive indents which should have been taken."""
-    # First check whether this line contains any of the untaken problem points.
+    # First force all of the untaken problem points on this line.
+    imbalanced_results: list[LintResult] = []
+    imbalanced_forced: list[int] = []
     for ip in indent_line.indent_points:
         if ip.idx in imbalanced_indent_locs and ip.idx not in implicit_indent_locs:
             # Force it at the relevant position (unless it should use implicit indents)
+            # NOTE: Indents already forced on this line are no longer untaken.
             desired_indent = single_indent * (
-                ip.closing_indent_balance - len(ip.untaken_indents)
+                ip.closing_indent_balance
+                - len(set(ip.untaken_indents).difference(imbalanced_forced))
             )
             reflow_logger.debug(
                 "    Detected imbalanced +ve break @ line %s. Indenting to %r",
@@ -1474,8 +1478,11 @@ def _lint_line_untaken_positive_indents(
                 source="reflow.indent.imbalance",
             )
             elements[ip.idx] = new_point
-            # Keep track of the indent we forced, by returning it.
-            return results, [ip.closing_indent_balance]
+            imbalanced_results += results
+            imbalanced_forced.append(ip.closing_indent_balance)
+    if imbalanced_results:
+        # Keep track of the indents we forced, by returning them.
+        return imbalanced_results, imbalanced_forced
 
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
@@ -1702,15 +1709,17 @@ def _lint_line_buffer_indents(
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
     )
-    reflow_logger.debug(
-        "  Line Content: %s",
-        [
-            repr(elem.raw)
-            for elem in elements[
-                indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
-            ]
-        ],
-    )
+    # Only build the line content when it will be logged.
+    if reflow_logger.isEnabledFor(logging.DEBUG):
+        reflow_logger.debug(
+            "  Line Content: %s",
+            [
+                repr(elem.raw)
+                for elem in elements[
+                    indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
+                ]
+            ],
+        )
     reflow_logger.debug("  Indent Line: %s", indent_line)
     reflow_logger.debug("  Forced Indents: %s", forced_indents)
     reflow_logger.debug("  Imbalanced Indent Locs: %s", imbalanced_indent_locs)

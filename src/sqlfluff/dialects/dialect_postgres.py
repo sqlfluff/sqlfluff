@@ -7529,7 +7529,7 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
             Sequence(
                 Sequence(
                     "ALTER",
-                    Ref("COLUMN", optional=True),
+                    Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),

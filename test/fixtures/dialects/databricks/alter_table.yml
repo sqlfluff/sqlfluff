@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d172541326f7448a560f8e7605af25058dc0fba81da5d142550d5a9eca5481a
+_hash: c93311dd56f3cb15d5f99a148ff511c54af01120809e623052f2fa468020e480
 file:
 - statement:
     alter_table_statement:
@@ -1050,4 +1050,69 @@ file:
     - keyword: CLUSTER
     - keyword: BY
     - keyword: AUTO
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: pk
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: ENABLE
+      - keyword: NOVALIDATE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: pk2
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: RELY
+      - keyword: NOT
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: pk3
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: DEFERRABLE
+      - keyword: NOT
+      - keyword: ENFORCED
 - statement_terminator: ;

@@ -3,12 +3,32 @@
 import itertools
 from typing import Optional
 
+from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
-from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select import (
+    get_aliases_from_select,
+    get_select_statement_info,
+)
+
+
+def _select_aliases(
+    segment: BaseSegment, dialect: Dialect
+) -> Optional[tuple[list[AliasInfo], list[BaseSegment]]]:
+    """The table and standalone aliases of a SELECT.
+
+    Returns None exactly when `get_select_statement_info()` would, without
+    collecting the references and select targets it also finds.
+    """
+    table_aliases, standalone_aliases = get_aliases_from_select(segment, dialect)
+    if not table_aliases and not standalone_aliases:
+        return None
+    if not segment.get_child("select_clause"):  # pragma: no cover
+        return None
+    return table_aliases or [], standalone_aliases or []
 
 
 class Rule_AL04(BaseRule):
@@ -81,12 +101,10 @@ class Rule_AL04(BaseRule):
 
         """
         if parent_select:
-            parent_select_info = get_select_statement_info(
-                parent_select, rule_context.dialect
-            )
-            if parent_select_info:
+            parent_aliases = _select_aliases(parent_select, rule_context.dialect)
+            if parent_aliases:
                 # If we are looking at a subquery, include any table references
-                for table_alias in parent_select_info.table_aliases:
+                for table_alias in parent_aliases[0]:
                     if table_alias.from_expression_element.path_to(
                         rule_context.segment
                     ):
@@ -124,9 +142,29 @@ class Rule_AL04(BaseRule):
         `_lint_references_and_aliases` method.
         """
         assert context.segment.is_type("select_statement")
-        select_info = get_select_statement_info(context.segment, context.dialect)
-        if not select_info:
-            return None
+        references: list[ObjectReferenceSegment] = []
+        col_aliases: list[ColumnAliasInfo] = []
+        using_cols: list[BaseSegment] = []
+        if (
+            type(self)._lint_references_and_aliases
+            is Rule_AL04._lint_references_and_aliases
+        ):
+            # This rule only needs each SELECT's aliases, so don't also collect
+            # its references, column aliases and USING columns.
+            aliases = _select_aliases(context.segment, context.dialect)
+            if not aliases:
+                return None
+            table_aliases, standalone_aliases = aliases
+        else:
+            # A subclass which overrides the method below may read all of them.
+            select_info = get_select_statement_info(context.segment, context.dialect)
+            if not select_info:
+                return None
+            table_aliases = select_info.table_aliases
+            standalone_aliases = select_info.standalone_aliases
+            references = select_info.reference_buffer
+            col_aliases = select_info.col_aliases
+            using_cols = select_info.using_cols
 
         # Work out if we have a parent select function
         parent_select = None
@@ -138,11 +176,11 @@ class Rule_AL04(BaseRule):
         # Pass them all to the function that does all the work.
         # NB: Subclasses of this rules should override the function below
         return self._lint_references_and_aliases(
-            select_info.table_aliases,
-            select_info.standalone_aliases,
-            select_info.reference_buffer,
-            select_info.col_aliases,
-            select_info.using_cols,
+            table_aliases,
+            standalone_aliases,
+            references,
+            col_aliases,
+            using_cols,
             parent_select,
             context,
         )

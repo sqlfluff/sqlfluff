@@ -531,27 +531,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
-    """A reference to column, field or alias.
-
-    Also allows `column->path` and `column->>path` for JSON values.
-    https://www.sqlite.org/json1.html#jptr
-    """
-
-    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                OneOf(
-                    ansi.ColumnReferenceSegment.match_grammar.copy(),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    Ref("LiteralGrammar"),
-                ),
-            ),
-        ]
-    )
-
-
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 

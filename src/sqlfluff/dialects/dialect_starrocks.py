@@ -627,7 +627,10 @@ class StatementSegment(mysql.StatementSegment):
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
             Ref("ResumeRoutineLoadStatementSegment"),
-        ]
+        ],
+        remove=[
+            Ref("FlushStatementSegment"),
+        ],
     ).copy(
         insert=[
             Ref("InsertOverwriteStatementSegment"),
