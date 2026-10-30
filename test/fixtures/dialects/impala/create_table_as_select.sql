@@ -18,3 +18,5 @@ CREATE EXTERNAL TABLE IF NOT EXISTS db.foo
 AS
     SELECT col1, col2, col3, col4
     FROM db.baz;
+
+CREATE TABLE cached_ctas CACHED IN 'pool1' AS SELECT 1 AS x;

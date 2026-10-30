@@ -1,6 +1,8 @@
 """Defines the base dialect class."""
 
 import sys
+from collections import Counter
+from collections.abc import Collection
 from typing import Any, Optional, Union, cast
 
 from sqlfluff.core.parser import (
@@ -14,6 +16,15 @@ from sqlfluff.core.parser.grammar.base import BaseGrammar, Nothing
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
+
+# The sets that hold a dialect's keyword statuses. declare_keyword_sets()
+# explains them, and test/dialects/keyword_reference_test.py checks them.
+KEYWORD_STATUS_SETS = (
+    "reserved_keywords",
+    "unreserved_keywords",
+    "unimplemented_keywords",
+    "future_reserved_keywords",
+)
 
 
 class Dialect:
@@ -37,6 +48,7 @@ class Dialect:
         formatted_name: Optional[str] = None,
         docstring: Optional[str] = None,
         client_commands: Optional[ClientCommandRules] = None,
+        keyword_reference_error_docs: Optional[str] = None,
     ) -> None:
         self._library = library or {}
         self.name = name
@@ -49,6 +61,12 @@ class Dialect:
         # Attributes for documentation
         self.formatted_name: str = formatted_name or name
         self.docstring = docstring or f"The dialect for {self.formatted_name}."
+        # A message from this dialect's maintainers to a contributor who is
+        # probably working on another dialect, usually a parent, and has hit a
+        # keyword reference error here: how to look up a keyword in this
+        # dialect. Printed as is in the keyword audit's report on this
+        # dialect (test/dialects/keyword_reference_test.py). Not inherited.
+        self.keyword_reference_error_docs = keyword_reference_error_docs
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Dialect: {self.name}>"
@@ -72,7 +90,15 @@ class Dialect:
         if self.expanded:  # pragma: no cover
             raise ValueError("Attempted to re-expand an already expanded dialect.")
 
-        expanded_copy = self.copy_as(name=self.name)
+        # copy_as() makes a child dialect; the expanded copy is this dialect,
+        # so it keeps this dialect's own identity, parent included.
+        expanded_copy = self.copy_as(
+            name=self.name,
+            formatted_name=self.formatted_name,
+            docstring=self.docstring,
+            keyword_reference_error_docs=self.keyword_reference_error_docs,
+        )
+        expanded_copy.inherits_from = self.inherits_from
         # Expand any callable elements of the dialect.
         for key in expanded_copy._library:
             seg_gen = expanded_copy._library[key]
@@ -81,18 +107,26 @@ class Dialect:
                 # dialect and store the result in its place.
                 # Use the .replace() method for its error handling.
                 expanded_copy.replace(**{key: seg_gen.expand(expanded_copy)})
-        # Expand any keyword sets.
-        for keyword_set in [
-            "unreserved_keywords",
-            "reserved_keywords",
-            "future_reserved_keywords",
-        ]:  # e.g. reserved_keywords, (JOIN, ...)
-            # Make sure the values are available as KeywordSegments
-            keyword_sets = expanded_copy.sets(keyword_set)
-            for kw in keyword_sets:
+        # Expand any keyword sets. A word with a present status that makes it
+        # a keyword gets a parser. Unimplemented words resolve to Nothing()
+        # below. Future reserved is a tag, not a present status, so a word
+        # that only has it gets nothing: grammar that uses it fails to resolve.
+        unimplemented = expanded_copy.sets("unimplemented_keywords")
+        for keyword_set in ("reserved_keywords", "unreserved_keywords"):
+            for kw in expanded_copy.sets(keyword_set):
+                # Sets built by hand can overlap; unimplemented decides the
+                # grammar.
+                if kw in unimplemented:
+                    continue
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
                     expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
+        # An unimplemented keyword resolves, so that inherited grammar which
+        # uses it doesn't crash, but to something that never matches.
+        for kw in unimplemented:
+            n = kw.capitalize() + "KeywordSegment"
+            if n not in expanded_copy._library:
+                expanded_copy._library[n] = Nothing()
         expanded_copy.expanded = True
         return expanded_copy
 
@@ -128,20 +162,231 @@ class Dialect:
         self, set_label: str, values: str
     ) -> None:
         """Special function to update a keywords set from a multi-line string."""
-        self.sets(set_label).update(
-            [n.strip().upper() for n in values.strip().split("\n")]
+        self.sets(set_label).update(self.keywords_set_from_multiline_string(values))
+
+    @staticmethod
+    def keywords_set_from_multiline_string(values: str) -> set[str]:
+        """The keywords in a multi-line string, one per line, as a set.
+
+        Lines, not spaces, separate the entries, so an entry like WITHIN GROUP
+        stays whole. Each line is stripped and upper-cased, and blank lines are
+        skipped. A word listed twice is refused: it is a mistake in the
+        keyword file, which a set would otherwise hide.
+        """
+        stripped = (line.strip().upper() for line in values.splitlines())
+        words = [word for word in stripped if word]
+        keywords = set(words)
+        # The set is shorter only if a word is repeated. Finding which is only
+        # needed then, on the way to the error.
+        if len(keywords) != len(words):
+            repeated = sorted(
+                word for word, count in Counter(words).items() if count > 1
+            )
+            raise ValueError(
+                f"These keywords are listed more than once: {', '.join(repeated)}. "
+                "Keep one of each."
+            )
+        return keywords
+
+    @staticmethod
+    def _keyword_words(
+        words: Collection[str], function: str, argument: str
+    ) -> set[str]:
+        """The upper-cased keywords in a list of words."""
+        if isinstance(words, str):
+            # Refuse strings because they would be treated as a sequence of letters.
+            raise TypeError(
+                f"{function}() takes {argument} as a list of words, not a string. "
+                'Pass one word as a list, e.g. ["LIBRARY"]; split a keyword file\'s '
+                "multi-line string with .split() in that file."
+            )
+        return {word.upper() for word in words}
+
+    @staticmethod
+    def _refuse_overlapping_keyword_lists(listed: dict[str, set[str]]) -> None:
+        """Refuse a call that lists a word under two lists that exclude each other.
+
+        Only the call's own lists are checked. Inherited sets are resolved, not
+        refused, because a child can't fix its parent's lists.
+        """
+        # Pairs of lists that can't share a word. A keyword is reserved or
+        # unreserved, not both; an unimplemented word is one the server
+        # doesn't have, so it is neither; a word the vendor will reserve isn't
+        # reserved yet. Future reserved may go with unreserved or unimplemented.
+        exclusive_lists = (
+            ("reserved", "unreserved"),
+            ("reserved", "unimplemented"),
+            ("unreserved", "unimplemented"),
+            ("reserved", "future_reserved"),
         )
+        clashes = []
+        for first, second in exclusive_lists:
+            for word in sorted(listed[first] & listed[second]):
+                clashes.append(f"{word} ({first} and {second})")
+        if clashes:
+            raise ValueError(
+                "declare_keyword_sets() was given words in two lists that exclude "
+                "each other: " + ", ".join(clashes) + ". A keyword is reserved or "
+                "unreserved, not both. Unimplemented means the server doesn't have "
+                "the word, so it can't also be a keyword. A future reserved word "
+                "isn't reserved yet. Keep each word in one of its two lists. If the "
+                "server has a word but not a parent's syntax that uses it, keep the "
+                "word a keyword and override that syntax in the dialect."
+            )
+
+    def declare_keyword_sets(
+        self,
+        *,
+        reserved: Collection[str],
+        reserved_mode: str,
+        unreserved: Collection[str],
+        unimplemented: Collection[str],
+        future_reserved: Collection[str],
+        future_reserved_mode: str,
+    ) -> None:
+        """Safely assign and inherit keywords by changing, not dropping, present status.
+
+        The dialect starts with every keyword's status from its parent. Each
+        word may be in no more than one of reserved, unreserved and
+        unimplemented, and always gets the present status it's listed under,
+        losing any contradictory inherited present status.
+
+        Args:
+            reserved: Words that are keywords everywhere and never names.
+            reserved_mode: What happens to inherited reserved words that aren't
+                explicitly given another status by the caller.
+                "add": they are kept reserved
+                "replace": they become unreserved
+            unreserved: Words that are keywords in some places and names in
+                others.
+            unimplemented: Words the dialect's server (not sqlfluff) doesn't
+                implement. In inherited grammar, they evaluate to Nothing()
+                and stop matching. You can see which ones block grammar with
+                keyword_reference_test.py <dialect> --level notice
+            future_reserved: Words the vendor says will become reserved. A tag
+                that may go with unreserved, unimplemented, or unlisted words.
+            future_reserved_mode:
+                "add": parent future_reserved are kept, unless reserved above.
+                "replace": parent future_reserved are dropped.
+
+        A word may not lose all present status, as inherited grammar may use it
+        either now or after future parent edits. This allows effortless feature
+        inheritance, stops crashes from the parent adding a feature, and
+        protects a parent from the maintenance burden of a poorly maintained
+        child.
+
+        A future_reserved word may be nothing, unreserved, or unimplemented, but
+        not reserved.
+
+        Exclusively using this function in child dialects to assign present
+        keyword status is strongly recommended. This does not and should not
+        address other sets, as they don't tend to cause bad refs on inheritance
+        as grammar does not look for a single member and fail as they would
+        with one of the above addressed keyword sets.
+        """
+        for argument, mode in (
+            ("reserved_mode", reserved_mode),
+            ("future_reserved_mode", future_reserved_mode),
+        ):
+            if mode not in ("add", "replace"):
+                raise ValueError(
+                    f'declare_keyword_sets() takes {argument}="add" or '
+                    f'"replace", not {mode!r}.'
+                )
+        listed_reserved = self._keyword_words(
+            reserved, "declare_keyword_sets", "reserved"
+        )
+        listed_unreserved = self._keyword_words(
+            unreserved, "declare_keyword_sets", "unreserved"
+        )
+        listed_unimplemented = self._keyword_words(
+            unimplemented, "declare_keyword_sets", "unimplemented"
+        )
+        listed_future = self._keyword_words(
+            future_reserved, "declare_keyword_sets", "future_reserved"
+        )
+        self._refuse_overlapping_keyword_lists(
+            {
+                "reserved": listed_reserved,
+                "unreserved": listed_unreserved,
+                "unimplemented": listed_unimplemented,
+                "future_reserved": listed_future,
+            }
+        )
+
+        inherited_reserved = set(self.sets("reserved_keywords"))
+        inherited_unreserved = set(self.sets("unreserved_keywords"))
+        inherited_unimplemented = set(self.sets("unimplemented_keywords"))
+        inherited_future = set(self.sets("future_reserved_keywords"))
+
+        if reserved_mode == "replace":
+            new_reserved = listed_reserved
+            # Unlisted inherited reserved words become unreserved. A word the
+            # call lists anywhere gets exactly what it says instead.
+            demoted = (
+                inherited_reserved
+                - listed_reserved
+                - listed_unreserved
+                - listed_unimplemented
+            )
+        else:
+            new_reserved = (
+                inherited_reserved
+                - listed_unreserved
+                - listed_future
+                - listed_unimplemented
+            ) | listed_reserved
+            # A future reserved word isn't reserved yet, so an inherited
+            # reserved word listed as future becomes unreserved (or stays
+            # unimplemented, if it's listed that way too: see below).
+            demoted = inherited_reserved & listed_future
+        new_unreserved = (
+            inherited_unreserved | listed_unreserved | demoted
+        ) - new_reserved
+        # Listing a word as a keyword here switches inherited grammar that
+        # needs it back on.
+        new_unimplemented = (
+            inherited_unimplemented - listed_reserved - listed_unreserved
+        ) | listed_unimplemented
+        # Unimplemented wins over an inherited keyword status, as it does in
+        # expand(), so the sets never overlap.
+        new_reserved -= new_unimplemented
+        new_unreserved -= new_unimplemented
+        if future_reserved_mode == "replace":
+            new_future = listed_future - new_reserved
+        else:
+            new_future = (inherited_future | listed_future) - new_reserved
+
+        new_sets = {
+            "reserved_keywords": new_reserved,
+            "unreserved_keywords": new_unreserved,
+            "unimplemented_keywords": new_unimplemented,
+            "future_reserved_keywords": new_future,
+        }
+        for label in KEYWORD_STATUS_SETS:
+            keyword_set = self.sets(label)
+            keyword_set.clear()
+            keyword_set.update(new_sets[label])
 
     def copy_as(
         self,
         name: str,
         formatted_name: Optional[str] = None,
         docstring: Optional[str] = None,
+        keyword_reference_error_docs: Optional[str] = None,
     ) -> "Dialect":
         """Copy this dialect and create a new one with a different name.
 
         This is the primary method for inheritance, after which, the
         `replace` method can be used to override particular rules.
+
+        keyword_reference_error_docs is a message from the new dialect's
+        maintainers to a contributor who is probably working on another
+        dialect, usually a parent, and has hit a keyword reference error in
+        this one: how to look up a keyword here. It is printed as is in the
+        keyword audit's report on this dialect. Write whatever helps for this
+        dialect: a link to the vendor's keyword list, or which source file and
+        grammar rule to read. It is optional and not inherited.
         """
         # Are we already expanded?
         if self.expanded:  # pragma: no cover
@@ -167,6 +412,7 @@ class Dialect:
             # NOTE: We don't inherit the documentation fields.
             formatted_name=formatted_name,
             docstring=docstring,
+            keyword_reference_error_docs=keyword_reference_error_docs,
         )
 
     def add(self, **kwargs: DialectElementType) -> None:
@@ -287,6 +533,21 @@ class Dialect:
                 f"with get_segment - type{type(segment)}"
             )
 
+    @staticmethod
+    def _reference_audit_tip(dialect_name: str) -> str:
+        """Point someone changing the dialect at the report of every such problem.
+
+        Only someone working in a sqlfluff checkout has the test file, so the
+        message says so.
+        """
+        return (
+            "\n\nIf you are changing this dialect in a sqlfluff checkout, run "
+            f"`python test/dialects/keyword_reference_test.py {dialect_name}`. "
+            "It lists every keyword and segment that grammar refers to but a "
+            f"dialect doesn't have, in {dialect_name} and in the dialects that "
+            "inherit from it, and what to do about each."
+        )
+
     def ref(self, name: str) -> Matchable:
         """Return an object which acts as a late binding reference to the element named.
 
@@ -317,6 +578,7 @@ class Dialect:
                 "Or, even better, see this guide on how to help contribute"
                 " keyword and/or dialect updates:\n"
                 "https://docs.sqlfluff.com/en/stable/perma/contribute_dialect_keywords.html"
+                f"{self._reference_audit_tip(self.name)}"
             )
             # Keyword errors are common so avoid printing the whole, scary,
             # traceback as not that useful and confusing to people.
@@ -329,8 +591,8 @@ class Dialect:
             )
         else:  # pragma: no cover
             raise RuntimeError(
-                "Grammar refers to {!r} which was not found in the {} dialect.".format(
-                    name, self.name
+                "Grammar refers to {!r} which was not found in the {} dialect.{}".format(
+                    name, self.name, self._reference_audit_tip(self.name)
                 )
             )
 

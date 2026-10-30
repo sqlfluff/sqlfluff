@@ -33,12 +33,13 @@ greenplum_dialect = postgres_dialect.copy_as(
     docstring="The dialect for `Greenplum <https://www.greenplum.org/>`_.",
 )
 
-greenplum_dialect.sets("reserved_keywords").update(
-    get_keywords(greenplum_keywords, "reserved")
-)
-
-greenplum_dialect.sets("unreserved_keywords").update(
-    get_keywords(greenplum_keywords, "non-reserved")
+greenplum_dialect.declare_keyword_sets(
+    reserved=get_keywords(greenplum_keywords, "reserved"),
+    reserved_mode="add",
+    unreserved=get_keywords(greenplum_keywords, "non-reserved"),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Greenplum adds its own `col_name_keyword`s (e.g. CUBE, ROLLUP, MEDIAN);

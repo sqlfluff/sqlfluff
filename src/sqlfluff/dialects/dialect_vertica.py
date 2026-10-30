@@ -119,14 +119,25 @@ vertica_dialect.patch_lexer_matchers(
 )
 
 # Set Keywords
-vertica_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", vertica_unreserved_keywords
+# A word vertica lists as unreserved that is reserved, in its own list or in the
+# ANSI keywords it adds to, stays reserved, as it always behaved, except ROWS,
+# which vertica deliberately unreserves.
+vertica_reserved = vertica_dialect.keywords_set_from_multiline_string(
+    vertica_reserved_keywords
 )
-
-vertica_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", vertica_reserved_keywords
+vertica_dialect.declare_keyword_sets(
+    reserved=vertica_reserved - {"ROWS"},
+    reserved_mode="add",
+    unreserved=(
+        vertica_dialect.keywords_set_from_multiline_string(vertica_unreserved_keywords)
+        - vertica_reserved
+        - set(ansi_dialect.sets("reserved_keywords"))
+    )
+    | {"ROWS"},
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
-vertica_dialect.sets("reserved_keywords").difference_update(["ROWS"])
 
 vertica_dialect.sets("bare_functions").clear()
 vertica_dialect.sets("bare_functions").update(

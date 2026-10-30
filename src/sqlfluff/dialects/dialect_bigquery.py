@@ -503,14 +503,21 @@ bigquery_dialect.replace(
 
 
 # Set Keywords
-bigquery_dialect.sets("unreserved_keywords").clear()
-bigquery_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", bigquery_unreserved_keywords
+# Reserved is bigquery's complete list, so reserved_mode is replace. A word in both
+# of bigquery's lists stays reserved, as it always behaved.
+bigquery_reserved = bigquery_dialect.keywords_set_from_multiline_string(
+    bigquery_reserved_keywords
 )
-
-bigquery_dialect.sets("reserved_keywords").clear()
-bigquery_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", bigquery_reserved_keywords
+bigquery_dialect.declare_keyword_sets(
+    reserved=bigquery_reserved,
+    reserved_mode="replace",
+    unreserved=bigquery_dialect.keywords_set_from_multiline_string(
+        bigquery_unreserved_keywords
+    )
+    - bigquery_reserved,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Add additional datetime units

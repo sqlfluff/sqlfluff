@@ -57,12 +57,22 @@ oracle_dialect = ansi_dialect.copy_as(
 .. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html""",
 )
 
-oracle_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", oracle_reserved_keywords
+# A word oracle lists as unreserved that is reserved, in its own list or in the
+# ANSI keywords it adds to, stays reserved, as it always behaved.
+oracle_reserved = oracle_dialect.keywords_set_from_multiline_string(
+    oracle_reserved_keywords
 )
-
-oracle_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", oracle_unreserved_keywords
+oracle_dialect.declare_keyword_sets(
+    reserved=oracle_reserved,
+    reserved_mode="add",
+    unreserved=oracle_dialect.keywords_set_from_multiline_string(
+        oracle_unreserved_keywords
+    )
+    - oracle_reserved
+    - set(ansi_dialect.sets("reserved_keywords")),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -360,7 +370,7 @@ oracle_dialect.add(
         Ref("DotSegment"),
         Ref("DotSegment"),
         Ref("IterationBoundsGrammar"),
-        Sequence("BY", "STEP", optional=True),
+        Sequence("BY", Ref("IterationBoundsGrammar"), optional=True),
     ),
     ParallelEnableClauseGrammar=Sequence(
         "PARALLEL_ENABLE",

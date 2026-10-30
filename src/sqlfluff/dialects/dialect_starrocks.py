@@ -38,13 +38,27 @@ starrocks_dialect = mysql_dialect.copy_as(
     Identifiers: |back_quotes|.
 
     The dialect for `StarRocks <https://www.starrocks.io/>`_.""",
+    keyword_reference_error_docs=(
+        "A StarRocks keyword is reserved if it is a token in StarRocksLex.g4 and "
+        "not listed in the nonReserved rule of StarRocks.g4. Both are in "
+        "https://github.com/StarRocks/starrocks/tree/main/fe/fe-grammar/src/main/"
+        "antlr/com/starrocks/grammar"
+    ),
 )
-starrocks_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", starrocks_unreserved_keywords
-)
-starrocks_dialect.sets("reserved_keywords").clear()
-starrocks_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", starrocks_reserved_keywords
+# Reserved is StarRocks's complete reserved list, so reserved_mode is replace:
+# a reserved word starrocks inherits from mysql and doesn't list becomes
+# unreserved.
+starrocks_dialect.declare_keyword_sets(
+    reserved=starrocks_dialect.keywords_set_from_multiline_string(
+        starrocks_reserved_keywords
+    ),
+    reserved_mode="replace",
+    unreserved=starrocks_dialect.keywords_set_from_multiline_string(
+        starrocks_unreserved_keywords
+    ),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 
@@ -269,7 +283,7 @@ class PartitionSegment(BaseSegment):
                                     Sequence(
                                         Bracketed(
                                             Bracketed(Delimited(Ref("LiteralGrammar"))),
-                                            ",",
+                                            Ref("CommaSegment"),
                                             Bracketed(Delimited(Ref("LiteralGrammar"))),
                                         )
                                     ),

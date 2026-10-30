@@ -61,13 +61,15 @@ variables, ordinary string literals, or Unicode (``N'...'``) string literals.
 .. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference""",
 )
 
-tsql_dialect.sets("reserved_keywords").clear()
-tsql_dialect.sets("unreserved_keywords").clear()
-tsql_dialect.sets("future_reserved_keywords").clear()
+tsql_dialect.declare_keyword_sets(
+    reserved=RESERVED_KEYWORDS,
+    reserved_mode="replace",
+    unreserved=UNRESERVED_KEYWORDS,
+    unimplemented=[],
+    future_reserved=FUTURE_RESERVED_KEYWORDS,
+    future_reserved_mode="replace",
+)
 tsql_dialect.sets("datatype_methods").clear()
-tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
-tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-tsql_dialect.sets("future_reserved_keywords").update(FUTURE_RESERVED_KEYWORDS)
 tsql_dialect.sets("datatype_methods").update(DATATYPE_METHODS)
 
 # Set the datetime units

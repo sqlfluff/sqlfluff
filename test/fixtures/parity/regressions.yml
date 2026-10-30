@@ -52,24 +52,28 @@ bracketed_optional_content_failure_nothing_here:
     "<elem> to start sequence/after X" message reserved for required failures.
 ansi_grant_all_masking_policies:
   sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
-  expect: error
-  pins: ansi grammar references the POLICIES keyword (via a bare string) that it
-    never registers, so it is treated as unsupported syntax. Both engines now
-    raise the identical RuntimeError ("Grammar refers to the 'POLICIES' keyword
-    which was not found in the ansi dialect...") - Python via dialect.ref(), Rust
-    by signalling the missing ref to rust_parser.py which re-raises through the
-    same dialect.ref(). (Previously Rust silently produced an unparsable tree.)
+  expect: clean_tree
+  pins: ansi grammar referenced the POLICIES keyword without listing it, so both
+    engines raised the same dangling-keyword RuntimeError. ansi now lists POLICIES
+    (and FORMATS) as unreserved, and the dialect audit checks every keyword its
+    grammar uses, so the statement parses.
 ansi_grant_future_masking_policies:
   sql: GRANT SELECT ON FUTURE MASKING POLICIES IN SCHEMA s TO r
-  expect: error
-  pins: FUTURE variant of the same dangling POLICIES-keyword-ref gap as
-    ansi_grant_all_masking_policies; both engines raise the identical RuntimeError.
+  expect: clean_tree
+  pins: FUTURE variant of ansi_grant_all_masking_policies; parses now that ansi lists
+    POLICIES.
 ansi_grant_all_file_formats:
   sql: GRANT SELECT ON ALL FILE FORMATS IN SCHEMA s TO r
-  expect: error
-  pins: ansi grammar references the FORMATS keyword without registering it, the
-    same dangling-keyword-ref class as POLICIES; both engines raise the identical
-    RuntimeError.
+  expect: clean_tree
+  pins: ansi grammar referenced the FORMATS keyword without listing it, the same
+    dangling-keyword class as POLICIES; parses now that ansi lists FORMATS.
+mysql_grant_all_masking_policies_unimplemented:
+  sql: GRANT SELECT ON ALL MASKING POLICIES IN SCHEMA s TO r
+  dialect: mysql
+  expect: tree
+  pins: POLICIES is an unimplemented keyword in mysql (declare_keyword_sets), so the GRANT
+    grammar mysql inherits from ansi never matches it. Both engines give the same
+    unparsable tree instead of a RuntimeError; MySQL itself rejects the statement.
 postgres_alter_foreign_table_column_keyword:
   sql: ALTER FOREIGN TABLE ft ALTER COLUMN c OPTIONS (ADD opt 'v')
   dialect: postgres

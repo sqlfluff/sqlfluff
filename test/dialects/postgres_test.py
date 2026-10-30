@@ -1,5 +1,6 @@
 """Tests specific to the postgres dialect."""
 
+from collections import Counter
 from typing import Callable
 
 import pytest
@@ -8,6 +9,11 @@ from _pytest.logging import LogCaptureFixture
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
+    postgres_docs_keywords,
+    postgres_nondocs_keywords,
+    postgres_pgvector_keywords,
+    postgres_postgis_datatype_keywords,
+    postgres_postgis_other_keywords,
     priority_keyword_merge,
 )
 
@@ -220,6 +226,73 @@ def test_priority_keyword_merge() -> None:
     expected_result_4 = kw_list_1
 
     assert sorted(result_4) == sorted(expected_result_4)
+
+
+def test_priority_keyword_merge_leaves_its_inputs_alone() -> None:
+    """Test that merging doesn't change the lists it was given.
+
+    It used to append every later list into the first one, so after import
+    postgres_docs_keywords held all the layers, not just the docs. Postgres has
+    several child dialects; one that merges postgres's layers with its own
+    must get them as written, and must not change postgres's lists by doing so.
+    """
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    result = priority_keyword_merge(kw_list_1, kw_list_2)
+    single = priority_keyword_merge(kw_list_1)
+
+    assert kw_list_1 == [("A", "not-keyword"), ("B", "non-reserved")]
+    assert kw_list_2 == [("A", "reserved"), ("C", "non-reserved")]
+    assert result is not kw_list_1
+    assert single is not kw_list_1
+
+
+def test_priority_keyword_merge_keeps_one_entry_per_keyword() -> None:
+    """Test that a keyword listed twice ends up once, with its last status.
+
+    The list version could keep a keyword twice with two statuses: when it was
+    repeated in the first list, or in a later list that added it. get_keywords()
+    would then put it in two sets that contradict each other.
+    """
+    first = [("A", "not-keyword"), ("A", "non-reserved"), ("B", "reserved")]
+    later = [("C", "reserved"), ("C", "non-reserved"), ("B", "non-reserved")]
+
+    assert priority_keyword_merge(first, later) == [
+        ("A", "non-reserved"),
+        ("C", "non-reserved"),
+        ("B", "non-reserved"),
+    ]
+    assert priority_keyword_merge(first) == [
+        ("A", "non-reserved"),
+        ("B", "reserved"),
+    ]
+
+
+@pytest.mark.parametrize(
+    "keyword_list",
+    [
+        postgres_docs_keywords,
+        postgres_nondocs_keywords,
+        postgres_postgis_datatype_keywords,
+        postgres_postgis_other_keywords,
+        postgres_pgvector_keywords,
+    ],
+)
+def test_postgres_keyword_layers_list_each_keyword_once(
+    keyword_list: list[tuple[str, str]],
+) -> None:
+    """Test that each keyword layer is (keyword, status) pairs, no keyword twice.
+
+    A keyword listed twice in one layer has two statuses there, and the merge
+    silently keeps the last; one of the two is a mistake to fix in the layer.
+    """
+    for entry in keyword_list:
+        assert isinstance(entry, tuple) and len(entry) == 2, entry
+        assert all(isinstance(part, str) for part in entry), entry
+    counts = Counter(keyword for keyword, _ in keyword_list)
+    repeated = sorted(keyword for keyword, count in counts.items() if count > 1)
+    assert not repeated, f"Listed more than once in this layer: {repeated}"
 
 
 def test_get_keywords() -> None:

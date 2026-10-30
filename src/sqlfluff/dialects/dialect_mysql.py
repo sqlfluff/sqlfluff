@@ -51,6 +51,7 @@ from sqlfluff.core.parser.client_commands import (
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
+    mysql_unimplemented_keywords,
     mysql_unreserved_keywords,
 )
 
@@ -208,15 +209,22 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 # Set Keywords
-# Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
-# Just add MySQL unreserved keywords.
-mysql_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", mysql_unreserved_keywords
-)
-
-mysql_dialect.sets("reserved_keywords").clear()
-mysql_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", mysql_reserved_keywords
+# Inherited ANSI keywords keep their status unless listed here. Do not clear
+# the inherited unreserved ansi keywords: too many are needed to parse well.
+# Reserved is the complete list (MySQL 8.4.11 and 9.7.2,
+# INFORMATION_SCHEMA.KEYWORDS: the words with RESERVED = 1 on both), so
+# reserved_mode is replace.
+mysql_dialect.declare_keyword_sets(
+    reserved=mysql_dialect.keywords_set_from_multiline_string(mysql_reserved_keywords),
+    reserved_mode="replace",
+    unreserved=mysql_dialect.keywords_set_from_multiline_string(
+        mysql_unreserved_keywords
+    ),
+    unimplemented=mysql_dialect.keywords_set_from_multiline_string(
+        mysql_unimplemented_keywords
+    ),
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Set the datetime units

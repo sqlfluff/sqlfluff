@@ -89,7 +89,14 @@ date_n_literals = {
     "NEXT_N_FISCAL_YEARS",
 }
 
-soql_dialect.sets("reserved_keywords").update(date_literals | date_n_literals)
+soql_dialect.declare_keyword_sets(
+    reserved=list(date_literals | date_n_literals),
+    reserved_mode="add",
+    unreserved=[],
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 
 soql_dialect.sets("bare_functions").update(date_literals)
 

@@ -56,7 +56,30 @@ reserved keywords.
 
 The dialect for `ClickHouse <https://clickhouse.com/>`_.""",
 )
-clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+# ClickHouse's docs say its keywords aren't reserved, but sqlfluff's grammar
+# needs reserved words to know where a name stops: with none, ON in
+# `LEFT JOIN b ON ...` parses as an alias of b. So clickhouse reserves exactly
+# what ansi reserves, as it always has. That isn't ClickHouse's real list, and
+# clickhouse's keyword lists need help. Finding the real list is hard: the
+# docs aren't a reliable guide, so it means checking against the server what it
+# accepts as a bare name, and every word moved changes where sqlfluff thinks a
+# name ends, so the clickhouse fixtures need checking too. Run
+# `python test/dialects/keyword_reference_test.py clickhouse --level notice`
+# after any change.
+#
+# clickhouse's keyword list repeats a few of ansi's reserved words (NOT,
+# INTERVAL, and the Null output format, which is NULL). A word can't be both,
+# so they are taken out of the unreserved list here and stay reserved.
+ansi_reserved_keywords = set(ansi_dialect.sets("reserved_keywords"))
+clickhouse_unreserved_keywords = {word.upper() for word in UNRESERVED_KEYWORDS}
+clickhouse_dialect.declare_keyword_sets(
+    reserved=ansi_reserved_keywords,
+    reserved_mode="replace",
+    unreserved=clickhouse_unreserved_keywords - ansi_reserved_keywords,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function

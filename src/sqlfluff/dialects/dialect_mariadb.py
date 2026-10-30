@@ -42,12 +42,20 @@ Identifiers: |back_quotes|.
 
 The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
 )
-mariadb_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", mariadb_unreserved_keywords
-)
-mariadb_dialect.sets("reserved_keywords").clear()
-mariadb_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", mariadb_reserved_keywords
+# Reserved is MariaDB's complete reserved list, so reserved_mode is replace:
+# a reserved word mariadb inherits from mysql and doesn't list becomes
+# unreserved.
+mariadb_dialect.declare_keyword_sets(
+    reserved=mariadb_dialect.keywords_set_from_multiline_string(
+        mariadb_reserved_keywords
+    ),
+    reserved_mode="replace",
+    unreserved=mariadb_dialect.keywords_set_from_multiline_string(
+        mariadb_unreserved_keywords
+    ),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # MariaDB has no gb18030 character set, so `_gb18030'x'` is the column

@@ -65,10 +65,15 @@ ansi_dialect = load_raw_dialect("ansi")
 # Create new dialect as copy
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
-# Set keywords from separate file
-tsql_dialect.sets("reserved_keywords").update([
-    "CLUSTERED", "NONCLUSTERED", "ROWGUIDCOL", "TOP"
-])
+# Set keywords (usually from a separate keywords file)
+tsql_dialect.declare_keyword_sets(
+    reserved=["CLUSTERED", "NONCLUSTERED", "ROWGUIDCOL", "TOP"],
+    reserved_mode="add",
+    unreserved=[],
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 
 # Define new segments specific to T-SQL
 class TopClauseSegment(BaseSegment):
@@ -317,9 +322,36 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 )
 
-tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
-tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+tsql_dialect.declare_keyword_sets(
+    reserved=RESERVED_KEYWORDS,
+    reserved_mode="replace",
+    unreserved=UNRESERVED_KEYWORDS,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 ```
+
+### Keyword Statuses and the Audit
+
+Each keyword is reserved, unreserved, or unimplemented (the dialect's server
+doesn't have it), and a dialect sets them with one call to
+`declare_keyword_sets()`. Don't `sets("reserved_keywords").clear()`: it drops
+the parent's words, and any grammar that uses one then crashes the parser.
+
+How to set up a dialect's keywords, and how far to take reconciling them with
+the server, is in the docstring at the top of
+`test/dialects/keyword_reference_test.py`. That file also audits every dialect
+not in its `UNAUDITED_DIALECTS`. After changing any dialect's grammar or
+keywords, run:
+
+```bash
+python test/dialects/keyword_reference_test.py <dialect>
+```
+
+It reports problems for that dialect and every dialect that inherits from it,
+audited or not. Add `--level notice` to see inherited grammar the dialect's
+unimplemented words switch off.
 
 ## Common Dialect Patterns
 

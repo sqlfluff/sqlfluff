@@ -46,13 +46,14 @@ databricks_dialect = sparksql_dialect.copy_as(
     docstring="The dialect for `Databricks <https://databricks.com/>`_.",
 )
 
-databricks_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-databricks_dialect.sets("unreserved_keywords").update(
-    sparksql_dialect.sets("reserved_keywords")
+databricks_dialect.declare_keyword_sets(
+    reserved=RESERVED_KEYWORDS,
+    reserved_mode="replace",
+    unreserved=UNRESERVED_KEYWORDS,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
-databricks_dialect.sets("unreserved_keywords").difference_update(RESERVED_KEYWORDS)
-databricks_dialect.sets("reserved_keywords").clear()
-databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 

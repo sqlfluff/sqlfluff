@@ -16,26 +16,15 @@ def priority_keyword_merge(*args: list[tuple[str, str]]) -> list[tuple[str, str]
     *args is a list of keyword lists, these lists should be of tuples in the form
     (keyword, type)
 
+    The lists given are left as they are; the result is a new list.
     """
-    keyword_lists = [*args]
-    base_list = []
-    if len(keyword_lists) == 1:
-        return keyword_lists[0]
-
-    while len(keyword_lists) > 1:
-        base_list, priority_list = keyword_lists[0], keyword_lists[1]
-        keyword_set = {x[0] for x in base_list}
-        for item in priority_list:
-            if item[0] in keyword_set:
-                for index, keyword in enumerate(base_list):
-                    if keyword[0] == item[0]:
-                        base_list.pop(index)
-                        break
-            base_list.append(item)
-
-        keyword_lists.pop(1)
-
-    return base_list
+    merged: dict[str, str] = {}
+    for keyword_list in args:
+        for keyword, keyword_type in keyword_list:
+            # A later entry replaces an earlier one and moves to the end.
+            merged.pop(keyword, None)
+            merged[keyword] = keyword_type
+    return list(merged.items())
 
 
 def get_keywords(keyword_list: list[tuple[str, str]], keyword_type: str) -> list[str]:
@@ -749,7 +738,8 @@ postgres_docs_keywords = [
     ("SMALLSERIAL", "non-reserved-(cannot-be-function-or-type)"),
     ("SNAPSHOT", "non-reserved"),
     ("SOME", "reserved"),
-    ("SOURCE", "not-keyword"),
+    # Blank in PG13's table; non-reserved since PG17 (MERGE ... BY SOURCE).
+    ("SOURCE", "non-reserved"),
     ("SPACE", "not-keyword"),
     ("SPECIFIC", "not-keyword"),
     ("SPECIFICTYPE", "not-keyword"),
@@ -950,6 +940,8 @@ postgres_nondocs_keywords = [
     ("DETERMINISTIC", "non-reserved"),
     ("DISABLE_PAGE_SKIPPING", "non-reserved"),
     ("EXECUTION", "not-keyword"),
+    # Non-reserved since PG17 (MERGE ... BY TARGET); not in PG13's table.
+    ("TARGET", "non-reserved"),
     ("EXTENDED", "non-reserved"),
     ("FILE", "non-reserved"),
     ("FORCE_NOT_NULL", "non-reserved"),

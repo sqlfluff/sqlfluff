@@ -51,18 +51,16 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 """,
 )
 
-duckdb_dialect.sets("reserved_keywords").update(
-    [
+duckdb_dialect.declare_keyword_sets(
+    reserved=[
         "LAMBDA",
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
         "UNPIVOT",
-    ]
-)
-
-duckdb_dialect.sets("unreserved_keywords").update(
-    [
+    ],
+    reserved_mode="add",
+    unreserved=[
         "ANTI",
         "APPEND",
         "ASOF",
@@ -99,7 +97,10 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "VARIABLES",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
-    ]
+    ],
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Add plural datetime units for interval expressions

@@ -51,7 +51,8 @@ class GrammarInstData:
     first_terminator_idx: int
     terminator_count: int
     aux_data_offset: int
-    simple_hint_idx: int
+    # Position in simple_hints, or None: no hint, try a full match.
+    simple_hint_index: Optional[int]
     comment: str = ""
 
 
@@ -166,12 +167,17 @@ class TableBuilder:
         self.regex_to_id[pattern] = regex_id
         return regex_id
 
-    def _add_simple_hint(self, grammar, parse_context) -> int:
-        """Precompute and add simple hint. Returns hint_id (0 = None)."""
+    def _add_simple_hint(self, grammar, parse_context) -> Optional[int]:
+        """Precompute and add a simple hint, returning its position in simple_hints.
+
+        None is Python's simple() returning None: no hint, so the parser must
+        try a full match. An empty hint, for a grammar that can never match,
+        is a real hint with its own id.
+        """
         try:
             hint = grammar.simple(parse_context)
             if hint is None:
-                return 0  # 0 means no hint
+                return None
 
             # Create hashable key for deduplication
             raw_tuple = tuple(sorted(hint[0]))
@@ -196,8 +202,7 @@ class TableBuilder:
                 self.hint_string_indices.append(idx)
             token_types_count = len(type_indices)
 
-            # Add new hint (index 0 reserved for None)
-            hint_id = len(self.simple_hints) + 1
+            hint_id = len(self.simple_hints)
             self.simple_hints.append(
                 SimpleHintData(
                     raw_values_start=raw_values_start,
@@ -209,7 +214,7 @@ class TableBuilder:
             self.hint_to_id[key] = hint_id
             return hint_id
         except (RuntimeError, AttributeError):
-            return 0  # No hint available
+            return None  # No hint available
 
     def _flatten_optional(self, grammar, parse_context) -> Optional[int]:
         """Flatten optional grammar (e.g., exclude). Returns GrammarId or None."""
@@ -467,7 +472,7 @@ class TableBuilder:
                 first_terminator_idx=len(self.terminators),
                 terminator_count=0,
                 aux_data_offset=name_id,
-                simple_hint_idx=0,
+                simple_hint_index=None,
                 comment=comment,
             )
 
@@ -523,7 +528,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=name_id,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -571,7 +576,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=0,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -628,7 +633,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -693,7 +698,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -754,7 +759,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -824,7 +829,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -888,7 +893,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -950,7 +955,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -1015,7 +1020,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -1085,7 +1090,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -1151,7 +1156,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=comment,
         )
 
@@ -1167,7 +1172,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_index=self._add_simple_hint(grammar, parse_context),
             comment="Nothing",
         )
 
@@ -1193,7 +1198,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment="Anything",
         )
 
@@ -1244,7 +1249,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f"Meta(conditional: {config_key}={expected_value} -> {meta_type})",
         )
 
@@ -1269,7 +1274,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=type_id,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f'Meta("{type_name}")',
         )
 
@@ -1300,7 +1305,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=(f"PrecededBy(preceding_sequences={grammar.preceding_sequences})"),
         )
 
@@ -1342,7 +1347,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f'Token("{grammar.type}")',
         )
 
@@ -1358,7 +1363,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f"Missing({grammar.__class__.__name__})",
         )
 
@@ -1583,7 +1588,6 @@ class TableBuilder:
 
         # Simple hints - generate SimpleHintData with offsets into HINT_STRING_INDICES
         lines.append("pub static SIMPLE_HINTS: &[SimpleHintData] = &[")
-        lines.append("    SimpleHintData::empty(), // [0] reserved for no hint")
         for i, hint in enumerate(self.simple_hints):
             lines.append(
                 f"    SimpleHintData {{ "
@@ -1591,16 +1595,21 @@ class TableBuilder:
                 f"raw_values_count: {hint.raw_values_count}, "
                 f"token_types_start: {hint.token_types_start}, "
                 f"token_types_count: {hint.token_types_count} "
-                f"}}, // [{i + 1}]"
+                f"}}, // [{i}]"
             )
         lines.append("];")
         lines.append("")
 
-        # Simple hint indices per instruction (indexed by GrammarId)
+        # Simple hint position per instruction (indexed by GrammarId), or
+        # NO_SIMPLE_HINT, as the other tables mark "none" with 0xFFFFFFFF.
         lines.append("pub static SIMPLE_HINT_INDICES: &[u32] = &[")
         for i in range(0, len(self.instructions), 16):
-            chunk = [inst.simple_hint_idx for inst in self.instructions[i : i + 16]]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            chunk = [inst.simple_hint_index for inst in self.instructions[i : i + 16]]
+            line = (
+                "    "
+                + ", ".join("NO_SIMPLE_HINT" if x is None else str(x) for x in chunk)
+                + ","
+            )
             lines.append(line)
         lines.append("];")
         lines.append("")
@@ -1691,7 +1700,7 @@ def generate_parser_table_driven(dialect: str):
     print("use sqlfluffrs_types::{")
     print("    GrammarInst, GrammarVariant, GrammarFlags,")
     print("    ParseMode, GrammarId, GrammarTables,")
-    print("    SimpleHintData, RootGrammar")
+    print("    SimpleHintData, NO_SIMPLE_HINT, RootGrammar")
     print("};")
 
     # Build tables

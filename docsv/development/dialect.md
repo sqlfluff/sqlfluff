@@ -249,25 +249,111 @@ match this.
 
 ## Keywords
 
-Most dialects have a keywords file, listing all the keywords. Some dialects
-just inherit the ANSI keywords and then add or remove keywords from that.
-Not quite as accurate as managing the actual keywords, but a lot quicker
-and easier to manage usually!
+Most dialects have a keywords file, `dialect_<name>_keywords.py`, listing
+the keywords. Some dialects just inherit their parent's keywords and then add
+or recategorize some. Not quite as accurate as managing the actual keywords,
+but a lot quicker and easier to manage usually!
 
-Keywords are separated into RESERVED and UNRESERVED lists. RESERVED keywords
-have extra restrictions meaning they cannot be used as identifiers. If using
-a keyword in grammar (e.g. `"SELECT"`), then it needs to be in one of
-the Keywords lists so you may have to add it or you might see error's like
-this (showing `"NAN"` has not been added as a Keyword in this dialect)
+Each keyword has a status:
+
+- **Reserved**: a keyword everywhere. It can't be used as a bare name, such
+  as a column called `select`.
+- **Unreserved**: a keyword in some places, and an ordinary name in others.
+- **Unimplemented**: the dialect's database doesn't have it, so it is just a
+  name. The parts of inherited grammar that need it don't match in this
+  dialect; the rest of each rule still does.
+- **Future reserved**: the vendor says it will become reserved. This is a tag
+  rather than a status: it is never reserved, but it can also be unreserved
+  or unimplemented.
+
+Reserved, unreserved and unimplemented don't overlap.
+
+If grammar uses a word (e.g. `"SELECT"`), the word needs a status in the
+dialect, or you'll see an error like this (showing `"NAN"` has not been added
+as a keyword in this dialect):
 
 ```bash
-RuntimeError: Grammar refers to 'NanKeywordSegment' which was not found in the redshift dialect
+RuntimeError: Grammar refers to the 'NAN' keyword which was not found in the redshift dialect.
 ```
 
-Also if editing the main ANSI dialect, and adding the ANSI keyword list,
-then take care to consider if it needs added to the other dialects if they
-will inherit this syntax - usually yes unless explicitly overridden in those
-dialects.
+The parser raises this as soon as a statement reaches the rule that uses the
+word, even if the statement doesn't contain it. So one missing keyword can stop
+whole statements from parsing.
+
+### Setting keywords
+
+A dialect inherits every keyword's status from its parent and sets its own with
+one call in its dialect file:
+
+```python
+mariadb_dialect.declare_keyword_sets(
+    reserved=mariadb_dialect.keywords_set_from_multiline_string(
+        mariadb_reserved_keywords
+    ),
+    reserved_mode="replace",
+    unreserved=mariadb_dialect.keywords_set_from_multiline_string(
+        mariadb_unreserved_keywords
+    ),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
+```
+
+Each listed word gets that status. With `reserved_mode="replace"` the reserved
+list is the complete list, and any reserved word the dialect inherits but
+doesn't list becomes unreserved; with `"add"` the parent's reserved words stay.
+Nothing is ever dropped from having a present status. Avoid
+`sets("reserved_keywords").clear()`: it drops the parent's words, and any of
+the parent's grammar that uses one then crashes in your dialect.
+
+The full guide, from the essentials to reconciling every keyword with your
+database, is in the docstring at the top of
+`test/dialects/keyword_reference_test.py`.
+
+### The keyword audit
+
+`test/dialects/keyword_reference_test.py` audits every dialect not listed in
+its `UNAUDITED_DIALECTS`. For an audited dialect it fails if:
+
+- a word has two statuses that can't go together;
+- grammar refers to a keyword or segment the dialect doesn't have (a word that
+  is only future reserved counts: future reserved is a tag, not a status);
+- a keyword list holds something that isn't a word;
+- the dialect's own grammar uses one of its unimplemented words.
+
+For every dialect, audited or not, it also fails if:
+
+- grammar uses a keyword the lexer can never make into one token;
+- a parser registered as `<Word>KeywordSegment` doesn't match WORD;
+- a reserved or unreserved word's `<Word>KeywordSegment` isn't a parser (for
+  example a hand-made `Nothing()`);
+- an unimplemented word has a hand-made matcher under its name;
+- a keyword's `<Word>KeywordSegment` name is taken by a segment class, which
+  is an error, since grammar using that keyword crashes the parser.
+
+Each failure says what is wrong, where, and what has to become true, and is
+written for someone who changed a parent dialect and doesn't know this one. If
+you change a parent such as ANSI or MySQL, its children's tests tell you what
+your change does to them.
+
+### Finding these problems in any dialect
+
+Run the test file directly, with dialect names as arguments:
+
+```bash
+python test/dialects/keyword_reference_test.py tsql
+```
+
+It shows what the checks find in each named dialect and in every dialect that
+inherits from it, including unaudited ones, says when an unaudited dialect
+passes and can come off the list, and ends in PASS or FAIL. `--level notice`
+adds inherited grammar each dialect's unimplemented words switch off;
+`--level info` adds the keywords no grammar uses, and words that are only
+future reserved. `--no-children` leaves out the sections for the dialects
+that inherit from the named ones; they are still audited, and still count
+toward PASS or FAIL. Passing means nothing crashes and no check fails, not
+that a dialect's keyword lists match its database.
 
 ## Where to find the grammar for your database
 -------------------------------------------

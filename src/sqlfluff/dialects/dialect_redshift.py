@@ -56,14 +56,21 @@ The dialect for `Redshift`_ on Amazon Web Services (AWS).
 )
 
 # Set Keywords
-redshift_dialect.sets("unreserved_keywords").clear()
-redshift_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", redshift_unreserved_keywords
+# Reserved is Redshift's complete list, so reserved_mode is replace. A word in
+# both of redshift's lists stays reserved, as it always behaved.
+redshift_reserved = redshift_dialect.keywords_set_from_multiline_string(
+    redshift_reserved_keywords
 )
-
-redshift_dialect.sets("reserved_keywords").clear()
-redshift_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", redshift_reserved_keywords
+redshift_dialect.declare_keyword_sets(
+    reserved=redshift_reserved,
+    reserved_mode="replace",
+    unreserved=redshift_dialect.keywords_set_from_multiline_string(
+        redshift_unreserved_keywords
+    )
+    - redshift_reserved,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 redshift_dialect.sets("bare_functions").clear()

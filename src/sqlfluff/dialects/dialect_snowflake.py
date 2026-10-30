@@ -1421,14 +1421,21 @@ snowflake_dialect.replace(
 )
 
 # Add all Snowflake keywords
-snowflake_dialect.sets("unreserved_keywords").clear()
-snowflake_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", snowflake_unreserved_keywords
+# Reserved is snowflake's complete list, so reserved_mode is replace. A word in both
+# of snowflake's lists stays reserved, as it always behaved.
+snowflake_reserved = snowflake_dialect.keywords_set_from_multiline_string(
+    snowflake_reserved_keywords
 )
-
-snowflake_dialect.sets("reserved_keywords").clear()
-snowflake_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", snowflake_reserved_keywords
+snowflake_dialect.declare_keyword_sets(
+    reserved=snowflake_reserved,
+    reserved_mode="replace",
+    unreserved=snowflake_dialect.keywords_set_from_multiline_string(
+        snowflake_unreserved_keywords
+    )
+    - snowflake_reserved,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
 )
 
 # Add datetime units and their aliases from

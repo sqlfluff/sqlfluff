@@ -58,8 +58,19 @@ FlinkSQL supports advanced features like:
 )
 
 # Update keywords - extend ANSI keywords instead of replacing them
-flink_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
-flink_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+# A word flink lists as unreserved that is reserved, in its own list or in the
+# ANSI keywords it adds to, stays reserved, as it always behaved.
+flink_reserved = set(RESERVED_KEYWORDS)
+flink_dialect.declare_keyword_sets(
+    reserved=flink_reserved,
+    reserved_mode="add",
+    unreserved=set(UNRESERVED_KEYWORDS)
+    - flink_reserved
+    - set(ansi_dialect.sets("reserved_keywords")),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+)
 
 # Add FlinkSQL-specific lexer patterns
 flink_dialect.patch_lexer_matchers(
