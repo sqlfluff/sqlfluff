@@ -16,6 +16,25 @@ from sqlfluff.core.templaters.base import (
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
 
 
+class Dbt2TemplatedFile(TemplatedFile):
+    """Use proven literal spans without absorbing skipped Jinja at a boundary."""
+
+    def templated_slice_to_source_slice(self, template_slice: slice) -> slice:
+        """Map a replacement within one literal emission to its exact source."""
+        if template_slice.start < template_slice.stop:
+            for item in self.sliced_file:
+                if (
+                    item.slice_type == "literal"
+                    and item.templated_slice.start <= template_slice.start
+                    and template_slice.stop <= item.templated_slice.stop
+                ):
+                    offset = item.source_slice.start - item.templated_slice.start
+                    return slice(
+                        template_slice.start + offset, template_slice.stop + offset
+                    )
+        return super().templated_slice_to_source_slice(template_slice)
+
+
 def normalize_newlines(value: str) -> str:
     """Follow SQLFluff's source loader when crossing the Rust file boundary."""
     return value.replace("\r\n", "\n").replace("\r", "\n")
@@ -33,6 +52,28 @@ def _byte_positions(value: str) -> dict[int, int]:
         positions[byte] = index
         previous = char
     return positions
+
+
+def _raw_slices(source: str, env: Environment) -> list[RawFileSlice]:
+    """Retain source whitespace omitted by Jinja2's raw-end tokenization."""
+    raw = JinjaAnalyzer(source, env).analyze(lambda _: "").raw_sliced
+    result = []
+    cursor = 0
+    for item in raw:
+        start = source.index(item.raw, cursor)
+        gap = source[cursor:start]
+        if gap:
+            if not gap.isspace():
+                raise ValueError("Jinja lexical analysis omitted non-whitespace source")
+            result.append(RawFileSlice(gap, "templated", cursor, item.block_idx))
+        result.append(item._replace(source_idx=start))
+        cursor = start + len(item.raw)
+    if cursor < len(source):
+        gap = source[cursor:]
+        if not gap.isspace():
+            raise ValueError("Jinja lexical analysis omitted non-whitespace source")
+        result.append(RawFileSlice(gap, "templated", cursor))
+    return result
 
 
 def _validate_blocks(sliced: list[TemplatedFileSlice]) -> None:
@@ -109,7 +150,7 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
         extensions=["jinja2.ext.do", "jinja2.ext.loopcontrols"],
         keep_trailing_newline=True,
     )
-    raw = JinjaAnalyzer(source, env).analyze(lambda _: "").raw_sliced
+    raw = _raw_slices(source, env)
     events: list[tuple[str, slice, slice]] = []
     macros: list[tuple[slice, slice]] = []
     for event in trace["events"]:
@@ -210,7 +251,7 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
     if not sliced:
         sliced = [TemplatedFileSlice("literal", slice(0, 0), slice(0, 0))]
     _validate_blocks(sliced)
-    return TemplatedFile(
+    return Dbt2TemplatedFile(
         source_str=source,
         fname=fname,
         templated_str=rendered,

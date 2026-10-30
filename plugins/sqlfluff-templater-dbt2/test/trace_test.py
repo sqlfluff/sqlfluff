@@ -3,11 +3,14 @@
 import copy
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+from sqlfluff_templater_dbt2 import trace as trace_module
 from sqlfluff_templater_dbt2.trace import normalize_newlines, trace_to_templated_file
 
 from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.templaters.base import RawFileSlice
 
 
 @pytest.mark.parametrize(
@@ -127,4 +130,20 @@ def test_elif_duplicate_close_is_a_templater_error():
         )
     )
     with pytest.raises(SQLTemplaterError, match="unmatched block_end"):
+        trace_to_templated_file(trace, trace["source"], "model.sql")
+
+
+@pytest.mark.parametrize("side", ["prefix", "suffix"])
+def test_lexical_repair_rejects_nonwhitespace_gaps(side, traces, monkeypatch):
+    """Source-token realignment must never guess past omitted non-whitespace."""
+    trace = traces["literal"]
+    source = trace["source"]
+    raw = [RawFileSlice(source, "literal", 0)]
+    trace["source"] = "missing" + source if side == "prefix" else source + "missing"
+    monkeypatch.setattr(
+        trace_module.JinjaAnalyzer,
+        "analyze",
+        lambda *_: SimpleNamespace(raw_sliced=raw),
+    )
+    with pytest.raises(SQLTemplaterError, match="omitted non-whitespace"):
         trace_to_templated_file(trace, trace["source"], "model.sql")

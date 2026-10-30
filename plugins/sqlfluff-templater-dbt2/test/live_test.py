@@ -173,3 +173,55 @@ def test_live_disabled_models_warn_without_template_errors(
         for file in directory.files
     )
     assert len(calls) == 1
+
+
+def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch):
+    """Consume the raw/block/loop provenance corrected in dbt's Copilot review."""
+    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
+    project = tmp_path / "project"
+    shutil.copytree(Path(__file__).parent / "fixtures/project", project)
+    cases = {
+        "raw": (
+            "{% raw -%} select 1 {%- endraw %}\n",
+            "{% raw -%} SELECT 1 {%- endraw %}\n",
+        ),
+        "blocks": (
+            "select {% block columns %}{% block nested %}1{% endblock %}{% endblock %} as n\n",
+            "SELECT {% block columns %}{% block nested %}1{% endblock %}{% endblock %} AS n\n",
+        ),
+        "loop_else": (
+            "{% for x in [1, 2] %}select {{ x }};{% else %}select 0{% endfor %}\n",
+            "{% for x in [1, 2] %}SELECT {{ x }};{% else %}select 0{% endfor %}\n",
+        ),
+        "empty_else": (
+            "{% for x in [] %}select {{ x }};{% else %}select 0{% endfor %}\n",
+            "{% for x in [] %}select {{ x }};{% else %}SELECT 0{% endfor %}\n",
+        ),
+        "filtered": (
+            "{% for n in [1, 2, 3] if n == 3 %}select {{ n }};{% endfor %}\n",
+            "{% for n in [1, 2, 3] if n == 3 %}SELECT {{ n }};{% endfor %}\n",
+        ),
+        "filtered_empty": (
+            "{% for n in [1, 2, 3] if n > 3 %}select {{ n }};{% endfor %}select 0\n",
+            "{% for n in [1, 2, 3] if n > 3 %}select {{ n }};{% endfor %}SELECT 0\n",
+        ),
+    }
+    paths = []
+    for name, (source, _) in cases.items():
+        path = project / "models" / f"{name}.sql"
+        path.write_text(source, encoding="utf-8")
+        paths.append(str(path))
+    (project / ".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = dbt2\ndialect = duckdb\nrules = CP01\n"
+        f"[sqlfluff:templater:dbt2]\nproject_dir = {project}\nprofiles_dir = {project}\n"
+        "[sqlfluff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n",
+        encoding="utf-8",
+    )
+    result = Linter(config=FluffConfig.from_path(str(project))).lint_paths(
+        paths, fix=True, processes=2
+    )
+    files = [file for directory in result.paths for file in directory.files]
+    assert len(files) == len(cases)
+    for file in files:
+        assert not file.get_violations(types=(SQLTemplaterError, SQLParseError))
+        assert file.fix_string()[0] == cases[Path(file.path).stem][1]

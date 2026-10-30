@@ -5,8 +5,9 @@ This SQLFluff draft consumes the artifact proposed by
 implemented in dbt; this repository implements the consumer.
 
 The tested producer revision is
-[`326f7fa20`](https://github.com/alanmcruickshank/dbt/commit/326f7fa20fc9f291ccbebbf949f97bb0bbadb7d7),
-including the elif closing-event fix and based on upstream `a00368446`. It reports `dbt-oss 2.0.8`. A released binary
+[`20498df42`](https://github.com/alanmcruickshank/dbt/commit/20498df42f0f87b054ba09aa577d5358ffef2266),
+including the elif, raw-span, loop and buffered-render fixes, and based on
+upstream `335cf309c`. It reports `dbt-oss 2.0.8`. A released binary
 with the same version number does not contain the proposed feature merely
 because its version matches. The revision identifies our validation build;
 the plugin does not pin or inspect commit hashes.
@@ -23,7 +24,7 @@ install the Python distribution:
 ```sh
 git clone https://github.com/alanmcruickshank/dbt.git
 cd dbt
-git checkout 326f7fa20fc9f291ccbebbf949f97bb0bbadb7d7
+git checkout 20498df42f0f87b054ba09aa577d5358ffef2266
 python -m pip install maturin
 python -m maturin build --manifest-path crates/dbt-sa-python/Cargo.toml --out dist
 # Install the wheel produced above into the SQLFluff test environment:
@@ -47,8 +48,8 @@ The consumer invokes:
 dbt compile --select path:models/example.sql --feature write_render_trace
 ```
 
-The [producer's design notes](https://github.com/alanmcruickshank/dbt/blob/326f7fa20fc9f291ccbebbf949f97bb0bbadb7d7/docs/architecture/render-trace.md)
-and [short JSON example](https://github.com/alanmcruickshank/dbt/blob/326f7fa20fc9f291ccbebbf949f97bb0bbadb7d7/crates/dbt-tasks-sa/tests/fixtures/render_trace/example.render_trace.json)
+The [producer's design notes](https://github.com/alanmcruickshank/dbt/blob/20498df42f0f87b054ba09aa577d5358ffef2266/docs/architecture/render-trace.md)
+and [short JSON example](https://github.com/alanmcruickshank/dbt/blob/20498df42f0f87b054ba09aa577d5358ffef2266/crates/dbt-tasks-sa/tests/fixtures/render_trace/example.render_trace.json)
 describe the format. SQLFluff depends on:
 
 - Protocol version 1 and the `jinja_before_ephemeral_injection` render stage.

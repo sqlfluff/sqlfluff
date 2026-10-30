@@ -99,6 +99,9 @@ original Jinja source to account for source-only tags and skipped text. The
 consumer never guesses an executed branch from identical output strings.
 Repeated loop output can map to the same original source region. Generated
 macro output remains nonliteral and is not eligible for direct source fixes.
+Whitespace omitted by Jinja2's source tokenization is retained as source-only
+text. Replacements within a proven literal emission use that exact source span;
+edits crossing emission boundaries retain SQLFluff's conservative mapping.
 
 The trace describes Jinja SQL **before ephemeral CTE injection**. The consumer
 uses the trace's own `rendered` string, not the final compiled SQL file.

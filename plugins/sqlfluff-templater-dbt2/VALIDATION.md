@@ -2,12 +2,13 @@
 
 Validated on Windows x86-64, Python 3.13.5, against the Python ABI3 wheel built
 from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
-`326f7fa20fc9f291ccbebbf949f97bb0bbadb7d7`.
+`20498df42f0f87b054ba09aa577d5358ffef2266` (production fixes through
+`b5b9f0e26`, followed by test-only cleanup).
 
 ## Checks
 
-- Passed 83 ordinary consumer tests, seven legacy-plugin version-selection
-  tests and three live integration tests (93 tests total).
+- Passed 87 ordinary consumer tests, seven legacy-plugin version-selection
+  tests and four live integration tests (98 tests total).
 - Passed the repository's complete pre-commit checks, including formatting,
   linting, type checking, spelling and YAML checks.
 - Built the source distribution and a `py3-none-any` wheel. The wheel contains
@@ -33,6 +34,9 @@ from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
   A disabled model produces a skip warning without a templater error.
   Fixes also preserve the source's final newline when dbt strips it from a
   wholly literal model's rendered output.
+  The review regression pass fixes six models with raw whitespace control,
+  nested named blocks, empty/nonempty for/else and filtered loops using two
+  workers, preserving tags, stripped whitespace and unexecuted source.
 
 The debug runtime needed `RUST_LOG=debug` and `DBT_LOG_LEVEL=debug` in the test
 environment. Those are inherited by child processes, not forced by the plugin.
