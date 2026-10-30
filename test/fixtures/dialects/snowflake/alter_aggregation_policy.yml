@@ -1,0 +1,103 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 82f6a436cbf73d0c94e0f680c3c9f3ea6ca84f053d980cfab3f3cb16a72068e5
+file:
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: SET
+    - keyword: BODY
+    - function_assigner: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: AGGREGATION_CONSTRAINT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              snowflake_keyword_expression:
+                parameter: MIN_GROUP_SIZE
+                parameter_assigner: =>
+                numeric_literal: '10'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_agg_policy
+- statement_terminator: ;
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+        - naked_identifier: governance
+        - dot: .
+        - naked_identifier: tags
+        - dot: .
+        - naked_identifier: owner
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'data_team'"
+- statement_terminator: ;
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+      - naked_identifier: governance
+      - dot: .
+      - naked_identifier: tags
+      - dot: .
+      - naked_identifier: owner
+- statement_terminator: ;
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'updated'"
+- statement_terminator: ;
+- statement:
+    alter_aggregation_policy_statement:
+    - keyword: ALTER
+    - keyword: AGGREGATION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_agg_policy
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
