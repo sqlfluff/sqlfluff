@@ -1384,6 +1384,127 @@ impl<'a> Parser<'a> {
         true
     }
 
+    /// Skip whitespace and meta tokens forwards from `idx`.
+    fn skip_gaps_forward(&self, mut idx: usize) -> usize {
+        while idx < self.tokens.len() {
+            let tok = &self.tokens[idx];
+            if tok.is_meta || tok.token_type.as_ref() == "whitespace" {
+                idx += 1;
+            } else {
+                break;
+            }
+        }
+        idx
+    }
+
+    /// Skip whitespace and meta tokens backwards from `idx`.
+    fn skip_gaps_backward(&self, mut idx: isize) -> isize {
+        while idx >= 0 {
+            let tok = &self.tokens[idx as usize];
+            if tok.is_meta || tok.token_type.as_ref() == "whitespace" {
+                idx -= 1;
+            } else {
+                break;
+            }
+        }
+        idx
+    }
+
+    /// Check whether `idx` (which may be out of bounds) sits on a line boundary.
+    ///
+    /// Out of bounds means the start or end of the stream, which counts as a
+    /// boundary.
+    fn is_line_boundary(&self, idx: isize) -> bool {
+        if idx < 0 || idx as usize >= self.tokens.len() {
+            return true;
+        }
+        self.tokens[idx as usize].token_type.as_ref() == "newline"
+    }
+
+    /// Handle StandaloneLine using table-driven approach.
+    ///
+    /// Matches the inner raw string on its own line, ignoring whitespace and meta.
+    /// By default, comments prevent a match. A configured resume-keyword list
+    /// allows a trailing comment when the next non-gap token is a keyword or EOF.
+    pub(crate) fn handle_standalone_line(
+        &mut self,
+        grammar_id: GrammarId,
+    ) -> Result<MatchResult, ParseError> {
+        if self.pos >= self.tokens.len() {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+        if !self.tokens[self.pos].is_code() {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let prev = self.skip_gaps_backward(self.pos as isize - 1);
+        if !self.is_line_boundary(prev) {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let tables = self.grammar_ctx.tables();
+        let (aux_offset, aux_end) = aux_block_bounds(tables, grammar_id);
+        // aux block: [template_id, keyword_count, keyword_ids...]. The count
+        // keeps the keyword list self-delimiting: aux_data blocks are not
+        // stored in grammar-id order, so `aux_end` can only be an upper bound.
+        let keyword_start = aux_offset + 2;
+        let keyword_count = if aux_offset + 1 < aux_end {
+            tables.aux_data[aux_offset + 1] as usize
+        } else {
+            0
+        };
+        let keyword_ids: &[u32] = if keyword_start < aux_end {
+            &tables.aux_data[keyword_start..(keyword_start + keyword_count).min(aux_end)]
+        } else {
+            &[]
+        };
+        let next = self.skip_gaps_forward(self.pos + 1);
+        if !self.is_line_boundary(next as isize) {
+            if keyword_ids.is_empty() || !self.tokens[next].is_comment() {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+            let mut i = next;
+            while i < self.tokens.len()
+                && (self.tokens[i].is_comment()
+                    || self.tokens[i].is_meta
+                    || self.tokens[i].token_type.as_ref() == "whitespace")
+            {
+                i += 1;
+            }
+            if i < self.tokens.len() && self.tokens[i].token_type.as_ref() != "newline" {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+            while i < self.tokens.len()
+                && (self.tokens[i].is_comment()
+                    || self.tokens[i].is_meta
+                    || self.tokens[i].token_type.as_ref() == "whitespace"
+                    || self.tokens[i].token_type.as_ref() == "newline")
+            {
+                i += 1;
+            }
+            if i < self.tokens.len()
+                && !keyword_ids
+                    .iter()
+                    .any(|id| self.tokens[i].raw_upper() == tables.get_string(*id))
+            {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+        }
+        let expected = tables.get_string(tables.aux_data[aux_offset]);
+
+        if self.tokens[self.pos].raw_upper() != expected {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let token_pos = self.pos;
+        self.bump();
+
+        Ok(MatchResult {
+            matched_slice: token_pos..token_pos + 1,
+            ..Default::default()
+        })
+    }
+
     /// Handle Token using table-driven approach
     pub(crate) fn handle_token(
         &mut self,
