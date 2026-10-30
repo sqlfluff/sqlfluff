@@ -951,7 +951,7 @@ def _keyword_names_taken_by_classes(dialect: Dialect) -> dict[str, tuple[str, st
     dialect module imports it, as ansi does LiteralKeywordSegment. If that
     name is also the one a keyword resolves to, expand() makes no parser for
     the word, and grammar that uses it gets the class instead: a statement
-    reaching it fails to parse. Found for any word grammar uses or any word
+    reaching it crashes the parser. Found for any word grammar uses or any word
     in a keyword set, used or not. Returns each word with why it counts and
     the dialect module that defined the class.
     """
@@ -984,7 +984,7 @@ def _keyword_names_taken_by_classes_message(
         f"These keywords' <Word>KeywordSegment names in {name} are taken by a "
         "segment class, which a dialect module imported or defined. expand() "
         "makes no parser for such a word, so grammar that uses it gets the "
-        "class instead, and a statement that reaches it fails to parse. "
+        "class instead, and a statement that reaches it crashes the parser. "
         "Rename the class, or stop treating the word as a keyword."
     ]
     for word, (why, module) in sorted(found.items()):
@@ -2199,7 +2199,7 @@ def _audit_findings(name: str, dialect: Dialect) -> list[Finding]:
         findings.append(
             Finding(
                 "Keyword names taken by a segment class",
-                "warning",
+                "error",
                 len(taken),
                 _keyword_names_taken_by_classes_message(dialect, taken),
             )
