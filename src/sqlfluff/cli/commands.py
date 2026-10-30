@@ -1078,13 +1078,19 @@ def lint(
 
     output_stream.close()
     if bench:
-        click.echo("==== overall timings ====")
-        click.echo(formatter.cli_table([("Clock time", result.total_time)]))
+        # For machine-readable formats, send timings to stderr so that
+        # stdout remains valid (e.g. parseable JSON). See #8490.
+        bench_err = non_human_output
+        click.echo("==== overall timings ====", err=bench_err)
+        click.echo(
+            formatter.cli_table([("Clock time", result.total_time)]), err=bench_err
+        )
         timing_summary = result.timing_summary()
         for step in timing_summary:
-            click.echo(f"=== {step} ===")
+            click.echo(f"=== {step} ===", err=bench_err)
             click.echo(
-                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20)
+                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20),
+                err=bench_err,
             )
 
     if not nofail:
