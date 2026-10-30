@@ -1,0 +1,96 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bce3ca4b684d079f1a5d9153a4f70dbfc3124597647cd5da906cc6c4cbb9987b
+file:
+- statement:
+    attach_statement:
+      keyword: ATTACH
+      quoted_literal: "'file.db'"
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+    - bracketed:
+        start_bracket: (
+        parameter: READ_ONLY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: DATABASE
+    - quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: file_db
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: OR
+    - keyword: REPLACE
+    - quoted_literal: "'file2.db'"
+    - keyword: AS
+    - naked_identifier: file_db
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+    - bracketed:
+        start_bracket: (
+        parameter: TYPE
+        naked_identifier: sqlite
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+    - bracketed:
+      - start_bracket: (
+      - parameter: READ_ONLY
+      - comma: ','
+      - parameter: TYPE
+      - naked_identifier: sqlite
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    detach_statement:
+      keyword: DETACH
+      naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    detach_statement:
+    - keyword: DETACH
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: mydb
+- statement_terminator: ;
