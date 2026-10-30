@@ -173,14 +173,20 @@ class Dialect:
         skipped. A word listed twice is refused: it is a mistake in the
         keyword file, which a set would otherwise hide.
         """
-        words = [line.strip().upper() for line in values.splitlines() if line.strip()]
-        repeated = sorted(word for word, count in Counter(words).items() if count > 1)
-        if repeated:
+        stripped = (line.strip().upper() for line in values.splitlines())
+        words = [word for word in stripped if word]
+        keywords = set(words)
+        # The set is shorter only if a word is repeated. Finding which is only
+        # needed then, on the way to the error.
+        if len(keywords) != len(words):
+            repeated = sorted(
+                word for word, count in Counter(words).items() if count > 1
+            )
             raise ValueError(
                 f"These keywords are listed more than once: {', '.join(repeated)}. "
                 "Keep one of each."
             )
-        return set(words)
+        return keywords
 
     @staticmethod
     def _keyword_words(
