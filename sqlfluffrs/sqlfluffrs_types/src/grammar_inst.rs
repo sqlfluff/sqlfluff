@@ -53,6 +53,14 @@ pub enum GrammarVariant {
     Missing = 16,
     Token = 17,
     PrecededBy = 18,
+    /// Oracle-specific: matches a bare `/` only when it stands on its own
+    /// line — i.e. the previous code-relevant token is a newline or the
+    /// start of input, and the next code-relevant token is a newline, an
+    /// `end_of_file` meta, or the end of the input. Distinguishes the
+    /// SQL*Plus slash-buffer-executor batch delimiter from the arithmetic
+    /// division operator so it can safely terminate the SELECT body of a
+    /// `CREATE VIEW ... AS SELECT`.
+    StandaloneSlashTerminator = 19,
 }
 
 // /// Parse mode for grammar matching (1 byte)
