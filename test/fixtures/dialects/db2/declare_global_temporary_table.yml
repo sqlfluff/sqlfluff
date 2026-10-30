@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c49735cc4fa31ea57cc9347534d097600ff73cca7803ff5de34178d4798bf59
+_hash: 97e4553fe8d26dc408c5302267fe1b0f67a5efe0109d037e85dfa74694aaba35
 file:
 - statement:
     declare_temp_table:
@@ -139,9 +139,10 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         end_bracket: )
-    - keyword: ORGANIZE
-    - keyword: BY
-    - keyword: ROW
+    - table_organization_clause:
+      - keyword: ORGANIZE
+      - keyword: BY
+      - keyword: ROW
 - statement_terminator: ;
 - statement:
     declare_temp_table:
@@ -166,9 +167,10 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         end_bracket: )
-    - keyword: ORGANIZE
-    - keyword: BY
-    - keyword: COLUMN
+    - table_organization_clause:
+      - keyword: ORGANIZE
+      - keyword: BY
+      - keyword: COLUMN
 - statement_terminator: ;
 - statement:
     declare_temp_table:
@@ -844,9 +846,10 @@ file:
     - keyword: IN
     - tablespace_reference:
         naked_identifier: USERTEMPSPACE1
-    - keyword: ORGANIZE
-    - keyword: BY
-    - keyword: ROW
+    - table_organization_clause:
+      - keyword: ORGANIZE
+      - keyword: BY
+      - keyword: ROW
     - keyword: 'ON'
     - keyword: COMMIT
     - keyword: PRESERVE
@@ -898,9 +901,10 @@ file:
           column_reference:
             naked_identifier: COL1
           end_bracket: )
-    - keyword: ORGANIZE
-    - keyword: BY
-    - keyword: COLUMN
+    - table_organization_clause:
+      - keyword: ORGANIZE
+      - keyword: BY
+      - keyword: COLUMN
     - keyword: 'ON'
     - keyword: COMMIT
     - keyword: PRESERVE
