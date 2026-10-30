@@ -3,11 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dcfb07f6fc71f3dd10392a2d04f906f6919c6a7eef9520ede0d396c2125a8f52
+_hash: f929fd6c4998a6be65d3d8b7c2316409583e5c4e71835043030ce7d46d3312e3
 file:
 - statement:
     magic_cell_segment:
     - magic_single_line: '-- MAGIC %md # Dummy Notebook'
+    - magic_line: -- MAGIC
     - magic_line: -- MAGIC Some prose describing the pipeline, on the lines after
         a magic
     - magic_line: -- MAGIC directive that already carried content of its own.
@@ -35,6 +36,12 @@ file:
     magic_cell_segment:
       magic_single_line: -- MAGIC %sh echo hello
       magic_line: -- MAGIC echo world
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      magic_start: -- MAGIC %md
+      magic_line: '-- MAGIC Some prose quoting a magic command:'
+      magic_single_line: -- MAGIC %pip within a Python notebook.
 - command_cell: -- COMMAND ----------
 - statement:
     select_statement:

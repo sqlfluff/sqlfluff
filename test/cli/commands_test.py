@@ -178,6 +178,28 @@ def test__cli__command_no_dialect_stdin_filename_inline_dialect(command):
     assert "Traceback (most recent call last)" not in result.stderr
 
 
+@pytest.mark.parametrize("command", [render, parse, lint, cli_format, fix])
+@pytest.mark.parametrize("inline_dialect", [False, True])
+def test__cli__command_file_inline_dialect(command, inline_dialect, tmp_path):
+    """File directives can provide a dialect, but a missing dialect still errors."""
+    sql_file = tmp_path / "inline_dialect.sql"
+    sql = "SELECT TOP (1) [name] FROM [users];\n"
+    if inline_dialect:
+        sql = "-- sqlfluff:dialect:tsql\n" + sql
+    sql_file.write_text(sql)
+
+    result = invoke_assert_code(
+        ret_code=0 if inline_dialect else 2,
+        args=[command, ["--ignore-local-config", str(sql_file)]],
+    )
+    if inline_dialect:
+        assert "User Error" not in result.stderr
+        assert "No dialect was specified" not in result.stderr
+    else:
+        assert "No dialect was specified" in result.stderr
+    assert "Traceback (most recent call last)" not in result.stderr
+
+
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
@@ -444,6 +466,34 @@ def test__cli__command_render_stdin():
         cli_input=sql,
         # Check we get back out the same file we input.
         assert_stdout_contains=sql,
+    )
+
+
+@pytest.mark.parametrize(
+    ("stdin_filename", "ret_code", "stdout"),
+    [
+        ("sub/foo.sql", 0, "SELECT 123"),
+        (None, 1, "Undefined jinja template variable: 'myvar'"),
+    ],
+)
+def test__cli__command_render_stdin_filename_config(
+    tmp_path, monkeypatch, stdin_filename, ret_code, stdout
+):
+    """Check render loads the Jinja context from the indicated stdin path."""
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff:templater:jinja:context]\nmyvar = 123\n"
+    )
+    monkeypatch.chdir(tmp_path)
+    args = ["--dialect=ansi", "-"]
+    if stdin_filename:
+        args.extend(["--stdin-filename", stdin_filename])
+    invoke_assert_code(
+        ret_code=ret_code,
+        args=[render, args],
+        cli_input="SELECT {{ myvar }}",
+        assert_stdout_contains=stdout,
     )
 
 
@@ -1674,6 +1724,89 @@ WHERE processdate ! 3
         assert not os.path.isfile(fixed_path)
 
 
+@pytest.mark.parametrize("command", [fix, cli_format], ids=["fix", "format"])
+@pytest.mark.parametrize(
+    "config_suffix, cli_suffix, expected_suffix",
+    [
+        ("_fixed", None, "_fixed"),
+        ("0", None, "0"),
+        ("123", None, "123"),
+        ("_fixed", "_cli", "_cli"),
+        ("_fixed", "", ""),
+        (None, None, ""),
+    ],
+    ids=[
+        "config",
+        "config-numeric-zero",
+        "config-numeric-nonzero",
+        "cli-override",
+        "explicit-empty",
+        "default",
+    ],
+)
+def test_cli_fixed_suffix_configuration(
+    command, config_suffix, cli_suffix, expected_suffix, tmp_path, monkeypatch
+):
+    """A CLI suffix overrides config, including an explicitly empty suffix."""
+    source = tmp_path / "query.sql"
+    source_sql = "SELECT  a FROM t;\n"
+    source.write_text(source_sql)
+    config = "[sqlfluff]\ndialect = ansi\n"
+    if config_suffix is not None:
+        config += f"fixed_suffix = {config_suffix}\n"
+    (tmp_path / ".sqlfluff").write_text(config)
+    monkeypatch.chdir(tmp_path)
+
+    args = ["--disable-progress-bar"]
+    if command is fix:
+        args += ["--rules", "LT01"]
+    if cli_suffix is not None:
+        args += ["--fixed-suffix", cli_suffix]
+    invoke_assert_code(ret_code=0, args=[command, args + ["query.sql"]])
+
+    output = tmp_path / f"query{expected_suffix}.sql"
+    assert output.read_text() == "SELECT a FROM t;\n"
+    assert source.read_text() == (source_sql if expected_suffix else output.read_text())
+    assert sorted(path.name for path in tmp_path.glob("*.sql")) == (
+        ["query.sql"] if not expected_suffix else ["query.sql", output.name]
+    )
+
+
+def test_cli_fixed_suffix_check_confirmation(tmp_path, monkeypatch):
+    """Fix --check uses the configured suffix after confirmation."""
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\nfixed_suffix = _fixed\n"
+    )
+    source = tmp_path / "query.sql"
+    source.write_text("SELECT  a FROM t;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=0,
+        args=[fix, ["--rules", "LT01", "--check", "query.sql"]],
+        cli_input="y",
+    )
+    assert source.read_text() == "SELECT  a FROM t;\n"
+    assert (tmp_path / "query_fixed.sql").read_text() == "SELECT a FROM t;\n"
+
+
+@pytest.mark.parametrize("command", [fix, cli_format], ids=["fix", "format"])
+def test_cli_fixed_suffix_stdin(command, tmp_path, monkeypatch):
+    """Configured suffix does not change the stdin-to-stdout fix path."""
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\nfixed_suffix = _fixed\n"
+    )
+    monkeypatch.chdir(tmp_path)
+    args = ["--disable-progress-bar"]
+    if command is fix:
+        args += ["--rules", "LT01"]
+    result = invoke_assert_code(
+        ret_code=0, args=[command, args + ["-"]], cli_input="SELECT  a FROM t;\n"
+    )
+    assert result.stdout == "SELECT a FROM t;\n"
+    assert list(tmp_path.glob("*.sql")) == []
+
+
 @pytest.mark.parametrize(
     "stdin,rules,stdout",
     [
@@ -2686,7 +2819,7 @@ def test__cli__command_lint_serialize_gitlab_parse_error():
     assert result == [
         {
             "check_name": "PRS",
-            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'",
+            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'. Expected: <Delimited: [<Ref: 'SelectClauseElementSegment'>]> after <WordSegment: ([L:  1, ...",
             "severity": "major",
             "fingerprint": "9319cfff6469f2165074d8033911e5b7",
             "location": {

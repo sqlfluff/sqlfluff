@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de02e3e72f7ef9d1fc5482b65b2161192b8ead1697ca1cd8e0a26f9483fdd36a
+_hash: 07b619ddf5fc5bfb1759d57d31c1fac97309ad8309c8287dd9b559e9bdae00d3
 file:
 - statement:
     access_statement:
@@ -95,8 +95,7 @@ file:
             keyword: READ
       - keyword: 'ON'
       - access_object:
-          object_reference:
-            naked_identifier: METASTORE
+          keyword: METASTORE
       - keyword: FROM
       - access_target:
           role_reference:

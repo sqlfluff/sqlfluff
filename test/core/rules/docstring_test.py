@@ -5,6 +5,7 @@ import re
 import pytest
 
 from sqlfluff import lint
+from sqlfluff.core.helpers.dict import nested_combine
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 # NOTE: python 3.13 treats docstring whitespace differently to previous
@@ -65,3 +66,23 @@ def test_backtick_replace():
     # ``DISTINCT`` used with parentheses.
     # Check the double bacticks (``) get replaced by a single quote (').
     assert result[0]["description"] == "'DISTINCT' used with parentheses."
+
+
+def test_default_config_keys_are_config_keywords():
+    """Test each rule declares the keys its default config section sets.
+
+    The **Configuration** section of the rule docs is built from
+    ``config_keywords``, so an undeclared key is missing from the docs.
+    """
+    plugin_manager = get_plugin_manager()
+    defaults = nested_combine(*plugin_manager.hook.load_default_config())
+    rule_defaults = defaults["rules"]
+    for plugin_rules in plugin_manager.hook.get_rules():
+        for rule in plugin_rules:
+            section = rule_defaults.get(rule.get_config_ref(), {})
+            assert isinstance(section, dict)
+            undeclared = set(section) - set(rule.config_keywords)
+            assert not undeclared, (
+                f"{rule.__name__} default config sets {sorted(undeclared)} "
+                "but config_keywords does not list them"
+            )

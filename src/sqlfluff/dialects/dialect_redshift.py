@@ -2099,6 +2099,57 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class ShowStatementSegment(BaseSegment):
+    """A `SHOW` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW.html
+    """
+
+    type = "show_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            "ALL",
+            Sequence(
+                "DATABASES",
+            ),
+            Sequence(
+                "SCHEMAS",
+                Sequence(
+                    "FROM",
+                    "DATABASE",
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    "FROM",
+                    "SCHEMA",
+                    Ref("SchemaReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMNS",
+                "FROM",
+                Sequence(
+                    "TABLE",
+                    optional=True,
+                ),
+                Ref("TableReferenceSegment"),
+            ),
+            "PRIVILEGES",
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
 class GrantUsageDatashareStatementSegment(BaseSegment):
     """A `GRANT DATASHARES` statement.
 
@@ -2219,6 +2270,116 @@ class DropRlsPolicyStatementSegment(BaseSegment):
     )
 
 
+class CreateMaskingPolicyStatementSegment(BaseSegment):
+    """A `CREATE MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MASKING_POLICY.html
+    """
+
+    type = "create_masking_policy_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Ref("IfNotExistsGrammar", optional=True),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(Ref("ColumnReferenceSegment"), Ref("DatatypeSegment")),
+            ),
+        ),
+        "USING",
+        Bracketed(Delimited(Ref("ExpressionSegment"))),
+    )
+
+
+class AlterMaskingPolicyStatementSegment(BaseSegment):
+    """An `ALTER MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_MASKING_POLICY.html
+    """
+
+    type = "alter_masking_policy_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "USING",
+        Bracketed(Delimited(Ref("ExpressionSegment"))),
+    )
+
+
+class DropMaskingPolicyStatementSegment(BaseSegment):
+    """A `DROP MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_MASKING_POLICY.html
+    """
+
+    type = "drop_masking_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class AttachMaskingPolicyStatementSegment(BaseSegment):
+    """An `ATTACH MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ATTACH_MASKING_POLICY.html
+    """
+
+    type = "attach_masking_policy_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        "TO",
+        OneOf(
+            "PUBLIC",
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Ref("UserReferenceSegment"),
+        ),
+        Sequence("PRIORITY", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+class DetachMaskingPolicyStatementSegment(BaseSegment):
+    """A `DETACH MASKING POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DETACH_MASKING_POLICY.html
+    """
+
+    type = "detach_masking_policy_statement"
+    match_grammar = Sequence(
+        "DETACH",
+        "MASKING",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "FROM",
+        OneOf(
+            "PUBLIC",
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Ref("UserReferenceSegment"),
+        ),
+    )
+
+
 class AnalyzeCompressionStatementSegment(BaseSegment):
     """An `ANALYZE COMPRESSION` statement.
 
@@ -2279,6 +2440,86 @@ class VacuumStatementSegment(postgres.VacuumStatementSegment):
     )
 
 
+class AlterDatabaseStatementSegment(BaseSegment):
+    """An `ALTER DATABASE` statement.
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATABASE.html
+    """
+
+    type = "alter_database_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("DatabaseReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+            ),
+            Sequence(
+                "COLLATE",
+                OneOf("CASE_SENSITIVE", "CS", "CASE_INSENSITIVE", "CI"),
+            ),
+            Sequence(
+                "ISOLATION",
+                "LEVEL",
+                OneOf("SNAPSHOT", "SERIALIZABLE"),
+            ),
+        ),
+    )
+
+
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
+    """An `EXPLAIN` statement.
+
+    EXPLAIN [ VERBOSE ] statement
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXPLAIN.html
+    """
+
+    match_grammar = Sequence(
+        "EXPLAIN",
+        Ref.keyword("VERBOSE", optional=True),
+        ansi.ExplainStatementSegment.explainable_stmt,
+    )
+
+
+class AnalyzeStatementSegment(BaseSegment):
+    """An `ANALYZE` statement.
+
+    ANALYZE [ VERBOSE ] [ table_name [ ( column_name [, ...] ) ] ]
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ANALYZE.html
+    """
+
+    type = "analyze_statement"
+
+    match_grammar = Sequence(
+        OneOf("ANALYZE", "ANALYSE"),
+        Ref.keyword("VERBOSE", optional=True),
+        Sequence(
+            Ref("TableReferenceSegment"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 class StatementSegment(postgres.StatementSegment):
     """A generic segment, to any of its child subsegments."""
@@ -2302,6 +2543,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DescDatashareStatementSegment"),
             Ref("DropDatashareStatementSegment"),
             Ref("ShowDatasharesStatementSegment"),
+            # The generic SHOW segment is listed after the dedicated ShowModel
+            # and ShowDatashares segments so those still match first.
+            Ref("ShowStatementSegment"),
             Ref("AltereDatashareStatementSegment"),
             Ref("DeclareStatementSegment"),
             Ref("FetchStatementSegment"),
@@ -2312,11 +2556,22 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateRlsPolicyStatementSegment"),
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
+            Ref("CreateMaskingPolicyStatementSegment"),
+            Ref("AlterMaskingPolicyStatementSegment"),
+            Ref("DropMaskingPolicyStatementSegment"),
+            Ref("AttachMaskingPolicyStatementSegment"),
+            Ref("DetachMaskingPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
         ],
         remove=[
             Ref("ShowStatementSegment"),
+            Ref("AlterSubscriptionStatementSegment"),
+            Ref("CreateCollationStatementSegment"),
+            Ref("CreateForeignTableStatementSegment"),
+            Ref("CreateOperatorStatementSegment"),
+            Ref("CreatePolicyStatementSegment"),
+            Ref("CreateStatisticsStatementSegment"),
         ],
     )
 

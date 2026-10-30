@@ -1,7 +1,7 @@
 [
     {
         "code": "PRS",
-        "description": "Line 1, Position 1: Found unparsable section: 'FROM  tab\\nWHERE a = 1;'",
+        "description": "Line 1, Position 1: Found unparsable section: 'FROM  tab\\nWHERE a = 1;'. Expected: <Sequence: [<AnyNumberOf: [<Ref: 'DelimiterGrammar'>..., <Delimited: [<Ref: 'Sta...",
         "end_file_pos": 22,
         "end_line_no": 2,
         "end_line_pos": 13,

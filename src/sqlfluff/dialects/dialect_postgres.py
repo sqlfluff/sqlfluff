@@ -381,6 +381,16 @@ postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
 
+# Track the `col_name_keyword` class (PostgreSQL's
+# `non-reserved-(cannot-be-function-or-type)` keywords, e.g. BETWEEN) in a
+# dedicated dialect set. These may not be used as a bare data type name.
+# Storing them in a set (rather than closing over `postgres_keywords`
+# directly) lets child dialects such as Greenplum extend the exclusion with
+# their own `cannot-be-function-or-type` keywords. See issue #6430.
+postgres_dialect.sets("cannot_be_type_keywords").update(
+    get_keywords(postgres_keywords, "non-reserved-(cannot-be-function-or-type)")
+)
+
 # `SOURCE` and `TARGET` are not PostgreSQL keywords in general, but the
 # `MERGE ... WHEN NOT MATCHED BY {SOURCE,TARGET}` clauses (added in PostgreSQL
 # 17) need them. Register them as unreserved so they remain usable as ordinary
@@ -571,6 +581,20 @@ postgres_dialect.add(
         Ref("JsonTypeGrammar", optional=True),
         Ref("JsonUniqueKeysGrammar", optional=True),
     ),
+    # PostgreSQL 18 allows RETURNING to rename the OLD and NEW row references.
+    # https://www.postgresql.org/docs/18/sql-update.html
+    ReturningOldNewAliasesGrammar=Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("OLD", "NEW"),
+                    "AS",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -620,6 +644,31 @@ postgres_dialect.replace(
             + r")$",
             casefold=str.lower,
         )
+    ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # A user-defined type name. Per the PostgreSQL grammar a type name is
+        # `unreserved_keyword | type_func_name_keyword | IDENT`; crucially it may
+        # NOT be a `col_name_keyword` (the `cannot-be-function-or-type` class,
+        # e.g. BETWEEN). Built-in types such as INT/VARCHAR are matched by
+        # explicit branches in DatatypeSegment before this fallback is reached,
+        # so excluding those keywords here does not affect them. Reserved
+        # keywords are intentionally NOT excluded, because some grammar (e.g. the
+        # `substring(... SIMILAR ... ESCAPE ...)` special form) relies on
+        # matching such words as data-type identifiers. The excluded class is
+        # read from the `cannot_be_type_keywords` dialect set so child dialects
+        # (e.g. Greenplum) that add their own such keywords are handled too.
+        # See issue #6430.
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z_][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^("
+                + r"|".join(["NOT"] + sorted(dialect.sets("cannot_be_type_keywords")))
+                + r")$",
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
+        ),
     ),
     Expression_C_Grammar=Sequence(
         Ref("WalrusOperatorSegment", optional=True),
@@ -1127,7 +1176,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     ),
                     # numeric types [precision ["," scale])]
                     Sequence(
-                        OneOf("DECIMAL", "NUMERIC"),
+                        OneOf("DECIMAL", "DEC", "NUMERIC"),
                         Ref("BracketedArguments", optional=True),
                     ),
                     # monetary type
@@ -1144,6 +1193,12 @@ class DatatypeSegment(ansi.DatatypeSegment):
                                 Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
+                                "NCHAR",
+                                Sequence("NCHAR", "VARYING"),
+                                Sequence("NATIONAL", "CHARACTER"),
+                                Sequence("NATIONAL", "CHARACTER", "VARYING"),
+                                Sequence("NATIONAL", "CHAR"),
+                                Sequence("NATIONAL", "CHAR", "VARYING"),
                                 "VARCHAR",
                             ),
                             Ref("BracketedArguments", optional=True),
@@ -2128,12 +2183,17 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class GroupByClauseSegment(BaseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY
+    """
 
     type = "groupby_clause"
     match_grammar = Sequence(
         "GROUP",
         "BY",
+        # Set quantifier for grouping sets, e.g. `GROUP BY DISTINCT ROLLUP (a, b)`
+        OneOf("ALL", "DISTINCT", optional=True),
         Indent,
         Delimited(
             OneOf(
@@ -2868,6 +2928,12 @@ class AlterTableActionSegment(BaseSegment):
                 Sequence("DROP", "DEFAULT"),
                 Sequence(OneOf("SET", "DROP", optional=True), "NOT", "NULL"),
                 Sequence("DROP", "EXPRESSION", Ref("IfExistsGrammar", optional=True)),
+                Sequence(
+                    "SET",
+                    "EXPRESSION",
+                    "AS",
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
                 Sequence(
                     "ADD",
                     "GENERATED",
@@ -5293,6 +5359,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
+            Ref("CreateTablespaceStatementSegment"),
+            Ref("AlterTablespaceStatementSegment"),
+            Ref("DropTablespaceStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
@@ -5594,6 +5663,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6392,6 +6462,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6498,6 +6569,7 @@ class UpdateStatementSegment(BaseSegment):
         ),
         Sequence(
             "RETURNING",
+            Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
             OneOf(
                 Ref("StarSegment"),
@@ -6812,6 +6884,76 @@ class DropCollationStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateTablespaceStatementSegment(BaseSegment):
+    """A `CREATE TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtablespace.html
+    """
+
+    type = "create_tablespace_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLESPACE",
+        Ref("TablespaceReferenceSegment"),
+        Sequence(
+            "OWNER",
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                Ref("RoleReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
+    )
+
+
+class AlterTablespaceStatementSegment(BaseSegment):
+    """An `ALTER TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-altertablespace.html
+    """
+
+    type = "alter_tablespace_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLESPACE",
+        Ref("TablespaceReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TablespaceReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence(OneOf("SET", "RESET"), Ref("RelationOptionsSegment")),
+        ),
+    )
+
+
+class DropTablespaceStatementSegment(BaseSegment):
+    """A `DROP TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droptablespace.html
+    """
+
+    type = "drop_tablespace_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TABLESPACE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TablespaceReferenceSegment"),
     )
 
 
@@ -7392,7 +7534,7 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
             Sequence(
                 Sequence(
                     "ALTER",
-                    Ref("COLUMN", optional=True),
+                    Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),
@@ -7597,6 +7739,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
         insert=[
             Sequence(
                 "RETURNING",
+                Ref("ReturningOldNewAliasesGrammar", optional=True),
                 Indent,
                 OneOf(
                     Ref("StarSegment"),

@@ -1,0 +1,160 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 43bcfb93deb59a6ed11c0d8e2a2c08ddcdb81ac9fc89375e645f2e9de47c76bb
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: order_id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: price
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: currency
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: order_time
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: order_id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_range
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: order_id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: price
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: order_id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '8'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_implicit
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: order_id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: order_id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '2'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_buckets_only
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: order_id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: INTO
+    - numeric_literal: '16'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_no_buckets
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: order_id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: order_id
+        end_bracket: )
+- statement_terminator: ;

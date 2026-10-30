@@ -108,6 +108,14 @@ sqlite_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"``", "`")],
             },
         ),
+        # SQLite numeric literals can contain single underscores ('_') since version 3.46.0
+        # as thousands separators or for grouping in decimal and hex literals.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(?:_\d+)*\.\d+(?:_\d+)*|\d+(?:_\d+)*\.(?![\.\w])|\.\d+(?:_\d+)*|\d+(?:_\d+)*)"
+            r"(\.?[eE][+-]?\d+(?:_\d+)*)?((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -121,7 +129,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hexadecimal_literal",
-            r"0x[\da-fA-F]+",
+            r"0[xX][\da-fA-F]+(?:_[\da-fA-F]+)*(?![.\w])",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -520,27 +528,6 @@ class SetOperatorSegment(BaseSegment):
             Ref.keyword("ALL", optional=True),
         ),
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
-    )
-
-
-class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
-    """A reference to column, field or alias.
-
-    Also allows `column->path` and `column->>path` for JSON values.
-    https://www.sqlite.org/json1.html#jptr
-    """
-
-    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                OneOf(
-                    ansi.ColumnReferenceSegment.match_grammar.copy(),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    Ref("LiteralGrammar"),
-                ),
-            ),
-        ]
     )
 
 
@@ -1185,6 +1172,11 @@ class CreateVirtualTableStatementSegment(BaseSegment):
                             Ref("NumericLiteralSegment"),
                             Ref("ObjectReferenceSegment"),
                         ),
+                    ),
+                    # FTS5 column declarations may include the UNINDEXED option.
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "UNINDEXED",
                     ),
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),

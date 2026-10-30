@@ -307,6 +307,11 @@ sparksql_dialect.replace(
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
+    # SparkSQL has no CONNECT BY, so `PRIOR` is not an operator and must stay
+    # usable as an identifier (e.g. `prior.x`).
+    Expression_A_Unary_Operator_Grammar=ansi_dialect.get_grammar(
+        "Expression_A_Unary_Operator_Grammar"
+    ).copy(remove=[Ref.keyword("PRIOR")]),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
@@ -343,6 +348,7 @@ sparksql_dialect.replace(
         insert=[
             Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
+            Ref("ParameterizedSegment"),
         ]
     ),
     NaturalJoinKeywordsGrammar=Sequence(
@@ -484,6 +490,7 @@ sparksql_dialect.replace(
         Sequence("TABLE", Bracketed(Ref("SelectableGrammar"))),
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
+        Ref("WildcardIdentifierSegment"),
     ),
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
@@ -666,10 +673,6 @@ sparksql_dialect.add(
                 ),
                 Ref("StatementSegment"),
             ),
-        ),
-        exclude=OneOf(
-            Ref.keyword("HISTORY"),
-            Ref.keyword("DETAIL"),
         ),
     ),
     FileFormatGrammar=OneOf(
@@ -1263,22 +1266,31 @@ class SemiStructuredAccessorSegment(BaseSegment):
         OneOf(
             Ref("NakedSemiStructuredElementSegment"),
             Bracketed(Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"),
+            # A delimited identifier and the `[ * ]` wildcard.
+            Ref("BackQuotedIdentifierSegment"),
+            Bracketed(Ref("StarSegment"), bracket_type="square"),
         ),
         Ref("ArrayAccessorSegment", optional=True),
         AnyNumberOf(
-            Sequence(
-                OneOf(
-                    # Can be delimited by dots or colons
-                    Ref("DotSegment"),
-                    Ref("ColonSegment"),
-                ),
-                OneOf(
-                    Ref("NakedSemiStructuredElementSegment"),
-                    Bracketed(
-                        Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"
+            OneOf(
+                Sequence(
+                    OneOf(
+                        # Can be delimited by dots or colons
+                        Ref("DotSegment"),
+                        Ref("ColonSegment"),
                     ),
+                    OneOf(
+                        Ref("NakedSemiStructuredElementSegment"),
+                        Bracketed(
+                            Ref("QuotedSemiStructuredElementSegment"),
+                            bracket_type="square",
+                        ),
+                        Ref("BackQuotedIdentifierSegment"),
+                    ),
+                    allow_gaps=True,
                 ),
-                allow_gaps=True,
+                # `[ * ]` may follow an element directly, with no delimiter.
+                Bracketed(Ref("StarSegment"), bracket_type="square"),
             ),
             Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
@@ -1674,7 +1686,7 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         "DEFAULT",
-                        OneOf(Ref("LiteralGrammar"), Ref("FunctionSegment")),
+                        Ref("ExpressionSegment"),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1704,6 +1716,75 @@ class CreateFunctionStatementSegment(BaseSegment):
         "AS",
         Ref("QuotedLiteralSegment"),
         Ref("ResourceLocationGrammar", optional=True),
+    )
+
+
+class CreateSqlFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement with a SQL body.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-sql-function.html
+    """
+
+    type = "create_sql_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammarWithComments"),
+        Sequence(
+            "RETURNS",
+            OneOf(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Ref("DatatypeSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence("LANGUAGE", "SQL"),
+            Sequence(Ref.keyword("NOT", optional=True), "DETERMINISTIC"),
+            Ref("CommentClauseSegment"),
+            OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
+        ),
+        "RETURN",
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
+class ParameterizedSegment(BaseSegment):
+    """A named parameter marker, e.g. `:start_date`.
+
+    The value is bound when the statement is executed.
+
+    https://spark.apache.org/docs/latest/sql-ref-parameter-markers.html
+    """
+
+    type = "parameterized_expression"
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("BackQuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
     )
 
 
@@ -2245,6 +2326,7 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             Ref("NumericLiteralSegment"),
             "ALL",
             Ref("FunctionSegment"),
+            Ref("ParameterizedSegment"),
         ),
         Dedent,
     )
@@ -2269,7 +2351,11 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
             OneOf("UNION", "INTERSECT"),
             OneOf("DISTINCT", "ALL", optional=True),
         ),
-        exclude=Sequence("EXCEPT", Bracketed(Anything())),
+        # Do not take the EXCEPT of a wildcard exclusion
+        # (`SELECT * EXCEPT (col)`) for a set operator. The exclusion's
+        # bracketed column list is the only ambiguous shape; a parenthesised
+        # subquery is a set operand.
+        exclude=Sequence("EXCEPT", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
     )
 
 
@@ -2482,7 +2568,11 @@ class LateralViewClauseSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Sequence(
                     Ref.keyword("AS", optional=True),
-                    Delimited(Ref("SingleIdentifierGrammar")),
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                        # Don't mistake a following `LATERAL VIEW` for aliases.
+                        terminators=[Sequence("LATERAL", "VIEW")],
+                    ),
                     optional=True,
                 ),
             ),
@@ -3045,6 +3135,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("CreateSqlFunctionStatementSegment"),
             Ref("CreateTableStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
@@ -3070,8 +3161,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DistributeByClauseSegment"),
             # Delta Lake
             Ref("VacuumStatementSegment"),
-            Ref("DescribeHistoryStatementSegment"),
-            Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
             Ref("ExecuteImmediateStatementSegment"),
@@ -3091,6 +3180,18 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
         ],
+    ).copy(
+        # `DESCRIBE HISTORY tbl` and a plain `DESCRIBE history.tbl` are
+        # ambiguous as far as their prefix goes, so the Delta statements are
+        # tried before the general DESCRIBE: both match `DESCRIBE HISTORY
+        # tbl` in full, and the first of equal-length matches wins. A
+        # qualified `history.tbl` fails the history statement and falls
+        # through to the general one.
+        insert=[
+            Ref("DescribeHistoryStatementSegment"),
+            Ref("DescribeDetailStatementSegment"),
+        ],
+        before=Ref("DescribeStatementSegment"),
     )
 
 
@@ -3107,7 +3208,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("JoinTargetGrammar"),
-            Dedent,
+            Conditional(Dedent, indented_using_on_newline=False),
             Conditional(Indent, indented_using_on=True),
             # NB: this is optional
             OneOf(
@@ -3134,6 +3235,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                 optional=True,
             ),
             Conditional(Dedent, indented_using_on=True),
+            Conditional(Dedent, indented_using_on_newline=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
@@ -3166,21 +3268,43 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar = Sequence(
         Indent,
-        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
-            # maybe table alias and column aliases
+            # An explicit alias may be any identifier except the words the
+            # reference reserves as table aliases, even when it shares its
+            # name with a following clause (`AS PIVOT`, `AS KEYS`).
             Sequence(
-                Ref("SingleIdentifierGrammar", optional=True),
-                Bracketed(Ref("SingleIdentifierListSegment")),
+                Ref("AsAliasOperatorSegment"),
+                OneOf(
+                    # maybe table alias and column aliases
+                    Sequence(
+                        Ref("SingleIdentifierGrammar", optional=True),
+                        Bracketed(Ref("SingleIdentifierListSegment")),
+                    ),
+                    # just a table alias
+                    Ref("SingleIdentifierGrammar"),
+                    exclude=OneOf(
+                        "LATERAL",
+                        Ref("JoinTypeKeywords"),
+                        "FROM",
+                    ),
+                ),
             ),
-            # just a table alias
-            Ref("SingleIdentifierGrammar"),
-            exclude=OneOf(
-                "LATERAL",
-                Ref("JoinTypeKeywords"),
-                "WINDOW",
-                "PIVOT",
-                "FROM",
+            # An implicit alias must not consume a following clause keyword.
+            OneOf(
+                # maybe table alias and column aliases
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True),
+                    Bracketed(Ref("SingleIdentifierListSegment")),
+                ),
+                # just a table alias
+                Ref("SingleIdentifierGrammar"),
+                exclude=OneOf(
+                    "LATERAL",
+                    Ref("JoinTypeKeywords"),
+                    "WINDOW",
+                    "PIVOT",
+                    "FROM",
+                ),
             ),
         ),
         Dedent,

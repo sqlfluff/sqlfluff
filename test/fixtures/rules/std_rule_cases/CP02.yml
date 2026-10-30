@@ -1,5 +1,94 @@
 rule: CP02
 
+test_pass_bigquery_chained_datetime_dateparts:
+  pass_str: |
+    SELECT
+        (year).REGEXP_EXTRACT(month),
+        (year).DATE_ADD(INTERVAL 5 YEAR),
+        (year).DATE_DIFF(month, YEAR),
+        (day).DATETIME_DIFF(hour, DAY),
+        (minute).TIME_DIFF(second, MINUTE),
+        (hour).TIMESTAMP_DIFF(minute, HOUR),
+        (year).DATE_TRUNC(MONTH),
+        (day).DATETIME_TRUNC(HOUR, month),
+        (hour).TIME_TRUNC(MINUTE),
+        (year).TIMESTAMP_TRUNC(DAY, month),
+        (year).LAST_DAY(WEEK(MONDAY)),
+        (month).LAST_DAY()
+    FROM foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_bigquery_datepart_named_function_arguments:
+  fail_str: |
+    SELECT
+        REGEXP_EXTRACT(YEAR, r'[0-9]{4}'),
+        DATE_ADD(YEAR, INTERVAL 5 YEAR),
+        DATE_DIFF(YEAR, MONTH, YEAR),
+        SAFE.DATE_DIFF(YEAR, MONTH, YEAR),
+        LAST_DAY(YEAR, MONTH),
+        TIMESTAMP_TRUNC(YEAR, HOUR, MONTH)
+    FROM foo;
+  fix_str: |
+    SELECT
+        REGEXP_EXTRACT(year, r'[0-9]{4}'),
+        DATE_ADD(year, INTERVAL 5 YEAR),
+        DATE_DIFF(year, month, YEAR),
+        SAFE.DATE_DIFF(year, month, YEAR),
+        LAST_DAY(year, MONTH),
+        TIMESTAMP_TRUNC(year, HOUR, month)
+    FROM foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_snowflake_ordinary_date_unit_identifiers:
+  fail_str: |
+    SELECT my_udf(YEAR, 1), my_udf(DAY, MONTH), my_udf(YEAR),
+        my_udf("YEAR", t.DAY), analytics.my_udf(YEAR, MONTH),
+        analytics.DATEADD(YEAR, DAY, MONTH), "DATEADD"(YEAR, DAY, MONTH),
+        DATEADD(YEAR, DAY, MONTH), LAST_DAY(YEAR, MONTH),
+        TRUNC(YEAR, SCALE), TRUNC(YEAR, MONTH), TRUNCATE(YEAR, DAY),
+        TIME_SLICE(DAY, YEAR, 'month')
+    FROM t;
+  fix_str: |
+    SELECT my_udf(year, 1), my_udf(day, month), my_udf(year),
+        my_udf("YEAR", t.day), analytics.my_udf(year, month),
+        analytics.DATEADD(year, day, month), "DATEADD"(year, day, month),
+        DATEADD(YEAR, day, month), LAST_DAY(year, MONTH),
+        TRUNC(year, scale), TRUNC(year, MONTH), TRUNCATE(year, DAY),
+        TIME_SLICE(day, year, 'month')
+    FROM t;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_pass_snowflake_real_date_units:
+  pass_str: |
+    SELECT DATEADD(YEAR, day, month), TIMEADD(DD, year, month),
+        TIMESTAMPADD(MS, day, month), DATEDIFF(DAY, year, month),
+        TIMEDIFF(HH, year, month), TIMESTAMPDIFF(NS, year, month),
+        DATE_TRUNC(MONTH, year), DATE_PART(YEAR, day), EXTRACT(YEAR, day),
+        DATE_PART(YEAR FROM day), EXTRACT(YEAR FROM month), LAST_DAY(year, MONTH),
+        TRUNC(year, MONTH), TRUNCATE(year, DAY)
+    FROM t;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
 test_pass_consistent_capitalisation_1:
   pass_str: SELECT a, b
 

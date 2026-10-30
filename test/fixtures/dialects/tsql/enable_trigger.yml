@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 021a10ed3ac55c41468ec91e137b86e74467a9d59dbafdd860d3320fa5684370
+file:
+  batch:
+  - statement:
+      enable_trigger:
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: safety
+      - keyword: 'ON'
+      - keyword: DATABASE
+  - statement_terminator: ;
+  - statement:
+      enable_trigger:
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: uAddress
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: Address
+  - statement_terminator: ;
+  - statement:
+      enable_trigger:
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: tr_insert
+      - comma: ','
+      - trigger_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: tr_update
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Orders
+  - statement_terminator: ;
+  - statement:
+      enable_trigger:
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Orders
+  - statement_terminator: ;
+  - statement:
+      enable_trigger:
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+      - keyword: 'ON'
+      - keyword: ALL
+      - keyword: SERVER
+  - statement_terminator: ;

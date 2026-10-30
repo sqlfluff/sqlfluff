@@ -279,6 +279,204 @@ test_pass_indented_using_on_merge_statment_false:
     indentation:
       indented_using_on: false
 
+test_pass_indented_using_on_newline_default:
+  # By default, ON/USING is level with a join target on its own line.
+  pass_str: |
+    SELECT a
+    FROM
+        my_tbl
+    JOIN
+        another_tbl
+        ON my_tbl.a = another_tbl.a
+    JOIN
+        third_tbl
+        USING (a)
+
+test_fail_indented_using_on_newline_true:
+  # ON/USING is one level deeper than a join target on its own line.
+  fail_str: |
+    SELECT a
+    FROM
+        my_tbl
+    JOIN
+        another_tbl AS b
+        ON my_tbl.a = b.a
+    JOIN
+        third_tbl
+        USING (a)
+  fix_str: |
+    SELECT a
+    FROM
+        my_tbl
+    JOIN
+        another_tbl AS b
+            ON my_tbl.a = b.a
+    JOIN
+        third_tbl
+            USING (a)
+  configs:
+    indentation:
+      indented_using_on_newline: true
+
+test_fail_indented_using_on_newline_true_target_inline:
+  # ON/USING on its own line moves the join target onto its own line.
+  fail_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN another_tbl
+        ON my_tbl.a = another_tbl.a
+    WHERE my_tbl.b = 1
+  fix_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN
+        another_tbl
+            ON my_tbl.a = another_tbl.a
+    WHERE my_tbl.b = 1
+  configs:
+    indentation:
+      indented_using_on_newline: true
+
+test_pass_indented_using_on_newline_true_all_inline:
+  pass_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN another_tbl ON my_tbl.a = another_tbl.a
+    JOIN third_tbl USING (a)
+    WHERE my_tbl.b = 1
+  configs:
+    indentation:
+      indented_using_on_newline: true
+
+test_fail_indented_using_on_newline_true_on_inline_multiline:
+  # The join target, ON and the condition each move onto their own line.
+  fail_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN another_tbl ON my_tbl.a = another_tbl.a
+        AND my_tbl.b = another_tbl.b
+    WHERE my_tbl.b = 1
+  fix_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN
+        another_tbl
+            ON
+                my_tbl.a = another_tbl.a
+                AND my_tbl.b = another_tbl.b
+    WHERE my_tbl.b = 1
+  configs:
+    indentation:
+      indented_using_on_newline: true
+
+test_pass_indented_using_on_newline_true_multiline_on:
+  pass_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN
+        another_tbl
+            ON
+                my_tbl.a = another_tbl.a
+                AND my_tbl.b = another_tbl.b
+    WHERE my_tbl.b = 1
+  configs:
+    indentation:
+      indented_using_on_newline: true
+
+test_pass_indented_using_on_newline_implicit_indents:
+  # The configuration from the original feature request (#8859).
+  pass_str: |
+    SELECT a
+    FROM
+        my_tbl
+    JOIN
+        another_tbl AS b
+            ON my_tbl.a = b.a
+                AND my_tbl.b = b.b
+    JOIN
+        third_tbl
+            USING (a)
+  configs:
+    indentation:
+      implicit_indents: allow
+      indented_using_on_newline: true
+
+test_pass_indented_using_on_newline_indented_joins:
+  pass_str: |
+    SELECT a
+    FROM
+        my_tbl
+        JOIN
+            another_tbl
+                ON my_tbl.a = another_tbl.a
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on_newline: true
+
+test_fail_indented_using_on_newline_indented_using_on_false:
+  # indented_using_on_newline alone indents ON/USING one level.
+  fail_str: |
+    SELECT a
+    FROM
+        my_tbl
+    JOIN
+        another_tbl
+    ON my_tbl.a = another_tbl.a
+  fix_str: |
+    SELECT a
+    FROM
+        my_tbl
+    JOIN
+        another_tbl
+        ON my_tbl.a = another_tbl.a
+  configs:
+    indentation:
+      indented_using_on: false
+      indented_using_on_newline: true
+
+test_fail_indented_using_on_newline_indented_using_on_false_target_inline:
+  # The join target is still moved onto its own line.
+  fail_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN another_tbl
+    ON my_tbl.a = another_tbl.a
+    WHERE my_tbl.b = 1
+  fix_str: |
+    SELECT a
+    FROM my_tbl
+    JOIN
+        another_tbl
+        ON my_tbl.a = another_tbl.a
+    WHERE my_tbl.b = 1
+  configs:
+    indentation:
+      indented_using_on: false
+      indented_using_on_newline: true
+
+test_fail_indented_using_on_newline_sparksql:
+  # SparkSQL has its own join clause grammar.
+  fail_str: |
+    SELECT a
+    FROM
+        my_tbl
+    LEFT JOIN
+        another_tbl
+        ON my_tbl.a = another_tbl.a
+  fix_str: |
+    SELECT a
+    FROM
+        my_tbl
+    LEFT JOIN
+        another_tbl
+            ON my_tbl.a = another_tbl.a
+  configs:
+    core:
+      dialect: sparksql
+    indentation:
+      indented_using_on_newline: true
+
 test_pass_indented_on_contents_default:
   # Test indented_on_contents when default (true)
   pass_str: |
@@ -3096,6 +3294,63 @@ test_fail_snowflake_exception_block_nested:
     core:
       dialect: snowflake
 
+test_pass_snowflake_scripting_case_statement_simple:
+  # Issue 8690: Scripting CASE statement WHEN/ELSE branches must be indented
+  # under CASE, and their bodies one level further.
+  pass_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_scripting_case_statement_searched:
+  # Searched CASE statement without expression value.
+  pass_str: |
+    BEGIN
+        CASE
+            WHEN x < 3 THEN
+                result := 'small';
+            WHEN x < 10 THEN
+                result := 'medium';
+            ELSE
+                result := 'large';
+        END;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_scripting_case_statement_unindented_branches:
+  # Issue 8690: WHEN/ELSE branches at CASE indentation level should be fixed to indent.
+  fail_str: |
+    BEGIN
+        CASE (v)
+        WHEN 1 THEN
+            x := 2;
+        ELSE
+            x := 3;
+        END CASE;
+    END;
+  fix_str: |
+    BEGIN
+        CASE (v)
+            WHEN 1 THEN
+                x := 2;
+            ELSE
+                x := 3;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: snowflake
+
 test_implicit_indents_require_bracketed_subquery_on_next_line:
   # Collapsing the line break after FROM used to produce a fix that deleted
   # whitespace created by the indent fix for the bracket line, which crashed
@@ -3137,3 +3392,50 @@ test_implicit_indents_require_indented_bracketed_subquery_on_next_line:
   configs:
     indentation:
       implicit_indents: require
+
+# https://github.com/sqlfluff/sqlfluff/issues/3881
+test_pass_snowflake_create_file_format_indent:
+  pass_str: |
+    CREATE OR REPLACE FILE FORMAT my_csv_format
+        TYPE = CSV
+        FIELD_DELIMITER = '|'
+        SKIP_HEADER = 1
+        NULL_IF = ('NULL', 'null')
+        EMPTY_FIELD_AS_NULL = TRUE
+        COMPRESSION = GZIP;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_alter_file_format_indent:
+  pass_str: |
+    ALTER FILE FORMAT IF EXISTS my_csv_format SET
+        TYPE = CSV
+        FIELD_DELIMITER = '|'
+        SKIP_HEADER = 1
+        COMMENT = 'updated format';
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_create_file_format_indent_fix:
+  fail_str: |
+    CREATE OR REPLACE FILE FORMAT my_csv_format
+    TYPE = CSV
+    FIELD_DELIMITER = '|'
+    SKIP_HEADER = 1;
+  fix_str: |
+    CREATE OR REPLACE FILE FORMAT my_csv_format
+        TYPE = CSV
+        FIELD_DELIMITER = '|'
+        SKIP_HEADER = 1;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_snowflake_create_file_format_single_line:
+  pass_str: |
+    CREATE FILE FORMAT my_csv_format TYPE = CSV FIELD_DELIMITER = '|';
+  configs:
+    core:
+      dialect: snowflake
