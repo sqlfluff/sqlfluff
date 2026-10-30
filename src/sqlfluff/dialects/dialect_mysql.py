@@ -1400,6 +1400,7 @@ class InsertStatementSegment(BaseSegment):
         ),
         Ref.keyword("IGNORE", optional=True),
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Sequence(
             "PARTITION",
@@ -1409,6 +1410,7 @@ class InsertStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         AnySetOf(
             OneOf(
                 Ref("ValuesClauseSegment"),
@@ -1470,18 +1472,22 @@ class DeleteStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "FROM",
+                Indent,
                 Delimited(
                     Ref("DeleteTargetTableSegment"),
                     terminators=["USING"],
                 ),
+                Dedent,
                 Ref("DeleteUsingClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
             Sequence(
+                Indent,
                 Delimited(
                     Ref("DeleteTargetTableSegment"),
                     terminators=["FROM"],
                 ),
+                Dedent,
                 Ref("FromClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
@@ -3063,6 +3069,7 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
+        Indent,
         OneOf(
             Delimited(
                 AnyNumberOf(
@@ -3112,6 +3119,7 @@ class IntoClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
         terminators=[Ref("SelectClauseTerminatorGrammar")],
     )
@@ -3196,7 +3204,13 @@ class ForClauseSegment(BaseSegment):
                 "FOR",
                 OneOf("UPDATE", "SHARE"),
             ),
-            Sequence("OF", Delimited(Ref("NakedIdentifierSegment")), optional=True),
+            Sequence(
+                "OF",
+                Indent,
+                Delimited(Ref("NakedIdentifierSegment")),
+                Dedent,
+                optional=True,
+            ),
             OneOf("NOWAIT", Sequence("SKIP", "LOCKED"), optional=True),
         ),
         Sequence("LOCK", "IN", "SHARE", "MODE"),
@@ -4130,16 +4144,22 @@ class ReplaceSegment(BaseSegment):
         "REPLACE",
         OneOf("LOW_PRIORITY", "DELAYED", optional=True),
         Sequence("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("SelectPartitionClauseSegment", optional=True),
+        Dedent,
         OneOf(
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref("ValuesClauseSegment"),
             ),
             Ref("SetClauseListSegment"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("SelectableGrammar"),
                     Sequence(

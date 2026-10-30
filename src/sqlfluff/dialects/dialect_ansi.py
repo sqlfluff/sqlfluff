@@ -2781,6 +2781,7 @@ class ValuesClauseSegment(BaseSegment):
     type = "values_clause"
     match_grammar: Matchable = Sequence(
         OneOf("VALUE", "VALUES"),
+        Indent,
         Delimited(
             Sequence(
                 # MySQL uses `ROW` in it's value statement.
@@ -2801,6 +2802,7 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -3038,14 +3040,18 @@ class InsertStatementSegment(BaseSegment):
         # (It's also Hive but that has full insert grammar implementation)
         Ref.keyword("OVERWRITE", optional=True),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             # As SelectableGrammar can be bracketed too, the parse gets confused,
             # so we need slightly odd syntax here to allow those to parse (rather
             # than just add optional=True to BracketedColumnReferenceListGrammar).
             Ref("SelectableGrammar"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
                 Ref("SelectableGrammar"),
             ),
             # This is part of ANSI SQL since SQL-92
@@ -3544,7 +3550,9 @@ class TruncateStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 
