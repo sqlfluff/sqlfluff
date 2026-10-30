@@ -3,14 +3,21 @@
 import os
 import os.path
 import shutil
+from pathlib import Path
+from unittest import mock
 
 import pytest
 
 from sqlfluff.cli.commands import lint
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.linter import runner
-from sqlfluff.core.linter.common import DeferredRenderTask
+from sqlfluff.core.linter.common import DeferredRenderTask, RenderedLintTask
 from sqlfluff.utils.testing.cli import invoke_assert_code
+
+
+def _write_config(path: Path, contents: str) -> None:
+    """Write a test configuration file."""
+    path.write_text(contents, encoding="utf-8")
 
 
 @pytest.mark.parametrize(
@@ -117,7 +124,7 @@ def test__dbt_linter__parallel_partials_path(project_dir, dbt_fluff_config):
     """Parallel linting with the dbt templater uses the main-process render path.
 
     Because DbtTemplater.templates_in_worker=False, ParallelRunner.iter_partials
-    must yield callable partials (RenderedFile already attached), NOT
+    must yield rendered tasks (RenderedFile already attached), not
     DeferredRenderTask objects. This ensures the manifest is only compiled once
     in the main process and the worker only handles the lint step.
     """
@@ -134,10 +141,85 @@ def test__dbt_linter__parallel_partials_path(project_dir, dbt_fluff_config):
 
     assert len(partials) == 2
     for _fname, task in partials:
-        # Must be a callable partial, not a DeferredRenderTask.
-        assert callable(task)
+        assert isinstance(task, RenderedLintTask)
         assert not isinstance(task, DeferredRenderTask)
 
     # Also verify that the full parallel lint run completes without error.
     results = list(thd_runner.run(files, fix=False))
     assert len(results) == 2
+
+
+@pytest.mark.parametrize("processes", [1, 2])
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
+def test__linter__supports_nested_dbt_projects(
+    set_relations_cache, tmp_path, dbt_project_folder, processes
+):
+    """Lint built-in and independent nested dbt templaters together."""
+    root = tmp_path / "mixed_projects"
+    root.mkdir()
+    jinja_file = root / "jinja.sql"
+    jinja_file.write_text("select 1 from {{ table_name }}\n", encoding="utf-8")
+    _write_config(
+        root / ".sqlfluff",
+        """[sqlfluff]
+dialect = postgres
+templater = jinja
+
+[sqlfluff:templater:jinja:context]
+table_name = table_a
+""",
+    )
+
+    profiles_dir = Path(dbt_project_folder, "profiles_yml").resolve()
+    dbt_files = []
+    expected_rendered = {}
+    for project_index, project_name in enumerate(("project_a", "project_b"), start=1):
+        project_root = root / project_name
+        shutil.copytree(Path(dbt_project_folder, "dbt_project"), project_root)
+        _write_config(
+            project_root / ".sqlfluff",
+            f"""[sqlfluff]
+dialect = postgres
+templater = dbt
+
+[sqlfluff:templater:dbt]
+profiles_dir = {profiles_dir}
+project_dir = {project_root}
+
+[sqlfluff:templater:dbt:context]
+passed_through_cli = {project_index}
+""",
+        )
+        dbt_file = str(project_root / "models/vars_from_cli.sql")
+        dbt_files.append(dbt_file)
+        expected_rendered[dbt_file] = f"-- Issue #1262\nSELECT {project_index}\n"
+
+    config = FluffConfig.from_path(str(root))
+    linter = Linter(config=config)
+    result = linter.lint_paths(
+        (str(jinja_file), *dbt_files),
+        processes=processes,
+    )
+
+    linted_files = {
+        linted_file.path: linted_file
+        for linted_path in result.paths
+        for linted_file in linted_path.files
+    }
+    assert len(linted_files) == 3
+    assert not [violation for violation in result.get_violations() if violation.fatal]
+    assert linted_files[str(jinja_file)].templated_file.templated_str == (
+        "select 1 from table_a\n"
+    )
+    for dbt_file, rendered_sql in expected_rendered.items():
+        assert linted_files[dbt_file].templated_file.templated_str == rendered_sql
+
+    reversed_result = linter.lint_paths(tuple(reversed(dbt_files)), processes=processes)
+    reversed_files = {
+        linted_file.path: linted_file
+        for linted_path in reversed_result.paths
+        for linted_file in linted_path.files
+    }
+    assert list(reversed_files) == list(reversed(dbt_files))
+    for dbt_file, rendered_sql in expected_rendered.items():
+        assert reversed_files[dbt_file].templated_file.templated_str == rendered_sql
