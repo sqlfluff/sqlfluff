@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqlfluff-templater-dbt2"
+version = "4.5.0"
+description = "Experimental dbt v2 render-trace templater for SQLFluff"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = ["sqlfluff==4.5.0", "packaging"]
+
+[project.entry-points.sqlfluff]
+sqlfluff_templater_dbt2 = "sqlfluff_templater_dbt2"
+
+[tool.setuptools.packages.find]
+include = ["sqlfluff_templater_dbt2*"]
