@@ -1323,6 +1323,66 @@ class InsertRowAliasSegment(BaseSegment):
     )
 
 
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
+    """An `EXPLAIN` statement, or its synonyms `DESCRIBE` and `DESC`.
+
+    https://dev.mysql.com/doc/refman/8.4/en/explain.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf("EXPLAIN", "DESCRIBE", "DESC"),
+        OneOf(
+            # Table structure: EXPLAIN tbl_name [col_name | wild]
+            Sequence(
+                Ref("TableReferenceSegment"),
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # Execution plan
+            Sequence(
+                Ref.keyword("ANALYZE", optional=True),
+                Sequence(
+                    "FORMAT",
+                    Ref("EqualsSegment"),
+                    OneOf("TRADITIONAL", "JSON", "TREE"),
+                    optional=True,
+                ),
+                Sequence("INTO", Ref("SessionVariableNameSegment"), optional=True),
+                OneOf(
+                    Sequence("FOR", "CONNECTION", Ref("NumericLiteralSegment")),
+                    Sequence(
+                        Sequence(
+                            "FOR",
+                            OneOf("SCHEMA", "DATABASE"),
+                            Ref("DatabaseReferenceSegment"),
+                            optional=True,
+                        ),
+                        OneOf(
+                            Ref("SelectableGrammar"),
+                            Ref("InsertStatementSegment"),
+                            Ref("ReplaceSegment"),
+                            Ref("UpdateStatementSegment"),
+                            Ref("DeleteStatementSegment"),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """In MySQL `DESCRIBE` is a synonym of `EXPLAIN`.
+
+    It is handled by `ExplainStatementSegment`.
+    """
+
+    match_grammar: Matchable = Nothing()
+
+
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 

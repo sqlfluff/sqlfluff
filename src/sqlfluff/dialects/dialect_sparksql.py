@@ -484,6 +484,10 @@ sparksql_dialect.replace(
         BracketedSegment,
     ),
     FunctionContentsExpressionGrammar=OneOf(
+        # A table argument to a table-valued function, e.g. `TABLE(SELECT a, b)`.
+        # Handled here so the commas in the select list aren't read as
+        # argument delimiters.
+        Sequence("TABLE", Bracketed(Ref("SelectableGrammar"))),
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
         Ref("WildcardIdentifierSegment"),

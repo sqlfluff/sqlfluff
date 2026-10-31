@@ -27,3 +27,16 @@ SELECT
     count(DISTINCT id) FILTER (WHERE is_gov) AS num_gov
 FROM location_data
 GROUP BY CUBE ( (region), (city) );
+
+-- GROUP BY DISTINCT / ALL (PostgreSQL 14+)
+SELECT a, b, c, count(*)
+FROM tbl
+GROUP BY DISTINCT ROLLUP (a, b), ROLLUP (a, c);
+
+SELECT a, b, count(*)
+FROM tbl
+GROUP BY ALL CUBE (a, b);
+
+SELECT a, count(*)
+FROM tbl
+GROUP BY DISTINCT a;
