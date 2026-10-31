@@ -643,3 +643,31 @@ test_fail_jinja_mixed_identifier_consistent:
       jinja:
         context:
           env: DEV
+
+test_pass_jinja_mixed_identifier_ignore_regex_literal:
+  # The ignore settings are matched against the literal text.
+  pass_str: SELECT a FROM {{ env }}_MY_DB
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+        ignore_words_regex: MY_DB$
+    templater:
+      jinja:
+        context:
+          env: DEV
+
+test_fail_jinja_mixed_identifier_ignore_regex_template_only:
+  # The rendered template text isn't checked, so it can't trigger an ignore
+  # either. Otherwise the result would depend on the template context.
+  fail_str: SELECT a FROM {{ env }}_MY_DB
+  fix_str: SELECT a FROM {{ env }}_my_db
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+        ignore_words_regex: ^DEV
+    templater:
+      jinja:
+        context:
+          env: DEV

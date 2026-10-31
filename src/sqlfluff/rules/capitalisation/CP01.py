@@ -216,14 +216,15 @@ class Rule_CP01(BaseRule):
                 ignore_templated_areas,
             ) = self._init_capitalisation_policy(context)
 
-        # Skip if in ignore list
-        if ignore_words_list and segment.raw.lower() in ignore_words_list:
+        check_raw = segment.raw if raw is None else raw
+
+        # Skip if in ignore list. The ignore settings are matched against the
+        # same text that is checked.
+        if ignore_words_list and check_raw.lower() in ignore_words_list:
             return LintResult(memory=memory)
 
         # Skip if matches ignore regex
-        if self.ignore_words_regex and regex.search(
-            self.ignore_words_regex, segment.raw
-        ):
+        if self.ignore_words_regex and regex.search(self.ignore_words_regex, check_raw):
             return LintResult(memory=memory)
 
         # Skip if templated.  If the user wants to ignore templated areas, we don't
@@ -232,8 +233,6 @@ class Rule_CP01(BaseRule):
         # literal text, so it is checked even when the segment is templated.
         if segment.is_templated and ignore_templated_areas and raw is None:
             return LintResult(memory=memory)
-
-        check_raw = segment.raw if raw is None else raw
 
         # Skip if empty.
         if not check_raw:
