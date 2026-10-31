@@ -54,6 +54,21 @@ CASES = {
         "select {% block columns %}0{{ return('1') }}{% endblock %} as n\n",
         {},
     ),
+    "recursive": (
+        "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+        "select {{ item.n }};{{ loop(item.children) }}{% endfor %}\n",
+        {},
+    ),
+    "recursive_transformed": (
+        "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+        "select {{ item.n }};{{ loop(item.children) | upper }}{% endfor %}\n",
+        {},
+    ),
+    "recursive_else": (
+        "{% for item in [{'n': 1, 'children': []}] recursive %}"
+        "select {{ item.n }};{{ loop(item.children) }}{% else %}select 0{% endfor %}\n",
+        {},
+    ),
 }
 
 

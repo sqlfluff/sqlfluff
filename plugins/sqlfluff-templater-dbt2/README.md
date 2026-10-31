@@ -105,7 +105,8 @@ edits crossing emission boundaries retain SQLFluff's conservative mapping.
 Loop-control tags are standalone source-only statements. Generated output with
 a zero-width producer anchor has no editable source origin; the consumer uses
 the whole input as a conservative nonliteral boundary to prevent source
-insertions.
+insertions. Empty-loop closing events are consumed explicitly, including
+recursive invocations that reuse the same source tag.
 
 The trace describes Jinja SQL **before ephemeral CTE injection**. The consumer
 uses the trace's own `rendered` string, not the final compiled SQL file.
@@ -120,7 +121,7 @@ panics in lint workers.
 
 ## Tests
 
-Ordinary tests use 18 artifacts captured from the actual upstream PR runtime.
+Ordinary tests use 21 artifacts captured from the actual upstream PR runtime.
 They require no dbt installation or Rust compiler:
 
 ```sh

@@ -34,6 +34,9 @@ from sqlfluff.core.templaters.base import RawFileSlice
         "broken",
         "returned",
         "block_returned",
+        "recursive",
+        "recursive_transformed",
+        "recursive_else",
     ],
 )
 def test_upstream_traces(case, traces):

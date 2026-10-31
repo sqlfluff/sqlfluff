@@ -2,18 +2,18 @@
 
 Validated on Windows x86-64, Python 3.13.5, against the Python ABI3 wheel built
 from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
-`b57b0f671f567153322a37b0be1e09c085ba819e` (including the second Copilot review
-fixes and the subsequent CodeScene refactor).
+`3116b949886d85aae646cc1479e7f703b88865d1` (including recursive-loop, include and super fixes,
+and the subsequent CodeScene refactor).
 
 ## Checks
 
-- Passed 95 ordinary consumer tests and four live integration tests (99 tests
-  total). The prior seven legacy-plugin version-selection tests also passed.
+- Passed 101 ordinary consumer tests, four live integration tests and seven
+  legacy-plugin version-selection tests (112 tests total).
 - Passed the repository's complete pre-commit checks, including formatting,
   linting, type checking, spelling and YAML checks.
 - Built the source distribution and a `py3-none-any` wheel. The wheel contains
   only the Python plugin and metadata, with no native runtime or renderer.
-- Recorded 18 real runtime artifacts with `scripts/record_traces.py`.
+- Recorded 21 real runtime artifacts with `scripts/record_traces.py`.
   Only paths and invocation IDs are normalized for portability; event data,
   source and rendered output come directly from the upstream exporter.
 - Python regression tests consume those artifacts without importing or running
@@ -34,13 +34,15 @@ fixes and the subsequent CodeScene refactor).
   A disabled model produces a skip warning without a templater error.
   Fixes also preserve the source's final newline when dbt strips it from a
   wholly literal model's rendered output.
-  The review regression pass checks ten models with raw whitespace control,
+  The review regression pass checks thirteen models with raw whitespace control,
   nested named blocks, empty/nonempty for/else and filtered loops using two
   workers, preserving tags, stripped whitespace and unexecuted source. It also
   checks nested break/continue, top-level returns and named-block returns.
   Generated output with no editable source origin is mapped conservatively, so
   it cannot become an insertion in the original source; surrounding proven
-  literal spans remain fixable.
+  literal spans remain fixable. Recursive direct/transformed output and empty
+  child calls, including for/else, also preserve balanced layout and safe source
+  fixes using explicit empty-loop closing events.
 
 The debug runtime needed `RUST_LOG=debug` and `DBT_LOG_LEVEL=debug` in the test
 environment. Those are inherited by child processes, not forced by the plugin.

@@ -221,6 +221,24 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
             "select {% block columns %}0{{ return('1') }}{% endblock %} as n\n",
             "SELECT {% block columns %}0{{ return('1') }}{% endblock %} AS n\n",
         ),
+        "recursive": (
+            "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+            "select {{ item.n }};{{ loop(item.children) }}{% endfor %}\n",
+            "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+            "SELECT {{ item.n }};{{ loop(item.children) }}{% endfor %}\n",
+        ),
+        "recursive_transformed": (
+            "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+            "select {{ item.n }};{{ loop(item.children) | upper }}{% endfor %}\n",
+            "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+            "SELECT {{ item.n }};{{ loop(item.children) | upper }}{% endfor %}\n",
+        ),
+        "recursive_else": (
+            "{% for item in [{'n': 1, 'children': []}] recursive %}"
+            "select {{ item.n }};{{ loop(item.children) }}{% else %}select 0{% endfor %}\n",
+            "{% for item in [{'n': 1, 'children': []}] recursive %}"
+            "SELECT {{ item.n }};{{ loop(item.children) }}{% else %}select 0{% endfor %}\n",
+        ),
     }
     paths = []
     for name, (source, _) in cases.items():

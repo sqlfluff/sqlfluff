@@ -50,6 +50,21 @@ def make_config(**settings):
             "block_returned",
             "SELECT {% block columns %}0{{ return('1') }}{% endblock %} AS n\n",
         ),
+        (
+            "recursive",
+            "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+            "SELECT {{ item.n }};{{ loop(item.children) }}{% endfor %}\n",
+        ),
+        (
+            "recursive_transformed",
+            "{% for item in [{'n': 1, 'children': [{'n': 2, 'children': []}]}] recursive %}"
+            "SELECT {{ item.n }};{{ loop(item.children) | upper }}{% endfor %}\n",
+        ),
+        (
+            "recursive_else",
+            "{% for item in [{'n': 1, 'children': []}] recursive %}"
+            "SELECT {{ item.n }};{{ loop(item.children) }}{% else %}select 0{% endfor %}\n",
+        ),
     ],
 )
 def test_fix_original_source(case, expected, traces, monkeypatch):

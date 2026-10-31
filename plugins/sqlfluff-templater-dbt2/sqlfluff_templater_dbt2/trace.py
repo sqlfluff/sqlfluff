@@ -193,7 +193,7 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
             src = slice(0, len(source))
         if kind == "macro":
             macros.append((src, dst))
-        elif kind not in {"variable", "loop_skipped"}:
+        elif kind != "variable":
             events.append((kind, src, dst))
 
     sliced: list[TemplatedFileSlice] = []
@@ -243,6 +243,10 @@ def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedF
             omitted(src.start)
         if kind == "loop_iteration":
             kind = "block_start"
+        elif kind == "loop_skipped":
+            # Empty recursive invocations share their parent's source tag;
+            # the explicit closing event cannot be inferred from source gaps.
+            kind = "block_end"
         elif kind == "block_standalone":
             kind = "templated"
         if kind == "literal":

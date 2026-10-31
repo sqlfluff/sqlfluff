@@ -5,9 +5,9 @@ This SQLFluff draft consumes the artifact proposed by
 implemented in dbt; this repository implements the consumer.
 
 The tested producer revision is
-[`b57b0f671`](https://github.com/alanmcruickshank/dbt/commit/b57b0f671f567153322a37b0be1e09c085ba819e),
+[`3116b9498`](https://github.com/alanmcruickshank/dbt/commit/3116b949886d85aae646cc1479e7f703b88865d1),
 including the elif, raw-span, loop-control, inheritance, buffered-render and
-explicit-return fixes, and based on
+explicit-return, recursive-loop, include and super fixes, and based on
 upstream `335cf309c`. It reports `dbt-oss 2.0.8`. A released binary
 with the same version number does not contain the proposed feature merely
 because its version matches. The revision identifies our validation build;
@@ -25,7 +25,7 @@ install the Python distribution:
 ```sh
 git clone https://github.com/alanmcruickshank/dbt.git
 cd dbt
-git checkout b57b0f671f567153322a37b0be1e09c085ba819e
+git checkout 3116b949886d85aae646cc1479e7f703b88865d1
 python -m pip install maturin
 python -m maturin build --manifest-path crates/dbt-sa-python/Cargo.toml --out dist
 # Install the wheel produced above into the SQLFluff test environment:
@@ -49,8 +49,8 @@ The consumer invokes:
 dbt compile --select path:models/example.sql --feature write_render_trace
 ```
 
-The [producer's design notes](https://github.com/alanmcruickshank/dbt/blob/b57b0f671f567153322a37b0be1e09c085ba819e/docs/architecture/render-trace.md)
-and [short JSON example](https://github.com/alanmcruickshank/dbt/blob/b57b0f671f567153322a37b0be1e09c085ba819e/crates/dbt-tasks-sa/tests/fixtures/render_trace/example.render_trace.json)
+The [producer's design notes](https://github.com/alanmcruickshank/dbt/blob/3116b949886d85aae646cc1479e7f703b88865d1/docs/architecture/render-trace.md)
+and [short JSON example](https://github.com/alanmcruickshank/dbt/blob/3116b949886d85aae646cc1479e7f703b88865d1/crates/dbt-tasks-sa/tests/fixtures/render_trace/example.render_trace.json)
 describe the format. SQLFluff depends on:
 
 - Protocol version 1 and the `jinja_before_ephemeral_injection` render stage.
