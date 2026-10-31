@@ -1413,15 +1413,8 @@ class InsertStatementSegment(BaseSegment):
             OneOf(
                 Ref("ValuesClauseSegment"),
                 Ref("SetClauseListSegment"),
-                Sequence(
-                    OneOf(
-                        Ref("SelectableGrammar"),
-                        Sequence(
-                            "TABLE",
-                            Ref("TableReferenceSegment"),
-                        ),
-                    ),
-                ),
+                # Includes `TABLE tbl_name` (TableStatementSegment)
+                Ref("SelectableGrammar"),
                 optional=False,
             ),
             Ref("InsertRowAliasSegment", optional=True),
@@ -3185,6 +3178,59 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class UnorderedTableStatementSegment(BaseSegment):
+    """A `TABLE` statement without `ORDER BY` or `LIMIT`.
+
+    Used as part of a set expression, where any `ORDER BY` and `LIMIT`
+    belong to the set expression.
+
+    https://dev.mysql.com/doc/refman/8.4/en/table.html
+    """
+
+    type = "table_statement"
+
+    match_grammar: Matchable = Sequence("TABLE", Ref("TableReferenceSegment"))
+
+
+class TableStatementSegment(BaseSegment):
+    """A `TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/table.html
+    """
+
+    type = "table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+    )
+
+
+mysql_dialect.replace(
+    NonWithSelectableGrammar=OneOf(
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
+        Ref("TableStatementSegment"),
+    ),
+    NonSetSelectableGrammar=OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("UnorderedSelectStatementSegment"),
+        Ref("UnorderedTableStatementSegment"),
+        # If it's bracketed, we can have the full select statement here,
+        # otherwise we can't because any order by clauses should belong
+        # to the set expression.
+        Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("TableStatementSegment")),
+        Bracketed(Ref("WithCompoundStatementSegment")),
+        Bracketed(Ref("NonSetSelectableGrammar")),
+        Ref("BracketedSetExpressionGrammar"),
+    ),
+)
+
+
 class ForClauseSegment(BaseSegment):
     """This is the body of a `FOR` clause."""
 
@@ -4140,13 +4186,8 @@ class ReplaceSegment(BaseSegment):
             Ref("SetClauseListSegment"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
-                OneOf(
-                    Ref("SelectableGrammar"),
-                    Sequence(
-                        "TABLE",
-                        Ref("TableReferenceSegment"),
-                    ),
-                ),
+                # Includes `TABLE tbl_name` (TableStatementSegment)
+                Ref("SelectableGrammar"),
             ),
         ),
     )
