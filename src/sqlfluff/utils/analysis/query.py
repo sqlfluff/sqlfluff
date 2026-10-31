@@ -12,6 +12,7 @@ from sqlfluff.core.dialects.common import (
     AliasInfo,
     get_from_clause_aliases,
     is_qualified,
+    iter_raw_references,
 )
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
@@ -88,42 +89,101 @@ class Selectable:
             # source), see the "Examples" section of the Postgres docs page:
             # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
-            alias_expressions = values.children(sp.is_type("alias_expression"))
             table_aliases: list[AliasInfo] = []
-            if alias_expressions:
-                # A VALUES clause carries its alias as a direct child.
-                for alias_expression in alias_expressions:
-                    name = (
-                        Segments(alias_expression)
-                        .children()
-                        .first(sp.is_type("naked_identifier", "quoted_identifier"))
-                    )
-                    table_aliases.append(
-                        AliasInfo(
-                            name[0].raw if name else "",
-                            name[0] if name else None,
-                            bool(name),
-                            self.selectable,
-                            alias_expression,
-                            None,
+            dialect_name = self.dialect.name if self.dialect else None
+
+            if self.selectable.is_type(
+                "update_statement", "delete_statement", "merge_statement"
+            ):
+                # 1. Target table(s) and sources specified in from clauses / from expressions
+                for from_clause in self.selectable.get_children("from_clause"):
+                    table_aliases.extend(
+                        alias
+                        for _, alias in get_from_clause_aliases(
+                            from_clause, dialect_name
                         )
                     )
-            elif values.children(sp.is_type("from_expression")):
-                # In some dialects (e.g. MySQL) the target table(s) of an
-                # UPDATE are parsed as from_expression(s), so their aliases live
-                # inside from_expression_elements (and join clauses, for
-                # multi-table updates) rather than as direct children. Reuse the
-                # canonical from-clause alias resolution instead of re-deriving
-                # aliases here, so joined and nested targets resolve exactly as
-                # they do in a SELECT.
-                # https://github.com/sqlfluff/sqlfluff/issues/6147
-                dialect_name = self.dialect.name if self.dialect else None
-                table_aliases = [
-                    alias
-                    for _, alias in get_from_clause_aliases(
-                        self.selectable, dialect_name
+                if self.selectable.get_children("from_expression"):
+                    table_aliases.extend(
+                        alias
+                        for _, alias in get_from_clause_aliases(
+                            self.selectable, dialect_name
+                        )
                     )
-                ]
+
+                # 2. Direct table references (e.g. UPDATE target, DELETE target, MERGE target and source)
+                existing_ref_strs = {
+                    a.ref_str.upper() for a in table_aliases if a.ref_str
+                }
+                for idx, child in enumerate(self.selectable.segments):
+                    if not child.is_type("table_reference"):
+                        continue
+                    alias_expr: Optional[BaseSegment] = None
+                    for next_seg in self.selectable.segments[idx + 1 :]:
+                        if next_seg.is_whitespace or next_seg.is_type(
+                            "indent", "dedent"
+                        ):
+                            continue
+                        if next_seg.is_type("alias_expression"):
+                            alias_expr = next_seg
+                        break
+
+                    if alias_expr:
+                        name_seg = alias_expr.get_child(
+                            "identifier"
+                        ) or alias_expr.get_child(
+                            "naked_identifier", "quoted_identifier"
+                        )
+                        ref_str = (
+                            name_seg.raw_normalized(casefold=False) if name_seg else ""
+                        )
+                        if ref_str and ref_str.upper() not in existing_ref_strs:
+                            existing_ref_strs.add(ref_str.upper())
+                            table_aliases.append(
+                                AliasInfo(
+                                    ref_str=ref_str,
+                                    segment=name_seg,
+                                    aliased=True,
+                                    from_expression_element=child,
+                                    alias_expression=alias_expr,
+                                    object_reference=child,
+                                )
+                            )
+                    else:
+                        refs = list(iter_raw_references(child, dialect_name))
+                        ref_str = refs[-1].part if refs else ""
+                        if ref_str and ref_str.upper() not in existing_ref_strs:
+                            existing_ref_strs.add(ref_str.upper())
+                            table_aliases.append(
+                                AliasInfo(
+                                    ref_str=ref_str,
+                                    segment=refs[-1].segments[0] if refs else None,
+                                    aliased=False,
+                                    from_expression_element=child,
+                                    alias_expression=None,
+                                    object_reference=child,
+                                )
+                            )
+            elif self.selectable.is_type("values_clause"):
+                alias_expressions = values.children(sp.is_type("alias_expression"))
+                if alias_expressions:
+                    # A VALUES clause carries its alias as a direct child.
+                    for alias_expression in alias_expressions:
+                        name = (
+                            Segments(alias_expression)
+                            .children()
+                            .first(sp.is_type("naked_identifier", "quoted_identifier"))
+                        )
+                        table_aliases.append(
+                            AliasInfo(
+                                name[0].raw if name else "",
+                                name[0] if name else None,
+                                bool(name),
+                                self.selectable,
+                                alias_expression,
+                                None,
+                            )
+                        )
 
             if not table_aliases:
                 # Preserve the longstanding behavior of always registering

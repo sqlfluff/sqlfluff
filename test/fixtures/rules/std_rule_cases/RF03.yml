@@ -1634,3 +1634,72 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+test_pass_postgres_update_where_exists_correlated_unqualified_8714:
+  # With single_table_references = unqualified, RF03 should not strip qualifiers
+  # from correlated subqueries in UPDATE statements, which would turn l.id = o.id
+  # into id = id (an always-true predicate).
+  pass_str: |
+    update orders as o set x = 1 where exists (select 1 from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_update_set_subquery_correlated_unqualified_8714:
+  # Correlated subqueries in the SET clause of an UPDATE statement can see the
+  # target table of the DML statement.
+  pass_str: |
+    update orders as o set x = (select l.x from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_delete_where_exists_correlated_unqualified_8714:
+  # Correlated subqueries in DELETE statements can see the target table of the
+  # DELETE statement.
+  pass_str: |
+    delete from orders as o where exists (select 1 from lines as l where l.id = o.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_postgres_update_unaliased_correlated_unqualified_8714:
+  # Unaliased target tables in UPDATE statements are also visible to subqueries.
+  pass_str: |
+    update orders set x = 1 where exists (select 1 from lines as l where l.id = orders.id);
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_update_cross_apply_correlated_unqualified_8714:
+  # T-SQL UPDATE with CROSS APPLY subqueries can see the target table and FROM tables.
+  pass_str: |
+    update o set x = s.j from orders as o cross apply (select l.x as j from lines as l where l.id = o.id) as s;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_merge_when_matched_correlated_unqualified_8714:
+  # T-SQL MERGE statement with correlated subquery in WHEN MATCHED clause.
+  pass_str: |
+    merge into t using s on t.id = s.id when matched then update set t.y = (select m.y from m where m.id = t.id);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
