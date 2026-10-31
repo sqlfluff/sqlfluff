@@ -41,6 +41,18 @@ from sqlfluff.core import FluffConfig, Linter
             ["_dbt_other_partition"],
         ),
         (
+            "bigquery",
+            "SELECT foo._dbt_max_partition FROM events",
+            ["foo._dbt_max_partition"],
+            ["foo._dbt_max_partition"],
+        ),
+        (
+            "bigquery",
+            "SELECT _dbt_max_partition.value FROM events",
+            ["_dbt_max_partition.value"],
+            ["_dbt_max_partition.value"],
+        ),
+        (
             "postgres",
             "SELECT _dbt_max_partition.value FROM events",
             ["_dbt_max_partition.value"],

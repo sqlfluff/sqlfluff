@@ -337,8 +337,10 @@ class Rule_RF01(BaseRule):
                 else:
                     return None
 
-        targets += self._get_implicit_targets(query)
-        if query.is_dbt_bigquery:
+        is_unqualified = len(self._table_ref_as_tuple(r, query.dialect)[0]) == 1
+        if not query.is_dbt_bigquery or is_unqualified:
+            targets += self._get_implicit_targets(query)
+        if query.is_dbt_bigquery and is_unqualified:
             # BigQuery scripting variables are case insensitive. normalize()
             # unquotes identifiers but does not fold their case.
             possible_references += [
