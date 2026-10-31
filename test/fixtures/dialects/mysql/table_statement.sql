@@ -17,3 +17,7 @@ select * from tbl1 where (col1, col2) in (table tbl2);
 with cte as (table tbl) select * from cte;
 
 create table tbl2 as table tbl;
+
+explain table tbl;
+
+(table t1 order by a limit 1) union table t2;

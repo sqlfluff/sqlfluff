@@ -3223,6 +3223,7 @@ mysql_dialect.replace(
         # otherwise we can't because any order by clauses should belong
         # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("TableStatementSegment")),
         Bracketed(Ref("WithCompoundStatementSegment")),
         Bracketed(Ref("NonSetSelectableGrammar")),
         Ref("BracketedSetExpressionGrammar"),
