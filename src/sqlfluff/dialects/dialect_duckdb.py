@@ -1522,6 +1522,16 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 Ref("QuotedLiteralSegment"),
                 _copy_from_option,
             ),
+            # COPY FROM DATABASE
+            # https://duckdb.org/docs/stable/sql/statements/copy#copy-from-database--to
+            Sequence(
+                "FROM",
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+                "TO",
+                Ref("DatabaseReferenceSegment"),
+                Bracketed(OneOf("SCHEMA", "DATA"), optional=True),
+            ),
         ),
     )
 
