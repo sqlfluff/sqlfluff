@@ -1,5 +1,7 @@
 """Tests for the RustParser error handling and iteration limits."""
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -205,6 +207,47 @@ def test__iteration_limit__exceeded_via_rust_parser_wrapper():
         parser.parse(segments, fname="test.sql")
 
     assert "maximum iteration limit" in str(exc_info.value)
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__iteration_limit__exceeded_in_worker_process_stops_cli(tmp_path):
+    """The panic ends a multi-process run promptly, naming the file.
+
+    The panic can't be pickled, and if it escapes a worker the main process
+    waits forever. That's why this uses a subprocess with a timeout.
+    """
+    for name in ("a.sql", "b.sql"):
+        (tmp_path / name).write_text("select 1 as a\n")
+    config_path = tmp_path / "test.cfg"
+    config_path.write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "use_rust_parser = true\n"
+        "rust_parser_max_iterations = 1\n"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sqlfluff",
+            "lint",
+            "--ignore-local-config",
+            "--config",
+            str(config_path),
+            "--processes",
+            "2",
+            str(tmp_path / "a.sql"),
+            str(tmp_path / "b.sql"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+
+    assert result.returncode == 1
+    assert "WorkerAbort: Unable to lint" in result.stderr
+    assert "maximum iteration limit" in result.stderr
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
