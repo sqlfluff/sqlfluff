@@ -622,6 +622,9 @@ postgres_dialect.add(
         Sequence("VALIDATOR", Ref("FunctionNameSegment")),
         Sequence("NO", "VALIDATOR"),
     ),
+    # https://www.postgresql.org/docs/17/sql-createtable.html
+    # https://www.postgresql.org/docs/17/sql-altertable.html
+    ColumnStorageModeGrammar=OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN", "DEFAULT"),
     CreateUserMappingGrammar=Sequence("CREATE", "USER", "MAPPING"),
     SessionInformationUserFunctionsGrammar=OneOf(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
@@ -3167,9 +3170,7 @@ class AlterTableActionSegment(BaseSegment):
                 # Documentation says you can only provide keys in RESET options, but the
                 # actual grammar lets you pass in values too.
                 Sequence("RESET", Ref("RelationOptionsSegment")),
-                Sequence(
-                    "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
-                ),
+                Sequence("SET", "STORAGE", Ref("ColumnStorageModeGrammar")),
                 Sequence("SET", "COMPRESSION", Ref("ParameterNameSegment")),
             ),
         ),
@@ -3763,9 +3764,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
                     "RESET",
                     Bracketed(Delimited(Ref("QualifiedParameterNameGrammar"))),
                 ),
-                Sequence(
-                    "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
-                ),
+                Sequence("SET", "STORAGE", Ref("ColumnStorageModeGrammar")),
                 Sequence("SET", "COMPRESSION", Ref("ParameterNameSegment")),
             ),
         ),
@@ -8364,6 +8363,10 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
                 "COLLATE",
                 Ref("CollationReferenceSegment"),
             ),
+            # Column STORAGE (PostgreSQL 16+) and COMPRESSION (PostgreSQL 14+).
+            # https://www.postgresql.org/docs/17/sql-createtable.html
+            Sequence("STORAGE", Ref("ColumnStorageModeGrammar")),
+            Sequence("COMPRESSION", Ref("ParameterNameSegment")),
         ),
     )
 

@@ -1,0 +1,149 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3b2adf5fc48f29618dfe289194e148b1975052e7a8aea4987f4fed50d326ef7c
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: storage_test
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: a
+        - data_type:
+            keyword: text
+        - keyword: STORAGE
+        - keyword: PLAIN
+      - comma: ','
+      - column_definition:
+        - naked_identifier: b
+        - data_type:
+            keyword: text
+        - keyword: STORAGE
+        - keyword: EXTERNAL
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+            keyword: text
+        - keyword: STORAGE
+        - keyword: EXTENDED
+      - comma: ','
+      - column_definition:
+        - naked_identifier: d
+        - data_type:
+            keyword: text
+        - keyword: STORAGE
+        - keyword: MAIN
+      - comma: ','
+      - column_definition:
+        - naked_identifier: e
+        - data_type:
+            keyword: text
+        - keyword: STORAGE
+        - keyword: DEFAULT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: compression_test
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: text
+          keyword: COMPRESSION
+          parameter: pglz
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: text
+          keyword: COMPRESSION
+          parameter: lz4
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: text
+          keyword: COMPRESSION
+          parameter: default
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: combined_test
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: a
+        - data_type:
+            keyword: text
+        - keyword: STORAGE
+        - keyword: MAIN
+        - keyword: COMPRESSION
+        - parameter: lz4
+        - keyword: COLLATE
+        - collation_reference:
+            quoted_identifier: '"C"'
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: b
+        - data_type:
+            keyword: jsonb
+        - keyword: STORAGE
+        - keyword: EXTERNAL
+        - column_constraint_segment:
+            keyword: DEFAULT
+            quoted_literal: "'{}'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: kw_names
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: storage
+          data_type:
+            keyword: text
+      - comma: ','
+      - column_definition:
+          naked_identifier: compression
+          data_type:
+            keyword: int
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: combined_test
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: a
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: DEFAULT
+- statement_terminator: ;
