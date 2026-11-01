@@ -967,6 +967,33 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class CTEDefinitionSegment(postgres.CTEDefinitionSegment):
+    """A CTE Definition from a WITH statement.
+
+    Adds the `USING KEY` clause of recursive CTEs, whose key list can include
+    aggregates over the payload columns:
+    https://duckdb.org/docs/stable/sql/query_syntax/with#recursive-ctes-with-using-key
+    """
+
+    _using_key = Sequence(
+        "USING",
+        "KEY",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+    match_grammar = postgres.CTEDefinitionSegment.match_grammar.copy(
+        insert=[Sequence(_using_key, optional=True)],
+        before=Ref.keyword("AS"),
+    )
+
+
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
