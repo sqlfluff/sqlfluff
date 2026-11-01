@@ -1,5 +1,6 @@
 """Tests for the RustParser error handling and iteration limits."""
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -246,7 +247,7 @@ def test__iteration_limit__exceeded_in_worker_process_stops_cli(tmp_path):
     )
 
     assert result.returncode == 1
-    assert "WorkerAbort: Unable to lint" in result.stderr
+    assert re.search(r"WorkerAbort: Unable to lint .*[ab]\.sql: ", result.stderr)
     assert "maximum iteration limit" in result.stderr
 
 
