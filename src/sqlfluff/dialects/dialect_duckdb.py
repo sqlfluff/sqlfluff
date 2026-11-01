@@ -71,6 +71,8 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "DATABASES",
         "DATEFORMAT",
         "DELIM",
+        "FILENAME_PATTERN",
+        "FILE_EXTENSION",
         "FILE_SIZE_BYTES",
         "GLOB",
         "INSTALL",
@@ -86,8 +88,11 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "PER_THREAD_OUTPUT",
         "POSITIONAL",
         "PREFIX",
+        "PRESERVE_ORDER",
         "PROGRAM",
         "RESERVOIR",
+        "RETURN_FILES",
+        "RETURN_STATS",
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
         "SAMPLE",
@@ -96,6 +101,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "STRUCT",
         "SUFFIX",
         "TIMESTAMPFORMAT",
+        "USE_TMP_FILE",
         "VARIABLES",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
@@ -1442,6 +1448,13 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         Ref("QuotedLiteralSegment"),
                     ),
                     Sequence(
+                        OneOf("FILENAME_PATTERN", "FILE_EXTENSION"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    Sequence(
                         "FORCE_QUOTE",
                         OneOf(
                             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
@@ -1454,6 +1467,15 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                     ),
                     Sequence("OVERWRITE", Ref("BooleanLiteralGrammar", optional=True)),
                     Sequence("APPEND", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence(
+                        OneOf(
+                            "USE_TMP_FILE",
+                            "PRESERVE_ORDER",
+                            "RETURN_FILES",
+                            "RETURN_STATS",
+                        ),
+                        Ref("BooleanLiteralGrammar", optional=True),
+                    ),
                     Sequence(
                         "PER_THREAD_OUTPUT",
                         OneOf(
