@@ -71,6 +71,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "DATABASES",
         "DATEFORMAT",
         "DELIM",
+        "EXPORT",
         "FILE_SIZE_BYTES",
         "GLOB",
         "INSTALL",
@@ -1152,6 +1153,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
             Ref("CheckpointStatementSegment"),
+            Ref("ExportStatementSegment"),
+            Ref("ImportStatementSegment"),
         ]
     )
 
@@ -1524,6 +1527,34 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             ),
         ),
     )
+
+
+class ExportStatementSegment(BaseSegment):
+    """An `EXPORT DATABASE` statement.
+
+    It takes the same options as `COPY ... TO`, and exports the current database
+    unless one is named before `TO`.
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "export_statement"
+    match_grammar = Sequence(
+        "EXPORT",
+        "DATABASE",
+        Sequence(Ref("DatabaseReferenceSegment"), "TO", optional=True),
+        Ref("QuotedLiteralSegment"),
+        CopyStatementSegment._copy_to_option,
+    )
+
+
+class ImportStatementSegment(BaseSegment):
+    """An `IMPORT DATABASE` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "import_statement"
+    match_grammar = Sequence("IMPORT", "DATABASE", Ref("QuotedLiteralSegment"))
 
 
 class SetStatementSegment(postgres.SetStatementSegment):
