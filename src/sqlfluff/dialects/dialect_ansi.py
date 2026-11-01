@@ -1521,7 +1521,13 @@ class WindowSpecificationSegment(BaseSegment):
         Ref(
             "SingleIdentifierGrammar",
             optional=True,
-            exclude=OneOf(Ref.keyword("PARTITION"), Ref.keyword("ORDER")),
+            # ROWS, RANGE and GROUPS aren't reserved in every dialect, so don't take
+            # the unit of a frame clause as the base window name.
+            exclude=OneOf(
+                Ref.keyword("PARTITION"),
+                Ref.keyword("ORDER"),
+                Ref("FrameClauseSegment"),
+            ),
         ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
