@@ -1101,6 +1101,53 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     )
 
 
+class AttachStatementSegment(BaseSegment):
+    """An `ATTACH` statement.
+
+    `OR REPLACE` and `IF NOT EXISTS` are each optional and can be combined, in
+    that order. Option values can be arbitrary expressions.
+
+    https://duckdb.org/docs/stable/sql/statements/attach.html
+    """
+
+    type = "attach_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref.keyword("DATABASE", optional=True),
+        # The path can be any expression that evaluates to a string, e.g.
+        # getenv('DATABASE_PATH') or a concatenation.
+        Ref("ExpressionSegment"),
+        Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    # A bare option name (e.g. READ_ONLY) means true.
+                    Ref("ExpressionSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DetachStatementSegment(BaseSegment):
+    """A `DETACH` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/attach.html
+    """
+
+    type = "detach_statement"
+    match_grammar = Sequence(
+        "DETACH",
+        Ref.keyword("DATABASE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class CheckpointStatementSegment(BaseSegment):
     """A `CHECKPOINT` statement.
 
@@ -1152,6 +1199,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
             Ref("CheckpointStatementSegment"),
+            Ref("AttachStatementSegment"),
+            Ref("DetachStatementSegment"),
         ]
     )
 
