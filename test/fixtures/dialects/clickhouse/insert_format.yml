@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 366d3297985c123fc2370093d12383252745085409727d3af2a2ccb0921057f4
+_hash: 9f92cd0bb15d736273d4ff733c43abb059243cc04208de3eee8bd79db92581d6
 file:
 - statement:
     insert_statement:
@@ -20,31 +20,6 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        naked_identifier: x
-    - values_clause:
-      - keyword: VALUES
-      - bracketed:
-          start_bracket: (
-          numeric_literal: '1'
-          comma: ','
-          quoted_literal: "'a'"
-          end_bracket: )
-      - comma: ','
-      - bracketed:
-          start_bracket: (
-          numeric_literal: '2'
-          comma: ','
-          quoted_literal: "'b'"
-          end_bracket: )
-    - format_clause:
-      - keyword: FORMAT
-      - keyword: JSONEachRow
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
         naked_identifier: t
     - bracketed:
       - start_bracket: (
@@ -64,6 +39,22 @@ file:
     - keyword: INTO
     - table_reference:
         naked_identifier: t
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: async_insert
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: JSONEachRow
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -72,6 +63,41 @@ file:
       - column_reference:
           naked_identifier: b
       - end_bracket: )
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: async_insert
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - naked_identifier: wait_for_async_insert
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '0'
+    - format_clause:
+      - keyword: FORMAT
+      - keyword: CSV
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: async_insert
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
     - values_clause:
         keyword: VALUES
         bracketed:
@@ -80,9 +106,6 @@ file:
           comma: ','
           quoted_literal: "'a'"
           end_bracket: )
-    - format_clause:
-      - keyword: FORMAT
-      - keyword: JSONEachRow
 - statement_terminator: ;
 - statement:
     insert_statement:
