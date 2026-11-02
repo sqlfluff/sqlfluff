@@ -9,6 +9,7 @@ EXPORT DATABASE 'target_directory' (
     COMPRESSION zstd,
     ROW_GROUP_SIZE 100_000
 );
+EXPORT DATABASE 'target_directory' (FORMAT parquet, CODEC 'snappy');
 
 -- IMPORT DATABASE
 IMPORT DATABASE 'source_directory';

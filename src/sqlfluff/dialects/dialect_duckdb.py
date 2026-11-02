@@ -66,6 +66,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ANTI",
         "APPEND",
         "ASOF",
+        "CODEC",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
         "DATABASES",
@@ -1484,7 +1485,8 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         Ref("BooleanLiteralGrammar", optional=True),
                     ),
                     Sequence(
-                        "COMPRESSION",
+                        # DuckDB also accepts CODEC as another name for COMPRESSION.
+                        OneOf("COMPRESSION", "CODEC"),
                         OneOf(
                             Ref("QuotedLiteralSegment"),
                             Ref("SingleIdentifierGrammar"),

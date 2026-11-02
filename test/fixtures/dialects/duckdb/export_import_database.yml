@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec0b283536436b00094ef4b68391f3a7a2578f90da79b5fd4119d1d6f10ab46b
+_hash: bf4a19afe9172f0fdeb728892416175452b8185f880f7292e93bac158ead49af
 file:
 - statement:
     export_statement:
@@ -51,6 +51,20 @@ file:
       - comma: ','
       - keyword: ROW_GROUP_SIZE
       - numeric_literal: '100_000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - quoted_literal: "'target_directory'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: CODEC
+      - quoted_literal: "'snappy'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
