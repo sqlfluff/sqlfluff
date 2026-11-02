@@ -1,0 +1,209 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0f75d28ebb0c358b39dad58696540762e49269764c2c63c752831bdb947ff35e
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TAGS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TAGS
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TAGS
+    - keyword: LIKE
+    - quoted_literal: "'pii%'"
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TAGS
+    - keyword: IN
+    - keyword: APPLICATION
+    - keyword: PACKAGE
+    - object_reference:
+        naked_identifier: my_pkg
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICIES
+    - keyword: LIKE
+    - quoted_literal: "'rap%'"
+    - keyword: IN
+    - keyword: ACCOUNT
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SESSION
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SESSION
+    - keyword: POLICIES
+    - keyword: 'ON'
+    - keyword: USER
+    - object_reference:
+        naked_identifier: jsmith
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: AUTHENTICATION
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: ACCOUNT
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: AUTHENTICATION
+    - keyword: POLICIES
+    - keyword: LIKE
+    - quoted_literal: "'auth%'"
+    - keyword: STARTS
+    - keyword: WITH
+    - quoted_literal: "'auth'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: JOIN
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: JOIN
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIVACY
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIVACY
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PACKAGES
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PACKAGES
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATA
+    - keyword: METRIC
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - quoted_literal: "'count%'"
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: governance
+      - dot: .
+      - naked_identifier: dmfs
+    - keyword: STARTS
+    - keyword: WITH
+    - quoted_literal: "'count'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: NETWORK
+    - keyword: RULES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: NETWORK
+    - keyword: RULES
+    - keyword: IN
+    - object_reference:
+      - naked_identifier: SNOWFLAKE
+      - dot: .
+      - naked_identifier: NETWORK_SECURITY
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: NETWORK
+    - keyword: RULES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+    - keyword: FROM
+    - quoted_literal: "'rule_a'"
+- statement_terminator: ;

@@ -10063,6 +10063,14 @@ class ShowStatementSegment(BaseSegment):
         Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
         Sequence("RESOURCE", "MONITORS"),
         Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
+        "TAGS",
+        Sequence("ROW", "ACCESS", "POLICIES"),
+        Sequence(
+            OneOf("AUTHENTICATION", "JOIN", "PACKAGES", "PRIVACY", "SESSION"),
+            "POLICIES",
+        ),
+        Sequence("DATA", "METRIC", "FUNCTIONS"),
+        Sequence("NETWORK", "RULES"),
     )
 
     _object_scope_types = OneOf(
