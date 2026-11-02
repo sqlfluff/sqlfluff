@@ -457,6 +457,18 @@ postgres_dialect.add(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
+    # behaviour in every position and only rejects unsupported ones at analysis.
+    # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    JsonBehaviourGrammar=OneOf(
+        "ERROR",
+        "NULL",
+        "TRUE",
+        "FALSE",
+        "UNKNOWN",
+        Sequence("EMPTY", OneOf("ARRAY", "OBJECT", optional=True)),
+        Sequence("DEFAULT", Ref("ExpressionSegment")),
+    ),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
@@ -1925,6 +1937,114 @@ class SemiStructuredAccessorSegment(BaseSegment):
             allow_gaps=True,
         ),
         allow_gaps=True,
+    )
+
+
+class JsonTableColumnDefinitionSegment(BaseSegment):
+    """A column definition in a JSON_TABLE COLUMNS clause.
+
+    Column names describe the shape of the table produced by JSON_TABLE; they
+    are not references to columns of an outer table, so they are modelled as
+    identifiers rather than column references.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "json_table_column_definition"
+
+    _path_clause = Sequence("PATH", Ref("QuotedLiteralSegment"), optional=True)
+
+    match_grammar: Matchable = OneOf(
+        # name FOR ORDINALITY
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "FOR",
+            "ORDINALITY",
+        ),
+        # name type [PATH path] [behaviour ON EMPTY] [behaviour ON ERROR]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            _path_clause,
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+        ),
+        # name type EXISTS [PATH path] [behaviour ON ERROR]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            "EXISTS",
+            _path_clause,
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+        ),
+        # NESTED [PATH] path [AS name] COLUMNS (...)
+        Sequence(
+            "NESTED",
+            Ref.keyword("PATH", optional=True),
+            Ref("QuotedLiteralSegment"),
+            Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+            Ref("JsonTableColumnsClauseSegment"),
+        ),
+    )
+
+
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "json_table_columns_clause"
+    match_grammar: Matchable = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Delimited(
+                Ref("JsonTableColumnDefinitionSegment"),
+            ),
+        ),
+    )
+
+
+class JsonTableFunctionContentsSegment(BaseSegment):
+    """JSON_TABLE function contents.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Ref("JsonTableColumnsClauseSegment"),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+    )
+
+
+class JsonTableFunctionNameSegment(BaseSegment):
+    """JSON_TABLE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_TABLE", WordSegment, type="function_name_identifier"
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with JSON_TABLE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonTableFunctionNameSegment"),
+                Ref("JsonTableFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
     )
 
 
