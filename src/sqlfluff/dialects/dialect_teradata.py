@@ -340,8 +340,12 @@ class BteqStatementSegment(BaseSegment):
                 Sequence(Ref("ComparisonOperatorGrammar"), Ref("LiteralGrammar")),
                 optional=True,
             ),
-            # Anything else on the line is opaque command arguments.
-            Anything(optional=True),
+            # Anything else on the line is opaque command arguments. This is
+            # wrapped in an optional Sequence, rather than being an optional
+            # Anything, because the Rust grammar tables do not carry the
+            # optional flag on a bare Anything, which would turn an argument
+            # list that is already fully consumed into an unparsable section.
+            Sequence(Anything(), optional=True),
             allow_gaps=False,
             optional=True,
             parse_mode=ParseMode.GREEDY,

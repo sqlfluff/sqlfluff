@@ -120,20 +120,31 @@ def test_linting_leaves_bteq_commands_alone() -> None:
 
 
 def test_fixing_does_not_rewrite_bteq_commands() -> None:
-    """Autofix leaves every dot-command byte for byte as it was.
+    """Autofix repairs the SQL but leaves every dot-command byte for byte.
 
     This is the consequence that matters: rewriting the spacing in a
     dot-command changes what the command does, so a fix run over a BTEQ
-    script has to leave those lines untouched.
+    script has to leave those lines untouched. The script fed in has a real
+    fixable violation (`col1>10`) so that the fixer demonstrably runs.
     """
     linter = Linter(config=FluffConfig(overrides={"dialect": "teradata"}))
-    fixed, _ = linter.lint_string(BTEQ_SCRIPT, fix=True).fix_string()
+    dirty = BTEQ_SCRIPT.replace("col1 > 10", "col1>10")
+    assert dirty != BTEQ_SCRIPT
 
-    command_lines = [line for line in BTEQ_SCRIPT.splitlines() if line.startswith(".")]
+    fixed, _ = linter.lint_string(dirty, fix=True).fix_string()
+
+    # The SQL was fixed back to the clean script.
+    assert fixed != dirty
+    assert fixed == BTEQ_SCRIPT
+
+    # And the dot-command lines are identical to the original, newlines too.
+    command_lines = [
+        line for line in BTEQ_SCRIPT.splitlines(keepends=True) if line.startswith(".")
+    ]
     assert command_lines  # guard against the script losing its commands
-    assert [line for line in fixed.splitlines() if line.startswith(".")] == (
-        command_lines
-    )
+    assert [
+        line for line in fixed.splitlines(keepends=True) if line.startswith(".")
+    ] == command_lines
 
 
 def test_layout_rules_still_apply_to_sql_in_a_bteq_script() -> None:
