@@ -2627,3 +2627,33 @@ def test__templater_jinja_custom_block_delimiters_variants():
     variant_outputs = {str(v[0]) for v in variants}
     assert "SELECT 1" in variant_outputs
     assert "SELECT 2" in variant_outputs
+
+
+@pytest.mark.parametrize("macro_source", ["config", "path"])
+def test__templater_jinja_library_available_in_macro(tmp_path, macro_source):
+    """Libraries must be available when macros are compiled, not only rendered."""
+    library_path = tmp_path / "libs"
+    library_path.mkdir()
+    (library_path / "helper.py").write_text(
+        "def answer():\n    return 42\n", encoding="utf-8"
+    )
+    macro = "{% macro answer_macro() %}{{ helper.answer() }}{% endmacro %}"
+    jinja_config = {"library_path": str(library_path)}
+    if macro_source == "path":
+        macro_path = tmp_path / "macros.sql"
+        macro_path.write_text(macro, encoding="utf-8")
+        jinja_config["load_macros_from_path"] = str(macro_path)
+    else:
+        jinja_config["macros"] = {"answer_macro": macro}
+    config = FluffConfig(
+        configs={"templater": {"jinja": jinja_config}},
+        overrides={"dialect": "ansi"},
+    )
+
+    templated, violations = JinjaTemplater().process(
+        in_str="SELECT {{ answer_macro() }} AS result;\n",
+        fname="test.sql",
+        config=config,
+    )
+    assert not violations
+    assert str(templated) == "SELECT 42 AS result;\n"
