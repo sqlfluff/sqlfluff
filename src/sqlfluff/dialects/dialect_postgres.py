@@ -2136,7 +2136,10 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         Dedent,
         terminators=[
             "INTO",
-            "FROM",
+            Ref(
+                "FromKeywordSegment",
+                exclude=is_distinct_from_lookbehind,
+            ),
             "WHERE",
             Sequence("ORDER", "BY"),
             Sequence("ON", "CONFLICT"),
