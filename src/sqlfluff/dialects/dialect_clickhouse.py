@@ -2326,13 +2326,20 @@ class OptimizeTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("OnClusterClauseSegment", optional=True),
         Sequence("PARTITION", Ref("PartitionExpressionGrammar"), optional=True),
-        Ref.keyword("FINAL", optional=True),
+        OneOf("FINAL", "FORCE", optional=True),
         Sequence(
             "DEDUPLICATE",
             Sequence(
                 "BY",
                 OneOf(
-                    Ref("StarSegment"),
+                    # `*` or `COLUMNS('regex')`, either one narrowed by EXCEPT
+                    Sequence(
+                        OneOf(
+                            Ref("StarSegment"),
+                            Sequence("COLUMNS", Bracketed(Ref("QuotedLiteralSegment"))),
+                        ),
+                        Ref("ExceptClauseSegment", optional=True),
+                    ),
                     Delimited(Ref("ColumnReferenceSegment")),
                 ),
                 optional=True,

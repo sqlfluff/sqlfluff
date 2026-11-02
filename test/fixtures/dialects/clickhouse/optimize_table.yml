@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72406a53628bfa147d76e07fd1e184ac092b6e3f61fb12686c6e7d96f46d0856
+_hash: 4d39feebd3f04ac7acb27518a78b47b76b175eece3239cffa6bf3a6a065c1eb0
 file:
 - statement:
     optimize_table_statement:
@@ -122,4 +122,101 @@ file:
     - comma: ','
     - column_reference:
         naked_identifier: col2
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: FINAL
+    - keyword: DEDUPLICATE
+    - keyword: BY
+    - star: '*'
+    - select_except_clause:
+        keyword: EXCEPT
+        naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: FINAL
+    - keyword: DEDUPLICATE
+    - keyword: BY
+    - star: '*'
+    - select_except_clause:
+        keyword: EXCEPT
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: col1
+        - comma: ','
+        - naked_identifier: col2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: FINAL
+    - keyword: DEDUPLICATE
+    - keyword: BY
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'col.*'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: FINAL
+    - keyword: DEDUPLICATE
+    - keyword: BY
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'col.*'"
+        end_bracket: )
+    - select_except_clause:
+        keyword: EXCEPT
+        naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: FINAL
+    - keyword: DEDUPLICATE
+    - keyword: BY
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'col.*'"
+        end_bracket: )
+    - select_except_clause:
+        keyword: EXCEPT
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: col1
+        - comma: ','
+        - naked_identifier: col2
+        - end_bracket: )
 - statement_terminator: ;
