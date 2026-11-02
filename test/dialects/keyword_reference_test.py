@@ -2238,7 +2238,13 @@ def _unused_finding(name: str, dialect: Dialect) -> "Finding | None":
 
 
 def _never_used_finding(dialects: dict[str, Dialect]) -> "Finding | None":
-    """Listed keywords that no grammar in any of these dialects uses."""
+    """Listed keywords that no grammar in any of these dialects uses.
+
+    For one dialect this would repeat its own unused-keywords list, so it is
+    only made for two or more.
+    """
+    if len(dialects) < 2:
+        return None
     used: set[str] = set()
     listed: set[str] = set()
     for dialect in dialects.values():
@@ -2251,13 +2257,16 @@ def _never_used_finding(dialects: dict[str, Dialect]) -> "Finding | None":
     message = "\n".join(
         [
             "Reserved or unreserved in at least one of these dialects, and used "
-            "by the grammar of none of them.",
+            "by the grammar of none of them: " + ", ".join(sorted(dialects)) + ".",
             "- the words:",
             *_word_rows(never),
         ]
     )
     return Finding(
-        "Keywords no grammar in these dialects uses", "info", len(never), message
+        f"Keywords no grammar in these {len(dialects)} dialects uses",
+        "info",
+        len(never),
+        message,
     )
 
 
@@ -3088,17 +3097,22 @@ def test_audit_report_lists_unused_keywords_as_info() -> None:
     """Test that unused keywords are an inventory, shown only at info level."""
     dialect = load_raw_dialect("ansi").copy_as("zzunused")
     dialect.sets("unreserved_keywords").update(["FORMATS", "POLICIES", "ZZNOGRAMMAR"])
-    dialects = {"zzunused": dialect.expand()}
+    sibling = load_raw_dialect("ansi").copy_as("zzsibling")
+    sibling.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
+    dialects = {"zzunused": dialect.expand(), "zzsibling": sibling.expand()}
     shown = _audit_report_of(dialects, level="info").text
     hidden = _audit_report_of(dialects, level="notice").text
+    alone = _audit_report_of({"zzunused": dialects["zzunused"]}, level="info").text
 
     assert "-- Keywords no grammar uses (" in shown
     assert "unreserved) [info] --" in shown
     assert "also in ansi's keywords:" in shown
     assert "only in zzunused's keywords:" in shown
     assert re.search(
-        r"== Keywords no grammar in these dialects uses \(\d+\) \[info\]", shown
+        r"== Keywords no grammar in these 2 dialects uses \(\d+\) \[info\]", shown
     )
+    assert "used by the grammar of none of them: zzsibling, zzunused." in _flat(shown)
+    assert "no grammar in these" not in alone
     assert "These do no harm" in _flat(shown)
     assert "Keywords no grammar uses (" not in hidden
     assert re.search(
