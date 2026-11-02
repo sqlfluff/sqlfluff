@@ -1104,26 +1104,28 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
 class AttachStatementSegment(BaseSegment):
     """An `ATTACH` statement.
 
+    `OR REPLACE` and `IF NOT EXISTS` are each optional and can be combined, in
+    that order. Option values can be arbitrary expressions.
+
     https://duckdb.org/docs/stable/sql/statements/attach.html
     """
 
     type = "attach_statement"
     match_grammar = Sequence(
         "ATTACH",
-        OneOf(Ref("OrReplaceGrammar"), Ref("IfNotExistsGrammar"), optional=True),
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref.keyword("DATABASE", optional=True),
-        Ref("QuotedLiteralSegment"),
+        # The path can be any expression that evaluates to a string, e.g.
+        # getenv('DATABASE_PATH') or a concatenation.
+        Ref("ExpressionSegment"),
         Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
         Bracketed(
             Delimited(
                 Sequence(
                     Ref("ParameterNameSegment"),
-                    OneOf(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("QuotedLiteralSegment"),
-                        Ref("BooleanLiteralGrammar"),
-                        optional=True,
-                    ),
+                    # A bare option name (e.g. READ_ONLY) means true.
+                    Ref("ExpressionSegment", optional=True),
                 ),
             ),
             optional=True,
