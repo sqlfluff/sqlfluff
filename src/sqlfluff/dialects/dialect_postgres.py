@@ -2955,6 +2955,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             Sequence(
                 Ref("IfExistsGrammar", optional=True),
+                Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
@@ -2962,7 +2963,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Sequence(
                         "ATTACH",
                         "PARTITION",
-                        Ref("ParameterNameSegment"),
+                        Ref("TableReferenceSegment"),
                         OneOf(
                             Sequence("FOR", "VALUES", Ref("PartitionBoundSpecSegment")),
                             "DEFAULT",
@@ -2971,7 +2972,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Sequence(
                         "DETACH",
                         "PARTITION",
-                        Ref("ParameterNameSegment"),
+                        Ref("TableReferenceSegment"),
                         Ref.keyword("CONCURRENTLY", optional=True),
                         Ref.keyword("FINALIZE", optional=True),
                     ),
