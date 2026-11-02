@@ -6,19 +6,23 @@ How to set up a dialect's keywords
 Every keyword has a present status: reserved (never a name), unreserved (a
 keyword that can also be a name), or unimplemented (the dialect's server
 doesn't have it). These don't overlap. Future reserved is a future status that
-can go with unreserved or unimplemented. A dialect sets its statuses with one call to
-declare_keyword_sets() (see its docstring in src/sqlfluff/core/dialects/
-base.py). A word the grammar uses with no present status crashes the parser.
+can go with unreserved or unimplemented, or stand alone. Alone it says nothing
+about what parses today: the word has no present status. A dialect sets its
+statuses with one call to declare_keyword_sets() (see its docstring in
+src/sqlfluff/core/dialects/base.py). A word the grammar uses with no present
+status crashes the parser.
 
-The essentials. You get these almost for free by using declare_keyword_sets(),
-and for an audited dialect (every dialect not in UNAUDITED_DIALECTS below) the
-audit tests lock them in, in CI.
+The essentials:
+
+You get these almost for free by using declare_keyword_sets(), and for an
+audited dialect (every dialect not in UNAUDITED_DIALECTS below) the audit tests
+lock them in, in CI.
 
 1. Get the reserved keywords from the docs, or better, from the server's own
    grammar or keyword table: docs can be wrong. Pass them as reserved=, with
    reserved_mode="replace", so the list is exhaustive and any reserved word
-   you inherit and don't list becomes unreserved (or unimplemented: see
-   unspecified_parent_keywords in step 2).
+   you inherit and don't list becomes unreserved (or unimplemented with
+   unspecified_parent_keywords="unimplemented": see step 2).
 
 2. Get the unreserved keywords the same way and pass them as unreserved=.
    Also add any words sqlfluff's grammar needs that aren't in the docs.
@@ -29,27 +33,31 @@ audit tests lock them in, in CI.
    them, and RF06 (only with prefer_quoted_keywords) treats them as keywords.
    Both may flag names they arguably shouldn't.
 
-   Every inherited keyword you don't list stays a keyword with
-   unspecified_parent_keywords="unreserved". If your lists come from the
-   server's complete keyword list, pass "unimplemented" instead (with
-   reserved_mode="replace"), and those words become unimplemented. Then do
-   step 4, and list any word the server uses that its published list leaves
-   out.
+   unspecified_parent_keywords decides what happens to inherited keywords you
+   don't list. If your dialect follows its parent closely, pass "unreserved":
+   words you don't list are likely ones your server shares with its parent but
+   doesn't publish. If your dialect only borrows its parent's syntax, and your
+   lists are complete for the server, "unimplemented" (with
+   reserved_mode="replace") is probably right, and those words become
+   unimplemented. Then do step 4, and list any word the server uses that its
+   published list leaves out. Don't pass "unimplemented" only to quiet RF04:
+   it switches off inherited grammar that uses those words, which the server
+   may actually support.
 
 This is a good place to stop. You never have to do step 3 or later, but if you
 want RF04 cleaned up, or you know for sure your server doesn't use a word, do
 step 3 too.
 
-Optional.
+Optional:
 
 3. When the docs, or anything else you know about this server, show that it
    doesn't implement a word, pass it in unimplemented=. That does two things:
    if the parent dialect adds grammar that uses the word, that grammar won't
-   match in your dialect, and RF04 is more accurate, if anyone turns it on.
-   Only do this with evidence. A word missing from a vendor's grammar file
-   isn't evidence: the server may still accept it as a plain identifier.
+   match in your dialect, and RF04 is more accurate. Only do this with
+   evidence. A word missing from a vendor's grammar file isn't enough on its
+   own: the server may still accept it as a plain identifier.
 
-Even more optional.
+Even more optional:
 
 4. Run ``python test/dialects/keyword_reference_test.py <dialect> --level
    notice`` to see the inherited grammar your unimplemented words switch off.
@@ -70,6 +78,13 @@ Even more optional.
    correctly, so don't remove a word without checking whether the server uses
    it anyway. sqlfluff doesn't always implement all of a server's grammar, so
    a word no sqlfluff grammar uses can still be one the server has.
+
+   To look for syntax sqlfluff may not parse yet, run --level info
+   <dialect>. Words listed only in your dialect's keywords that no grammar
+   uses are leads, not a to-do list. One may be syntax sqlfluff is missing,
+   a function name the generic function rule already parses, or something
+   else. Investigate each against the server's docs, and against how
+   sqlfluff parses it today, before changing grammar or keyword lists.
 
 To make the above work, the audit can't encourage dialects to remove words
 from unimplemented if the dialect's grammar doesn't use them. A dialect that
@@ -153,7 +168,7 @@ import textwrap
 import weakref
 from collections.abc import Iterator, Mapping
 from difflib import get_close_matches
-from typing import NamedTuple, Optional, Union, cast
+from typing import NamedTuple, Optional, Union
 from weakref import WeakKeyDictionary
 
 import pytest
@@ -174,10 +189,10 @@ from sqlfluff.core.parser import (
     MultiStringParser,
     StringParser,
 )
+from sqlfluff.core.parser.grammar.anyof import OneOf
 from sqlfluff.core.parser.grammar.base import Nothing, Ref
 from sqlfluff.core.parser.grammar.sequence import Sequence
 from sqlfluff.core.parser.lexer import PyLexer
-from sqlfluff.core.parser.matchable import Matchable
 
 # Dialects these checks don't run for yet. Every other dialect, including any
 # new one, is audited. To audit one of these, run this file with its name as
@@ -266,6 +281,32 @@ class _Lineage(NamedTuple):
     ancestors: list[Dialect]
 
 
+# Dialects built by tests, found by name the way real ones are. The checks
+# look a dialect's parent up by name, so a test's own parent has to be
+# findable.
+_TEST_DIALECTS: dict[str, Dialect] = {}
+
+
+def _raw_dialect(name: str) -> Dialect:
+    """A dialect by name as it is before expand(): a test's own, or a real one."""
+    made = _TEST_DIALECTS.get(name)
+    if made is not None:
+        return made
+    return load_raw_dialect(name)
+
+
+@contextlib.contextmanager
+def _registered(*dialects: Dialect) -> Iterator[None]:
+    """Make these test-built dialects findable by name, for a while."""
+    for dialect in dialects:
+        _TEST_DIALECTS[dialect.name] = dialect
+    try:
+        yield
+    finally:
+        for dialect in dialects:
+            del _TEST_DIALECTS[dialect.name]
+
+
 # One lineage per dialect object. load_raw_dialect() rescans the dialect's
 # module each time it is called, and the checks name where elements were
 # defined tens of thousands of times, so loading the ancestors once per
@@ -282,13 +323,13 @@ def _lineage(dialect: Dialect) -> tuple[Dialect, list[Dialect]]:
     cached = _LINEAGES.get(dialect)
     if cached is None:
         try:
-            raw: Optional[Dialect] = load_raw_dialect(dialect.name)
+            raw: Optional[Dialect] = _raw_dialect(dialect.name)
         except KeyError:
             raw = None
         current = dialect if raw is None else raw
         ancestors = []
         while current.inherits_from:
-            current = load_raw_dialect(current.inherits_from)
+            current = _raw_dialect(current.inherits_from)
             ancestors.append(current)
         cached = _Lineage(raw, ancestors)
         _LINEAGES[dialect] = cached
@@ -459,7 +500,7 @@ def _unimplemented_in_own_grammar(dialect: Dialect) -> dict[str, set[Owner]]:
     own_module = f"dialect_{dialect.name}"
     parent = None
     if dialect.inherits_from:
-        parent = load_raw_dialect(dialect.inherits_from)
+        parent = _raw_dialect(dialect.inherits_from)
     unimplemented = {
         word.capitalize() + "KeywordSegment": word
         for word in dialect.sets("unimplemented_keywords")
@@ -552,9 +593,10 @@ def _status_needed(dialect: Dialect) -> str:
     return (
         f"Each needs a status in {name}: unreserved if {vendor} has it as a "
         f"keyword (reserved if it can never be a name there), or unimplemented "
-        f"if {vendor}'s server doesn't implement it, which stops the parts of "
-        "grammar that need it from matching. If you can't check, unreserved "
-        "keeps the grammar working. "
+        f"if {vendor}'s server doesn't implement it (a word missing from its "
+        "published lists isn't enough on its own), which stops the parts of "
+        "grammar that need it from matching. If you can't check yet, unreserved "
+        "keeps the grammar working until someone can. "
         f"{_where_keywords_are_set(name)}"
     )
 
@@ -768,8 +810,8 @@ def _keyword_meant(dialect: Dialect, missing: str) -> str:
     """The advice for one missing Ref(), spotting a keyword written as a segment.
 
     Segment names are CamelCase, so an all-capitals name like Ref("COLUMN") is
-    almost always a keyword that should have been Ref.keyword("COLUMN"). Without
-    this, the advice would be to define a COLUMN segment, which is wrong.
+    often a keyword meant as Ref.keyword("COLUMN"). Without this, the hint would
+    only be that no segment has a similar name.
     """
     if not missing.isupper():
         existing = {
@@ -777,10 +819,10 @@ def _keyword_meant(dialect: Dialect, missing: str) -> str:
             for element in dialect._library
             if not element.endswith("KeywordSegment")
         }
-        return (
-            f"{_did_you_mean(missing, existing)} Fix the name in that Ref(), or "
-            f"define {missing}."
-        )
+        guess = _did_you_mean(missing, existing)
+        if guess:
+            return guess
+        return f" No segment or grammar in {dialect.name} has a similar name."
     name = dialect.name
     known = any(
         missing in dialect.sets(label)
@@ -796,10 +838,9 @@ def _keyword_meant(dialect: Dialect, missing: str) -> str:
             f'Ref.keyword("{missing}"), or just "{missing}".'
         )
     return (
-        " this looks like a keyword written as a segment: "
+        " this may be a keyword written as a segment. As a keyword it would be "
         f'Ref.keyword("{missing}"), or just "{missing}" (a bare string in '
-        f"grammar is a keyword reference). {missing} then needs a status in "
-        f"{name}."
+        f"grammar is a keyword reference), and would need a status in {name}."
     )
 
 
@@ -895,7 +936,7 @@ def _introduced_by(dialect: Dialect, entry: str, label: str) -> str:
     origin = dialect.name
     parent_name = dialect.inherits_from
     while parent_name:
-        parent = load_raw_dialect(parent_name)
+        parent = _raw_dialect(parent_name)
         if entry not in parent.sets(label):
             break
         origin = parent_name
@@ -1290,16 +1331,23 @@ def test_keyword_parsers_match_their_word(dialect_name: str) -> None:
     assert not found, _misnamed_keyword_parsers_message(dialect, found)
 
 
+class _ZzclsSegment(KeywordSegment):
+    """A segment class a test registers under ZZCLS's keyword segment name."""
+
+    type = "zz_cls"
+
+
 def test_misnamed_keyword_parsers_are_found() -> None:
     """Test the check finds a parser for another word, and allows extra forms.
 
     ZZJAR also matching its plural is fine; ZZORC matching only ZZORCFILE isn't.
-    LiteralKeywordSegment, a segment class, is left out.
+    ZzclsKeywordSegment, a segment class, is left out.
     """
     dialect = load_raw_dialect("ansi").copy_as("zzmisnamed")
     dialect.add(
         ZzorcKeywordSegment=StringParser("ZZORCFILE", KeywordSegment),
         ZzjarKeywordSegment=MultiStringParser(["ZZJAR", "ZZJARS"], KeywordSegment),
+        ZzclsKeywordSegment=_ZzclsSegment,
     )
     expanded = dialect.expand()
     found = _misnamed_keyword_parsers(expanded)
@@ -1336,24 +1384,26 @@ def test_keyword_names_are_not_taken_by_classes(dialect_name: str) -> None:
 
 
 def test_keyword_names_taken_by_classes_are_found() -> None:
-    """Test LITERAL against ansi's LiteralKeywordSegment, used and only listed.
+    """Test ZZCLS against a class registered under its name, used and only listed.
 
     Used without a status, the reference resolves to the class, so the
     missing keyword check doesn't fire; listed but unused, expand() still
     makes no parser for it. Both are found, at every status.
     """
-    used = load_raw_dialect("ansi").copy_as("zzlitused")
-    used.replace(SelectClauseModifierSegment=_LiteralModifierSegment)
+    used = load_raw_dialect("ansi").copy_as("zzclsused")
+    used.add(ZzclsKeywordSegment=_ZzclsSegment)
+    _hooked(used, _ClassWordModifierSegment)
     used_found = _keyword_names_taken_by_classes(used.expand())
     statuses = {}
     for status in ("reserved", "unreserved", "unimplemented"):
-        listed = load_raw_dialect("ansi").copy_as(f"zzlit{status}")
+        listed = load_raw_dialect("ansi").copy_as(f"zzcls{status}")
+        listed.add(ZzclsKeywordSegment=_ZzclsSegment)
         lists: dict[str, list[str]] = {
             "reserved": [],
             "unreserved": [],
             "unimplemented": [],
         }
-        lists[status] = ["LITERAL"]
+        lists[status] = ["ZZCLS"]
         listed.declare_keyword_sets(
             reserved=lists["reserved"],
             reserved_mode="add",
@@ -1368,47 +1418,37 @@ def test_keyword_names_taken_by_classes_are_found() -> None:
         assert not _unimplemented_with_own_segment(listed_expanded)
     message = _flat(_keyword_names_taken_by_classes_message(used.expand(), used_found))
 
-    assert used_found == {"LITERAL": ("used by grammar", "dialect_ansi")}
+    assert used_found == {"ZZCLS": ("used by grammar", "dialect_zzclsused")}
     for status, found in statuses.items():
-        assert found == {"LITERAL": ("in a keyword list", "dialect_ansi")}, status
-    assert "- LITERAL (used by grammar): LiteralKeywordSegment is a class" in message
+        expected = {"ZZCLS": ("in a keyword list", f"dialect_zzcls{status}")}
+        assert found == expected, status
+    assert "- ZZCLS (used by grammar): ZzclsKeywordSegment is a class" in message
 
 
-def test_keyword_names_taken_by_classes_are_found_in_descendants(monkeypatch) -> None:
+def test_keyword_names_taken_by_classes_are_found_in_descendants() -> None:
     """Test that a collision declared in a parent is found in every descendant.
 
-    The parent lists LITERAL, whose name ansi's LiteralKeywordSegment takes;
-    the child and grandchild inherit both. The test-built dialects aren't
-    loadable by name, so they are registered for the lookup that names where
-    the class was defined.
+    The parent lists ZZCLS, whose name a class takes; the child and grandchild
+    inherit both. The dialects are registered by name, so the lookup that
+    names where the class was defined can follow them.
     """
-    made: dict[str, Dialect] = {}
-    real_load = load_raw_dialect
+    parent = load_raw_dialect("ansi").copy_as("zzclsparent")
+    parent.add(ZzclsKeywordSegment=_ZzclsSegment)
+    _declare(parent, unreserved=["ZZCLS"])
+    child = parent.copy_as("zzclschild")
+    grandchild = child.copy_as("zzclsgrandchild")
 
-    def load(name: str) -> Dialect:
-        if name in made:
-            return made[name]
-        return real_load(name)
+    with _registered(parent, child, grandchild):
+        found = {
+            dialect.name: _keyword_names_taken_by_classes(dialect.expand())
+            for dialect in (parent, child, grandchild)
+        }
 
-    monkeypatch.setitem(globals(), "load_raw_dialect", load)
-    parent = load("ansi").copy_as("zzlitparent")
-    _declare(parent, unreserved=["LITERAL"])
-    made[parent.name] = parent
-    child = parent.copy_as("zzlitchild")
-    made[child.name] = child
-    grandchild = child.copy_as("zzlitgrandchild")
-    made[grandchild.name] = grandchild
-
-    found = {
-        dialect.name: _keyword_names_taken_by_classes(dialect.expand())
-        for dialect in (parent, child, grandchild)
-    }
-
-    expected = {"LITERAL": ("in a keyword list", "dialect_ansi")}
+    expected = {"ZZCLS": ("in a keyword list", "dialect_zzclsparent")}
     assert found == {
-        "zzlitparent": expected,
-        "zzlitchild": expected,
-        "zzlitgrandchild": expected,
+        "zzclsparent": expected,
+        "zzclschild": expected,
+        "zzclsgrandchild": expected,
     }
 
 
@@ -1420,7 +1460,8 @@ def test_dialect_built_in_a_test_is_not_kept_alive() -> None:
     test, for the whole run.
     """
     dialect = load_raw_dialect("ansi").copy_as("zzcollected")
-    assert _defining_module(dialect, "SelectStatementSegment") == "dialect_ansi"
+    dialect.add(ZzNamedSegment=_ZzNamedSegment)
+    assert _defining_module(dialect, "ZzNamedSegment") == "dialect_zzcollected"
     collected = weakref.ref(dialect)
 
     del dialect
@@ -1453,7 +1494,7 @@ def test_keywords_without_a_parser_are_found() -> None:
     dialect = load_raw_dialect("ansi").copy_as("zznoparser")
     dialect.add(
         ZzfooKeywordSegment=Nothing(),
-        ZzseqKeywordSegment=Sequence("SELECT", "FROM"),
+        ZzseqKeywordSegment=Sequence("ZZFIRST", "ZZSECOND"),
         ZzoffKeywordSegment=Nothing(),
     )
     _declare(dialect, unreserved=["ZZFOO", "ZZSEQ"], unimplemented=["ZZOFF"])
@@ -1488,11 +1529,10 @@ def test_keyword_parsers_accept_no_unimplemented_word(dialect_name: str) -> None
 
 
 class _InlineFormsSegment(BaseSegment):
-    """A select modifier with inline parsers, a keyword one and a plain one."""
+    """A segment with inline parsers, a keyword one and a plain one."""
 
-    type = "select_clause_modifier"
+    type = "zz_hook"
     match_grammar = Sequence(
-        "DISTINCT",
         MultiStringParser(["ZZA", "ZZB"], KeywordSegment),
         MultiStringParser(["ZZC"], CodeSegment),
     )
@@ -1501,49 +1541,44 @@ class _InlineFormsSegment(BaseSegment):
 _InlineFormsSegment.__module__ = "sqlfluff.dialects.dialect_zzinline"
 
 
-def test_keyword_parsers_accepting_unimplemented_are_found(monkeypatch) -> None:
+def test_keyword_parsers_accepting_unimplemented_are_found() -> None:
     """Test a named parser in a parent, an inline one, and what is left alone.
 
     The parent's ZzfmtKeywordSegment also accepts ZZFMTFILE. A child that
     declares ZZFMTFILE unimplemented is found, traced to the parent, and the
     parent itself isn't. ZZFMT itself is the own-segment check's case, and a
     parser making a CodeSegment (ZZC) is no keyword claim, so neither is
-    reported here. The test-built parent isn't loadable by name, so it is
-    registered for the lookup that names where the parser was defined.
+    reported here. The parent is registered by name, so the lookup that names
+    where the parser was defined can follow it.
     """
-    made: dict[str, Dialect] = {}
-    real_load = load_raw_dialect
-
-    def load(name: str) -> Dialect:
-        if name in made:
-            return made[name]
-        return real_load(name)
-
-    monkeypatch.setitem(globals(), "load_raw_dialect", load)
-    parent = load("ansi").copy_as("zzfmtparent")
+    parent = load_raw_dialect("ansi").copy_as("zzfmtparent")
     parent.add(
         ZzfmtKeywordSegment=MultiStringParser(["ZZFMT", "ZZFMTFILE"], KeywordSegment)
     )
     _declare(parent, unreserved=["ZZFMT"])
-    made[parent.name] = parent
     child = parent.copy_as("zzfmtchild")
     _declare(child, unimplemented=["ZZFMTFILE"])
-    child_found = _keyword_parsers_accepting_unimplemented(child.expand())
-    parent_found = _keyword_parsers_accepting_unimplemented(parent.expand())
     own = parent.copy_as("zzfmtown")
     _declare(own, unimplemented=["ZZFMT"])
-    own_expanded = own.expand()
+    with _registered(parent):
+        child_expanded = child.expand()
+        child_found = _keyword_parsers_accepting_unimplemented(child_expanded)
+        child_message = _flat(
+            _keyword_parsers_accepting_unimplemented_message(
+                child_expanded, child_found
+            )
+        )
+        parent_found = _keyword_parsers_accepting_unimplemented(parent.expand())
+        own_expanded = own.expand()
+        own_parsers = _keyword_parsers_accepting_unimplemented(own_expanded)
+        own_segments = _unimplemented_with_own_segment(own_expanded)
     inline = load_raw_dialect("ansi").copy_as("zzinline")
-    inline.replace(SelectClauseModifierSegment=_InlineFormsSegment)
+    _hooked(inline, _InlineFormsSegment)
     _declare(inline, unimplemented=["ZZB", "ZZC"])
     inline_expanded = inline.expand()
     inline_found = _keyword_parsers_accepting_unimplemented(inline_expanded)
     message = _flat(
         _keyword_parsers_accepting_unimplemented_message(inline_expanded, inline_found)
-    )
-
-    child_message = _flat(
-        _keyword_parsers_accepting_unimplemented_message(child.expand(), child_found)
     )
 
     assert child_found == {
@@ -1554,8 +1589,8 @@ def test_keyword_parsers_accepting_unimplemented_are_found(monkeypatch) -> None:
     )
     assert "override the parser" not in message
     assert not parent_found
-    assert not _keyword_parsers_accepting_unimplemented(own_expanded)
-    assert _unimplemented_with_own_segment(own_expanded)
+    assert not own_parsers
+    assert own_segments
     assert inline_found == {"ZZB": {("_InlineFormsSegment", "dialect_zzinline")}}
     assert "- ZZB: accepted by a keyword parser in _InlineFormsSegment" in message
 
@@ -1563,28 +1598,31 @@ def test_keyword_parsers_accepting_unimplemented_are_found(monkeypatch) -> None:
 def test_unimplemented_with_own_segment_is_found() -> None:
     """Test the check finds a dialect's own segment and an inherited one.
 
-    hive defines TextfileKeywordSegment. A child of hive that declares
-    TEXTFILE unimplemented contradicts the segment it inherits, and is told
-    how to drop it for itself alone; a dialect's own segment needs no such
-    note.
+    The parent defines ZzfmtKeywordSegment by hand. A child that declares
+    ZZFMT unimplemented contradicts the segment it inherits, and is told how
+    to drop it for itself alone; a dialect's own segment needs no such note.
     """
     own = load_raw_dialect("ansi").copy_as("zzownsegment")
     own.add(ZzownKeywordSegment=StringParser("zzown", KeywordSegment))
     _declare(own, unimplemented=["ZZOWN"])
     own_found = _unimplemented_with_own_segment(own.expand())
-    inherited = load_raw_dialect("hive").copy_as("zzhivechild")
-    _declare(inherited, unimplemented=["TEXTFILE"])
-    inherited_expanded = inherited.expand()
-    inherited_found = _unimplemented_with_own_segment(inherited_expanded)
-    message = _flat(
-        _unimplemented_with_own_segment_message(inherited_expanded, inherited_found)
-    )
+    parent = load_raw_dialect("ansi").copy_as("zzfmtparent")
+    parent.add(ZzfmtKeywordSegment=StringParser("ZZFMT", KeywordSegment))
+    _declare(parent, unreserved=["ZZFMT"])
+    inherited = parent.copy_as("zzfmtchild")
+    _declare(inherited, unimplemented=["ZZFMT"])
+    with _registered(parent):
+        inherited_expanded = inherited.expand()
+        inherited_found = _unimplemented_with_own_segment(inherited_expanded)
+        message = _flat(
+            _unimplemented_with_own_segment_message(inherited_expanded, inherited_found)
+        )
 
     assert own_found == {"ZZOWN": "dialect_zzownsegment"}
-    assert inherited_found == {"TEXTFILE": "dialect_hive"}
-    assert "- TEXTFILE: TextfileKeywordSegment, defined in" in message
-    assert "dialect_hive.py" in message
-    assert "replace it with Nothing() in zzhivechild" in message
+    assert inherited_found == {"ZZFMT": "dialect_zzfmtparent"}
+    assert "- ZZFMT: ZzfmtKeywordSegment, defined in" in message
+    assert "dialect_zzfmtparent.py" in message
+    assert "replace it with Nothing() in zzfmtchild" in message
     own_message = _flat(
         _unimplemented_with_own_segment_message(own.expand(), own_found)
     )
@@ -1603,19 +1641,21 @@ def test_keyword_lists_hold_only_words(dialect_name: str) -> None:
 def test_settled_unimplemented_words_are_info() -> None:
     """Test that an unimplemented word no grammar uses is info, not a notice.
 
-    ZONE is used by inherited ansi grammar (AT TIME ZONE), so it switches that
-    off and stays a notice; ZZSETTLED is used by nothing.
+    ZZPARENTWORD is used by the grammar the dialect inherits, so it switches
+    that off and stays a notice; ZZSETTLED is used by nothing.
     """
-    dialect = load_raw_dialect("ansi").copy_as("zzsettled")
-    _declare(dialect, unimplemented=["ZONE", "ZZSETTLED"])
-    findings = _audit_findings("zzsettled", dialect.expand())
+    parent = _parent_dialect()
+    dialect = parent.copy_as("zzsettled")
+    _declare(dialect, unimplemented=["ZZPARENTWORD", "ZZSETTLED"])
+    with _registered(parent):
+        findings = _audit_findings("zzsettled", dialect.expand())
     settled = [
         f for f in findings if f.title == "Unimplemented keywords no grammar uses"
     ]
 
     assert [f.level for f in settled] == ["info"]
     assert "ZZSETTLED" in settled[0].message
-    assert "ZONE" not in settled[0].message
+    assert "ZZPARENTWORD" not in settled[0].message
 
 
 def test_unaudited_dialects_all_exist() -> None:
@@ -1689,17 +1729,44 @@ def test_grammar_references_resolve(dialect_name: str) -> None:
 # would pass silently and simply check less.
 
 
+class _ZzNamedSegment(BaseSegment):
+    """A segment the faulty dialect has, for a Ref() to point at."""
+
+    type = "zz_named"
+    match_grammar = Nothing()
+
+
 class _FaultySegment(BaseSegment):
     """A segment whose grammar has one of each fault the checker must find."""
 
-    type = "select_clause_modifier"
+    type = "zz_hook"
     match_grammar = Sequence(
         Ref.keyword("ZZPLAIN"),
-        Ref("NakedIdentifierSegment", exclude=Ref.keyword("ZZEXCLUDED")),
-        Sequence("SELECT", terminators=[Ref.keyword("ZZTERMINATOR")]),
+        Ref("ZzNamedSegment", exclude=Ref.keyword("ZZEXCLUDED")),
+        Sequence("ZZSELECT", terminators=[Ref.keyword("ZZTERMINATOR")]),
         Ref("ZzMissingSegment"),
         Ref.keyword("OPTIMIZER_COST"),
     )
+
+
+def _hooked(dialect: Dialect, hook: type[BaseSegment]) -> Dialect:
+    """Make the dialect reach a test's own segment, through no segment of its own.
+
+    A new root matches either the dialect's real root or the hook, so all of the
+    dialect's grammar stays reachable and the test names nothing inside it. A
+    child keeps the hook, and replaces ZzHookSegment to change it.
+    """
+    real_root = dialect.root_segment_name
+
+    class ZzRootSegment(BaseSegment):
+        """The dialect's real root, or the test's hook."""
+
+        type = "file"
+        match_grammar = OneOf(Ref(real_root), Ref("ZzHookSegment"))
+
+    dialect.add(ZzRootSegment=ZzRootSegment, ZzHookSegment=hook)
+    dialect.root_segment_name = "ZzRootSegment"
+    return dialect
 
 
 def _declare(dialect: Dialect, mode: str = "add", **lists: list[str]) -> None:
@@ -1715,21 +1782,22 @@ def _declare(dialect: Dialect, mode: str = "add", **lists: list[str]) -> None:
     )
 
 
-class _LiteralModifierSegment(BaseSegment):
-    """A select modifier whose grammar uses the keyword LITERAL."""
+class _ClassWordModifierSegment(BaseSegment):
+    """A segment whose grammar uses ZZCLS, whose segment name a class takes."""
 
-    type = "select_clause_modifier"
-    match_grammar = Sequence("DISTINCT", "LITERAL")
+    type = "zz_hook"
+    match_grammar = Sequence("ZZCLS")
 
 
-_LiteralModifierSegment.__module__ = "sqlfluff.dialects.dialect_ansi"
+_ClassWordModifierSegment.__module__ = "sqlfluff.dialects.dialect_zzclsused"
 
 
 def _faulty_dialect(name: str) -> Dialect:
     """An expanded ansi copy whose grammar reaches _FaultySegment."""
     dialect = load_raw_dialect("ansi").copy_as(name)
-    dialect.replace(SelectClauseModifierSegment=_FaultySegment)
-    _declare(dialect, unimplemented=["OPTIMIZER_COSTS"])
+    _hooked(dialect, _FaultySegment)
+    dialect.add(ZzNamedSegment=_ZzNamedSegment)
+    _declare(dialect, reserved=["ZZSELECT"], unimplemented=["OPTIMIZER_COSTS"])
     dialect.bracket_sets("bracket_pairs").add(
         ("zz", "ZzStartSegment", "ZzEndSegment", True)
     )
@@ -1738,17 +1806,13 @@ def _faulty_dialect(name: str) -> Dialect:
 
 def _ready_dialect(name: str) -> Dialect:
     """An expanded ansi copy that passes every check."""
-    dialect = load_raw_dialect("ansi").copy_as(name)
-    # The two keywords ansi's GRANT grammar used without listing, so this
-    # dialect is ready however ansi itself stands.
-    dialect.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
-    return dialect.expand()
+    return load_raw_dialect("ansi").copy_as(name).expand()
 
 
 def _failing_dialect(name: str) -> Dialect:
-    """A _faulty_dialect that also has a warning: SELECT in two statuses."""
+    """A _faulty_dialect that also has a warning: ZZSELECT in two statuses."""
     dialect = _faulty_dialect(name)
-    dialect.sets("unreserved_keywords").add("SELECT")
+    dialect.sets("unreserved_keywords").add("ZZSELECT")
     return dialect
 
 
@@ -1813,20 +1877,20 @@ def test_checker_never_suggests_an_unimplemented_word() -> None:
 def test_checker_suggests_a_close_segment_name() -> None:
     """Test that a misspelt Ref() gets a suggestion and a file to fix."""
     dialect = _faulty_dialect("zzfaulty")
-    segments = {"TableReferenceSegmnt": {("SomeSegment", "dialect_zzfaulty")}}
+    segments = {"ZzNamedSegmnt": {("SomeSegment", "dialect_zzfaulty")}}
 
     message = _missing_segments_message(dialect, segments)
 
-    assert "Did you mean TableReferenceSegment?" in message
+    assert "Did you mean ZzNamedSegment?" in message
     assert "src/sqlfluff/dialects/dialect_zzfaulty.py" in message
 
 
 def test_checker_finds_and_explains_an_overlap() -> None:
     """Test that a word given a second status after declaring is found."""
     dialect = load_raw_dialect("ansi").copy_as("zzoverlap")
-    _declare(dialect, reserved=["SELECT"], future_reserved=["ZZLATER"])
-    dialect.sets("unreserved_keywords").add("SELECT")
-    dialect.sets("future_reserved_keywords").add("SELECT")
+    _declare(dialect, reserved=["ZZSELECT"], future_reserved=["ZZLATER"])
+    dialect.sets("unreserved_keywords").add("ZZSELECT")
+    dialect.sets("future_reserved_keywords").add("ZZSELECT")
     # A future reserved word may also be unreserved.
     dialect.sets("unreserved_keywords").add("ZZLATER")
     # Unimplemented is a present status too, so it can't join another.
@@ -1839,7 +1903,7 @@ def test_checker_finds_and_explains_an_overlap() -> None:
     expanded = dialect.expand()
 
     assert overlaps == {
-        "SELECT": [
+        "ZZSELECT": [
             "reserved_keywords",
             "unreserved_keywords",
             "future_reserved_keywords",
@@ -1848,7 +1912,7 @@ def test_checker_finds_and_explains_an_overlap() -> None:
         "ZZRES": ["reserved_keywords", "unimplemented_keywords"],
     }
     assert (
-        "- SELECT: reserved_keywords and unreserved_keywords and "
+        "- ZZSELECT: reserved_keywords and unreserved_keywords and "
         "future_reserved_keywords. It behaves as reserved" in message
     )
     assert (
@@ -1872,14 +1936,14 @@ def test_checker_explains_a_keyword_in_the_dialects_own_grammar() -> None:
     """
     dialect = _faulty_dialect("zzfaulty")
     keywords = {
-        "SELEECT": {("SomeSegment", "dialect_zzfaulty")},
+        "ZZSELEECT": {("SomeSegment", "dialect_zzfaulty")},
         "ZZNOTHINGLIKEIT": {("SomeSegment", "dialect_zzfaulty")},
     }
 
     message = _missing_keywords_message(dialect, keywords)
 
-    assert "- SELEECT (in SomeSegment: zzfaulty's own grammar):" in message
-    assert "Did you mean SELECT, which zzfaulty has?" in message
+    assert "- ZZSELEECT (in SomeSegment: zzfaulty's own grammar):" in message
+    assert "Did you mean ZZSELECT, which zzfaulty has?" in message
     assert (
         "- ZZNOTHINGLIKEIT (in SomeSegment: zzfaulty's own grammar): no close"
         in message
@@ -1896,40 +1960,40 @@ def test_checker_spots_a_keyword_written_as_a_segment() -> None:
     The advice must not be to define a COLUMN segment.
     """
     dialect = _faulty_dialect("zzfaulty")
-    known = {"SELECT": {("SomeSegment", "dialect_zzfaulty")}}
+    known = {"ZZSELECT": {("SomeSegment", "dialect_zzfaulty")}}
     unknown = {"ZZNOWORD": {("SomeSegment", "dialect_zzfaulty")}}
 
     known_message = _missing_segments_message(dialect, known)
     unknown_message = _missing_segments_message(dialect, unknown)
 
     assert (
-        'SELECT is a zzfaulty keyword, so this is probably meant to be Ref.keyword("SELECT")'
-        in known_message
+        "ZZSELECT is a zzfaulty keyword, so this is probably meant to be "
+        'Ref.keyword("ZZSELECT")' in known_message
     )
-    assert "define SELECT" not in known_message
+    assert "define ZZSELECT" not in known_message
     assert (
-        'this looks like a keyword written as a segment: Ref.keyword("ZZNOWORD")'
-        in unknown_message
+        "this may be a keyword written as a segment. As a keyword it would be "
+        'Ref.keyword("ZZNOWORD")' in unknown_message
     )
-    assert "ZZNOWORD then needs a status in zzfaulty." in unknown_message
+    assert "and would need a status in zzfaulty." in unknown_message
     assert "define ZZNOWORD" not in unknown_message
 
 
 def test_checker_offers_no_guess_for_an_unlike_segment_name() -> None:
-    """Test that a Ref() with no close name gets advice but no guess."""
+    """Test that a Ref() with no close name gets no guess, only that fact."""
     dialect = _faulty_dialect("zzfaulty")
     segments = {"QqqqqqSegment": {("SomeSegment", "dialect_zzfaulty")}}
 
     message = _missing_segments_message(dialect, segments)
 
     assert "Did you mean" not in message
-    assert "Fix the name in that Ref(), or define QqqqqqSegment." in message
+    assert "No segment or grammar in zzfaulty has a similar name." in message
 
 
 class _OwnGrammarSegment(BaseSegment):
     """A segment that the zzown dialect defines itself, using ZZOWNWORD."""
 
-    type = "select_clause_modifier"
+    type = "zz_hook"
     match_grammar = Sequence(Ref.keyword("ZZOWNWORD"))
 
 
@@ -1944,7 +2008,7 @@ def test_checker_finds_an_unimplemented_word_in_own_grammar() -> None:
     warning, not again in the notice about inherited grammar.
     """
     dialect = load_raw_dialect("ansi").copy_as("zzown")
-    dialect.replace(SelectClauseModifierSegment=_OwnGrammarSegment)
+    _hooked(dialect, _OwnGrammarSegment)
     _declare(dialect, unimplemented=["ZZOWNWORD"])
     expanded = dialect.expand()
 
@@ -1962,28 +2026,38 @@ def test_checker_finds_an_unimplemented_word_in_own_grammar() -> None:
     assert not _unimplemented_in_own_grammar(inherited)
 
 
-def _ansi_select_modifier_grammar() -> Matchable:
-    """Ansi's SelectClauseModifierSegment grammar, for segments that reuse it."""
-    segment = load_raw_dialect("ansi")._library["SelectClauseModifierSegment"]
-    assert isinstance(segment, type) and issubclass(segment, BaseSegment)
-    return cast(type[BaseSegment], segment).match_grammar
+class _ParentWordSegment(BaseSegment):
+    """A parent's own segment, whose grammar uses ZZPARENTWORD."""
+
+    type = "zz_hook"
+    match_grammar = Sequence(Ref.keyword("ZZPARENTWORD"))
+
+
+_ParentWordSegment.__module__ = "sqlfluff.dialects.dialect_zzparent"
+
+
+def _parent_dialect() -> Dialect:
+    """An ansi copy, zzparent, whose hook uses ZZPARENTWORD as unreserved."""
+    parent = _hooked(load_raw_dialect("ansi").copy_as("zzparent"), _ParentWordSegment)
+    _declare(parent, unreserved=["ZZPARENTWORD"])
+    return parent
 
 
 class _WrappingSegment(BaseSegment):
-    """A zzwrap segment that wraps ansi grammar and adds its own ZZOWNWORD."""
+    """A zzwrap segment that wraps the parent's grammar and adds ZZOWNWORD."""
 
-    type = "select_clause_modifier"
-    match_grammar = Sequence(_ansi_select_modifier_grammar(), Ref.keyword("ZZOWNWORD"))
+    type = "zz_hook"
+    match_grammar = Sequence(_ParentWordSegment.match_grammar, Ref.keyword("ZZOWNWORD"))
 
 
 _WrappingSegment.__module__ = "sqlfluff.dialects.dialect_zzwrap"
 
 
 class _CopyingSegment(BaseSegment):
-    """A zzcopy segment that copies ansi's grammar and inserts ZZOWNWORD."""
+    """A zzcopy segment that copies the parent's grammar and inserts ZZOWNWORD."""
 
-    type = "select_clause_modifier"
-    match_grammar = _ansi_select_modifier_grammar().copy(
+    type = "zz_hook"
+    match_grammar = _ParentWordSegment.match_grammar.copy(
         insert=[Ref.keyword("ZZOWNWORD")]
     )
 
@@ -1993,11 +2067,13 @@ _CopyingSegment.__module__ = "sqlfluff.dialects.dialect_zzcopy"
 
 def test_checker_counts_copied_parent_grammar_as_inherited() -> None:
     """Test that keywords in a .copy() of the parent's grammar are inherited."""
-    dialect = load_raw_dialect("ansi").copy_as("zzcopy")
-    dialect.replace(SelectClauseModifierSegment=_CopyingSegment)
-    _declare(dialect, unimplemented=["DISTINCT", "ZZOWNWORD"])
+    parent = _parent_dialect()
+    dialect = parent.copy_as("zzcopy")
+    dialect.replace(ZzHookSegment=_CopyingSegment)
+    _declare(dialect, unimplemented=["ZZPARENTWORD", "ZZOWNWORD"])
 
-    found = _unimplemented_in_own_grammar(dialect.expand())
+    with _registered(parent):
+        found = _unimplemented_in_own_grammar(dialect.expand())
 
     assert set(found) == {"ZZOWNWORD"}
 
@@ -2005,15 +2081,17 @@ def test_checker_counts_copied_parent_grammar_as_inherited() -> None:
 def test_checker_counts_wrapped_parent_grammar_as_inherited() -> None:
     """Test that parent grammar inside a dialect's own segment is inherited.
 
-    ansi's SelectClauseModifierSegment uses DISTINCT; marking it unimplemented
-    switches off inherited grammar, which is allowed. ZZOWNWORD is the
-    dialect's own, so marking it unimplemented is not.
+    The parent's grammar uses ZZPARENTWORD; marking it unimplemented switches
+    off inherited grammar, which is allowed. ZZOWNWORD is the dialect's own,
+    so marking it unimplemented is not.
     """
-    dialect = load_raw_dialect("ansi").copy_as("zzwrap")
-    dialect.replace(SelectClauseModifierSegment=_WrappingSegment)
-    _declare(dialect, unimplemented=["DISTINCT", "ZZOWNWORD"])
+    parent = _parent_dialect()
+    dialect = parent.copy_as("zzwrap")
+    dialect.replace(ZzHookSegment=_WrappingSegment)
+    _declare(dialect, unimplemented=["ZZPARENTWORD", "ZZOWNWORD"])
 
-    found = _unimplemented_in_own_grammar(dialect.expand())
+    with _registered(parent):
+        found = _unimplemented_in_own_grammar(dialect.expand())
 
     assert set(found) == {"ZZOWNWORD"}
 
@@ -2046,40 +2124,38 @@ def test_checker_says_a_symbol_or_number_is_not_a_keyword() -> None:
 
 def test_checker_finds_keyword_list_entries_that_are_not_words() -> None:
     """Test that punctuation in keyword lists is reported, and phrases aren't."""
-    ansi = load_raw_dialect("ansi")
-    # A non-word in ansi's own set, so the message has to trace it back there.
-    ansi.sets("unreserved_keywords").add("ZZ,")
-    try:
-        dialect = ansi.copy_as("zzlists")
-        _declare(
-            dialect,
-            reserved=["=", "WITHIN GROUP"],
-            unreserved=["Arrow", "ZZ-PHRASE"],
-        )
+    parent = load_raw_dialect("ansi").copy_as("zzlistsparent")
+    # A non-word in the parent's own set, so the message has to trace it there.
+    parent.sets("unreserved_keywords").add("ZZ,")
+    dialect = parent.copy_as("zzlists")
+    _declare(
+        dialect,
+        reserved=["=", "ZZWITHIN ZZGROUP"],
+        unreserved=["Arrow", "ZZ-PHRASE"],
+    )
+    with _registered(parent):
         found = _non_word_keywords(dialect)
         message = _non_word_keywords_message(dialect, found)
-    finally:
-        ansi.sets("unreserved_keywords").discard("ZZ,")
 
     assert set(found) == {"=", "ZZ,"}
     flat = _flat(message)
     assert "'=' (reserved, in zzlists's own lists)" in flat
     assert "delete it from zzlists's reserved list" in flat
-    assert "'ZZ,' (unreserved, inherited from ansi)" in flat
-    assert "delete it from ansi's unreserved list" in flat
+    assert "'ZZ,' (unreserved, inherited from zzlistsparent)" in flat
+    assert "delete it from zzlistsparent's unreserved list" in flat
 
 
 class _FutureSegment(BaseSegment):
     """A segment whose grammar uses the future reserved word ZZFUTURE."""
 
-    type = "select_clause_modifier"
+    type = "zz_hook"
     match_grammar = Sequence(Ref.keyword("ZZFUTURE"))
 
 
 def _future_dialect(name: str, also_unreserved: bool) -> Dialect:
     """An ansi copy whose grammar uses ZZFUTURE, which is future reserved."""
     dialect = load_raw_dialect("ansi").copy_as(name)
-    dialect.replace(SelectClauseModifierSegment=_FutureSegment)
+    _hooked(dialect, _FutureSegment)
     if also_unreserved:
         _declare(dialect, unreserved=["ZZFUTURE"], future_reserved=["ZZFUTURE"])
     else:
@@ -2112,18 +2188,18 @@ def test_a_grammar_keyword_that_is_only_future_reserved_is_missing() -> None:
 
 
 class _SharedUnmatchableSegment(BaseSegment):
-    """A segment from another module whose grammar uses WITHIN GROUP."""
+    """A segment from another module whose grammar uses ZZWITHIN ZZGROUP."""
 
     type = "zz_shared_unmatchable"
-    match_grammar = Sequence(Ref.keyword("WITHIN GROUP"))
+    match_grammar = Sequence(Ref.keyword("ZZWITHIN ZZGROUP"))
 
 
 class _UnmatchableSegment(BaseSegment):
-    """A dialect's own segment whose grammar uses END-EXEC as a keyword."""
+    """A dialect's own segment whose grammar uses ZZEND-ZZEXEC as a keyword."""
 
-    type = "select_clause_modifier"
+    type = "zz_hook"
     match_grammar = Sequence(
-        Ref.keyword("END-EXEC"),
+        Ref.keyword("ZZEND-ZZEXEC"),
         Ref("ZzSharedUnmatchableSegment"),
         Ref.keyword("ZZ-NO-STATUS"),
     )
@@ -2135,25 +2211,27 @@ _UnmatchableSegment.__module__ = "sqlfluff.dialects.dialect_zzunmatchable"
 def test_checker_finds_grammar_keywords_that_can_never_match() -> None:
     """Test that a keyword the lexer splits is reported, with the split.
 
-    END-EXEC has a status (ansi lists it), so it resolves and silently never
-    matches. ZZ-NO-STATUS has none, so the missing keyword check owns it and
+    ZZEND-ZZEXEC has a status, so it resolves and silently never matches. ZZ-NO-STATUS has none, so the missing keyword check owns it and
     names it as several tokens instead.
     """
     dialect = load_raw_dialect("ansi").copy_as("zzunmatchable")
-    dialect.replace(SelectClauseModifierSegment=_UnmatchableSegment)
+    _hooked(dialect, _UnmatchableSegment)
     dialect.add(ZzSharedUnmatchableSegment=_SharedUnmatchableSegment)
-    _declare(dialect, unreserved=["WITHIN GROUP"])
+    _declare(dialect, unreserved=["ZZWITHIN ZZGROUP", "ZZEND-ZZEXEC"])
     expanded = dialect.expand()
 
     found = _unmatchable_keywords(expanded)
     message = _flat(_unmatchable_keywords_message(expanded, found))
 
-    assert set(found) == {"END-EXEC", "WITHIN GROUP"}
-    assert "'END-EXEC' (in _UnmatchableSegment: zzunmatchable's own grammar)" in message
-    assert "the lexer makes END, -, EXEC of it." in message
+    assert set(found) == {"ZZEND-ZZEXEC", "ZZWITHIN ZZGROUP"}
     assert (
-        "'WITHIN GROUP' (in _SharedUnmatchableSegment: defined in "
-        "keyword_reference_test): the lexer makes WITHIN, GROUP of it."
+        "'ZZEND-ZZEXEC' (in _UnmatchableSegment: zzunmatchable's own grammar)"
+        in message
+    )
+    assert "the lexer makes ZZEND, -, ZZEXEC of it." in message
+    assert (
+        "'ZZWITHIN ZZGROUP' (in _SharedUnmatchableSegment: defined in "
+        "keyword_reference_test): the lexer makes ZZWITHIN, ZZGROUP of it."
     ) in message
     assert "is several tokens to the lexer" in _not_a_word("ZZ-NO-STATUS")
 
@@ -2212,15 +2290,15 @@ def _unused_finding(name: str, dialect: Dialect) -> "Finding | None":
     inherited: set[str] = set()
     parent_name = dialect.inherits_from
     if parent_name:
-        inherited = _known_keywords(load_raw_dialect(parent_name))
+        inherited = _known_keywords(_raw_dialect(parent_name))
     from_parent = [word for word in unused if word in inherited]
     own = [word for word in unused if word not in inherited]
     lines = [
         "These do no harm to parsing: nothing refers to them, so they can't "
         "change any parse. RF04 treats them as keywords, so it flags aliases "
-        "named after them. This is an "
-        "inventory: syntax sqlfluff may not parse yet, or words that can come "
-        "out of a list."
+        "named after them. These are leads to investigate, not a to-do list: "
+        "check each against the server's docs, and against how sqlfluff parses "
+        "it today, before changing grammar or keyword lists."
     ]
     if from_parent:
         lines.append(f"- {len(from_parent)} also in {parent_name}'s keywords:")
@@ -2257,7 +2335,11 @@ def _never_used_finding(dialects: dict[str, Dialect]) -> "Finding | None":
     message = "\n".join(
         [
             "Reserved or unreserved in at least one of these dialects, and used "
-            "by the grammar of none of them: " + ", ".join(sorted(dialects)) + ".",
+            "by the grammar of none of them. These are leads to investigate, not "
+            "a to-do list: check each against the servers' docs, and against how "
+            "sqlfluff parses it today, before changing grammar or keyword lists.",
+            "- the dialects:",
+            *_word_rows(sorted(dialects)),
             "- the words:",
             *_word_rows(never),
         ]
@@ -3019,13 +3101,10 @@ def test_audit_report_covers_audited_and_unaudited_dialects() -> None:
 def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     """Test the report's other parts on a ready and a broken dialect."""
     ready = load_raw_dialect("ansi").copy_as("zzready")
-    # The two keywords ansi's GRANT grammar used without listing, so this
-    # dialect is ready however ansi itself stands.
-    ready.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
     broken = _faulty_dialect("zzbroken")
-    broken.sets("unreserved_keywords").add("SELECT")
-    # ZONE is used by inherited ansi grammar (AT TIME ZONE).
-    broken.sets("unimplemented_keywords").add("ZONE")
+    broken.sets("unreserved_keywords").add("ZZSELECT")
+    # _FaultySegment isn't zzbroken's own grammar, so this is inherited use.
+    broken.sets("unimplemented_keywords").add("ZZTERMINATOR")
     broken.sets("unreserved_keywords").add("ZZ,")
     dialects = {"zzready": ready.expand(), "zzbroken": broken}
     UNAUDITED_DIALECTS.update(dialects)
@@ -3042,16 +3121,16 @@ def test_audit_report_covers_ready_dialects_segments_and_overlaps() -> None:
     assert "refers to segments or grammars that don't exist" in flat
     assert "two statuses that can't go together" in flat
     assert "-- Inherited grammar that stops matching (1) [notice] --" in report
-    assert "* ZONE:" in report
+    assert "* ZZTERMINATOR:" in report
     assert "-- Keyword list entries that aren't words (1) [warning] --" in report
 
 
 def test_audit_report_shows_an_audited_dialect_its_pytest_failures() -> None:
     """Test that a broken audited dialect gets the messages pytest gives it."""
     broken = _faulty_dialect("zzauditedbroken")
-    broken.sets("unreserved_keywords").add("SELECT")
+    broken.sets("unreserved_keywords").add("ZZSELECT")
     own = load_raw_dialect("ansi").copy_as("zzown")
-    own.replace(SelectClauseModifierSegment=_OwnGrammarSegment)
+    _hooked(own, _OwnGrammarSegment)
     _declare(own, unimplemented=["ZZOWNWORD"])
 
     result = _audit_report_of({"zzauditedbroken": broken, "zzown": own.expand()})
@@ -3096,9 +3175,8 @@ def test_checker_says_when_a_lower_dialect_dropped_a_keyword() -> None:
 def test_audit_report_lists_unused_keywords_as_info() -> None:
     """Test that unused keywords are an inventory, shown only at info level."""
     dialect = load_raw_dialect("ansi").copy_as("zzunused")
-    dialect.sets("unreserved_keywords").update(["FORMATS", "POLICIES", "ZZNOGRAMMAR"])
+    dialect.sets("unreserved_keywords").add("ZZNOGRAMMAR")
     sibling = load_raw_dialect("ansi").copy_as("zzsibling")
-    sibling.sets("unreserved_keywords").update(["FORMATS", "POLICIES"])
     dialects = {"zzunused": dialect.expand(), "zzsibling": sibling.expand()}
     shown = _audit_report_of(dialects, level="info").text
     hidden = _audit_report_of(dialects, level="notice").text
@@ -3111,7 +3189,7 @@ def test_audit_report_lists_unused_keywords_as_info() -> None:
     assert re.search(
         r"== Keywords no grammar in these 2 dialects uses \(\d+\) \[info\]", shown
     )
-    assert "used by the grammar of none of them: zzsibling, zzunused." in _flat(shown)
+    assert re.search(r"\* the dialects:\n +zzsibling zzunused\n", shown)
     assert "no grammar in these" not in alone
     assert "These do no harm" in _flat(shown)
     assert "Keywords no grammar uses (" not in hidden

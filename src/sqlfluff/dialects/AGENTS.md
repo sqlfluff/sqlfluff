@@ -339,7 +339,8 @@ tsql_dialect.declare_keyword_sets(
 Each keyword is reserved, unreserved, or unimplemented (the dialect's server
 doesn't have it), and a dialect sets them with one call to
 `declare_keyword_sets()`. Don't `sets("reserved_keywords").clear()`: it drops
-the parent's words, and any grammar that uses one then crashes the parser.
+the parent's words, and any grammar that uses one then fails the audit, because
+it would crash the parser.
 
 How to set up a dialect's keywords, and how far to take reconciling them with
 the server, is in the docstring at the top of

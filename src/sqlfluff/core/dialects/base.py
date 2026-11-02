@@ -212,8 +212,10 @@ class Dialect:
         """
         # Pairs of lists that can't share a word. A keyword is reserved or
         # unreserved, not both; an unimplemented word is one the server
-        # doesn't have, so it is neither; a word the vendor will reserve isn't
-        # reserved yet. Future reserved may go with unreserved or unimplemented.
+        # doesn't have, so it is neither; a reserved word is already reserved,
+        # so also listing it as future reserved is redundant. Future reserved
+        # may go with unreserved or unimplemented, if the word has a present
+        # status at all.
         exclusive_lists = (
             ("reserved", "unreserved"),
             ("reserved", "unimplemented"),
@@ -229,8 +231,9 @@ class Dialect:
                 "declare_keyword_sets() was given words in two lists that exclude "
                 "each other: " + ", ".join(clashes) + ". A keyword is reserved or "
                 "unreserved, not both. Unimplemented means the server doesn't have "
-                "the word, so it can't also be a keyword. A future reserved word "
-                "isn't reserved yet. Keep each word in one of its two lists. If the "
+                "the word, so it can't also be a keyword. A word listed as reserved "
+                "is already reserved, so listing it as future reserved too is "
+                "redundant. Keep each word in one of its two lists. If the "
                 "server has a word but not a parent's syntax that uses it, keep the "
                 "word a keyword and override that syntax in the dialect."
             )
@@ -259,7 +262,7 @@ class Dialect:
                 explicitly given another status by the caller.
                 "add": they are kept reserved
                 "replace": they become unreserved, or unimplemented with
-                unspecified_parent_keywords "unimplemented"
+                unspecified_parent_keywords="unimplemented"
             unreserved: Words that are keywords in some places and names in
                 others.
             unimplemented: Words the dialect's server (not sqlfluff) doesn't
@@ -277,9 +280,11 @@ class Dialect:
                 unreserved or unimplemented.
                 "unreserved": they keep a keyword status, as reserved_mode says
                 "unimplemented": they become unimplemented. This says the lists
-                are complete for the server, so it needs reserved_mode
-                "replace". Run keyword_reference_test.py <dialect> --level
-                notice to see the inherited grammar this switches off.
+                are complete for the server and the dialect doesn't follow its
+                parent closely, so it needs reserved_mode "replace". A close
+                child usually wants "unreserved". Run keyword_reference_test.py
+                <dialect> --level notice to see the inherited grammar this
+                switches off.
 
         A word may not lose all present status, as inherited grammar may use it
         either now or after future parent edits. This allows effortless feature
@@ -348,8 +353,9 @@ class Dialect:
         if reserved_mode == "replace":
             new_reserved = listed_reserved
             # Unlisted inherited reserved words become unreserved, unless
-            # unspecified_parent_keywords makes them unimplemented below. A word
-            # the call lists anywhere gets exactly what it says instead.
+            # unspecified_parent_keywords="unimplemented" makes them
+            # unimplemented below. A word the call lists anywhere gets exactly
+            # what it says instead.
             demoted = (
                 inherited_reserved
                 - listed_reserved
@@ -363,9 +369,8 @@ class Dialect:
                 - listed_future
                 - listed_unimplemented
             ) | listed_reserved
-            # A future reserved word isn't reserved yet, so an inherited
-            # reserved word listed as future becomes unreserved (or stays
-            # unimplemented, if it's listed that way too: see below).
+            # The call's lists win. An inherited reserved word listed as future
+            # reserved becomes unreserved, as the two together are redundant.
             demoted = inherited_reserved & listed_future
         new_unreserved = (
             inherited_unreserved | listed_unreserved | demoted

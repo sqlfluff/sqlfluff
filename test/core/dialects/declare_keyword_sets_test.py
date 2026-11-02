@@ -11,9 +11,29 @@ from sqlfluff.core.parser import KeywordSegment, StringParser
 from sqlfluff.core.parser.grammar.base import Nothing
 
 
-def _child_of_ansi() -> Dialect:
-    """A new dialect copied from ansi, with ansi's keyword sets."""
-    return load_raw_dialect("ansi").copy_as("declare_keyword_sets_test")
+def _parent() -> Dialect:
+    """An ansi copy that adds keywords of known status for these tests to use.
+
+    ZZRES1 and ZZRES2 are reserved, ZZUNRES1 and ZZUNRES2 unreserved. The tests
+    rely on these, not on the status of any word ansi lists, so changing ansi's
+    keywords can't break them.
+    """
+    parent = load_raw_dialect("ansi").copy_as("declare_keyword_sets_parent")
+    parent.declare_keyword_sets(
+        reserved=["ZZRES1", "ZZRES2"],
+        reserved_mode="add",
+        unreserved=["ZZUNRES1", "ZZUNRES2"],
+        unimplemented=[],
+        future_reserved=[],
+        future_reserved_mode="replace",
+        unspecified_parent_keywords="unreserved",
+    )
+    return parent
+
+
+def _child() -> Dialect:
+    """A new dialect copied from _parent(), with its keyword sets."""
+    return _parent().copy_as("declare_keyword_sets_test")
 
 
 def _declare(
@@ -44,32 +64,34 @@ def _status(dialect: Dialect, word: str) -> list[str]:
 
 
 def test_add_mode_keeps_inherited_reserved_words() -> None:
-    """Test that add mode adds to the parent's reserved list."""
-    ansi = load_raw_dialect("ansi")
-    child = _child_of_ansi()
+    """Test that reserved_mode="add" adds to the parent's reserved list."""
+    parent = _parent()
+    child = parent.copy_as("declare_keyword_sets_test")
     _declare(child, "add", reserved=("ZZNEW",))
 
-    assert child.sets("reserved_keywords") == ansi.sets("reserved_keywords") | {"ZZNEW"}
-    assert child.sets("unreserved_keywords") == ansi.sets("unreserved_keywords")
+    assert child.sets("reserved_keywords") == parent.sets("reserved_keywords") | {
+        "ZZNEW"
+    }
+    assert child.sets("unreserved_keywords") == parent.sets("unreserved_keywords")
 
 
 def test_replace_mode_demotes_unlisted_inherited_reserved_words() -> None:
-    """Test that replace mode keeps only the list, demoting the rest."""
-    child = _child_of_ansi()
-    _declare(child, "replace", reserved=("SELECT", "ZZNEW"))
+    """Test that reserved_mode="replace" keeps only the list, demoting the rest."""
+    child = _child()
+    _declare(child, "replace", reserved=("ZZRES1", "ZZNEW"))
 
-    assert child.sets("reserved_keywords") == {"SELECT", "ZZNEW"}
-    assert _status(child, "JOIN") == ["unreserved_keywords"]
+    assert child.sets("reserved_keywords") == {"ZZRES1", "ZZNEW"}
+    assert _status(child, "ZZRES2") == ["unreserved_keywords"]
 
 
 def test_what_you_list_is_what_you_get() -> None:
     """Test that a listed word leaves the status it inherited, in either mode."""
     for mode in ("add", "replace"):
-        child = _child_of_ansi()
-        _declare(child, mode, reserved=("ZONE",), unreserved=("ROWS",))
+        child = _child()
+        _declare(child, mode, reserved=("ZZUNRES1",), unreserved=("ZZRES1",))
 
-        assert _status(child, "ROWS") == ["unreserved_keywords"], mode
-        assert _status(child, "ZONE") == ["reserved_keywords"], mode
+        assert _status(child, "ZZRES1") == ["unreserved_keywords"], mode
+        assert _status(child, "ZZUNRES1") == ["reserved_keywords"], mode
 
 
 @pytest.mark.parametrize(
@@ -83,7 +105,7 @@ def test_what_you_list_is_what_you_get() -> None:
 )
 def test_a_call_cant_list_a_word_twice(first: str, second: str) -> None:
     """Test that the call's own lists must not overlap where they exclude."""
-    child = _child_of_ansi()
+    child = _child()
     with pytest.raises(ValueError, match=rf"ZZBOTH \({first} and {second}\)"):
         lists: dict[str, Any] = {first: ("ZZBOTH",), second: ("ZZBOTH",)}
         _declare(child, **lists)
@@ -91,7 +113,7 @@ def test_a_call_cant_list_a_word_twice(first: str, second: str) -> None:
 
 def test_future_reserved_goes_with_unreserved_or_unimplemented() -> None:
     """Test the two overlaps a call may make: future reserved with a present status."""
-    child = _child_of_ansi()
+    child = _child()
     _declare(
         child,
         unreserved=("ZZSOON",),
@@ -115,20 +137,21 @@ def test_future_reserved_goes_with_unreserved_or_unimplemented() -> None:
 def test_a_word_listed_only_as_unimplemented_is_just_a_name(mode: str) -> None:
     """Test that unimplemented alone takes away an inherited keyword status.
 
-    This is postgres's "not-keyword": EXECUTION is unreserved in ansi but not
-    a PostgreSQL keyword, so RF04 must not flag it (#4269). SELECT stands in
-    for an inherited reserved word, which add mode would otherwise keep.
+    This is postgres's "not-keyword": a word unreserved in its parent but not
+    a PostgreSQL keyword, which RF04 must not flag (#4269). ZZUNRES1 is that
+    word; ZZRES1 stands in for an inherited reserved word, which
+    reserved_mode="add" would otherwise keep.
     """
-    child = _child_of_ansi()
-    _declare(child, mode, unimplemented=("EXECUTION", "SELECT"))
+    child = _child()
+    _declare(child, mode, unimplemented=("ZZUNRES1", "ZZRES1"))
 
-    assert _status(child, "EXECUTION") == ["unimplemented_keywords"]
-    assert _status(child, "SELECT") == ["unimplemented_keywords"]
+    assert _status(child, "ZZUNRES1") == ["unimplemented_keywords"]
+    assert _status(child, "ZZRES1") == ["unimplemented_keywords"]
 
 
 def test_listing_a_keyword_switches_inherited_grammar_back_on() -> None:
     """Test that a child listing a parent's unimplemented word implements it."""
-    parent = _child_of_ansi()
+    parent = _child()
     _declare(parent, unimplemented=("ZZOFF", "ZZRESOFF"))
     child = parent.copy_as("declare_keyword_sets_grandchild")
     _declare(child, reserved=("ZZRESOFF",), unreserved=("ZZOFF",))
@@ -144,7 +167,7 @@ def test_an_inherited_overlap_resolves_to_unimplemented() -> None:
     word both reserved and unimplemented. The child's call can't refuse what
     it didn't list, so it resolves it the way expand() would.
     """
-    parent = _child_of_ansi()
+    parent = _child()
     parent.sets("reserved_keywords").add("ZZBOTH")
     parent.sets("unimplemented_keywords").add("ZZBOTH")
     child = parent.copy_as("declare_keyword_sets_grandchild")
@@ -155,15 +178,15 @@ def test_an_inherited_overlap_resolves_to_unimplemented() -> None:
 
 def test_future_reserved_is_never_reserved() -> None:
     """Test that a future reserved word leaves reserved, and may be unreserved."""
-    child = _child_of_ansi()
-    _declare(child, unreserved=("ZZLATER",), future_reserved=("ZZLATER", "SELECT"))
+    child = _child()
+    _declare(child, unreserved=("ZZLATER",), future_reserved=("ZZLATER", "ZZRES1"))
 
     assert _status(child, "ZZLATER") == [
         "unreserved_keywords",
         "future_reserved_keywords",
     ]
-    # SELECT leaves reserved but keeps a present status.
-    assert _status(child, "SELECT") == [
+    # ZZRES1 leaves reserved but keeps a present status.
+    assert _status(child, "ZZRES1") == [
         "unreserved_keywords",
         "future_reserved_keywords",
     ]
@@ -172,16 +195,16 @@ def test_future_reserved_is_never_reserved() -> None:
 @pytest.mark.parametrize("mode", ["add", "replace"])
 def test_no_inherited_word_is_dropped(mode: str) -> None:
     """Test that every word the parent knows still has a status afterwards."""
-    ansi = load_raw_dialect("ansi")
-    known = set().union(*(ansi.sets(label) for label in KEYWORD_STATUS_SETS))
-    child = _child_of_ansi()
+    parent = _parent()
+    known = set().union(*(parent.sets(label) for label in KEYWORD_STATUS_SETS))
+    child = parent.copy_as("declare_keyword_sets_test")
     _declare(
         child,
         mode,
-        reserved=("SELECT",),
-        unreserved=("ROWS",),
-        unimplemented=("JOIN",),
-        future_reserved=("ORDER",),
+        reserved=("ZZUNRES1",),
+        unreserved=("ZZRES1",),
+        unimplemented=("ZZRES2",),
+        future_reserved=("ZZUNRES2",),
         future_reserved_mode="replace",
         unspecified_parent_keywords="unreserved",
     )
@@ -191,8 +214,8 @@ def test_no_inherited_word_is_dropped(mode: str) -> None:
 
 
 def _with_future_parent() -> Dialect:
-    """An ansi copy whose own keywords include ZZSOON, only future reserved."""
-    parent = _child_of_ansi()
+    """A _child() whose own keywords include ZZSOON, only future reserved."""
+    parent = _child()
     _declare(parent, unreserved=("ZZLATER",), future_reserved=("ZZSOON", "ZZLATER"))
     return parent
 
@@ -232,13 +255,15 @@ def test_a_future_word_listed_as_reserved_is_no_longer_future(future_mode: str) 
 def test_a_reserved_word_listed_as_future_is_unreserved_in_add_mode() -> None:
     """Test that listing an inherited reserved word as future keeps a status.
 
-    Future reserved isn't reserved yet, so the word leaves reserved, and has to
-    land somewhere present: unreserved.
+    The call's list takes priority, and reserved with future reserved would be
+    redundant, so the word leaves reserved. With reserved_mode="add" it lands
+    on unreserved; only reserved_mode="replace" can send it to unimplemented,
+    through unspecified_parent_keywords="unimplemented".
     """
-    child = _child_of_ansi()
-    _declare(child, "add", future_reserved=("SELECT",))
+    child = _child()
+    _declare(child, "add", future_reserved=("ZZRES1",))
 
-    assert _status(child, "SELECT") == [
+    assert _status(child, "ZZRES1") == [
         "unreserved_keywords",
         "future_reserved_keywords",
     ]
@@ -266,7 +291,7 @@ def test_keywords_set_from_multiline_string_refuses_a_repeated_word() -> None:
 
 def test_declare_keyword_sets_refuses_a_bad_mode_and_strings() -> None:
     """Test the argument checks: a known mode, lists not strings, all named."""
-    child = _child_of_ansi()
+    child = _child()
     with pytest.raises(ValueError, match='reserved_mode="add" or "replace"'):
         _declare(child, "merge")
     with pytest.raises(
@@ -298,7 +323,7 @@ def test_unspecified_parent_keywords_unimplemented_needs_replace_mode() -> None:
     unspecified_parent_keywords="unimplemented" says the lists are complete;
     reserved_mode="add" keeps reserved words they don't list. Both can't hold.
     """
-    child = _child_of_ansi()
+    child = _child()
     with pytest.raises(ValueError, match='Use reserved_mode="replace"'):
         _declare(child, "add", unspecified_parent_keywords="unimplemented")
 
@@ -313,7 +338,7 @@ def test_unspecified_parent_keywords_unimplemented_takes_the_lists_as_complete()
     Listed words get what they're listed as, and the parent's unimplemented
     ZZOFF stays so.
     """
-    parent = _child_of_ansi()
+    parent = _child()
     _declare(
         parent,
         reserved=("ZZRES", "ZZRESKEEP"),
@@ -339,7 +364,7 @@ def test_unspecified_parent_keywords_unimplemented_takes_the_lists_as_complete()
     assert _status(child, "ZZRESKEEP") == ["reserved_keywords"]
     assert _status(child, "ZZUNKEEP") == ["unreserved_keywords"]
     assert _status(child, "ZZOFF") == ["unimplemented_keywords"]
-    assert _status(child, "SELECT") == ["unimplemented_keywords"]
+    assert _status(child, "ZZRES1") == ["unimplemented_keywords"]
 
 
 def test_error_docs_survive_expand_but_not_inheritance() -> None:
@@ -373,7 +398,7 @@ def test_unimplemented_keyword_resolves_to_nothing() -> None:
     A keyword with no status at all still fails to resolve, so a typo in a
     grammar is still caught.
     """
-    child = _child_of_ansi()
+    child = _child()
     _declare(child, unimplemented=("ZZGONE",))
     expanded = child.expand()
 
@@ -394,7 +419,7 @@ def test_unimplemented_wins_over_every_other_status() -> None:
     such an overlap, so this builds the sets by hand, as a dialect that doesn't
     use it might.
     """
-    child = _child_of_ansi()
+    child = _child()
     for label, word in (
         ("reserved_keywords", "ZZRES"),
         ("unreserved_keywords", "ZZUNRES"),
@@ -409,17 +434,18 @@ def test_unimplemented_wins_over_every_other_status() -> None:
 
 
 # A small vocabulary, so that random calls collide often: made-up words, and
-# ansi words that start reserved (SELECT, JOIN) and unreserved (ZONE, ABORT).
+# _parent()'s words that start reserved (ZZRES1, ZZRES2) and unreserved
+# (ZZUNRES1, ZZUNRES2).
 _VOCABULARY = (
     "ZZW0",
     "ZZW1",
     "ZZW2",
     "ZZW3",
     "ZZW4",
-    "SELECT",
-    "JOIN",
-    "ZONE",
-    "ABORT",
+    "ZZRES1",
+    "ZZRES2",
+    "ZZUNRES1",
+    "ZZUNRES2",
 )
 _PRESENT_SETS = ("reserved_keywords", "unreserved_keywords", "unimplemented_keywords")
 
@@ -470,7 +496,7 @@ def test_a_parent_change_never_takes_a_word_from_a_child() -> None:
     """
     rng = random.Random(8906)
     for trial in range(2000):
-        parent = _child_of_ansi()
+        parent = _child()
         parent_call = _random_call(rng)
         parent.declare_keyword_sets(**parent_call)
         child = parent.copy_as("declare_keyword_sets_grandchild")
@@ -495,7 +521,7 @@ def test_a_word_that_is_only_future_reserved_does_not_resolve() -> None:
     such a word fails to resolve, so the audit reports it, and lint rules
     still see the word in the future reserved set.
     """
-    child = _child_of_ansi()
+    child = _child()
     _declare(child, unreserved=("ZZSOON",), future_reserved=("ZZSOON", "ZZLATER"))
     expanded = child.expand()
 

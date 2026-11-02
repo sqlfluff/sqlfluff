@@ -264,7 +264,8 @@ Each keyword has a status:
   dialect; the rest of each rule still does.
 - **Future reserved**: the vendor says it will become reserved. This is a
   future status, not a present one: it never goes with reserved, but it can go
-  with unreserved or unimplemented.
+  with unreserved or unimplemented, or stand alone. Alone it says nothing about
+  what parses today: the word has no present status.
 
 Reserved, unreserved and unimplemented don't overlap.
 
@@ -305,14 +306,15 @@ Each listed word gets that status. With `reserved_mode="replace"` the reserved
 list is the complete list, and any reserved word the dialect inherits but
 doesn't list becomes unreserved, or unimplemented with
 `unspecified_parent_keywords="unimplemented"`; with `"add"` the parent's
-reserved words stay.
-`unspecified_parent_keywords` says what happens to the inherited keywords the
-call doesn't list: `"unreserved"` keeps them as keywords, and `"unimplemented"`
-says the lists are complete for the server, so they become unimplemented (this
-needs `reserved_mode="replace"`). Nothing is ever dropped from having a present
-status. Avoid
-`sets("reserved_keywords").clear()`: it drops the parent's words, and any of
-the parent's grammar that uses one then crashes in your dialect.
+reserved words stay. `unspecified_parent_keywords` says what happens to the
+inherited keywords the call doesn't list: `"unreserved"` keeps them as
+keywords, and `"unimplemented"` makes them unimplemented (this needs
+`reserved_mode="replace"`). A dialect that follows its parent closely usually
+wants `"unreserved"`; `"unimplemented"` is for one that only borrows its
+parent's syntax and has lists complete for the server. Nothing is ever dropped
+from having a present status. Avoid `sets("reserved_keywords").clear()`: it
+drops the parent's words, and any of the parent's grammar that uses one then
+fails the audit, because it would crash the parser in your dialect.
 
 The full guide, from the essentials to reconciling every keyword with your
 database, is in the docstring at the top of
