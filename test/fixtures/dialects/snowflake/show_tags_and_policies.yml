@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f75d28ebb0c358b39dad58696540762e49269764c2c63c752831bdb947ff35e
+_hash: 4e403543abaeee32a5218cde58a89ad55bb8467c77705304d6aed3b67263c795
 file:
 - statement:
     show_statement:
@@ -57,6 +57,35 @@ file:
     - keyword: POLICIES
     - keyword: LIKE
     - quoted_literal: "'rap%'"
+    - keyword: IN
+    - keyword: ACCOUNT
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICIES
+    - keyword: LIKE
+    - quoted_literal: "'rap%'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+    - keyword: FROM
+    - quoted_literal: "'rap_a'"
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: MASKING
+    - keyword: POLICIES
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
     - keyword: IN
     - keyword: ACCOUNT
 - statement_terminator: ;
