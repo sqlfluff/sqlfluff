@@ -5,6 +5,7 @@ import pickle
 import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -268,6 +269,22 @@ def test__iteration_limit__exceeded_reports_parse_error_cli(tmp_path, processes)
         (violation,) = linted_file["violations"]
         assert violation["code"] == "PRS"
         assert "maximum iteration limit" in violation["description"]
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__exception_is_not_a_parse_error():
+    """Only a Rust panic becomes a parse error. Other exceptions propagate."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex("SELECT 1")
+    parser = RustParser(config=config)
+    parser._rs_parser = Mock()
+    parser._rs_parser.parse_match_result_from_tokens.side_effect = RuntimeError("Bug")
+
+    with pytest.raises(RuntimeError, match="Bug"):
+        parser.parse(segments, fname="test.sql")
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")

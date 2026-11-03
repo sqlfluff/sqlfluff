@@ -287,7 +287,8 @@ try:
                     raise SQLParseError.from_rs_parse_error(
                         e, segments[_start_idx:_end_idx]
                     ) from e
-                except (KeyboardInterrupt, SystemExit):  # pragma: no cover
+                # Any other Exception is a bug in sqlfluff, not in the user's SQL.
+                except (Exception, KeyboardInterrupt, SystemExit):
                     raise
                 except BaseException as e:  # noqa: BLE001
                     # A Rust panic, e.g. from going over rust_parser_max_iterations,
