@@ -843,3 +843,79 @@ test_pass_derived_table_column_list_set_expression_postgres:
         UNION ALL
         SELECT a + 2, b FROM t
     ) AS s (x, y)
+
+test_pass_row_value_in_subquery_is_position_bound:
+  pass_str: select x, y from a where (x, y) in (select max(w), y from b group by y)
+
+test_pass_row_value_in_subquery_duckdb:
+  configs:
+    core:
+      dialect: duckdb
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) IN (SELECT max(w), x FROM b GROUP BY x);
+
+test_pass_row_value_in_subquery_postgres:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) IN (SELECT max(w), x FROM b GROUP BY x);
+
+test_pass_row_value_not_in_subquery:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) NOT IN (SELECT max(w), x FROM b GROUP BY x);
+
+test_pass_row_value_equals_subquery:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a
+    WHERE (id, x) = (SELECT max(w), x FROM b WHERE x = 10 GROUP BY x);
+
+test_pass_row_value_in_with_compound_subquery:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) IN (
+        WITH c AS (SELECT w, x FROM b)
+        SELECT max(w), x FROM c GROUP BY x
+    );
+
+test_fail_scalar_in_subquery_nested_named_projection:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT id FROM a WHERE id IN (
+        SELECT s.m FROM (SELECT max(w) AS m, x FROM b GROUP BY x) AS s
+    );
+  fix_str: |
+    SELECT id FROM a WHERE id IN (
+        SELECT s.m FROM (SELECT x, max(w) AS m FROM b GROUP BY x) AS s
+    );
+
+test_fail_row_value_in_subquery_nested_named_projection:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT id FROM a WHERE (id, x) IN (
+        SELECT max(s.m), s.x
+        FROM (SELECT max(w) AS m, x FROM b GROUP BY x) AS s GROUP BY s.x
+    );
+  fix_str: |
+    SELECT id FROM a WHERE (id, x) IN (
+        SELECT max(s.m), s.x
+        FROM (SELECT x, max(w) AS m FROM b GROUP BY x) AS s GROUP BY s.x
+    );
+
+test_fail_exists_subquery_still_reordered:
+  fail_str: |
+    SELECT id FROM a WHERE EXISTS (SELECT w + 1, x FROM b);
+  fix_str: |
+    SELECT id FROM a WHERE EXISTS (SELECT x, w + 1 FROM b);
