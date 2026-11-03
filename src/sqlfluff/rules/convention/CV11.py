@@ -281,6 +281,15 @@ class Rule_CV11(BaseRule):
             ]
         )
 
+        next_code = next((s for s in context.siblings_post if s.is_code), None)
+        if next_code and next_code.is_type("array_accessor"):
+            # Without parentheses, the accessor becomes an array type suffix.
+            edits = [
+                SymbolSegment("(", type="start_bracket"),
+                *edits,
+                SymbolSegment(")", type="end_bracket"),
+            ]
+
         fixes = [
             LintFix.replace(
                 context.segment,

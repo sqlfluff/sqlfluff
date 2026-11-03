@@ -390,6 +390,53 @@ test_fail_parenthesize_expression_when_config_shorthand_from_convert:
       convention.casting_style:
         preferred_type_casting_style: shorthand
 
+test_fail_cast_then_subscript_to_shorthand_duckdb:
+  fail_str: SELECT CAST(y AS TEXT)[1] FROM a
+  fix_str: SELECT (y::TEXT)[1] FROM a
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
+test_fail_cast_without_subscript_to_shorthand_duckdb:
+  fail_str: SELECT CAST(y AS TEXT) FROM a
+  fix_str: SELECT y::TEXT FROM a
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
+test_fail_cast_then_subscript_to_shorthand_consistent_duckdb:
+  fail_str: SELECT y::TEXT, CAST(y AS TEXT)[1] FROM a
+  fix_str: SELECT y::TEXT, (y::TEXT)[1] FROM a
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_cast_then_subscript_with_comment_to_shorthand_duckdb:
+  fail_str: SELECT CAST(y || 'x' AS TEXT) /* subscript */ [1] FROM a
+  fix_str: SELECT ((y || 'x')::TEXT) /* subscript */ [1] FROM a
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
+test_fail_cast_to_shorthand_with_later_subscript_duckdb:
+  fail_str: SELECT CAST(y AS TEXT) || CAST(z AS TEXT)[1] FROM a
+  fix_str: SELECT y::TEXT || (z::TEXT)[1] FROM a
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
 test_fail_snowflake_semi_structured_cast_4453:
   # https://github.com/sqlfluff/sqlfluff/issues/4453
   fail_str: |
