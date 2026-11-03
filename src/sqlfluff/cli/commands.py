@@ -42,6 +42,7 @@ from sqlfluff.core import (
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintingResult, ParsedString
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.plugin.host import get_plugin_manager
@@ -1929,7 +1930,11 @@ def render(
                     stdin_filename, require_dialect=False
                 )
         else:
-            raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
+            try:
+                raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
+            except SQLFluffSkipFile as skip_file_err:
+                logging.getLogger("sqlfluff.linter").warning(str(skip_file_err))
+                sys.exit(EXIT_FAIL if c.get("large_file_skip_fail") else EXIT_SUCCESS)
             fname = path
 
         # Get file specific config
@@ -1940,6 +1945,9 @@ def render(
             for v in rendered.templater_violations:
                 click.echo(formatter.format_violation(v))
             sys.exit(EXIT_FAIL)
+        elif not rendered.templated_variants:
+            # Skipped renders have already logged a warning.
+            sys.exit(EXIT_FAIL if c.get("large_file_skip_fail") else EXIT_SUCCESS)
         else:
             _num_variants = len(rendered.templated_variants)
             if _num_variants > 1:

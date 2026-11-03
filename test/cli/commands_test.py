@@ -3351,6 +3351,86 @@ def test__cli__render_pass():
     )
 
 
+@pytest.mark.parametrize("fail_on_skip,ret_code", [(False, 0), (True, 1)])
+@pytest.mark.parametrize(
+    "limit,source",
+    [
+        ("byte", "file"),
+        ("char", "file"),
+        ("char", "stdin"),
+        ("char", "stdin-filename"),
+        ("char", "inline"),
+    ],
+)
+def test__cli__render_large_file_skip(
+    tmp_path, monkeypatch, limit, source, fail_on_skip, ret_code
+):
+    """Render reports large-file skips and honors the configured exit policy."""
+    monkeypatch.chdir(tmp_path)
+    config = "[sqlfluff]\ndialect = ansi\n"
+    if fail_on_skip:
+        config += "large_file_skip_fail = True\n"
+    limit_config = f"large_file_skip_{limit}_limit = 5\n"
+    if source == "stdin-filename":
+        subdir = tmp_path / "sub"
+        subdir.mkdir()
+        (subdir / ".sqlfluff").write_text("[sqlfluff]\n" + limit_config)
+    elif source != "inline":
+        config += limit_config
+    (tmp_path / ".sqlfluff").write_text(config)
+
+    sql = "SELECT 1\n"
+    if source == "inline":
+        sql = "-- sqlfluff:large_file_skip_char_limit:5\n" + sql
+    args = ["-n"]
+    if source == "file":
+        (tmp_path / "query.sql").write_bytes(sql.encode("utf8"))
+        args.append("query.sql")
+        fname = "query.sql"
+    else:
+        args.append("-")
+        fname = "stdin"
+        if source == "stdin-filename":
+            args.extend(["--stdin-filename", "sub/query.sql"])
+
+    result = invoke_assert_code(
+        ret_code=ret_code,
+        args=[render, args],
+        cli_input=sql if source != "file" else None,
+        assert_stdout_contains=f"WARNING    Length of file '{fname}' ",
+    )
+    assert f"'large_file_skip_{limit}_limit'" in result.stdout
+    assert result.stdout.count("Skipping to avoid parser lock.") == 1
+    assert "Traceback" not in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("source", ["file", "stdin"])
+@pytest.mark.parametrize("limit", [0, 15])
+@pytest.mark.parametrize(
+    "sql,rendered_sql", [("", "\n"), ("SELECT {{ 1 }}\n", "SELECT 1\n\n")]
+)
+def test__cli__render_within_file_limits(
+    tmp_path, monkeypatch, source, limit, sql, rendered_sql
+):
+    """Empty and single-variant renders succeed with enabled or disabled limits."""
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        f"large_file_skip_byte_limit = {limit}\n"
+        f"large_file_skip_char_limit = {limit}\n"
+        "large_file_skip_fail = True\n"
+    )
+    if source == "file":
+        (tmp_path / "query.sql").write_bytes(sql.encode("utf8"))
+    result = invoke_assert_code(
+        args=[render, ["-n", "query.sql" if source == "file" else "-"]],
+        cli_input=sql if source == "stdin" else None,
+    )
+    assert result.stdout.endswith(rendered_sql)
+    assert "Skipping" not in result.stdout
+
+
 def test__cli__command_lint_large_file_skip_fail(tmpdir):
     """Test that `lint` returns exit code 1 when large_file_skip_fail is set.
 
