@@ -325,16 +325,13 @@ class ParallelRunner(BaseRunner):
         # kept the worker alive here, that call would wait for it forever.
         except SystemExit:
             raise
-        # Anything else, e.g. the PanicException from the Rust parser, would end
-        # this worker without a result, and the main process would wait for it
-        # forever. It might not pickle, so we describe it in a WorkerAbort.
+        # Any other exception, such as a Rust panic, would end this worker without
+        # a result, and the main process would wait for it forever. It might not
+        # pickle, so we send a description of it instead.
         except BaseException as e:
             # NOTE: This is safe to call even if the exception can't be printed.
             description = "".join(traceback.format_exception_only(type(e), e))
-            return DelayedException(
-                WorkerAbort(f"Unable to lint {fname}: {description.strip()}"),
-                fname=fname,
-            )
+            return DelayedException(RuntimeError(description.strip()), fname=fname)
 
     @staticmethod
     def _without_unused_tree(linted_file: LintedFile) -> LintedFile:
@@ -452,15 +449,6 @@ class MultiThreadRunner(ParallelRunner):
         files are still being processed.
         """
         return pool.imap(func=func, iterable=iterable)
-
-
-class WorkerAbort(BaseException):
-    """A parallel worker hit an exception which isn't an `Exception`.
-
-    Like the exception it describes, this isn't an `Exception`, so it stops the
-    whole run just as it would with a single process, rather than being handled
-    as an error in one file.
-    """
 
 
 class DelayedException(Exception):

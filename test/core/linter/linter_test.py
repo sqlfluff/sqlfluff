@@ -518,8 +518,8 @@ def test__parallel_runner__apply_skip_file():
 def test__parallel_runner__apply_unpicklable_base_exception():
     """A BaseException which can't be pickled still reaches the main process.
 
-    The PanicException from the Rust parser is like this. If _apply lets one
-    escape then the worker dies and the main process waits for it forever.
+    If _apply lets one escape then the worker dies and the main process waits
+    for it forever.
     """
 
     class UnpicklableAbort(BaseException):
@@ -532,13 +532,12 @@ def test__parallel_runner__apply_unpicklable_base_exception():
     assert isinstance(result, runner.DelayedException)
     unpickled = pickle.loads(pickle.dumps(result))
     assert unpickled.fname == "a.sql"
-    assert isinstance(unpickled.ee, runner.WorkerAbort)
-    assert "a.sql" in str(unpickled.ee)
+    assert isinstance(unpickled.ee, RuntimeError)
     assert "UnpicklableAbort: Out of budget" in str(unpickled.ee)
 
 
 def test__parallel_runner__apply_unprintable_base_exception():
-    """A BaseException which can't be printed is reported, naming the file."""
+    """A BaseException which can't be printed is still reported."""
 
     class UnprintableAbort(BaseException):
         def __str__(self):
@@ -548,8 +547,9 @@ def test__parallel_runner__apply_unprintable_base_exception():
         raise UnprintableAbort()
 
     result = _apply_in_worker(("a.sql", _task))
-    assert isinstance(result.ee, runner.WorkerAbort)
-    assert "Unable to lint a.sql: " in str(result.ee)
+    assert result.fname == "a.sql"
+    assert isinstance(result.ee, RuntimeError)
+    assert "UnprintableAbort" in str(result.ee)
 
 
 def test__parallel_runner__apply_leaves_system_exit():
@@ -563,8 +563,8 @@ def test__parallel_runner__apply_leaves_system_exit():
 
 
 @patch("sqlfluff.core.linter.Linter.lint_rendered")
-def test__parallel_runner__worker_abort_stops_run(patched_lint):
-    """A BaseException in a worker ends the run, rather than skipping the file.
+def test__parallel_runner__worker_base_exception_skips_file(patched_lint):
+    """A BaseException in a worker is reported for its file, and the run ends.
 
     If it escaped the worker, the run would wait forever, so run it in a thread
     which we can stop waiting for.
@@ -574,25 +574,23 @@ def test__parallel_runner__worker_abort_stops_run(patched_lint):
         pass
 
     patched_lint.side_effect = Abort("Out of budget")
-    outcome = []
+    fname = "test/fixtures/linter/passing.sql"
 
     def _run():
-        try:
-            list(
-                runner.MultiThreadRunner(
-                    Linter(), FluffConfig(overrides={"dialect": "ansi"}), processes=2
-                ).run(["test/fixtures/linter/passing.sql"], fix=False)
-            )
-        except BaseException as e:
-            outcome.append(e)
+        list(
+            runner.MultiThreadRunner(
+                Linter(), FluffConfig(overrides={"dialect": "ansi"}), processes=2
+            ).run([fname], fix=False)
+        )
 
-    thread = threading.Thread(target=_run, daemon=True)
-    thread.start()
-    thread.join(timeout=30)
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        thread = threading.Thread(target=_run, daemon=True)
+        thread.start()
+        thread.join(timeout=30)
 
     assert not thread.is_alive(), "The run didn't end."
-    assert isinstance(outcome[0], runner.WorkerAbort)
-    assert "Abort: Out of budget" in str(outcome[0])
+    assert f"Unable to lint {fname} due to an internal error" in caplog.text
+    assert "Abort: Out of budget" in caplog.text
 
 
 def test__parallel_runner__apply_unpickles_root_config_once():
