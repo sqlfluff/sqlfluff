@@ -81,6 +81,17 @@ class Rule_TQ02(BaseRule):
         if not procedure_statement:
             return None  # pragma: no cover
 
+        # A body led by a bare BEGIN is already wrapped: this rule's own fix
+        # inserts loose BEGIN/END keywords, which the fix loop doesn't reparse.
+        # Without this the fix re-fires until the loop limit and is reverted.
+        body_code = [seg for seg in procedure_statement.segments if seg.is_code]
+        if (
+            body_code
+            and body_code[0].is_type("keyword")
+            and body_code[0].raw_upper == "BEGIN"
+        ):
+            return None
+
         # Get direct statement children (excluding whitespace, newlines, meta, etc.)
         statements = [
             seg for seg in procedure_statement.segments if seg.is_type("statement")
