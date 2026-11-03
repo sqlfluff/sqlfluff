@@ -64,17 +64,10 @@ fn aux_block_bounds(
 ) -> (usize, usize) {
     let idx = grammar_id.get() as usize;
     let aux_start = tables.aux_data_offsets[idx] as usize;
-    let next_aux_off = tables
-        .aux_data_offsets
-        .get(idx + 1)
-        .map(|&off| off as usize)
-        .unwrap_or_else(|| tables.aux_data.len());
-    let aux_end = if next_aux_off > aux_start {
-        next_aux_off
-    } else {
-        tables.aux_data.len()
-    };
-    (aux_start, aux_end)
+    // Blocks are count-prefixed, so the end is only a bounds guard. The next
+    // instruction's offset slot can't be used: some variants (e.g. Ref) store
+    // a string id there, which truncated this block's class_types.
+    (aux_start, tables.aux_data.len())
 }
 
 /// Diagnostic counters accumulated during a parse.

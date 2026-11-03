@@ -1378,3 +1378,19 @@ def test__rust_parser__tsql_datatype_method_case_sensitive(method, is_datatype_m
     native_ids = method_ids(False)
     assert rust_ids == native_ids  # parity with native
     assert (method in rust_ids) is is_datatype_method
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__arena_class_types_match_python_tree():
+    """Arena leaves carry the same class types as the Python tree.
+
+    Doris closing brackets used to lose ``symbol`` in the arena.
+    """
+    from sqlfluff.core import FluffConfig, Linter
+
+    config = FluffConfig(overrides={"dialect": "doris", "use_rust_parser": True})
+    tree = Linter(config=config).parse_string("SELECT (1)\n").tree
+    pairs = list(zip(tree.raw_segments, tree._rs_tree.root.raw_segments()))
+    assert pairs
+    for seg, handle in pairs:
+        assert set(handle.class_types()) == set(seg.class_types), seg.raw
