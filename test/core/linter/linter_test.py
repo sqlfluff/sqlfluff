@@ -562,9 +562,8 @@ def test__parallel_runner__apply_leaves_system_exit():
         _apply_in_worker(("a.sql", _task))
 
 
-@patch("sqlfluff.core.linter.Linter.lint_rendered")
-def test__parallel_runner__worker_base_exception_skips_file(patched_lint):
-    """A BaseException in a worker is reported for its file, and the run ends.
+def test__parallel_runner__worker_base_exception_skips_file(monkeypatch):
+    """A BaseException in a worker is reported for its file, and the run goes on.
 
     If it escaped the worker, the run would wait forever, so run it in a thread
     which we can stop waiting for.
@@ -573,14 +572,23 @@ def test__parallel_runner__worker_base_exception_skips_file(patched_lint):
     class Abort(BaseException):
         pass
 
-    patched_lint.side_effect = Abort("Out of budget")
-    fname = "test/fixtures/linter/passing.sql"
+    failing = "test/fixtures/linter/passing.sql"
+    other = "test/fixtures/linter/comma_errors.sql"
+    lint_rendered = Linter.lint_rendered
+
+    def _lint_rendered(rendered, *args, **kwargs):
+        if rendered.fname == failing:
+            raise Abort("Out of budget")
+        return lint_rendered(rendered, *args, **kwargs)
+
+    monkeypatch.setattr(Linter, "lint_rendered", staticmethod(_lint_rendered))
+    results = []
 
     def _run():
-        list(
+        results.extend(
             runner.MultiThreadRunner(
                 Linter(), FluffConfig(overrides={"dialect": "ansi"}), processes=2
-            ).run([fname], fix=False)
+            ).run([failing, other], fix=False)
         )
 
     with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
@@ -589,8 +597,9 @@ def test__parallel_runner__worker_base_exception_skips_file(patched_lint):
         thread.join(timeout=30)
 
     assert not thread.is_alive(), "The run didn't end."
-    assert f"Unable to lint {fname} due to an internal error" in caplog.text
+    assert f"Unable to lint {failing} due to an internal error" in caplog.text
     assert "Abort: Out of budget" in caplog.text
+    assert [linted_file.path for linted_file in results] == [other]
 
 
 def test__parallel_runner__apply_unpickles_root_config_once():
