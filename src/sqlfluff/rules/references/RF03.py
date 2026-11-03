@@ -26,7 +26,14 @@ from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
-_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+_START_TYPES = [
+    "delete_statement",
+    "merge_statement",
+    "select_statement",
+    "set_expression",
+    "update_statement",
+    "with_compound_statement",
+]
 
 
 class Rule_RF03(BaseRule):
@@ -121,8 +128,14 @@ class Rule_RF03(BaseRule):
             select_info = selectable.select_info
             if select_info:
                 for alias in select_info.table_aliases:
-                    if subquery and alias.from_expression_element.path_to(
-                        subquery.selectables[0].selectable
+                    if (
+                        subquery
+                        and alias.from_expression_element.is_type(
+                            "from_expression_element"
+                        )
+                        and alias.from_expression_element.path_to(
+                            subquery.selectables[0].selectable
+                        )
                     ):
                         # Skip the subquery alias itself
                         continue
@@ -248,13 +261,19 @@ def _sees_outer_columns(selectable: BaseSegment) -> bool:
 
     A subquery in the FROM clause can see the columns of its own query only
     if it is a LATERAL or APPLY subquery. Other subqueries (e.g. in the WHERE
-    clause) always can. A CTE takes the position of the WITH statement which
-    defines it. Any subquery can also see the columns which its enclosing
-    query can see, e.g. a derived table nested in a LATERAL subquery.
+    clause, SET clause, or MERGE match actions) always can. A CTE takes the
+    position of the WITH statement which defines it. Any subquery can also see
+    the columns which its enclosing query can see, e.g. a derived table nested
+    in a LATERAL subquery.
     """
     parent = _parent_segment(selectable)
     while parent:
-        if parent.is_type("select_statement"):
+        if parent.is_type(
+            "select_statement",
+            "update_statement",
+            "delete_statement",
+            "merge_statement",
+        ):
             return True
         if parent.is_type("from_expression_element"):
             if _is_lateral_element(parent):
@@ -277,7 +296,12 @@ def _parent_segment(segment: BaseSegment) -> Optional[BaseSegment]:
 def _enclosing_select(segment: BaseSegment) -> Optional[BaseSegment]:
     """Get the nearest select statement which contains a segment."""
     parent = _parent_segment(segment)
-    while parent and not parent.is_type("select_statement"):
+    while parent and not parent.is_type(
+        "select_statement",
+        "update_statement",
+        "delete_statement",
+        "merge_statement",
+    ):
         parent = _parent_segment(parent)
     return parent
 
