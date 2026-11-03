@@ -75,6 +75,26 @@ test_fail_default_insensitive:
     core:
       dialect: duckdb
 
+test_pass_postgres_bare_function_names_remain_quoted:
+  # Unquoted, these are calls to PostgreSQL's bare functions, not column
+  # references.
+  pass_str: |
+    SELECT "user", "current_user", "system_user", "session_user"
+    FROM events
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_ansi_bare_function_name_remains_quoted:
+  pass_str: SELECT "current_date" FROM events
+
+test_fail_postgres_ordinary_identifier_unquoted:
+  fail_str: SELECT "events" FROM "events"
+  fix_str: SELECT events FROM events
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_reference_tsql:
   # Tests the TSQL bracket quotes.
   # TSQL casefolds UPPERCASE.
