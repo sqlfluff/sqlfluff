@@ -87,6 +87,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "PERCENT",
         "PER_THREAD_OUTPUT",
         "POSITIONAL",
+        "PRAGMA",
         "PREFIX",
         "PROGRAM",
         "RESERVOIR",
@@ -1117,6 +1118,42 @@ class CheckpointStatementSegment(BaseSegment):
     )
 
 
+class PragmaReferenceSegment(ansi.ObjectReferenceSegment):
+    """A Pragma object."""
+
+    type = "pragma_reference"
+
+
+class PragmaStatementSegment(BaseSegment):
+    """A `PRAGMA` statement.
+
+    https://duckdb.org/docs/stable/configuration/pragmas
+    """
+
+    type = "pragma_statement"
+    match_grammar = Sequence(
+        "PRAGMA",
+        Ref("PragmaReferenceSegment"),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    # Named arguments, e.g. `stemmer = 'porter'` for
+                    # `create_fts_index`.
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    Ref("ExpressionSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    )
+
+
 class DescribeStatementSegment(ansi.DescribeStatementSegment):
     """A `DESCRIBE` statement.
 
@@ -1154,6 +1191,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("InstallStatementSegment"),
             Ref("CheckpointStatementSegment"),
+            Ref("PragmaStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("ImportStatementSegment"),
         ]
