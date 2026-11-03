@@ -294,6 +294,80 @@ hive_dialect.replace(
                 "TABLE",
                 Ref("TableReferenceSegment"),
             ),
+            # Add or replace columns
+            Sequence(
+                OneOf("ADD", "REPLACE"),
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("DatatypeSegment"),
+                            Ref("CommentGrammar", optional=True),
+                            Sequence(
+                                "DEFAULT",
+                                Ref("ExpressionSegment"),
+                                optional=True,
+                            ),
+                        )
+                    )
+                ),
+                OneOf("RESTRICT", "CASCADE", optional=True),
+            ),
+            # Change a column
+            Sequence(
+                "CHANGE",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+                OneOf(
+                    "FIRST",
+                    Sequence("AFTER", Ref("SingleIdentifierGrammar")),
+                    optional=True,
+                ),
+                OneOf("RESTRICT", "CASCADE", optional=True),
+            ),
+            # Add partitions
+            Sequence(
+                "ADD",
+                Ref("IfNotExistsGrammar", optional=True),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("PartitionSpecGrammar"),
+                        Ref("LocationGrammar", optional=True),
+                    ),
+                    min_times=1,
+                ),
+            ),
+            # Drop partitions
+            Sequence(
+                "DROP",
+                Ref("IfExistsGrammar", optional=True),
+                Delimited(Ref("PartitionSpecGrammar")),
+                Ref.keyword("PURGE", optional=True),
+            ),
+            # Table properties
+            Sequence("SET", "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")),
+            Sequence(
+                "UNSET",
+                "TBLPROPERTIES",
+                Ref("IfExistsGrammar", optional=True),
+                Bracketed(
+                    OneOf(
+                        Delimited(Ref("PropertyGrammar")),
+                        Delimited(Ref("QuotedLiteralSegment")),
+                    )
+                ),
+            ),
+            # Archive, unarchive and touch partitions
+            Sequence(
+                OneOf("ARCHIVE", "UNARCHIVE", "TOUCH"),
+                AnyNumberOf(Ref("PartitionSpecGrammar")),
+            ),
+            # Merge small files
+            Sequence(Ref("PartitionSpecGrammar", optional=True), "CONCATENATE"),
         ]
     ),
     LikeGrammar=OneOf(
