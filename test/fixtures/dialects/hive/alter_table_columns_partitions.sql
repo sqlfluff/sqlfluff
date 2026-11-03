@@ -1,0 +1,39 @@
+ALTER TABLE web_logs ADD COLUMNS (user_agent STRING COMMENT 'raw agent', hits INT);
+
+ALTER TABLE web_logs ADD COLUMNS (user_agent STRING) CASCADE;
+
+ALTER TABLE web_logs REPLACE COLUMNS (ip STRING, hits INT);
+
+ALTER TABLE web_logs CHANGE COLUMN hits page_views BIGINT;
+
+ALTER TABLE web_logs CHANGE hits page_views BIGINT COMMENT 'page page_views' FIRST;
+
+ALTER TABLE web_logs CHANGE COLUMN hits page_views BIGINT AFTER ip CASCADE;
+
+ALTER TABLE web_logs ADD PARTITION (dt = '2024-01-01');
+
+ALTER TABLE web_logs ADD IF NOT EXISTS
+    PARTITION (dt = '2024-01-01') LOCATION '/data/2024-01-01'
+    PARTITION (dt = '2024-01-02') LOCATION '/data/2024-01-02';
+
+ALTER TABLE web_logs DROP PARTITION (dt = '2024-01-01');
+
+ALTER TABLE web_logs DROP IF EXISTS PARTITION (dt = '2024-01-01'), PARTITION (dt = '2024-01-02') PURGE;
+
+ALTER TABLE web_logs SET TBLPROPERTIES ('comment' = 'raw web logs', 'owner' = 'data');
+
+ALTER TABLE web_logs UNSET TBLPROPERTIES IF EXISTS ('owner');
+
+ALTER TABLE web_logs ARCHIVE PARTITION (dt = '2024-01-01');
+
+ALTER TABLE web_logs UNARCHIVE PARTITION (dt = '2024-01-01');
+
+ALTER TABLE web_logs TOUCH PARTITION (dt = '2024-01-01');
+
+ALTER TABLE web_logs CONCATENATE;
+
+ALTER TABLE web_logs PARTITION (dt = '2024-01-01') CONCATENATE;
+
+ALTER TABLE web_logs ADD COLUMNS (hits INT COMMENT 'x' DEFAULT 0);
+
+ALTER TABLE web_logs UNSET TBLPROPERTIES ('owner' = 'team', 'retention' = '7');
