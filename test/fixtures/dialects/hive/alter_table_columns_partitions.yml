@@ -1,0 +1,366 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b1e8da38ad1586fbb18bbb70df9e6793da966e8e37c8b3443d9c4e56438bb208
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: user_agent
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'raw agent'"
+      - comma: ','
+      - naked_identifier: hits
+      - data_type:
+          primitive_type:
+            keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        naked_identifier: user_agent
+        data_type:
+          primitive_type:
+            keyword: STRING
+        end_bracket: )
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: REPLACE
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ip
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - comma: ','
+      - naked_identifier: hits
+      - data_type:
+          primitive_type:
+            keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - naked_identifier: hits
+    - naked_identifier: page_views
+    - data_type:
+        primitive_type:
+          keyword: BIGINT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: CHANGE
+    - naked_identifier: hits
+    - naked_identifier: page_views
+    - data_type:
+        primitive_type:
+          keyword: BIGINT
+    - keyword: COMMENT
+    - quoted_literal: "'page page_views'"
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - naked_identifier: hits
+    - naked_identifier: page_views
+    - data_type:
+        primitive_type:
+          keyword: BIGINT
+    - keyword: AFTER
+    - naked_identifier: ip
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: ADD
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: ADD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: "'/data/2024-01-01'"
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-02'"
+        end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: "'/data/2024-01-02'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: DROP
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: DROP
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+    - comma: ','
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-02'"
+        end_bracket: )
+    - keyword: PURGE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'comment'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'raw web logs'"
+      - comma: ','
+      - quoted_literal: "'owner'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'data'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'owner'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: ARCHIVE
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: UNARCHIVE
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: TOUCH
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: CONCATENATE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2024-01-01'"
+        end_bracket: )
+    - keyword: CONCATENATE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: hits
+      - data_type:
+          primitive_type:
+            keyword: INT
+      - keyword: COMMENT
+      - quoted_literal: "'x'"
+      - keyword: DEFAULT
+      - expression:
+          numeric_literal: '0'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: web_logs
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'owner'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'team'"
+      - comma: ','
+      - quoted_literal: "'retention'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'7'"
+      - end_bracket: )
+- statement_terminator: ;
