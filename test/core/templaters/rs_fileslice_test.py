@@ -8,27 +8,33 @@ import pickle
 
 import pytest
 
-sqlfluffrs = pytest.importorskip("sqlfluffrs")
+try:
+    from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER
+    from sqlfluffrs import RsRawFileSlice, RsTemplatedFileSlice
+except ImportError:  # pragma: no cover
+    _HAS_RUST_PARSER = False
 
 
 def _fields(o):
-    if isinstance(o, sqlfluffrs.RsRawFileSlice):
+    if isinstance(o, RsRawFileSlice):
         return (o.raw, o.slice_type, o.source_idx, o.block_idx, o.tag)
     return (o.slice_type, o.source_slice, o.templated_slice)
 
 
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 @pytest.mark.parametrize(
-    "obj",
+    "make",
     [
-        sqlfluffrs.RsRawFileSlice("select 1", "literal", 0),
-        sqlfluffrs.RsRawFileSlice("{% if x %}", "block_start", 12, 3, "if"),
-        sqlfluffrs.RsRawFileSlice("héllo ✓", "templated", 99, 7, None),
-        sqlfluffrs.RsTemplatedFileSlice("templated", slice(10, 25), slice(10, 11)),
+        lambda: RsRawFileSlice("select 1", "literal", 0),
+        lambda: RsRawFileSlice("{% if x %}", "block_start", 12, 3, "if"),
+        lambda: RsRawFileSlice("héllo ✓", "templated", 99, 7, None),
+        lambda: RsTemplatedFileSlice("templated", slice(10, 25), slice(10, 11)),
     ],
 )
 @pytest.mark.parametrize("protocol", range(2, pickle.HIGHEST_PROTOCOL + 1))
-def test__rs_fileslice__pickle_roundtrip(obj, protocol):
+def test__rs_fileslice__pickle_roundtrip(make, protocol):
     """Every field survives pickle and deepcopy."""
+    obj = make()
     back = pickle.loads(pickle.dumps(obj, protocol=protocol))
     assert type(back) is type(obj)
     assert _fields(back) == _fields(obj)
