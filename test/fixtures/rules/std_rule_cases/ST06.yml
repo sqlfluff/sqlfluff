@@ -919,3 +919,39 @@ test_fail_exists_subquery_still_reordered:
     SELECT id FROM a WHERE EXISTS (SELECT w + 1, x FROM b);
   fix_str: |
     SELECT id FROM a WHERE EXISTS (SELECT x, w + 1 FROM b);
+
+test_pass_row_value_comparison_operators_subquery:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a
+    WHERE (id, x) <> (SELECT max(w), x FROM b WHERE x = 10 GROUP BY x)
+        OR (id, x) != (SELECT max(w), x FROM b WHERE x = 11 GROUP BY x)
+        OR (id, x) < (SELECT max(w), x FROM b WHERE x = 12 GROUP BY x)
+        OR (id, x) <= (SELECT max(w), x FROM b WHERE x = 13 GROUP BY x)
+        OR (id, x) > (SELECT max(w), x FROM b WHERE x = 14 GROUP BY x)
+        OR (id, x) >= (SELECT max(w), x FROM b WHERE x = 15 GROUP BY x);
+
+test_pass_row_value_quantified_comparison_subquery:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a
+    WHERE (id, x) = ANY (SELECT max(w), x FROM b GROUP BY x)
+        OR (id, x) <> ALL (SELECT max(w), x FROM b GROUP BY x)
+        OR (id, x) >= SOME (SELECT max(w), x FROM b GROUP BY x);
+
+test_fail_scalar_any_subquery_nested_named_projection:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT id FROM a WHERE id = ANY (
+        SELECT s.m FROM (SELECT max(w) AS m, x FROM b GROUP BY x) AS s
+    );
+  fix_str: |
+    SELECT id FROM a WHERE id = ANY (
+        SELECT s.m FROM (SELECT x, max(w) AS m FROM b GROUP BY x) AS s
+    );

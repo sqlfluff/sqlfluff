@@ -136,7 +136,18 @@ class Rule_ST06(BaseRule):
             parent, index = parent_info
             if parent.is_type("expression"):
                 preceding = [seg for seg in parent.segments[:index] if seg.is_code]
-                if not preceding or preceding[-1].raw_upper not in ("IN", "="):
+                if preceding and preceding[-1].raw_upper in ("ANY", "ALL", "SOME"):
+                    preceding.pop()
+                if not preceding or preceding[-1].raw_upper not in (
+                    "IN",
+                    "=",
+                    "<>",
+                    "!=",
+                    "<",
+                    "<=",
+                    ">",
+                    ">=",
+                ):
                     return False
                 preceding.pop()
                 if preceding and preceding[-1].raw_upper == "NOT":
