@@ -10,6 +10,4 @@ sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 hashbrown.workspace = true
 uuid.workspace = true
 once_cell.workspace = true
-bincode.workspace = true
-serde.workspace = true
 log.workspace = true
