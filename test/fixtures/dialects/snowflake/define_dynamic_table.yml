@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71030cd481b8d714b521eaa1e534b11786dc2201ad5a7d379c85ae94b304a3f5
+_hash: a7a2822c6f3a98fad54e1ad25b974ca680c59e31ad08fd130bc8a98569ad0eaa
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: DEFINE
     - keyword: DYNAMIC
@@ -115,4 +115,36 @@ file:
         - column_reference:
             naked_identifier: TOTAL_REVENUE
         - keyword: DESC
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: DEFINE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_schedule
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'1 DAY'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - keyword: DATA_METRIC_SCHEDULE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'60 MINUTE'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;

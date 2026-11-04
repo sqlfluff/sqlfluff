@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7dc29cba52fd55b8549a3dbab80e057a45d794b6302f7f630af22d5b8324076c
+_hash: 5c34460c55a9e7100dfad213416831210708b368b5527e3f88cdeba5868e8d9a
 file:
-  statement:
+- statement:
     create_view_statement:
     - keyword: DEFINE
     - keyword: VIEW
@@ -64,4 +64,25 @@ file:
                   - naked_identifier: TABLE_2
                   - dot: .
                   - naked_identifier: PK
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: DEFINE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v_metrics
+    - keyword: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: TRIGGER_ON_CHANGES
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;

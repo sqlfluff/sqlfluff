@@ -234,6 +234,11 @@ snowflake_dialect.sets("initialize_types").update(
     ["ON_CREATE", "ON_SCHEDULE"],
 )
 
+snowflake_dialect.sets("metric_schedule_types").clear()
+snowflake_dialect.sets("metric_schedule_types").update(
+    ["TRIGGER_ON_CHANGES"],
+)
+
 snowflake_dialect.add(
     # Pipe properties shared by CREATE PIPE and DEFINE PIPE
     # https://docs.snowflake.com/en/sql-reference/sql/create-pipe
@@ -490,6 +495,13 @@ snowflake_dialect.add(
             snowflake_dialect.sets("refreshmode_types"),
             KeywordSegment,
         )
+    ),
+    MetricScheduleType=OneOf(
+        Ref("QuotedLiteralSegment"),
+        MultiStringParser(
+            snowflake_dialect.sets("metric_schedule_types"),
+            KeywordSegment,
+        ),
     ),
     InitializeType=OneOf(
         MultiStringParser(
@@ -6332,6 +6344,12 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "DATA_METRIC_SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("MetricScheduleType"),
+                optional=True,
+            ),
+            Sequence(
                 "CLUSTER",
                 "BY",
                 Delimited(Ref("ExpressionSegment")),
@@ -7941,6 +7959,11 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 "CHANGE_TRACKING",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DATA_METRIC_SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("MetricScheduleType"),
             ),
             # CLUSTER BY is only valid for materialized views, and it
             # requires the parenthesised expression list.
