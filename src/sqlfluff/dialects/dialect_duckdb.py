@@ -53,10 +53,13 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 
 duckdb_dialect.sets("reserved_keywords").update(
     [
+        "DESCRIBE",
         "LAMBDA",
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
+        "SHOW",
+        "SUMMARIZE",
         "UNPIVOT",
     ]
 )
@@ -108,6 +111,9 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "WRITE_PARTITION_COLUMNS",
     ]
 )
+
+# Postgres doesn't reserve these, but DuckDB does.
+duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"])
 
 # Add plural datetime units for interval expressions
 # DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
@@ -248,6 +254,10 @@ duckdb_dialect.replace(
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            # DuckDB can use these wherever a query can go, e.g. as a subquery.
+            Ref("DescribeStatementSegment"),
+            Ref("ShowStatementSegment"),
+            Ref("SummarizeStatementSegment"),
         ],
     ),
     NonStandardJoinTypeKeywordsGrammar=OneOf(
@@ -1213,6 +1223,23 @@ class ShowStatementSegment(postgres.ShowStatementSegment):
     )
 
 
+class SummarizeStatementSegment(BaseSegment):
+    """A `SUMMARIZE` statement.
+
+    Computes aggregates over every column of a table or query.
+    https://duckdb.org/docs/stable/guides/meta/summarize
+    """
+
+    type = "summarize_statement"
+    match_grammar = Sequence(
+        "SUMMARIZE",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+        ),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1220,6 +1247,7 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("SummarizeStatementSegment"),
             Ref("InstallStatementSegment"),
             Ref("CheckpointStatementSegment"),
             Ref("PragmaStatementSegment"),
