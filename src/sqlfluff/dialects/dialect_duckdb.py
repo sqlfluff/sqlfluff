@@ -69,11 +69,13 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ANTI",
         "APPEND",
         "ASOF",
+        "CODEC",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
         "DATABASES",
         "DATEFORMAT",
         "DELIM",
+        "EXPORT",
         "FILENAME_PATTERN",
         "FILE_EXTENSION",
         "FILE_SIZE_BYTES",
@@ -1251,6 +1253,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("InstallStatementSegment"),
             Ref("CheckpointStatementSegment"),
             Ref("PragmaStatementSegment"),
+            Ref("ExportStatementSegment"),
+            Ref("ImportStatementSegment"),
         ]
     )
 
@@ -1596,7 +1600,8 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         Ref("BooleanLiteralGrammar", optional=True),
                     ),
                     Sequence(
-                        "COMPRESSION",
+                        # DuckDB also accepts CODEC as another name for COMPRESSION.
+                        OneOf("COMPRESSION", "CODEC"),
                         OneOf(
                             Ref("QuotedLiteralSegment"),
                             Ref("SingleIdentifierGrammar"),
@@ -1649,6 +1654,34 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             ),
         ),
     )
+
+
+class ExportStatementSegment(BaseSegment):
+    """An `EXPORT DATABASE` statement.
+
+    It takes the same options as `COPY ... TO`, and exports the current database
+    unless one is named before `TO`.
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "export_statement"
+    match_grammar = Sequence(
+        "EXPORT",
+        "DATABASE",
+        Sequence(Ref("DatabaseReferenceSegment"), "TO", optional=True),
+        Ref("QuotedLiteralSegment"),
+        CopyStatementSegment._copy_to_option,
+    )
+
+
+class ImportStatementSegment(BaseSegment):
+    """An `IMPORT DATABASE` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "import_statement"
+    match_grammar = Sequence("IMPORT", "DATABASE", Ref("QuotedLiteralSegment"))
 
 
 class SetStatementSegment(postgres.SetStatementSegment):
