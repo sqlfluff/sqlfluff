@@ -1,5 +1,5 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, LazyLock, Mutex};
 
 use hashbrown::HashMap;
 use pyo3::IntoPyObject;
@@ -10,7 +10,6 @@ use crate::templater::fileslice::sqlfluff::{PySqlFluffRawFileSlice, PySqlFluffTe
 use crate::templater::fileslice::{PyRawFileSlice, PyTemplatedFileSlice};
 use sqlfluffrs_types::templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 
-use once_cell::sync::Lazy;
 use sqlfluffrs_types::templater::templatefile::TemplatedFile;
 
 /// Cache of Python→Rust `TemplatedFile` conversions, keyed by the SOURCE
@@ -30,9 +29,9 @@ use sqlfluffrs_types::templater::templatefile::TemplatedFile;
 /// callback to fire) — so the cache is bounded by LIVE TemplatedFiles and a
 /// recycled object address can never hit a stale entry.
 type TemplatedFileCacheEntry = (Arc<TemplatedFile>, Py<PyAny>);
-type TemplatedFileCache = Lazy<Mutex<HashMap<usize, TemplatedFileCacheEntry>>>;
+type TemplatedFileCache = LazyLock<Mutex<HashMap<usize, TemplatedFileCacheEntry>>>;
 
-static PY_TEMPLATED_FILE_CACHE: TemplatedFileCache = Lazy::new(|| Mutex::new(HashMap::new()));
+static PY_TEMPLATED_FILE_CACHE: TemplatedFileCache = LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// Weakref callback target: drop one conversion-cache entry. Bound to its key
 /// with `functools.partial`; the weakref machinery passes the (dead) ref as a

@@ -53,10 +53,13 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 
 duckdb_dialect.sets("reserved_keywords").update(
     [
+        "DESCRIBE",
         "LAMBDA",
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
+        "SHOW",
+        "SUMMARIZE",
         "UNPIVOT",
     ]
 )
@@ -68,6 +71,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ASOF",
         "BLOOM_FILTER_FALSE_POSITIVE_RATIO",
         "CHUNK_SIZE",
+        "CODEC",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
         "DATABASES",
@@ -75,6 +79,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "DATEFORMAT",
         "DELIM",
         "DICTIONARY_SIZE_LIMIT",
+        "EXPORT",
         "FIELD_IDS",
         "FILENAME_PATTERN",
         "FILE_EXTENSION",
@@ -120,6 +125,9 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "WRITE_TIMESTAMP_AS_INT96",
     ]
 )
+
+# Postgres doesn't reserve these, but DuckDB does.
+duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"])
 
 # Add plural datetime units for interval expressions
 # DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
@@ -260,6 +268,10 @@ duckdb_dialect.replace(
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            # DuckDB can use these wherever a query can go, e.g. as a subquery.
+            Ref("DescribeStatementSegment"),
+            Ref("ShowStatementSegment"),
+            Ref("SummarizeStatementSegment"),
         ],
     ),
     NonStandardJoinTypeKeywordsGrammar=OneOf(
@@ -1225,6 +1237,23 @@ class ShowStatementSegment(postgres.ShowStatementSegment):
     )
 
 
+class SummarizeStatementSegment(BaseSegment):
+    """A `SUMMARIZE` statement.
+
+    Computes aggregates over every column of a table or query.
+    https://duckdb.org/docs/stable/guides/meta/summarize
+    """
+
+    type = "summarize_statement"
+    match_grammar = Sequence(
+        "SUMMARIZE",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+        ),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1232,9 +1261,12 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("SummarizeStatementSegment"),
             Ref("InstallStatementSegment"),
             Ref("CheckpointStatementSegment"),
             Ref("PragmaStatementSegment"),
+            Ref("ExportStatementSegment"),
+            Ref("ImportStatementSegment"),
         ]
     )
 
@@ -1580,7 +1612,8 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         Ref("BooleanLiteralGrammar", optional=True),
                     ),
                     Sequence(
-                        "COMPRESSION",
+                        # DuckDB also accepts CODEC as another name for COMPRESSION.
+                        OneOf("COMPRESSION", "CODEC"),
                         OneOf(
                             Ref("QuotedLiteralSegment"),
                             Ref("SingleIdentifierGrammar"),
@@ -1674,6 +1707,34 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             ),
         ),
     )
+
+
+class ExportStatementSegment(BaseSegment):
+    """An `EXPORT DATABASE` statement.
+
+    It takes the same options as `COPY ... TO`, and exports the current database
+    unless one is named before `TO`.
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "export_statement"
+    match_grammar = Sequence(
+        "EXPORT",
+        "DATABASE",
+        Sequence(Ref("DatabaseReferenceSegment"), "TO", optional=True),
+        Ref("QuotedLiteralSegment"),
+        CopyStatementSegment._copy_to_option,
+    )
+
+
+class ImportStatementSegment(BaseSegment):
+    """An `IMPORT DATABASE` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "import_statement"
+    match_grammar = Sequence("IMPORT", "DATABASE", Ref("QuotedLiteralSegment"))
 
 
 class SetStatementSegment(postgres.SetStatementSegment):
