@@ -45,12 +45,11 @@ fn read_string_ids_from_aux(
 
 /// Returns the `[start, end)` bounds of `grammar_id`'s `aux_data` block.
 ///
-/// The end is normally the next grammar's offset, but `aux_data` blocks are
-/// **not** stored in grammar-id order, so the next grammar may have a smaller
-/// offset (e.g. `0` when it has no `aux_data`). When that offset doesn't sit
-/// after this block's start, fall back to the full `aux_data` length: the
-/// inst/class_types reads in the callers are count-prefixed and self-delimiting,
-/// so `aux_end` is only a safety bound, never a delimiter.
+/// The end is always `aux_data.len()`: the inst/class_types reads in the
+/// callers are count-prefixed and self-delimiting, so `aux_end` is only a
+/// safety bound, never a delimiter. The next grammar's offset slot can't be
+/// used: blocks aren't stored in grammar-id order, and some variants (e.g.
+/// Ref) store a string id there, which truncated this block's class_types.
 ///
 /// NOTE: codegen (build_parsers.py) unconditionally emits the new-schema fields
 /// (instance_types + class_types) for every String/Typed/Multi/Regex parser, so
@@ -62,11 +61,7 @@ fn aux_block_bounds(
     tables: &sqlfluffrs_types::GrammarTables,
     grammar_id: GrammarId,
 ) -> (usize, usize) {
-    let idx = grammar_id.get() as usize;
-    let aux_start = tables.aux_data_offsets[idx] as usize;
-    // Blocks are count-prefixed, so the end is only a bounds guard. The next
-    // instruction's offset slot can't be used: some variants (e.g. Ref) store
-    // a string id there, which truncated this block's class_types.
+    let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
     (aux_start, tables.aux_data.len())
 }
 

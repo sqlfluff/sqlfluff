@@ -1390,7 +1390,7 @@ def test__rust_parser__arena_class_types_match_python_tree():
 
     config = FluffConfig(overrides={"dialect": "doris", "use_rust_parser": True})
     tree = Linter(config=config).parse_string("SELECT (1)\n").tree
-    pairs = list(zip(tree.raw_segments, tree._rs_tree.root.raw_segments()))
-    assert pairs
-    for seg, handle in pairs:
+    segs, handles = tree.raw_segments, tree._rs_tree.root.raw_segments()
+    assert segs and len(handles) == len(segs)
+    for seg, handle in zip(segs, handles):
         assert set(handle.class_types()) == set(seg.class_types), seg.raw
