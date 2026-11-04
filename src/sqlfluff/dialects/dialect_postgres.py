@@ -5456,6 +5456,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LoadStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("DiscardStatementSegment"),
+            Ref("CheckpointStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
@@ -6173,6 +6174,16 @@ class DiscardStatementSegment(BaseSegment):
             "TEMP",
         ),
     )
+
+
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://www.postgresql.org/docs/18/sql-checkpoint.html
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Sequence("CHECKPOINT")
 
 
 class ListenStatementSegment(BaseSegment):
