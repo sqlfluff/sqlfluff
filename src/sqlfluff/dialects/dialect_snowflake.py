@@ -10063,6 +10063,14 @@ class ShowStatementSegment(BaseSegment):
         Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
         Sequence("RESOURCE", "MONITORS"),
         Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
+        "TAGS",
+        Sequence("ROW", "ACCESS", "POLICIES"),
+        Sequence(
+            OneOf("AUTHENTICATION", "JOIN", "PACKAGES", "PRIVACY", "SESSION"),
+            "POLICIES",
+        ),
+        Sequence("DATA", "METRIC", "FUNCTIONS"),
+        Sequence("NETWORK", "RULES"),
     )
 
     _object_scope_types = OneOf(
@@ -10103,6 +10111,13 @@ class ShowStatementSegment(BaseSegment):
         _object_types_plural,
         OneOf("HISTORY", optional=True),
         Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
+        # Some SHOW commands (e.g. ROW ACCESS / MASKING POLICIES) document LIMIT
+        # before the IN clause, others after it, so both positions are accepted.
+        Sequence(
+            Ref("LimitClauseSegment"),
+            Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
         Sequence(
             OneOf("ON", "TO", "OF", "IN"),
             OneOf(

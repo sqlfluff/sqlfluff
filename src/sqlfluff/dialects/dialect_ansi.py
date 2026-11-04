@@ -1553,6 +1553,7 @@ class FunctionNameSegment(BaseSegment):
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            Ref("NakedIdentifierSegment"),
             terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
