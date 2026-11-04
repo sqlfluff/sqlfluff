@@ -1,8 +1,14 @@
 """Implementation of Rule TQ02."""
 
-from typing import List, Optional
+from typing import Optional
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, NewlineSegment
+from sqlfluff.core.parser import (
+    BaseSegment,
+    Dedent,
+    Indent,
+    KeywordSegment,
+    NewlineSegment,
+)
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -81,17 +87,6 @@ class Rule_TQ02(BaseRule):
         if not procedure_statement:
             return None  # pragma: no cover
 
-        # A body led by a bare BEGIN is already wrapped: this rule's own fix
-        # inserts loose BEGIN/END keywords, which the fix loop doesn't reparse.
-        # Without this the fix re-fires until the loop limit and is reverted.
-        body_code = [seg for seg in procedure_statement.segments if seg.is_code]
-        if (
-            body_code
-            and body_code[0].is_type("keyword")
-            and body_code[0].raw_upper == "BEGIN"
-        ):
-            return None
-
         # Get direct statement children (excluding whitespace, newlines, meta, etc.)
         statements = [
             seg for seg in procedure_statement.segments if seg.is_type("statement")
@@ -111,80 +106,43 @@ class Rule_TQ02(BaseRule):
             # Defensive: statement with no segments shouldn't happen in valid parsed SQL
             return None  # pragma: no cover
 
-        # We have multiple statements without BEGIN/END - create a fix
-        fixes = self._create_begin_end_fixes(procedure_statement, statements)
-
         return LintResult(
-            anchor=procedure_statement,
+            anchor=procedure_statement.raw_segments[0],
             description="Procedure body with multiple statements should be wrapped "
             "in BEGIN/END block.",
-            fixes=fixes,
+            fixes=[
+                LintFix.replace(
+                    procedure_statement,
+                    [self._wrap_body(procedure_statement, context)],
+                )
+            ],
         )
 
-    def _create_begin_end_fixes(
-        self, procedure_statement: BaseSegment, statements: List[BaseSegment]
-    ) -> List[LintFix]:
-        """Create fixes to wrap the procedure body in BEGIN/END."""
-        # The strategy: insert BEGIN at the start and END at the end
-        # We need to find anchor points in the actual segment list
+    @staticmethod
+    def _wrap_body(
+        procedure_statement: BaseSegment, context: RuleContext
+    ) -> BaseSegment:
+        """Wrap the body's statements in a parse-shaped ``begin_end_block``.
 
-        # Find first statement segment in procedure_statement.segments
-        first_statement_idx = None
-        for idx, seg in enumerate(procedure_statement.segments):
-            if seg in statements:
-                first_statement_idx = idx
-                break
-
-        if first_statement_idx is None:
-            return []  # pragma: no cover
-
-        # Find last statement segment
-        last_statement_idx = None
-        for idx in range(len(procedure_statement.segments) - 1, -1, -1):
-            seg = procedure_statement.segments[idx]
-            if seg in statements:
-                last_statement_idx = idx
-                break
-
-        if last_statement_idx is None:
-            return []  # pragma: no cover
-
-        fixes = []
-
-        # Insert BEGIN before first statement
-        begin_keyword = KeywordSegment("BEGIN")
-        newline = NewlineSegment()
-
-        fixes.append(
-            LintFix.create_before(
-                procedure_statement.segments[first_statement_idx],
-                [begin_keyword, newline],
+        The fix loop doesn't reparse between passes, so the wrapper mirrors
+        how ``BEGIN ... END`` parses. The body is then a single statement,
+        so the rule doesn't re-fire on its own output.
+        """
+        children = procedure_statement.segments
+        code_idx = [i for i, seg in enumerate(children) if seg.is_code]
+        start, end = code_idx[0], code_idx[-1] + 1
+        block = context.dialect.get_segment("BeginEndSegment")(
+            segments=(
+                KeywordSegment("BEGIN"),
+                Indent(),
+                NewlineSegment(),
+                *children[start:end],
+                NewlineSegment(),
+                Dedent(),
+                KeywordSegment("END"),
             )
         )
-
-        # Insert END after last statement and its terminator (if present)
-        # In the current branch, statement_terminator is a peer of statement,
-        # so we need to check if there's a terminator after the last statement
-        insert_after_seg = procedure_statement.segments[last_statement_idx]
-
-        # Check if there's a statement_terminator after the last statement
-        for idx in range(last_statement_idx + 1, len(procedure_statement.segments)):
-            seg = procedure_statement.segments[idx]
-            if seg.is_type("statement_terminator"):
-                insert_after_seg = seg
-                break
-            elif seg.is_code:
-                # Hit another code segment, no terminator after last statement
-                break
-
-        end_keyword = KeywordSegment("END")
-
-        # Add newline before END
-        fixes.append(
-            LintFix.create_after(
-                insert_after_seg,
-                [newline, end_keyword],
-            )
+        statement = context.dialect.get_segment("StatementSegment")(segments=(block,))
+        return procedure_statement.copy(
+            segments=(*children[:start], statement, *children[end:])
         )
-
-        return fixes

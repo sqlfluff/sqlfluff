@@ -184,6 +184,18 @@ test_fail_multiple_procedures_in_one_file:
     core:
       dialect: tsql
 
+test_fail_templated_body_not_fixed:
+  # The fix replaces the whole body, which is discarded when any of it is
+  # templated (as with ST05). The violation is still reported.
+  fail_str: |
+    CREATE PROCEDURE dbo.ProcA
+    AS
+    SELECT ID FROM {{ "dbo" }}.Table1;
+    SELECT ID FROM Table2;
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_external_name:
   pass_str: |
     CREATE PROCEDURE dbo.ExternalProc
