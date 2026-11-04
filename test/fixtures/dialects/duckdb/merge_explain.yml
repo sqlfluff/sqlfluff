@@ -1,0 +1,89 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cee9912ce07270792001b57d658b64d30bf7393463564901c3296facc35ba5dd
+file:
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - keyword: USING
+      - table_reference:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ANALYZE
+    - merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - keyword: USING
+      - table_reference:
+          naked_identifier: s
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: id
+      - merge_match:
+          merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+              keyword: INSERT
+              values_clause:
+                keyword: VALUES
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: id
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: v
+                - end_bracket: )
+- statement_terminator: ;
