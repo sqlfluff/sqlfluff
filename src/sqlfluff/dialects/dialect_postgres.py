@@ -6491,7 +6491,7 @@ class DoStatementSegment(BaseSegment):
 class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     """A CTE Definition from a WITH statement.
 
-    https://www.postgresql.org/docs/14/queries-with.html
+    https://www.postgresql.org/docs/17/queries-with.html
 
     Data-Modifying Statements (INSERT, UPDATE, DELETE, MERGE) in WITH are
     matched by ansi.SelectableGrammar > NonWithSelectableGrammar.
