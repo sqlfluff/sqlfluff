@@ -1299,6 +1299,46 @@ def test__cli__command_lint_ignore_local_config():
     assert "AL02" in result.stdout.strip()
 
 
+def test__cli__command_lint_nested_config_diff(tmp_path, monkeypatch):
+    """Lint -vv reports config differences for files with nested config.
+
+    Config files in a subdirectory change the effective config for the
+    files they apply to, but the config printed at the start of a run
+    is the root config. The per-file difference is reported so the shown
+    config matches the config actually used.
+    https://github.com/sqlfluff/sqlfluff/issues/2662
+    """
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\nrules = LT02\n")
+    subdir = tmp_path / "nested"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text("[sqlfluff]\nrules = LT01\n")
+    (subdir / "test.sql").write_text("SELECT  a , b FROM  tbl\n")
+    runner = CliRunner()
+    result = runner.invoke(lint, ["-vv", str(subdir / "test.sql")])
+    # LT01 violations are expected from the nested config.
+    assert result.exit_code == 1
+    # The effective config difference is reported for the file.
+    assert "CONFIG DIFF" in result.stdout
+    diff_section = result.stdout[result.stdout.index("CONFIG DIFF") :]
+    assert "LT01" in diff_section
+
+
+def test__cli__command_lint_no_config_diff(tmp_path, monkeypatch):
+    """Lint -vv does not report a config difference when there is none.
+
+    With a single config applying to the whole run, the config shown at
+    the start is the config used, so no per-file diff is printed.
+    """
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\nrules = LT01\n")
+    (tmp_path / "test.sql").write_text("SELECT  a , b FROM  tbl\n")
+    runner = CliRunner()
+    result = runner.invoke(lint, ["-vv", str(tmp_path / "test.sql")])
+    assert result.exit_code == 1
+    assert "CONFIG DIFF" not in result.stdout
+
+
 def test__cli__command_lint_warning():
     """Test that configuring warnings works.
 

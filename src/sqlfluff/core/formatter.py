@@ -59,6 +59,20 @@ class FormatterInterface(ABC):
         """Dispatch the header displayed before templating."""
         ...
 
+    def dispatch_config_diff(
+        self,
+        fname: str,
+        file_config: "FluffConfig",
+        linter_config: "FluffConfig",
+    ) -> None:
+        """Dispatch the difference between the file and root config.
+
+        Called when a file's effective config differs from the root
+        config (e.g. from a nested config file or in-file config
+        directives). The default implementation does nothing.
+        """
+        return None
+
     @abstractmethod
     def dispatch_parse_header(self, fname: str) -> None:
         """Dispatch the header displayed before parsing."""

@@ -220,6 +220,24 @@ class OutputStreamFormatter(FormatterInterface):
                         minimum_verbosity=2,
                     )
 
+    def dispatch_config_diff(
+        self, fname: str, file_config: FluffConfig, linter_config: FluffConfig
+    ) -> None:
+        """Dispatch the difference between the file and root config."""
+        if self.output_policy.allows(OutputKind.VERBOSE, minimum_verbosity=2):
+            config_diff = file_config.diff_to(linter_config)
+            if config_diff:
+                self.dispatch_message(
+                    self.format_filename(filename=fname, success="CONFIG DIFF"),
+                    OutputKind.VERBOSE,
+                    minimum_verbosity=2,
+                )
+                self.dispatch_message(
+                    self.format_config_vals(linter_config.iter_vals(cfg=config_diff)),
+                    OutputKind.VERBOSE,
+                    minimum_verbosity=2,
+                )
+
     def dispatch_parse_header(self, fname: str) -> None:
         """Dispatch the header displayed before parsing."""
         self.dispatch_message(

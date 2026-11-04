@@ -72,7 +72,16 @@ class BaseRunner(ABC):
             fnames, config=self.config, formatter=self.linter.formatter
         ):
             try:
-                yield fname, self.linter.render_file(fname, self.config)
+                rendered = self.linter.render_file(fname, self.config)
+                # Report the effective config of this file where it differs
+                # from the root config (e.g. nested config files or in-file
+                # config directives), so the shown config matches the used
+                # config. Skipped in parallel workers (no formatter).
+                if self.linter.formatter:
+                    self.linter.formatter.dispatch_config_diff(
+                        fname, rendered.config, self.config
+                    )
+                yield fname, rendered
             except SQLFluffSkipFile as s:
                 linter_logger.warning(str(s))
                 self.skipped_file_count += 1
