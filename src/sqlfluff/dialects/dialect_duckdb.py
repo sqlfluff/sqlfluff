@@ -694,10 +694,11 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Sequence("BY", "NAME"),
             Sequence(
                 Indent,
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar"),
                 Dedent,
                 Ref("ValuesClauseSegment", optional=True),
             ),
+            Ref("ValuesClauseSegment"),
             optional=True,
         ),
     )
