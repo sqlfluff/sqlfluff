@@ -959,7 +959,7 @@ postgres_dialect.replace(
         Ref("SemiStructuredAccessorSegment"),
     ),
     # PostgreSQL supports the non-standard "RETURNING" keyword, and therefore the
-    # INSERT/UPDATE/DELETE statements can also be used in subqueries.
+    # INSERT/UPDATE/DELETE/MERGE statements can also be used in subqueries.
     NonWithSelectableGrammar=OneOf(
         Ref("SetExpressionSegment"),
         OptionallyBracketed(Ref("SelectStatementSegment")),
@@ -968,6 +968,7 @@ postgres_dialect.replace(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("DeleteStatementSegment"),
+        Ref("MergeStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
     # https://www.postgresql.org/docs/current/functions-datetime.html
@@ -6492,7 +6493,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
 
     https://www.postgresql.org/docs/14/queries-with.html
 
-    Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH are
+    Data-Modifying Statements (INSERT, UPDATE, DELETE, MERGE) in WITH are
     matched by ansi.SelectableGrammar > NonWithSelectableGrammar.
     """
 
