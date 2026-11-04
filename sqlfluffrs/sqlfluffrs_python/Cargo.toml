@@ -9,5 +9,4 @@ pyo3.workspace = true
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 hashbrown.workspace = true
 uuid.workspace = true
-once_cell.workspace = true
 log.workspace = true
