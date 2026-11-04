@@ -683,20 +683,23 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement.
 
     Overriding ANSI to allow `INSERT BY NAME`, which matches the source
-    columns to the target columns by name.
+    columns to the target columns by name. It takes no column list or
+    `VALUES` clause.
     https://duckdb.org/docs/stable/sql/statements/merge_into
     """
 
     match_grammar: Matchable = Sequence(
         "INSERT",
-        Indent,
         OneOf(
-            Ref("BracketedColumnReferenceListGrammar"),
             Sequence("BY", "NAME"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
+                Ref("ValuesClauseSegment", optional=True),
+            ),
             optional=True,
         ),
-        Dedent,
-        Ref("ValuesClauseSegment", optional=True),
     )
 
 
