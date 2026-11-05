@@ -3503,17 +3503,26 @@ class DmlEventClauseSegment(BaseSegment):
 
     type = "dml_event_clause"
 
-    match_grammar: Matchable = Sequence(
-        Ref("DmlGrammar"),
-        AnyNumberOf(
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("DmlGrammar"),
+            AnyNumberOf(
+                Sequence(
+                    "OR",
+                    Ref("DmlGrammar"),
+                )
+            ),
+            "ON",
             Sequence(
-                "OR",
-                Ref("DmlGrammar"),
-            )
+                "NESTED",
+                "TABLE",
+                Ref("ColumnReferenceSegment"),
+                "OF",
+                optional=True,
+            ),
+            Ref("TableReferenceSegment"),
         ),
-        "ON",
-        Sequence("NESTED", "TABLE", Ref("ColumnReferenceSegment"), "OF", optional=True),
-        Ref("TableReferenceSegment"),
+        Sequence("LOGON", "ON", "DATABASE"),
     )
 
 
@@ -5000,3 +5009,6 @@ class ValuesClauseSegment(BaseSegment):
         ),
         Dedent,
     )
+
+
+oracle_dialect.sets("reserved_keywords").update({"LOGON"})
