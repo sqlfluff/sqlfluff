@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7985b208d5ad39be5003407ca78ae3f2cf82c7b67b5b21147e105f4b00f286eb
+_hash: 6d3331af51ceefda167c1f8f809eff93e357bcf66ba3b4244dfbb09b9f653d44
 file:
 - statement:
     select_statement:
@@ -62,4 +62,84 @@ file:
             - pipe: '|'
             - pipe: '|'
             quoted_literal: "'z'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - expression:
+                case_expression:
+                - keyword: CASE
+                - expression:
+                    numeric_literal: '1'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                      numeric_literal: '1'
+                  - keyword: THEN
+                  - expression:
+                      quoted_literal: "'a'"
+                - else_clause:
+                    keyword: ELSE
+                    expression:
+                      quoted_literal: "'b'"
+                - keyword: END
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  quoted_literal: "'a'"
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - expression:
+                case_expression:
+                - keyword: CASE
+                - expression:
+                    numeric_literal: '1'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                      numeric_literal: '1'
+                  - keyword: THEN
+                  - expression:
+                      quoted_literal: "'a'"
+                - else_clause:
+                    keyword: ELSE
+                    expression:
+                      quoted_literal: "'b'"
+                - keyword: END
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                quoted_literal: "'c'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  quoted_literal: "'ac'"
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
 - statement_terminator: ;

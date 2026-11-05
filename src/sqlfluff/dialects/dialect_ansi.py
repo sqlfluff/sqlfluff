@@ -2160,7 +2160,6 @@ class CaseExpressionSegment(BaseSegment):
             Ref(
                 "ExpressionSegment",
                 reset_terminators=True,
-                terminators=[Ref.keyword("WHEN")],
             ),
             ImplicitIndent,
             AnyNumberOf(

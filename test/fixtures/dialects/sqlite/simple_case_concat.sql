@@ -1,3 +1,9 @@
 SELECT CASE 'a' || 'b' WHEN 'ab' THEN 1 ELSE 0 END;
 
 SELECT CASE 'a' || 'b' WHEN 'ab' THEN 'x' ELSE 'y' END || 'z';
+
+SELECT CASE CASE 1 WHEN 1 THEN 'a' ELSE 'b' END
+    WHEN 'a' THEN 1 ELSE 0 END;
+
+SELECT CASE CASE 1 WHEN 1 THEN 'a' ELSE 'b' END || 'c'
+    WHEN 'ac' THEN 1 ELSE 0 END;
