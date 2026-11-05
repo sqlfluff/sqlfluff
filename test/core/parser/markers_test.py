@@ -70,3 +70,16 @@ def test_markers__comparison():
     assert all(a_pos <= p for p in all_pos)
     # Check greater than or equal
     assert all(c_pos >= p for p in all_pos)
+
+
+@pytest.mark.parametrize("raw", ["ab", "é\nab", "ünï"])
+def test_markers__rust_working_position_parity(raw):
+    """Rust markers report the same working positions as Python markers."""
+    sqlfluffrs = pytest.importorskip("sqlfluffrs")
+    templ = TemplatedFile.from_string("SELECT\n\tx")
+    py = PositionMarker.from_point(8, 8, templ)
+    rs = sqlfluffrs.RsPositionMarker.from_point(8, 8, templ, None, None)
+    assert rs.working_loc == py.working_loc
+    for tab_size in (2, 4):
+        assert rs.working_visual_column(tab_size) == py.working_visual_column(tab_size)
+    assert rs.working_loc_after(raw) == py.working_loc_after(raw)
