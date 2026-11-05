@@ -5,5 +5,4 @@ edition = "2021"
 rust-version.workspace = true
 
 [dependencies]
-once_cell.workspace = true
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }

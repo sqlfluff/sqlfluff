@@ -1,12 +1,11 @@
-use pyo3::{prelude::*, types::PyBytes};
-use serde::{Deserialize, Serialize};
+use pyo3::prelude::*;
 
 use crate::slice::PySlice;
 use sqlfluffrs_types::templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 
 #[pyclass(name = "RsRawFileSlice", module = "sqlfluffrs", from_py_object)]
 #[repr(transparent)]
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub struct PyRawFileSlice(pub(crate) RawFileSlice);
 
 #[pymethods]
@@ -23,20 +22,6 @@ impl PyRawFileSlice {
         Self(RawFileSlice::new(
             raw, slice_type, source_idx, block_idx, tag,
         ))
-    }
-
-    pub fn __setstate__(&mut self, state: Bound<'_, PyBytes>) -> PyResult<()> {
-        *self = bincode::deserialize(state.as_bytes()).map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyException, _>(format!("Deserialization error: {}", e))
-        })?;
-        Ok(())
-    }
-
-    pub fn __getstate__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        let bytes = bincode::serialize(&self.0).map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyException, _>(format!("Serialization error: {}", e))
-        })?;
-        Ok(PyBytes::new(py, &bytes))
     }
 
     pub fn __getnewargs__(&self) -> PyResult<(String, String, usize, usize, Option<String>)> {
@@ -93,7 +78,7 @@ impl From<RawFileSlice> for PyRawFileSlice {
 
 #[pyclass(name = "RsTemplatedFileSlice", module = "sqlfluffrs", from_py_object)]
 #[repr(transparent)]
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub struct PyTemplatedFileSlice(pub(crate) TemplatedFileSlice);
 
 #[pymethods]
@@ -110,20 +95,6 @@ impl PyTemplatedFileSlice {
             templated_codepoint_slice.0,
         ))
     }
-    pub fn __setstate__(&mut self, state: Bound<'_, PyBytes>) -> PyResult<()> {
-        *self = bincode::deserialize(state.as_bytes()).map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyException, _>(format!("Deserialization error: {}", e))
-        })?;
-        Ok(())
-    }
-
-    pub fn __getstate__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        let bytes = bincode::serialize(&self.0).map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyException, _>(format!("Serialization error: {}", e))
-        })?;
-        Ok(PyBytes::new(py, &bytes))
-    }
-
     pub fn __getnewargs__(&self) -> PyResult<(String, PySlice, PySlice)> {
         Ok((
             self.0.slice_type.clone(),

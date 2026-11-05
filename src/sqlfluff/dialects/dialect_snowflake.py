@@ -984,7 +984,7 @@ snowflake_dialect.add(
         Sequence(
             "PACKAGES",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
             optional=True,
         ),
         Sequence(
@@ -1974,6 +1974,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -1986,6 +1987,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 parse_mode=ParseMode.GREEDY,
             ),
         ),
+        Dedent,
     )
 
 
@@ -2004,8 +2006,10 @@ class InsertStatementSegment(BaseSegment):
             # Single table INSERT INTO.
             Sequence(
                 "INTO",
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref("SelectableGrammar"),
             ),
             # Unconditional multi-table INSERT INTO.
@@ -2014,8 +2018,10 @@ class InsertStatementSegment(BaseSegment):
                 AnyNumberOf(
                     Sequence(
                         "INTO",
+                        Indent,
                         Ref("TableReferenceSegment"),
                         Ref("BracketedColumnReferenceListGrammar", optional=True),
+                        Dedent,
                         Ref("ValuesClauseSegment", optional=True),
                     ),
                     min_times=1,
@@ -2036,10 +2042,12 @@ class InsertStatementSegment(BaseSegment):
                         AnyNumberOf(
                             Sequence(
                                 "INTO",
+                                Indent,
                                 Ref("TableReferenceSegment"),
                                 Ref(
                                     "BracketedColumnReferenceListGrammar", optional=True
                                 ),
+                                Dedent,
                                 Ref("ValuesClauseSegment", optional=True),
                             ),
                             min_times=1,
@@ -2050,8 +2058,10 @@ class InsertStatementSegment(BaseSegment):
                 Sequence(
                     "ELSE",
                     "INTO",
+                    Indent,
                     Ref("TableReferenceSegment"),
                     Ref("BracketedColumnReferenceListGrammar", optional=True),
+                    Dedent,
                     Ref("ValuesClauseSegment", optional=True),
                     optional=True,
                 ),
@@ -2126,6 +2136,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
             Ref("CreateDataMetricFunctionStatementSegment"),
+            Ref("AttachDataMetricFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
@@ -5232,7 +5243,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence(
                 "PACKAGES",
                 Ref("EqualsSegment"),
-                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
                 optional=True,
             ),
             Sequence(
@@ -5368,6 +5379,40 @@ class CreateDataMetricFunctionStatementSegment(BaseSegment):
             Ref("DoubleQuotedUDFBody"),
             Ref("SingleQuotedUDFBody"),
             Ref("DollarQuotedUDFBody"),
+        ),
+    )
+
+
+class AttachDataMetricFunctionStatementSegment(BaseSegment):
+    """An ``ATTACH DATA METRIC FUNCTION`` statement in a DCM project.
+
+    https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities#attach-data-metric-function
+    """
+
+    type = "attach_data_metric_function_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        "DATA",
+        "METRIC",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        "TO",
+        OneOf("TABLE", "VIEW", Sequence("DYNAMIC", "TABLE")),
+        Ref("TableReferenceSegment"),
+        "ON",
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
+        AnySetOf(
+            Sequence(
+                "EXPECTATION",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Bracketed(Ref("ExpressionSegment")),
+                    ),
+                ),
+            ),
+            Sequence("EXECUTE", "AS", "ROLE", Ref("RoleReferenceSegment")),
+            optional=True,
         ),
     )
 
@@ -10063,6 +10108,14 @@ class ShowStatementSegment(BaseSegment):
         Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
         Sequence("RESOURCE", "MONITORS"),
         Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
+        "TAGS",
+        Sequence("ROW", "ACCESS", "POLICIES"),
+        Sequence(
+            OneOf("AUTHENTICATION", "JOIN", "PACKAGES", "PRIVACY", "SESSION"),
+            "POLICIES",
+        ),
+        Sequence("DATA", "METRIC", "FUNCTIONS"),
+        Sequence("NETWORK", "RULES"),
     )
 
     _object_scope_types = OneOf(
@@ -10103,6 +10156,13 @@ class ShowStatementSegment(BaseSegment):
         _object_types_plural,
         OneOf("HISTORY", optional=True),
         Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
+        # Some SHOW commands (e.g. ROW ACCESS / MASKING POLICIES) document LIMIT
+        # before the IN clause, others after it, so both positions are accepted.
+        Sequence(
+            Ref("LimitClauseSegment"),
+            Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
         Sequence(
             OneOf("ON", "TO", "OF", "IN"),
             OneOf(
@@ -10853,8 +10913,10 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DELETE",
         "FROM",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Sequence(
             "USING",
             Indent,
@@ -11155,8 +11217,10 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 

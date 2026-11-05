@@ -1521,7 +1521,13 @@ class WindowSpecificationSegment(BaseSegment):
         Ref(
             "SingleIdentifierGrammar",
             optional=True,
-            exclude=OneOf(Ref.keyword("PARTITION"), Ref.keyword("ORDER")),
+            # ROWS, RANGE and GROUPS aren't reserved in every dialect, so don't take
+            # the unit of a frame clause as the base window name.
+            exclude=OneOf(
+                Ref.keyword("PARTITION"),
+                Ref.keyword("ORDER"),
+                Ref("FrameClauseSegment"),
+            ),
         ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
@@ -1547,6 +1553,7 @@ class FunctionNameSegment(BaseSegment):
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            Ref("NakedIdentifierSegment"),
             terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
@@ -2781,6 +2788,7 @@ class ValuesClauseSegment(BaseSegment):
     type = "values_clause"
     match_grammar: Matchable = Sequence(
         OneOf("VALUE", "VALUES"),
+        Indent,
         Delimited(
             Sequence(
                 # MySQL uses `ROW` in it's value statement.
@@ -2801,6 +2809,7 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -3038,14 +3047,18 @@ class InsertStatementSegment(BaseSegment):
         # (It's also Hive but that has full insert grammar implementation)
         Ref.keyword("OVERWRITE", optional=True),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             # As SelectableGrammar can be bracketed too, the parse gets confused,
             # so we need slightly odd syntax here to allow those to parse (rather
             # than just add optional=True to BracketedColumnReferenceListGrammar).
             Ref("SelectableGrammar"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
                 Ref("SelectableGrammar"),
             ),
             # This is part of ANSI SQL since SQL-92
@@ -3544,7 +3557,9 @@ class TruncateStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 

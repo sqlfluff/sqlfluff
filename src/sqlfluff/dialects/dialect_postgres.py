@@ -457,6 +457,18 @@ postgres_dialect.add(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
+    # behaviour in every position and only rejects unsupported ones at analysis.
+    # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    JsonBehaviourGrammar=OneOf(
+        "ERROR",
+        "NULL",
+        "TRUE",
+        "FALSE",
+        "UNKNOWN",
+        Sequence("EMPTY", OneOf("ARRAY", "OBJECT", optional=True)),
+        Sequence("DEFAULT", Ref("ExpressionSegment")),
+    ),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
@@ -880,7 +892,9 @@ postgres_dialect.replace(
         ),
         Sequence(
             OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
-            Ref("ExpressionSegment"),
+            # Aggregate options such as STYPE/MSTYPE can use array data types
+            # (e.g. numeric[]), which are not valid expressions.
+            OneOf(Ref("ExpressionSegment"), Ref("DatatypeSegment")),
             optional=True,
         ),
     ),
@@ -947,7 +961,7 @@ postgres_dialect.replace(
         Ref("SemiStructuredAccessorSegment"),
     ),
     # PostgreSQL supports the non-standard "RETURNING" keyword, and therefore the
-    # INSERT/UPDATE/DELETE statements can also be used in subqueries.
+    # INSERT/UPDATE/DELETE/MERGE statements can also be used in subqueries.
     NonWithSelectableGrammar=OneOf(
         Ref("SetExpressionSegment"),
         OptionallyBracketed(Ref("SelectStatementSegment")),
@@ -956,6 +970,7 @@ postgres_dialect.replace(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("DeleteStatementSegment"),
+        Ref("MergeStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
     # https://www.postgresql.org/docs/current/functions-datetime.html
@@ -1928,6 +1943,114 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
+class JsonTableColumnDefinitionSegment(BaseSegment):
+    """A column definition in a JSON_TABLE COLUMNS clause.
+
+    Column names describe the shape of the table produced by JSON_TABLE; they
+    are not references to columns of an outer table, so they are modelled as
+    identifiers rather than column references.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "json_table_column_definition"
+
+    _path_clause = Sequence("PATH", Ref("QuotedLiteralSegment"), optional=True)
+
+    match_grammar: Matchable = OneOf(
+        # name FOR ORDINALITY
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "FOR",
+            "ORDINALITY",
+        ),
+        # name type [PATH path] [behaviour ON EMPTY] [behaviour ON ERROR]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            _path_clause,
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+        ),
+        # name type EXISTS [PATH path] [behaviour ON ERROR]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            "EXISTS",
+            _path_clause,
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+        ),
+        # NESTED [PATH] path [AS name] COLUMNS (...)
+        Sequence(
+            "NESTED",
+            Ref.keyword("PATH", optional=True),
+            Ref("QuotedLiteralSegment"),
+            Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+            Ref("JsonTableColumnsClauseSegment"),
+        ),
+    )
+
+
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "json_table_columns_clause"
+    match_grammar: Matchable = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Delimited(
+                Ref("JsonTableColumnDefinitionSegment"),
+            ),
+        ),
+    )
+
+
+class JsonTableFunctionContentsSegment(BaseSegment):
+    """JSON_TABLE function contents.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Ref("JsonTableColumnsClauseSegment"),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+    )
+
+
+class JsonTableFunctionNameSegment(BaseSegment):
+    """JSON_TABLE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_TABLE", WordSegment, type="function_name_identifier"
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with JSON_TABLE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonTableFunctionNameSegment"),
+                Ref("JsonTableFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
+    )
+
+
 class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
@@ -2037,7 +2160,9 @@ class IntoClauseSegment(BaseSegment):
         "INTO",
         OneOf("TEMPORARY", "TEMP", "UNLOGGED", optional=True),
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 
@@ -2060,9 +2185,11 @@ class ForClauseSegment(BaseSegment):
         ),
         Sequence(
             "OF",
+            Indent,
             Delimited(
                 Ref("TableReferenceSegment"),
             ),
+            Dedent,
             optional=True,
         ),
         OneOf(
@@ -2136,7 +2263,10 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         Dedent,
         terminators=[
             "INTO",
-            "FROM",
+            Ref(
+                "FromKeywordSegment",
+                exclude=is_distinct_from_lookbehind,
+            ),
             "WHERE",
             Sequence("ORDER", "BY"),
             Sequence("ON", "CONFLICT"),
@@ -2832,6 +2962,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             Sequence(
                 Ref("IfExistsGrammar", optional=True),
+                Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
@@ -2839,7 +2970,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Sequence(
                         "ATTACH",
                         "PARTITION",
-                        Ref("ParameterNameSegment"),
+                        Ref("TableReferenceSegment"),
                         OneOf(
                             Sequence("FOR", "VALUES", Ref("PartitionBoundSpecSegment")),
                             "DEFAULT",
@@ -2848,7 +2979,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Sequence(
                         "DETACH",
                         "PARTITION",
-                        Ref("ParameterNameSegment"),
+                        Ref("TableReferenceSegment"),
                         Ref.keyword("CONCURRENTLY", optional=True),
                         Ref.keyword("FINALIZE", optional=True),
                     ),
@@ -5646,9 +5777,11 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     match_grammar = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
@@ -5665,9 +5798,9 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AsAliasExpressionSegment", optional=True),
@@ -6104,6 +6237,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Delimited(
             OneOf(
                 Sequence(
@@ -6116,6 +6250,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
                 ),
             ),
         ),
+        Dedent,
         Sequence(
             OneOf("RESTART", "CONTINUE"),
             "IDENTITY",
@@ -6366,9 +6501,9 @@ class DoStatementSegment(BaseSegment):
 class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     """A CTE Definition from a WITH statement.
 
-    https://www.postgresql.org/docs/14/queries-with.html
+    https://www.postgresql.org/docs/17/queries-with.html
 
-    Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH are
+    Data-Modifying Statements (INSERT, UPDATE, DELETE, MERGE) in WITH are
     matched by ansi.SelectableGrammar > NonWithSelectableGrammar.
     """
 
@@ -6412,6 +6547,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -6423,6 +6559,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 parse_mode=ParseMode.GREEDY,
             ),
         ),
+        Dedent,
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -6439,9 +6576,11 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         "DELETE",
         "FROM",
         Ref.keyword("ONLY", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("StarSegment", optional=True),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Sequence(
             "USING",
             Indent,
@@ -6464,9 +6603,9 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment", optional=True),
@@ -6571,9 +6710,9 @@ class UpdateStatementSegment(BaseSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment", optional=True),
@@ -7741,9 +7880,9 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
                 "RETURNING",
                 Ref("ReturningOldNewAliasesGrammar", optional=True),
                 Indent,
-                OneOf(
-                    Ref("StarSegment"),
-                    Delimited(
+                Delimited(
+                    OneOf(
+                        Ref("StarSegment"),
                         Sequence(
                             Ref("ExpressionSegment"),
                             Ref("AliasExpressionSegment", optional=True),

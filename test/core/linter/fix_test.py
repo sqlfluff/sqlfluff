@@ -465,3 +465,41 @@ def test__fix__merge_source_patches_skips_conflicting_insertions_at_same_point()
     assert merge_source_patches([[first_insertion], [conflicting_insertion]]) == [
         first_insertion
     ]
+
+
+@pytest.mark.parametrize(
+    "sql,expected",
+    [
+        (
+            "select\n{% if true %}{% if false %}    a,\n{% endif %}{% endif %}    b\n",
+            "select\n    {% if true %}\n        {% if false %}    a,\n        "
+            "{% endif %}{% endif %}    b\n",
+        ),
+        (
+            "SELECT\n{% if true %}{% if true %}    a\n{% endif %}{% endif %}\n",
+            "SELECT\n    {% if true %}{% if true %}    a\n    {% endif %}{% endif %}\n",
+        ),
+        (
+            "select\n  a, {% if true %}{% if false %}b,{% endif %}{% endif %}\n  c\n",
+            "select\n    a,{% if true %}{% if false %}\n        "
+            "b,{% endif %}{% endif %}\n    c\n",
+        ),
+    ],
+)
+def test__fix__jinja_lt02_nested_block_tags_reach_a_fixed_point(sql, expected):
+    """Regression test for LT02 oscillating on nested Jinja tags on one line."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    linter = Linter(config=config)
+
+    once, changed_once = linter.lint_string(
+        sql, fname="test.sql", fix=True
+    ).fix_string()
+    twice, changed_twice = linter.lint_string(
+        once, fname="test.sql", fix=True
+    ).fix_string()
+
+    assert changed_once
+    assert not changed_twice
+    assert twice == once
+    assert once == expected
+    assert not linter.lint_string(once, fname="test.sql").get_violations()
