@@ -6175,6 +6175,99 @@ class DiscardStatementSegment(BaseSegment):
     )
 
 
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
+    """A transaction control statement.
+
+    `BEGIN`, `START TRANSACTION`, `COMMIT`, `END`, `ROLLBACK` and `ABORT`, with
+    savepoints and two-phase commit.
+
+    https://www.postgresql.org/docs/current/sql-begin.html
+    https://www.postgresql.org/docs/current/sql-start-transaction.html
+    https://www.postgresql.org/docs/current/sql-commit.html
+    https://www.postgresql.org/docs/current/sql-rollback.html
+    https://www.postgresql.org/docs/current/sql-abort.html
+    https://www.postgresql.org/docs/current/sql-savepoint.html
+    https://www.postgresql.org/docs/current/sql-release-savepoint.html
+    https://www.postgresql.org/docs/current/sql-rollback-to.html
+    https://www.postgresql.org/docs/current/sql-prepare-transaction.html
+    https://www.postgresql.org/docs/current/sql-commit-prepared.html
+    https://www.postgresql.org/docs/current/sql-rollback-prepared.html
+    """
+
+    _transaction_mode = OneOf(
+        Sequence(
+            "ISOLATION",
+            "LEVEL",
+            OneOf(
+                "SERIALIZABLE",
+                Sequence("REPEATABLE", "READ"),
+                Sequence("READ", OneOf("COMMITTED", "UNCOMMITTED")),
+            ),
+        ),
+        Sequence("READ", OneOf("WRITE", "ONLY")),
+        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
+    )
+
+    # The SQL standard puts commas between transaction modes, but PostgreSQL
+    # also accepts them without (see the notes in the SET TRANSACTION docs).
+    _transaction_modes = Sequence(
+        _transaction_mode,
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment", optional=True), _transaction_mode),
+        ),
+    )
+
+    _and_chain = Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN")
+
+    match_grammar = OneOf(
+        # BEGIN [ WORK | TRANSACTION ] [ transaction_mode [, ...] ]
+        # START TRANSACTION [ transaction_mode [, ...] ]
+        Sequence(
+            OneOf("BEGIN", "START"),
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Sequence(_transaction_modes, optional=True),
+        ),
+        # COMMIT | END | ABORT [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]
+        Sequence(
+            OneOf("COMMIT", "END", "ABORT"),
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Sequence(_and_chain, optional=True),
+        ),
+        # ROLLBACK [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]
+        # ROLLBACK [ WORK | TRANSACTION ] TO [ SAVEPOINT ] savepoint_name
+        Sequence(
+            "ROLLBACK",
+            OneOf("TRANSACTION", "WORK", optional=True),
+            OneOf(
+                _and_chain,
+                Sequence(
+                    "TO",
+                    Ref.keyword("SAVEPOINT", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        # SAVEPOINT savepoint_name
+        Sequence("SAVEPOINT", Ref("ObjectReferenceSegment")),
+        # RELEASE [ SAVEPOINT ] savepoint_name
+        Sequence(
+            "RELEASE",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        # PREPARE TRANSACTION transaction_id
+        Sequence("PREPARE", "TRANSACTION", Ref("QuotedLiteralSegment")),
+        # COMMIT PREPARED transaction_id
+        # ROLLBACK PREPARED transaction_id
+        Sequence(
+            OneOf("COMMIT", "ROLLBACK"),
+            "PREPARED",
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
 class ListenStatementSegment(BaseSegment):
     """A `LISTEN` statement.
 
