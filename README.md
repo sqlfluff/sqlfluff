@@ -146,7 +146,8 @@ For full [CLI usage](https://docs.sqlfluff.com/en/stable/perma/cli.html) and
 [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
 When simplifying nested `CASE` expressions, ST04 preserves differences in string
-literals and case-sensitive identifiers.
+literals and case-sensitive identifiers. Differences in keyword casing, including
+`TRUE`, `FALSE` and `NULL`, do not prevent safe flattening.
 
 # Documentation
 

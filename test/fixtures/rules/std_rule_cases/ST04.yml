@@ -36,6 +36,15 @@ test_pass_raw_and_escaped_literal_operands:
       ELSE CASE '\n' WHEN '\n' THEN 2 ELSE 3 END
     END;
 
+test_pass_string_and_bytes_literal_operands:
+  configs:
+    core:
+      dialect: bigquery
+  pass_str: |
+    SELECT CASE b'a' WHEN b'x' THEN 1
+      ELSE CASE 'a' WHEN 'a' THEN 2 ELSE 3 END
+    END;
+
 test_pass_different_quoted_identifier_case:
   configs:
     core:
@@ -84,6 +93,39 @@ test_fail_identical_literal_operands_with_mixed_keyword_case:
     SELECT CASE 'a' WHEN 'x' THEN 1
             when 'a' then 2
             else 3 END;
+
+test_fail_equivalent_true_operand_case:
+  configs:
+    core:
+      dialect: sqlite
+  fail_str: |
+    SELECT CASE true WHEN 0 THEN 1 ELSE CASE TRUE WHEN 1 THEN 2 ELSE 3 END END;
+  fix_str: |
+    SELECT CASE true WHEN 0 THEN 1
+            WHEN 1 THEN 2
+            ELSE 3 END;
+
+test_fail_equivalent_false_operand_case:
+  configs:
+    core:
+      dialect: sqlite
+  fail_str: |
+    SELECT CASE false WHEN 1 THEN 1 ELSE CASE FALSE WHEN 0 THEN 2 ELSE 3 END END;
+  fix_str: |
+    SELECT CASE false WHEN 1 THEN 1
+            WHEN 0 THEN 2
+            ELSE 3 END;
+
+test_fail_equivalent_null_operand_case:
+  configs:
+    core:
+      dialect: sqlite
+  fail_str: |
+    SELECT CASE null WHEN 0 THEN 1 ELSE CASE NULL WHEN 1 THEN 2 ELSE 3 END END;
+  fix_str: |
+    SELECT CASE null WHEN 0 THEN 1
+            WHEN 1 THEN 2
+            ELSE 3 END;
 
 test_fail_equivalent_unquoted_identifier_case:
   configs:
