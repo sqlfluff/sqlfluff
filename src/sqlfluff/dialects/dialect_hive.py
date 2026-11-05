@@ -827,8 +827,10 @@ class TruncateStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("PartitionSpecGrammar", optional=True),
+        Dedent,
     )
 
 
@@ -911,15 +913,19 @@ class InsertStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "TABLE",
+                        Indent,
                         Ref("TableReferenceSegment"),
                         Ref("PartitionSpecGrammar", optional=True),
                         Ref("IfNotExistsGrammar", optional=True),
+                        Dedent,
                         Ref("SelectableGrammar"),
                     ),
                     Sequence(
                         Sequence("LOCAL", optional=True),
                         "DIRECTORY",
+                        Indent,
                         Ref("QuotedLiteralSegment"),
+                        Dedent,
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
                         Ref("SelectableGrammar"),
@@ -929,9 +935,11 @@ class InsertStatementSegment(BaseSegment):
             Sequence(
                 "INTO",
                 Ref.keyword("TABLE", optional=True),
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("SelectableGrammar"),
                     Ref("ValuesClauseSegment"),
@@ -965,9 +973,11 @@ class FromInsertClauseSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "TABLE",
+                        Indent,
                         Ref("TableReferenceSegment"),
                         Ref("PartitionSpecGrammar", optional=True),
                         Ref("IfNotExistsGrammar", optional=True),
+                        Dedent,
                         Ref(
                             "SelectableGrammar",
                             terminators=[Ref.keyword("INSERT")],
@@ -976,7 +986,9 @@ class FromInsertClauseSegment(BaseSegment):
                     Sequence(
                         Sequence("LOCAL", optional=True),
                         "DIRECTORY",
+                        Indent,
                         Ref("QuotedLiteralSegment"),
+                        Dedent,
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
                         Ref(
@@ -989,9 +1001,11 @@ class FromInsertClauseSegment(BaseSegment):
             Sequence(
                 "INTO",
                 Ref.keyword("TABLE", optional=True),
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref(
                         "SelectableGrammar",
