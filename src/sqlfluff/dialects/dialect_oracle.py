@@ -949,7 +949,18 @@ oracle_dialect.replace(
         ]
     ),
     BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
-        insert=[Ref("MultisetOperatorSegment")]
+        insert=[
+            # MULTISET EXCEPT/INTERSECT/UNION [ALL|DISTINCT]. Like ANSI's
+            # IsDistinctFromGrammar, this is a plain keyword sequence rather
+            # than a `binary_operator` segment, whose `spacing_within = touch`
+            # layout would make LT01 remove the spaces between the keywords.
+            # https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html
+            Sequence(
+                "MULTISET",
+                OneOf("EXCEPT", "INTERSECT", "UNION"),
+                OneOf("ALL", "DISTINCT", optional=True),
+            )
+        ]
     ),
     SelectClauseTerminatorGrammar=OneOf(
         "BULK",
@@ -1017,21 +1028,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
     match_grammar: Matchable = OneOf(
         Ref("IntervalDataTypeSegment"),
         ansi.DatatypeSegment.match_grammar,
-    )
-
-
-class MultisetOperatorSegment(BaseSegment):
-    """A MULTISET operator (MULTISET EXCEPT/INTERSECT/UNION [ALL|DISTINCT]).
-
-    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html
-    """
-
-    type = "binary_operator"
-
-    match_grammar = Sequence(
-        "MULTISET",
-        OneOf("EXCEPT", "INTERSECT", "UNION"),
-        OneOf("ALL", "DISTINCT", optional=True),
     )
 
 
