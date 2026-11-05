@@ -1,5 +1,112 @@
 rule: ST04
 
+test_pass_different_literal_case:
+  configs:
+    core:
+      dialect: sqlite
+  pass_str: |
+    SELECT CASE 'a' WHEN 'x' THEN 1
+      ELSE CASE 'A' WHEN 'A' THEN 2 ELSE 3 END
+    END;
+
+test_pass_different_escaped_literal_case:
+  configs:
+    core:
+      dialect: sqlite
+  pass_str: |
+    SELECT CASE 'ab''c' WHEN 'x' THEN 1
+      ELSE CASE 'AB''C' WHEN 'AB''C' THEN 2 ELSE 3 END
+    END;
+
+test_pass_different_parenthesized_literal_case:
+  configs:
+    core:
+      dialect: sqlite
+  pass_str: |
+    SELECT CASE ('a') WHEN 'x' THEN 1
+      ELSE CASE ('A') WHEN 'A' THEN 2 ELSE 3 END
+    END;
+
+test_pass_raw_and_escaped_literal_operands:
+  configs:
+    core:
+      dialect: bigquery
+  pass_str: |
+    SELECT CASE r'\n' WHEN 'x' THEN 1
+      ELSE CASE '\n' WHEN '\n' THEN 2 ELSE 3 END
+    END;
+
+test_pass_different_quoted_identifier_case:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT CASE "a" WHEN 0 THEN 1
+      ELSE CASE "A" WHEN 2 THEN 2 ELSE 3 END
+    END FROM t;
+
+test_pass_different_case_sensitive_identifier_case:
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    SELECT CASE value WHEN 0 THEN 1
+      ELSE CASE VALUE WHEN 2 THEN 2 ELSE 3 END
+    END FROM t;
+
+test_pass_identifier_and_literal_with_same_normalized_value:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT CASE "a" WHEN 'x' THEN 1
+      ELSE CASE 'a' WHEN 'a' THEN 2 ELSE 3 END
+    END FROM t;
+
+test_fail_identical_literal_operands:
+  configs:
+    core:
+      dialect: sqlite
+  fail_str: |
+    SELECT CASE 'a' WHEN 'x' THEN 1 ELSE CASE 'a' WHEN 'a' THEN 2 ELSE 3 END END;
+  fix_str: |
+    SELECT CASE 'a' WHEN 'x' THEN 1
+            WHEN 'a' THEN 2
+            ELSE 3 END;
+
+test_fail_identical_literal_operands_with_mixed_keyword_case:
+  configs:
+    core:
+      dialect: sqlite
+  fail_str: |
+    SELECT CASE 'a' WHEN 'x' THEN 1 ELSE case 'a' when 'a' then 2 else 3 end END;
+  fix_str: |
+    SELECT CASE 'a' WHEN 'x' THEN 1
+            when 'a' then 2
+            else 3 END;
+
+test_fail_equivalent_unquoted_identifier_case:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT CASE value WHEN 0 THEN 1 ELSE CASE VALUE WHEN 2 THEN 2 ELSE 3 END END FROM t;
+  fix_str: |
+    SELECT CASE value WHEN 0 THEN 1
+            WHEN 2 THEN 2
+            ELSE 3 END FROM t;
+
+test_fail_identical_quoted_identifier_operands:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: |
+    SELECT CASE "a" WHEN 0 THEN 1 ELSE CASE "a" WHEN 2 THEN 2 ELSE 3 END END FROM t;
+  fix_str: |
+    SELECT CASE "a" WHEN 0 THEN 1
+            WHEN 2 THEN 2
+            ELSE 3 END FROM t;
+
 test_pass_1:
   # The nested CASE is under a "WHEN", not an "ELSE".
   pass_str: |

@@ -145,6 +145,9 @@ For full [CLI usage](https://docs.sqlfluff.com/en/stable/perma/cli.html) and
 [rules reference](https://docs.sqlfluff.com/en/stable/perma/rules.html), see
 [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
+When simplifying nested `CASE` expressions, ST04 preserves differences in string
+literals and case-sensitive identifiers.
+
 # Documentation
 
 For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/stable/).

@@ -83,13 +83,14 @@ class Rule_ST04(BaseRule):
         # Determine if we can combine the else case statement, the first and
         # second case expressions should be the same. If they aren't, that
         # case currently isn't handled.
+        # Literal normalization can discard meaningful prefixes and escapes.
         if [
-            x.raw_upper
+            (x.get_type(), x.raw if x.is_type("literal") else x.raw_normalized())
             for x in segment.children(sp.is_code())
             .select(start_seg=case1_first_case, stop_seg=case1_first_when)
             .raw_segments
         ] != [
-            x.raw_upper
+            (x.get_type(), x.raw if x.is_type("literal") else x.raw_normalized())
             for x in case2.children(sp.is_code())
             .select(start_seg=case2_first_case, stop_seg=case2_first_when)
             .raw_segments
