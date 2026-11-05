@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c26399034de07c8c1df551ba8c6670411aea124f1686bd20e087c87439f43e9
+_hash: 22c54bcd944377c337714da439627f148d3b8c783c6c48038d8f5ad7a8e7212f
 file:
 - batch:
     statement:
@@ -17,7 +17,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: minimal_package
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -35,7 +35,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: minimal_package
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -52,7 +52,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: minimal_as
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -74,7 +74,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: example
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -108,7 +108,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: full_example
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -157,7 +157,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: pkg_with_exception
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -744,7 +744,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: emp_mgmt
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:
@@ -838,7 +838,7 @@ file:
       - keyword: END
       - package_reference:
           naked_identifier: test_package
-    statement_terminator: ;
+      - statement_terminator: ;
     slash_buffer_executor:
       slash: /
 - batch:

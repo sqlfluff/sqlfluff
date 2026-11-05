@@ -2946,6 +2946,8 @@ class DeclareSegment(BaseSegment):
         AnyNumberOf(
             Delimited(
                 OneOf(
+                    Ref("CreateProcedureStatementSegment"),
+                    Ref("CreateFunctionStatementSegment"),
                     Sequence(
                         OneOf(
                             Sequence(
@@ -2976,8 +2978,6 @@ class DeclareSegment(BaseSegment):
                         ),
                         Ref("DelimiterGrammar"),
                     ),
-                    Ref("CreateProcedureStatementSegment"),
-                    Ref("CreateFunctionStatementSegment"),
                     Ref("DeclareCursorVariableSegment"),
                 ),
                 delimiter=Ref("DelimiterGrammar"),
@@ -3374,17 +3374,16 @@ class CreatePackageBodyStatementSegment(BaseSegment):
             Ref("AccessibleByClauseGrammar"),
         ),
         OneOf("IS", "AS"),
-        Ref("DeclareSegment", optional=True),
+        AnyNumberOf(Ref("DeclareSegment")),
         Sequence(
             "BEGIN",
-            Indent,
             Ref("OneOrMoreStatementsGrammar"),
             Ref("ExceptionBlockGrammar", optional=True),
-            Dedent,
             optional=True,
         ),
         "END",
         Ref("PackageReferenceSegment", optional=True),
+        Ref("SemicolonSegment"),
     )
 
 
@@ -3410,9 +3409,10 @@ class CreatePackageStatementSegment(BaseSegment):
             Ref("AccessibleByClauseGrammar"),
         ),
         OneOf("IS", "AS"),
-        Ref("DeclareSegment"),
+        AnyNumberOf(Ref("DeclareSegment")),
         "END",
         Ref("PackageReferenceSegment", optional=True),
+        Ref("SemicolonSegment"),
     )
 
 
