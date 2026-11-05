@@ -984,7 +984,7 @@ snowflake_dialect.add(
         Sequence(
             "PACKAGES",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
             optional=True,
         ),
         Sequence(
@@ -5232,7 +5232,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence(
                 "PACKAGES",
                 Ref("EqualsSegment"),
-                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
                 optional=True,
             ),
             Sequence(
