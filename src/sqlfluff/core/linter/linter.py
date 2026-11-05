@@ -5,6 +5,9 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
+from difflib import unified_diff
+from hashlib import sha256
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union, cast
 
 import regex
@@ -694,11 +697,28 @@ class Linter:
                         if isinstance(violation, SQLLintError):
                             violation.fixes = []
 
-                    # Return the original parse tree, before any fixes were applied.
-                    # Reason: When the linter hits the loop limit, the file is often
-                    # messy, e.g. some of the fixes were applied repeatedly, possibly
-                    # other weird things. We don't want the user to see this junk!
-                    return save_tree, initial_linting_errors, ignore_mask, rule_timings
+                    original_raw = save_tree.raw
+                    current_raw = tree.raw
+                    change_log = Path("sqlfluff_fix_loop_changes.txt")
+                    diff = "".join(
+                        unified_diff(
+                            original_raw.splitlines(keepends=True),
+                            current_raw.splitlines(keepends=True),
+                            fromfile=f"{fname or '<string>'} (before)",
+                            tofile=f"{fname or '<string>'} (after)",
+                        )
+                    )
+                    with change_log.open("a", encoding="utf-8") as log_file:
+                        log_file.write(
+                            f"\nloop limit={loop_limit} rule={crawler.code} "
+                            f"before_sha256={sha256(original_raw.encode('utf-8')).hexdigest()} "
+                            f"after_sha256={sha256(current_raw.encode('utf-8')).hexdigest()}\n"
+                        )
+                        log_file.write(diff or "(no text changes)\n")
+
+                    # Preserve the text produced before the loop-limit warning so
+                    # diagnostic callers can inspect the partially fixed output.
+                    return tree, initial_linting_errors, ignore_mask, rule_timings
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
