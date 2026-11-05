@@ -701,7 +701,7 @@ def _revise_skipped_source_lines(
             if not seg.is_type("placeholder"):
                 break
             template_seg = cast(TemplateSegment, seg)
-            # For now only deal with lines that that start with a block_start.
+            # For now only deal with lines that start with a block_start.
             if idx == 0:
                 # If we start with anything else, ignore this line for now.
                 if template_seg.block_type != "block_start":

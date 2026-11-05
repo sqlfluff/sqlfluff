@@ -162,7 +162,7 @@ class Rule_AL09(BaseRule):
             if alias_keyword_raw != "=" and not quoted_without_whitespace:
                 if not (whitespace and alias_identifier):  # pragma: no cover
                     # We *should* expect all of these to be non-null, but some bug
-                    # reports suggest that that isn't always the case for some
+                    # reports suggest that this isn't always the case for some
                     # dialects. In those cases, log a warning here, but don't
                     # flag it as a linting issue. Hopefully this will help
                     # better bug reports in future.
