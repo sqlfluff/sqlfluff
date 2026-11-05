@@ -892,7 +892,9 @@ postgres_dialect.replace(
         ),
         Sequence(
             OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
-            Ref("ExpressionSegment"),
+            # Aggregate options such as STYPE/MSTYPE can use array data types
+            # (e.g. numeric[]), which are not valid expressions.
+            OneOf(Ref("ExpressionSegment"), Ref("DatatypeSegment")),
             optional=True,
         ),
     ),
