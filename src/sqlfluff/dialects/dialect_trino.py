@@ -591,6 +591,24 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class TemporalQuerySegment(ansi.TemporalQuerySegment):
+    """A time travel clause on a table reference, e.g. `FOR VERSION AS OF 123`.
+
+    It goes between the table name and its alias, and the snapshot can be any
+    expression (a version id, a branch or tag name, or a timestamp).
+
+    https://trino.io/docs/current/connector/iceberg.html#time-travel-queries
+    """
+
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        OneOf("TIMESTAMP", "VERSION"),
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    )
+
+
 class ValuesClauseSegment(ansi.ValuesClauseSegment):
     """A `VALUES` clause within in `WITH`, `SELECT`, `INSERT`."""
 
