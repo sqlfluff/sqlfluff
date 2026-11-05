@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo, qualificat
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04
+from sqlfluff.rules.references._oracle import find_oracle_variable_names
 from sqlfluff.utils.analysis.select import get_select_statement_info
 
 
@@ -202,6 +203,9 @@ class Rule_RF02(Rule_AL04):
                 )
                 for identifier in declare.get_children("identifier")
             }
+
+        if rule_context.dialect.name == "oracle":
+            sql_variables |= find_oracle_variable_names(rule_context.parent_stack[0])
 
         # TODO: Add any additional dialect specific variable names
 

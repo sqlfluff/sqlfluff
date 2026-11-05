@@ -1000,3 +1000,26 @@ test_allow_bigquery_nested_with_expression_variables_in_subquery:
   configs:
     core:
       dialect: bigquery
+
+test_pass_oracle_plsql_variables_in_join_where:
+  # Declared PL/SQL variables and Oracle built-ins should not be treated as
+  # unqualified column references in multi-table queries.
+  pass_str: |
+    CREATE OR REPLACE PROCEDURE p_test (
+      t_ATSProjectNumber NUMBER
+    ) IS
+      g_User VARCHAR2(100);
+      t_project_id NUMBER;
+    BEGIN
+      SELECT a.project_id
+      INTO t_project_id
+      FROM ats_projects a
+      JOIN ats_project_meta b ON b.project_id = a.project_id
+      WHERE a.project_number = t_ATSProjectNumber
+        AND b.last_user = g_User
+        AND b.last_updated <= sysdate;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
