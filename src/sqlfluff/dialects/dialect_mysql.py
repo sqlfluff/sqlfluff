@@ -3213,6 +3213,7 @@ class TableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+        Ref("IntoClauseSegment", optional=True),
     )
 
 

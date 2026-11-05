@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e77d1e0bcfd1a4b434e7debd601ec69974cc8fc90f8b343e3783fdf76c95f6d
+_hash: aa24c8bcd76137ab7e6e402ba754a81c46e898f160efaa230cb5dc5bb25e92d4
 file:
 - statement:
     table_statement:
@@ -201,4 +201,46 @@ file:
         keyword: table
         table_reference:
           naked_identifier: t2
+- statement_terminator: ;
+- statement:
+    table_statement:
+      keyword: table
+      table_reference:
+        naked_identifier: tbl
+      into_clause:
+      - keyword: into
+      - keyword: outfile
+      - quoted_literal: "'rows.txt'"
+- statement_terminator: ;
+- statement:
+    table_statement:
+      keyword: table
+      table_reference:
+        naked_identifier: tbl
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: col1
+      limit_clause:
+        keyword: limit
+        numeric_literal: '2'
+      into_clause:
+      - keyword: into
+      - keyword: dumpfile
+      - quoted_literal: "'row.bin'"
+- statement_terminator: ;
+- statement:
+    table_statement:
+      keyword: table
+      table_reference:
+        naked_identifier: tbl
+      limit_clause:
+        keyword: limit
+        numeric_literal: '1'
+      into_clause:
+      - keyword: into
+      - variable: '@a'
+      - comma: ','
+      - variable: '@b'
 - statement_terminator: ;

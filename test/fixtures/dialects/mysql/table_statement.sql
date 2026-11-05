@@ -21,3 +21,9 @@ create table tbl2 as table tbl;
 explain table tbl;
 
 (table t1 order by a limit 1) union table t2;
+
+table tbl into outfile 'rows.txt';
+
+table tbl order by col1 limit 2 into dumpfile 'row.bin';
+
+table tbl limit 1 into @a, @b;
