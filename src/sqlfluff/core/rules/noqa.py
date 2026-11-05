@@ -108,7 +108,7 @@ class IgnoreMask:
                                 line_no=line_no,
                             )
                     rules: Optional[tuple[str, ...]]
-                    if rule_part != "all":
+                    if rule_part.strip().lower() != "all":
                         # Rules can be globs therefore we compare to the rule_set to
                         # expand the globs.
                         unexpanded_rules = tuple(
@@ -118,9 +118,11 @@ class IgnoreMask:
                         expanded_rules: set[str] = set()
                         for r in unexpanded_rules:
                             matched = False
+                            r_lower = r.lower()
                             for expanded in (
                                 reference_map[x]
-                                for x in fnmatch.filter(reference_map.keys(), r)
+                                for x in reference_map
+                                if fnmatch.fnmatchcase(x.lower(), r_lower)
                             ):
                                 expanded_rules |= expanded
                                 matched = True
@@ -130,7 +132,11 @@ class IgnoreMask:
                                 # Therefore assume the user is referencing
                                 # a special error type (e.g. PRS, LXR, or TMP)
                                 # and add this to the list of rules to ignore.
-                                expanded_rules.add(r)
+                                expanded_rules.add(
+                                    r.upper()
+                                    if r.upper() in {"PRS", "LXR", "TMP"}
+                                    else r
+                                )
                         # Sort for consistency
                         rules = tuple(sorted(expanded_rules))
                     else:

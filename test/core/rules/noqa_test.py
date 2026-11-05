@@ -657,3 +657,108 @@ SELECT a+b FROM t
     result_lt01 = lntr_disable_noqa_except_lt01.lint_string(sql)
     violations_lt01 = result_lt01.get_violations()
     assert [v.rule_code() for v in violations_lt01] == ["CP01", "CP01"]
+
+
+def test_parse_noqa_case_insensitivity_and_all():
+    """Test case-insensitive matching and ALL expansion in noqa directives (#9005)."""
+    # Bare disable/enable=ALL should affect all rules (rules=None)
+    directive_upper = IgnoreMask._parse_noqa(
+        "noqa: disable=ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    assert directive_upper == NoQaDirective(0, 0, None, "disable", "noqa: disable=ALL")
+
+    directive_enable_upper = IgnoreMask._parse_noqa(
+        "noqa: enable=ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    assert directive_enable_upper == NoQaDirective(
+        0, 0, None, "enable", "noqa: enable=ALL"
+    )
+
+    # disable=PRS,ALL should expand ALL to all rules and include PRS
+    res_upper = IgnoreMask._parse_noqa(
+        "noqa: disable=PRS,ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    res_lower = IgnoreMask._parse_noqa(
+        "noqa: disable=PRS,all", 0, 0, reference_map=dummy_rule_map
+    )
+    assert res_upper.action == "disable"
+    assert "PRS" in res_upper.rules
+    assert dummy_rule_map["all"].issubset(set(res_upper.rules))
+    assert res_upper.rules == res_lower.rules
+
+    # Uppercase group name LAYOUT should expand the same as layout
+    res_layout_upper = IgnoreMask._parse_noqa(
+        "noqa: disable=LAYOUT", 0, 0, reference_map=dummy_rule_map
+    )
+    res_layout_lower = IgnoreMask._parse_noqa(
+        "noqa: disable=layout", 0, 0, reference_map=dummy_rule_map
+    )
+    assert res_layout_upper.rules == res_layout_lower.rules
+
+    # Lowercase code lt01 should match LT01
+    res_code_lower = IgnoreMask._parse_noqa(
+        "noqa: disable=lt01", 0, 0, reference_map=dummy_rule_map
+    )
+    assert res_code_lower.rules == ("LT01",)
+
+    # Lowercase glob lt* should match all LT rules
+    res_glob_lower = IgnoreMask._parse_noqa(
+        "noqa: disable=lt*", 0, 0, reference_map=dummy_rule_map
+    )
+    res_glob_upper = IgnoreMask._parse_noqa(
+        "noqa: disable=LT*", 0, 0, reference_map=dummy_rule_map
+    )
+    assert res_glob_lower.rules == res_glob_upper.rules
+
+
+def test_parse_noqa_posix_normcase_parity(monkeypatch):
+    """Ensure matching is identical on POSIX and Windows (simulating posixpath)."""
+    import posixpath
+
+    monkeypatch.setattr("os.path.normcase", posixpath.normcase)
+
+    # Bare ALL
+    directive_upper = IgnoreMask._parse_noqa(
+        "noqa: disable=ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    assert directive_upper == NoQaDirective(0, 0, None, "disable", "noqa: disable=ALL")
+
+    # Combined PRS,ALL
+    res_upper = IgnoreMask._parse_noqa(
+        "noqa: disable=PRS,ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    assert "PRS" in res_upper.rules
+    assert dummy_rule_map["all"].issubset(set(res_upper.rules))
+
+    # Upper case group and lower case code
+    res_layout = IgnoreMask._parse_noqa(
+        "noqa: disable=LAYOUT", 0, 0, reference_map=dummy_rule_map
+    )
+    assert dummy_rule_map["layout"] == set(res_layout.rules)
+
+    res_code = IgnoreMask._parse_noqa(
+        "noqa: disable=lt01", 0, 0, reference_map=dummy_rule_map
+    )
+    assert res_code.rules == ("LT01",)
+
+
+def test_linter_noqa_disable_prs_all_uppercase(monkeypatch):
+    """Test full linter suppression with -- noqa: disable=PRS,ALL on POSIX/Windows (#9005)."""
+    import posixpath
+
+    monkeypatch.setattr("os.path.normcase", posixpath.normcase)
+
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "rules": "LT01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    sql = """-- noqa: disable=PRS,ALL
+SELECT a   AS b FROM t
+-- noqa: enable=PRS,ALL
+"""
+    result = lntr.lint_string(sql)
+    assert not result.get_violations()
