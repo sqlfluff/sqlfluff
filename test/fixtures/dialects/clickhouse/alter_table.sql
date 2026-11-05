@@ -217,3 +217,8 @@ ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION TRUE;
 ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION tuple(toYYYYMM(toDate('2019-01-25')));
 
 ALTER TABLE default.example2 CLEAR PROJECTION IF EXISTS user_proj IN PARTITION ('JP', 1);
+
+-- Multiple comma-separated actions (#8707)
+ALTER TABLE example ADD COLUMN a UInt8, ADD COLUMN b UInt8;
+ALTER TABLE example DROP COLUMN a, ADD COLUMN b UInt8, MODIFY COLUMN c String;
+ALTER TABLE example ADD COLUMN a UInt8, ADD COLUMN b UInt8 SETTINGS max_execution_time = 10;

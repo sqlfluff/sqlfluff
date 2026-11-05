@@ -1262,7 +1262,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Check whether the types we're looking for are in this segment
         # at all. If not, exit early.
-        if not self.descendant_type_set.intersection(seg_type):
+        if self.descendant_type_set.isdisjoint(seg_type):
             # Terminate iteration.
             return None
 
@@ -1273,7 +1273,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # recurse into.
                 # NOTE: Setting no_recursive_seg_type can significantly
                 # improve performance in many cases.
-                if not no_recursive_seg_type or not seg.is_type(*no_recursive_seg_type):
+                if no_recursive_seg_type and seg.is_type(*no_recursive_seg_type):
+                    continue
+                # A child which neither matches nor contains a match would
+                # yield nothing, so don't start a crawl of it.
+                if seg.is_type(*seg_type) or (
+                    seg.segments and not seg.descendant_type_set.isdisjoint(seg_type)
+                ):
                     yield from seg.recursive_crawl(
                         *seg_type,
                         recurse_into=recurse_into,

@@ -274,6 +274,40 @@ def test__config__invalid_prefer_quoted_keyword_style():
     assert "backticks" in str(exc_info.value)
 
 
+def test__config__unset_max_alias_length():
+    """An unset AL06 length config should not raise an error.
+
+    The option validates against `range(1000)`, which does not contain `None`.
+    """
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "rules": {"aliasing.length": {"max_alias_length": None}},
+        }
+    )
+
+    rule_pack = Linter(config=config).get_rulepack()
+
+    (al06,) = [rule for rule in rule_pack.rules if rule.code == "AL06"]
+    assert al06.max_alias_length is None
+
+
+def test__config__invalid_max_alias_length():
+    """Out of range AL06 length config should raise a user-facing error."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "rules": {"aliasing.length": {"max_alias_length": 1000}},
+        }
+    )
+
+    with pytest.raises(SQLFluffUserError) as exc_info:
+        Linter(config=config).get_rulepack()
+
+    assert "max_alias_length" in str(exc_info.value)
+    assert "Invalid option '1000'" in str(exc_info.value)
+
+
 @pytest.mark.parametrize(
     "raw_sql",
     [

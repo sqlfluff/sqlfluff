@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5cf24e08160edf79f76747395c309f3e1b3429ab77b31a36bdea76d476bc0c24
+_hash: ee94de46d7a9c9bcf9f475b9f65770cfecaddd93a372371864c52b5ff24ef50c
 file:
 - statement:
     alter_table_statement:
@@ -2580,4 +2580,68 @@ file:
           comma: ','
           numeric_literal: '1'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: a
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: c
+    - data_type:
+        data_type_identifier: String
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: max_execution_time
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '10'
 - statement_terminator: ;

@@ -3,7 +3,7 @@ name = "sqlfluffrs"
 # NOTE: Version uses Rust SemVer format (e.g., "4.0.0-alpha.1").
 # Maturin automatically converts this to PEP 440 format for the Python package (e.g., "4.0.0a1").
 # See: https://www.maturin.rs/metadata.html
-version = "4.4.0"
+version = "4.5.0"
 edition = "2021"
 rust-version.workspace = true
 autobenches = false
@@ -26,7 +26,7 @@ members = [
 ]
 
 [workspace.package]
-version = "4.4.0"
+version = "4.5.0"
 rust-version = "1.96"
 
 [workspace.dependencies]
@@ -37,8 +37,6 @@ hashbrown = "0.16.1"
 itertools = "0.14.0"
 log = "0.4.29"
 smallvec = "1.15.1"
-once_cell = "1.21.4"
-bincode = "1.3.3"
 # NOTE: Update the abi3 version as we deprecate old python versions.
 # It should match the oldest currently supported python version.
 pyo3 = { version = "0.29.0", features = [

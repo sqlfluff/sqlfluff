@@ -269,7 +269,7 @@ class PartitionSegment(BaseSegment):
                                     Sequence(
                                         Bracketed(
                                             Bracketed(Delimited(Ref("LiteralGrammar"))),
-                                            ",",
+                                            Ref("CommaSegment"),
                                             Bracketed(Delimited(Ref("LiteralGrammar"))),
                                         )
                                     ),
@@ -627,7 +627,10 @@ class StatementSegment(mysql.StatementSegment):
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
             Ref("ResumeRoutineLoadStatementSegment"),
-        ]
+        ],
+        remove=[
+            Ref("FlushStatementSegment"),
+        ],
     ).copy(
         insert=[
             Ref("InsertOverwriteStatementSegment"),

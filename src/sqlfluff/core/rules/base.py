@@ -1035,8 +1035,8 @@ class RuleSet:
             valid_options = info_dict.get("validation")
             if (
                 valid_options
-                and config_option not in valid_options
                 and config_option is not None
+                and config_option not in valid_options
             ):
                 raise SQLFluffUserError(
                     (

@@ -6,10 +6,10 @@ Matchable objects which return individual segments.
 from abc import abstractmethod
 from collections.abc import Collection, Sequence
 from typing import Any, Callable, Optional
-from uuid import uuid4
 
 import regex
 
+from sqlfluff.core.helpers.identity import get_cache_key
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
@@ -43,7 +43,7 @@ class BaseParser(Matchable):
         self._trim_chars = trim_chars
         self.casefold = casefold
         # Generate a cache key
-        self._cache_key = uuid4().hex
+        self._cache_key = get_cache_key()
 
     def cache_key(self) -> str:
         """Get the cache key for this parser.

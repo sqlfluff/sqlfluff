@@ -1521,7 +1521,13 @@ class WindowSpecificationSegment(BaseSegment):
         Ref(
             "SingleIdentifierGrammar",
             optional=True,
-            exclude=OneOf(Ref.keyword("PARTITION"), Ref.keyword("ORDER")),
+            # ROWS, RANGE and GROUPS aren't reserved in every dialect, so don't take
+            # the unit of a frame clause as the base window name.
+            exclude=OneOf(
+                Ref.keyword("PARTITION"),
+                Ref.keyword("ORDER"),
+                Ref("FrameClauseSegment"),
+            ),
         ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
@@ -1547,6 +1553,7 @@ class FunctionNameSegment(BaseSegment):
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            Ref("NakedIdentifierSegment"),
             terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
@@ -1987,7 +1994,8 @@ class JoinClauseSegment(BaseSegment):
             Indent,
             Ref("JoinTargetGrammar"),
             AnyNumberOf(Ref("NestedJoinGrammar")),
-            Dedent,
+            # indented_using_on_newline keeps this indent open over ON/USING
+            Conditional(Dedent, indented_using_on_newline=False),
             Sequence(
                 # Using nested sequence here so we only get the indents
                 # if we also have content.
@@ -2005,6 +2013,7 @@ class JoinClauseSegment(BaseSegment):
                 Conditional(Dedent, indented_using_on=True),
                 optional=True,
             ),
+            Conditional(Dedent, indented_using_on_newline=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(

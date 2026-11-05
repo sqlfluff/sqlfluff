@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2c50b46da93323a32133fbecc9bfdfccaf05213db49f9c67dde9c7d3eb61f549
+_hash: d122c2a169f9274d86587b816c90281cd506590fd5748c572a716dca85996195
 file:
 - statement:
     show_statement:
@@ -116,4 +116,107 @@ file:
           keyword: TABLE
         object_reference:
           naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+        keyword: CATALOG
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+        keyword: CONNECTION
+        object_reference:
+          naked_identifier: my_connection
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+      - keyword: CLEAN
+      - keyword: ROOM
+      - object_reference:
+          naked_identifier: my_clean_room
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+      - keyword: EXTERNAL
+      - keyword: LOCATION
+      - object_reference:
+          naked_identifier: my_location
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+      - keyword: EXTERNAL
+      - keyword: METADATA
+      - object_reference:
+          naked_identifier: my_metadata
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+        keyword: PROCEDURE
+        object_reference:
+          naked_identifier: my_procedure
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+        keyword: SHARE
+        object_reference:
+          naked_identifier: my_share
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+      - keyword: STORAGE
+      - keyword: CREDENTIAL
+      - object_reference:
+          naked_identifier: my_credential
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+      - keyword: SERVICE
+      - keyword: CREDENTIAL
+      - object_reference:
+          naked_identifier: my_credential
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - access_object:
+        keyword: CREDENTIAL
+        object_reference:
+          naked_identifier: my_credential
 - statement_terminator: ;

@@ -56,15 +56,14 @@ impl PositionMarker {
         line_no: usize,
         line_pos: usize,
     ) -> (usize, usize) {
-        // Placeholder for position inference logic
-        // Example implementation: move forward by the length of the string
+        // Lengths are character counts, as in Python's `infer_next_position`.
         let lines: Vec<&str> = raw.split('\n').collect();
         if lines.len() > 1 {
             let num_lines: usize = lines.len();
-            let last_line_len: usize = lines.last().unwrap().len();
+            let last_line_len: usize = lines.last().unwrap().chars().count();
             (line_no + num_lines - 1, last_line_len + 1)
         } else {
-            let first_line_len: usize = raw.len();
+            let first_line_len: usize = raw.chars().count();
             (line_no, line_pos + first_line_len)
         }
     }
@@ -268,4 +267,19 @@ impl Display for PositionMarker {
 #[must_use]
 pub fn slice_is_point(test_slice: &Slice) -> bool {
     test_slice.start == test_slice.stop
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn infer_next_position_counts_characters() {
+        let file = Arc::new(TemplatedFile::from(String::from("SELECT 1\n")));
+        let marker = PositionMarker::from_point(0, 0, &file, Some(1), Some(1));
+        // 'Ωμέγα' is 5 characters but 10 bytes.
+        assert_eq!(marker.infer_next_position("'Ωμέγα'", 1, 8), (1, 15));
+        assert_eq!(marker.infer_next_position("a\nÜnï", 3, 4), (4, 4));
+        assert_eq!(marker.working_loc_after("ünï"), (1, 4));
+    }
 }

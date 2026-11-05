@@ -1,0 +1,709 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4077d3e4e6a6d8055f0e2f1229576b566fd4629df0b3f19748c15da6b2e3f901
+file:
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: MYALIAS
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: MYALIAS
+    - keyword: FOR
+    - keyword: TABLE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PUBLIC
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: MYPUBLICALIAS
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: MYSYNONYM
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: MYSYNONYM
+    - keyword: FOR
+    - keyword: SEQUENCE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AUDIT
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: MYAUDITPOLICY
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+      - dot: .
+      - naked_identifier: MYCOLUMN
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+      - dot: .
+      - naked_identifier: MYCONSTRAINT
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - keyword: PARTITION
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: MYGROUP
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: NODEGROUP
+    - object_reference:
+        naked_identifier: MYNODEGROUP
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: MYSCHEMA
+        dot: .
+        function_name_identifier: MYFUNCTION
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: MYSCHEMA
+        dot: .
+        function_name_identifier: MYFUNCTION
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: INT
+      - comma: ','
+      - data_type:
+          data_type_identifier: FLOAT
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SPECIFIC
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYFUNCTION
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - keyword: MAPPING
+    - object_reference:
+        naked_identifier: MYFUNCTIONMAPPING
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: HISTOGRAM
+    - keyword: TEMPLATE
+    - object_reference:
+        naked_identifier: MYHISTOGRAMTEMPLATE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: INDEX
+    - index_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYINDEX
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: MASK
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMASK
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: MODULE
+    - object_reference:
+        naked_identifier: MYMODULE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: NICKNAME
+    - object_reference:
+        naked_identifier: MYNICKNAME
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PACKAGE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYPACKAGE
+    - keyword: VERSION
+    - quoted_identifier: '"V1"'
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PACKAGE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYPACKAGE
+    - keyword: VERSION
+    - numeric_literal: '8.0'
+    - numeric_literal: '.3'
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PERMISSION
+    - object_reference:
+        naked_identifier: MYPERMISSION
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: MYSCHEMA
+        dot: .
+        function_name_identifier: MYPROCEDURE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: MYSCHEMA
+        dot: .
+        function_name_identifier: MYPROCEDURE
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: CHAR
+      - comma: ','
+      - data_type:
+          data_type_identifier: INT
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SPECIFIC
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYPROCEDURE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MYROLE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: MYSCHEMA
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SECURITY
+    - keyword: LABEL
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYSECURITYLABEL
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: COMPONENT
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYCOMPONENT
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SECURITY
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYSECURITYPOLICY
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SEQUENCE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYSEQUENCE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVER
+    - object_reference:
+        naked_identifier: MYSERVER
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVER
+    - keyword: OPTION
+    - object_reference:
+        naked_identifier: MYSERVEROPTION
+    - keyword: FOR
+    - keyword: SERVER
+    - object_reference:
+        naked_identifier: MYSERVER
+    - keyword: SERVER
+    - keyword: TYPE
+    - naked_identifier: DB2
+    - keyword: VERSION
+    - quoted_literal: "'8.2.3'"
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVER
+    - keyword: OPTION
+    - object_reference:
+        naked_identifier: MYWRAPPEROPTION
+    - keyword: FOR
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: MYWRAPPER
+    - keyword: VERSION
+    - quoted_literal: "'8.2.3'"
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVER
+    - keyword: OPTION
+    - object_reference:
+        naked_identifier: MYSERVEROPTION
+    - keyword: FOR
+    - keyword: SERVER
+    - object_reference:
+        naked_identifier: MYSERVER
+    - keyword: SERVER
+    - keyword: TYPE
+    - naked_identifier: DB2
+    - keyword: VERSION
+    - numeric_literal: '8.2'
+    - numeric_literal: '.3'
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVICE
+    - keyword: CLASS
+    - object_reference:
+        naked_identifier: MYSERVICECLASS
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVICE
+    - keyword: CLASS
+    - object_reference:
+        naked_identifier: MYSUBCLASS
+    - keyword: UNDER
+    - object_reference:
+        naked_identifier: MYSUPERCLASS
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: STOGROUP
+    - object_reference:
+        naked_identifier: MYSTOGROUP
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLESPACE
+    - object_reference:
+        naked_identifier: MYTABLESPACE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: THRESHOLD
+    - object_reference:
+        naked_identifier: MYTHRESHOLD
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRIGGER
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTRIGGER
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRUSTED
+    - keyword: CONTEXT
+    - object_reference:
+        naked_identifier: MYTRUSTEDCONTEXT
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTYPE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TYPE
+    - keyword: MAPPING
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTYPEMAPPING
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DISTINCT
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYDISTINCTTYPE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DATA
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYDATATYPE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: USAGE
+    - keyword: LIST
+    - object_reference:
+        naked_identifier: MYUSAGELIST
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VARIABLE
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYVARIABLE
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYVIEW
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: WORK
+    - keyword: ACTION
+    - keyword: SET
+    - object_reference:
+        naked_identifier: MYWORKACTIONSET
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: WORK
+    - keyword: CLASS
+    - keyword: SET
+    - object_reference:
+        naked_identifier: MYWORKCLASSSET
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: WORKLOAD
+    - object_reference:
+        naked_identifier: MYWORKLOAD
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: MYWRAPPER
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: XSROBJECT
+    - object_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYXSROBJECT
+    - keyword: IS
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYTABLE
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: COL1
+      - keyword: IS
+      - quoted_literal: "'first column'"
+      - comma: ','
+      - naked_identifier: COL2
+      - keyword: IS
+      - quoted_literal: "'second column'"
+      - end_bracket: )
+- statement_terminator: ;

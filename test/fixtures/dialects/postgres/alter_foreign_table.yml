@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22adfc000efda0003a1128b347d810eb75492828abc6309e7f4cb47a2b48218f
+_hash: e0d1c779665690cddf0e9d46014038675cc0fa79e06bc5263f2d43602575c9eb
 file:
 - statement:
     alter_foreign_table_statement:
@@ -129,4 +129,50 @@ file:
     - keyword: TO
     - table_reference:
         naked_identifier: test_renamed
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_foreign_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: street
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - keyword: ADD
+        - naked_identifier: opt1
+        - quoted_literal: "'value'"
+        - comma: ','
+        - keyword: SET
+        - naked_identifier: opt2
+        - quoted_literal: "'value2'"
+        - comma: ','
+        - keyword: DROP
+        - naked_identifier: opt3
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_foreign_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: street
+      - keyword: OPTIONS
+      - bracketed:
+          start_bracket: (
+          keyword: ADD
+          naked_identifier: opt1
+          quoted_literal: "'value'"
+          end_bracket: )
 - statement_terminator: ;

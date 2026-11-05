@@ -484,6 +484,10 @@ sparksql_dialect.replace(
         BracketedSegment,
     ),
     FunctionContentsExpressionGrammar=OneOf(
+        # A table argument to a table-valued function, e.g. `TABLE(SELECT a, b)`.
+        # Handled here so the commas in the select list aren't read as
+        # argument delimiters.
+        Sequence("TABLE", Bracketed(Ref("SelectableGrammar"))),
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
         Ref("WildcardIdentifierSegment"),
@@ -3204,7 +3208,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("JoinTargetGrammar"),
-            Dedent,
+            Conditional(Dedent, indented_using_on_newline=False),
             Conditional(Indent, indented_using_on=True),
             # NB: this is optional
             OneOf(
@@ -3231,6 +3235,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                 optional=True,
             ),
             Conditional(Dedent, indented_using_on=True),
+            Conditional(Dedent, indented_using_on_newline=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(

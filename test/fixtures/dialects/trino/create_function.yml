@@ -1,0 +1,163 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ee25c48ac6ac9aaea96ad3656b246f04d494fef657bbf0b53da2cc5ca77c3371
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: bigint
+    - function_definition:
+        keyword: RETURN
+        expression:
+          numeric_literal: '42'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: double_it
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            primitive_type:
+              keyword: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: integer
+    - function_definition:
+        keyword: RETURN
+        expression:
+          column_reference:
+            naked_identifier: x
+          binary_operator: '*'
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: str_concat
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            primitive_type:
+              keyword: varchar
+        - comma: ','
+        - parameter: b
+        - data_type:
+            primitive_type:
+              keyword: varchar
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: varchar
+    - function_definition:
+        keyword: RETURN
+        expression:
+          function:
+            function_name:
+              function_name_identifier: concat
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: a
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: calculate_tax
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: price
+        - data_type:
+            primitive_type:
+              keyword: double
+        - comma: ','
+        - parameter: tax_rate
+        - data_type:
+            primitive_type:
+              keyword: double
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: double
+    - function_definition:
+        keyword: RETURN
+        expression:
+        - column_reference:
+            naked_identifier: price
+        - binary_operator: '*'
+        - column_reference:
+            naked_identifier: tax_rate
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: custom_as
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "'SELECT 1'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: custom_as_lang
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: integer
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "'SELECT 1'"
+      - keyword: LANGUAGE
+      - naked_identifier: sql
+- statement_terminator: ;

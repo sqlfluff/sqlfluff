@@ -687,6 +687,108 @@ class CommentOnStatementSegment(BaseSegment):
 
     type = "comment_clause"
 
+    _version_identifier = OneOf(
+        Ref("QuotedIdentifierSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref("NakedIdentifierSegment"),
+        Sequence(
+            Ref("NumericLiteralSegment"),
+            AnyNumberOf(Ref("NumericLiteralSegment")),
+            allow_gaps=False,
+        ),
+    )
+
+    _routine_designator = OneOf(
+        Sequence(
+            OneOf("FUNCTION", "PROCEDURE"),
+            Ref("FunctionNameSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        ),
+        Sequence(
+            "SPECIFIC",
+            OneOf("FUNCTION", "PROCEDURE"),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+    _alias_designator = Sequence(
+        Ref.keyword("PUBLIC", optional=True),
+        OneOf("ALIAS", "SYNONYM"),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FOR",
+            OneOf("TABLE", "MODULE", "SEQUENCE"),
+            optional=True,
+        ),
+    )
+
+    _type_designator = OneOf(
+        Sequence("TYPE", "MAPPING", Ref("ObjectReferenceSegment")),
+        Sequence(
+            OneOf("DISTINCT", "DATA"),
+            "TYPE",
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence("TYPE", Ref("ObjectReferenceSegment")),
+    )
+
+    _security_designator = OneOf(
+        Sequence(
+            "SECURITY",
+            "LABEL",
+            "COMPONENT",
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "SECURITY",
+            OneOf("LABEL", "POLICY"),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+    _service_class_designator = Sequence(
+        "SERVICE",
+        "CLASS",
+        Ref("ObjectReferenceSegment"),
+        Sequence("UNDER", Ref("ObjectReferenceSegment"), optional=True),
+    )
+
+    _server_option_designator = Sequence(
+        "SERVER",
+        "OPTION",
+        Ref("ObjectReferenceSegment"),
+        "FOR",
+        OneOf(
+            Sequence(
+                "SERVER",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "SERVER",
+                    "TYPE",
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "VERSION",
+                    _version_identifier,
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "WRAPPER",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "VERSION",
+                    _version_identifier,
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
     match_grammar = Sequence(
         "COMMENT",
         "ON",
@@ -694,25 +796,77 @@ class CommentOnStatementSegment(BaseSegment):
             Sequence(
                 OneOf(
                     Sequence("COLUMN", Ref("ColumnReferenceSegment")),
+                    Sequence("CONSTRAINT", Ref("ObjectReferenceSegment")),
                     Sequence("INDEX", Ref("IndexReferenceSegment")),
                     Sequence("SCHEMA", Ref("SchemaReferenceSegment")),
+                    _alias_designator,
+                    _routine_designator,
+                    _type_designator,
+                    _security_designator,
+                    _service_class_designator,
+                    _server_option_designator,
                     Sequence(
+                        "FUNCTION",
+                        "MAPPING",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "DATABASE",
+                        "PARTITION",
+                        "GROUP",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence("NODEGROUP", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "HISTOGRAM",
+                        "TEMPLATE",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "AUDIT",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence("MASK", Ref("ObjectReferenceSegment")),
+                    Sequence("MODULE", Ref("ObjectReferenceSegment")),
+                    Sequence("NICKNAME", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "PACKAGE",
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "VERSION",
+                            _version_identifier,
+                            optional=True,
+                        ),
+                    ),
+                    Sequence("PERMISSION", Ref("ObjectReferenceSegment")),
+                    Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                    Sequence("SERVER", Ref("ObjectReferenceSegment")),
+                    Sequence("STOGROUP", Ref("ObjectReferenceSegment")),
+                    Sequence("TABLE", Ref("ObjectReferenceSegment")),
+                    Sequence("TABLESPACE", Ref("ObjectReferenceSegment")),
+                    Sequence("THRESHOLD", Ref("ObjectReferenceSegment")),
+                    Sequence("TRIGGER", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "TRUSTED",
+                        "CONTEXT",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence("USAGE", "LIST", Ref("ObjectReferenceSegment")),
+                    Sequence("VARIABLE", Ref("ObjectReferenceSegment")),
+                    Sequence("VIEW", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "WORK",
                         OneOf(
-                            "ALIAS",
-                            "FUNCTION",
-                            "PACKAGE",
-                            "PROCEDURE",
-                            "ROLE",
-                            "SEQUENCE",
-                            "TABLE",
-                            "TABLESPACE",
-                            "TRIGGER",
-                            "TYPE",
-                            "VARIABLE",
-                            "VIEW",
+                            Sequence("ACTION", "SET"),
+                            Sequence("CLASS", "SET"),
                         ),
                         Ref("ObjectReferenceSegment"),
                     ),
+                    Sequence("WORKLOAD", Ref("ObjectReferenceSegment")),
+                    Sequence("WRAPPER", Ref("ObjectReferenceSegment")),
+                    Sequence("XSROBJECT", Ref("ObjectReferenceSegment")),
+                    Sequence("SEQUENCE", Ref("ObjectReferenceSegment")),
                 ),
                 "IS",
                 Ref("QuotedLiteralSegment"),
