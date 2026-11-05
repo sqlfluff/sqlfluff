@@ -145,6 +145,9 @@ For full [CLI usage](https://docs.sqlfluff.com/en/stable/perma/cli.html) and
 [rules reference](https://docs.sqlfluff.com/en/stable/perma/rules.html), see
 [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
+Simple `CASE` operands support expressions such as
+`CASE 'a' || 'b' WHEN 'ab' THEN 1 END` without extra parentheses.
+
 # Documentation
 
 For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/stable/).
