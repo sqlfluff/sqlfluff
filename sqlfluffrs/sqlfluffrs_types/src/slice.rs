@@ -22,9 +22,8 @@ impl Slice {
         test_slice.start == test_slice.end
     }
 
-    /// Zero for a reversed slice (start > stop), as with Python slices.
     pub fn len(&self) -> usize {
-        self.stop.saturating_sub(self.start)
+        self.stop - self.start
     }
 
     pub fn is_empty(&self) -> bool {
