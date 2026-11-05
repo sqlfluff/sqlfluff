@@ -2156,7 +2156,11 @@ class CaseExpressionSegment(BaseSegment):
         ),
         Sequence(
             "CASE",
-            Ref("ExpressionSegment"),
+            # Operand operators must not inherit the surrounding CASE terminators.
+            Ref(
+                "ExpressionSegment",
+                reset_terminators=True,
+            ),
             ImplicitIndent,
             AnyNumberOf(
                 Ref("WhenClauseSegment"),
