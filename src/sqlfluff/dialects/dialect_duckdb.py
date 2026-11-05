@@ -641,9 +641,9 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AsAliasExpressionSegment", optional=True),

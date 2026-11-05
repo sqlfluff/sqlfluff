@@ -5789,9 +5789,9 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AsAliasExpressionSegment", optional=True),
@@ -6588,9 +6588,9 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment", optional=True),
@@ -6695,9 +6695,9 @@ class UpdateStatementSegment(BaseSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment", optional=True),
@@ -7865,9 +7865,9 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
                 "RETURNING",
                 Ref("ReturningOldNewAliasesGrammar", optional=True),
                 Indent,
-                OneOf(
-                    Ref("StarSegment"),
-                    Delimited(
+                Delimited(
+                    OneOf(
+                        Ref("StarSegment"),
                         Sequence(
                             Ref("ExpressionSegment"),
                             Ref("AliasExpressionSegment", optional=True),
