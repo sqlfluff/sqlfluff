@@ -2126,6 +2126,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
             Ref("CreateDataMetricFunctionStatementSegment"),
+            Ref("AttachDataMetricFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
@@ -5368,6 +5369,40 @@ class CreateDataMetricFunctionStatementSegment(BaseSegment):
             Ref("DoubleQuotedUDFBody"),
             Ref("SingleQuotedUDFBody"),
             Ref("DollarQuotedUDFBody"),
+        ),
+    )
+
+
+class AttachDataMetricFunctionStatementSegment(BaseSegment):
+    """An ``ATTACH DATA METRIC FUNCTION`` statement in a DCM project.
+
+    https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities#attach-data-metric-function
+    """
+
+    type = "attach_data_metric_function_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        "DATA",
+        "METRIC",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        "TO",
+        OneOf("TABLE", "VIEW", Sequence("DYNAMIC", "TABLE")),
+        Ref("TableReferenceSegment"),
+        "ON",
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
+        AnySetOf(
+            Sequence(
+                "EXPECTATION",
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Bracketed(Ref("ExpressionSegment")),
+                    ),
+                ),
+            ),
+            Sequence("EXECUTE", "AS", "ROLE", Ref("RoleReferenceSegment")),
+            optional=True,
         ),
     )
 
