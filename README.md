@@ -148,6 +148,8 @@ For full [CLI usage](https://docs.sqlfluff.com/en/stable/perma/cli.html) and
 When simplifying nested `CASE` expressions, ST04 preserves differences in string
 literals and case-sensitive identifiers. Differences in keyword casing, including
 `TRUE`, `FALSE` and `NULL`, do not prevent safe flattening.
+Simple `CASE` operands support expressions such as
+`CASE 'a' || 'b' WHEN 'ab' THEN 1 END` without extra parentheses.
 
 # Documentation
 

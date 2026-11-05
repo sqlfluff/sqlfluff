@@ -41,6 +41,33 @@ _OPERATOR_CHARS = frozenset("+-*/<>=~!@#%^&|`?")
 _PREFIX_OPERATOR_TYPES = ("sign_indicator", "tilde")
 
 
+def _is_word_char(char: str) -> bool:
+    """Is this character part of a word, i.e. a keyword, identifier or number?"""
+    return char.isalnum() or char == "_"
+
+
+def _would_join_words(
+    prev_block: Optional["ReflowBlock"], next_block: Optional["ReflowBlock"]
+) -> bool:
+    """Would removing the whitespace between these blocks join two words?
+
+    For example, the keywords of Oracle's ``MULTISET UNION`` operator sit
+    inside a ``binary_operator``, whose ``touch`` spacing would otherwise turn
+    them into ``MULTISETUNION``.
+    """
+    if not prev_block or not next_block:  # pragma: no cover
+        # A point at the very start or end of the file has nothing to join with.
+        return False
+    prev_raw = prev_block.segments[-1].raw
+    next_raw = next_block.segments[0].raw
+    return bool(
+        prev_raw
+        and next_raw
+        and _is_word_char(prev_raw[-1])
+        and _is_word_char(next_raw[0])
+    )
+
+
 def _would_fuse_tokens(
     prev_block: Optional["ReflowBlock"], next_block: Optional["ReflowBlock"]
 ) -> bool:
@@ -255,6 +282,16 @@ def determine_constraints(
             f"Unexpected within constraint: {within_constraint!r} for "
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
+
+    # Two words can't touch without becoming one, so the closest spacing which
+    # keeps the file's meaning is a single space.
+    if "touch" in (pre_constraint, post_constraint) and _would_join_words(
+        prev_block, next_block
+    ):
+        if pre_constraint == "touch":
+            pre_constraint = "single"
+        if post_constraint == "touch":
+            post_constraint = "single"
 
     # Prohibit stripping a newline which is the only thing keeping two tokens
     # apart. Both "touch" and "any" leave a point with no whitespace alone, so
