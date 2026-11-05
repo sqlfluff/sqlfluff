@@ -206,6 +206,17 @@ fail_oracle_multiset_operators_extra_spaces:
     core:
       dialect: oracle
 
+pass_mysql_word_delimiter:
+  # Removing the space before a word delimiter would join it to the
+  # statement, e.g. `DELETE FROM tgo`.
+  pass_str: |
+    DELIMITER go
+    DELETE FROM t go
+    SET @b = 2 go
+  configs:
+    core:
+      dialect: mysql
+
 pass_consecutive_sign_indicators:
   # Touching these would produce "--" and comment out the rest of the line, so
   # the gap is left alone rather than reported as an unsatisfiable violation.
