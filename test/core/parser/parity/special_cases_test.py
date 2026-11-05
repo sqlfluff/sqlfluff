@@ -55,6 +55,33 @@ def test__parity__codegen_grammar_cache_pins_against_gc():
     )
 
 
+def test__parity__codegen_anything_honours_optional_flag():
+    """An ``Anything`` keeps its optional flag in the generated tables.
+
+    The Rust sequence handler decides whether it may skip an element that has
+    run out of tokens by reading the element's optional bit. ``Anything`` used
+    to be converted without that bit, so ``Anything(optional=True)`` behaved
+    as required in Rust: a sequence that had already consumed its whole window
+    came back unparsable, where Python simply skipped the element.
+    """
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    from sqlfluff.core.dialects import dialect_selector
+    from sqlfluff.core.parser.grammar.base import Anything
+    from utils.build_parsers import DummyParseContext, TableBuilder
+
+    ctx = DummyParseContext(dialect=dialect_selector("ansi"), uuid=0)
+    builder = TableBuilder()
+
+    optional_id = builder.flatten_grammar(Anything(optional=True), ctx)
+    required_id = builder.flatten_grammar(Anything(), ctx)
+
+    optional_flags = builder.instructions[optional_id].flags
+    required_flags = builder.instructions[required_id].flags
+    assert optional_flags & TableBuilder.FLAG_OPTIONAL
+    assert not required_flags & TableBuilder.FLAG_OPTIONAL
+
+
 def test__parity__codegen_lexer_patterns_hash_seed_stable():
     """Dialect lexer regexes are byte-identical across interpreter hash seeds.
 

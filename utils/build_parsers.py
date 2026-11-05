@@ -1173,9 +1173,7 @@ class TableBuilder:
 
     def _handle_anything(self, grammar: Anything, parse_context) -> GrammarInstData:
         """Convert Anything to GrammarInst."""
-        flags = 0
-        if grammar.reset_terminators:
-            flags |= self.FLAG_RESET_TERMINATORS
+        flags = self._build_flags(grammar)
 
         # Flatten terminators
         terminators_start = len(self.terminators)
