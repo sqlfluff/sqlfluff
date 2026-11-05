@@ -111,6 +111,25 @@ def test__linter__raises_malformed_noqa():
                 "noqa:capitalisation",
             ),
         ),
+        # Matching is case-insensitive, and unknown codes keep their case.
+        (
+            "noqa: disable=PRS,ALL",
+            NoQaDirective(
+                0,
+                0,
+                tuple(sorted({*dummy_rule_map["all"], "PRS"})),
+                "disable",
+                "noqa: disable=PRS,ALL",
+            ),
+        ),
+        (
+            "noqa: disable=ALL",
+            NoQaDirective(0, 0, None, "disable", "noqa: disable=ALL"),
+        ),
+        (
+            "noqa:CAPITALISATION.keywords",
+            NoQaDirective(0, 0, ("CP01",), None, "noqa:CAPITALISATION.keywords"),
+        ),
     ],
 )
 def test_parse_noqa(input, expected):
