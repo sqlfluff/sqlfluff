@@ -655,6 +655,67 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     )
 
 
+class MergeStatementSegment(postgres.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    Overriding Postgres to allow `USING (col, ...)` in place of the `ON`
+    condition, when the source and target share the column names.
+    https://duckdb.org/docs/stable/sql/statements/merge_into
+    """
+
+    match_grammar = postgres.MergeStatementSegment.match_grammar.copy(
+        insert=[
+            OneOf(
+                Ref("JoinOnConditionSegment"),
+                Ref("JoinUsingConditionGrammar"),
+            ),
+        ],
+        before=Ref("JoinOnConditionSegment"),
+        remove=[Ref("JoinOnConditionSegment")],
+    )
+
+
+class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
+    """`UPDATE` clause within the `MERGE` statement.
+
+    Overriding ANSI to make the `SET` list optional. A bare `UPDATE` updates
+    every column from the source row.
+    https://duckdb.org/docs/stable/sql/statements/merge_into
+    """
+
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        Indent,
+        Ref("SetClauseListSegment", optional=True),
+        Dedent,
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Overriding ANSI to allow `INSERT BY NAME`, which matches the source
+    columns to the target columns by name. It takes no column list or
+    `VALUES` clause.
+    https://duckdb.org/docs/stable/sql/statements/merge_into
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(
+            Sequence("BY", "NAME"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
+                Ref("ValuesClauseSegment", optional=True),
+            ),
+            Ref("ValuesClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
 class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
