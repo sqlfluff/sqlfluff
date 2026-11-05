@@ -2871,6 +2871,7 @@ class ProjectionBodySegment(BaseSegment):
             OneOf(
                 Ref("OrderByClauseSegment"),
                 Ref("GroupByClauseSegment"),
+                optional=True,
             ),
         ),
         # Projection index
