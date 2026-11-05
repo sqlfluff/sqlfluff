@@ -2,6 +2,7 @@
 
 # Standard library imports intentionally minimal.
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
@@ -47,107 +48,34 @@ class Rule_ST12(BaseRule):
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Detect consecutive semicolons and provide fixes.
 
-        Operates at the file root, builds a cached bounded prefix of
-        non-whitespace characters, then finds adjacent terminators that
-        are separated only by whitespace.
+        Inspect the current token order, since earlier fixes may reorder
+        segments without changing their original source positions.
         """
         if not context.segment.is_type("file"):  # pragma: no cover
             return None
 
-        file_seg = context.segment
-
-        def _pos_start(seg):
-            m = seg.pos_marker
-            assert m
-            # Use templated positions when a templated file exists.
-            # Otherwise use source positions.
-            return (
-                m.templated_slice.start
-                if context.templated_file is not None
-                else m.source_slice.start
-            )
-
-        def _pos_stop(seg):
-            m = seg.pos_marker
-            assert m
-            return (
-                m.templated_slice.stop
-                if context.templated_file is not None
-                else m.source_slice.stop
-            )
-
-        # Collect semicolon terminators assuming they are in order.
-        terms = [
-            t for t in file_seg.recursive_crawl("statement_terminator") if t.pos_marker
-        ]
-        if len(terms) <= 1:
-            return None
-
-        # Calculate the bounding window across all terminators. Using the
-        # min and max across all starts/stops avoids relying on their order
-        # in the parse tree and eliminates the need for a defensive guard.
-        starts = [_pos_start(t) for t in terms]
-        stops = [_pos_stop(t) for t in terms]
-        min_start = min(starts)
-        max_stop = max(stops)
-
-        # Prefer the templated view when available.
-        # Otherwise fall back to the raw file text.
-        s = (
-            context.templated_file.templated_str
-            if context.templated_file is not None
-            else file_seg.raw
-        )
-        sub = s[min_start:max_stop]
-        # prefix[i] counts non-whitespace characters in sub[:i]
-        prefix = [0] * (len(sub) + 1)
-        acc = 0
-        _isspace = str.isspace
-        for i, ch in enumerate(sub):
-            if not _isspace(ch):
-                acc += 1
-            prefix[i + 1] = acc
-
-        # Is the range between two segments only whitespace?
-        def _whitespace_only_between(a, b) -> bool:
-            lo = _pos_stop(a)
-            hi = _pos_start(b)
-            lo_rel = lo - min_start
-            hi_rel = hi - min_start
-            # If the end is at or after the start there are no characters
-            # between them, so consider that whitespace-only (i.e. empty).
-            if hi_rel <= lo_rel:
-                return True
-            # Relative indices should be within the prefix range.
-            # Compute the difference.
-            return (prefix[hi_rel] - prefix[lo_rel]) == 0
-
-        # Find runs of adjacent semicolons separated only by whitespace
-        results: list[LintResult] = []
-        i = 0
-        n = len(terms)
-        while i < n - 1:
-            j = i
-            while j + 1 < n and _whitespace_only_between(terms[j], terms[j + 1]):
-                j += 1
-            run_len = j - i + 1
-            if run_len >= 2:
-                anchor = terms[i]
-                to_delete = terms[i + 1 : j + 1]
-                fixes = [LintFix.delete(seg) for seg in to_delete]
-                results.append(
-                    LintResult(
-                        anchor=anchor,
-                        fixes=fixes,
-                        description=(
-                            f"Consecutive semicolons detected (count {run_len})."
-                        ),
-                    )
-                )
-                i = j + 1
+        runs: list[list[BaseSegment]] = []
+        run: list[BaseSegment] = []
+        for segment in context.segment.raw_segments:
+            if segment.is_meta or not segment.raw or segment.raw.isspace():
+                continue
+            if segment.is_type("statement_terminator") and segment.pos_marker:
+                run.append(segment)
             else:
-                i += 1
-        # Run detection complete
+                if len(run) > 1:
+                    runs.append(run)
+                run = []
+        if len(run) > 1:
+            runs.append(run)
+
+        results = [
+            LintResult(
+                anchor=run[0],
+                fixes=[LintFix.delete(segment) for segment in run[1:]],
+                description=(f"Consecutive semicolons detected (count {len(run)})."),
+            )
+            for run in runs
+        ]
 
         # In templated files, collapse duplicate violations that map to
         # the same source slice to avoid repeated reports.

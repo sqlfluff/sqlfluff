@@ -1,7 +1,9 @@
 """Tests for ST12 (structure.consecutive_semicolons)."""
 
 import sqlfluff
+from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.rules import RuleContext
 
 
 def test__rules__std_ST12_basic_patterns():
@@ -112,3 +114,34 @@ def test__rules__std_ST12_templated_consecutive_semicolons_detected():
     result = sqlfluff.lint(sql, rules=["ST12"], config=cfg)
     violations = [r for r in result if r["code"] == "ST12"]
     assert len(violations) == 1
+
+
+def test__rules__std_ST12_reordered_statements() -> None:
+    """Original offsets must not turn reordered statements into duplicate semicolons."""
+    config = FluffConfig(overrides={"dialect": "ansi", "rules": "ST12"})
+    linter = Linter(config=config)
+    parsed = linter.parse_string("SELECT 1;\nSELECT 2;\n")
+    assert parsed.tree is not None
+    assert parsed.tree.pos_marker is not None
+    children = parsed.tree.segments
+    second_statement = next(
+        index
+        for index, child in enumerate(children)
+        if child.is_type("statement") and child.raw == "SELECT 2"
+    )
+    reordered = parsed.tree.__class__(
+        segments=tuple(
+            child.copy()
+            for child in children[second_statement:] + children[:second_statement]
+        )
+    )
+    context = RuleContext(
+        dialect=config.get("dialect_obj"),
+        fix=True,
+        templated_file=parsed.tree.pos_marker.templated_file,
+        path=None,
+        config=config,
+        segment=reordered,
+    )
+
+    assert linter.get_rulepack().rules[0]._eval(context) is None
