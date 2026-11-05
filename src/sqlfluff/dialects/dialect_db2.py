@@ -388,11 +388,7 @@ class DeclareGlobalTempTableSegment(BaseSegment):
             ),
         ),
         AnySetOf(
-            Sequence(
-                "ORGANIZE",
-                "BY",
-                OneOf("ROW", "COLUMN"),
-            ),
+            Ref("TableOrganizationClauseSegment"),
             OneOf(
                 Sequence(
                     "ON",
@@ -423,15 +419,30 @@ class DeclareGlobalTempTableSegment(BaseSegment):
                 "IN",
                 Ref("TablespaceReferenceSegment"),
             ),
-            Ref("DeclareDistributionClauseSegment"),
+            Ref("DistributionClauseSegment"),
         ),
     )
 
 
-class DeclareDistributionClauseSegment(BaseSegment):
-    """Distribution clause in declaring table creation.
+class TableOrganizationClauseSegment(BaseSegment):
+    """Db2 ``ORGANIZE BY`` clause for table creation.
 
-    https://www.ibm.com/docs/en/db2/11.5?topic=statements-declare-global-temporary-table#sdx-synid_frag-distribution-clause
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_organization_clause"
+    match_grammar = Sequence(
+        "ORGANIZE",
+        "BY",
+        OneOf("ROW", "COLUMN"),
+    )
+
+
+class DistributionClauseSegment(BaseSegment):
+    """Distribution clause for table creation.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-declare-global-temporary-table
     """
 
     type = "distribution_clause"
@@ -448,7 +459,51 @@ class DeclareDistributionClauseSegment(BaseSegment):
                 ),
             ),
             "RANDOM",
+            "REPLICATION",
         ),
+    )
+
+
+class TablespaceClauseSegment(BaseSegment):
+    """Db2 tablespace clause for table creation.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "tablespace_clause"
+    match_grammar = Sequence(
+        "IN",
+        Ref("TablespaceReferenceSegment"),
+        Sequence(
+            "INDEX",
+            "IN",
+            Ref("TablespaceReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "LONG",
+            "IN",
+            Ref("TablespaceReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class WithRestrictOnDropClauseSegment(BaseSegment):
+    """Db2 ``WITH RESTRICT ON DROP`` clause for table creation."""
+
+    type = "with_restrict_on_drop_clause"
+    match_grammar = Sequence("WITH", "RESTRICT", "ON", "DROP")
+
+
+class TableEndClauseSegment(ansi.TableEndClauseSegment):
+    """Db2-specific trailing clauses for ``CREATE TABLE``."""
+
+    match_grammar = AnySetOf(
+        Ref("TableOrganizationClauseSegment"),
+        Ref("DistributionClauseSegment"),
+        Ref("TablespaceClauseSegment"),
+        Ref("WithRestrictOnDropClauseSegment"),
     )
 
 
