@@ -187,15 +187,16 @@ oracle_dialect.insert_lexer_matchers(
 # bare `/` typed as `slash_buffer_executor`), so downstream formatting is
 # unaffected.
 #
-# Not supported: a `/` at the very start of the input, with no preceding
-# newline. In SQL*Plus that would run an empty buffer, which has no
-# meaningful batch semantics; it continues to be lexed as the division
-# operator. A test in test/dialects/oracle_test.py locks that choice in.
+# A `/` at the very start of the input, with no preceding newline, is
+# also recognised as the buffer-executor. SQL*Plus documents this as
+# executing whatever SQL is already in the buffer when the script runs,
+# so a script that opens with `/\nSELECT ...` must not have its leading
+# slash mis-lexed as division. The `\A` branch handles that case.
 oracle_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "slash_buffer_executor",
-            r"\r?\n[^\S\r\n]*/(?=[^\S\r\n]*(?:\r?\n|$))",
+            r"(?:\r?\n|\A)[^\S\r\n]*/(?=[^\S\r\n]*(?:\r?\n|$))",
             CodeSegment,
             subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
             trim_post_subdivide=RegexLexer(

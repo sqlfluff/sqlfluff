@@ -204,9 +204,6 @@ def _division_slash_count(sql: str) -> int:
         ),
         pytest.param("SELECT SYSDATE - 1 / 24 FROM DUAL;", 0, 1, id="division_sysdate"),
         # A `/` alone on its own line is the buffer-executor.
-        pytest.param(
-            "SELECT 1 FROM DUAL;\n/\n", 1, 0, id="standalone_select_terminator"
-        ),
         # LF and CRLF forms both match.
         pytest.param("SELECT 1 FROM DUAL;\n/\n", 1, 0, id="standalone_lf"),
         pytest.param("SELECT 1 FROM DUAL;\r\n/\r\n", 1, 0, id="standalone_crlf"),
@@ -229,16 +226,22 @@ def _division_slash_count(sql: str) -> int:
             1,
             id="slash_with_trailing_comment_is_division",
         ),
-        # A `/` at the very start of the input has no preceding newline;
-        # by design the lexer treats it as the division operator, matching
-        # the documented decision for the empty-buffer case.
-        pytest.param("/", 0, 1, id="start_of_input_slash_is_division"),
+        # A leading `/` at the very start of input is also the buffer-executor:
+        # SQL*Plus documents a script-opening `/` as running whatever is
+        # already in the buffer from the surrounding session.
+        pytest.param("/\nSELECT 1 FROM DUAL;\n", 1, 0, id="start_of_input_slash"),
+        pytest.param("/", 1, 0, id="start_of_input_slash_only"),
         # Several batches separated by standalone slashes.
         pytest.param(
             "BEGIN NULL; END;\n/\nBEGIN NULL; END;\n/\n",
             2,
             0,
             id="multiple_plsql_batches",
+        ),
+        # Division across a line continuation stays as division (the `/`
+        # does not sit on its own line).
+        pytest.param(
+            "SELECT 1 /\n100 FROM DUAL;", 0, 1, id="division_newline_continuation"
         ),
     ],
 )
