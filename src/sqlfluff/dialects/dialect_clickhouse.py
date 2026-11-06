@@ -2315,6 +2315,44 @@ class TruncateDatabaseStatementSegment(BaseSegment):
     )
 
 
+class OptimizeTableStatementSegment(BaseSegment):
+    """An `OPTIMIZE TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/optimize
+    """
+
+    type = "optimize_table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "OPTIMIZE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        Sequence("PARTITION", Ref("PartitionExpressionGrammar"), optional=True),
+        OneOf("FINAL", "FORCE", optional=True),
+        Sequence(
+            "DEDUPLICATE",
+            Sequence(
+                "BY",
+                OneOf(
+                    # `*` or `COLUMNS('regex')`, either one narrowed by EXCEPT
+                    Sequence(
+                        OneOf(
+                            Ref("StarSegment"),
+                            Sequence("COLUMNS", Bracketed(Ref("QuotedLiteralSegment"))),
+                        ),
+                        Ref("ExceptClauseSegment", optional=True),
+                    ),
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
 class TruncateTablesStatementSegment(BaseSegment):
     """A `TRUNCATE TABLES` statement.
 
@@ -3403,6 +3441,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExchangeDictionariesStatementSegment"),
             Ref("TruncateDatabaseStatementSegment"),
             Ref("TruncateTablesStatementSegment"),
+            Ref("OptimizeTableStatementSegment"),
             Ref("CreateHypotheticalProjectionStatementSegment"),
             Ref("DropHypotheticalProjectionStatementSegment"),
             Ref("DropAllHypotheticalProjectionsStatementSegment"),
