@@ -12,6 +12,11 @@ from sqlfluff.utils.reflow.reindent import construct_single_indent
 class Rule_ST04(BaseRule):
     """Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
 
+    When simplifying nested ``CASE`` expressions, this rule preserves differences
+    in string literals and case-sensitive identifiers. Differences in keyword
+    casing, including ``TRUE``, ``FALSE`` and ``NULL``, do not prevent safe
+    flattening.
+
     **Anti-pattern**
 
     In this example, the outer ``CASE``'s ``ELSE`` is an unnecessary, nested ``CASE``.
@@ -54,7 +59,7 @@ class Rule_ST04(BaseRule):
         if segment.is_type("keyword"):
             value = segment.raw_upper
         elif segment.is_type("quoted_literal"):
-            # String prefixes and escapes can affect the value.
+            # Preserve spelling conservatively because collation is unknown.
             value = segment.raw
         else:
             value = segment.raw_normalized()
