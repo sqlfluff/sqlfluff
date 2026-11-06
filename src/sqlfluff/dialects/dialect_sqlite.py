@@ -269,6 +269,7 @@ sqlite_dialect.replace(
     FetchClauseSegment=Nothing(),
     TrimParametersGrammar=Nothing(),
     LikeGrammar=Sequence("LIKE"),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
     OverlapsClauseSegment=Nothing(),
     MLTableExpressionSegment=Nothing(),
     MergeIntoLiteralGrammar=Nothing(),
