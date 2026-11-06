@@ -496,6 +496,80 @@ class WithRestrictOnDropClauseSegment(BaseSegment):
     match_grammar = Sequence("WITH", "RESTRICT", "ON", "DROP")
 
 
+class CompressClauseSegment(BaseSegment):
+    """Db2 ``COMPRESS`` clause for table creation."""
+
+    type = "compress_clause"
+    match_grammar = Sequence(
+        "COMPRESS",
+        OneOf(
+            Sequence(
+                "YES",
+                OneOf("ADAPTIVE", "STATIC", optional=True),
+            ),
+            "NO",
+        ),
+    )
+
+
+class ValueCompressionClauseSegment(BaseSegment):
+    """Db2 ``VALUE COMPRESSION`` clause for table creation."""
+
+    type = "value_compression_clause"
+    match_grammar = Sequence("VALUE", "COMPRESSION")
+
+
+class DataCaptureClauseSegment(BaseSegment):
+    """Db2 ``DATA CAPTURE`` clause for table creation."""
+
+    type = "data_capture_clause"
+    match_grammar = Sequence("DATA", "CAPTURE", OneOf("NONE", "CHANGES"))
+
+
+class NotLoggedInitiallyClauseSegment(BaseSegment):
+    """Db2 ``NOT LOGGED INITIALLY`` clause for table creation."""
+
+    type = "not_logged_initially_clause"
+    match_grammar = Sequence("NOT", "LOGGED", "INITIALLY")
+
+
+class CcsidClauseSegment(BaseSegment):
+    """Db2 ``CCSID`` clause for table creation."""
+
+    type = "ccsid_clause"
+    match_grammar = Sequence(
+        "CCSID",
+        OneOf("ASCII", "EBCDIC", "UNICODE", Ref("NumericLiteralSegment")),
+    )
+
+
+class SecurityPolicyClauseSegment(BaseSegment):
+    """Db2 ``SECURITY POLICY`` clause for table creation."""
+
+    type = "security_policy_clause"
+    match_grammar = Sequence("SECURITY", "POLICY", Ref("ObjectReferenceSegment"))
+
+
+class TableOptionsSegment(BaseSegment):
+    """Db2 ``OPTIONS`` clause for remote base tables.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_options"
+    match_grammar = Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 class TableEndClauseSegment(ansi.TableEndClauseSegment):
     """Db2-specific trailing clauses for ``CREATE TABLE``."""
 
@@ -504,6 +578,13 @@ class TableEndClauseSegment(ansi.TableEndClauseSegment):
         Ref("DistributionClauseSegment"),
         Ref("TablespaceClauseSegment"),
         Ref("WithRestrictOnDropClauseSegment"),
+        Ref("CompressClauseSegment"),
+        Ref("ValueCompressionClauseSegment"),
+        Ref("DataCaptureClauseSegment"),
+        Ref("NotLoggedInitiallyClauseSegment"),
+        Ref("CcsidClauseSegment"),
+        Ref("SecurityPolicyClauseSegment"),
+        Ref("TableOptionsSegment"),
     )
 
 

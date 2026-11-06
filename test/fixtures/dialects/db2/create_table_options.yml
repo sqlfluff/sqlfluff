@@ -1,0 +1,319 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d867a20e115549f478d38628afef66946593e56cbaa55ab24d1e4afd4bc93cd8
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        compress_clause:
+        - keyword: COMPRESS
+        - keyword: 'YES'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        compress_clause:
+        - keyword: COMPRESS
+        - keyword: 'YES'
+        - keyword: ADAPTIVE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        compress_clause:
+        - keyword: COMPRESS
+        - keyword: 'YES'
+        - keyword: STATIC
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        compress_clause:
+        - keyword: COMPRESS
+        - keyword: 'NO'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        value_compression_clause:
+        - keyword: VALUE
+        - keyword: COMPRESSION
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        data_capture_clause:
+        - keyword: DATA
+        - keyword: CAPTURE
+        - keyword: NONE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        data_capture_clause:
+        - keyword: DATA
+        - keyword: CAPTURE
+        - keyword: CHANGES
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        not_logged_initially_clause:
+        - keyword: NOT
+        - keyword: LOGGED
+        - keyword: INITIALLY
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        ccsid_clause:
+        - keyword: CCSID
+        - keyword: ASCII
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        ccsid_clause:
+        - keyword: CCSID
+        - keyword: EBCDIC
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        ccsid_clause:
+        - keyword: CCSID
+        - keyword: UNICODE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        ccsid_clause:
+          keyword: CCSID
+          numeric_literal: '1208'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        security_policy_clause:
+        - keyword: SECURITY
+        - keyword: POLICY
+        - object_reference:
+            naked_identifier: p
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        table_options:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: remote_table
+            quoted_literal: "'s.t'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        table_organization_clause:
+        - keyword: ORGANIZE
+        - keyword: BY
+        - keyword: ROW
+        compress_clause:
+        - keyword: COMPRESS
+        - keyword: 'YES'
+        - keyword: ADAPTIVE
+        value_compression_clause:
+        - keyword: VALUE
+        - keyword: COMPRESSION
+        data_capture_clause:
+        - keyword: DATA
+        - keyword: CAPTURE
+        - keyword: CHANGES
+        not_logged_initially_clause:
+        - keyword: NOT
+        - keyword: LOGGED
+        - keyword: INITIALLY
+        ccsid_clause:
+        - keyword: CCSID
+        - keyword: UNICODE
+        security_policy_clause:
+        - keyword: SECURITY
+        - keyword: POLICY
+        - object_reference:
+            naked_identifier: p
+        table_options:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: remote_table
+            quoted_literal: "'s.t'"
+            end_bracket: )
+- statement_terminator: ;
