@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc2ff0f5fb6e08e3c860af183effc03d06a9f87cff7c455a8706c13ffae835f4
+_hash: ed7fb440605992a6ed181633d7688bd4222c6ff453172815f3082f4ad39b5bb9
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: DEFINE
     - keyword: TABLE
@@ -41,4 +41,50 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'TRUE'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: DEFINE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_sch
+      - dot: .
+      - naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: DATA_METRIC_SCHEDULE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: TRIGGER_ON_CHANGES
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: DEFINE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_sch
+      - dot: .
+      - naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - dynamic_table_options:
+        keyword: DATA_METRIC_SCHEDULE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'USING CRON 0 8 * * * UTC'"
+- statement_terminator: ;
