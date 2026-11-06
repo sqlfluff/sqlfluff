@@ -51,7 +51,11 @@ def _resolve_path(filepath: str, val: str) -> list[str]:
     Handles both exact paths and wildcard patterns.
     """
     directory = os.path.dirname(filepath)
-    search_path = os.path.join(directory, val)
+    # Escape glob metacharacters in the config directory itself: only the
+    # configured value is meant to be a pattern (see issue #8970). Without
+    # this, a project directory such as ``project[1]`` is parsed as a
+    # character class and either finds nothing or matches a sibling.
+    search_path = os.path.join(glob.escape(directory), val)
 
     # Use glob which handles both wildcard patterns and exact matches
     matches = glob.glob(search_path)

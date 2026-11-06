@@ -502,6 +502,38 @@ def test_resolve_path_glob_patterns(tmp_path):
     assert len(all_matches) == 4  # 2 sql + 1 txt + 1 subdirectory
 
 
+def test_resolve_path_literal_directory_with_glob_characters(tmp_path):
+    """A literal directory name containing glob syntax must not be expanded.
+
+    Regression test for issue #8970: a project directory such as
+    ``project[1]`` used to be interpreted as a character class, so relative
+    paths resolved to nothing or to an unrelated sibling directory.
+    """
+    from sqlfluff.core.config.file import _resolve_path
+
+    project = tmp_path / "project[1]"
+    (project / "macros").mkdir(parents=True)
+    (project / "macros" / "a.sql").touch()
+    (project / "macros" / "b.sql").touch()
+    # A sibling which the unescaped pattern would otherwise match.
+    (tmp_path / "project1" / "macros").mkdir(parents=True)
+
+    config_path = str(project / ".sqlfluff")
+
+    # Exact relative path resolves inside the bracketed directory.
+    assert _resolve_path(config_path, "macros") == [str(project / "macros")]
+
+    # Glob syntax in the configured value still expands.
+    globbed = _resolve_path(config_path, "macros/*.sql")
+    assert len(globbed) == 2
+    assert all(str(project / "macros") in path for path in globbed)
+
+    # Absolute values without metacharacters keep working.
+    other = tmp_path / "plain" / "macros"
+    other.mkdir(parents=True)
+    assert _resolve_path(config_path, str(other)) == [str(other)]
+
+
 def test_resolve_path_exact_files(tmp_path):
     """Test that _resolve_path works with exact file paths."""
     from sqlfluff.core.config.file import _resolve_path
