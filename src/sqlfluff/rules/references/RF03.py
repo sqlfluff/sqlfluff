@@ -23,6 +23,7 @@ from sqlfluff.core.rules import (
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+from sqlfluff.rules.references._oracle import find_oracle_variable_names
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
@@ -107,11 +108,15 @@ class Rule_RF03(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
+        sql_variables: set[str] = set()
+        if context.dialect.name == "oracle":
+            sql_variables = find_oracle_variable_names(context.parent_stack[0])
+
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: set = set()
         templater_name = context.config.get("templater")
         # Recursively visit and check each query in the tree.
-        return list(self._visit_queries(query, visited, templater_name))
+        return list(self._visit_queries(query, visited, templater_name, sql_variables))
 
     def _iter_available_targets(
         self, query: Query, subquery: Optional[Query] = None
@@ -160,7 +165,7 @@ class Rule_RF03(BaseRule):
         return outer_aliases
 
     def _visit_queries(
-        self, query: Query, visited: set, templater_name: str
+        self, query: Query, visited: set, templater_name: str, sql_variables: set[str]
     ) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
         if query.selectables:
@@ -216,6 +221,7 @@ class Rule_RF03(BaseRule):
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
+                    sql_variables,
                     self.single_table_references,
                     self._is_struct_dialect,
                     self._fix_inconsistent_to,
@@ -240,7 +246,9 @@ class Rule_RF03(BaseRule):
                     visited.update(s.selectable for s in q.selectables)
                     children.append(q)
         for child in children:
-            yield from self._visit_queries(child, visited, templater_name)
+            yield from self._visit_queries(
+                child, visited, templater_name, sql_variables
+            )
 
 
 def _sees_outer_columns(selectable: BaseSegment) -> bool:
@@ -370,6 +378,7 @@ def _check_references(
     standalone_aliases: list[BaseSegment],
     references: list[ObjectReferenceSegment],
     col_aliases: list[ColumnAliasInfo],
+    sql_variables: set[str],
     single_table_references: str,
     is_struct_dialect: bool,
     fix_inconsistent_to: Optional[str],
@@ -385,6 +394,9 @@ def _check_references(
     # Check all the references that we have.
     seen_ref_types: set[str] = set()
     for ref in references:
+        if ref.raw.lower() in sql_variables:
+            continue
+
         this_ref_type: str = qualification(ref, dialect_name)
         # Skip unqualified references rendered by the `placeholder` templater
         # (e.g. bind parameters like `:colname` that get rendered as bare
@@ -443,6 +455,7 @@ def _check_references(
                 standalone_aliases,
                 references,
                 col_aliases,
+                sql_variables,
                 # NB vars are passed in a different order here
                 single_table_references=fix_inconsistent_to,
                 is_struct_dialect=is_struct_dialect,
