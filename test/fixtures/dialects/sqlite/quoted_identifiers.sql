@@ -7,3 +7,10 @@ FROM 'flight_notification_item_history' AS 'nih';
 
 SELECT "nih"."userID"
 FROM "flight_notification_item_history" AS "nih";
+
+SELECT [nih].[userID], [nih].[user name] AS [name]
+FROM [flight_notification_item_history] AS [nih];
+
+CREATE TABLE [order items] ([item id] INTEGER PRIMARY KEY, [select] TEXT);
+
+CREATE INDEX [idx "x"] ON [order items] ([select]);
