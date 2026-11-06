@@ -1,0 +1,4 @@
+include README.md OPTIONS.md UPSTREAM.md VALIDATION.md LICENSE.md
+recursive-include scripts *.py
+recursive-include test *.py *.sql *.yml *.json
+recursive-exclude test/fixtures/project/dbt_internal_packages *

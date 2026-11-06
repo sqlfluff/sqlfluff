@@ -54,7 +54,8 @@ keywords = [
 ]
 dependencies = [
     "sqlfluff==4.5.0",
-    "dbt-core>=1.4.1",
+    "dbt-core>=1.4.1,<2",
+    "packaging",
     "jinja2-simple-tags>=0.3.1",
 ]
 
