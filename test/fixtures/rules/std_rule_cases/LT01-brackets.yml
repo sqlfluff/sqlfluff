@@ -92,6 +92,25 @@ test_fail_snowflake_semantic_view_spaced_bracket:
     core:
       dialect: snowflake
 
+test_pass_databricks_identifier_clause_touching_bracket:
+  pass_str: |
+    USE SCHEMA IDENTIFIER('my_schema');
+    SELECT IDENTIFIER('col') FROM IDENTIFIER('main' || '.sales.orders');
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_databricks_identifier_clause_spaced_bracket:
+  fail_str: |
+    USE SCHEMA IDENTIFIER ('my_schema');
+    SELECT IDENTIFIER   ('col') FROM IDENTIFIER ('main' || '.sales.orders');
+  fix_str: |
+    USE SCHEMA IDENTIFIER('my_schema');
+    SELECT IDENTIFIER('col') FROM IDENTIFIER('main' || '.sales.orders');
+  configs:
+    core:
+      dialect: databricks
+
 test_pass_ansi_bracketed_data_types:
   pass_str: |
     CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
