@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     Indent,
     LiteralSegment,
     Matchable,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -36,6 +37,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import (
@@ -171,6 +173,38 @@ oracle_dialect.insert_lexer_matchers(
         StringLexer("power_operator", "**", CodeSegment),
     ],
     before="star",
+)
+
+# SQL*Plus runs the SQL buffer only when a `/` stands alone on its own
+# line (optional leading/trailing inline whitespace is ok, comments are
+# not). Lex that form of `/` as a distinct `slash_buffer_executor` token
+# so the parser never has to disambiguate it from the division operator
+# (`1 / 100`, `nvl(bytes, 0) / 1024 / 1024`, `sysdate - 1 / 24`) in the
+# middle of a SELECT or expression.
+#
+# The surrounding newline and inline whitespace are kept as separate
+# tokens via the subdivider / trim_post_subdivide (`\n`, spaces, then the
+# bare `/` typed as `slash_buffer_executor`), so downstream formatting is
+# unaffected.
+#
+# A `/` at the very start of the input, with no preceding newline, is
+# also recognised as the buffer-executor. SQL*Plus documents this as
+# executing whatever SQL is already in the buffer when the script runs,
+# so a script that opens with `/\nSELECT ...` must not have its leading
+# slash mis-lexed as division. The `\A` branch handles that case.
+oracle_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "slash_buffer_executor",
+            r"(?:\r?\n|\A)[^\S\r\n]*/(?=[^\S\r\n]*(?:\r?\n|$))",
+            CodeSegment,
+            subdivider=RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+            trim_post_subdivide=RegexLexer(
+                "whitespace", r"[^\S\r\n]+", WhitespaceSegment
+            ),
+        ),
+    ],
+    before="newline",
 )
 
 oracle_dialect.add(
@@ -700,6 +734,14 @@ oracle_dialect.add(
         Sequence("WITH", "CREDENTIAL"),
     ),
     BatchDelimiterGrammar=Ref("SlashBufferExecutorSegment"),
+    # A standalone-slash (`/`) token, emitted by the Oracle lexer only when
+    # a `/` sits alone on its own line. Division operators and in-expression
+    # slashes are lexed as the regular `divide` token, so this grammar can
+    # be used wherever the SQL*Plus buffer-executor semantics are needed
+    # without the usual ambiguity.
+    StandaloneSlashGrammar=TypedParser(
+        "slash_buffer_executor", SymbolSegment, type="slash"
+    ),
 )
 
 oracle_dialect.replace(
@@ -1503,7 +1545,7 @@ class SlashBufferExecutorSegment(BaseSegment):
     """A `/` standalone, functioning as a batch delimiter for SQL*Plus."""
 
     type = "slash_buffer_executor"
-    match_grammar = Ref("SlashSegment")
+    match_grammar = Ref("StandaloneSlashGrammar")
 
 
 class SqlplusSetStatementSegment(BaseSegment):
@@ -1827,7 +1869,14 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            # `/` on its own line ends a SQL*Plus batch, so it must also
+            # terminate the SELECT body here. The lexer emits that form of
+            # `/` as a distinct `slash_buffer_executor` token (see
+            # BatchDelimiterGrammar), so the terminator can never swallow
+            # an in-expression division operator (`sysdate - 1 / 24`,
+            # `nvl(bytes, 0) / 1024 / 1024`) the way a plain `/` would.
+            Ref("SelectableGrammar"),
+            terminators=[Ref("BatchDelimiterGrammar")],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
