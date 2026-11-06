@@ -1326,7 +1326,6 @@ class StatementSegment(postgres.StatementSegment):
             Ref("SimplifiedUnpivotExpressionSegment"),
             Ref("SummarizeStatementSegment"),
             Ref("InstallStatementSegment"),
-            Ref("CheckpointStatementSegment"),
             Ref("PragmaStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("ImportStatementSegment"),
