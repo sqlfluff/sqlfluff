@@ -208,6 +208,47 @@ test_fail_snowflake_semi_structured_multi:
     core:
       dialect: snowflake
 
+test_pass_sparksql_named_parameter_markers:
+  # The colon of a named parameter marker is a prefix, so it is spaced like
+  # the start of a literal rather than like a semi-structured accessor.
+  pass_str: |
+    SELECT CAST(:start_time AS DATE), a + :b, j:c, :`my param`
+    FROM t
+    WHERE x = :x
+    LIMIT :max_rows
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_databricks_named_parameters:
+  pass_str: |
+    SELECT CONCAT('Hello ', :name), json_data:address:city
+    FROM t
+    WHERE json_data:id > :min_id
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_databricks_named_parameters_other_spacing:
+  # A parameter marker in the file mustn't stop other spacing being fixed.
+  fail_str: |
+    SELECT a+b FROM t WHERE a = :param
+  fix_str: |
+    SELECT a + b FROM t WHERE a = :param
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_sparksql_named_parameter_marker_touching:
+  # A marker touching the operator before it still gets a space.
+  fail_str: |
+    SELECT a FROM t WHERE a =:param
+  fix_str: |
+    SELECT a FROM t WHERE a = :param
+  configs:
+    core:
+      dialect: sparksql
+
 test_pass_bigquery_specific:
   # Test a selection of bigquery specific spacings work.
   # Specifically EXCEPT & qualified functions.

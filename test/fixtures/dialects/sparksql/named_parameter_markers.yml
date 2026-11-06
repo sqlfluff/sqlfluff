@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1fef1a459388094f4e459ad82168f88aef6ac17f6227a0091fb07e380dd21ec4
+_hash: 25cbb3967ccba2d3ab57a4db7c05393a94192d55731508d8479712d87c26e90a
 file:
 - statement:
     select_statement:
@@ -18,7 +18,7 @@ file:
                 start_bracket: (
                 expression:
                   parameterized_expression:
-                    colon: ':'
+                    colon_prefix: ':'
                     naked_identifier: start_time
                 keyword: AS
                 data_type:
@@ -53,7 +53,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: a
         - binary_operator: AND
         - column_reference:
@@ -61,12 +61,12 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: min_b
       limit_clause:
         keyword: LIMIT
         parameterized_expression:
-          colon: ':'
+          colon_prefix: ':'
           naked_identifier: max_rows
 - statement_terminator: ;
 - statement:
@@ -93,7 +93,7 @@ file:
       - comma: ','
       - select_clause_element:
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: param_value
       from_clause:
         keyword: FROM
@@ -113,7 +113,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '>'
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: min_id
 - statement_terminator: ;
 - statement:
@@ -122,7 +122,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             quoted_identifier: '`my param`'
       - comma: ','
       - select_clause_element:
@@ -147,6 +147,6 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             quoted_identifier: '`other param`'
 - statement_terminator: ;
