@@ -1,0 +1,124 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e294178189e931c16c2cae0158e33a76f188d446aaa4da2c4410020eb058149d
+file:
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: COMMIT
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: BEGIN
+    - keyword: WORK
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: COMMIT
+    - keyword: WORK
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: BEGIN
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: REPEATABLE
+    - keyword: READ
+    - comma: ','
+    - keyword: READ
+    - keyword: ONLY
+    - comma: ','
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: COMMIT
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: BEGIN
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: COMMITTED
+    - keyword: READ
+    - keyword: WRITE
+    - keyword: NOT
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: START
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: UNCOMMITTED
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: END
+    - keyword: TRANSACTION
+    - keyword: AND
+    - keyword: 'NO'
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: START
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: COMMIT
+    - keyword: AND
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: AND
+    - keyword: 'NO'
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: ABORT
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ABORT
+    - keyword: WORK
+    - keyword: AND
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: WORK
+- statement_terminator: ;
