@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fabd3fa43989f2cb7623e48395930d4b99545f46560375536b7b609c85601bf
+_hash: 019b0cc64c1a405f112286722a2543db06ef093cb76df37f1e1f9735b9a87319
 file:
 - statement:
     create_table_statement:
@@ -575,4 +575,78 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: staging_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'12 hours'"
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - keyword: INITIALIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - initialize_type: ON_CREATE
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - keyword: DATA_METRIC_SCHEDULE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: TRIGGER_ON_CHANGES
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'12 hours'"
+      - keyword: DATA_METRIC_SCHEDULE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'60 MINUTE'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
 - statement_terminator: ;

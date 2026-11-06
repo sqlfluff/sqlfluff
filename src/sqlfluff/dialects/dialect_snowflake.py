@@ -234,6 +234,11 @@ snowflake_dialect.sets("initialize_types").update(
     ["ON_CREATE", "ON_SCHEDULE"],
 )
 
+snowflake_dialect.sets("data_metric_schedule_types").clear()
+snowflake_dialect.sets("data_metric_schedule_types").update(
+    ["TRIGGER_ON_CHANGES"],
+)
+
 snowflake_dialect.add(
     # Pipe properties shared by CREATE PIPE and DEFINE PIPE
     # https://docs.snowflake.com/en/sql-reference/sql/create-pipe
@@ -497,6 +502,19 @@ snowflake_dialect.add(
             KeywordSegment,
             type="initialize_type",
         )
+    ),
+    # DCM definitions set this inline, where the value can also be a bare keyword.
+    # https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+    DataMetricScheduleGrammar=Sequence(
+        "DATA_METRIC_SCHEDULE",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            MultiStringParser(
+                snowflake_dialect.sets("data_metric_schedule_types"),
+                KeywordSegment,
+            ),
+        ),
     ),
     # EXECUTE AS USER <user_name>
     #   [ USE SECONDARY ROLES { ALL | NONE | <role_name> [ , ... ] } ]
@@ -6412,6 +6430,7 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
+            Ref("DataMetricScheduleGrammar", optional=True),
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
@@ -7996,6 +8015,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             ),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
+            Ref("DataMetricScheduleGrammar"),
         ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
