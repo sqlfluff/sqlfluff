@@ -1,0 +1,26 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3869b7301d4239558f28382b2824ee6908d677adb1caefc24c273069ef62ee6e
+file:
+- statement:
+    list_statement:
+      keyword: LIST
+      quoted_literal: "'s3://us-east-1-dev/some_dir'"
+- statement_terminator: ;
+- statement:
+    list_statement:
+    - keyword: LIST
+    - quoted_literal: "'s3://us-east-1-dev/some_dir'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: CREDENTIAL
+        object_reference:
+          naked_identifier: aws_some_dir
+        end_bracket: )
+    - keyword: LIMIT
+    - numeric_literal: '2'
+- statement_terminator: ;

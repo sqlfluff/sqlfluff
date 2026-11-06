@@ -1,0 +1,133 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c10a537919fdae201bb91a810db72600becb24e251e4eef4e2cbf31f9408c81d
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: s
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: AS
+    - naked_identifier: tgt
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: tgt
+        - dot: .
+        - naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: a
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: s
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+          naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: a
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: s
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+          naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: a
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: s
+        end_bracket: )
+- statement_terminator: ;

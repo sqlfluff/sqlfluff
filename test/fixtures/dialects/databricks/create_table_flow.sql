@@ -1,0 +1,9 @@
+-- Pipeline CREATE TABLE ... FLOW.
+-- https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-table-flow
+CREATE TABLE t FLOW INSERT BY NAME SELECT 1;
+
+CREATE TABLE t FLOW INSERT ONCE BY NAME SELECT 1;
+
+CREATE TABLE t PARTITIONED BY (b) FLOW INSERT BY NAME SELECT 1, 2;
+
+CREATE FLOW f AS INSERT INTO t BY NAME SELECT 1;
