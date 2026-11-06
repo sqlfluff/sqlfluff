@@ -103,10 +103,33 @@ interpreted literally by the templater.
 e.g. `param_regex='__(?P<param_name>[\w_]+)__'` matches
 `'__some_param__'` not `__some_param__`
 
-the named parameter `param_name` will be used as the key to replace, if
-missing, the parameter is assumed to be positional and numbers are used
-instead.
+The text captured by the named group `param_name` is used to look up the
+sample value in the configuration. If the group is missing, the parameter is
+assumed to be positional and numbers are used instead.
 
 Also consider making a pull request to the project to have your style added,
 it may be useful to other people and simplify your configuration.
 :::
+
+## Overriding an inherited matcher
+
+Set an inherited `param_style` or `param_regex` to `None` in a nested
+`.sqlfluff` file before selecting the other matcher. For example, to replace
+an inherited named style with a custom regex:
+
+```ini
+[sqlfluff:templater:placeholder]
+param_style = None
+param_regex = __(?P<param_name>[\w_]+)__
+my_name = 'john'
+```
+
+In this example, `SELECT __my_name__` renders as `SELECT 'john'`: the group
+`param_name` captures `my_name`, which selects the configured sample value.
+
+To switch back to a named style, set `param_regex = None` and provide
+`param_style`. Exactly one matcher must have a non-`None` value.
+
+An empty `param_regex` (a setting with no value after `=`) does not clear the
+inherited matcher. It compiles to an empty regular expression that matches
+at every position in the input. Use `None` to clear it instead.
