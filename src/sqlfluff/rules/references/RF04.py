@@ -58,6 +58,8 @@ class Rule_RF04(BaseRule):
         """Keywords should not be used as identifiers."""
         # Config type hints
         self.ignore_words_regex: str
+        self.unquoted_identifiers_policy: str
+        self.quoted_identifiers_policy: str
 
         # Skip 1 letter identifiers. These can be datepart keywords
         # (e.g. "d" for Snowflake) but most people expect to be able to use them.
@@ -82,32 +84,48 @@ class Rule_RF04(BaseRule):
         ):
             return LintResult(memory=context.memory)
 
+        # A CTE declaration name acts as a table alias, but its immediate
+        # parent is common_table_expression rather than alias_expression.
+        is_cte_name = bool(
+            context.parent_stack
+            and context.parent_stack[-1].is_type("common_table_expression")
+        )
+
         if (
-            (
-                context.segment.is_type("naked_identifier")
-                and identifiers_policy_applicable(
-                    self.unquoted_identifiers_policy,  # type: ignore
+            context.segment.is_type("naked_identifier")
+            and (
+                identifiers_policy_applicable(
+                    self.unquoted_identifiers_policy,
                     context.parent_stack,
                 )
-                and (
-                    context.segment.raw.upper()
-                    in context.dialect.sets("unreserved_keywords")
+                or (
+                    is_cte_name
+                    and self.unquoted_identifiers_policy in ("aliases", "table_aliases")
                 )
             )
-            or (
-                context.segment.is_type("quoted_identifier")
-                and identifiers_policy_applicable(
-                    self.quoted_identifiers_policy,  # type: ignore
+            and (
+                context.segment.raw.upper()
+                in context.dialect.sets("unreserved_keywords")
+            )
+        ) or (
+            context.segment.is_type("quoted_identifier")
+            and (
+                identifiers_policy_applicable(
+                    self.quoted_identifiers_policy,
                     context.parent_stack,
                 )
-                and (
-                    context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("unreserved_keywords")
-                    or context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("reserved_keywords")
-                    or context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("future_reserved_keywords")
+                or (
+                    is_cte_name
+                    and self.quoted_identifiers_policy in ("aliases", "table_aliases")
                 )
+            )
+            and (
+                context.segment.raw.upper()[1:-1]
+                in context.dialect.sets("unreserved_keywords")
+                or context.segment.raw.upper()[1:-1]
+                in context.dialect.sets("reserved_keywords")
+                or context.segment.raw.upper()[1:-1]
+                in context.dialect.sets("future_reserved_keywords")
             )
         ):
             return LintResult(anchor=context.segment)
