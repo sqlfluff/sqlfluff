@@ -109,9 +109,10 @@ jobs:
         run: corepack pnpm run docs:build
 
   rust-lint:
-    # Rust formatting, lints and unit tests for the sqlfluffrs workspace.
-    # Integration tests (sqlfluffrs/tests/*.rs) are not run here; parity is
-    # covered by the python -rust suites below.
+    # Rust formatting, lints and tests for the sqlfluffrs workspace.
+    # The integration tests (sqlfluffrs/tests/*.rs) check the Rust-built
+    # parse tree against the dialect fixtures. The python -rust suites
+    # can't: Python builds its own tree from Rust's match result.
     runs-on: ubuntu-latest
     steps:
 
@@ -164,9 +165,10 @@ jobs:
         working-directory: sqlfluffrs
         run: cargo clippy --workspace --all-targets --features python,verbose-debug -- -D warnings
 
-      - name: Run unit tests
+      # --tests: unit and integration tests, but not the criterion benches.
+      - name: Run tests
         working-directory: sqlfluffrs
-        run: cargo test --workspace --lib
+        run: cargo test --workspace --tests
 
   rs-build-linux-x86_64:
     # Fast build for CI testing (always runs)
