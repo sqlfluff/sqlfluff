@@ -7813,12 +7813,23 @@ class FetchStatementSegment(BaseSegment):
     """
 
     type = "fetch_statement"
-    match_grammar = Sequence(
-        "FETCH",
-        Ref("CursorDirectionSegment", optional=True),
-        OneOf("FROM", "IN", optional=True),
-        Ref("ObjectReferenceSegment"),
+
+    # [ direction ] [ FROM | IN ] cursor_name
+    # Two alternatives, so that a cursor named like a direction keyword
+    # (`FETCH next;`) is read as the cursor name.
+    _args = OneOf(
+        Sequence(
+            Ref("CursorDirectionSegment"),
+            OneOf("FROM", "IN", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            OneOf("FROM", "IN", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
     )
+
+    match_grammar = Sequence("FETCH", _args)
 
 
 class MoveStatementSegment(BaseSegment):
@@ -7828,12 +7839,7 @@ class MoveStatementSegment(BaseSegment):
     """
 
     type = "move_statement"
-    match_grammar = Sequence(
-        "MOVE",
-        Ref("CursorDirectionSegment", optional=True),
-        OneOf("FROM", "IN", optional=True),
-        Ref("ObjectReferenceSegment"),
-    )
+    match_grammar = Sequence("MOVE", FetchStatementSegment._args)
 
 
 class CloseStatementSegment(BaseSegment):

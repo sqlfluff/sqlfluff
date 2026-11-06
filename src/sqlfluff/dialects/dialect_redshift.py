@@ -2567,6 +2567,7 @@ class StatementSegment(postgres.StatementSegment):
         ],
         remove=[
             Ref("ShowStatementSegment"),
+            Ref("MoveStatementSegment"),
             Ref("AlterSubscriptionStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CreateForeignTableStatementSegment"),

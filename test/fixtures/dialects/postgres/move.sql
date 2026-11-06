@@ -33,3 +33,8 @@ MOVE BACKWARD c1;
 MOVE BACKWARD 1 IN c1;
 
 MOVE BACKWARD ALL FROM c1;
+
+-- A cursor named like a direction keyword
+MOVE prior;
+
+MOVE FORWARD forward;

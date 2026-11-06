@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84cc21a3133bc00bc2f4558a73401c5218fe8efe30a07c676549be765f581a29
+_hash: 77a21b8b620ae6ddca94f42ef4890485a127fe53762b954fcb479134315a1812
 file:
 - statement:
     move_statement:
@@ -166,4 +166,18 @@ file:
     - keyword: FROM
     - object_reference:
         naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+      keyword: MOVE
+      object_reference:
+        naked_identifier: prior
+- statement_terminator: ;
+- statement:
+    move_statement:
+      keyword: MOVE
+      cursor_direction:
+        keyword: FORWARD
+      object_reference:
+        naked_identifier: forward
 - statement_terminator: ;

@@ -57,7 +57,6 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("FetchClauseSegment"),
             Ref("DeclareStatement"),
-            Ref("CloseStatementSegment"),
             Ref("AnalizeSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),

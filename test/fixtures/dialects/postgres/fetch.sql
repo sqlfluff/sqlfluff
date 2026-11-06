@@ -33,3 +33,10 @@ FETCH BACKWARD c1;
 FETCH BACKWARD 1 IN c1;
 
 FETCH BACKWARD ALL FROM c1;
+
+-- A cursor named like a direction keyword
+FETCH next;
+
+FETCH next next;
+
+FETCH NEXT FROM next;
