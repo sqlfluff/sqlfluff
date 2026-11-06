@@ -622,6 +622,47 @@ impl MatchResult {
                 }
             }
 
+            // PYTHON PARITY: `RawSegment.from_result_segments`. A raw class with
+            // its own grammar (sparksql `DIV` binary_operator) is its one raw
+            // child retyped, not a container wrapping a keyword.
+            if !match_class.is_unparsable()
+                && matches!(result_nodes.as_slice(), [Node::Raw { .. }])
+                && match_class
+                    .segment_kwargs
+                    .class_types
+                    .as_ref()
+                    .is_some_and(|ct| ct.iter().any(|t| t == "raw"))
+            {
+                if let Some(Node::Raw {
+                    raw,
+                    pos_marker,
+                    segment_kwargs,
+                    ..
+                }) = result_nodes.pop()
+                {
+                    let segment_type = match_class.segment_type.unwrap_or(Cow::Borrowed("raw"));
+                    return vec![Node::new_raw_with_class_types(
+                        match_class.class_name,
+                        segment_type.clone(),
+                        match_class.class_type.unwrap_or(segment_type),
+                        raw,
+                        pos_marker,
+                        match_class
+                            .segment_kwargs
+                            .instance_types
+                            .unwrap_or_default(),
+                        &match_class.segment_kwargs.class_types.unwrap_or_default(),
+                        // Python carries only quoted_value, escape_replacements
+                        // and casefold over from the child.
+                        RawSegmentKwargs {
+                            trim_chars: None,
+                            trim_start: None,
+                            ..segment_kwargs
+                        },
+                    )];
+                }
+            }
+
             // Position marker spans ALL children (mirrors Python's
             // `PositionMarker.from_child_markers`): min source/templated start
             // to max stop. Using only the first child would make a container's
@@ -1012,5 +1053,30 @@ mod tests {
             assert_eq!(class_type, "symbol");
             assert!(class_types.iter().any(|t| t == "symbol"), "{class_types:?}");
         }
+    }
+
+    #[test]
+    fn raw_class_grammar_folds_to_one_raw() {
+        // DivBinaryOperatorSegment's grammar is Ref.keyword("DIV").
+        let tree = parse("sparksql", "SELECT 1 DIV 2");
+        let Node::Raw {
+            segment_class,
+            segment_type,
+            class_type,
+            class_types,
+            ..
+        } = find_raw(&tree, "DIV")
+        else {
+            unreachable!()
+        };
+        assert_eq!(segment_class, "DivBinaryOperatorSegment");
+        assert_eq!(
+            (segment_type.as_ref(), class_type.as_ref()),
+            ("binary_operator", "binary_operator")
+        );
+        assert!(
+            !class_types.iter().any(|t| t == "keyword"),
+            "{class_types:?}"
+        );
     }
 }

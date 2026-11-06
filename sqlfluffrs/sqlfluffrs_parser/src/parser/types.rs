@@ -255,11 +255,7 @@ impl Node {
                     NodeTupleValue::Tuple(type_str.to_string(), vec![])
                 }
             }
-            Node::Segment {
-                children,
-                class_types,
-                ..
-            } => {
+            Node::Segment { children, .. } => {
                 // Collect relevant children (respecting code_only and include_meta).
                 let relevant_children: Vec<&Node> = children
                     .iter()
@@ -274,21 +270,6 @@ impl Node {
                     })
                     .collect();
 
-                // Collapse a single-Raw-child Segment to a leaf `(type, raw)`,
-                // mirroring Python's bare `RawSegment`. Only raw-segment classes
-                // (LiteralSegment/WordSegment/...) are spurious wrappers here; they
-                // carry `"raw"` in `class_types`, while genuine containers
-                // (e.g. ColumnIndexSegment, FileLiteralSegment) lack it and stay nested.
-                if show_raw
-                    && relevant_children.len() == 1
-                    && class_types.iter().any(|t| t == "raw")
-                {
-                    if let Node::Raw { raw, .. } = relevant_children[0] {
-                        return NodeTupleValue::Raw(self.get_type(), raw.clone());
-                    }
-                }
-
-                // Normal case: tuple of all relevant children.
                 let tupled = relevant_children
                     .iter()
                     .map(|c| c.to_tuple(code_only, show_raw, include_meta))
