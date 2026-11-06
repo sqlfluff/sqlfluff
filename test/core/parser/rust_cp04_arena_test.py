@@ -19,10 +19,11 @@ except ImportError:  # pragma: no cover
     _HAS_RUST_PARSER = False
 
 
-def _cfg(policy="consistent"):
+def _cfg(policy="consistent", use_rust_rules=False):
     """Config that genuinely sets CP04's policy (overrides don't reach rules)."""
     return FluffConfig.from_string(
         "[sqlfluff]\ndialect=ansi\nrules=CP04\nuse_rust_parser=True\n"
+        f"use_rust_rules={use_rust_rules}\n"
         "[sqlfluff:rules:capitalisation.literals]\n"
         f"capitalisation_policy={policy}\n"
     )
@@ -59,15 +60,15 @@ def _arena_fixed(linter, cfg, sql):
 @pytest.mark.parametrize("sql", _SAMPLES)
 def test__cp04_arena__matches_stock(policy, sql):
     """Arena-native CP04 detection produces identical fixes to stock CP04."""
-    cfg = _cfg(policy)
-    linter = Linter(config=cfg)
-    assert _arena_fixed(linter, cfg, sql) == _stock_fixed(linter, sql)
+    cfg = _cfg(policy, use_rust_rules=True)
+    stock_linter = Linter(config=_cfg(policy))
+    assert _arena_fixed(Linter(config=cfg), cfg, sql) == _stock_fixed(stock_linter, sql)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__cp04_arena__honours_ignore_words():
     """An ignored literal is left untouched by the native detection."""
-    cfg = _cfg("upper")
+    cfg = _cfg("upper", use_rust_rules=True)
     tree = Linter(config=cfg).parse_string("select true, false from t").tree
     fixed_raws = {
         fixed
