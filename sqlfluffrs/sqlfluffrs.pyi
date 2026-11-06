@@ -38,6 +38,9 @@ class RsPositionMarker:
     working_line_no: int
     working_line_pos: int
 
+    def working_visual_column(self, tab_space_size: int = 4) -> int: ...
+    def working_loc_after(self, raw: str) -> tuple[int, int]: ...
+
 class RsToken:
     raw: str
     pos_marker: RsPositionMarker
