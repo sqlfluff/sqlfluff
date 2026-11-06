@@ -273,6 +273,7 @@ sqlite_dialect.replace(
     MLTableExpressionSegment=Nothing(),
     MergeIntoLiteralGrammar=Nothing(),
     SamplingExpressionSegment=Nothing(),
+    PostTableExpressionGrammar=Ref("IndexedByClauseSegment"),
     BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
         insert=[
             Ref("ColumnPathOperatorSegment"),
@@ -1036,6 +1037,19 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
+class IndexedByClauseSegment(BaseSegment):
+    """An `INDEXED BY` or `NOT INDEXED` clause after a table name.
+
+    https://www.sqlite.org/lang_indexedby.html
+    """
+
+    type = "indexed_by_clause"
+    match_grammar: Matchable = OneOf(
+        Sequence("INDEXED", "BY", Ref("IndexReferenceSegment")),
+        Sequence("NOT", "INDEXED"),
+    )
+
+
 class DeleteStatementSegment(ansi.DeleteStatementSegment):
     """A `DELETE` statement.
 
@@ -1076,6 +1090,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
         Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Ref("IndexedByClauseSegment", optional=True),
         Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
