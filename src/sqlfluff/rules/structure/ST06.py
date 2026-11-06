@@ -129,6 +129,39 @@ class Rule_ST06(BaseRule):
                 return False
         return False  # pragma: no cover
 
+    @staticmethod
+    def _is_row_value_subquery(select: BaseSegment) -> bool:
+        """Check for a direct positional comparison with a parenthesised tuple."""
+        while parent_info := select.get_parent():
+            parent, index = parent_info
+            if parent.is_type("expression"):
+                preceding = [seg for seg in parent.segments[:index] if seg.is_code]
+                if preceding and preceding[-1].raw_upper in ("ANY", "ALL", "SOME"):
+                    preceding.pop()
+                if not preceding or preceding[-1].raw_upper not in (
+                    "IN",
+                    "=",
+                    "<>",
+                    "!=",
+                    "<",
+                    "<=",
+                    ">",
+                    ">=",
+                ):
+                    return False
+                preceding.pop()
+                if preceding and preceding[-1].raw_upper == "NOT":
+                    preceding.pop()
+                return bool(
+                    preceding
+                    and preceding[-1].is_type("bracketed")
+                    and preceding[-1].get_child("comma")
+                )
+            if not parent.is_type("bracketed", "with_compound_statement"):
+                return False
+            select = parent
+        return False  # pragma: no cover
+
     def _has_comments(
         self, context: RuleContext, moved_targets: set[BaseSegment]
     ) -> bool:
@@ -321,6 +354,10 @@ class Rule_ST06(BaseRule):
 
         # Explicit output names bind directly to this query's target positions.
         if self._has_direct_column_list(context.parent_stack[-1]):
+            return None
+
+        # Row-value comparisons bind the subquery's output columns by position.
+        if self._is_row_value_subquery(context.parent_stack[-1]):
             return None
 
         select_clause_segment = context.segment
