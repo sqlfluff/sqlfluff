@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    ComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -100,6 +101,7 @@ sqlite_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r'""', '"')],
             },
         ),
+        RegexLexer("equals", r"==?", CodeSegment),
         RegexLexer(
             "back_quote",
             r"`([^`]|``)*`",
@@ -185,6 +187,7 @@ sqlite_dialect.add(
         "->>", SymbolSegment, type="column_path_operator"
     ),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         LiteralSegment,
@@ -276,6 +279,11 @@ sqlite_dialect.replace(
     MergeIntoLiteralGrammar=Nothing(),
     SamplingExpressionSegment=Nothing(),
     PostTableExpressionGrammar=Ref("IndexedByClauseSegment"),
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(insert=[Ref("EqualsSegment_a")]),
+    IsNullGrammar=Ref.keyword("ISNULL"),
+    NotNullGrammar=OneOf("NOTNULL", Sequence("NOT", "NULL")),
     BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
         insert=[
             Ref("ColumnPathOperatorSegment"),
@@ -441,7 +449,7 @@ sqlite_dialect.replace(
     SingleQuotedIdentifierSegment=TypedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
-    ColumnConstraintDefaultGrammar=Ref("ExpressionSegment"),
+    ColumnConstraintDefaultGrammar=Ref("ColumnDefaultExpressionSegment"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE", "GROUPS"),
 )
 
@@ -816,6 +824,23 @@ class ConflictClauseSegment(BaseSegment):
             "FAIL",
             "IGNORE",
             "REPLACE",
+        ),
+    )
+
+
+class ColumnDefaultExpressionSegment(ansi.ExpressionSegment):
+    """The value after DEFAULT, without postfix operators like NOT NULL or COLLATE.
+
+    https://www.sqlite.org/lang_createtable.html#the_default_clause
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("Tail_Recurse_Expression_A_Grammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("BinaryOperatorGrammar"),
+                Ref("Tail_Recurse_Expression_A_Grammar"),
+            )
         ),
     )
 
