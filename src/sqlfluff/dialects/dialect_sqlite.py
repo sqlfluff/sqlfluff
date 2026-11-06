@@ -30,6 +30,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
     WhitespaceSegment,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -368,19 +369,6 @@ sqlite_dialect.replace(
             ),
         ),
         Ref("IndexColumnDefinitionSegment"),
-        # Raise Function contents
-        OneOf(
-            "IGNORE",
-            Sequence(
-                OneOf(
-                    "ABORT",
-                    "FAIL",
-                    "ROLLBACK",
-                ),
-                Ref("CommaSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-        ),
     ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
@@ -631,6 +619,52 @@ class IndexColumnDefinitionSegment(BaseSegment):
             Ref("ExpressionSegment"),  # Expression for simple functions
         ),
         OneOf("ASC", "DESC", optional=True),
+    )
+
+
+class RaiseFunctionNameSegment(BaseSegment):
+    """RAISE function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "RAISE", WordSegment, type="function_name_identifier"
+    )
+
+
+class RaiseFunctionContentsSegment(BaseSegment):
+    """RAISE function contents.
+
+    https://www.sqlite.org/lang_createtrigger.html#raise
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        OneOf(
+            "IGNORE",
+            Sequence(
+                OneOf("ABORT", "FAIL", "ROLLBACK"),
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with RAISE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("RaiseFunctionNameSegment"),
+                Ref("RaiseFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
     )
 
 
