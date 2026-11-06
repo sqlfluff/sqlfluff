@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ff2566b7104409e055625fcdf8898747de3562246e17fa00b07300329171a31
+_hash: bdf1c22935545d35e447559a7c118214abf77cc65a2f07231b2b61d7d1ebebfc
 file:
 - statement:
     select_statement:
@@ -256,4 +256,44 @@ file:
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: a
+        - data_type:
+            data_type_identifier: INTEGER
+        - column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+            - numeric_literal: '1'
+            - binary_operator: +
+            - numeric_literal: '2'
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: b
+        - data_type:
+            data_type_identifier: TEXT
+        - column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+            - quoted_literal: "'a'"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "'b'"
+        - column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              naked_identifier: NOCASE
+      - end_bracket: )
 - statement_terminator: ;
