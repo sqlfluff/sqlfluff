@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from sqlfluff.core.dialects.common import iter_raw_references
+from sqlfluff.core.dialects.common import is_qualified, iter_raw_references
 from sqlfluff.core.parser import (
     BaseSegment,
     IdentifierSegment,
@@ -130,7 +130,32 @@ class Rule_ST07(BaseRule):
         # treated as unfixable rather than assumed to be ``table.column``).
         # https://github.com/sqlfluff/sqlfluff/issues/7230
         using_cols_normalized = {seg.raw_normalized() for seg in using_col_segments}
+
+        # Later USING joins in this from_expression also rely on the merged
+        # columns. Rewriting this join would make those columns ambiguous.
+        for later_join in tables_in_join.select(
+            start_seg=context.segment, select_if=sp.is_type("join_clause")
+        ).iterate_segments():
+            later_using = later_join.children(sp.is_keyword("using")).first()
+            if later_using and any(
+                col.raw_normalized() in using_cols_normalized
+                for col in _extract_cols_from_using(later_join, later_using)
+            ):
+                return unfixable_result
+
         if select_info:
+            # An unqualified SELECT * exposes the merged output columns, so
+            # replacing USING with ON would change the query's result columns.
+            wildcards = (
+                Segments(*select_info.select_targets)
+                .children(sp.is_type("wildcard_expression"))
+                .children(sp.is_type("wildcard_identifier"))
+            )
+            if wildcards.any(
+                lambda wildcard: not is_qualified(wildcard, context.dialect.name)
+            ):
+                return unfixable_result
+
             for ref in select_info.reference_buffer:
                 parts = list(iter_raw_references(ref, context.dialect.name))
                 if not parts:  # pragma: no cover
