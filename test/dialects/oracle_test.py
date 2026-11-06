@@ -10,16 +10,6 @@ test/fixtures/dialects/oracle/ per project convention.
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.segments import (
-    CodeSegment,
-    EndOfFile,
-    Indent,
-    NewlineSegment,
-    WhitespaceSegment,
-)
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.dialects.dialect_oracle import _StandaloneSlashTerminator
 
 
 def _violations(sql: str) -> list:
@@ -173,109 +163,125 @@ def test_index_physical_attrs_rejected(sql: str) -> None:
     assert _violations(sql) != [], f"Expected violations but got none for:\n{sql}"
 
 
-# _StandaloneSlashTerminator: unit tests for the Oracle SQL*Plus slash-buffer
-# terminator used by CREATE VIEW ... AS SELECT. The parse_suite fixtures cover
-# the ``\n/\n`` (match) and ``expr / expr`` (skip via backward-walk) cases via
-# create_view.sql, but the forward-walk branches (whitespace after slash,
-# end_of_file meta, non-EOF meta, and non-newline continuation-line division)
-# only fire under the Python parser and are only naturally exercised by the
-# ``\n / y`` continuation-line case, so we exercise them here directly.
+# `slash_buffer_executor` lexer matcher: SQL*Plus runs the SQL buffer when a
+# `/` sits alone on its own line. The Oracle lexer emits that form of `/`
+# as a distinct `slash_buffer_executor` token, so the parser never has to
+# disambiguate it from the arithmetic division operator. These tests lock
+# in that lexer decision across the shapes of context the matcher is meant
+# to handle, per the review on PR #8483.
 
 
-def _segments(*elems):
-    r"""Build a segment list for terminator tests.
-
-    Recognises ``"\n"`` as a NewlineSegment, blank/space-only strings as
-    WhitespaceSegments, ``"<eof>"`` as an EndOfFile meta, and ``"<indent>"``
-    as an Indent meta (a non-EOF meta). Everything else becomes a CodeSegment.
-    """
-    raw = "".join(e for e in elems if e not in ("<eof>", "<indent>"))
-    tf = TemplatedFile.from_string(raw or " ")
-    out = []
-    idx = 0
-    for elem in elems:
-        if elem == "<eof>":
-            out.append(EndOfFile(pos_marker=PositionMarker.from_point(idx, idx, tf)))
-            continue
-        if elem == "<indent>":
-            out.append(Indent(pos_marker=PositionMarker.from_point(idx, idx, tf)))
-            continue
-        if elem == "\n":
-            cls = NewlineSegment
-        elif set(elem) <= {" ", "\t"}:
-            cls = WhitespaceSegment
-        else:
-            cls = CodeSegment
-        out.append(
-            cls(
-                raw=elem,
-                pos_marker=PositionMarker(
-                    slice(idx, idx + len(elem)),
-                    slice(idx, idx + len(elem)),
-                    tf,
-                ),
-            )
-        )
-        idx += len(elem)
-    return out
+def _slash_tokens(sql: str) -> list:
+    """Return the raw `/` segments produced by lexing `sql` under Oracle."""
+    parsed = Linter(dialect="oracle").parse_string(sql)
+    assert parsed.tree is not None, sql
+    return [seg for seg in parsed.tree.raw_segments if seg.raw == "/"]
 
 
-def test_standalone_slash_terminator_is_optional_and_cache_key() -> None:
-    """Trivial accessors used by the parser framework's caching machinery."""
-    t = _StandaloneSlashTerminator()
-    assert t.is_optional() is False
-    assert t.cache_key() == "oracle-standalone-slash-terminator"
-    # ``simple`` returns the fast-match hint the parser uses to skip ahead.
-    literals, types = t.simple(parse_context=None)
-    assert "/" in literals
-    assert types == frozenset()
+def _standalone_slash_count(sql: str) -> int:
+    """How many `/` tokens carry the `slash_buffer_executor` instance type."""
+    return sum(
+        1 for seg in _slash_tokens(sql) if "slash_buffer_executor" in seg.class_types
+    )
 
 
-def test_standalone_slash_terminator_matches_slash_at_start_of_stream() -> None:
-    """A leading `/` followed by a newline still matches (backward walk hits SOI)."""
-    segs = _segments("/", "\n")
-    result = _StandaloneSlashTerminator().match(segs, 0, parse_context=None)
-    assert result.matched_slice == slice(0, 1)
+def _division_slash_count(sql: str) -> int:
+    """How many `/` tokens are the ordinary division operator (not standalone)."""
+    return sum(
+        1
+        for seg in _slash_tokens(sql)
+        if "slash_buffer_executor" not in seg.class_types
+    )
 
 
-def test_standalone_slash_terminator_matches_with_trailing_whitespace() -> None:
-    """Whitespace between the slash and the terminating newline is skipped."""
-    segs = _segments("\n", "/", " ", "\n")
-    result = _StandaloneSlashTerminator().match(segs, 1, parse_context=None)
-    assert result.matched_slice == slice(1, 2)
+@pytest.mark.parametrize(
+    "sql, expected_standalone, expected_division",
+    [
+        # Division operator never becomes a slash_buffer_executor.
+        pytest.param("SELECT 1 / 100 FROM DUAL;", 0, 1, id="division_inline"),
+        pytest.param(
+            "SELECT NVL(X, 0) / 1024 / 1024 FROM T;", 0, 2, id="division_chained"
+        ),
+        pytest.param("SELECT SYSDATE - 1 / 24 FROM DUAL;", 0, 1, id="division_sysdate"),
+        # A `/` alone on its own line is the buffer-executor.
+        pytest.param(
+            "SELECT 1 FROM DUAL;\n/\n", 1, 0, id="standalone_select_terminator"
+        ),
+        # LF and CRLF forms both match.
+        pytest.param("SELECT 1 FROM DUAL;\n/\n", 1, 0, id="standalone_lf"),
+        pytest.param("SELECT 1 FROM DUAL;\r\n/\r\n", 1, 0, id="standalone_crlf"),
+        # EOF (no trailing newline) also qualifies.
+        pytest.param(
+            "SELECT 1 FROM DUAL;\n/", 1, 0, id="standalone_eof_no_trailing_newline"
+        ),
+        # Leading / trailing inline whitespace on the slash's own line is ok.
+        pytest.param(
+            "SELECT 1 FROM DUAL;\n   /\n", 1, 0, id="standalone_leading_whitespace"
+        ),
+        pytest.param(
+            "SELECT 1 FROM DUAL;\n/   \n", 1, 0, id="standalone_trailing_whitespace"
+        ),
+        # A `/` followed by a comment on the same line is NOT standalone
+        # (SQL*Plus requires the line to carry only the slash).
+        pytest.param(
+            "SELECT 1 FROM DUAL;\n/ -- end\n",
+            0,
+            1,
+            id="slash_with_trailing_comment_is_division",
+        ),
+        # A `/` at the very start of the input has no preceding newline;
+        # by design the lexer treats it as the division operator, matching
+        # the documented decision for the empty-buffer case.
+        pytest.param("/", 0, 1, id="start_of_input_slash_is_division"),
+        # Several batches separated by standalone slashes.
+        pytest.param(
+            "BEGIN NULL; END;\n/\nBEGIN NULL; END;\n/\n",
+            2,
+            0,
+            id="multiple_plsql_batches",
+        ),
+    ],
+)
+def test_slash_buffer_executor_lexer(
+    sql: str, expected_standalone: int, expected_division: int
+) -> None:
+    """The lexer distinguishes a standalone-line `/` from the division operator."""
+    assert _standalone_slash_count(sql) == expected_standalone, sql
+    assert _division_slash_count(sql) == expected_division, sql
 
 
-def test_standalone_slash_terminator_matches_at_end_of_file_meta() -> None:
-    """A bare `/` immediately before an EndOfFile meta is a valid batch delimiter."""
-    segs = _segments("\n", "/", "<eof>")
-    result = _StandaloneSlashTerminator().match(segs, 1, parse_context=None)
-    assert result.matched_slice == slice(1, 2)
-
-
-def test_standalone_slash_terminator_skips_non_eof_meta() -> None:
-    """A non-EndOfFile meta between the slash and a newline is skipped."""
-    segs = _segments("\n", "/", "<indent>", "\n")
-    result = _StandaloneSlashTerminator().match(segs, 1, parse_context=None)
-    assert result.matched_slice == slice(1, 2)
-
-
-def test_standalone_slash_terminator_rejects_continuation_line_division() -> None:
-    r"""Continuation-line division (`\n / y`) must NOT match as a terminator."""
-    segs = _segments("\n", "/", " ", "1024")
-    result = _StandaloneSlashTerminator().match(segs, 1, parse_context=None)
-    assert result.matched_slice == slice(1, 1)  # empty match => not a terminator
-
-
-def test_standalone_slash_terminator_rejects_slash_after_expression() -> None:
-    """Same-line `expr / expr` division: backward walk hits code, rejects."""
-    segs = _segments("1", " ", "/", " ", "100")
-    result = _StandaloneSlashTerminator().match(segs, 2, parse_context=None)
-    assert result.matched_slice == slice(2, 2)  # empty match
-
-
-def test_standalone_slash_terminator_rejects_non_slash_at_idx() -> None:
-    """Guard: match() bails gracefully at a non-slash position or past EOS."""
-    t = _StandaloneSlashTerminator()
-    segs = _segments("x")
-    assert t.match(segs, 0, parse_context=None).matched_slice == slice(0, 0)
-    assert t.match(segs, 5, parse_context=None).matched_slice == slice(5, 5)
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # CREATE VIEW ... SELECT with a bare `/` arithmetic operator.
+        pytest.param(
+            "CREATE VIEW V AS SELECT 1 / 100 AS R FROM DUAL;",
+            id="create_view_inline_division",
+        ),
+        pytest.param(
+            "CREATE VIEW V AS SELECT NVL(X, 0) / 1024 / 1024 AS R FROM T;",
+            id="create_view_chained_division",
+        ),
+        pytest.param(
+            "CREATE VIEW V AS SELECT SYSDATE - 1 / 24 FROM DUAL;",
+            id="create_view_sysdate_minus_fraction",
+        ),
+        # Batch delimiter must still parse at the end of a CREATE VIEW body.
+        pytest.param(
+            "CREATE VIEW V AS SELECT 1 FROM DUAL\n/\n",
+            id="create_view_batch_delimiter",
+        ),
+        # Standalone PL/SQL block and procedure terminated by `/`.
+        pytest.param(
+            "BEGIN NULL; END;\n/\n",
+            id="plsql_anonymous_block_batch_delimiter",
+        ),
+        pytest.param(
+            "CREATE OR REPLACE PROCEDURE p AS BEGIN NULL; END;\n/\n",
+            id="plsql_procedure_batch_delimiter",
+        ),
+    ],
+)
+def test_slash_contexts_parse_clean(sql: str) -> None:
+    """Each bare-slash context parses with no unparsable nodes."""
+    assert _violations(sql) == [], f"Expected no violations, got some for:\n{sql}"
