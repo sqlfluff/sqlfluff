@@ -2609,7 +2609,23 @@ def lint_line_length(
             # is already longer than the limit, then there's no point just putting it
             # on a new line - it will still fail - so it doesn't actually fix the issue.
             # Deal with them first.
-            if (
+            # A Teradata BTEQ dot-command is a command line, not SQL. Whatever
+            # follows the command word is opaque to us, and a trailing `--flag`
+            # is lexed as a comment even though it is really an argument, so
+            # neither breaking the line nor moving that "comment" is safe.
+            # Report the long line but offer no fix.
+            if any(
+                isinstance(elem, ReflowBlock)
+                and any(
+                    "bteq_statement" in types
+                    for types in elem.depth_info.stack_class_types
+                )
+                for elem in line_buffer
+            ):
+                reflow_logger.debug("    Handling as BTEQ command line (no fix).")
+                fixes = []
+
+            elif (
                 len(line_buffer) > 1
                 # We can only fix _inline_ comments in this way. Others should
                 # just be flagged as issues.

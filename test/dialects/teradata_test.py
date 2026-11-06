@@ -252,3 +252,30 @@ def test_optional_terminators_still_parse(
 
     assert not parsed.violations
     assert len(list(parsed.tree.recursive_crawl("statement"))) == statements
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Trailing `--flag` text lexes as a comment but is really an argument,
+        # so LT05 must not hoist it onto a line of its own above the command.
+        ".OS run_tool_with_a_long_name some_argument --flag --other\nSELECT 1;\n",
+        ".LOGON h/u,p\nSELECT 1;\n"
+        ".OS tool_name_long_enough_to_pass_limit argument_one --verbose\n",
+        # Arguments are opaque, so the line must not be broken either.
+        ".LOGON some.very.long.hostname.example.com/some_user,some_long_password\n",
+        ".RUN FILE=/very/long/path/to/some/directory/script_file_name.sql\n",
+    ],
+)
+def test_lt05_reports_but_does_not_rewrite_long_bteq_commands(raw: str) -> None:
+    """A long dot-command is flagged by LT05 but never rebroken by a fix."""
+    linter = Linter(
+        config=FluffConfig(
+            overrides={"dialect": "teradata", "rules": "LT05", "max_line_length": 40}
+        )
+    )
+    linted = linter.lint_string(raw, fix=True)
+
+    assert [v.rule_code() for v in linted.violations] == ["LT05"]
+    fixed, _ = linted.fix_string()
+    assert fixed == raw
