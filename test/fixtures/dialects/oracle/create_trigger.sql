@@ -125,3 +125,11 @@ BEGIN
         :new.updated_at := CURRENT_TIMESTAMP;
     END IF;
 END;
+
+
+CREATE OR REPLACE TRIGGER logon_trigger
+AFTER LOGON ON DATABASE
+BEGIN
+  NULL;
+END;
+/
