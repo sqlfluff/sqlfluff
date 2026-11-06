@@ -1750,12 +1750,16 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
             Sequence("DEFAULT", "VALUES"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("ValuesClauseSegment"),
                     OptionallyBracketed(Ref("SelectableGrammar")),

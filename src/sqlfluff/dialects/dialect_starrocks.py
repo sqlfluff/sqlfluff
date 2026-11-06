@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     ImplicitIndent,
+    Indent,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -608,6 +609,7 @@ class InsertOverwriteStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         "OVERWRITE",
+        Indent,
         Ref("TableReferenceSegment"),
         Sequence(
             "PARTITION",
@@ -628,6 +630,7 @@ class InsertOverwriteStatementSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
             optional=True,
         ),
+        Dedent,
         Ref("SelectableGrammar"),
     )
 

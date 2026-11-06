@@ -357,7 +357,10 @@ class NullSafeEqualsSegment(CompositeComparisonOperatorSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """A Hive `GROUP BY` clause supporting trailing `GROUPING SETS`."""
+    """A Hive `GROUP BY` clause.
+
+    Supports trailing `GROUPING SETS` and `WITH CUBE` / `WITH ROLLUP` modifiers.
+    """
 
     match_grammar = Sequence(
         "GROUP",
@@ -374,10 +377,28 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("ExpressionSegment"),
                     terminators=[Ref("GroupByClauseTerminatorGrammar")],
                 ),
-                Ref("GroupingSetsClauseSegment", optional=True),
+                OneOf(
+                    Ref("WithCubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
+                    optional=True,
+                ),
             ),
         ),
         Dedent,
+    )
+
+
+class WithCubeRollupClauseSegment(BaseSegment):
+    """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Select
+    """
+
+    type = "with_cube_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("CUBE", "ROLLUP"),
     )
 
 
@@ -814,8 +835,10 @@ class TruncateStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("PartitionSpecGrammar", optional=True),
+        Dedent,
     )
 
 
@@ -898,15 +921,19 @@ class InsertStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "TABLE",
+                        Indent,
                         Ref("TableReferenceSegment"),
                         Ref("PartitionSpecGrammar", optional=True),
                         Ref("IfNotExistsGrammar", optional=True),
+                        Dedent,
                         Ref("SelectableGrammar"),
                     ),
                     Sequence(
                         Sequence("LOCAL", optional=True),
                         "DIRECTORY",
+                        Indent,
                         Ref("QuotedLiteralSegment"),
+                        Dedent,
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
                         Ref("SelectableGrammar"),
@@ -916,9 +943,11 @@ class InsertStatementSegment(BaseSegment):
             Sequence(
                 "INTO",
                 Ref.keyword("TABLE", optional=True),
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("SelectableGrammar"),
                     Ref("ValuesClauseSegment"),
@@ -952,9 +981,11 @@ class FromInsertClauseSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "TABLE",
+                        Indent,
                         Ref("TableReferenceSegment"),
                         Ref("PartitionSpecGrammar", optional=True),
                         Ref("IfNotExistsGrammar", optional=True),
+                        Dedent,
                         Ref(
                             "SelectableGrammar",
                             terminators=[Ref.keyword("INSERT")],
@@ -963,7 +994,9 @@ class FromInsertClauseSegment(BaseSegment):
                     Sequence(
                         Sequence("LOCAL", optional=True),
                         "DIRECTORY",
+                        Indent,
                         Ref("QuotedLiteralSegment"),
+                        Dedent,
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
                         Ref(
@@ -976,9 +1009,11 @@ class FromInsertClauseSegment(BaseSegment):
             Sequence(
                 "INTO",
                 Ref.keyword("TABLE", optional=True),
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref(
                         "SelectableGrammar",

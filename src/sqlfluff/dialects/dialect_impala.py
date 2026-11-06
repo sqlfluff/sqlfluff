@@ -5,7 +5,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     OneOf,
     ParseMode,
@@ -54,6 +56,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     type = "values_clause"
     match_grammar: Matchable = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Sequence(
                 Bracketed(
@@ -74,6 +77,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -279,8 +283,10 @@ class InsertStatementSegment(BaseSegment):
             Sequence(
                 "OVERWRITE",
                 Ref.keyword("TABLE", optional=True),
+                Indent,
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
+                Dedent,
                 Bracketed(
                     OneOf("SHUFFLE", "NOSHUFFLE"), bracket_type="square", optional=True
                 ),
@@ -290,12 +296,14 @@ class InsertStatementSegment(BaseSegment):
             Sequence(
                 "INTO",
                 Ref.keyword("TABLE", optional=True),
+                Indent,
                 Ref("TableReferenceSegment"),
                 Sequence(
                     Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
                     optional=True,
                 ),
                 Ref("PartitionSpecGrammar", optional=True),
+                Dedent,
                 Bracketed(
                     OneOf("SHUFFLE", "NOSHUFFLE"), bracket_type="square", optional=True
                 ),

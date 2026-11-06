@@ -1,9 +1,8 @@
 use std::fmt::Display;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, LazyLock, RwLock};
 
 use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashMap;
-use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
 
 /// Process-global cache of compiled `RegexMode`s, keyed by `(pattern, case_insensitive)`.
@@ -12,7 +11,7 @@ use regex::{Regex, RegexBuilder};
 /// the same patterns (quoted-value / escape-replacement, grammar `RegexParser`s)
 /// are reused across thousands of tokens and every file. Cache the compiled form
 /// so each distinct pattern is built at most once per process.
-static REGEX_CACHE: Lazy<RwLock<RegexCache>> = Lazy::new(|| RwLock::new(HashMap::new()));
+static REGEX_CACHE: LazyLock<RwLock<RegexCache>> = LazyLock::new(|| RwLock::new(HashMap::new()));
 
 type RegexCache = HashMap<(String, bool), Arc<RegexMode>>;
 

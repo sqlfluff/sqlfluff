@@ -690,7 +690,9 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(Ref("ExpressionSegment")),
+        Dedent,
     )
 
 
@@ -704,12 +706,16 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
             Sequence("DEFAULT", "VALUES"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("ValuesClauseSegment"),
                     OptionallyBracketed(Ref("SelectableGrammar")),

@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_greenplum_keywords import greenplum_keywords
@@ -82,7 +83,10 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
         Dedent,
         terminators=[
             "INTO",
-            "FROM",
+            Ref(
+                "FromKeywordSegment",
+                exclude=is_distinct_from_lookbehind,
+            ),
             "WHERE",
             Sequence("ORDER", "BY"),
             "LIMIT",

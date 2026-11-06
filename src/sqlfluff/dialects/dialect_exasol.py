@@ -465,6 +465,7 @@ class ValuesClauseSegment(BaseSegment):
     type = "values_clause"
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             OneOf(
                 Bracketed(
@@ -481,6 +482,7 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
         Ref("AliasExpressionSegment", optional=True),
     )
 
@@ -1555,12 +1557,19 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         AnyNumberOf(
             Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
-            Ref("BracketedColumnReferenceListGrammar", optional=True),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
+                optional=True,
+            ),
         ),
     )
 
@@ -1733,7 +1742,9 @@ class DeleteStatementSegment(BaseSegment):
         "DELETE",
         Ref("StarSegment", optional=True),
         "FROM",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Dedent,
         Ref("WhereClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
     )
@@ -1758,7 +1769,9 @@ class TruncateStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         "TABLE",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 
