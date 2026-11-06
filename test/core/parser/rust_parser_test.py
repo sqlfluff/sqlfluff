@@ -529,31 +529,16 @@ def test__rust_parser__rs_node_class_types_match_python():
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__rs_handle_metadata_matches_python():
-    """Arena leaves carry Python's ``.type``, casefold, trim_start and block_uuid."""
-    from sqlfluff.core import FluffConfig
-    from sqlfluff.core.parser import Lexer
-    from sqlfluff.core.templaters import JinjaTemplater
+    """Arena leaves carry Python's ``.type``, casefold, trim_start and block info."""
+    from sqlfluff.core import FluffConfig, Linter
 
     config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
-    templated, _ = JinjaTemplater().process(
-        in_str="{% if true %}SELECT 1, a -- note\n{% endif %}\n",
-        fname="t.sql",
-        config=config,
+    tree = (
+        Linter(config=config)
+        .parse_string("{% if true %}SELECT 1, a -- note\n{% endif %}\n")
+        .tree
     )
-    segments, _ = Lexer(config=config).lex(templated)
-    tree = RustParser(config=config).parse(segments, fname="t.sql")
-
-    leaves = []
-
-    def _flatten(handle):
-        children = handle.children
-        if not children:
-            leaves.append(handle)
-        for child in children:
-            _flatten(child)
-
-    _flatten(tree._rs_tree.root)
-    raws = tree.raw_segments
+    raws, leaves = tree.raw_segments, tree._rs_tree.root.raw_segments()
     assert len(leaves) == len(raws)
 
     fold_names = {None: None, str.upper: "upper", str.lower: "lower"}
@@ -561,6 +546,7 @@ def test__rust_parser__rs_handle_metadata_matches_python():
         assert leaf.class_type() == seg.type, seg
         assert leaf.casefold() == fold_names[getattr(seg, "casefold", None)], seg
         assert leaf.trim_start() == getattr(seg, "trim_start", None), seg
+        assert leaf.block_type() == getattr(seg, "block_type", None), seg
         uuid = getattr(seg, "block_uuid", None)
         assert leaf.block_uuid() == (uuid.int if uuid else None), seg
 
@@ -568,6 +554,7 @@ def test__rust_parser__rs_handle_metadata_matches_python():
     assert any(leaf.class_type() != leaf.type for leaf in leaves)
     assert any(leaf.casefold() == "upper" for leaf in leaves)
     assert any(leaf.trim_start() for leaf in leaves)
+    assert any(leaf.block_type() for leaf in leaves)
     assert any(leaf.block_uuid() for leaf in leaves)
 
 
