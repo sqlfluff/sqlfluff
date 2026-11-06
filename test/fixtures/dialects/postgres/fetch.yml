@@ -1,0 +1,192 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 87a0079d8248f1e3ce55a66fa7b3bd184b087f9585426219ff12e7ccbbf285d0
+file:
+- statement:
+    fetch_statement:
+      keyword: FETCH
+      object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: NEXT
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: PRIOR
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: FIRST
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: LAST
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: ABSOLUTE
+        numeric_literal: '2'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: RELATIVE
+        sign_indicator: '-'
+        numeric_literal: '1'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        numeric_literal: '3'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        sign_indicator: '-'
+        numeric_literal: '2'
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: ALL
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: FORWARD
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: FORWARD
+        numeric_literal: '2'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+      - keyword: FORWARD
+      - keyword: ALL
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+      keyword: FETCH
+      cursor_direction:
+        keyword: BACKWARD
+      object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: BACKWARD
+        numeric_literal: '1'
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+      - keyword: BACKWARD
+      - keyword: ALL
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+      keyword: FETCH
+      object_reference:
+        naked_identifier: next
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+      keyword: FETCH
+      cursor_direction:
+        keyword: next
+      object_reference:
+        naked_identifier: next
+- statement_terminator: ;
+- statement:
+    fetch_statement:
+    - keyword: FETCH
+    - cursor_direction:
+        keyword: NEXT
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: next
+- statement_terminator: ;

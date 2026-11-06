@@ -78,7 +78,7 @@ postgres_docs_keywords = [
     ("ARRAY_MAX_CARDINALITY", "not-keyword"),
     ("AS", "reserved"),
     ("ASC", "reserved"),
-    ("ASENSITIVE", "not-keyword"),
+    ("ASENSITIVE", "non-reserved"),
     ("ASIN", "not-keyword"),
     ("ASSERTION", "non-reserved"),
     ("ASSIGNMENT", "non-reserved"),

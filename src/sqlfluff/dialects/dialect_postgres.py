@@ -457,6 +457,21 @@ postgres_dialect.add(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # The arguments of FETCH and MOVE: [ direction ] [ FROM | IN ] cursor_name
+    # Two alternatives, so that a cursor named like a direction keyword
+    # (`FETCH next;`) is read as the cursor name.
+    # https://www.postgresql.org/docs/current/sql-fetch.html
+    CursorFetchArgumentsGrammar=OneOf(
+        Sequence(
+            Ref("CursorDirectionSegment"),
+            OneOf("FROM", "IN", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            OneOf("FROM", "IN", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+    ),
     # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
     # behaviour in every position and only rejects unsupported ones at analysis.
     # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
@@ -5517,6 +5532,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeallocateStatementSegment"),
             Ref("SetSessionAuthorizationStatementSegment"),
             Ref("ResetSessionAuthorizationStatementSegment"),
+            Ref("DeclareStatementSegment"),
+            Ref("FetchStatementSegment"),
+            Ref("MoveStatementSegment"),
+            Ref("CloseStatementSegment"),
         ],
     )
 
@@ -7739,6 +7758,99 @@ class DeallocateStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             "ALL",
         ),
+    )
+
+
+class DeclareStatementSegment(BaseSegment):
+    """A `DECLARE` statement, which defines a cursor.
+
+    https://www.postgresql.org/docs/current/sql-declare.html
+    """
+
+    type = "declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("ObjectReferenceSegment"),
+        # PostgreSQL accepts these options in any order.
+        AnySetOf(
+            "BINARY",
+            OneOf("ASENSITIVE", "INSENSITIVE"),
+            Sequence(Ref.keyword("NO", optional=True), "SCROLL"),
+        ),
+        "CURSOR",
+        Sequence(OneOf("WITH", "WITHOUT"), "HOLD", optional=True),
+        "FOR",
+        # A SELECT or VALUES command
+        OptionallyBracketed(
+            OneOf(
+                Ref("WithCompoundStatementSegment"),
+                Ref("SelectStatementSegment"),
+                Ref("SetExpressionSegment"),
+                Ref("ValuesClauseSegment"),
+            ),
+        ),
+    )
+
+
+class CursorDirectionSegment(BaseSegment):
+    """The direction of a `FETCH` or `MOVE` statement.
+
+    https://www.postgresql.org/docs/current/sql-fetch.html
+    """
+
+    type = "cursor_direction"
+
+    # A possibly-signed integer constant
+    _count = Sequence(
+        Ref("SignedSegmentGrammar", optional=True),
+        Ref("NumericLiteralSegment"),
+    )
+
+    match_grammar = OneOf(
+        "NEXT",
+        "PRIOR",
+        "FIRST",
+        "LAST",
+        Sequence(OneOf("ABSOLUTE", "RELATIVE"), _count),
+        _count,
+        "ALL",
+        Sequence(
+            OneOf("FORWARD", "BACKWARD"),
+            OneOf(_count, "ALL", optional=True),
+        ),
+    )
+
+
+class FetchStatementSegment(BaseSegment):
+    """A `FETCH` statement, which reads rows from a cursor.
+
+    https://www.postgresql.org/docs/current/sql-fetch.html
+    """
+
+    type = "fetch_statement"
+    match_grammar = Sequence("FETCH", Ref("CursorFetchArgumentsGrammar"))
+
+
+class MoveStatementSegment(BaseSegment):
+    """A `MOVE` statement, which repositions a cursor.
+
+    https://www.postgresql.org/docs/current/sql-move.html
+    """
+
+    type = "move_statement"
+    match_grammar = Sequence("MOVE", Ref("CursorFetchArgumentsGrammar"))
+
+
+class CloseStatementSegment(BaseSegment):
+    """A `CLOSE` statement, which closes a cursor.
+
+    https://www.postgresql.org/docs/current/sql-close.html
+    """
+
+    type = "close_statement"
+    match_grammar = Sequence(
+        "CLOSE",
+        OneOf(Ref("ObjectReferenceSegment"), "ALL"),
     )
 
 
