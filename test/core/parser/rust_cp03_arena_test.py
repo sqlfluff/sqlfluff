@@ -21,10 +21,11 @@ except ImportError:  # pragma: no cover
     _HAS_RUST_PARSER = False
 
 
-def _cfg(policy="consistent"):
+def _cfg(policy="consistent", use_rust_rules=False):
     """Config that genuinely sets CP03's policy (overrides don't reach rules)."""
     return FluffConfig.from_string(
         "[sqlfluff]\ndialect=ansi\nrules=CP03\nuse_rust_parser=True\n"
+        f"use_rust_rules={use_rust_rules}\n"
         "[sqlfluff:rules:capitalisation.functions]\n"
         f"extended_capitalisation_policy={policy}\n"
     )
@@ -67,15 +68,15 @@ def _arena_fixed(linter, cfg, sql):
 @pytest.mark.parametrize("sql", _SAMPLES)
 def test__cp03_arena__matches_stock(policy, sql):
     """Arena-native CP03 detection produces identical fixes to stock CP03."""
-    cfg = _cfg(policy)
-    linter = Linter(config=cfg)
-    assert _arena_fixed(linter, cfg, sql) == _stock_fixed(linter, sql)
+    cfg = _cfg(policy, use_rust_rules=True)
+    stock_linter = Linter(config=_cfg(policy))
+    assert _arena_fixed(Linter(config=cfg), cfg, sql) == _stock_fixed(stock_linter, sql)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__cp03_arena__excludes_qualified_function_name():
     """A multi-part (UDF-like) function name is left untouched."""
-    cfg = _cfg("upper")
+    cfg = _cfg("upper", use_rust_rules=True)
     tree = Linter(config=cfg).parse_string("select my_schema.my_udf(a) from t").tree
     by_idx = dict(sqlfluffrs.cp03_violations(tree._rs_tree, "upper", [], False))
     assert not by_idx
@@ -84,7 +85,7 @@ def test__cp03_arena__excludes_qualified_function_name():
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__cp03_arena__honours_ignore_words():
     """An ignored function name is left untouched by the native detection."""
-    cfg = _cfg("upper")
+    cfg = _cfg("upper", use_rust_rules=True)
     tree = Linter(config=cfg).parse_string("select sum(a), count(b) from t").tree
     fixed_raws = {
         fixed

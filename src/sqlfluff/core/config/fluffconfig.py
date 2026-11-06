@@ -593,6 +593,27 @@ class FluffConfig:
 
         return section_dict.get(val, default)
 
+    def rust_rules_enabled(self) -> bool:
+        """Check whether Rust-native rule detection is enabled.
+
+        The parser only builds the Rust arena tree when this is true, and the
+        rules only read the arena when it is true, so both use this method.
+
+        Returns:
+            bool: True if ``core.use_rust_rules`` is set to ``"auto"``,
+                ``"Auto"``, ``"AUTO"``, ``True``, ``"True"``, ``"true"`` or
+                ``1``, otherwise False.
+        """
+        return self.get_section(["core", "use_rust_rules"]) in (
+            "auto",
+            "Auto",
+            "AUTO",
+            True,
+            "True",
+            "true",
+            1,
+        )
+
     def get_section(self, section: str | Iterable[str]) -> Any:
         """Return a whole section of config as a dict.
 

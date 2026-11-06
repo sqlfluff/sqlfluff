@@ -490,15 +490,7 @@ class BaseRule(metaclass=RuleMetaclass):
     @staticmethod
     def _rust_rules_enabled(config: "FluffConfig") -> bool:
         """Whether Rust-native rule detection is enabled (core.use_rust_rules)."""
-        return config.get_section(["core", "use_rust_rules"]) in (
-            "auto",
-            "Auto",
-            "AUTO",
-            True,
-            "True",
-            "true",
-            1,
-        )
+        return config.rust_rules_enabled()
 
     def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Optionally evaluate the whole rule natively in Rust.
