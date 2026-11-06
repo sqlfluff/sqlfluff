@@ -165,6 +165,7 @@ impl Arena {
                 instance_types,
                 class_types,
                 segment_kwargs,
+                ..
             } => self.alloc(
                 ArenaKind::Raw {
                     segment_class: segment_class.clone(),
@@ -227,6 +228,7 @@ impl Arena {
             Node::Meta {
                 meta_type,
                 pos_marker,
+                ..
             } => self.alloc(
                 ArenaKind::Meta {
                     meta_type: meta_type.clone(),
@@ -874,6 +876,7 @@ mod tests {
                 Node::Meta {
                     meta_type: MetaType::Indent { is_implicit: false },
                     pos_marker: None,
+                    block_uuid: None,
                 },
                 raw("WhitespaceSegment", "whitespace", " ", &["whitespace"]),
             ],

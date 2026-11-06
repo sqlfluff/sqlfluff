@@ -58,6 +58,10 @@ impl Default for SegmentKwargs {
 pub struct MatchedClass {
     pub class_name: Cow<'static, str>,
     pub segment_type: Option<Cow<'static, str>>,
+    /// Class-level type (Python `.type`) for a single-token raw match, where an
+    /// instance override can make it differ from `segment_type`. `None` falls
+    /// back to `segment_type`.
+    pub class_type: Option<Cow<'static, str>>,
     pub segment_kwargs: SegmentKwargs,
 }
 
@@ -66,6 +70,7 @@ impl MatchedClass {
         MatchedClass {
             class_name: Cow::Borrowed("Root"),
             segment_type: Some(Cow::Borrowed("file")),
+            class_type: None,
             segment_kwargs: SegmentKwargs {
                 class_types: Some(vec!["base".to_string(), "file".to_string()]),
                 ..Default::default()
@@ -77,6 +82,7 @@ impl MatchedClass {
         MatchedClass {
             class_name: Cow::Borrowed("UnparsableSegment"),
             segment_type: Some(Cow::Borrowed("unparsable")),
+            class_type: None,
             segment_kwargs: SegmentKwargs {
                 parse_error: Some((message.to_string(), error_pos)),
                 class_types: Some(vec!["base".to_string(), "unparsable".to_string()]),
@@ -239,6 +245,7 @@ impl MatchResult {
             Some(MatchedClass {
                 class_name: Cow::Borrowed("BracketedSegment"),
                 segment_type: Some(Cow::Borrowed("bracketed")),
+                class_type: None,
                 segment_kwargs: SegmentKwargs {
                     class_types: Some(vec!["base".to_string(), "bracketed".to_string()]),
                     ..Default::default()
@@ -590,32 +597,26 @@ impl MatchResult {
                         .or_else(|| instance_types.first().map(|s| Cow::Owned(s.clone())))
                         .unwrap_or(Cow::Borrowed("raw"));
 
+                    let class_type = match_class
+                        .class_type
+                        .unwrap_or_else(|| effective_segment_type.clone());
                     let raw_class_ct = match_class.segment_kwargs.class_types.unwrap_or_default();
-
-                    let quoted_value =
-                        match_class
-                            .segment_kwargs
-                            .quoted_value
-                            .map(|(pattern, group)| {
-                                let group_str = match group {
-                                    RegexModeGroup::Index(idx) => idx.to_string(),
-                                    RegexModeGroup::Name(name) => name,
-                                };
-                                (pattern, group_str)
-                            });
-                    let escape_replacements = match_class.segment_kwargs.escape_replacements;
 
                     return vec![Node::new_raw_with_class_types(
                         match_class.class_name,
                         effective_segment_type,
+                        class_type,
                         raw,
                         pos_marker,
                         instance_types,
                         &raw_class_ct,
                         RawSegmentKwargs {
                             trim_chars: match_class.segment_kwargs.trim_chars.map(Arc::new),
-                            quoted_value,
-                            escape_replacements,
+                            // PYTHON PARITY: parser matches don't inherit trim_start.
+                            trim_start: None,
+                            quoted_value: quoted_value_str(match_class.segment_kwargs.quoted_value),
+                            escape_replacements: match_class.segment_kwargs.escape_replacements,
+                            casefold: match_class.segment_kwargs.casefold,
                         },
                     )];
                 }
@@ -807,6 +808,7 @@ fn token_to_node(tok: &Token) -> Node {
         Node::Meta {
             meta_type,
             pos_marker: tok.pos_marker.clone(),
+            block_uuid: tok.block_uuid.map(|u| u.as_u128()),
         }
     } else {
         // Populate class_types from the Token's own class_types (from lexer)
@@ -823,14 +825,23 @@ fn token_to_node(tok: &Token) -> Node {
             .first()
             .map(|s| Cow::Owned(s.clone()))
             .unwrap_or_else(|| tok.token_type.clone());
+        // A gap-filled raw is the lexer segment itself, so it keeps the
+        // lexer's class type (`tok.token_type`) and all of its kwargs.
         Node::new_raw_with_class_types(
             tok.class_name.clone(),
             segment_type,
+            tok.token_type.clone(),
             tok.raw().to_owned(),
             tok.pos_marker.clone(),
             tok.instance_types.clone(),
             &raw_class_ct,
-            RawSegmentKwargs::default(),
+            RawSegmentKwargs {
+                trim_chars: tok.trim_chars.clone().map(Arc::new),
+                trim_start: tok.trim_start.clone().map(Arc::new),
+                quoted_value: quoted_value_str(tok.quoted_value().cloned()),
+                escape_replacements: tok.escape_replacements_arc(),
+                casefold: tok.casefold(),
+            },
         )
     }
 }
@@ -843,14 +854,27 @@ fn meta_to_node(meta_type: &MetaSegment, pos_marker: Option<PositionMarker>) -> 
                 is_implicit: *is_implicit,
             },
             pos_marker,
+            block_uuid: None,
         },
         MetaSegment::Dedent { is_implicit } => Node::Meta {
             meta_type: MetaType::Dedent {
                 is_implicit: *is_implicit,
             },
             pos_marker,
+            block_uuid: None,
         },
     }
+}
+
+/// `RawSegmentKwargs` stores the regex group as a string.
+fn quoted_value_str(qv: Option<(String, RegexModeGroup)>) -> Option<(String, String)> {
+    qv.map(|(pattern, group)| {
+        let group = match group {
+            RegexModeGroup::Index(idx) => idx.to_string(),
+            RegexModeGroup::Name(name) => name,
+        };
+        (pattern, group)
+    })
 }
 
 #[cfg(test)]
@@ -879,5 +903,114 @@ mod tests {
 
         assert!(m1.is_better_than(&m2));
         assert!(!m2.is_better_than(&m1));
+    }
+
+    fn lex(dialect: &str, sql: &str) -> (sqlfluffrs_dialects::Dialect, Vec<Token>) {
+        use std::str::FromStr;
+        let dialect = sqlfluffrs_dialects::Dialect::from_str(dialect).unwrap();
+        let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect.get_lexers().to_vec());
+        let (tokens, errors) = lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.into()), true);
+        assert!(errors.is_empty(), "{errors:?}");
+        (dialect, tokens)
+    }
+
+    fn parse(dialect: &str, sql: &str) -> Node {
+        let (dialect, tokens) = lex(dialect, sql);
+        crate::parser::Parser::new(&tokens, dialect, HashMap::new())
+            .call_rule_as_root()
+            .unwrap()
+            .apply_as_root(&tokens, &[], &[])
+    }
+
+    fn find_raw<'a>(node: &'a Node, text: &str) -> &'a Node {
+        fn walk<'a>(node: &'a Node, text: &str) -> Option<&'a Node> {
+            match node {
+                Node::Raw { raw, .. } if raw == text => Some(node),
+                Node::Segment { children, .. } | Node::Unparsable { children, .. } => {
+                    children.iter().find_map(|c| walk(c, text))
+                }
+                _ => None,
+            }
+        }
+        walk(node, text).unwrap_or_else(|| panic!("no raw {text:?}"))
+    }
+
+    #[test]
+    fn token_to_node_keeps_lexer_metadata() {
+        let tree = parse("ansi", "SELECT 1 -- note\n");
+        let Node::Raw {
+            segment_type,
+            class_type,
+            segment_kwargs,
+            ..
+        } = find_raw(&tree, "-- note")
+        else {
+            unreachable!()
+        };
+        assert_eq!(segment_type, "inline_comment");
+        assert_eq!(class_type, "comment");
+        assert_eq!(
+            segment_kwargs.trim_start.as_deref(),
+            Some(&vec!["--".to_string(), "#".to_string()])
+        );
+    }
+
+    #[test]
+    fn token_to_node_keeps_meta_block_uuid() {
+        let (_, tokens) = lex("ansi", "SELECT 1");
+        let uuid = uuid::Uuid::new_v4();
+        let indent = Token::indent_token(
+            tokens[0].pos_marker.clone().unwrap(),
+            true,
+            Some(uuid),
+            Default::default(),
+        );
+        let Node::Meta { block_uuid, .. } = token_to_node(&indent) else {
+            unreachable!()
+        };
+        assert_eq!(block_uuid, Some(uuid.as_u128()));
+    }
+
+    #[test]
+    fn parser_match_carries_class_type_and_casefold() {
+        let tree = parse("ansi", "SELECT 1, a");
+        let Node::Raw {
+            segment_type,
+            class_type,
+            ..
+        } = find_raw(&tree, "1")
+        else {
+            unreachable!()
+        };
+        assert_eq!(
+            (segment_type.as_ref(), class_type.as_ref()),
+            ("numeric_literal", "literal")
+        );
+
+        let Node::Raw { segment_kwargs, .. } = find_raw(&tree, "a") else {
+            unreachable!()
+        };
+        assert_eq!(segment_kwargs.casefold, CaseFold::Upper);
+        assert_eq!(segment_kwargs.trim_start, None);
+    }
+
+    #[test]
+    fn anything_brackets_are_symbols() {
+        let tree = parse(
+            "bigquery",
+            "CREATE FUNCTION f() RETURNS INT64 LANGUAGE js OPTIONS (library=[\"a.js\"]) AS 'return 1;'",
+        );
+        for text in ["[", "]"] {
+            let Node::Raw {
+                class_type,
+                class_types,
+                ..
+            } = find_raw(&tree, text)
+            else {
+                unreachable!()
+            };
+            assert_eq!(class_type, "symbol");
+            assert!(class_types.iter().any(|t| t == "symbol"), "{class_types:?}");
+        }
     }
 }
