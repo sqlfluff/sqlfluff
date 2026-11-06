@@ -6221,10 +6221,15 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
 
     match_grammar = OneOf(
         # BEGIN [ WORK | TRANSACTION ] [ transaction_mode [, ...] ]
+        Sequence(
+            "BEGIN",
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Sequence(_transaction_modes, optional=True),
+        ),
         # START TRANSACTION [ transaction_mode [, ...] ]
         Sequence(
-            OneOf("BEGIN", "START"),
-            OneOf("TRANSACTION", "WORK", optional=True),
+            "START",
+            "TRANSACTION",
             Sequence(_transaction_modes, optional=True),
         ),
         # COMMIT | END | ABORT [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]
