@@ -13,7 +13,7 @@ Usage:
     python benchmark_parsing.py --dialect ansi --rust-only --profile  # stage breakdown
 
 The --profile flag breaks the Rust parse down by internal stage
-(rust_core/convert/apply/apply_as_tree); it requires the Rust parser
+(rust_core/meta_policy/convert/apply/apply_as_tree); it requires the Rust parser
 (--compare or --rust-only) and has no effect on the pure-Python parser.
 """
 
@@ -33,7 +33,7 @@ from sqlfluff.core.parser.rust_parser import (
 )
 
 # Stages reported by the Rust parser's per-stage profiler, in execution order.
-_PROFILE_STAGES = ("rust_core", "convert", "apply", "apply_as_tree")
+_PROFILE_STAGES = ("rust_core", "meta_policy", "convert", "apply", "apply_as_tree")
 
 
 def find_sql_files(
@@ -534,7 +534,7 @@ def _print_stage_table(label: str, results: list[dict]) -> None:
         print(f"  {stage:<16}{total:>14.3f}{pct:>13.1f}%")
     print(f"  {'-' * 44}")
     print(f"  {'stages sum':<16}{grand_total:>14.3f}")
-    # Sanity check: the four stages should account for ~all of parse() time.
+    # Sanity check: the stages should account for ~all of parse() time.
     print(f"  {'parse() total':<16}{parse_total:>14.3f}  (timed externally)")
 
 
@@ -544,7 +544,8 @@ def print_profile_summary(rust_results: list[dict]) -> None:
     print("RUST PARSER PER-STAGE PROFILE")
     print("=" * 80)
     print(
-        "Stages: rust_core (Rust parse) | convert (Python MatchResult rebuild) |\n"
+        "Stages: rust_core (Rust parse) | meta_policy (grammar indentation) |\n"
+        "        convert (Python MatchResult rebuild) |\n"
         "        apply (build BaseSegment tree) | apply_as_tree (build _rs_tree)"
     )
 
@@ -620,7 +621,7 @@ def main():
         "--profile",
         action="store_true",
         help="Break down Rust parse time by internal stage "
-        "(rust_core/convert/apply/apply_as_tree)",
+        "(rust_core/meta_policy/convert/apply/apply_as_tree)",
     )
 
     args = parser.parse_args()

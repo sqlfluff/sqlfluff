@@ -343,3 +343,23 @@ def test_reflow_sequence_from_root_forgets_freed_tree(
     del root
     gc.collect()
     assert raw_segment() is None
+
+
+@pytest.mark.parametrize("marker", ["indent", "dedent"])
+def test_reflow_respace_preserves_trailing_indent_marker(marker, default_config):
+    """A focused sequence ending in a grammar marker must not gain a space."""
+    root = parse_ansi_string("SELECT foo", default_config)
+    before = root.stringify()
+    end = next(
+        index + 1
+        for index, raw in enumerate(root.raw_segments)
+        if raw.get_type() == marker
+    )
+    sequence = ReflowSequence.from_raw_segments(
+        root.raw_segments[:end], root, config=default_config
+    )
+    result = sequence.respace()
+    assert result.get_raw() == sequence.get_raw()
+    assert not result.get_fixes()
+    assert result.elements[-1].segments == sequence.elements[-1].segments
+    assert root.stringify() == before
