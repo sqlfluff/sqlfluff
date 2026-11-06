@@ -56,14 +56,16 @@ trino_dialect.sets("bare_functions").update(
 )
 
 # Set keywords
-trino_dialect.sets("unreserved_keywords").clear()
-trino_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", trino_unreserved_keywords
-)
-
-trino_dialect.sets("reserved_keywords").clear()
-trino_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", trino_reserved_keywords
+trino_dialect.declare_keyword_sets(
+    reserved=trino_dialect.keywords_set_from_multiline_string(trino_reserved_keywords),
+    reserved_mode="replace",
+    unreserved=trino_dialect.keywords_set_from_multiline_string(
+        trino_unreserved_keywords
+    ),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+    unspecified_parent_keywords="unimplemented",
 )
 
 trino_dialect.insert_lexer_matchers(
@@ -213,6 +215,8 @@ trino_dialect.replace(
     LikeGrammar=Sequence("LIKE"),
     # TODO: There are no custom SQL functions in Trino! How to handle this?
     MLTableExpressionSegment=Nothing(),
+    # Trino has no NaN literal, only the nan() function.
+    NanLiteralSegment=Nothing(),
     JoinLikeClauseGrammar=Ref("MatchRecognizeClauseSegment"),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",

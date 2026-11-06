@@ -703,7 +703,7 @@ pub mod patterns {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::grammar_tables::SimpleHintData;
+    use crate::grammar_tables::{SimpleHintData, NO_SIMPLE_HINT};
 
     #[test]
     fn test_grammar_context() {
@@ -722,7 +722,7 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
+        static SIMPLE_HINT_INDICES: &[u32] = &[NO_SIMPLE_HINT, NO_SIMPLE_HINT, NO_SIMPLE_HINT]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
@@ -777,7 +777,12 @@ mod tests {
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
-        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
+        static SIMPLE_HINT_INDICES: &[u32] = &[
+            NO_SIMPLE_HINT,
+            NO_SIMPLE_HINT,
+            NO_SIMPLE_HINT,
+            NO_SIMPLE_HINT,
+        ]; // One per instruction
         static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];

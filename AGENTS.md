@@ -127,6 +127,8 @@ The codebase enforces strict architectural boundaries (via `importlinter` in `py
 3. Implement grammar in `src/sqlfluff/dialects/dialect_<name>.py`
 4. Use `dialect.replace()` to override inherited ANSI segments
 5. Verify: `tox -e generate-fixture-yml -- -d <dialect>`
+6. Check keywords and references: `python test/dialects/keyword_reference_test.py <dialect>`
+   (this also checks every dialect that inherits from it)
 
 See `src/sqlfluff/dialects/AGENTS.md` for detailed dialect development guide.
 

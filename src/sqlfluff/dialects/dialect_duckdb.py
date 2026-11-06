@@ -51,8 +51,8 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 """,
 )
 
-duckdb_dialect.sets("reserved_keywords").update(
-    [
+duckdb_dialect.declare_keyword_sets(
+    reserved=[
         "DESCRIBE",
         "LAMBDA",
         "PIVOT",
@@ -61,11 +61,9 @@ duckdb_dialect.sets("reserved_keywords").update(
         "SHOW",
         "SUMMARIZE",
         "UNPIVOT",
-    ]
-)
-
-duckdb_dialect.sets("unreserved_keywords").update(
-    [
+    ],
+    reserved_mode="add",
+    unreserved=[
         "ANTI",
         "APPEND",
         "ASOF",
@@ -123,11 +121,12 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "WRITE_BLOOM_FILTER",
         "WRITE_PARTITION_COLUMNS",
         "WRITE_TIMESTAMP_AS_INT96",
-    ]
+    ],
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+    unspecified_parent_keywords="unreserved",
 )
-
-# Postgres doesn't reserve these, but DuckDB does.
-duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"])
 
 # Add plural datetime units for interval expressions
 # DuckDB supports both singular and plural forms (e.g., DAY and DAYS)

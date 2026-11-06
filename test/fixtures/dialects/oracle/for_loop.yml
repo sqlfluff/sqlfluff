@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed43d43abd19acebf123927b3433b5e73a8e519936dd532cd4a8a69f6ef26297
+_hash: 1a0eeaffbbed9f19fb45ec65709516e6986b173771c7959619b82588a2e721d7
 file:
 - batch:
     statement:
@@ -859,6 +859,92 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
+          - loop_statement:
+            - keyword: LOOP
+            - statement:
+                function:
+                  function_name:
+                    naked_identifier: DBMS_OUTPUT
+                    dot: .
+                    function_name_identifier: PUT_LINE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                      end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '5'
+          - dot: .
+          - dot: .
+          - numeric_literal: '15'
+          - keyword: BY
+          - numeric_literal: '5'
+          - loop_statement:
+            - keyword: LOOP
+            - statement:
+                function:
+                  function_name:
+                    naked_identifier: DBMS_OUTPUT
+                    dot: .
+                    function_name_identifier: PUT_LINE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                      end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      begin_end_block:
+      - declare_segment:
+          keyword: DECLARE
+          naked_identifier: step_size
+          data_type:
+            data_type_identifier: PLS_INTEGER
+          assignment_operator: :=
+          expression:
+            numeric_literal: '2'
+          statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+          for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - keyword: REVERSE
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - numeric_literal: '9'
+          - keyword: BY
+          - naked_identifier: step_size
           - loop_statement:
             - keyword: LOOP
             - statement:

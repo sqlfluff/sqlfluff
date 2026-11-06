@@ -1,0 +1,196 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4ed3cefde2972e678e3832c5ddbea20cc214d865d12de9e2782e37b03c3bfaf9
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orc_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: ORC
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/orc/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: parquet_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/parquet/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: avro_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: AVRO
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/avro/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ion_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: ION
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/ion/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: text_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: TEXTFILE
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/text/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orcfile_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: ORCFILE
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/orc/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: parquetfile_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: PARQUETFILE
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/parquet/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: avrofile_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: AVROFILE
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/avro/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ionfile_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - file_format: IONFILE
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/ion/'"
+- statement_terminator: ;

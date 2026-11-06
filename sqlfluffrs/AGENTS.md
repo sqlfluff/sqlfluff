@@ -285,9 +285,9 @@ A **table-driven** engine walks those tables. The hot path is the iterative,
 frame-based executor in `src/parser/table_driven/` (one module per grammar
 variant: `sequence.rs`, `oneof.rs`, `bracketed.rs`, `delimited.rs`,
 `anynumberof.rs`, `ref_grammar.rs`, plus `iterative.rs` driving the frame stack).
-`oneof.rs` uses pre-computed `SimpleHint`s to prune alternatives cheaply. The
-parser produces a `MatchResult`, not a finished AST (Python builds the AST — see
-Project Status).
+`oneof.rs` uses the pre-computed simple hints in the tables (`SimpleHintData`) to
+prune alternatives cheaply. The parser produces a `MatchResult`, not a finished
+AST (Python builds the AST — see Project Status).
 
 ### Dialect support (`sqlfluffrs_dialects`)
 

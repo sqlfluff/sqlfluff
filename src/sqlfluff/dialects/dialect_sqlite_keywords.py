@@ -208,4 +208,8 @@ UNRESERVED_KEYWORDS = [
     "LAST",
     "MATCH",
     "VIRTUAL",
+    # Not in the keyword list, but SQLite reads them as 1 and 0 (since 3.23.0)
+    # and still takes them as names.
+    "TRUE",
+    "FALSE",
 ]
