@@ -1,0 +1,241 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2d419975fb45be948251e7e9324faed6b78792fd3bf085c39e53acb9d4d74285
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        table_organization_clause:
+        - keyword: ORGANIZE
+        - keyword: BY
+        - keyword: ROW
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        table_organization_clause:
+        - keyword: ORGANIZE
+        - keyword: BY
+        - keyword: COLUMN
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        distribution_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: HASH
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        distribution_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: RANDOM
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        distribution_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: REPLICATION
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        tablespace_clause:
+          keyword: IN
+          tablespace_reference:
+            naked_identifier: ts
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        tablespace_clause:
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts
+        - keyword: INDEX
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts2
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        tablespace_clause:
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts
+        - keyword: INDEX
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts2
+        - keyword: LONG
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts3
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        with_restrict_on_drop_clause:
+        - keyword: WITH
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: DROP
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - table_end_clause_segment:
+        table_organization_clause:
+        - keyword: ORGANIZE
+        - keyword: BY
+        - keyword: ROW
+        distribution_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - keyword: HASH
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+        tablespace_clause:
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts
+        - keyword: INDEX
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts2
+        - keyword: LONG
+        - keyword: IN
+        - tablespace_reference:
+            naked_identifier: ts3
+        with_restrict_on_drop_clause:
+        - keyword: WITH
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: DROP
+- statement_terminator: ;
