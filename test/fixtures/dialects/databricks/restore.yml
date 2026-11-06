@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bb9ad1dbb81fc0207e7111b766c9edf1709a677904e6d2520db203b231f25e68
+file:
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - naked_identifier: employee
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - naked_identifier: employee
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - naked_identifier: employee
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - naked_identifier: employee
+    - keyword: TO
+    - keyword: TIMESTAMP
+    - keyword: AS
+    - keyword: OF
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: current_timestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        binary_operator: '-'
+        interval_expression:
+          keyword: INTERVAL
+          interval_literal:
+            signed_quoted_literal: "'1'"
+            date_part: HOUR
+- statement_terminator: ;

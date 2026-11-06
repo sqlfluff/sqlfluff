@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a505e3ea3b8b97c7d4b9a96bbc12d053019cb7da075e4b8940bf0e571797a519
+file:
+- statement:
+    fsck_repair_table_statement:
+    - keyword: FSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    fsck_repair_table_statement:
+    - keyword: FSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: METADATA
+    - keyword: ONLY
+    - keyword: DRY
+    - keyword: RUN
+- statement_terminator: ;
+- statement:
+    fsck_repair_table_statement:
+    - keyword: FSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: VERIFY
+    - keyword: ALL
+    - keyword: FILES
+- statement_terminator: ;
+- statement:
+    fsck_repair_table_statement:
+    - keyword: FSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: VERIFY
+    - keyword: FILES
+    - keyword: MODIFIED
+    - keyword: BETWEEN
+    - function:
+        function_name:
+          function_name_identifier: current_timestamp
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: AND
+    - function:
+        function_name:
+          function_name_identifier: current_timestamp
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
