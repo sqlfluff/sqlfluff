@@ -156,6 +156,11 @@ impl PyHandle {
         self.inner.lock().unwrap().get_type(self.node)
     }
 
+    /// Class-level type (Python `.type`); `type` above is `get_type()`.
+    fn class_type(&self) -> String {
+        self.inner.lock().unwrap().class_type(self.node)
+    }
+
     fn is_type(&self, seg_type: Vec<String>) -> bool {
         let a = self.inner.lock().unwrap();
         seg_type.iter().any(|t| a.is_type(self.node, t))
@@ -186,6 +191,25 @@ impl PyHandle {
         // building the Python tuple.
         let arc = self.inner.lock().unwrap().trim_chars_arc(self.node);
         arc.map(|v| pytuple_of_strs(py, &v)).transpose()
+    }
+
+    fn trim_start<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyTuple>>> {
+        // As `trim_chars`: build the tuple after dropping the guard.
+        let arc = self.inner.lock().unwrap().trim_start_arc(self.node);
+        arc.map(|v| pytuple_of_strs(py, &v)).transpose()
+    }
+
+    fn casefold(&self) -> Option<&'static str> {
+        self.inner.lock().unwrap().casefold(self.node)
+    }
+
+    fn block_type(&self) -> Option<String> {
+        self.inner.lock().unwrap().block_type(self.node)
+    }
+
+    /// Template block uuid as an int (Python `UUID.int`).
+    fn block_uuid(&self) -> Option<u128> {
+        self.inner.lock().unwrap().block_uuid(self.node)
     }
 
     fn quoted_value(&self) -> Option<(String, String)> {
