@@ -8,7 +8,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -69,6 +71,10 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
 
     match_grammar = mysql.ColumnDefinitionSegment.match_grammar.copy(
         insert=[
+            # The aggregate type comes straight after the column type and
+            # before any NULL/DEFAULT/COMMENT clauses, e.g.
+            # `v1 BIGINT SUM DEFAULT "0"`.
+            # https://doris.apache.org/docs/table-design/data-model/aggregate
             OneOf(
                 "MAX",
                 "MIN",
@@ -79,7 +85,8 @@ class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
                 "QUANTILE_UNION",
                 optional=True,
             ),
-        ]
+        ],
+        at=3,
     )
 
 
@@ -289,7 +296,7 @@ class RangePartitionDefinitionSegment(BaseSegment):
             Sequence(
                 Bracketed(
                     Bracketed(Delimited(Ref("LiteralGrammar"))),
-                    ",",
+                    Ref("CommaSegment"),
                     Bracketed(Delimited(Ref("LiteralGrammar"))),
                 )
             ),
@@ -463,6 +470,7 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         # Optional PARTITION clause
         Sequence(
@@ -479,9 +487,20 @@ class InsertStatementSegment(BaseSegment):
         ),
         # Optional column list
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         # VALUES or SELECT
         OneOf(
             Ref("ValuesClauseSegment"),
             Ref("SelectableGrammar"),
         ),
+    )
+
+
+class StatementSegment(mysql.StatementSegment):
+    """Overriding StatementSegment to remove unsupported MySQL statements."""
+
+    match_grammar = mysql.StatementSegment.match_grammar.copy(
+        remove=[
+            Ref("FlushStatementSegment"),
+        ],
     )

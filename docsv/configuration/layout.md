@@ -244,6 +244,58 @@ When controlling line breaks, we are trying to achieve a few different things:
    less common cases, it may also be desirable for some elements to have both
    a line break *before and after* (e.g. a set operator such as `UNION`).
 
+### Long Lists
+
+When a comma separated list (for example the terms of a `GROUP BY`,
+or the arguments of a function) is too long for one line, *SQLFluff* puts
+each element of the list on its own line. To put as many elements on each
+line as fit within the line length instead, set `list_wrapping` in
+the `sqlfluff:indentation` section of your config file:
+
+```ini
+[sqlfluff:indentation]
+list_wrapping = fill
+```
+
+For example, with a `max_line_length` of 45, the default layout is:
+
+```sql
+SELECT a
+FROM tbl
+GROUP BY
+    long_column_name1,
+    long_column_name2,
+    long_column_name3,
+    long_column_name4
+```
+
+With `list_wrapping = fill`, it becomes:
+
+```sql
+SELECT a
+FROM tbl
+GROUP BY
+    long_column_name1, long_column_name2,
+    long_column_name3, long_column_name4
+```
+
+The configured position of commas (see
+[Configuring layout and spacing](#configuring-layout-and-spacing))
+still applies where a line is broken. Operators such as `AND`
+or `+` are not filled, and still get one line break each.
+The fill only breaks a line that is too long. It does not join
+lines, so it keeps the line breaks that are already in a list.
+[LT05](../reference/rules/layout#lt05) does not break inside a
+template tag. When one tag renders the whole list, the line stays
+too long, with either value of `list_wrapping`.
+
+::: tip NOTE
+When a select clause has more than one target,
+[LT09](../reference/rules/layout#lt09) puts each target on its own line,
+at any line length. It is one of the rules which `sqlfluff format`
+applies. To also fill the select targets, add `LT09` to `exclude_rules`.
+:::
+
 
 ## Indentation
 
@@ -654,6 +706,44 @@ FROM my_table
 JOIN another_table
 ON condition1
 AND condition2
+```
+
+There is also an `indented_using_on_newline` config (defaulted to
+`False`) which can be set to `True` to indent the `USING` or `ON`
+clause one level deeper than a joined table on its own line when `indented_using_on` is also enabled.
+For example, with `indented_using_on_newline` set to `True` and
+`implicit_indents` set to `allow`:
+
+```sql
+SELECT
+   a,
+   b
+FROM my_table
+JOIN
+   another_table
+      ON condition1
+         AND condition2
+JOIN
+   yet_another_table
+      USING (id_field)
+```
+
+A join written on a single line (e.g. `JOIN another_table ON condition1`)
+is unaffected. However, when `indented_using_on_newline` is set to `True`
+and the `ON` or `USING` clause is on its own line, the joined table is
+expected to be on its own line too, so the following:
+
+```sql
+JOIN another_table
+   ON condition1
+```
+
+would become:
+
+```sql
+JOIN
+   another_table
+      ON condition1
 ```
 
 There is also a similar `indented_ctes` config (defaulted to

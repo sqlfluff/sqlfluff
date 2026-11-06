@@ -68,12 +68,12 @@ pub enum FrameState {
 #[derive(Debug, Clone)]
 pub enum FrameContext {
     None,
-    OneOf(OneOfState),
-    Sequence(SequenceState),
+    OneOf(Box<OneOfState>),
+    Sequence(Box<SequenceState>),
     Ref(RefState),
-    Delimited(DelimitedState),
-    Bracketed(BracketedState),
-    AnyNumberOf(AnyNumberOfState),
+    Delimited(Box<DelimitedState>),
+    Bracketed(Box<BracketedState>),
+    AnyNumberOf(Box<AnyNumberOfState>),
 }
 
 /// Working state for an `AnyNumberOf` frame (see [`FrameContext::AnyNumberOf`]).
@@ -129,7 +129,7 @@ pub struct DelimitedState {
     /// Terminators to pass to child element frames (excludes local terminators)
     /// Python parity: local terminators (e.g., ObjectReferenceTerminatorGrammar)
     /// are checked at Delimited level, not passed to longest_match
-    pub child_terminators: Vec<GrammarId>,
+    pub child_terminators: Arc<[GrammarId]>,
     pub working_match: Arc<MatchResult>,
 }
 
@@ -182,7 +182,7 @@ pub struct SequenceState {
     /// parse_context.terminators. Children only see parent terminators, not the
     /// Sequence's local terminators. The Sequence uses the combined set (own + parent)
     /// only for its own trim_to_terminator / max_idx computation.
-    pub child_terminators: Vec<GrammarId>,
+    pub child_terminators: Arc<[GrammarId]>,
 }
 
 /// Working state for a `OneOf` frame (see [`FrameContext::OneOf`]).

@@ -690,3 +690,19 @@ test_fail_bigquery_pipe_operator_inline_block_comment:
   configs:
     core:
       dialect: bigquery
+
+fails_on_trailing_oracle_multiset_operator:
+  # Multi-keyword operators move as a whole and keep their inner spacing.
+  fail_str: |
+    SELECT
+        a MULTISET UNION
+        b AS u
+    FROM t
+  fix_str: |
+    SELECT
+        a
+        MULTISET UNION b AS u
+    FROM t
+  configs:
+    core:
+      dialect: oracle

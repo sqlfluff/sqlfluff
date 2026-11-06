@@ -17,7 +17,7 @@ class Rule_AL06(BaseRule):
     .. code-block:: sql
 
         SELECT
-            SUM(o.amount) as order_amount,
+            SUM(o.amount) as order_amount
         FROM orders as o
 
 
@@ -30,7 +30,7 @@ class Rule_AL06(BaseRule):
     .. code-block:: sql
 
         SELECT
-            SUM(orders.amount) as order_amount,
+            SUM(orders.amount) as order_amount
         FROM orders
 
         SELECT

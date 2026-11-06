@@ -44,6 +44,8 @@ class Rule_RF02(Rule_AL04):
     groups = ("all", "references")
     # Crawl behaviour is defined in AL04
     config_keywords = [
+        "ignore_words",
+        "ignore_words_regex",
         "subqueries_ignore_external_references",
     ]
     _dialects_with_row_references = [

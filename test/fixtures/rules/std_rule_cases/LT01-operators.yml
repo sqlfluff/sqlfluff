@@ -182,6 +182,41 @@ fail_oracle_modulo_still_spaced:
     core:
       dialect: oracle
 
+pass_oracle_multiset_operators:
+  # MULTISET EXCEPT/INTERSECT/UNION are multi-keyword operators, so the spaces
+  # between the keywords must not be removed.
+  pass_str: |
+    SELECT
+        a MULTISET UNION b AS u,
+        a MULTISET UNION DISTINCT b AS ud,
+        a MULTISET EXCEPT ALL b AS ea,
+        a MULTISET INTERSECT b AS i
+    FROM t
+  configs:
+    core:
+      dialect: oracle
+
+fail_oracle_multiset_operators_extra_spaces:
+  # Extra spacing inside the operator is still normalized to a single space.
+  fail_str: |
+    SELECT a MULTISET   UNION  ALL b AS u FROM t
+  fix_str: |
+    SELECT a MULTISET UNION ALL b AS u FROM t
+  configs:
+    core:
+      dialect: oracle
+
+pass_mysql_word_delimiter:
+  # Removing the space before a word delimiter would join it to the
+  # statement, e.g. `DELETE FROM tgo`.
+  pass_str: |
+    DELIMITER go
+    DELETE FROM t go
+    SET @b = 2 go
+  configs:
+    core:
+      dialect: mysql
+
 pass_consecutive_sign_indicators:
   # Touching these would produce "--" and comment out the rest of the line, so
   # the gap is left alone rather than reported as an unsatisfiable violation.
@@ -236,3 +271,48 @@ fail_sign_indicator_across_a_newline_without_a_marker:
       type:
         sign_indicator:
           spacing_after: touch:inline
+
+pass_consecutive_tildes:
+  # Touching these would produce "~~", which is the LIKE operator in Postgres
+  # and DuckDB, so the fixed query would no longer run.
+  pass_str: |
+    SELECT 8 | ~ ~4
+  configs:
+    core:
+      dialect: postgres
+
+fail_consecutive_tildes_outer_spacing:
+  # Only the gap between the two operators is exempt - the space between the
+  # last tilde and its operand is still removed.
+  fail_str: |
+    SELECT 8 | ~ ~ 4 AS c, 2 AS d
+  fix_str: |
+    SELECT 8 | ~ ~4 AS c, 2 AS d
+  configs:
+    core:
+      dialect: postgres
+
+fail_consecutive_tildes_across_a_newline:
+  # As with sign indicators, the line break is the only thing keeping the two
+  # tildes apart, so it isn't stripped.
+  fail_str: |
+    SELECT 8 | ~
+    ~ 4 AS c, 2 AS d
+  fix_str: |
+    SELECT 8 | ~
+    ~4 AS c, 2 AS d
+  configs:
+    core:
+      dialect: postgres
+    layout:
+      type:
+        tilde:
+          spacing_after: touch:inline
+
+fail_sign_indicator_before_other_prefix_operators:
+  # A prefix operator is never glued onto another operator, whichever of
+  # them comes first.
+  fail_str: |
+    SELECT 1 * - ~ 5, 1 * ~ - 5, 1 * + + 5
+  fix_str: |
+    SELECT 1 * - ~5, 1 * ~ -5, 1 * + +5

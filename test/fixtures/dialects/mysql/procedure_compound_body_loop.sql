@@ -1,0 +1,7 @@
+CREATE PROCEDURE p8()
+b1: BEGIN
+  l1: LOOP
+    SET @v1 = 1;
+    LEAVE l1;
+  END LOOP l1;
+END b1;

@@ -1,0 +1,155 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 96166c107398e9673e87189e21a2686f1655603aa24ea14e14ac63a577e8edc7
+file:
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: my_service_user
+    - keyword: SET
+    - keyword: WORKLOAD_IDENTITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: GCP
+      - keyword: SUBJECT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'117253954487186628372'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: my_service_user
+    - keyword: SET
+    - keyword: WORKLOAD_IDENTITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AWS
+      - keyword: ARN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'arn:aws:iam::123456789012:role/my-role'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: my_service_user
+    - keyword: SET
+    - keyword: WORKLOAD_IDENTITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AZURE
+      - keyword: ISSUER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0'"
+      - keyword: SUBJECT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'00000000-0000-0000-0000-000000000000'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: my_service_user
+    - keyword: SET
+    - keyword: WORKLOAD_IDENTITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OIDC
+      - keyword: ISSUER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://oidc.example.com'"
+      - keyword: SUBJECT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'system:serviceaccount:my-namespace:my-service-account'"
+      - keyword: OIDC_AUDIENCE_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'https://example.snowflakecomputing.com'"
+        - comma: ','
+        - quoted_literal: "'my-audience'"
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: my_service_user
+    - keyword: UNSET
+    - parameter: WORKLOAD_IDENTITY
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_service_user
+    - keyword: DEFAULT_ROLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_role
+    - keyword: WORKLOAD_IDENTITY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: GCP
+      - keyword: SUBJECT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'117253954487186628372'"
+      - end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'service user authenticating via workload identity federation'"
+- statement_terminator: ;

@@ -1,0 +1,122 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ed8244298e0ee6d6e3b75ca7ec4fd0df40303afdb6db668884ded14c24be1a87
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: category_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: indexed_values
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: category
+        end_bracket: )
+    - index_option:
+        index_type:
+        - keyword: USING
+        - keyword: BITMAP
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: gin_english
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: text_search
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: value
+        end_bracket: )
+    - index_option:
+        index_type:
+        - keyword: USING
+        - keyword: GIN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '"parser"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: '"english"'
+          - end_bracket: )
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'english index'"
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: description_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: indexed_values
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: description
+        end_bracket: )
+    - index_option:
+        index_type:
+        - keyword: USING
+        - keyword: NGRAMBF
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '"bloom_filter_fpp"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: '"0.05"'
+          - comma: ','
+          - quoted_literal: '"gram_num"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: '"3"'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: vector_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: vector_search
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: embedding
+        end_bracket: )
+    - index_option:
+        index_type:
+        - keyword: USING
+        - keyword: VECTOR
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '"index_type"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: '"hnsw"'
+          - comma: ','
+          - quoted_literal: '"dim"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: '"5"'
+          - comma: ','
+          - quoted_literal: '"metric_type"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: '"cosine_similarity"'
+          - end_bracket: )
+- statement_terminator: ;

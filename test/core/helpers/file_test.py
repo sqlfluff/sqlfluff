@@ -64,6 +64,22 @@ def test__parser__helper_get_encoding_utf16_bom(tmp_path):
     assert get_encoding(fname=str(test_file), config_encoding="autodetect") == "utf-16"
 
 
+def test__parser__helper_get_encoding_empty_file(tmp_path):
+    """Test get_encoding returns ascii for an empty file."""
+    test_file = tmp_path / "empty.sql"
+    test_file.write_bytes(b"")
+
+    assert get_encoding(fname=str(test_file), config_encoding="autodetect") == "ascii"
+
+
+def test__parser__helper_get_encoding_single_non_ascii_byte(tmp_path):
+    """Test get_encoding does not report the single byte 0x80 as ascii."""
+    test_file = tmp_path / "single_byte.sql"
+    test_file.write_bytes(b"\x80")
+
+    assert get_encoding(fname=str(test_file), config_encoding="autodetect") != "ascii"
+
+
 def test__parser__helper_get_encoding_chardet_path(tmp_path, monkeypatch):
     """Test get_encoding returns detected encoding when chardet provides one."""
     test_file = tmp_path / "detected_encoding.sql"

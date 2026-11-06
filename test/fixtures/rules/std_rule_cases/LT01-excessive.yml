@@ -3,6 +3,34 @@ rule: LT01
 test_basic:
   pass_str: SELECT 1
 
+test_postgres_variadic_array_spacing:
+  fail_str: SELECT f(VARIADIC ARRAY[1,2]);
+  fix_str: SELECT f(VARIADIC ARRAY[1, 2]);
+  configs:
+    core:
+      dialect: postgres
+
+test_postgres_variadic_named_array_spacing:
+  fail_str: SELECT f(VARIADIC arr := ARRAY[1,2]);
+  fix_str: SELECT f(VARIADIC arr := ARRAY[1, 2]);
+  configs:
+    core:
+      dialect: postgres
+
+test_redshift_variadic_array_spacing:
+  fail_str: SELECT f(VARIADIC ARRAY[1,2]);
+  fix_str: SELECT f(VARIADIC ARRAY[1, 2]);
+  configs:
+    core:
+      dialect: redshift
+
+test_redshift_masking_policy_spacing_fix:
+  fail_str: CREATE MASKING POLICY "test_policy"     WITH (col1 VARCHAR) USING ('***'::TEXT)
+  fix_str: CREATE MASKING POLICY "test_policy" WITH (col1 VARCHAR) USING ('***'::TEXT)
+  configs:
+    core:
+      dialect: redshift
+
 test_basic_template:
   pass_str: |
     {{ 'SELECT 1' }}

@@ -51,3 +51,9 @@ create user user4
     default_warehouse = my_default_warehouse
     default_namespace = my_default_namespace
     default_secondary_roles = ('ALL');
+
+create user if not exists my_service_user
+    type = service
+    default_role = my_role
+    default_secondary_roles = ()
+    comment = 'service user';

@@ -8,7 +8,7 @@ The design system lives in its own repository,
 is the source of truth for it. Its own `INTEGRATION.md` is the contract; this
 document only covers what is specific to these docs.
 
-The legacy Sphinx documentation is out of scope and is deliberately unchanged.
+Archived pre-cutover Sphinx releases remain published as historical versions.
 
 ## Summary
 

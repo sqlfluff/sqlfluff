@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f929fd6c4998a6be65d3d8b7c2316409583e5c4e71835043030ce7d46d3312e3
+file:
+- statement:
+    magic_cell_segment:
+    - magic_single_line: '-- MAGIC %md # Dummy Notebook'
+    - magic_line: -- MAGIC
+    - magic_line: -- MAGIC Some prose describing the pipeline, on the lines after
+        a magic
+    - magic_line: -- MAGIC directive that already carried content of its own.
+- command_cell: -- COMMAND ----------
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: y
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      magic_single_line: -- MAGIC %python print("one liner, no body")
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      magic_single_line: -- MAGIC %sh echo hello
+      magic_line: -- MAGIC echo world
+- command_cell: -- COMMAND ----------
+- statement:
+    magic_cell_segment:
+      magic_start: -- MAGIC %md
+      magic_line: '-- MAGIC Some prose quoting a magic command:'
+      magic_single_line: -- MAGIC %pip within a Python notebook.
+- command_cell: -- COMMAND ----------
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: b
+- statement_terminator: ;

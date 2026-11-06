@@ -95,12 +95,14 @@ def _load_configfile(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     # than a string or list) then we assume there's no ignore pattern
     # to process and just return None.
     if isinstance(patterns, str):
-        patterns = patterns.split(",")
+        pattern_lines = patterns.split(",")
     elif not patterns or not isinstance(patterns, list):
         return None
+    else:
+        pattern_lines = [str(p) for p in patterns]
     # By reaching here, we think there is a valid set of ignore patterns
     # to process.
-    spec = _load_specs_from_lines(patterns, filepath)
+    spec = _load_specs_from_lines(pattern_lines, filepath)
     return dirpath, filename, spec
 
 
@@ -197,8 +199,7 @@ def _iter_files_in_path(
         # NOTE: Slice so we can modify as we go.
         for inner_dirname, inner_file, inner_spec in inner_ignore_specs[:]:
             if not (
-                dirname == inner_dirname
-                or dirname.startswith(os.path.abspath(inner_dirname) + os.sep)
+                dirname == inner_dirname or dirname.startswith(inner_dirname + os.sep)
             ):
                 inner_ignore_specs.remove((inner_dirname, inner_file, inner_spec))
 

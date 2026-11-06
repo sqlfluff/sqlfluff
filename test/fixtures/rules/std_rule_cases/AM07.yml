@@ -544,3 +544,28 @@ test_fail_placeholder_templater_set_columns:
       placeholder:
         param_style: dollar
         CATALOG: my_catalog
+
+test_fail_repeated_unaliased_cte_wildcard_reference:
+  desc: Ensure repeated unaliased wildcard reference to the same CTE does not suppress AM07 violation.
+  fail_str: |
+    with cte as (
+        select a, b from t
+    )
+    select * from cte
+    union
+    select * from cte
+    union
+    select c, d, e
+    from t2
+
+test_pass_self_referencing_cte_wildcard_no_recursion:
+  desc: Self-referencing CTE wildcard does not cause infinite recursion.
+  pass_str: |
+    with cte as (
+        select * from cte
+        union all
+        select 1 as n
+    )
+    select * from cte
+    union
+    select 1

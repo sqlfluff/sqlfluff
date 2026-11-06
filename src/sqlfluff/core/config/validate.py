@@ -17,6 +17,7 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 ALLOWABLE_IMPLICIT_INDENTS_VALUES = ("forbid", "allow", "require")
+ALLOWABLE_LIST_WRAPPING_VALUES = ("one_per_line", "fill")
 
 
 def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -> None:
@@ -108,6 +109,17 @@ def _validate_indentation_config(
                 f"Config file {logging_reference!r} set an invalid value for "
                 f"`implicit_indents`: {implicit_indents!r}. "
                 f"Valid options are: {', '.join(ALLOWABLE_IMPLICIT_INDENTS_VALUES)}. "
+                "See https://docs.sqlfluff.com/en/stable/perma/configuration.html "
+                "for more details."
+            )
+
+    list_wrapping = indentation_section.get("list_wrapping")
+    if list_wrapping is not None:
+        if list_wrapping not in ALLOWABLE_LIST_WRAPPING_VALUES:
+            raise SQLFluffUserError(
+                f"Config file {logging_reference!r} set an invalid value for "
+                f"`list_wrapping`: {list_wrapping!r}. "
+                f"Valid options are: {', '.join(ALLOWABLE_LIST_WRAPPING_VALUES)}. "
                 "See https://docs.sqlfluff.com/en/stable/perma/configuration.html "
                 "for more details."
             )

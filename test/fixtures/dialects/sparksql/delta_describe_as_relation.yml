@@ -1,0 +1,237 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 58576e9c50e2245e468887638a87a776d5dca0a065aef65405d473512d78567f
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                describe_history_statement:
+                - keyword: DESCRIBE
+                - keyword: HISTORY
+                - table_reference:
+                    naked_identifier: my_table
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                describe_detail_statement:
+                - keyword: DESCRIBE
+                - keyword: DETAIL
+                - table_reference:
+                    naked_identifier: my_table
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: version
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: operationMetrics
+          - dot: .
+          - naked_identifier: numAddedFiles
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: files_added
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                describe_history_statement:
+                - keyword: DESCRIBE
+                - keyword: HISTORY
+                - table_reference:
+                    naked_identifier: my_table
+                end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: operation
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'OPTIMIZE'"
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: version
+      - keyword: DESC
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: h
+          - dot: .
+          - naked_identifier: version
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                describe_history_statement:
+                - keyword: DESCRIBE
+                - keyword: HISTORY
+                - table_reference:
+                    naked_identifier: my_table
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: h
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: location
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                describe_detail_statement:
+                - keyword: DESCRIBE
+                - keyword: DETAIL
+                - file_reference:
+                    keyword: delta
+                    dot: .
+                    quoted_identifier: '`/data/events`'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                describe_history_statement:
+                - keyword: DESCRIBE
+                - keyword: HISTORY
+                - table_reference:
+                    naked_identifier: my_table
+                - limit_clause:
+                    keyword: LIMIT
+                    numeric_literal: '1'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "'bronze'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: table_name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: location
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  describe_detail_statement:
+                  - keyword: DESCRIBE
+                  - keyword: DETAIL
+                  - table_reference:
+                    - naked_identifier: main
+                    - dot: .
+                    - naked_identifier: bronze
+                    - dot: .
+                    - naked_identifier: raw_tags
+                  end_bracket: )
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "'silver'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: table_name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: location
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  describe_detail_statement:
+                  - keyword: DESCRIBE
+                  - keyword: DETAIL
+                  - table_reference:
+                    - naked_identifier: main
+                    - dot: .
+                    - naked_identifier: silver
+                    - dot: .
+                    - naked_identifier: parsed_tags
+                  end_bracket: )
+- statement_terminator: ;

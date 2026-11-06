@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6b6c8641a16f20ac8898a51c1dd2ff9b1f1c79eef7aaac5cf250133ffb09727
+_hash: b43ed5e30b7222a9591ba114f3ad87609d2353ad2653bb5860b426b07ae1200b
 file:
 - statement:
     analyze_statement:
@@ -102,4 +102,103 @@ file:
       - column_reference:
           naked_identifier: bat2
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - keyword: 'ON'
+      - comma: ','
+      - keyword: SKIP_LOCKED
+      - keyword: 'OFF'
+      - end_bracket: )
+      table_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - numeric_literal: '1'
+      - comma: ','
+      - keyword: SKIP_LOCKED
+      - numeric_literal: '0'
+      - end_bracket: )
+      table_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      bracketed:
+        start_bracket: (
+        keyword: BUFFER_USAGE_LIMIT
+        numeric_literal: '256'
+        end_bracket: )
+      table_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: ANALYZE
+      bracketed:
+      - start_bracket: (
+      - keyword: BUFFER_USAGE_LIMIT
+      - quoted_literal: "'1MB'"
+      - comma: ','
+      - keyword: VERBOSE
+      - end_bracket: )
+      table_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+    - keyword: ANALYZE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+    - keyword: ANALYZE
+    - keyword: VERBOSE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: bat
+      - end_bracket: )
+    - comma: ','
+    - table_reference:
+        naked_identifier: foo2
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+    - keyword: ANALYZE
+    - bracketed:
+        start_bracket: (
+        keyword: SKIP_LOCKED
+        end_bracket: )
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo
+    - comma: ','
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: foo2
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar2
+        end_bracket: )
 - statement_terminator: ;

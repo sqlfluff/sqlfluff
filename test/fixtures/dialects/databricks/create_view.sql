@@ -79,3 +79,39 @@ AS SELECT id, metric_value FROM metrics_table;
 CREATE TEMPORARY VIEW temp_summary
 COMMENT 'Temporary summary for session'
 AS SELECT category, AVG(price) as avg_price FROM products GROUP BY category;
+
+-- Pipeline views declared against the legacy LIVE schema.
+-- https://docs.databricks.com/aws/en/ldp/live-schema
+CREATE LIVE VIEW filtered_data
+AS SELECT a, b FROM live.taxi_raw;
+
+CREATE TEMPORARY LIVE VIEW filtered_data
+AS SELECT a, b FROM live.taxi_raw;
+
+CREATE TEMPORARY STREAMING LIVE VIEW customers_silver
+AS SELECT a, b FROM stream(live.customers_bronze);
+
+CREATE TEMPORARY LIVE VIEW validated_data (
+    a COMMENT 'a',
+    b COMMENT 'b',
+    CONSTRAINT valid_a EXPECT (a IS NOT NULL),
+    CONSTRAINT valid_b EXPECT (b > 0) ON VIOLATION DROP ROW
+)
+AS SELECT a, b FROM live.taxi_raw;
+
+-- The temporary view backed by a data source.
+CREATE TEMPORARY VIEW csv_view
+USING csv
+OPTIONS (path '/data', header 'true');
+
+CREATE TEMPORARY VIEW csv_view_equals
+USING csv
+OPTIONS (path = '/data');
+
+CREATE OR REPLACE TEMPORARY VIEW csv_view_replaced
+USING csv;
+
+-- The with_clause also takes the parenthesised list form.
+CREATE VIEW parenthesised_binding_view
+WITH (SCHEMA BINDING)
+AS SELECT id FROM source_table;

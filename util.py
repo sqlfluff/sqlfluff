@@ -341,22 +341,6 @@ def release(new_version_num):
             write_file.write(line)
         write_file.close()
 
-    if not is_pre_release:
-        click.echo("Updating gettingstarted.rst")
-        for filename in ["docs/source/gettingstarted.rst"]:
-            input_file = open(filename, "r").readlines()
-            # Regardless of platform, write newlines as \n
-            write_file = open(filename, "w", newline="\n")
-            change_next_line = False
-            for line in input_file:
-                if change_next_line:
-                    line = f"    {new_version_num}\n"
-                    change_next_line = False
-                elif line.startswith("    $ sqlfluff version"):
-                    change_next_line = True
-                write_file.write(line)
-            write_file.close()
-
     click.echo("DONE")
 
 

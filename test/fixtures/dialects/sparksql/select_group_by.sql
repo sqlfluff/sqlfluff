@@ -130,3 +130,9 @@ SELECT
     count(*) AS record_count
 FROM people
 GROUP BY rollup(name, age);
+
+-- Group by all non-aggregate columns in the select list.
+SELECT
+    id,
+    sum(quantity) AS sum_quantity
+FROM dealer GROUP BY ALL;

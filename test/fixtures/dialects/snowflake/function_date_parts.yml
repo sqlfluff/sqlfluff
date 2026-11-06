@@ -1,0 +1,685 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 49834fd2dba486986a16a16b74cd01e8b430f329a95417f5cbd28a3964321b05
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: d
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: y
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: m
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    quoted_identifier: '"year"'
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: day
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              naked_identifier: analytics
+              dot: .
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              naked_identifier: analytics
+              dot: .
+              function_name_identifier: DATEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              quoted_identifier: '"DATEADD"'
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              naked_identifier: EXTRACT
+              dot: .
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: dd
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: ms
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEDIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMEDIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: hh
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPDIFF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: ns
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: month
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_PART
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: year
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: day
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: year
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: day
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_PART
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: year
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: day
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: year
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'month'"
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  quoted_literal: "'month'"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: scale
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRUNC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRUNCATE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                comma: ','
+                date_part: day
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRUNC
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  quoted_literal: "'month'"
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRUNCATE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  quoted_literal: "'day'"
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIME_SLICE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  quoted_literal: "'month'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'END'"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_udf
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - snowflake_keyword_expression:
+                  parameter: arg
+                  parameter_assigner: =>
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - snowflake_keyword_expression:
+                  parameter: other
+                  parameter_assigner: =>
+                  column_reference:
+                    naked_identifier: month
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARRAY_TRANSFORM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: month
+                comma: ','
+                lambda_function:
+                  parameter: x
+                  lambda_arrow: ->
+                  expression:
+                  - column_reference:
+                      naked_identifier: x
+                  - binary_operator: +
+                  - column_reference:
+                      naked_identifier: year
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LISTAGG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: year
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: month
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: year
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: month
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;

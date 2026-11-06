@@ -209,13 +209,16 @@ class Rule_ST04(BaseRule):
             start_seg=case1_else_clause_seg,
             loop_while=sp.not_(sp.is_type("newline")),
         )
+        first_comment = trailing_end.first(sp.is_comment()).get()
+        if not first_comment:
+            # Nothing to move, and the whitespace may be all that separates
+            # the nested value from the outer `END`.
+            return []
         fixes = trailing_end.select(
             sp.is_whitespace(), loop_while=sp.not_(sp.is_comment())
         ).apply(LintFix.delete)
-        first_comment = trailing_end.first(sp.is_comment()).get()
-        if first_comment:
-            segments = [NewlineSegment(), WhitespaceSegment(end_indent_str)]
-            fixes.append(LintFix.create_before(first_comment, segments, segments))
+        segments = [NewlineSegment(), WhitespaceSegment(end_indent_str)]
+        fixes.append(LintFix.create_before(first_comment, segments, segments))
         return fixes
 
     def _rebuild_spacing(

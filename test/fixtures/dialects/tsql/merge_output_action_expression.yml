@@ -1,0 +1,432 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 58091719d5b3152ed045bb98429c73088f32672b0ad509c9f01053b1db064007
+file:
+- batch:
+    statement:
+      merge_statement:
+      - keyword: MERGE
+      - table_reference:
+          naked_identifier: TargetTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: T
+      - keyword: USING
+      - table_reference:
+          naked_identifier: SourceTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: S
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: T
+              - dot: .
+              - naked_identifier: ID
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: S
+              - dot: .
+              - naked_identifier: ID
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: T
+                  - dot: .
+                  - naked_identifier: Val
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: S
+                    - dot: .
+                    - naked_identifier: Val
+          output_clause:
+            keyword: OUTPUT
+            expression:
+              case_expression:
+              - keyword: CASE
+              - expression:
+                  action_parameter: $action
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    quoted_literal: "'INSERT'"
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Added'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    quoted_literal: "'UPDATE'"
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Changed'"
+              - keyword: END
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ActionTaken
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      merge_statement:
+      - keyword: MERGE
+      - table_reference:
+          naked_identifier: TargetTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: T
+      - keyword: USING
+      - table_reference:
+          naked_identifier: SourceTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: S
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: T
+              - dot: .
+              - naked_identifier: ID
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: S
+              - dot: .
+              - naked_identifier: ID
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: T
+                  - dot: .
+                  - naked_identifier: Val
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: S
+                    - dot: .
+                    - naked_identifier: Val
+          output_clause:
+            keyword: OUTPUT
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: IIF
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      action_parameter: $action
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      quoted_literal: "'INSERT'"
+                  - comma: ','
+                  - expression:
+                      integer_literal: '1'
+                  - comma: ','
+                  - expression:
+                      integer_literal: '0'
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: IsInsert
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      merge_statement:
+      - keyword: MERGE
+      - table_reference:
+          naked_identifier: TargetTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: T
+      - keyword: USING
+      - table_reference:
+          naked_identifier: SourceTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: S
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: T
+              - dot: .
+              - naked_identifier: ID
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: S
+              - dot: .
+              - naked_identifier: ID
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: T
+                  - dot: .
+                  - naked_identifier: Val
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: S
+                    - dot: .
+                    - naked_identifier: Val
+          output_clause:
+            keyword: OUTPUT
+            expression:
+              case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    action_parameter: $action
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: "'DELETE'"
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Deleted'"
+              - else_clause:
+                  keyword: ELSE
+                  expression:
+                    quoted_literal: "'Kept'"
+              - keyword: END
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ActionDesc
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      merge_statement:
+      - keyword: MERGE
+      - table_reference:
+          naked_identifier: TargetTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: T
+      - keyword: USING
+      - table_reference:
+          naked_identifier: SourceTable
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: S
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: T
+              - dot: .
+              - naked_identifier: ID
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: S
+              - dot: .
+              - naked_identifier: ID
+            end_bracket: )
+      - merge_match:
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: AND
+          - expression:
+              column_reference:
+              - naked_identifier: T
+              - dot: .
+              - naked_identifier: Qty
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '='
+              integer_literal: '0'
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: T
+                  - dot: .
+                  - naked_identifier: Qty
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - naked_identifier: T
+                    - dot: .
+                    - naked_identifier: Qty
+                  - binary_operator: '-'
+                  - column_reference:
+                    - naked_identifier: S
+                    - dot: .
+                    - naked_identifier: Qty
+        - merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+            - keyword: INSERT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: ID
+              - comma: ','
+              - column_reference:
+                  naked_identifier: Qty
+              - end_bracket: )
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: S
+                  - dot: .
+                  - naked_identifier: ID
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: S
+                  - dot: .
+                  - naked_identifier: Qty
+              - end_bracket: )
+        - output_clause:
+          - keyword: OUTPUT
+          - action_parameter: $action
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ActionRaw
+          - comma: ','
+          - expression:
+              case_expression:
+              - keyword: CASE
+              - expression:
+                  action_parameter: $action
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    quoted_literal: "'INSERT'"
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Added'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    quoted_literal: "'UPDATE'"
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Changed'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    quoted_literal: "'DELETE'"
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Removed'"
+              - keyword: END
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ActionTaken
+          - comma: ','
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: IIF
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      action_parameter: $action
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      quoted_literal: "'INSERT'"
+                  - comma: ','
+                  - expression:
+                      integer_literal: '1'
+                  - comma: ','
+                  - expression:
+                      integer_literal: '0'
+                  - end_bracket: )
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: IsInsert
+          - comma: ','
+          - keyword: INSERTED
+          - dot: .
+          - naked_identifier: ID
+          - comma: ','
+          - keyword: DELETED
+          - dot: .
+          - naked_identifier: ID
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

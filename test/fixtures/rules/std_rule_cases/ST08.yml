@@ -45,6 +45,32 @@ test_pass_no_distinct:
   pass_str: |
     SELECT a, b
 
+test_pass_distinct_scalar_subquery:
+  pass_str: SELECT DISTINCT (SELECT a FROM t), b FROM foo
+
+test_fail_distinct_scalar_subquery_missing_space:
+  fail_str: SELECT DISTINCT(SELECT a FROM t), b FROM foo
+  fix_str: SELECT DISTINCT (SELECT a FROM t), b FROM foo
+
+test_pass_distinct_row_constructor:
+  pass_str: SELECT DISTINCT (a, b) FROM foo
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_distinct_values_subquery:
+  pass_str: SELECT DISTINCT (VALUES (1))
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_distinct_values_subquery_missing_space:
+  fail_str: SELECT DISTINCT(VALUES (1))
+  fix_str: SELECT DISTINCT (VALUES (1))
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_distinct_column_inside_count:
   fail_str: |
     SELECT COUNT(DISTINCT(unique_key))

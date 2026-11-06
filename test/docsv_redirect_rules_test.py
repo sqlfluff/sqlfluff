@@ -115,7 +115,7 @@ def test_fragments_are_preserved(assemble_site):
 
 
 def test_a_permalink_to_a_permalink_is_followed(assemble_site):
-    """`internals` points at `perma/internals`, which points at the page.
+    """Legacy internals links resolve through the architecture permalink.
 
     The client-side handler followed that chain by accident — each hop 404s and
     re-runs the handler — so it went unnoticed. Resolving it fully saves the
@@ -125,11 +125,16 @@ def test_a_permalink_to_a_permalink_is_followed(assemble_site):
         assemble_site,
         {
             "internals": "perma/internals",
-            "perma/internals": "reference/internals/index",
+            "perma/internals": "perma/architecture",
+            "perma/architecture": "development/architecture",
         },
     )
 
-    assert "/en/:version/internals /en/:version/reference/internals/index 301" in rules
+    assert "/en/:version/internals /en/:version/development/architecture 301" in rules
+    assert (
+        "/en/:version/perma/internals /en/:version/development/architecture 301"
+        in rules
+    )
     assert not any("perma/internals 301" in rule for rule in rules)
 
 
@@ -376,4 +381,4 @@ def test_the_reason_an_entry_was_rejected_is_reported(assemble_site, tmp_path):
 
 def test_the_shipped_map_loads_cleanly(assemble_site):
     """The validation above must not reject the map actually published."""
-    assert len(assemble_site.load_redirect_map(assemble_site.DEFAULT_REDIRECTS)) == 102
+    assert len(assemble_site.load_redirect_map(assemble_site.DEFAULT_REDIRECTS)) == 136

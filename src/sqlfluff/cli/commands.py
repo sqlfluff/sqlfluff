@@ -669,6 +669,40 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         click.echo(payload)
 
 
+def _use_rust_engine(
+    config: "FluffConfig", fmt: Optional[str]
+) -> bool:  # pragma: no cover
+    """Whether Rust should drive orchestration (discover/render/lex/parse).
+
+    Gated by ``core.use_rust_engine`` (``False``/``auto``/``True``, default
+    ``False``), and only for machine-readable output — the ``human`` format
+    still uses the Python formatter path. ``auto`` degrades to Python when
+    ``sqlfluffrs`` is missing; ``True`` warns if it's unavailable. Distinct
+    from ``use_rust_parser`` (which gates only the parse *algorithm*).
+    """
+    val = config.get("use_rust_engine")
+    if val in (False, "False", "false", 0, "0"):
+        return False
+    if fmt == FormatType.human.value:
+        return False
+    try:
+        import sqlfluffrs
+
+        has_rust = hasattr(sqlfluffrs, "engine_parse_paths")
+    except ImportError:  # pragma: no cover
+        has_rust = False
+    if val in (True, "True", "true", 1, "1"):
+        if not has_rust:  # pragma: no cover
+            click.echo(
+                "WARNING: use_rust_engine is set but the sqlfluffrs engine is "
+                "unavailable; falling back to the Python path.",
+                err=True,
+            )
+        return has_rust
+    # "auto": use it when available.
+    return has_rust
+
+
 @cli.command()
 @common_options
 @core_options
@@ -1436,7 +1470,7 @@ def fix(
     check: bool = False,
     bench: bool = False,
     quiet: bool = False,
-    fixed_suffix: str = "",
+    fixed_suffix: Optional[str] = None,
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
@@ -1466,6 +1500,9 @@ def fix(
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
+    if fixed_suffix is None:
+        configured_suffix = config.get("fixed_suffix", default="")
+        fixed_suffix = "" if configured_suffix is None else str(configured_suffix)
     fix_even_unparsable = config.get("fix_even_unparsable")
     verbose = config.get("verbose")
     output_policy = OutputPolicy(verbosity=verbose, quiet=quiet)
@@ -1550,7 +1587,7 @@ def cli_format(
     recursion_limit: Optional[int],
     quiet: bool = False,
     bench: bool = False,
-    fixed_suffix: str = "",
+    fixed_suffix: Optional[str] = None,
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
@@ -1606,6 +1643,9 @@ def cli_format(
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
+    if fixed_suffix is None:
+        configured_suffix = config.get("fixed_suffix", default="")
+        fixed_suffix = "" if configured_suffix is None else str(configured_suffix)
     verbose = config.get("verbose")
     output_policy = OutputPolicy(verbosity=verbose, quiet=quiet)
     output_stream = make_output_stream(
@@ -1779,6 +1819,88 @@ def parse(
         stderr_output=non_human_output,
     )
 
+    # EXPERIMENTAL: let Rust drive discover→render→lex→parse for machine-readable
+    # output. On success this exits directly; on failure under `auto` (for a path)
+    # it falls through to the Python path below. `--include-meta` needs position
+    # info the Rust record path doesn't emit yet, and `--parse-statistics`
+    # timing isn't collected by the Rust path, so both stay on the Python path.
+    if (
+        _use_rust_engine(c, format) and not include_meta and not parse_statistics
+    ):  # pragma: no cover
+        import sqlfluffrs
+
+        force = str(c.get("use_rust_engine")) in ("True", "true", "1")
+        try:
+            if path == "-":
+                stdin_config = lnt.config
+                if stdin_filename:
+                    stdin_config = stdin_config.make_child_from_path(
+                        stdin_filename, require_dialect=False
+                    )
+                results: Optional[list] = sqlfluffrs.engine_parse_paths(
+                    ["-"],
+                    stdin_config,
+                    formatter,
+                    stdin_content=sys.stdin.read(),
+                    stdin_filename=stdin_filename or "stdin",
+                    code_only=code_only,
+                    include_meta=include_meta,
+                )
+            else:
+                results = sqlfluffrs.engine_parse_paths(
+                    [path],
+                    lnt.config,
+                    formatter,
+                    code_only=code_only,
+                    include_meta=include_meta,
+                )
+        except SQLFluffUserError as err:
+            # Mirror PathAndUserErrorHandler: a user error (e.g. no dialect
+            # specified) is reported cleanly with no traceback.
+            click.echo(
+                "\nUser Error: " + formatter.colorize(str(err), Color.red),
+                err=True,
+            )
+            sys.exit(EXIT_ERROR)
+        except Exception as err:  # noqa: BLE001
+            # Can't re-read stdin after consuming it, so a stdin failure always
+            # propagates; a path failure under `auto` degrades to Python.
+            if force or path == "-":
+                raise
+            logging.getLogger("sqlfluff").warning(
+                "Rust engine failed (%s); falling back to the Python path.", err
+            )
+            results = None
+
+        if results is not None:
+            parsed_strings_dict = [
+                {"filepath": d["fname"], "segments": d["segments"]} for d in results
+            ]
+            # The violations in `results` have already been filtered against
+            # the `ignore`/`warnings` config settings Rust-side (mirroring
+            # `_get_filtered_parse_violations`), so raw counts drive the exit
+            # code. Inline `noqa` comments are not yet honored on this path.
+            violations_count = sum(
+                len(d["templater_violations"])
+                + len(d["lex_errors"])
+                + len(d["parse_errors"])
+                for d in results
+            )
+            if format == FormatType.yaml.value:
+                yaml.add_representer(str, quoted_presenter)
+                file_output = yaml.dump(
+                    parsed_strings_dict, sort_keys=False, allow_unicode=True
+                )
+            elif format == FormatType.json.value:
+                file_output = json.dumps(parsed_strings_dict)
+            else:
+                file_output = ""
+            dump_file_payload(write_output, file_output)
+            if violations_count > 0 and not nofail:
+                sys.exit(EXIT_FAIL)
+            else:
+                sys.exit(EXIT_SUCCESS)
+
     t0 = time.monotonic()
 
     # handle stdin if specified via lone '-'
@@ -1882,6 +2004,7 @@ def render(
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Render SQL files and just spit out the result.
@@ -1917,13 +2040,53 @@ def render(
             raw_sql = sys.stdin.read()
             fname = "stdin"
             file_config = lnt.config
+            if stdin_filename:
+                file_config = file_config.make_child_from_path(
+                    stdin_filename, require_dialect=False
+                )
         else:
             raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
             fname = path
 
-        # Get file specific config
-        file_config.process_raw_file_for_config(raw_sql, fname)
-        rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
+        # EXPERIMENTAL: let Rust drive the render (file reading + templater
+        # dispatch). It returns the same Python `TemplatedFile` objects, so the
+        # downstream print path is unchanged; on failure under `auto` we fall
+        # back to the Python render.
+        rendered: Any = None
+        if _use_rust_engine(c, None):  # pragma: no cover
+            from types import SimpleNamespace
+
+            import sqlfluffrs
+
+            force = str(c.get("use_rust_engine")) in ("True", "true", "1")
+            try:
+                _r = sqlfluffrs.engine_render_string(
+                    raw_sql, fname, file_config, formatter
+                )
+                rendered = SimpleNamespace(
+                    templated_variants=_r["templated_variants"],
+                    templater_violations=_r["templater_violations"],
+                )
+            except SQLFluffUserError as err:
+                # Mirror PathAndUserErrorHandler: report cleanly, no traceback.
+                click.echo(
+                    "\nUser Error: " + formatter.colorize(str(err), Color.red),
+                    err=True,
+                )
+                sys.exit(EXIT_ERROR)
+            except Exception as err:  # noqa: BLE001
+                if force:
+                    raise
+                logging.getLogger("sqlfluff").warning(
+                    "Rust engine failed (%s); falling back to the Python path.",
+                    err,
+                )
+                rendered = None
+
+        if rendered is None:
+            # Get file specific config
+            file_config.process_raw_file_for_config(raw_sql, fname)
+            rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
 
         if rendered.templater_violations:
             for v in rendered.templater_violations:

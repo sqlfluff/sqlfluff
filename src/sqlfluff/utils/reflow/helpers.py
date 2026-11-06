@@ -35,7 +35,7 @@ def pretty_segment_name(segment: BaseSegment) -> str:
 
 def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> str:
     """Given a raw segment, deduce the indent of its line."""
-    seg_idx = root_segment.raw_segments.index(raw_segment)
+    seg_idx = root_segment.raw_segment_index(raw_segment)
     indent_seg = None
     # Use range and a lookup here because it's more efficient than slicing
     # as we only need a subset of the long series.

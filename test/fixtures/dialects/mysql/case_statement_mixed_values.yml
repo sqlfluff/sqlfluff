@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 49124bad7dce8e38eef20d29dcf71211136a3f59cabe122dc9246f819713cd72
+file:
+  statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+          - statement:
+              declare_statement:
+                keyword: DECLARE
+                variable: a
+                data_type:
+                  data_type_identifier: INT
+          - statement_terminator: ;
+          - statement:
+              case_statement:
+              - keyword: CASE
+              - expression:
+                  column_reference:
+                    naked_identifier: i
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    numeric_literal: '1'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '1'
+                    statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '2'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '2'
+                    statement_terminator: ;
+              - keyword: END
+              - keyword: CASE
+          - statement_terminator: ;
+          - statement:
+              case_statement:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '1'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '1'
+                    statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    numeric_literal: '2'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '2'
+                    statement_terminator: ;
+              - keyword: END
+              - keyword: CASE
+          - statement_terminator: ;
+        - keyword: END

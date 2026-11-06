@@ -1,0 +1,41 @@
+SELECT
+    REGEXP_EXTRACT(year, r'[0-9]{4}'),
+    DATE_ADD(year, INTERVAL 5 YEAR),
+    DATE_DIFF(year, month, YEAR),
+    DATETIME_DIFF(day, hour, DAY),
+    TIME_DIFF(minute, second, MINUTE),
+    TIMESTAMP_DIFF(hour, minute, HOUR),
+    DATE_TRUNC(year, MONTH),
+    DATETIME_TRUNC(day, HOUR, month),
+    TIME_TRUNC(hour, MINUTE),
+    TIMESTAMP_TRUNC(year, DAY, month),
+    LAST_DAY(year, MONTH),
+    LAST_DAY(month),
+    SAFE.DATE_DIFF(year, month, WEEK(MONDAY)),
+    SAFE.DATETIME_DIFF(day, hour, DAY),
+    SAFE.TIME_DIFF(minute, second, MINUTE),
+    SAFE.TIMESTAMP_DIFF(hour, minute, HOUR),
+    SAFE.DATE_TRUNC(year, WEEK(MONDAY)),
+    SAFE.DATETIME_TRUNC(day, HOUR, month),
+    SAFE.TIME_TRUNC(hour, MINUTE),
+    SAFE.TIMESTAMP_TRUNC(year, DAY, month),
+    SAFE.LAST_DAY(year, MONTH),
+    SAFE.LAST_DAY(month),
+    EXTRACT(YEAR FROM year),
+    my_dataset.DATE_DIFF(year, month, day)
+FROM foo;
+
+SELECT
+    (year).REGEXP_EXTRACT(month),
+    (year).DATE_ADD(INTERVAL 5 YEAR),
+    (year).DATE_DIFF(month, YEAR),
+    (day).DATETIME_DIFF(hour, DAY),
+    (minute).TIME_DIFF(second, MINUTE),
+    (hour).TIMESTAMP_DIFF(minute, HOUR),
+    (year).DATE_TRUNC(MONTH),
+    (day).DATETIME_TRUNC(HOUR, month),
+    (hour).TIME_TRUNC(MINUTE),
+    (year).TIMESTAMP_TRUNC(DAY, month),
+    (year).LAST_DAY(WEEK(MONDAY)),
+    (month).LAST_DAY()
+FROM foo;

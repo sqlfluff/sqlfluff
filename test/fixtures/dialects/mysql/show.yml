@@ -1,0 +1,769 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d175ac106b8b82df53cd818da440c1c94959cc2ce94944ba217550d38ff8c3c
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: BINARY
+    - keyword: LOG
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: BINARY
+    - keyword: LOGS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: BINLOG
+    - keyword: EVENTS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: BINLOG
+    - keyword: EVENTS
+    - keyword: IN
+    - quoted_literal: "'mysql-bin.000001'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: BINLOG
+    - keyword: EVENTS
+    - keyword: IN
+    - quoted_literal: "'mysql-bin.000001'"
+    - keyword: FROM
+    - numeric_literal: '120'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: BINLOG
+    - keyword: EVENTS
+    - keyword: IN
+    - quoted_literal: "'mysql-bin.000001'"
+    - keyword: FROM
+    - numeric_literal: '120'
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CHARACTER
+    - keyword: SET
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CHARACTER
+    - keyword: SET
+    - keyword: LIKE
+    - quoted_literal: "'utf8%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CHARSET
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: Description
+          keyword: LIKE
+          quoted_literal: "'%Unicode%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLLATION
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLLATION
+    - keyword: LIKE
+    - quoted_literal: "'latin1%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EXTENDED
+    - keyword: FULL
+    - keyword: COLUMNS
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+    - keyword: LIKE
+    - quoted_literal: "'a%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FIELDS
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: IN
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: myevent
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: myfunc
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: LIBRARY
+    - object_reference:
+        naked_identifier: mylib
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: LIBRARY
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: mylib
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_password
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: myproc
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: mytrigger
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'user'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'host'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+    - keyword: LIKE
+    - quoted_literal: "'test%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            quoted_identifier: '`Database`'
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'test'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ENGINE
+    - naked_identifier: InnoDB
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ENGINE
+    - naked_identifier: MyISAM
+    - keyword: MUTEX
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ENGINES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: ENGINES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ERRORS
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '5'
+      - comma: ','
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - naked_identifier: COUNT
+    - bracketed:
+        start_bracket: (
+        star: '*'
+        end_bracket: )
+    - keyword: ERRORS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EVENTS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EVENTS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EVENTS
+    - keyword: IN
+    - database_reference:
+        naked_identifier: mydb
+    - keyword: LIKE
+    - quoted_literal: "'e%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTION
+    - keyword: CODE
+    - function_name:
+        function_name_identifier: myfunc
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTION
+    - keyword: STATUS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: FOR
+    - role_reference:
+      - quoted_identifier: "'user'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'host'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: FOR
+    - role_reference:
+        keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: FOR
+    - role_reference:
+      - quoted_identifier: "'user'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'host'"
+    - keyword: USING
+    - role_reference:
+        quoted_identifier: "'role1'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'role2'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: INDEX
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EXTENDED
+    - keyword: INDEXES
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: IN
+    - database_reference:
+        naked_identifier: mydb
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: Non_unique
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: KEYS
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: LIBRARY
+    - keyword: STATUS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: OPEN
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: OPEN
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+    - keyword: LIKE
+    - quoted_literal: "'mytable%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARSE_TREE
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PLUGINS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROCEDURE
+    - keyword: CODE
+    - function_name:
+        function_name_identifier: myproc
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROCEDURE
+    - keyword: STATUS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROCESSLIST
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FULL
+    - keyword: PROCESSLIST
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: BLOCK
+    - keyword: IO
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: CONTEXT
+    - keyword: SWITCHES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: CPU
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: IPC
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: MEMORY
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: PAGE
+    - keyword: FAULTS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: SOURCE
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: SWAPS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILE
+    - keyword: CPU
+    - comma: ','
+    - keyword: IPC
+    - keyword: FOR
+    - keyword: QUERY
+    - numeric_literal: '5'
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '10'
+      - keyword: OFFSET
+      - numeric_literal: '20'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PROFILES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: RELAYLOG
+    - keyword: EVENTS
+    - keyword: IN
+    - quoted_literal: "'relay-bin.000001'"
+    - keyword: FROM
+    - numeric_literal: '100'
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '5'
+      - comma: ','
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: REPLICA
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: REPLICA
+    - keyword: STATUS
+    - keyword: FOR
+    - keyword: CHANNEL
+    - quoted_literal: "'master-1'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: REPLICAS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GLOBAL
+    - keyword: STATUS
+    - keyword: LIKE
+    - quoted_literal: "'Com_%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SESSION
+    - keyword: STATUS
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: Variable_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Threads_connected'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - keyword: STATUS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: mydb
+    - keyword: LIKE
+    - quoted_literal: "'t%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FULL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: EXTENDED
+    - keyword: FULL
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TRIGGERS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: mydb
+    - keyword: LIKE
+    - quoted_literal: "'tr%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VARIABLES
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: Variable_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'version'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: GLOBAL
+    - keyword: VARIABLES
+    - keyword: LIKE
+    - quoted_literal: "'max_%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SESSION
+    - keyword: VARIABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: WARNINGS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: WARNINGS
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '5'
+      - comma: ','
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - naked_identifier: COUNT
+    - bracketed:
+        start_bracket: (
+        star: '*'
+        end_bracket: )
+    - keyword: WARNINGS
+- statement_terminator: ;

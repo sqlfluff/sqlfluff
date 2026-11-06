@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c0b681abf8db8b52b35bb4927c019530edc4a0f60dd5f575a39032e35763315
+_hash: a5ea6c60d339101aa993eb1824b4bba0d60b9300fbe0806556eabcefb45c236f
 file:
 - statement:
     create_event_statement:
@@ -123,10 +123,10 @@ file:
         quoted_literal: "'Saves total number of sessions then clears the table each\
           \ day'"
     - keyword: DO
-    - statement:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
+    - compound_statement:
+      - keyword: BEGIN
+      - statement_list:
+        - statement:
             insert_statement:
             - keyword: INSERT
             - keyword: INTO
@@ -166,23 +166,21 @@ file:
                         - naked_identifier: site_activity
                         - dot: .
                         - naked_identifier: sessions
-- statement_terminator: ;
-- statement:
-    delete_statement:
-      keyword: DELETE
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - naked_identifier: site_activity
-              - dot: .
-              - naked_identifier: sessions
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: END
+        - statement_terminator: ;
+        - statement:
+            delete_statement:
+              keyword: DELETE
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: site_activity
+                      - dot: .
+                      - naked_identifier: sessions
+        - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
     create_event_statement:

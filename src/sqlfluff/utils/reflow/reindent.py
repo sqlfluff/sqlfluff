@@ -1019,6 +1019,10 @@ def _crawl_indent_points(
             # Is the next element a comment? If so - delay the decision until we've
             # got any indents from after the comment too.
             #
+            # Empty rendered expressions also cannot take an indent. Their source
+            # may be an inline conditional comma which renders on other loop
+            # iterations; forcing a break here would append one on every fix.
+            #
             # Also, some templaters might insert custom marker slices that are of zero
             # source string length as a way of marking locations in the middle of
             # templated output.  These don't correspond to real source code, so we
@@ -1026,8 +1030,17 @@ def _crawl_indent_points(
             # to the comment case.
             if "comment" in elements[idx + 1].class_types or (
                 "placeholder" in elements[idx + 1].class_types
-                and cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
-                == ""
+                and (
+                    cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
+                    == ""
+                    or (
+                        not has_newline
+                        and cast(
+                            TemplateSegment, elements[idx + 1].segments[0]
+                        ).block_type
+                        == "templated"
+                    )
+                )
             ):
                 cached_indent_stats = indent_stats
                 # Create parts of a point to use later.
@@ -1052,6 +1065,91 @@ def _crawl_indent_points(
             indent_balance, untaken_indents = _update_crawl_balances(
                 untaken_indents, indent_balance, indent_stats, has_newline
             )
+
+
+def _rebalance_unrendered_block_indents(
+    elements: ReflowSequenceType,
+) -> ReflowSequenceType:
+    """Hoist positive non-block indents across self-contained unrendered blocks.
+
+    When an entire conditional block span between two rendered segments is
+    unrendered (e.g. an inner ``{% if false %}`` inside ``{% if true %}`` with
+    no rendered tokens in the outer block), ``_flush_metas`` places the
+    enclosing clause's non-block ``Indent`` at the ``ReflowPoint`` *after* the
+    closing ``block_end`` rather than before the opening ``block_start``. Move
+    positive non-block indents from that trailing point to the leading point so
+    template lines inside the unrendered span receive the enclosing indent
+    balance consistently across rendered and unrendered template variants.
+    """
+    rebalanced = list(elements)
+    i = 0
+    n = len(rebalanced)
+    while i < n:
+        elem = rebalanced[i]
+        if not isinstance(elem, ReflowPoint):
+            i += 1
+            continue
+
+        if (
+            i + 1 >= n
+            or not isinstance(rebalanced[i + 1], ReflowBlock)
+            or not rebalanced[i + 1].is_all_unrendered()
+        ):
+            i += 1
+            continue
+
+        open_uuids = set()
+        has_closed_block = False
+        last_block_end_point_idx: Optional[int] = None
+        j = i + 1
+        while j < n:
+            next_elem = rebalanced[j]
+            if not isinstance(next_elem, ReflowBlock):
+                j += 1
+                continue
+            if not next_elem.is_all_unrendered():
+                break
+            for seg in next_elem.segments:
+                if seg.is_type("placeholder"):
+                    tseg = cast(TemplateSegment, seg)
+                    if tseg.block_type == "block_start" and tseg.block_uuid:
+                        open_uuids.add(tseg.block_uuid)
+                    elif tseg.block_type == "block_end" and tseg.block_uuid:
+                        if tseg.block_uuid not in open_uuids:
+                            open_uuids.add(tseg.block_uuid)
+                            break
+                        open_uuids.remove(tseg.block_uuid)
+                        has_closed_block = True
+                        if not open_uuids:
+                            last_block_end_point_idx = j + 1
+            else:
+                j += 1
+                continue
+            break
+        if has_closed_block and not open_uuids and last_block_end_point_idx is not None:
+            trailing_pt = cast(ReflowPoint, rebalanced[last_block_end_point_idx])
+            moved_indents = tuple(
+                seg
+                for seg in trailing_pt.segments
+                if seg.is_type("indent")
+                and getattr(seg, "block_uuid", None) is None
+                and getattr(seg, "indent_val", 0) > 0
+            )
+            if moved_indents:
+                leading_pt = cast(ReflowPoint, rebalanced[i])
+                remaining_segs = tuple(
+                    seg for seg in trailing_pt.segments if seg not in moved_indents
+                )
+                rebalanced[i] = ReflowPoint(
+                    segments=moved_indents + leading_pt.segments
+                )
+                rebalanced[last_block_end_point_idx] = ReflowPoint(
+                    segments=remaining_segs
+                )
+            i = last_block_end_point_idx
+        else:
+            i = j
+    return rebalanced
 
 
 def _map_line_buffers(
@@ -1455,12 +1553,16 @@ def _lint_line_untaken_positive_indents(
     implicit_indent_locs: set[int],
 ) -> tuple[list[LintResult], list[int]]:
     """Check for positive indents which should have been taken."""
-    # First check whether this line contains any of the untaken problem points.
+    # First force all of the untaken problem points on this line.
+    imbalanced_results: list[LintResult] = []
+    imbalanced_forced: list[int] = []
     for ip in indent_line.indent_points:
         if ip.idx in imbalanced_indent_locs and ip.idx not in implicit_indent_locs:
             # Force it at the relevant position (unless it should use implicit indents)
+            # NOTE: Indents already forced on this line are no longer untaken.
             desired_indent = single_indent * (
-                ip.closing_indent_balance - len(ip.untaken_indents)
+                ip.closing_indent_balance
+                - len(set(ip.untaken_indents).difference(imbalanced_forced))
             )
             reflow_logger.debug(
                 "    Detected imbalanced +ve break @ line %s. Indenting to %r",
@@ -1474,8 +1576,11 @@ def _lint_line_untaken_positive_indents(
                 source="reflow.indent.imbalance",
             )
             elements[ip.idx] = new_point
-            # Keep track of the indent we forced, by returning it.
-            return results, [ip.closing_indent_balance]
+            imbalanced_results += results
+            imbalanced_forced.append(ip.closing_indent_balance)
+    if imbalanced_results:
+        # Keep track of the indents we forced, by returning them.
+        return imbalanced_results, imbalanced_forced
 
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
@@ -1702,15 +1807,17 @@ def _lint_line_buffer_indents(
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
     )
-    reflow_logger.debug(
-        "  Line Content: %s",
-        [
-            repr(elem.raw)
-            for elem in elements[
-                indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
-            ]
-        ],
-    )
+    # Only build the line content when it will be logged.
+    if reflow_logger.isEnabledFor(logging.DEBUG):
+        reflow_logger.debug(
+            "  Line Content: %s",
+            [
+                repr(elem.raw)
+                for elem in elements[
+                    indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
+                ]
+            ],
+        )
     reflow_logger.debug("  Indent Line: %s", indent_line)
     reflow_logger.debug("  Forced Indents: %s", forced_indents)
     reflow_logger.debug("  Imbalanced Indent Locs: %s", imbalanced_indent_locs)
@@ -1846,12 +1953,14 @@ def lint_indent_points(
     if indentation_align_following is None:
         indentation_align_following = {}
 
+    rebalanced_elements = _rebalance_unrendered_block_indents(elements)
+
     # Then map the line buffers.
     lines: list[_IndentLine]
     imbalanced_indent_locs: list[int]
     implicit_indent_locs: set[int]
     lines, imbalanced_indent_locs, implicit_indent_locs = _map_line_buffers(
-        elements, implicit_indents=implicit_indents
+        rebalanced_elements, implicit_indents=implicit_indents
     )
 
     # Revise templated indents.
@@ -1859,11 +1968,13 @@ def lint_indent_points(
     # any "skipped source" lines before revising the templated lines in the
     # second step. That's because those "skipped source" lines can throw
     # off the detection algorithm.
-    _revise_skipped_source_lines(lines, elements)
-    _revise_templated_lines(lines, elements)
-    _revise_loop_repeated_lines(lines, elements)
+    _revise_skipped_source_lines(lines, rebalanced_elements)
+    _revise_templated_lines(lines, rebalanced_elements)
+    _revise_loop_repeated_lines(lines, rebalanced_elements)
     # Revise comment indents
-    _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
+    _revise_comment_lines(
+        lines, rebalanced_elements, ignore_comment_lines=ignore_comment_lines
+    )
 
     # Skip elements we're configured to not touch (i.e. scripts)
     for line in lines[:]:
@@ -1942,9 +2053,23 @@ def lint_indent_points(
 
         # Convert remaining newlines to spaces at tracked positions.
         if implicit_indent_locs:
+            # NOTE: Use the original `elements` rather than the working copy.
+            # The line pass above may have swapped points in `elem_buffer` for
+            # ones holding newly created segments, which can't be fix anchors.
             implicit_results = _convert_newlines_to_spaces(
-                elem_buffer, implicit_indent_locs
+                elements, implicit_indent_locs
             )
+            # The line break is being removed, so drop any indent results for
+            # the same point. Otherwise they would be conflicting fixes on the
+            # same anchor, and neither would be applied.
+            collapsed_anchors = {
+                fix.anchor.uuid for res in implicit_results for fix in res.fixes
+            }
+            results = [
+                res
+                for res in results
+                if not any(fix.anchor.uuid in collapsed_anchors for fix in res.fixes)
+            ]
             results = implicit_results + results
 
     return elem_buffer, results
@@ -2153,6 +2278,22 @@ def _increment_balance(
     return balance, matched_indents
 
 
+def _is_point_before_final_statement_terminator(
+    elements: ReflowSequenceType, point_idx: int
+) -> bool:
+    """Whether a point is followed only by a final statement terminator."""
+    found_terminator = False
+    for element in elements[point_idx + 1 :]:
+        for segment in element.segments:
+            if segment.is_type("statement_terminator"):
+                found_terminator = True
+            elif segment.is_type("newline"):
+                return found_terminator
+            elif segment.is_code:
+                return False
+    return found_terminator
+
+
 def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: dict[int, int],
@@ -2183,6 +2324,8 @@ def _match_indents(
         if indent_stats.implicit_indents:
             implicit_indent_dict[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
+        if _is_point_before_final_statement_terminator(line_elements, idx):
+            continue
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
             matched_indents[b].extend(indices)
@@ -2270,6 +2413,14 @@ def _fix_long_line_with_comment(
         "before",
     ), f"Unexpected value for `trailing_comments`: {trailing_comments!r}"
 
+    # If the source of the comment contains a template tag, neither move is
+    # safe. Moving it before the line rebuilds it from its rendered text, so
+    # the tags are lost. The placeholders for the tags sit before the comment,
+    # so a break before the comment splits its source.
+    if comment_seg.pos_marker and not comment_seg.pos_marker.is_literal():
+        reflow_logger.debug("    Unfixable because comment contains template tags.")
+        return elements, []
+
     # The simpler case if if we're moving the comment to the line
     # _after_. In that case we just coerce the point before it to
     # be an indent.
@@ -2333,6 +2484,61 @@ def _fix_long_line_with_comment(
     )
 
     return elements, fixes
+
+
+def _is_comma_break(elements: ReflowSequenceType, e_idx: int) -> bool:
+    """Is the point at this index a break before or after a comma?"""
+    return (
+        "comma" in elements[e_idx - 1].class_types
+        or "comma" in elements[e_idx + 1].class_types
+    )
+
+
+def _fill_breaks(
+    elements: ReflowSequenceType,
+    target_breaks: list[int],
+    line_start: int,
+    line_end: int,
+    first_indent: str,
+    next_indent: str,
+    line_length_limit: int,
+) -> list[int]:
+    """Choose a subset of target breaks which fills each line.
+
+    Each break is only taken if the line would otherwise run past the
+    next break (or the end of the line) and go over the limit. Lengths
+    are measured the same way as in `lint_line_length`.
+
+    If no earlier break is taken, the last one is checked against the
+    whole line, which is already too long, so at least one break is
+    always taken.
+
+    This is a helper function within .lint_line_length().
+    """
+    chosen: list[int] = []
+    start_idx = line_start
+    indent_len = len(first_indent)
+    idx = 0
+    while idx < len(target_breaks):
+        # A comma with `line_position = alone` has a break on each side.
+        # Take both or neither, so the comma is never left trailing.
+        group_len = 1
+        if (
+            idx + 1 < len(target_breaks)
+            and target_breaks[idx + 1] == target_breaks[idx] + 2
+        ):
+            group_len = 2
+        group = target_breaks[idx : idx + group_len]
+        idx += group_len
+        next_idx = target_breaks[idx] if idx < len(target_breaks) else line_end
+        if (
+            indent_len + _source_char_len(elements[start_idx:next_idx])
+            > line_length_limit
+        ):
+            chosen += group
+            start_idx = group[-1] + 1
+            indent_len = len(next_indent)
+    return chosen
 
 
 def _fix_long_line_with_fractional_targets(
@@ -2480,6 +2686,7 @@ def lint_line_length(
     line_length_limit: int,
     implicit_indents: str = "forbid",
     trailing_comments: str = "before",
+    list_wrapping: str = "one_per_line",
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
@@ -2698,6 +2905,22 @@ def lint_line_length(
                             current_indent,
                         )
                     else:
+                        # All the commas of one list share a balance, so by
+                        # default the list is split at every comma. With
+                        # "fill", only split where the line would be too long.
+                        if list_wrapping == "fill" and all(
+                            _is_comma_break(elem_buffer, e_idx)
+                            for e_idx in target_breaks
+                        ):
+                            target_breaks = _fill_breaks(
+                                elem_buffer,
+                                target_breaks,
+                                i - len(line_buffer),
+                                i,
+                                current_indent,
+                                desired_indent,
+                                line_length_limit,
+                            )
                         line_results = _fix_long_line_with_fractional_targets(
                             elem_buffer, target_breaks, desired_indent
                         )

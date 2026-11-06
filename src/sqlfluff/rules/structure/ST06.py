@@ -110,6 +110,25 @@ class Rule_ST06(BaseRule):
                 return False
         return False
 
+    @staticmethod
+    def _has_direct_column_list(select: BaseSegment) -> bool:
+        """Check the output's owner without crossing another SELECT or CTE."""
+        while parent_info := select.get_parent():
+            select, _ = parent_info
+            if select.is_type("common_table_expression"):
+                return select.get_child("cte_column_list") is not None
+            if select.is_type("from_expression_element"):
+                alias = select.get_child("alias_expression")
+                return alias is not None and alias.get_child("bracketed") is not None
+            if not select.is_type(
+                "bracketed",
+                "table_expression",
+                "with_compound_statement",
+                "set_expression",
+            ):
+                return False
+        return False  # pragma: no cover
+
     def _has_comments(
         self, context: RuleContext, moved_targets: set[BaseSegment]
     ) -> bool:
@@ -260,6 +279,7 @@ class Rule_ST06(BaseRule):
                 "insert_statement",
                 "set_expression",
                 "create_table_statement",
+                "create_table_as_statement",
                 "merge_statement",
             ):
                 return None
@@ -297,6 +317,10 @@ class Rule_ST06(BaseRule):
 
         # Skip reordering for CREATE VIEW with explicit column list
         if self._is_view_with_explicit_columns(context):
+            return None
+
+        # Explicit output names bind directly to this query's target positions.
+        if self._has_direct_column_list(context.parent_stack[-1]):
             return None
 
         select_clause_segment = context.segment

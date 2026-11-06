@@ -163,7 +163,11 @@ class Rule_RF06(BaseRule):
         self.case_sensitive: bool
 
         # Ignore some segment types
-        if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
+        ignore_types = self._ignore_types
+        # MySQL and MariaDB account names have their own quoting requirements.
+        if context.dialect.name in ("mysql", "mariadb"):
+            ignore_types = [*ignore_types, "role_reference"]
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*ignore_types)):
             return None
 
         identifier_is_quoted = context.segment.is_type("quoted_identifier")
@@ -290,6 +294,12 @@ class Rule_RF06(BaseRule):
             identifier_contents,
             regex.IGNORECASE,
         ):
+            return None
+        # Unquoted, a bare function name (e.g. "user" in PostgreSQL) is parsed as a
+        # call to that function rather than as a reference to the identifier.
+        if identifier_contents.upper() in {
+            name.upper() for name in context.dialect.sets("bare_functions")
+        }:
             return None
 
         return LintResult(

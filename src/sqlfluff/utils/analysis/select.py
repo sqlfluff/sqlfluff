@@ -1,5 +1,6 @@
 """Basic code analysis tools for SELECT statements."""
 
+from collections.abc import Iterator
 from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
@@ -109,6 +110,80 @@ def _get_hint_refs(segment: BaseSegment) -> set[int]:
     return hint_ref_ids
 
 
+def _iter_with_expression_scopes(
+    with_expression: BaseSegment,
+) -> Iterator[tuple[BaseSegment, frozenset[str]]]:
+    """Yield each expression of a WITH expression and the variables it can use.
+
+    BigQuery's ``WITH(a AS 1, b AS a + 1, a + b)`` declares ``a`` and ``b`` in
+    place. Each expression can use the variables declared before it, so those
+    references name a variable, not a column of a table in the FROM clause.
+    See: https://github.com/sqlfluff/sqlfluff/issues/8608
+    """
+    bracketed = with_expression.get_child("bracketed")
+    assert bracketed
+    declared: set[str] = set()
+    variable: Optional[str] = None
+    for child in bracketed.get_children(
+        "naked_identifier", "quoted_identifier", "expression"
+    ):
+        # BigQuery reads `a` and a as the same name.
+        if not child.is_type("expression"):
+            variable = child.raw_upper.strip("`")
+            continue
+        yield child, frozenset(declared)
+        # A variable is in scope only after its own assignment.
+        if variable:
+            declared.add(variable)
+            variable = None
+
+
+def _get_enclosing_with_expression_variables(segment: BaseSegment) -> frozenset[str]:
+    """Get the variables of the WITH expressions around a select.
+
+    In ``WITH(a AS 1, (SELECT a FROM t1 JOIN t2 ON t1.id = t2.id))`` the
+    subquery uses the variable ``a``, which the WITH expression around it
+    declares.
+    """
+    variables: set[str] = set()
+    branch: Optional[BaseSegment] = None
+    below = segment
+    parent = segment.get_parent()
+    while parent:
+        ancestor = parent[0]
+        # The path from a WITH expression to the select goes through its
+        # brackets, then through the expression that holds the select.
+        if ancestor.is_type("with_expression"):
+            for expression, declared in _iter_with_expression_scopes(ancestor):
+                if expression is branch:
+                    variables |= declared
+        branch, below = below, ancestor
+        parent = ancestor.get_parent()
+    return frozenset(variables)
+
+
+def _get_with_expression_refs(segment: BaseSegment) -> set[int]:
+    """Get the ids of object references to the variables of a WITH expression."""
+    with_ref_ids: set[int] = set()
+    scopes = [(segment, _get_enclosing_with_expression_variables(segment))]
+    for with_expression in segment.recursive_crawl(
+        "with_expression",
+        no_recursive_seg_type=["select_statement", "merge_statement"],
+    ):
+        scopes.extend(_iter_with_expression_scopes(with_expression))
+    for scope, declared in scopes:
+        if not declared:
+            continue
+        for ref in scope.recursive_crawl(
+            "object_reference",
+            no_recursive_seg_type=["select_statement", "merge_statement"],
+        ):
+            name = ref.get_child("naked_identifier", "quoted_identifier")
+            if name and name.raw_upper.strip("`") in declared:
+                with_ref_ids.add(ref.uuid)
+    return with_ref_ids
+
+
 def _get_object_references(
     segment: BaseSegment,
     # Segment uuids to exclude (hint/struct-alias/except refs). Keyed by uuid,
@@ -195,6 +270,7 @@ def get_select_statement_info(
         for table_expression in fc.recursive_crawl(
             "table_expression", no_recursive_seg_type="select_statement"
         ):
+            _dialect_name = dialect.name if dialect else None
             for seg in table_expression.iter_segments():
                 # table references can get tricky with what is a schema, table,
                 # project, or column. It may be best for now to use the redshift
@@ -202,8 +278,22 @@ def get_select_statement_info(
                 # in AL05. However, this solves finding other types of references
                 # in functions such as LATERAL FLATTEN.
                 if not seg.is_type("table_reference"):
-                    reference_buffer += _get_object_references(seg)
-                elif is_qualified(seg, dialect.name if dialect else None):
+                    for reference in _get_object_references(seg):
+                        if reference.is_type("table_reference"):
+                            # A table declared inside this expression rather
+                            # than beside it: dialects that allow a bracketed
+                            # join as a join target (T-SQL's
+                            # ``((b JOIN c) JOIN d)``) nest the whole join
+                            # under one table_expression, so its tables arrive
+                            # here. They are declarations, not columns, and
+                            # RF02 reads this buffer as column references.
+                            # Route them exactly as a table_reference sitting
+                            # directly under the expression is routed below.
+                            if is_qualified(reference, _dialect_name):
+                                table_reference_buffer.append(reference)
+                        else:
+                            reference_buffer.append(reference)
+                elif is_qualified(seg, _dialect_name):
                     table_reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"
@@ -222,6 +312,14 @@ def get_select_statement_info(
                         if subseg.is_type("identifier"):
                             using_cols.append(subseg)
                     seen_using = False
+
+    # References to the variables of a BigQuery WITH expression name a variable,
+    # not a column, and can appear in any clause. See:
+    # https://github.com/sqlfluff/sqlfluff/issues/8608
+    with_expression_ref_ids = _get_with_expression_refs(segment)
+    reference_buffer = [
+        ref for ref in reference_buffer if ref.uuid not in with_expression_ref_ids
+    ]
 
     return SelectStatementColumnsAndTables(
         select_statement=segment,

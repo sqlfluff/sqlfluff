@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fba52e4dad257e2487a5070e2e0a6e61fc1a9c6f15f0d7e7787087fa0d28006
+_hash: ac31a4047b4c864b050f1ea4f6a753f033b88e8289387e9b5bf171b44d3cebe5
 file:
 - statement:
     create_collation_statement:
@@ -66,4 +66,28 @@ file:
     - keyword: FROM
     - object_reference:
         quoted_identifier: '"de_DE"'
+- statement_terminator: ;
+- statement:
+    create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+        naked_identifier: c
+    - bracketed:
+      - start_bracket: (
+      - keyword: provider
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: icu
+      - comma: ','
+      - keyword: locale
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'und'"
+      - comma: ','
+      - keyword: deterministic
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'off'
+      - end_bracket: )
 - statement_terminator: ;

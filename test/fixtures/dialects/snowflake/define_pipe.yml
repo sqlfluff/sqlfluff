@@ -1,0 +1,171 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 03d982defd754435160c9874a54a00191c772e6b21146694bdf80bf411f0815d
+file:
+- statement:
+    define_pipe_statement:
+    - keyword: DEFINE
+    - keyword: PIPE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_pipe
+    - keyword: AS
+    - copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_table
+      - keyword: FROM
+      - storage_location:
+          stage_path: '@my_db.my_schema.my_stage'
+- statement_terminator: ;
+- statement:
+    define_pipe_statement:
+    - keyword: DEFINE
+    - keyword: PIPE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: gcs_auto_ingest_pipe
+    - keyword: AUTO_INGEST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'MY_NOTIFICATION_INT'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'auto-ingest pipe for event files'"
+    - keyword: AS
+    - copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: event_histories
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: payload
+        - comma: ','
+        - column_reference:
+            naked_identifier: _file_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: _file_row
+        - comma: ','
+        - column_reference:
+            naked_identifier: _loaded_at
+        - end_bracket: )
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  column_index_identifier_segment: $1
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: metadata$filename
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: metadata$file_row_number
+            - comma: ','
+            - select_clause_element:
+                bare_function: CURRENT_TIMESTAMP
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      stage_path: '@my_db.my_schema.my_stage/events/histories'
+          end_bracket: )
+      - keyword: FILE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_format_segment:
+          bracketed:
+            start_bracket: (
+            keyword: FORMAT_NAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'my_db.my_schema.my_json_format'"
+            end_bracket: )
+      - keyword: PATTERN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'.*\\.json$'"
+- statement_terminator: ;
+- statement:
+    define_pipe_statement:
+    - keyword: DEFINE
+    - keyword: PIPE
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: s3_pipe
+    - keyword: AUTO_INGEST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: ERROR_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_error_int
+    - keyword: AWS_SNS_TOPIC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
+    - keyword: AS
+    - copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_table
+      - keyword: FROM
+      - storage_location:
+          stage_path: '@my_db.my_schema.my_s3_stage'
+      - keyword: FILE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_format_segment:
+          bracketed:
+            start_bracket: (
+            json_file_format_type_parameters:
+              keyword: TYPE
+              comparison_operator:
+                raw_comparison_operator: '='
+              file_type: "'JSON'"
+            end_bracket: )
+- statement_terminator: ;

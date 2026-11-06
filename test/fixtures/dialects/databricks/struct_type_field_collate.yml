@@ -1,0 +1,228 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 20e5d9d60dd5d8bcc6a2e8a81b645f2b18976fc30d96883275438e93ee35b8c0
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+                start_angle_bracket: <
+                naked_identifier: a
+                colon: ':'
+                data_type:
+                  primitive_type:
+                    keyword: STRING
+                keyword: COLLATE
+                collation_reference:
+                  naked_identifier: UTF8_BINARY
+                end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+                start_angle_bracket: <
+                naked_identifier: a
+                data_type:
+                  primitive_type:
+                    keyword: STRING
+                keyword: COLLATE
+                collation_reference:
+                  naked_identifier: UTF8_LCASE
+                end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: a
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - keyword: COLLATE
+              - collation_reference:
+                  naked_identifier: UTF8_LCASE
+              - keyword: COMMENT
+              - quoted_literal: "'field_comment'"
+              - end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: a
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - keyword: NOT
+              - keyword: 'NULL'
+              - keyword: COLLATE
+              - collation_reference:
+                  naked_identifier: UTF8_LCASE
+              - end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: a
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - keyword: NOT
+              - keyword: 'NULL'
+              - keyword: COLLATE
+              - collation_reference:
+                  naked_identifier: UTF8_LCASE
+              - keyword: COMMENT
+              - quoted_literal: "'field_comment'"
+              - end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: a
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - keyword: COLLATE
+              - collation_reference:
+                  naked_identifier: UTF8_LCASE
+              - comma: ','
+              - naked_identifier: b
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - keyword: COLLATE
+              - collation_reference:
+                  naked_identifier: DE
+              - comma: ','
+              - naked_identifier: c
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: INT
+              - end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: s
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+                start_angle_bracket: <
+                naked_identifier: a
+                colon: ':'
+                data_type:
+                  struct_type:
+                    keyword: STRUCT
+                    struct_type_schema:
+                      start_angle_bracket: <
+                      naked_identifier: b
+                      colon: ':'
+                      data_type:
+                        primitive_type:
+                          keyword: STRING
+                      keyword: COLLATE
+                      collation_reference:
+                        naked_identifier: UTF8_LCASE
+                      end_angle_bracket: '>'
+                keyword: COMMENT
+                quoted_literal: "'outer'"
+                end_angle_bracket: '>'
+        end_bracket: )
+- statement_terminator: ;

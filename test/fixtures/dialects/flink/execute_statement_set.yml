@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ebe42cb99bbb88b9027a00c429e9faa2ec7b18005e85893b28b2b4067a9a95ae
+file:
+- statement:
+    execute_statement_set:
+    - keyword: EXECUTE
+    - keyword: STATEMENT
+    - keyword: SET
+    - keyword: BEGIN
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: orders
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders_source
+    - statement_terminator: ;
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: customers
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: customers_source
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    execute_statement_set:
+    - keyword: BEGIN
+    - keyword: STATEMENT
+    - keyword: SET
+    - statement_terminator: ;
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: orders
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders_source
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

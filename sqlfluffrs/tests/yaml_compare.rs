@@ -148,7 +148,7 @@ fn test_yaml_comparison_ansi_arithmetic_a() {
     // Parse with Rust
     let dialect = sqlfluffrs_dialects::Dialect::Ansi;
     let input = sqlfluffrs_lexer::LexInput::String(sql_content);
-    let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect.get_lexers().to_vec());
+    let lexer = sqlfluffrs_lexer::Lexer::for_dialect(dialect);
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
 
@@ -187,7 +187,7 @@ fn test_yaml_comparison_tsql_sqlcmd_command() {
     // Parse with Rust
     let dialect = sqlfluffrs_dialects::Dialect::Tsql;
     let input = sqlfluffrs_lexer::LexInput::String(sql_content);
-    let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect.get_lexers().to_vec());
+    let lexer = sqlfluffrs_lexer::Lexer::for_dialect(dialect);
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
 

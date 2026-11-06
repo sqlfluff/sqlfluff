@@ -1,0 +1,56 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 99f921a26bd5c6b799a316befc26c1abb53ce6b43d44e1d1a4dfdd614e180acf
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICIES
+    - keyword: LIKE
+    - quoted_literal: "'%retention%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: ACCOUNT
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: STORAGE
+    - keyword: LIFECYCLE
+    - keyword: POLICIES
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;

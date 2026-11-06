@@ -1,8 +1,9 @@
 """Helpers for the parser module."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.helpers.slice import is_zero_slice
 
 if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
@@ -56,3 +57,30 @@ def trim_non_code_segments(
             post_idx -= 1
 
     return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
+
+
+def inside_next_segment_flags(segments: tuple["BaseSegment", ...]) -> list[bool]:
+    """Flag each zero-length segment which sits inside a later sibling.
+
+    When a lexed token spans a template tag (e.g. `b{% if x %}c{% endif %}`),
+    the lexer yields the placeholder for the tag, and any indent or dedent
+    for it, *before* that token. Their templated position is then after the
+    start of the token. Any fix position or patch which uses that position
+    as an end point covers the start of the token and deletes it.
+    See: https://github.com/sqlfluff/sqlfluff/issues/8611
+
+    One backward pass keeps this linear for long runs of zero-length segments.
+    """
+    flags = [False] * len(segments)
+    # The templated start of the next sibling which is not zero-length.
+    next_start: Optional[int] = None
+    for idx in range(len(segments) - 1, -1, -1):
+        pos_marker = segments[idx].pos_marker
+        # A new segment has no position yet, so it is not inside anything.
+        if not pos_marker:
+            continue
+        if not is_zero_slice(pos_marker.templated_slice):
+            next_start = pos_marker.templated_slice.start
+        elif next_start is not None:
+            flags[idx] = next_start < pos_marker.templated_slice.start
+    return flags

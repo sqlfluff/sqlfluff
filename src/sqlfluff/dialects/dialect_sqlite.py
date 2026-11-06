@@ -108,6 +108,14 @@ sqlite_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r"``", "`")],
             },
         ),
+        # SQLite numeric literals can contain single underscores ('_') since version 3.46.0
+        # as thousands separators or for grouping in decimal and hex literals.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(?:_\d+)*\.\d+(?:_\d+)*|\d+(?:_\d+)*\.(?![\.\w])|\.\d+(?:_\d+)*|\d+(?:_\d+)*)"
+            r"(\.?[eE][+-]?\d+(?:_\d+)*)?((?<=\.)|(?=\b))",
+            LiteralSegment,
+        ),
     ]
 )
 
@@ -121,7 +129,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hexadecimal_literal",
-            r"0x[\da-fA-F]+",
+            r"0[xX][\da-fA-F]+(?:_[\da-fA-F]+)*(?![.\w])",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -523,27 +531,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
-    """A reference to column, field or alias.
-
-    Also allows `column->path` and `column->>path` for JSON values.
-    https://www.sqlite.org/json1.html#jptr
-    """
-
-    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                OneOf(
-                    ansi.ColumnReferenceSegment.match_grammar.copy(),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    Ref("LiteralGrammar"),
-                ),
-            ),
-        ]
-    )
-
-
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 
@@ -614,6 +601,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     type = "values_clause"
     match_grammar: Matchable = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Sequence(
                 Bracketed(
@@ -625,6 +613,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -690,7 +679,7 @@ class UpsertClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         "CONFLICT",
-        Ref("ConflictTargetSegment", optional=True),
+        Ref("ConflictTargetSegment"),
         "DO",
         OneOf(
             "NOTHING",
@@ -716,6 +705,14 @@ class UpsertClauseSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class TargetlessUpsertClauseSegment(UpsertClauseSegment):
+    """An UPSERT clause without a target, allowed only as the final clause."""
+
+    match_grammar = UpsertClauseSegment.match_grammar.copy(
+        remove=[Ref("ConflictTargetSegment")],
     )
 
 
@@ -746,16 +743,20 @@ class InsertStatementSegment(BaseSegment):
             "REPLACE",
         ),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         OneOf(
             Sequence(
                 Ref("ValuesClauseSegment"),
-                Ref("UpsertClauseSegment", optional=True),
+                AnyNumberOf(Ref("UpsertClauseSegment")),
+                Ref("TargetlessUpsertClauseSegment", optional=True),
             ),
             Sequence(
                 OptionallyBracketed(Ref("SelectableGrammar")),
-                Ref("UpsertClauseSegment", optional=True),
+                AnyNumberOf(Ref("UpsertClauseSegment")),
+                Ref("TargetlessUpsertClauseSegment", optional=True),
             ),
             Ref("DefaultValuesGrammar"),
         ),
@@ -1175,6 +1176,11 @@ class CreateVirtualTableStatementSegment(BaseSegment):
                             Ref("NumericLiteralSegment"),
                             Ref("ObjectReferenceSegment"),
                         ),
+                    ),
+                    # FTS5 column declarations may include the UNINDEXED option.
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "UNINDEXED",
                     ),
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),

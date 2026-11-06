@@ -8,6 +8,7 @@ from sqlfluff.core.parser.segments.base import (
 from sqlfluff.core.parser.segments.bracketed import BracketedSegment
 from sqlfluff.core.parser.segments.common import (
     BinaryOperatorSegment,
+    ClientTextSegment,
     CodeSegment,
     CommentSegment,
     ComparisonOperatorSegment,
@@ -42,6 +43,7 @@ __all__ = (
     "BracketedSegment",
     "SegmentGenerator",
     "RawSegment",
+    "ClientTextSegment",
     "CodeSegment",
     "UnlexableSegment",
     "CommentSegment",

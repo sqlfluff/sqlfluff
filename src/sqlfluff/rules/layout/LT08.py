@@ -1,5 +1,6 @@
 """Implementation of Rule LT08."""
 
+import logging
 from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment
@@ -76,12 +77,15 @@ class Rule_LT08(BaseRule):
             line_starts = {}
             comment_lines = []
 
-            self.logger.info(
-                "## CTE closing bracket found at %s, idx: %s. Forward slice: %.20r",
-                forward_slice[0].pos_marker,
-                bracket_idx,
-                "".join(elem.raw for elem in forward_slice),
-            )
+            # Joining the rest of the statement for each CTE is quadratic in the
+            # number of CTEs, so only do it when the message will be logged.
+            if self.logger.isEnabledFor(logging.INFO):
+                self.logger.info(
+                    "## CTE closing bracket found at %s, idx: %s. Forward slice: %.20r",
+                    forward_slice[0].pos_marker,
+                    bracket_idx,
+                    "".join(elem.raw for elem in forward_slice),
+                )
 
             # Work forward to map out the following segments.
             while (

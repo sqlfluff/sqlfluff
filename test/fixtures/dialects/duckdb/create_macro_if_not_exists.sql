@@ -1,0 +1,11 @@
+CREATE MACRO IF NOT EXISTS add_one(a) AS a + 1;
+
+CREATE FUNCTION IF NOT EXISTS main.add_default(a, b := 5) AS a + b;
+
+CREATE TEMP MACRO IF NOT EXISTS temp_add_one(a) AS a + 1;
+
+CREATE TEMPORARY FUNCTION IF NOT EXISTS temp_add_default(a, b := 5) AS a + b;
+
+CREATE MACRO IF NOT EXISTS one_row() AS TABLE SELECT 1 AS value;
+
+CREATE TEMP FUNCTION IF NOT EXISTS value_row(a) AS TABLE SELECT a AS value;

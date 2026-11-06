@@ -36,7 +36,9 @@ A typical job writes the report with `--write-output` and publishes it as a
 
 ```yaml
 lint-sql:
-  image: sqlfluff/sqlfluff
+  image:
+    name: sqlfluff/sqlfluff
+    entrypoint: [""]
   script:
     - sqlfluff lint --format gitlab --write-output gl-code-quality-report.json
   artifacts:
