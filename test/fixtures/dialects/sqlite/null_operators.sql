@@ -19,3 +19,6 @@ CREATE TABLE t2 (
 );
 
 ALTER TABLE t ADD COLUMN f INTEGER DEFAULT 0 NOT NULL;
+
+-- SQLite rejects a bare binary expression after DEFAULT, but the grammar accepts it.
+CREATE TABLE t3 (a INTEGER DEFAULT 1 + 2 NOT NULL, b TEXT DEFAULT 'a' || 'b' COLLATE NOCASE);
