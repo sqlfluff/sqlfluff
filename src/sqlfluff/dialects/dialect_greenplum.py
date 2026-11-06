@@ -62,6 +62,11 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
         ],
+        # Greenplum has its own DECLARE and FETCH segments above.
+        remove=[
+            Ref("DeclareStatementSegment"),
+            Ref("FetchStatementSegment"),
+        ],
     )
 
 

@@ -2551,9 +2551,6 @@ class StatementSegment(postgres.StatementSegment):
             # and ShowDatashares segments so those still match first.
             Ref("ShowStatementSegment"),
             Ref("AltereDatashareStatementSegment"),
-            Ref("DeclareStatementSegment"),
-            Ref("FetchStatementSegment"),
-            Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
