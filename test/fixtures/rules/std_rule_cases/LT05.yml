@@ -345,6 +345,20 @@ test_pass_ignore_comment_clauses_snowflake:
       layout.long_lines:
         ignore_comment_clauses: true
 
+test_pass_ignore_comment_clauses_databricks_materialized_view:
+  # https://github.com/sqlfluff/sqlfluff/issues/9026
+  pass_str: |
+    CREATE MATERIALIZED VIEW my_schema.my_view
+    COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length'
+    AS
+    SELECT 1 AS col
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
 test_pass_ignore_comment_clauses_postgres:
   pass_str: |
     CREATE TABLE IF NOT EXISTS foo
