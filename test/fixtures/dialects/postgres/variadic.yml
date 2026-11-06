@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd244f064d770049928fde2a17a4ae8f4bd54dc47b2211f045b27a67fedbb567
+_hash: 046723d7d04bc45b9a53df392e7bed4df28b0694c2581d59e114c645da2d66fb
 file:
 - statement:
     create_function_statement:
@@ -368,26 +368,25 @@ file:
                 start_bracket: (
                 keyword: VARIADIC
                 expression:
-                  function:
+                  array_expression:
                     function_name:
                       function_name_identifier: ARRAY
                     function_contents:
                       bracketed:
                         start_bracket: (
-                        expression:
-                          select_statement:
-                            select_clause:
-                              keyword: SELECT
-                              select_clause_element:
-                                column_reference:
-                                  naked_identifier: value
-                            from_clause:
-                              keyword: FROM
-                              from_expression:
-                                from_expression_element:
-                                  table_expression:
-                                    table_reference:
-                                      naked_identifier: table1
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              column_reference:
+                                naked_identifier: value
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                    naked_identifier: table1
                         end_bracket: )
                 end_bracket: )
 - statement_terminator: ;

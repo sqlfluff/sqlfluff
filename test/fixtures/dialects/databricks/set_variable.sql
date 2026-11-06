@@ -10,8 +10,8 @@ SET VAR var1 = DEFAULT;
 -- A multi variable assignment
 SET VAR (var1, var2, var3) = (VALUES(100,'x123',DEFAULT));
 
--- escpaed function name
-SET VARIABLE `foo` = select 'bar';
+-- quoted variable name and scalar subquery
+SET VARIABLE `foo` = (select 'bar');
 
 -- function call
 set var tz = current_timezone();
