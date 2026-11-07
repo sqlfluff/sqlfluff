@@ -198,20 +198,6 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.add(
-    # A bare table reference for REFRESH, which must not swallow the TABLE or
-    # FUNCTION clause keywords (both are legal identifier spellings).
-    RefreshTableReferenceSegment=Delimited(
-        OneOf(
-            Ref("BackQuotedIdentifierSegment"),
-            RegexParser(
-                r"[A-Z_][A-Z0-9_]*",
-                IdentifierSegment,
-                type="naked_identifier",
-                anti_template=r"(?:TABLE|FUNCTION|FOREIGN)$",
-            ),
-        ),
-        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-    ),
     CommandCellSegment=TypedParser("command", CodeSegment, type="command_cell"),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
@@ -2293,24 +2279,6 @@ databricks_dialect.replace(
 )
 
 
-databricks_dialect.add(
-    # The RESTORE target, guarded so the optional `TO` keyword is not read
-    # as a table name.
-    RestoreTableReferenceSegment=Delimited(
-        OneOf(
-            Ref("BackQuotedIdentifierSegment"),
-            RegexParser(
-                r"[A-Z_][A-Z0-9_]*",
-                IdentifierSegment,
-                type="naked_identifier",
-                anti_template=r"(?:TO|VERSION|TIMESTAMP)$",
-            ),
-        ),
-        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-    ),
-)
-
-
 class RestoreTableStatementSegment(sparksql.RestoreTableStatementSegment):
     """A `RESTORE` statement with optional `TABLE` and `TO`.
 
@@ -2323,7 +2291,7 @@ class RestoreTableStatementSegment(sparksql.RestoreTableStatementSegment):
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("FileReferenceSegment"),
-            Ref("RestoreTableReferenceSegment"),
+            Ref("TableReferenceSegment"),
         ),
         Ref.keyword("TO", optional=True),
         OneOf(
@@ -2519,7 +2487,7 @@ class RefreshStatementSegment(sparksql.RefreshStatementSegment):
                 OneOf("SYNC", "ASYNC", optional=True),
             ),
             Sequence(
-                Ref("RefreshTableReferenceSegment"),
+                Ref("TableReferenceSegment"),
                 Ref.keyword("FULL", optional=True),
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
                 OneOf("SYNC", "ASYNC", optional=True),
