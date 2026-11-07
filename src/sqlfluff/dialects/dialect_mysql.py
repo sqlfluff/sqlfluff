@@ -2094,6 +2094,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateViewStatementSegment"),
             Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
+            Ref("ResetPersistStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
             Ref("HelpStatementSegment"),
             Ref("CheckTableStatementSegment"),
@@ -3787,6 +3788,29 @@ class ResetMasterStatementSegment(BaseSegment):
         "RESET",
         "MASTER",
         Sequence("TO", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+class ResetPersistStatementSegment(BaseSegment):
+    """A `RESET PERSIST` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/reset-persist.html
+    """
+
+    type = "reset_persist_statement"
+    match_grammar = Sequence(
+        "RESET",
+        "PERSIST",
+        Sequence(
+            Ref("IfExistsGrammar", optional=True),
+            Sequence(
+                OneOf("DEFAULT", Ref("SingleIdentifierGrammar")),
+                Ref("DotSegment"),
+                optional=True,
+            ),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
     )
 
 
