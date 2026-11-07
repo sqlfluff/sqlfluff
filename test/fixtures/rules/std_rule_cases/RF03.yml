@@ -1691,4 +1691,3 @@ test_fail_snowflake_double_quoted_table_qualified_8956:
     rules:
       references.consistent:
         single_table_references: qualified
-
