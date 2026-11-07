@@ -1793,7 +1793,7 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
     match_grammar: Matchable = OneOf(
-        Ref("ValuesClauseSegment"),
+        Ref("TableValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("TableReferenceSegment"),
@@ -2814,6 +2814,28 @@ class ValuesClauseSegment(BaseSegment):
             ),
         ),
         Dedent,
+    )
+
+
+class TableValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause used as a table constructor."""
+
+    type = "values_clause"
+    match_grammar: Matchable = Sequence(
+        OneOf("VALUE", "VALUES"),
+        Delimited(
+            Sequence(
+                Ref.keyword("ROW", optional=True),
+                Bracketed(
+                    Delimited(
+                        "DEFAULT",
+                        Ref("LiteralGrammar"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
     )
 
 

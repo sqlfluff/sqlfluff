@@ -3795,3 +3795,12 @@ test_pass_snowflake_create_file_format_single_line:
   configs:
     core:
       dialect: snowflake
+
+test_pass_from_values_table_constructor:
+  # Issue 9055: the table constructor keeps its pre-#8635 indentation.
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2')
+    ) AS x (c1, c2)
