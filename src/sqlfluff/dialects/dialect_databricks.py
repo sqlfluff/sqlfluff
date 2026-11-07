@@ -2359,16 +2359,20 @@ class ListStatementSegment(BaseSegment):
 
 
 class ReplaceOnConditionSegment(BaseSegment):
-    """The comparison of a `REPLACE ON` ahead of a parenthesised query.
+    """The condition of a `REPLACE ON` ahead of a parenthesised query.
 
-    Typed as an expression so the tree matches the general `REPLACE ON` form.
+    Comparisons of column references, joined by `AND` or `OR`. Typed as an
+    expression so the tree matches the general `REPLACE ON` form.
     """
 
     type = "expression"
-    match_grammar = Sequence(
-        Ref("ColumnReferenceSegment"),
-        Ref("ComparisonOperatorGrammar"),
-        Ref("ColumnReferenceSegment"),
+    match_grammar = Delimited(
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Ref("ComparisonOperatorGrammar"),
+            Ref("ColumnReferenceSegment"),
+        ),
+        delimiter=Ref("BooleanBinaryOperatorGrammar"),
     )
 
 
