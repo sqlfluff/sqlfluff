@@ -3795,6 +3795,9 @@ class ResetPersistStatementSegment(BaseSegment):
     """A `RESET PERSIST` statement.
 
     https://dev.mysql.com/doc/refman/8.4/en/reset-persist.html
+
+    MySQL's `persisted_variable_ident` rule allows an unquoted `DEFAULT` prefix.
+    https://github.com/mysql/mysql-server/blob/mysql-8.4.0/sql/sql_yacc.yy#L14232-L14255
     """
 
     type = "reset_persist_statement"
