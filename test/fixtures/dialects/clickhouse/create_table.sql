@@ -324,3 +324,12 @@ ENGINE = MergeTree;
 
 CREATE TEMPORARY TABLE t5
 AS SELECT 1;
+
+CREATE TABLE default.example_no_order
+(
+    user_id UInt64,
+    region String,
+    PROJECTION total_proj (select count(user_id))
+)
+ENGINE = MergeTree
+ORDER BY user_id;

@@ -10,6 +10,9 @@ COPY (SELECT NOW()) TO 'test.parquet' WITH (FORMAT parquet, COMPRESSION 'snappy'
 -- COPY TO with COMPRESSION without quotes
 COPY (SELECT * FROM data) TO 'output.parquet' (FORMAT parquet, COMPRESSION gzip);
 
+-- COPY TO with CODEC, another name for COMPRESSION
+COPY (SELECT * FROM data) TO 'output.parquet' (FORMAT parquet, CODEC 'zstd');
+
 -- COPY TO with COMPRESSION_LEVEL
 COPY (SELECT * FROM data) TO 'compressed.parquet' WITH (
     FORMAT parquet,

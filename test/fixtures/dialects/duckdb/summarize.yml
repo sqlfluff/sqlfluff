@@ -1,0 +1,267 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7b04c19f59db710059c06994ba88131611119a2958b913097eb900ba89d7884d
+file:
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      table_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+    - keyword: SUMMARIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+    - keyword: SUMMARIZE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: "'data.csv'"
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      table_reference:
+        quoted_identifier: "'data.csv'"
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      select_statement:
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: i
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tbl
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: x
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: a
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: x
+- statement_terminator: ;
+- statement:
+    summarize_statement:
+      keyword: SUMMARIZE
+      values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                summarize_statement:
+                  keyword: SUMMARIZE
+                  table_reference:
+                    naked_identifier: tbl
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: column_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: null_percentage
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                summarize_statement:
+                  keyword: SUMMARIZE
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: tbl
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: s
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: column_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'i'"
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: s
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          summarize_statement:
+            keyword: SUMMARIZE
+            table_reference:
+              naked_identifier: tbl
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: s
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_summary
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  summarize_statement:
+                    keyword: SUMMARIZE
+                    table_reference:
+                      naked_identifier: tbl
+                  end_bracket: )
+- statement_terminator: ;
