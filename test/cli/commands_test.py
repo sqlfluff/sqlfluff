@@ -1326,6 +1326,31 @@ def test__cli__command_lint_warning():
     )
 
 
+@pytest.mark.parametrize(
+    "invalid_config_line",
+    [
+        "large_file_skip_byte_limit = abc\n",
+        "large_file_skip_char_limit = abc\n",
+    ],
+)
+def test__cli__command_invalid_large_file_skip_limit(
+    tmp_path, monkeypatch, invalid_config_line
+):
+    """Invalid large-file skip limits are reported as user errors, not tracebacks.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n" + invalid_config_line
+    )
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(ret_code=2, args=[lint, ["in.sql"]])
+    assert "User Error:" in result.stderr
+    assert "must be an integer" in result.stderr
+
+
 def test__cli__command_lint_warning_name_rule():
     """Test that configuring warnings works.
 

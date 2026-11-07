@@ -14,6 +14,7 @@ from sqlfluff.core.config import FluffConfig, progress_bar_configuration
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -136,17 +137,14 @@ class Linter:
             # make sure the limit becomes an integer
             try:
                 limit = int(limit)
-            except ValueError:
-                raise ValueError(f"""
-                large_file_skip_byte_limit parameter from config
-                cannot be converted to integer,
-                current value {limit}, type {type(limit)}
-                """)
-            except TypeError:
-                raise TypeError(f"""
-                failed to get large_file_skip_byte_limit parameter from config,
-                or it is of invalid type {type(limit)}
-                """)
+            except (ValueError, TypeError):
+                # A value which can't be converted is a problem with the user's
+                # config. Report it as a user error rather than letting a raw
+                # ValueError/TypeError escape as a traceback.
+                raise SQLFluffUserError(
+                    "Config value 'large_file_skip_byte_limit' must be an "
+                    f"integer, but was {limit!r}."
+                ) from None
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:
