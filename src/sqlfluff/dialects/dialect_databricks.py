@@ -402,6 +402,53 @@ databricks_dialect.add(
     ),
 )
 
+
+def _table_definition_grammar() -> Sequence:
+    """Build the Databricks table definition from the SparkSQL one.
+
+    Deriving it, rather than restating it, keeps every SparkSQL clause in
+    step. Databricks changes two things.
+
+    A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
+    visible inside the pipeline but not published to the catalog:
+      CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
+    PRIVATE is bound to STREAMING rather than inserted as a separate optional
+    keyword: STREAMING is itself optional, so an independent PRIVATE would
+    also accept `CREATE PRIVATE TABLE`, which is not valid.
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+
+    The table clauses, which SparkSQL gathers in a single `AnySetOf`, also
+    take a credential-aware LOCATION and DEFAULT COLLATION. They go inside
+    that block so they can appear in any order with the others.
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+    grammar = sparksql_dialect.get_grammar("TableDefinitionSegment").copy(
+        insert=[
+            OneOf(
+                Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
+                Ref.keyword("STREAMING"),
+                optional=True,
+            )
+        ],
+        before=Ref.keyword("STREAMING", optional=True),
+        remove=[Ref.keyword("STREAMING", optional=True)],
+    )
+    assert isinstance(grammar, Sequence)
+    (index,) = [
+        i for i, elem in enumerate(grammar._elements) if isinstance(elem, AnySetOf)
+    ]
+    table_clauses = grammar._elements[index]
+    assert isinstance(table_clauses, AnySetOf)
+    grammar._elements[index] = table_clauses.copy(
+        insert=[
+            Ref("LocationWithCredentialGrammar"),
+            Ref("DefaultCollationClauseGrammar"),
+        ],
+        before=Ref("LocationGrammar"),
+    )
+    return grammar
+
+
 databricks_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
     # `KEYS` follows the source table in `APPLY CHANGES INTO` and
@@ -409,83 +456,7 @@ databricks_dialect.replace(
     FromClauseTerminatorGrammar=databricks_dialect.get_grammar(
         "FromClauseTerminatorGrammar"
     ).copy(insert=[Ref.keyword("KEYS")]),
-    # A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
-    # visible inside the pipeline but not published to the catalog:
-    #   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
-    # Materialized views already accept it; streaming tables are defined by
-    # the shared SparkSQL TableDefinitionSegment, so Databricks widens it here
-    # rather than adding Databricks-only syntax to SparkSQL.
-    #
-    # PRIVATE is bound to STREAMING rather than inserted as a separate
-    # optional keyword: STREAMING is itself optional, so an independent
-    # PRIVATE would also accept `CREATE PRIVATE TABLE`, which is not valid.
-    # https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
-    # Mirrors the SparkSQL TableDefinitionSegment, with PRIVATE / STREAMING
-    # support and two table clauses Databricks adds: a credential-aware
-    # LOCATION and DEFAULT COLLATION.
-    TableDefinitionSegment=Sequence(
-        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        Ref.keyword("EXTERNAL", optional=True),
-        OneOf(
-            Sequence(Ref.keyword("PRIVATE"), Ref.keyword("STREAMING")),
-            Ref.keyword("STREAMING"),
-            optional=True,
-        ),
-        Ref.keyword("LIVE", optional=True),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        OneOf(
-            Ref("FileReferenceSegment"),
-            Ref("TableReferenceSegment"),
-        ),
-        OneOf(
-            # Columns and comment syntax:
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        OneOf(
-                            Ref("ColumnFieldDefinitionSegment"),
-                            Ref("TableConstraintSegment", optional=True),
-                        ),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    Ref("ConstraintStatementSegment", optional=True),
-                ),
-            ),
-            # Like Syntax
-            Sequence(
-                "LIKE",
-                OneOf(
-                    Ref("FileReferenceSegment"),
-                    Ref("TableReferenceSegment"),
-                ),
-            ),
-            optional=True,
-        ),
-        Ref("UsingClauseSegment", optional=True),
-        AnySetOf(
-            Ref("RowFormatClauseSegment"),
-            Ref("StoredAsGrammar"),
-            Ref("CommentGrammar"),
-            Ref("OptionsGrammar"),
-            Ref("PartitionSpecGrammar"),
-            Ref("BucketSpecGrammar"),
-            Ref("LocationGrammar"),
-            Ref("LocationWithCredentialGrammar"),
-            Ref("DefaultCollationClauseGrammar"),
-            Ref("CommentGrammar"),
-            Ref("TablePropertiesGrammar"),
-            Ref("TableClusterByClauseSegment"),
-            optional=True,
-        ),
-        # Create AS syntax:
-        Sequence(
-            Ref.keyword("AS", optional=True),
-            OptionallyBracketed(Ref("SelectableGrammar")),
-            optional=True,
-        ),
-    ),
+    TableDefinitionSegment=_table_definition_grammar(),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
     DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
         insert=[
@@ -1170,20 +1141,9 @@ class CreateCatalogStatementSegment(BaseSegment):
             "LOCATION",
             Ref("QuotedLiteralSegment"),
         ),
-        # RETAIN DROPPED FOR number { HOUR | HOURS | DAY | DAYS | WEEK | WEEKS }
-        Sequence(
-            "RETAIN",
-            "DROPPED",
-            "FOR",
-            Ref("NumericLiteralSegment"),
-            OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
-        ),
+        Ref("RetainDroppedClauseGrammar"),
         Ref("CommentGrammar"),
-        Sequence(
-            "DEFAULT",
-            "COLLATION",
-            Ref("SingleIdentifierGrammar"),
-        ),
+        Ref("DefaultCollationClauseGrammar"),
         _catalog_options,
     )
 
