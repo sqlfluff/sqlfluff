@@ -3501,3 +3501,74 @@ def test__cli__command_render_char_limit_skip_fail(tmpdir):
         cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
     )
     assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail_file_config(tmp_path, monkeypatch):
+    """A file-level `large_file_skip_fail` also fails char-limit skips.
+
+    The char-limit check uses the per-file config, so the exit-code check must
+    read `large_file_skip_fail` from that same config rather than the root one.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff]\nlarge_file_skip_char_limit = 10\nlarge_file_skip_fail = True\n"
+    )
+    (subdir / "query.sql").write_text("SELECT 1 FROM tbl_with_a_long_name\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["sub/query.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_byte_limit_skip_fail_file_config(tmp_path, monkeypatch):
+    """A file-level `large_file_skip_fail` also fails byte-limit skips.
+
+    The byte-limit check also uses the per-file config (nested `.sqlfluff`), so
+    the exit-code check must read `large_file_skip_fail` from that config too.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff]\nlarge_file_skip_byte_limit = 5\nlarge_file_skip_fail = True\n"
+    )
+    (subdir / "big.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["sub/big.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail_inline_config(tmp_path, monkeypatch):
+    """An inline `large_file_skip_fail` also fails char-limit skips.
+
+    Inline config directives are applied to the per-file config before
+    templating, so the exit-code check must read the per-file config.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    (tmp_path / "query.sql").write_text(
+        "-- sqlfluff:large_file_skip_char_limit:10\n"
+        "-- sqlfluff:large_file_skip_fail:True\n"
+        "SELECT 1 FROM tbl_with_a_long_name\n"
+    )
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["query.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output

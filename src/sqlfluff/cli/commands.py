@@ -2052,10 +2052,16 @@ def render(
                 # Mirror the skip handling used by `lint` and `parse`: report
                 # the reason as a warning rather than crashing with a traceback.
                 logging.getLogger("sqlfluff").warning(str(skip_file_err))
-                # As with `lint`, only fail if the config asks us to.
+                # The byte limit is checked against the file's own config (see
+                # `Linter.load_raw_file_and_config`), so resolve the same
+                # file-level config to decide whether the skip should fail.
+                # Inline config can't apply here: the file is never read.
+                skip_config = lnt.config.make_child_from_path(
+                    path, require_dialect=False
+                )
                 sys.exit(
                     EXIT_FAIL
-                    if lnt.config.get("large_file_skip_fail")
+                    if skip_config.get("large_file_skip_fail")
                     else EXIT_SUCCESS
                 )
             fname = path
@@ -2108,9 +2114,11 @@ def render(
             # The input can be skipped without raising (e.g. when it is over
             # `large_file_skip_char_limit`). The linter reports the reason as a
             # warning and returns no variants, so follow the same exit code
-            # policy as `lint` rather than indexing an empty list.
+            # policy as `lint` rather than indexing an empty list. The skip is
+            # decided using the file's own config (including inline
+            # directives), so read `large_file_skip_fail` from there too.
             sys.exit(
-                EXIT_FAIL if lnt.config.get("large_file_skip_fail") else EXIT_SUCCESS
+                EXIT_FAIL if file_config.get("large_file_skip_fail") else EXIT_SUCCESS
             )
         else:
             _num_variants = len(rendered.templated_variants)
