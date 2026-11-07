@@ -103,7 +103,8 @@ class Rule_CV06(BaseRule):
             if matcher.name == "block_comment":
                 match = matcher.match(segment.raw)
                 return bool(match) and not match.forward_string
-        return False
+        # Every built-in dialect has a block_comment matcher.
+        return False  # pragma: no cover
 
     @classmethod
     def _handle_preceding_inline_comments(
