@@ -1993,6 +1993,34 @@ class SetDefaultRoleStatementSegment(BaseSegment):
     )
 
 
+class SetRoleStatementSegment(BaseSegment):
+    """A `SET ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/set-role.html
+    """
+
+    type = "set_role_statement"
+
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "ROLE",
+        OneOf(
+            "DEFAULT",
+            "NONE",
+            Sequence(
+                "ALL",
+                Sequence(
+                    "EXCEPT",
+                    Delimited(Ref("RoleReferenceSegment")),
+                    optional=True,
+                ),
+            ),
+            Delimited(Ref("RoleReferenceSegment")),
+        ),
+    )
+
+
+
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
@@ -2114,6 +2142,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterEventStatementSegment"),
             Ref("DropEventStatementSegment"),
             Ref("SetDefaultRoleStatementSegment"),
+            Ref("SetRoleStatementSegment"),
             Ref("ShowStatementSegment"),
         ],
         remove=[

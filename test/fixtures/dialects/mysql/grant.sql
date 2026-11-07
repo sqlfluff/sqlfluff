@@ -14,3 +14,12 @@ GRANT 'role-one'@'%', 'role-two'@'%' TO 'user_name'@'%';
 SET DEFAULT ROLE ALL TO 'user_name'@'%';
 SET DEFAULT ROLE NONE TO 'user_name'@'%';
 SET DEFAULT ROLE 'role-name'@'%' TO 'user_name'@'%';
+SET ROLE DEFAULT;
+SET ROLE NONE;
+SET ROLE ALL;
+SET ROLE 'reader';
+SET ROLE 'reader', 'writer';
+SET ROLE 'reader'@'localhost';
+SET ROLE ALL EXCEPT 'writer';
+SET ROLE ALL EXCEPT 'reader'@'localhost', 'writer';
+
