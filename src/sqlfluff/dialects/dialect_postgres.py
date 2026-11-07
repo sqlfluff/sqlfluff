@@ -5439,6 +5439,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
+            Ref("CreateEventTriggerStatementSegment"),
+            Ref("AlterEventTriggerStatementSegment"),
+            Ref("DropEventTriggerStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterSystemStatementSegment"),
             Ref("AlterPolicyStatementSegment"),
@@ -5632,6 +5635,88 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateEventTriggerStatementSegment(BaseSegment):
+    """A `CREATE EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-createeventtrigger.html
+    """
+
+    type = "create_event_trigger_statement"
+
+    # filter_variable IN (filter_value [, ... ])
+    _filter = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EVENT",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        # The event, e.g. ddl_command_start
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            "WHEN",
+            _filter,
+            AnyNumberOf(Sequence("AND", _filter)),
+            optional=True,
+        ),
+        "EXECUTE",
+        OneOf("FUNCTION", "PROCEDURE"),
+        Ref("FunctionSegment"),
+    )
+
+
+class AlterEventTriggerStatementSegment(BaseSegment):
+    """An `ALTER EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-altereventtrigger.html
+    """
+
+    type = "alter_event_trigger_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "EVENT",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf(
+            "DISABLE",
+            Sequence("ENABLE", OneOf("REPLICA", "ALWAYS", optional=True)),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),
+        ),
+    )
+
+
+class DropEventTriggerStatementSegment(BaseSegment):
+    """A `DROP EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropeventtrigger.html
+    """
+
+    type = "drop_event_trigger_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EVENT",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 

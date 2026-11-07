@@ -1,0 +1,103 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d0ff0523e046adfd6949eb089f85adce5ce07d5a2168342f0f1b98665f969989
+file:
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: ENABLE
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: ENABLE
+    - keyword: REPLICA
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: ENABLE
+    - keyword: ALWAYS
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: some_role
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_event_trigger_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: RENAME
+    - keyword: TO
+    - trigger_reference:
+        naked_identifier: abort_all_ddl
+- statement_terminator: ;
