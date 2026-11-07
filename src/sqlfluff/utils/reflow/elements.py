@@ -320,10 +320,23 @@ class ReflowPoint(ReflowElement):
 
     _stats: IndentStats = field(init=False)
 
-    def __init__(self, segments: tuple[RawSegment, ...]):
-        """Override the init method to calculate indent stats."""
+    def __init__(
+        self,
+        segments: tuple[RawSegment, ...],
+        ignored_indent_uuids: frozenset[int] = frozenset(),
+    ):
+        """Override the init method to calculate indent stats.
+
+        ``ignored_indent_uuids`` identifies any indent segments which
+        should be retained in the point but not contribute to its
+        indent impulse.
+        """
         object.__setattr__(self, "segments", segments)
-        object.__setattr__(self, "_stats", self._generate_indent_stats(segments))
+        object.__setattr__(
+            self,
+            "_stats",
+            self._generate_indent_stats(segments, ignored_indent_uuids),
+        )
 
     def _get_indent_segment(self) -> Optional[RawSegment]:
         """Get the current indent segment (if there).
@@ -383,6 +396,7 @@ class ReflowPoint(ReflowElement):
     @staticmethod
     def _generate_indent_stats(
         segments: Sequence[RawSegment],
+        ignored_indent_uuids: frozenset[int] = frozenset(),
     ) -> IndentStats:
         """Generate the change in intended indent balance.
 
@@ -392,7 +406,7 @@ class ReflowPoint(ReflowElement):
         running_sum = 0
         implicit_indents = []
         for seg in segments:
-            if seg.is_type("indent"):
+            if seg.is_type("indent") and seg.uuid not in ignored_indent_uuids:
                 indent_seg = cast(Indent, seg)
                 running_sum += indent_seg.indent_val
                 # Do we need to add a new implicit indent?

@@ -3050,8 +3050,8 @@ test_pass_from_values_same_line_implicit_allow:
   pass_str: |
     SELECT *
     FROM VALUES
-            (1, 'something'),
-            (2, 'something');
+        (1, 'something'),
+        (2, 'something');
   configs:
     core:
       dialect: snowflake
@@ -3075,8 +3075,8 @@ test_pass_from_values_separate_line_implicit_allow:
     SELECT *
     FROM
         VALUES
-            (1, 'something'),
-            (2, 'something');
+        (1, 'something'),
+        (2, 'something');
   configs:
     core:
       dialect: snowflake
@@ -3089,14 +3089,43 @@ test_pass_from_values_bracketed_implicit_allow:
     SELECT *
     FROM (
         VALUES
-            (1, 'something'),
-            (2, 'something')
+        (1, 'something'),
+        (2, 'something')
     );
   configs:
     core:
       dialect: snowflake
     indentation:
       implicit_indents: allow
+
+test_pass_ansi_from_values_bracketed_rows_aligned:
+  # Issue 9055: Rows of `FROM (VALUES ...)` align with the `VALUES`
+  # keyword, they don't nest a level deeper.
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2'),
+        ('v3', 'v4')
+    ) AS x (c1, c2);
+
+test_fail_ansi_from_values_bracketed_rows_overindented:
+  # Issue 9055: Rows nested deeper than `VALUES` in a table
+  # constructor are fixed back to alignment with `VALUES`.
+  fail_str: |
+    SELECT *
+    FROM (
+        VALUES
+            ('v1', 'v2'),
+            ('v3', 'v4')
+    ) AS x (c1, c2);
+  fix_str: |
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2'),
+        ('v3', 'v4')
+    ) AS x (c1, c2);
 
 test_pass_ansi_values_rows_indented:
   # VALUES rows nest one level under the VALUES keyword, like any clause.

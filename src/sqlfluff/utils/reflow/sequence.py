@@ -61,6 +61,33 @@ def _drop_from_root_cache(root_ref: "weakref.ref[BaseSegment]") -> None:
         _from_root_cache = None
 
 
+def _ignored_indent_uuids(
+    segments: Sequence[RawSegment], depth_map: DepthMap
+) -> frozenset[int]:
+    """Find indents which should not contribute an indent impulse.
+
+    Indents (and dedents) directly within a `values_clause` which
+    forms a `table_expression` (i.e. `FROM (VALUES ...)`) should not
+    push the value rows an extra level deeper than the `VALUES`
+    keyword. Indents in other `values_clause` contexts (e.g. within
+    an `insert_statement`) are unaffected.
+    """
+    ignored = set()
+    for seg in segments:
+        if not seg.is_type("indent"):
+            continue
+        depth_info = depth_map.depth_info.get(seg.uuid)
+        if not depth_info or len(depth_info.stack_class_types) < 2:
+            continue
+        parent_types, grandparent_types = (
+            depth_info.stack_class_types[-1],
+            depth_info.stack_class_types[-2],
+        )
+        if "values_clause" in parent_types and "table_expression" in grandparent_types:
+            ignored.add(seg.uuid)
+    return frozenset(ignored)
+
+
 class ReflowSequence:
     """Class for keeping track of elements in a reflow operation.
 
@@ -184,7 +211,12 @@ class ReflowSequence:
             elif elem_buff or seg_buff:
                 # There are elements. The last will have been a block.
                 # Add a point before we add the block. NOTE: It may be empty.
-                elem_buff.append(ReflowPoint(segments=tuple(seg_buff)))
+                elem_buff.append(
+                    ReflowPoint(
+                        segments=tuple(seg_buff),
+                        ignored_indent_uuids=_ignored_indent_uuids(seg_buff, depth_map),
+                    )
+                )
             # Add the block, with config info.
             elem_buff.append(
                 ReflowBlock.from_config(
@@ -199,7 +231,12 @@ class ReflowSequence:
         # If we ended with a buffer, apply it.
         # TODO: Consider removing this clause?
         if seg_buff:  # pragma: no cover
-            elem_buff.append(ReflowPoint(segments=tuple(seg_buff)))
+            elem_buff.append(
+                ReflowPoint(
+                    segments=tuple(seg_buff),
+                    ignored_indent_uuids=_ignored_indent_uuids(seg_buff, depth_map),
+                )
+            )
         return elem_buff
 
     @classmethod
