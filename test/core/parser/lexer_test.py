@@ -731,3 +731,13 @@ def test__parser__pyrs_lexer_unicode_preservation(unicode_char, description):
         f"{description} was corrupted. Expected '{unicode_char}', "
         f"got: {comment_segments[0].raw!r}"
     )
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+def test__parser__pyrs_lexer_slices_have_no_step():
+    """Rust-lexed slices compare equal to the 2-arg slices Python builds."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex("SELECT 1")
+    marker = segments[0].pos_marker
+    assert marker.source_slice == slice(0, 6)
+    assert marker.templated_slice == slice(0, 6)

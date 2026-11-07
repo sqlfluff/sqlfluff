@@ -258,6 +258,7 @@ try:
                 # The Rust parser may raise RsParseError for certain parse errors (e.g.,
                 # missing closing brackets in terminators). We catch these and convert to
                 # SQLParseError. Regular parse errors are embedded in the MatchResult.
+                panic: Optional[str] = None
                 try:
                     if _prof is not None:
                         _ts = time.perf_counter()
@@ -286,6 +287,18 @@ try:
                     raise SQLParseError.from_rs_parse_error(
                         e, segments[_start_idx:_end_idx]
                     ) from e
+                # Any other Exception is a bug in sqlfluff, not in the user's SQL.
+                except (Exception, KeyboardInterrupt, SystemExit):
+                    raise
+                except BaseException as e:  # noqa: BLE001
+                    # A Rust panic, e.g. from going over rust_parser_max_iterations,
+                    # isn't an Exception, so we report it as a parse error. We raise
+                    # it outside this block so that the panic isn't its __context__:
+                    # the panic can't be pickled, so the error couldn't leave a
+                    # worker process.
+                    panic = str(e)
+                if panic is not None:
+                    raise SQLParseError(panic)
 
                 # Build the BaseSegment tree from the Rust match result.
                 # PYTHON PARITY: only the code portion (segments[_start_idx:_end_idx])
