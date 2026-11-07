@@ -3407,3 +3407,97 @@ def test__cli__command_fix_large_file_skip_fail(tmpdir):
         ret_code=1,
         args=[fix, ["--config", config_path, sql_path]],
     )
+
+
+def test__cli__command_render_large_file_skip(tmpdir):
+    """Test that `render` reports a byte-limit skip without a traceback.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write("[sqlfluff]\ndialect = ansi\nlarge_file_skip_byte_limit = 5\n")
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[render, ["--config", config_path, sql_path]],
+    )
+    # The skip should be reported rather than raising `SQLFluffSkipFile`.
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_large_file_skip_fail(tmpdir):
+    """Test that `render` returns exit code 1 when large_file_skip_fail is set.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low and
+    # enables large_file_skip_fail.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_byte_limit = 5\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["--config", config_path, sql_path]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip(tmpdir):
+    """Test that `render` reports a char-limit skip without an IndexError.
+
+    The templater skips the file (rendering no variants) instead of raising,
+    which used to crash on `rendered.templated_variants[0]`.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write("[sqlfluff]\ndialect = ansi\nlarge_file_skip_char_limit = 10\n")
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[render, ["--config", config_path, "-"]],
+        cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
+    )
+    # The skip should be reported rather than raising IndexError.
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail(tmpdir):
+    """Test that a char-limit skip exits 1 when large_file_skip_fail is set.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_char_limit = 10\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["--config", config_path, "-"]],
+        cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
+    )
+    assert "Skipping to avoid parser lock" in result.output
