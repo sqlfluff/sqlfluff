@@ -2020,7 +2020,6 @@ class SetRoleStatementSegment(BaseSegment):
     )
 
 
-
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
