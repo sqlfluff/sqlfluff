@@ -2822,7 +2822,7 @@ class TableValuesClauseSegment(BaseSegment):
 
     type = "values_clause"
     match_grammar: Matchable = Sequence(
-        OneOf("VALUE", "VALUES"),
+        "VALUES",
         Delimited(
             Sequence(
                 Ref.keyword("ROW", optional=True),
