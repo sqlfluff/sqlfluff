@@ -755,6 +755,12 @@ class FluffConfig:
             dialect_value = config_val[1]
             assert isinstance(dialect_value, str)
             self._initialise_dialect(dialect_value)
+        elif config_val[0] == ("core", "templater"):
+            # Likewise, re-instantiate the templater object so that a
+            # templater set inline takes effect for this file.
+            templater_value = config_val[1]
+            assert isinstance(templater_value, str)
+            self._configs["core"]["templater_obj"] = self.get_templater()
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self.

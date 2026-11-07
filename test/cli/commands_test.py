@@ -200,6 +200,39 @@ def test__cli__command_file_inline_dialect(command, inline_dialect, tmp_path):
     assert "Traceback (most recent call last)" not in result.stderr
 
 
+@pytest.mark.parametrize("command", [render, parse, lint, cli_format, fix])
+@pytest.mark.parametrize("inline_templater", [False, True])
+def test__cli__command_file_inline_templater(command, inline_templater, tmp_path):
+    """File directives can provide the templater (and its options)."""
+    sql_file = tmp_path / "inline_templater.sql"
+    header = (
+        "-- sqlfluff:dialect:ansi\n"
+        "-- sqlfluff:templater:placeholder\n"
+        "-- sqlfluff:templater:placeholder:param_style:question_mark\n"
+        "-- sqlfluff:templater:placeholder:1:'2000-01-01'\n"
+        "-- sqlfluff:templater:placeholder:2:'2000-01-01'\n\n"
+    )
+    sql_file.write_text(
+        header + "SELECT 1\nFROM my_table\nWHERE my_date BETWEEN ? AND ?;\n"
+        if inline_templater
+        else "SELECT 1\nFROM my_table\nWHERE my_date BETWEEN ? AND ?;\n"
+    )
+
+    result = invoke_assert_code(
+        ret_code=0 if inline_templater else 2,
+        args=[command, ["--ignore-local-config", str(sql_file)]],
+    )
+    if inline_templater:
+        # The placeholders are substituted by the templater, so the
+        # statement parses cleanly.
+        assert "Found unparsable section" not in result.stdout
+        assert "User Error" not in result.stderr
+    else:
+        # Without any directives there is no dialect and the command errors.
+        assert "No dialect was specified" in result.stderr
+    assert "Traceback (most recent call last)" not in result.stderr
+
+
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code

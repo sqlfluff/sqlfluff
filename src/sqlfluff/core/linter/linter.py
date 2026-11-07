@@ -924,8 +924,6 @@ class Linter:
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info("Rendering String [%s] (%s)", self.templater.name, fname)
-
         # Start the templating timer
         t0 = time.monotonic()
 
@@ -939,22 +937,32 @@ class Linter:
         # not going to pick up a .sqlfluff or other config file to provide a
         # missing dialect at this point.)
         config.verify_dialect_specified()
-        if not config.get("templater_obj") == self.templater:
-            linter_logger.warning(
-                f"Attempt to set templater to {config.get('templater_obj').name} "
-                f"failed. Using {self.templater.name} templater. Templater cannot "
-                "be set in a .sqlfluff file in a subdirectory of the current "
-                "working directory. It can be set in a .sqlfluff in the current "
-                "working directory. See Nesting section of the docs for more "
-                "details."
+
+        # The file config (which includes any inline config directives) may
+        # specify a different templater to the one the Linter was constructed
+        # with. Honor that choice for this file.
+        file_templater = config.get("templater_obj")
+        if file_templater is None:
+            # e.g. a config restored from pickle, where templater_obj is
+            # stripped on serialization. The root templater still applies.
+            templater = self.templater
+        elif file_templater.name == self.templater.name:
+            templater = self.templater
+        else:
+            templater = file_templater
+            linter_logger.info(
+                "Using %r templater for %s (set by file config)",
+                templater.name,
+                fname,
             )
+        linter_logger.info("Rendering String [%s] (%s)", templater.name, fname)
 
         variant_limit = config.get("render_variant_limit")
         templated_variants: list[TemplatedFile] = []
         templater_violations: list[SQLTemplaterError] = []
 
         try:
-            for variant, templater_errs in self.templater.process_with_variants(
+            for variant, templater_errs in templater.process_with_variants(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             ):
                 if variant:

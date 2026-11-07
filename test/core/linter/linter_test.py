@@ -1318,23 +1318,26 @@ def test_delayed_exception():
         de.reraise()
 
 
-def test__attempt_to_change_templater_warning():
-    """Test warning when changing templater in .sqlfluff file in subdirectory."""
+def test__render_string_honors_file_templater():
+    """Test that a templater set by the file config is honored when rendering."""
     initial_config = FluffConfig(
         configs={"core": {"templater": "jinja", "dialect": "ansi"}}
     )
     lntr = Linter(config=initial_config)
     updated_config = FluffConfig(
-        configs={"core": {"templater": "python", "dialect": "ansi"}}
+        configs={"core": {"templater": "raw", "dialect": "ansi"}}
     )
-    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        lntr.render_string(
-            in_str="select * from table",
-            fname="test.sql",
-            config=updated_config,
-            encoding="utf-8",
-        )
-    assert "Attempt to set templater to " in caplog.text
+    rendered = lntr.render_string(
+        in_str="select {{ 1 + 1 }} from table",
+        fname="test.sql",
+        config=updated_config,
+        encoding="utf-8",
+    )
+    # The templater set by the file config is honored: the raw templater
+    # leaves the template tags untouched, where the linter's own jinja
+    # templater would have rendered them.
+    assert len(rendered.templated_variants) == 1
+    assert "{{ 1 + 1 }}" in rendered.templated_variants[0].templated_str
 
 
 def test_advanced_api_methods():
