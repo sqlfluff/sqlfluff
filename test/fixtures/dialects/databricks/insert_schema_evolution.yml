@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 644010c09f53f64cf27d52754bbf3c1437cd892d0730591d6021c2698f82d945
+_hash: 0a05139cfe8fd24facdb3f44c7e68a7be20f88fc7a86a9175316c699a15b870a
 file:
 - statement:
     insert_statement:
@@ -151,6 +151,54 @@ file:
         - dot: .
         - naked_identifier: x
       - binary_operator: AND
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: y
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: y
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: s
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: REPLACE
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+        - naked_identifier: t
+        - dot: .
+        - naked_identifier: x
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+        - naked_identifier: s
+        - dot: .
+        - naked_identifier: x
+      - binary_operator: OR
       - column_reference:
         - naked_identifier: t
         - dot: .

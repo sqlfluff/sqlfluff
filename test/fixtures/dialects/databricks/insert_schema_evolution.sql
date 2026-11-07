@@ -8,3 +8,5 @@ INSERT INTO t REPLACE ON a = s.a SELECT * FROM s;
 INSERT INTO t REPLACE ON a = s.a (SELECT * FROM s);
 
 INSERT INTO t REPLACE ON t.x = s.x AND t.y = s.y (SELECT * FROM s);
+
+INSERT INTO t REPLACE ON t.x = s.x OR t.y = s.y (SELECT * FROM s);
