@@ -283,6 +283,24 @@ def test__cli__command_extra_config_fail():
     )
 
 
+def test__cli__command_invalid_ini_config(tmp_path, monkeypatch):
+    """A malformed INI config is reported cleanly, not as a traceback.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9067
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff\ndialect = ansi\n")
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=2,
+        args=[lint, ["in.sql"]],
+        assert_stdout_contains=(
+            "Error loading config: Failed to parse INI config file"
+        ),
+    )
+
+
 stdin_cli_input = (
     "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\nPOSITIONAL JOIN TABB AS B;\n"
 )
