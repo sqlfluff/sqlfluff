@@ -1,6 +1,6 @@
 [project]
 name = "sqlfluff-templater-sqlmesh"
-version = "4.2.2"
+version = "4.5.0"
 description = "Lint your SQLMesh project SQL"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
@@ -46,7 +46,7 @@ keywords = [
     "sqlmesh",
 ]
 dependencies = [
-    "sqlfluff==4.2.2",
+    "sqlfluff==4.5.0",
     "sqlmesh>=0.80.0",
 ]
 
