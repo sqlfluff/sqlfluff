@@ -75,6 +75,26 @@ test_fail_default_insensitive:
     core:
       dialect: duckdb
 
+test_pass_postgres_bare_function_names_remain_quoted:
+  # Unquoted, these are calls to PostgreSQL's bare functions, not column
+  # references.
+  pass_str: |
+    SELECT "user", "current_user", "system_user", "session_user"
+    FROM events
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_ansi_bare_function_name_remains_quoted:
+  pass_str: SELECT "current_date" FROM events
+
+test_fail_postgres_ordinary_identifier_unquoted:
+  fail_str: SELECT "events" FROM "events"
+  fix_str: SELECT events FROM events
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_reference_tsql:
   # Tests the TSQL bracket quotes.
   # TSQL casefolds UPPERCASE.
@@ -796,3 +816,45 @@ test_fail_postgres_quoted_role:
   configs:
     core:
       dialect: postgres
+
+test_pass_oracle_case_sensitive_quoted_alias:
+  # Oracle casefolds to UPPERCASE, so a quoted alias which is not already
+  # uppercase cannot be unquoted without changing the identifier.
+  pass_str: |
+    SELECT
+      col AS "renamedCol",
+      col AS "renamed_col"
+    FROM my_table
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_redundant_quoted_alias:
+  # An alias which already matches the casefolded form is redundantly quoted.
+  fail_str: |
+    SELECT col AS "RENAMEDCOL"
+    FROM my_table
+  fix_str: |
+    SELECT col AS RENAMEDCOL
+    FROM my_table
+  configs:
+    core:
+      dialect: oracle
+
+test_fix_mysql_quoted_qualified_function_name:
+  fail_str: |
+    SELECT `app`.`my_func`(1) FROM t;
+  fix_str: |
+    SELECT app.my_func(1) FROM t;
+  configs:
+    core:
+      dialect: mysql
+
+test_fix_mariadb_quoted_qualified_function_name:
+  fail_str: |
+    SELECT `app`.`my_func`(1) FROM t;
+  fix_str: |
+    SELECT app.my_func(1) FROM t;
+  configs:
+    core:
+      dialect: mariadb

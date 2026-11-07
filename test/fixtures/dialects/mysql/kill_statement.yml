@@ -3,68 +3,76 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6be6a9dba0faa2c72ed9f102e8500674fdd502883cca0b9af233e8093f4a5ca
+_hash: 16ae6751c5a2f5ce87485bcafdef0bb7662bbe0d9d6ed519d2604226e97c542a
 file:
 - statement:
     kill_statement:
       keyword: KILL
-      numeric_literal: '5'
+      expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: CONNECTION
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: QUERY
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: kill
     - keyword: connection
-    - numeric_literal: '5'
+    - expression:
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: CONNECTION
-    - variable: '@thread_id'
+    - expression:
+        variable: '@thread_id'
 - statement_terminator: ;
 - statement:
     kill_statement:
       keyword: KILL
-      function:
-        function_name:
-          function_name_identifier: CONNECTION_ID
-        function_contents:
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+      expression:
+        function:
+          function_name:
+            function_name_identifier: CONNECTION_ID
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: QUERY
-    - function:
-        function_name:
-          function_name_identifier: CONNECTION_ID
-        function_contents:
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: CONNECTION_ID
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     kill_statement:
       keyword: KILL
-      bracketed:
-        start_bracket: (
-        expression:
-        - numeric_literal: '1'
-        - binary_operator: +
-        - numeric_literal: '2'
-        end_bracket: )
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+          end_bracket: )
 - statement_terminator: ;

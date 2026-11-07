@@ -1,0 +1,267 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eb820108258e853864ef6448f92deefceab7f1c2bce6a3a33429af22e2e21369
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: integer
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: customer_id
+          data_type:
+            keyword: integer
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: customers
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - keyword: NOT
+          - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+          naked_identifier: quantity
+          data_type:
+            keyword: integer
+          column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: quantity
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+          - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+          naked_identifier: price
+          data_type:
+            keyword: numeric
+          column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: price_positive
+          - keyword: CHECK
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+          - keyword: NOT
+          - keyword: ENFORCED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: line_items
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: order_id
+          data_type:
+            keyword: integer
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: orders
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: DEFERRED
+          - keyword: NOT
+          - keyword: ENFORCED
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: shipments
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: order_id
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: weight
+          data_type:
+            keyword: numeric
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: shipments_order_fk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: order_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: orders
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: shipments_weight_check
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: weight
+              comparison_operator:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: '='
+              numeric_literal: '0'
+            end_bracket: )
+        - keyword: ENFORCED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: shipments
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: shipments_id_check
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: id
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: shipments
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: shipments_order_fk2
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: order_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: orders
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: CASCADE
+        - keyword: NOT
+        - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: shipments
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - parameter: shipments_order_fk
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: shipments
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - parameter: shipments_order_fk
+      - keyword: NOT
+      - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: shipments
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - parameter: shipments_order_fk
+      - keyword: DEFERRABLE
+      - keyword: INITIALLY
+      - keyword: IMMEDIATE
+      - keyword: ENFORCED
+- statement_terminator: ;

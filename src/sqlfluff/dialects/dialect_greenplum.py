@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_greenplum_keywords import greenplum_keywords
@@ -39,6 +40,13 @@ greenplum_dialect.sets("reserved_keywords").update(
 
 greenplum_dialect.sets("unreserved_keywords").update(
     get_keywords(greenplum_keywords, "non-reserved")
+)
+
+# Greenplum adds its own `col_name_keyword`s (e.g. CUBE, ROLLUP, MEDIAN);
+# extend the inherited exclusion set so they are also rejected as bare data
+# type names. See issue #6430.
+greenplum_dialect.sets("cannot_be_type_keywords").update(
+    get_keywords(greenplum_keywords, "non-reserved-(cannot-be-function-or-type)")
 )
 
 
@@ -73,7 +81,10 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
         Dedent,
         terminators=[
             "INTO",
-            "FROM",
+            Ref(
+                "FromKeywordSegment",
+                exclude=is_distinct_from_lookbehind,
+            ),
             "WHERE",
             Sequence("ORDER", "BY"),
             "LIMIT",

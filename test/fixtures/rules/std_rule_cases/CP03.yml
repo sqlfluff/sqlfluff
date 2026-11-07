@@ -119,3 +119,27 @@ test_bare_functions_4:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: snake
+
+test_pass_clickhouse_case_sensitive_functions:
+  pass_str: SELECT randCanonical(), randBinomial(24, 0.5)
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_case_sensitive_functions_upper_policy:
+  pass_str: SELECT toDateTime('2022-12-12 12:00:00'), randCanonical()
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_pass_clickhouse_case_sensitive_functions_lower_policy:
+  pass_str: SELECT randCanonical(), randBinomial(24, 0.5)
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower

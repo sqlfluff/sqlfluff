@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aefcaa60a58bff7c7fbe9aca764513bd1eb940f4e5ee0422f80dde8654641977
+_hash: 4f625fa5b58ec4101bdb744d9124478aa51aac49435bf793ab5049a209c6f882
 file:
 - statement:
     create_database_statement:
@@ -389,6 +389,45 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: ALLOW_CONNECTIONS
+    - keyword: 'OFF'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'ON'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'off'
 - statement_terminator: ;
 - statement:
     create_database_statement:

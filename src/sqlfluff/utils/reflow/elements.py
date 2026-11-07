@@ -196,7 +196,7 @@ class ReflowBlock(ReflowElement):
         for hash, class_types in zip(
             depth_info.stack_hashes, depth_info.stack_class_types
         ):
-            cfg = config.get_block_config(class_types)
+            cfg = config.get_parent_block_config(class_types)
             if cfg.spacing_within:
                 stack_spacing_configs[hash] = cfg.spacing_within
             if cfg.line_position:

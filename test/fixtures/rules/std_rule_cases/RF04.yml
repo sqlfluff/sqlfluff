@@ -37,6 +37,43 @@ test_fail_keyword_as_identifier_column_alias_config:
       references.keywords:
         unquoted_identifiers_policy: column_aliases
 
+test_fail_keyword_as_column_alias_in_derived_table_config:
+  # A column alias belonging to a derived table's own SELECT is still a
+  # column alias, even though it sits underneath the outer FROM clause.
+  fail_str: SELECT * FROM (SELECT 1 AS date) x
+  configs:
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: column_aliases
+
+test_pass_keyword_as_column_alias_in_derived_table_table_aliases_config:
+  # Under table_aliases the column alias above must NOT be flagged - it is
+  # not a table alias.
+  pass_str: SELECT * FROM (SELECT 1 AS date) x
+  configs:
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: table_aliases
+
+test_fail_keyword_as_derived_table_alias_table_aliases_config:
+  # Here the keyword is the derived table's OWN alias, sitting directly in
+  # the outer from_clause - a genuine table alias, unlike the column-alias
+  # cases above.
+  fail_str: SELECT * FROM (SELECT 1) AS date
+  configs:
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: table_aliases
+
+test_pass_keyword_as_derived_table_alias_column_aliases_config:
+  # Under column_aliases the derived table's own alias above must NOT be
+  # flagged - it is not a column alias.
+  pass_str: SELECT * FROM (SELECT 1) AS date
+  configs:
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: column_aliases
+
 test_pass_valid_quoted_identifier:
   pass_str: CREATE TABLE [artist]([artist_name] TEXT)
   configs:

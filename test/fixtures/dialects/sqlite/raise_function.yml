@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af3ada717521748d1f9bdb2c5c54c3c60b343b95d5777e2535f653800f369f27
+_hash: 90df2c368ab5618d3e5e893ef824eee0709e74c10981784f3fdc5361d7dae30a
 file:
-  statement:
+- statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -36,4 +36,61 @@ file:
                   end_bracket: )
     - statement_terminator: ;
     - keyword: END
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: x2
+    - keyword: BEFORE
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: y
+    - keyword: BEGIN
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: RAISE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  keyword: IGNORE
+                  end_bracket: )
+    - statement_terminator: ;
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: RAISE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  keyword: ABORT
+                  comma: ','
+                  quoted_literal: "'no'"
+                  end_bracket: )
+    - statement_terminator: ;
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: RAISE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  keyword: FAIL
+                  comma: ','
+                  quoted_literal: "'no'"
+                  end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

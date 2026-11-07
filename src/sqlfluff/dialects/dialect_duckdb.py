@@ -53,10 +53,13 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 
 duckdb_dialect.sets("reserved_keywords").update(
     [
+        "DESCRIBE",
         "LAMBDA",
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
+        "SHOW",
+        "SUMMARIZE",
         "UNPIVOT",
     ]
 )
@@ -66,29 +69,65 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ANTI",
         "APPEND",
         "ASOF",
+        "BLOOM_FILTER_FALSE_POSITIVE_RATIO",
+        "CHUNK_SIZE",
+        "CODEC",
         "COMPRESSION",
         "COMPRESSION_LEVEL",
+        "DATABASES",
+        "DATA_PAGE_SIZE_LIMIT",
+        "DATEFORMAT",
+        "DELIM",
+        "DICTIONARY_SIZE_LIMIT",
+        "EXPORT",
+        "FIELD_IDS",
+        "FILENAME_PATTERN",
+        "FILE_EXTENSION",
+        "FILE_SIZE_BYTES",
+        "GEOPARQUET_VERSION",
         "GLOB",
         "INSTALL",
+        "KV_METADATA",
         "MACRO",
         "MAP",
+        "NEW_LINE",
+        "NULLSTR",
         "OVERWRITE",
         "OVERWRITE_OR_IGNORE",
         "PARQUET_VERSION",
         "PARTITION_BY",
         "PERCENT",
+        "PER_THREAD_OUTPUT",
         "POSITIONAL",
+        "PRAGMA",
+        "PREFIX",
+        "PRESERVE_ORDER",
         "PROGRAM",
         "RESERVOIR",
+        "RETURN_FILES",
+        "RETURN_STATS",
+        "ROW_GROUPS_PER_FILE",
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
         "SAMPLE",
         "SEMI",
+        "SEP",
+        "SHREDDING",
         "STRUCT",
+        "SUFFIX",
+        "TIMESTAMPFORMAT",
+        "TIMESTAMP_IS_ADJUSTED_TO_UTC",
+        "USE_TMP_FILE",
+        "VARIABLES",
         "VIRTUAL",
+        "WRITE_BLOOM_FILTER",
         "WRITE_PARTITION_COLUMNS",
+        "WRITE_TIMESTAMP_AS_INT96",
     ]
 )
+
+# Postgres doesn't reserve these, but DuckDB does.
+duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"])
 
 # Add plural datetime units for interval expressions
 # DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
@@ -179,6 +218,23 @@ duckdb_dialect.add(
     FactorialOperatorSegment=TypedParser(
         "not", SymbolSegment, type="factorial_operator"
     ),
+    # What follows `DESCRIBE`, `DESC` or `SHOW`, which DuckDB treats as the
+    # same statement. `TABLES`, `DATABASES`, `SCHEMAS` and `VARIABLES` list
+    # catalog objects; any other name is a table to describe.
+    # https://duckdb.org/docs/stable/guides/meta/describe
+    # https://duckdb.org/docs/stable/guides/meta/list_tables
+    DescribeTargetGrammar=OneOf(
+        Sequence("ALL", Ref.keyword("TABLES", optional=True)),
+        Sequence(
+            "TABLES",
+            Sequence("FROM", Ref("SchemaReferenceSegment"), optional=True),
+        ),
+        "DATABASES",
+        "SCHEMAS",
+        "VARIABLES",
+        Ref("SelectableGrammar"),
+        Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+    ),
 )
 
 duckdb_dialect.replace(
@@ -212,6 +268,10 @@ duckdb_dialect.replace(
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            # DuckDB can use these wherever a query can go, e.g. as a subquery.
+            Ref("DescribeStatementSegment"),
+            Ref("ShowStatementSegment"),
+            Ref("SummarizeStatementSegment"),
         ],
     ),
     NonStandardJoinTypeKeywordsGrammar=OneOf(
@@ -553,6 +613,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         OneOf(Ref("OrReplaceGrammar"), Ref("OrIgnoreGrammar"), optional=True),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AsAliasExpressionSegment", optional=True),
         OneOf(
@@ -561,6 +622,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Sequence("BY", "NAME"),
             optional=True,
         ),
+        Dedent,
         OneOf(
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
@@ -581,15 +643,76 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AsAliasExpressionSegment", optional=True),
                     ),
                 ),
             ),
+            optional=True,
+        ),
+    )
+
+
+class MergeStatementSegment(postgres.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    Overriding Postgres to allow `USING (col, ...)` in place of the `ON`
+    condition, when the source and target share the column names.
+    https://duckdb.org/docs/stable/sql/statements/merge_into
+    """
+
+    match_grammar = postgres.MergeStatementSegment.match_grammar.copy(
+        insert=[
+            OneOf(
+                Ref("JoinOnConditionSegment"),
+                Ref("JoinUsingConditionGrammar"),
+            ),
+        ],
+        before=Ref("JoinOnConditionSegment"),
+        remove=[Ref("JoinOnConditionSegment")],
+    )
+
+
+class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
+    """`UPDATE` clause within the `MERGE` statement.
+
+    Overriding ANSI to make the `SET` list optional. A bare `UPDATE` updates
+    every column from the source row.
+    https://duckdb.org/docs/stable/sql/statements/merge_into
+    """
+
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        Indent,
+        Ref("SetClauseListSegment", optional=True),
+        Dedent,
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Overriding ANSI to allow `INSERT BY NAME`, which matches the source
+    columns to the target columns by name. It takes no column list or
+    `VALUES` clause.
+    https://duckdb.org/docs/stable/sql/statements/merge_into
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(
+            Sequence("BY", "NAME"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
+                Ref("ValuesClauseSegment", optional=True),
+            ),
+            Ref("ValuesClauseSegment"),
             optional=True,
         ),
     )
@@ -858,6 +981,11 @@ class ListComprehensionExpressionSegment(BaseSegment):
         Ref("ExpressionSegment"),
         "FOR",
         Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
         "IN",
         Ref("ExpressionSegment"),
         Sequence("IF", Ref("ExpressionSegment"), optional=True),
@@ -933,6 +1061,33 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class CTEDefinitionSegment(postgres.CTEDefinitionSegment):
+    """A CTE Definition from a WITH statement.
+
+    Adds the `USING KEY` clause of recursive CTEs, whose key list can include
+    aggregates over the payload columns:
+    https://duckdb.org/docs/stable/sql/query_syntax/with#recursive-ctes-with-using-key
+    """
+
+    _using_key = Sequence(
+        "USING",
+        "KEY",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+    match_grammar = postgres.CTEDefinitionSegment.match_grammar.copy(
+        insert=[Sequence(_using_key, optional=True)],
+        before=Ref.keyword("AS"),
+    )
+
+
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
@@ -979,7 +1134,11 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://duckdb.org/docs/stable/sql/query_syntax/groupby
+    https://duckdb.org/docs/stable/sql/query_syntax/grouping_sets
+    """
 
     match_grammar: Matchable = Sequence(
         "GROUP",
@@ -990,7 +1149,11 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 "ALL",
                 Ref("ColumnReferenceSegment"),
                 Ref("NumericLiteralSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 Ref("ExpressionSegment"),
+                # Empty grouping set: `GROUP BY ()`
+                Bracketed(),
             ),
             allow_trailing=True,
             terminators=[Ref("GroupByClauseTerminatorGrammar")],
@@ -1059,6 +1222,101 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     )
 
 
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/checkpoint
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Sequence(
+        Ref.keyword("FORCE", optional=True),
+        "CHECKPOINT",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class PragmaReferenceSegment(ansi.ObjectReferenceSegment):
+    """A Pragma object."""
+
+    type = "pragma_reference"
+
+
+class PragmaStatementSegment(BaseSegment):
+    """A `PRAGMA` statement.
+
+    https://duckdb.org/docs/stable/configuration/pragmas
+    """
+
+    type = "pragma_statement"
+    match_grammar = Sequence(
+        "PRAGMA",
+        Ref("PragmaReferenceSegment"),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    # Named arguments, e.g. `stemmer = 'porter'` for
+                    # `create_fts_index`.
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    Ref("ExpressionSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    )
+
+
+class DescribeStatementSegment(ansi.DescribeStatementSegment):
+    """A `DESCRIBE` statement.
+
+    DuckDB accepts `DESCRIBE`, `DESC` and `SHOW` interchangeably, followed by
+    a table, a query, `ALL TABLES` or `TABLES FROM`, or by nothing at all.
+    https://duckdb.org/docs/stable/guides/meta/describe
+    """
+
+    match_grammar = Sequence(
+        OneOf("DESCRIBE", "DESC"),
+        Ref("DescribeTargetGrammar", optional=True),
+    )
+
+
+class ShowStatementSegment(postgres.ShowStatementSegment):
+    """A `SHOW` statement.
+
+    In DuckDB this is an alias of `DESCRIBE`, so it takes the same targets and
+    `SHOW tbl` describes the table `tbl` rather than a setting.
+    https://duckdb.org/docs/stable/guides/meta/list_tables
+    """
+
+    match_grammar = Sequence(
+        "SHOW",
+        Ref("DescribeTargetGrammar", optional=True),
+    )
+
+
+class SummarizeStatementSegment(BaseSegment):
+    """A `SUMMARIZE` statement.
+
+    Computes aggregates over every column of a table or query.
+    https://duckdb.org/docs/stable/guides/meta/summarize
+    """
+
+    type = "summarize_statement"
+    match_grammar = Sequence(
+        "SUMMARIZE",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+        ),
+    )
+
+
 class StatementSegment(postgres.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1066,7 +1324,12 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
+            Ref("SummarizeStatementSegment"),
             Ref("InstallStatementSegment"),
+            Ref("CheckpointStatementSegment"),
+            Ref("PragmaStatementSegment"),
+            Ref("ExportStatementSegment"),
+            Ref("ImportStatementSegment"),
         ]
     )
 
@@ -1257,6 +1520,7 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         OneOf("MACRO", "FUNCTION"),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "AS",
@@ -1291,6 +1555,7 @@ class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "TYPE",
         Ref("DatatypeSegment"),
         "AS",
@@ -1329,11 +1594,75 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 OneOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
                     Sequence(
+                        "HEADER",
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "DATEFORMAT",
+                            "DELIMITER",
+                            "DELIM",
+                            "SEP",
+                            "NULL",
+                            "NULLSTR",
+                            "QUOTE",
+                            "ESCAPE",
+                            "NEW_LINE",
+                            "PREFIX",
+                            "SUFFIX",
+                            "TIMESTAMPFORMAT",
+                        ),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        OneOf("FILENAME_PATTERN", "FILE_EXTENSION"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    Sequence(
+                        "FORCE_QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    Sequence(
                         "OVERWRITE_OR_IGNORE",
                         Ref("BooleanLiteralGrammar", optional=True),
                     ),
                     Sequence("OVERWRITE", Ref("BooleanLiteralGrammar", optional=True)),
                     Sequence("APPEND", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence(
+                        OneOf(
+                            "USE_TMP_FILE",
+                            "PRESERVE_ORDER",
+                            "RETURN_FILES",
+                            "RETURN_STATS",
+                        ),
+                        Ref("BooleanLiteralGrammar", optional=True),
+                    ),
+                    Sequence(
+                        "PER_THREAD_OUTPUT",
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "FILE_SIZE_BYTES",
+                        OneOf(
+                            Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
                     Sequence(
                         "PARTITION_BY",
                         OneOf(
@@ -1346,16 +1675,63 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                         Ref("BooleanLiteralGrammar", optional=True),
                     ),
                     Sequence(
-                        "COMPRESSION",
+                        # DuckDB also accepts CODEC as another name for COMPRESSION.
+                        OneOf("COMPRESSION", "CODEC"),
                         OneOf(
                             Ref("QuotedLiteralSegment"),
                             Ref("SingleIdentifierGrammar"),
                         ),
                     ),
                     Sequence("COMPRESSION_LEVEL", Ref("NumericLiteralSegment")),
-                    Sequence("ROW_GROUP_SIZE_BYTES", Ref("NumericLiteralSegment")),
+                    Sequence(
+                        "ROW_GROUP_SIZE_BYTES",
+                        OneOf(
+                            Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
                     Sequence("ROW_GROUP_SIZE", Ref("NumericLiteralSegment")),
-                    Sequence("PARQUET_VERSION", Ref("QuotedLiteralSegment")),
+                    Sequence(
+                        OneOf("PARQUET_VERSION", "GEOPARQUET_VERSION"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "ROW_GROUPS_PER_FILE",
+                            "CHUNK_SIZE",
+                            "DATA_PAGE_SIZE_LIMIT",
+                            "DICTIONARY_SIZE_LIMIT",
+                            "BLOOM_FILTER_FALSE_POSITIVE_RATIO",
+                        ),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        OneOf("WRITE_BLOOM_FILTER", "WRITE_TIMESTAMP_AS_INT96"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "TIMESTAMP_IS_ADJUSTED_TO_UTC",
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    Sequence(
+                        "FIELD_IDS",
+                        OneOf(
+                            Ref("ObjectLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("KV_METADATA", "SHREDDING"),
+                        Ref("ObjectLiteralSegment"),
+                    ),
+                    Sequence("ARRAY", Ref("BooleanLiteralGrammar", optional=True)),
                 )
             )
         ),
@@ -1382,8 +1758,46 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 Ref("QuotedLiteralSegment"),
                 _copy_from_option,
             ),
+            # COPY FROM DATABASE
+            # https://duckdb.org/docs/stable/sql/statements/copy#copy-from-database--to
+            Sequence(
+                "FROM",
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+                "TO",
+                Ref("DatabaseReferenceSegment"),
+                Bracketed(OneOf("SCHEMA", "DATA"), optional=True),
+            ),
         ),
     )
+
+
+class ExportStatementSegment(BaseSegment):
+    """An `EXPORT DATABASE` statement.
+
+    It takes the same options as `COPY ... TO`, and exports the current database
+    unless one is named before `TO`.
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "export_statement"
+    match_grammar = Sequence(
+        "EXPORT",
+        "DATABASE",
+        Sequence(Ref("DatabaseReferenceSegment"), "TO", optional=True),
+        Ref("QuotedLiteralSegment"),
+        CopyStatementSegment._copy_to_option,
+    )
+
+
+class ImportStatementSegment(BaseSegment):
+    """An `IMPORT DATABASE` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/export
+    """
+
+    type = "import_statement"
+    match_grammar = Sequence("IMPORT", "DATABASE", Ref("QuotedLiteralSegment"))
 
 
 class SetStatementSegment(postgres.SetStatementSegment):
@@ -1401,11 +1815,7 @@ class SetStatementSegment(postgres.SetStatementSegment):
                 "VARIABLE",
                 Ref("NakedIdentifierSegment"),  # variable_name
                 OneOf("TO", Ref("EqualsSegment")),
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
+                Ref("ExpressionSegment"),
             ),
             Sequence(
                 OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
@@ -1449,6 +1859,7 @@ class ValuesClauseSegment(postgres.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -1462,6 +1873,7 @@ class ValuesClauseSegment(postgres.ValuesClauseSegment):
             ),
             allow_trailing=True,
         ),
+        Dedent,
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),

@@ -197,7 +197,7 @@ impl<'a> GrammarContext<'a> {
 
     /// Get terminators as slice
     #[inline]
-    pub fn terminators_slice(&self, id: GrammarId) -> &[u32] {
+    pub fn terminators_slice(&self, id: GrammarId) -> &'a [u32] {
         let inst = self.inst(id);
         self.tables.get_terminators(inst)
     }
@@ -596,19 +596,15 @@ impl<'a> GrammarContext<'a> {
     /// Get element children (excludes exclude grammar if present)
     /// Returns iterator over element GrammarIds only
     #[inline]
-    pub fn element_children(&self, id: GrammarId) -> impl Iterator<Item = GrammarId> + 'a {
+    pub fn element_children(
+        &self,
+        id: GrammarId,
+    ) -> impl ExactSizeIterator<Item = GrammarId> + Clone + 'a {
         let inst = self.inst(id);
-        let start = inst.first_child_idx as usize;
-        let count = if inst.flags.has_exclude() {
-            // Exclude is last child, so element count is child_count - 1
-            inst.child_count - 1
-        } else {
-            inst.child_count
-        } as usize;
-
-        self.tables.child_ids[start..start + count]
-            .iter()
-            .map(|&id| GrammarId::new(id))
+        let all: &'a [u32] = self.tables.get_children(inst);
+        // Exclude is last child
+        let count = all.len() - usize::from(inst.flags.has_exclude());
+        all[..count].iter().map(|&id| GrammarId::new(id))
     }
 
     /// Access underlying tables (for advanced use)

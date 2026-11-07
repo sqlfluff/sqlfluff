@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6e20a1413d392fdc48e3cc3cad8a49e61b86fa419e3a37282e19a8ff395f417
+_hash: 6d070cb1380a18cf22eb857041af991cb20f231dc7c13b281371164fd776ade8
 file:
 - statement:
     alter_table_statement:
@@ -181,4 +181,37 @@ file:
       - keyword: OWNER
       - keyword: TO
       - parameter: Alice
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: MERGEOUT
+      - integer_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: MERGEOUT
+      - integer_literal: '0'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: MERGEOUT
+      - keyword: DEFAULT
 - statement_terminator: ;

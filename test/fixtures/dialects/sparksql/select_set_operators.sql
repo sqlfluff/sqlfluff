@@ -4,6 +4,9 @@ SELECT c FROM number1 EXCEPT SELECT c FROM number2;
 -- EXCEPT ALL
 SELECT c FROM number1 EXCEPT ALL (SELECT c FROM number2);
 
+-- EXCEPT with parenthesised operands
+(SELECT c FROM number1) EXCEPT (SELECT c FROM number2);
+
 -- MINUS
 SELECT c FROM number1 MINUS SELECT c FROM number2;
 

@@ -1,5 +1,94 @@
 rule: CP02
 
+test_pass_bigquery_chained_datetime_dateparts:
+  pass_str: |
+    SELECT
+        (year).REGEXP_EXTRACT(month),
+        (year).DATE_ADD(INTERVAL 5 YEAR),
+        (year).DATE_DIFF(month, YEAR),
+        (day).DATETIME_DIFF(hour, DAY),
+        (minute).TIME_DIFF(second, MINUTE),
+        (hour).TIMESTAMP_DIFF(minute, HOUR),
+        (year).DATE_TRUNC(MONTH),
+        (day).DATETIME_TRUNC(HOUR, month),
+        (hour).TIME_TRUNC(MINUTE),
+        (year).TIMESTAMP_TRUNC(DAY, month),
+        (year).LAST_DAY(WEEK(MONDAY)),
+        (month).LAST_DAY()
+    FROM foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_bigquery_datepart_named_function_arguments:
+  fail_str: |
+    SELECT
+        REGEXP_EXTRACT(YEAR, r'[0-9]{4}'),
+        DATE_ADD(YEAR, INTERVAL 5 YEAR),
+        DATE_DIFF(YEAR, MONTH, YEAR),
+        SAFE.DATE_DIFF(YEAR, MONTH, YEAR),
+        LAST_DAY(YEAR, MONTH),
+        TIMESTAMP_TRUNC(YEAR, HOUR, MONTH)
+    FROM foo;
+  fix_str: |
+    SELECT
+        REGEXP_EXTRACT(year, r'[0-9]{4}'),
+        DATE_ADD(year, INTERVAL 5 YEAR),
+        DATE_DIFF(year, month, YEAR),
+        SAFE.DATE_DIFF(year, month, YEAR),
+        LAST_DAY(year, MONTH),
+        TIMESTAMP_TRUNC(year, HOUR, month)
+    FROM foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_snowflake_ordinary_date_unit_identifiers:
+  fail_str: |
+    SELECT my_udf(YEAR, 1), my_udf(DAY, MONTH), my_udf(YEAR),
+        my_udf("YEAR", t.DAY), analytics.my_udf(YEAR, MONTH),
+        analytics.DATEADD(YEAR, DAY, MONTH), "DATEADD"(YEAR, DAY, MONTH),
+        DATEADD(YEAR, DAY, MONTH), LAST_DAY(YEAR, MONTH),
+        TRUNC(YEAR, SCALE), TRUNC(YEAR, MONTH), TRUNCATE(YEAR, DAY),
+        TIME_SLICE(DAY, YEAR, 'month')
+    FROM t;
+  fix_str: |
+    SELECT my_udf(year, 1), my_udf(day, month), my_udf(year),
+        my_udf("YEAR", t.day), analytics.my_udf(year, month),
+        analytics.DATEADD(year, day, month), "DATEADD"(year, day, month),
+        DATEADD(YEAR, day, month), LAST_DAY(year, MONTH),
+        TRUNC(year, scale), TRUNC(year, MONTH), TRUNCATE(year, DAY),
+        TIME_SLICE(day, year, 'month')
+    FROM t;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_pass_snowflake_real_date_units:
+  pass_str: |
+    SELECT DATEADD(YEAR, day, month), TIMEADD(DD, year, month),
+        TIMESTAMPADD(MS, day, month), DATEDIFF(DAY, year, month),
+        TIMEDIFF(HH, year, month), TIMESTAMPDIFF(NS, year, month),
+        DATE_TRUNC(MONTH, year), DATE_PART(YEAR, day), EXTRACT(YEAR, day),
+        DATE_PART(YEAR FROM day), EXTRACT(YEAR FROM month), LAST_DAY(year, MONTH),
+        TRUNC(year, MONTH), TRUNCATE(year, DAY)
+    FROM t;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
 test_pass_consistent_capitalisation_1:
   pass_str: SELECT a, b
 
@@ -413,3 +502,172 @@ test_pass_placeholder_templater_percent_parameters:
     templater:
       placeholder:
         param_style: percent
+
+test_fail_jinja_mixed_identifier_lower:
+  # Issue #5616: only the literal part of a partly templated identifier is
+  # checked and fixed. The template itself is left alone.
+  fail_str: SELECT a FROM {{ env_type }}_MY_DB.my_schema.my_table
+  fix_str: SELECT a FROM {{ env_type }}_my_db.my_schema.my_table
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+    templater:
+      jinja:
+        context:
+          env_type: DEV
+
+test_fail_jinja_mixed_identifier_same_length_render:
+  # The template renders to the same length as its source. The fix is still
+  # applied to the literal source text only.
+  fail_str: SELECT a FROM {{x}}_MY_DB
+  fix_str: SELECT a FROM {{x}}_my_db
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+    templater:
+      jinja:
+        context:
+          x: ABCDE
+
+test_fail_jinja_mixed_identifier_several_literals:
+  fail_str: USE ROLE {{ env_type }}_{{ role_name }}_RL
+  fix_str: USE ROLE {{ env_type }}_{{ role_name }}_rl
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+    templater:
+      jinja:
+        context:
+          env_type: DEV
+          role_name: ADMIN
+
+test_pass_jinja_mixed_identifier_literal_ok:
+  # The template renders upper case text, but the literal part is lower case.
+  pass_str: SELECT a FROM {{ env_type }}_my_db
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+    templater:
+      jinja:
+        context:
+          env_type: DEV
+
+test_pass_jinja_fully_templated_identifier:
+  pass_str: SELECT a FROM {{ db_name }}
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+    templater:
+      jinja:
+        context:
+          db_name: MY_DB
+
+test_fail_jinja_mixed_identifier_capitalise_split_literals:
+  # Only the literal part that starts the identifier is capitalised.
+  fail_str: SELECT A FROM ab{{ env }}CD
+  fix_str: SELECT A FROM Ab{{ env }}cd
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: capitalise
+    templater:
+      jinja:
+        context:
+          env: X
+
+test_fail_jinja_mixed_identifier_capitalise_after_template:
+  # The identifier starts with the template, so the literal part is not
+  # capitalised.
+  fail_str: SELECT A FROM {{ env }}Db
+  fix_str: SELECT A FROM {{ env }}db
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: capitalise
+    templater:
+      jinja:
+        context:
+          env: X
+
+test_fail_jinja_mixed_identifier_pascal:
+  fail_str: SELECT A FROM {{ env }}_my_db
+  fix_str: SELECT A FROM {{ env }}_My_Db
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: pascal
+    templater:
+      jinja:
+        context:
+          env: dev
+
+test_fail_jinja_mixed_identifier_snake_no_fix:
+  # Snake case adds an underscore, which can't be mapped back onto the
+  # literal text, so this is reported without a fix.
+  fail_str: SELECT a FROM {{ env }}_MyDb
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: snake
+    templater:
+      jinja:
+        context:
+          env: dev
+
+test_fail_jinja_mixed_identifier_template_at_end:
+  fail_str: SELECT a FROM MY_{{ env }}
+  fix_str: SELECT a FROM my_{{ env }}
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+    templater:
+      jinja:
+        context:
+          env: DEV
+
+test_fail_jinja_mixed_identifier_consistent:
+  # With the default consistent policy, the literal part is compared with the
+  # other identifiers. The rendered DEV doesn't count.
+  fail_str: SELECT my_col FROM {{ env }}_MY_DB
+  fix_str: SELECT my_col FROM {{ env }}_my_db
+  configs:
+    templater:
+      jinja:
+        context:
+          env: DEV
+
+test_pass_jinja_mixed_identifier_ignore_regex_literal:
+  # The ignore settings are matched against the literal text.
+  pass_str: SELECT a FROM {{ env }}_MY_DB
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+        ignore_words_regex: MY_DB$
+    templater:
+      jinja:
+        context:
+          env: DEV
+
+test_fail_jinja_mixed_identifier_ignore_regex_template_only:
+  # The rendered template text isn't checked, so it can't trigger an ignore
+  # either. Otherwise the result would depend on the template context.
+  fail_str: SELECT a FROM {{ env }}_MY_DB
+  fix_str: SELECT a FROM {{ env }}_my_db
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+        ignore_words_regex: ^DEV
+    templater:
+      jinja:
+        context:
+          env: DEV

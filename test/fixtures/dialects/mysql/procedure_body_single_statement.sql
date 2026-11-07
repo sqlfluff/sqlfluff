@@ -1,0 +1,1 @@
+CREATE PROCEDURE p2() SET @v1 = 1;

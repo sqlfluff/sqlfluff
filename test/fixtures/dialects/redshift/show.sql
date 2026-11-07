@@ -1,0 +1,29 @@
+SHOW ALL;
+
+SHOW DATABASES;
+
+SHOW SCHEMAS;
+
+SHOW SCHEMAS FROM DATABASE dev;
+
+SHOW TABLES;
+
+SHOW TABLES FROM SCHEMA public;
+
+SHOW TABLE sales;
+
+SHOW TABLE public.sales;
+
+SHOW COLUMNS FROM sales;
+
+SHOW COLUMNS FROM TABLE sales;
+
+SHOW COLUMNS FROM TABLE public.sales;
+
+SHOW PRIVILEGES;
+
+SHOW search_path;
+
+SHOW datestyle;
+
+SHOW timezone;

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 98271f8e2a97d5965c25e12d880709e5d652e39c2056e0fe56a2d36b6f64988e
+_hash: c77c0136329c411640e7579e21a1f7f03ed3ae21b4943ba12ebb02d4b2bfcde7
 file:
-  statement:
+- statement:
     create_aggregate_statement:
     - keyword: CREATE
     - keyword: AGGREGATE
@@ -51,4 +51,38 @@ file:
         - expression:
             numeric_literal: '0'
         - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_aggregate_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATE
+    - object_reference:
+        naked_identifier: agg_array_stype
+    - bracketed:
+        start_bracket: (
+        word: numeric
+        start_square_bracket: '['
+        end_square_bracket: ']'
+        end_bracket: )
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: SFUNC
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            column_reference:
+              naked_identifier: mysfunc_accum
+        - comma: ','
+        - data_type:
+            data_type_identifier: STYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - data_type:
+            keyword: numeric
+            array_type_suffix:
+              start_square_bracket: '['
+              end_square_bracket: ']'
+        - end_bracket: )
+- statement_terminator: ;

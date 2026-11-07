@@ -1,0 +1,109 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 91af0f13b5c71d5cfafed429c16c528e73d792e76d0491178c728e59c9e729b1
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_sort
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: ARRAY
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '3'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: left
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: right
+                  - end_bracket: )
+                  binary_operator: ->
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: left
+                      - comparison_operator:
+                          raw_comparison_operator: <
+                      - column_reference:
+                          naked_identifier: right
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal:
+                          sign_indicator: '-'
+                          numeric_literal: '1'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '1'
+                  - keyword: END
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: transform
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: my_arr
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: left
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: left
+                - binary_operator: +
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: left
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: right
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;

@@ -89,6 +89,92 @@ def test_space_is_not_reserved(raw: str) -> None:
     assert result.num_violations() == 0
 
 
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Built-in types must still parse.
+        "CREATE TABLE t (a int, b varchar(10), c timestamp, d numeric(5, 2))",
+        # DEC and NCHAR / NATIONAL CHARACTER are col_name_keywords that are also
+        # real built-in types, so they must still parse (see issue #6430 review).
+        "CREATE TABLE t (a dec, b dec(10, 2))",
+        "CREATE TABLE t (a nchar(5), b national character(5), c national char)",
+        # And their VARYING spellings.
+        "CREATE TABLE t (a nchar varying(5), b national character varying(5),"
+        " c national char varying(5))",
+        # User-defined / unreserved type names must still parse.
+        "CREATE TABLE t (x my_custom_type)",
+        # `col_name_keyword`s that double as built-in types are still handled by
+        # the explicit DatatypeSegment branches.
+        "CREATE TABLE t (a bigint, b boolean, c json)",
+    ],
+)
+def test_valid_column_types_parse(raw: str) -> None:
+    """Valid column data types parse without unparsable sections."""
+    lnt = Linter(dialect="postgres")
+    parsed = lnt.parse_string(raw)
+    assert not any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # `between` is a col_name_keyword (cannot-be-function-or-type); it must
+        # NOT be accepted as a bare data type. See issue #6430. A few
+        # representative members of the class are checked since the exclusion is
+        # class-wide and the mechanism is shared.
+        "CREATE TABLE test_table (type between NOT NULL)",
+        "CREATE TABLE test_table (a values)",
+        "CREATE TABLE test_table (a setof)",
+        "CREATE TABLE test_table (a row)",
+    ],
+)
+def test_col_name_keyword_not_valid_datatype(raw: str) -> None:
+    """A `cannot-be-function-or-type` keyword is rejected as a data type."""
+    lnt = Linter(dialect="postgres")
+    parsed = lnt.parse_string(raw)
+    # The invalid type name should produce an unparsable section.
+    assert any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Greenplum adds its own `col_name_keyword`s (cannot-be-function-or-type)
+        # on top of PostgreSQL's, e.g. CUBE, ROLLUP, SETS and MEDIAN. The
+        # exclusion is inherited from PostgreSQL and extended per-dialect via the
+        # `cannot_be_type_keywords` set, so these must also be rejected as bare
+        # data types in Greenplum. See issue #6430.
+        "CREATE TABLE t (a cube NOT NULL)",
+        "CREATE TABLE t (a rollup NOT NULL)",
+        "CREATE TABLE t (a sets NOT NULL)",
+        "CREATE TABLE t (a median NOT NULL)",
+        # Keywords inherited from PostgreSQL must still be rejected too.
+        "CREATE TABLE t (a between NOT NULL)",
+    ],
+)
+def test_greenplum_col_name_keyword_not_valid_datatype(raw: str) -> None:
+    """A `cannot-be-function-or-type` keyword (incl. inherited) is rejected in Greenplum."""
+    lnt = Linter(dialect="greenplum")
+    parsed = lnt.parse_string(raw)
+    assert any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # Built-in / user-defined type names must still parse in Greenplum
+        # (regression guard for the inherited exclusion).
+        "CREATE TABLE t (a int, b varchar(10))",
+        "CREATE TABLE t (x my_custom_type)",
+    ],
+)
+def test_greenplum_valid_column_types_parse(raw: str) -> None:
+    """Valid Greenplum column data types parse without unparsable sections."""
+    lnt = Linter(dialect="greenplum")
+    parsed = lnt.parse_string(raw)
+    assert not any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
 def test_priority_keyword_merge() -> None:
     """Test merging on keyword lists works as expected."""
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]

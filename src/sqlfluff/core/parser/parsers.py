@@ -6,10 +6,10 @@ Matchable objects which return individual segments.
 from abc import abstractmethod
 from collections.abc import Collection, Sequence
 from typing import Any, Callable, Optional
-from uuid import uuid4
 
 import regex
 
+from sqlfluff.core.helpers.identity import get_cache_key
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
@@ -43,7 +43,7 @@ class BaseParser(Matchable):
         self._trim_chars = trim_chars
         self.casefold = casefold
         # Generate a cache key
-        self._cache_key = uuid4().hex
+        self._cache_key = get_cache_key()
 
     def cache_key(self) -> str:
         """Get the cache key for this parser.
@@ -214,9 +214,14 @@ class StringParser(BaseParser):
         """Match against this matcher.
 
         NOTE: We check that the segment is also code to avoid matching
-        unexpected comments.
+        unexpected comments, and that it isn't client text, which is matched by
+        type only (see `ClientTextSegment`).
         """
-        if segments[idx].raw_upper == self.template and segments[idx].is_code:
+        if (
+            segments[idx].raw_upper == self.template
+            and segments[idx].is_code
+            and not segments[idx].is_type("client_text")
+        ):
             return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
@@ -266,9 +271,14 @@ class MultiStringParser(BaseParser):
         """Match against this matcher.
 
         NOTE: We check that the segment is also code to avoid matching
-        unexpected comments.
+        unexpected comments, and that it isn't client text, which is matched by
+        type only (see `ClientTextSegment`).
         """
-        if segments[idx].is_code and segments[idx].raw_upper in self.templates:
+        if (
+            segments[idx].is_code
+            and segments[idx].raw_upper in self.templates
+            and not segments[idx].is_type("client_text")
+        ):
             return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
@@ -325,13 +335,15 @@ class RegexParser(BaseParser):
         """Match against this matcher.
 
         NOTE: This method's case sensitivity is based on objects ignore_case property
+
+        NOTE: Client text is matched by type only (see `ClientTextSegment`).
         """
         _raw = segments[idx].raw_upper if self.ignore_case else segments[idx].raw
         result = self._template.match(_raw)
         if result:
             result_string = result.group(0)
             # Check that we've fully matched
-            if result_string == _raw:
+            if result_string == _raw and not segments[idx].is_type("client_text"):
                 # Check that the anti_template (if set) hasn't also matched
                 if not self.anti_template or not self._anti_template.match(_raw):
                     return self._match_at(idx)

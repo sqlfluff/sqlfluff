@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cc28034efe082e606338adf13e2d90e9f889dbf67f9a9df58b48fef1a75e6553
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - object_reference:
+        naked_identifier: add
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+          naked_identifier: x
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - procedure_parameter:
+          naked_identifier: y
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - procedure_parameter:
+          keyword: OUT
+          naked_identifier: sum
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - procedure_parameter:
+          keyword: INOUT
+          naked_identifier: total
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: SQL
+    - keyword: SECURITY
+    - keyword: INVOKER
+    - keyword: COMMENT
+    - quoted_literal: "'Add two numbers'"
+    - keyword: AS
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - scripting_body:
+          - statement:
+              set_statement:
+                keyword: SET
+                property_name_identifier:
+                  properties_naked_identifier: sum
+                comparison_operator:
+                  raw_comparison_operator: '='
+                set_config_value:
+                - word: x
+                - plus: +
+                - word: y
+          - statement_terminator: ;
+          - statement:
+              set_statement:
+                keyword: SET
+                property_name_identifier:
+                  properties_naked_identifier: total
+                comparison_operator:
+                  raw_comparison_operator: '='
+                set_config_value:
+                - word: total
+                - plus: +
+                - word: sum
+          - statement_terminator: ;
+        - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+        naked_identifier: greeting
+    - bracketed:
+        start_bracket: (
+        procedure_parameter:
+          keyword: IN
+          naked_identifier: mode
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - scripting_body:
+            statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '1'
+            statement_terminator: ;
+        - keyword: END
+- statement_terminator: ;

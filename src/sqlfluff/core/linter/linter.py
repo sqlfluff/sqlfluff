@@ -21,6 +21,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.helpers.string import curtail_string
 from sqlfluff.core.linter.common import (
     ParsedString,
     ParsedVariant,
@@ -123,7 +124,9 @@ class Linter:
         fname: str, root_config: FluffConfig
     ) -> tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
-        file_config = root_config.make_child_from_path(fname)
+        # The file may supply its dialect via an inline config directive.
+        # Dialect validation happens in render_string() after those are processed.
+        file_config = root_config.make_child_from_path(fname, require_dialect=False)
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
@@ -318,20 +321,19 @@ class Linter:
             # No exception has been raised explicitly, but we still create one here
             # so that we can use the common interface
             assert unparsable.pos_marker
-            violations.append(
-                SQLParseError(
-                    "Line {0[0]}, Position {0[1]}: Found unparsable section: "
-                    "{1!r}".format(
-                        unparsable.pos_marker.working_loc,
-                        (
-                            unparsable.raw
-                            if len(unparsable.raw) < 40
-                            else unparsable.raw[:40] + "..."
-                        ),
-                    ),
-                    segment=unparsable,
+            _raw = unparsable.raw
+            if len(_raw) > 80:
+                _raw = _raw[:80] + "..."
+            _description = (
+                "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                    unparsable.pos_marker.working_loc, _raw
                 )
             )
+            if unparsable._expected:
+                _description += ". Expected: {0}".format(
+                    curtail_string(unparsable._expected, 80)
+                )
+            violations.append(SQLParseError(_description, segment=unparsable))
             if linter_logger.isEnabledFor(logging.INFO):
                 linter_logger.info("Found unparsable segment...")
                 linter_logger.info(unparsable.stringify())
@@ -1190,6 +1192,7 @@ class Linter:
             self.config,
             processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
+            retain_files=retain_files,
         )
 
         if self.formatter and effective_processes != 1:

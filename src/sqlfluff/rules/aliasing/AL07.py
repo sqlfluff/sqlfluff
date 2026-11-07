@@ -74,7 +74,7 @@ class Rule_AL07(BaseRule):
 
         SELECT
             table1.a,
-            table_alias.b,
+            table_alias.b
         FROM
             table1
             LEFT JOIN table1 AS table_alias ON

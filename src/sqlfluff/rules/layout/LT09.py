@@ -1,6 +1,6 @@
 """Implementation of Rule LT09."""
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
@@ -137,7 +137,8 @@ class Rule_LT09(BaseRule):
                 start_seg=selects.get(),
                 stop_seg=newlines.get(),
                 loop_while=sp.or_(
-                    sp.is_type("comment"), sp.is_type("whitespace"), sp.is_meta()
+                    sp.is_type("comment", "whitespace", "select_clause_modifier"),
+                    sp.is_meta(),
                 ),
             )
             if comment_after_select:
@@ -177,8 +178,12 @@ class Rule_LT09(BaseRule):
     ) -> Optional[LintResult]:
         """Multiple select targets. Ensure each is on a separate line."""
         fixes = []
-        previous_code = None
         select_clause_raws = Segments(segment).raw_segments
+        children = segment.segments
+        target_idxs: Optional[list[int]] = None
+        # Each search starts just after the previous code, not at the start of
+        # the clause, so that wide select clauses take linear time.
+        search_start = 0
         for i, select_target in enumerate(select_targets_info.select_targets):
             assert select_target.pos_marker
             target_start_line = select_target.pos_marker.working_line_no
@@ -186,17 +191,15 @@ class Rule_LT09(BaseRule):
                 Segments(select_target).raw_segments.first(sp.is_code()).get()
             )
             assert target_initial_code
+            target_idx = select_clause_raws.index(target_initial_code, search_start)
+            # Get the last code before the target that isn't a comma.
             previous_code = (
-                select_clause_raws.select(
-                    # Get the first code that isn't a comma.
-                    select_if=sp.and_(sp.is_code(), sp.not_(sp.raw_is(","))),
-                    start_seg=previous_code,
-                    stop_seg=target_initial_code,
-                )
-                .last()
+                select_clause_raws[search_start:target_idx]
+                .last(sp.and_(sp.is_code(), sp.not_(sp.raw_is(","))))
                 .get()
             )
             assert previous_code
+            search_start = select_clause_raws.index(previous_code, search_start) + 1
             assert previous_code.pos_marker
             previous_end_line = previous_code.pos_marker.working_line_no
             self.logger.debug(
@@ -211,23 +214,30 @@ class Rule_LT09(BaseRule):
             # previous one *ends* on. If they are on the same line, insert a newline.
             if target_start_line == previous_end_line:
                 # Find and delete any whitespace before the select target.
-                start_seg = select_targets_info.select_idx
-                # If any select modifier (e.g. distinct ) is present, start
-                # there rather than at the beginning.
-                modifier = segment.get_child("select_clause_modifier")
-                if modifier:
-                    start_seg = segment.segments.index(modifier)
-
-                ws_to_delete = segment.select_children(
-                    start_seg=(
-                        segment.segments[start_seg]
-                        if not i
-                        else select_targets_info.select_targets[i - 1]
-                    ),
-                    select_if=lambda s: s.is_type("whitespace"),
-                    loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
-                )
-                fixes += [LintFix.delete(ws) for ws in ws_to_delete]
+                if not i:
+                    # Start after the select keyword. If any select modifier
+                    # (e.g. distinct) is present, start there instead.
+                    start_idx = children.index(
+                        segment.get_child("select_clause_modifier")
+                        or children[select_targets_info.select_idx]
+                    )
+                else:
+                    # Start after the previous target. Find the targets once,
+                    # as searching the children for every target is quadratic
+                    # when many of them share a line.
+                    if target_idxs is None:
+                        target_idxs = [
+                            idx
+                            for idx, child in enumerate(children)
+                            if child.is_type("select_clause_element")
+                        ]
+                    start_idx = target_idxs[i - 1]
+                for child_idx in range(start_idx + 1, len(children)):
+                    child = children[child_idx]
+                    if not (child.is_type("whitespace", "comma") or child.is_meta):
+                        break
+                    if child.is_type("whitespace"):
+                        fixes.append(LintFix.delete(child))
                 fixes.append(LintFix.create_before(select_target, [NewlineSegment()]))
 
             # If we are at the last select target check if the FROM clause
@@ -306,6 +316,54 @@ class Rule_LT09(BaseRule):
             # parser tree. Hence, we currently don't autofix this. Could be
             # autofixed in the future if/when we have the time.
             return LintResult(anchor=select_clause.get())
+
+        # Do not rejoin a single target when that would recreate a line-length
+        # violation. LT05 may have moved the target below SELECT to keep an
+        # overlong line from oscillating between the two layouts.
+        select_keyword = select_children[select_targets_info.select_idx]
+        if select_keyword.pos_marker and context.config.get("max_line_length") > 0:
+            prefix = "".join(
+                segment.raw
+                for segment in select_children[
+                    select_targets_info.select_idx : select_targets_info.first_new_line_idx
+                ]
+            )
+            clause_modifier = select_children.select(
+                sp.is_type("select_clause_modifier")
+            ).first()
+            if (
+                clause_modifier
+                and select_children.index(clause_modifier.get())
+                >= select_targets_info.first_new_line_idx
+            ):
+                prefix += f" {clause_modifier[0].raw}"
+
+            def following_segments() -> Iterator[BaseSegment]:
+                yield from select_children[target_idx + 1 :]
+                child_seg = select_clause.get()
+                for parent in reversed(context.parent_stack):
+                    idx = parent.segments.index(child_seg)
+                    for sibling_idx in range(idx + 1, len(parent.segments)):
+                        yield parent.segments[sibling_idx]
+                    child_seg = parent
+
+            trailing_len = 0
+            for seg in following_segments():
+                if "\n" in seg.raw:
+                    trailing_len += len(seg.raw.split("\n", 1)[0].rstrip("\r"))
+                    break
+                trailing_len += len(seg.raw)
+
+            resulting_line_length = (
+                select_keyword.pos_marker.working_line_pos
+                - 1
+                + len(prefix)
+                + 1
+                + len(target_seg.raw)
+                + trailing_len
+            )
+            if resulting_line_length > context.config.get("max_line_length"):
+                return LintResult(anchor=select_clause.get())
 
         # Prepare the select clause which will be inserted
         insert_buff = [WhitespaceSegment(), target_seg]
@@ -410,7 +468,12 @@ class Rule_LT09(BaseRule):
                     # _eval_single_select_target_element() leave leftover
                     # child segments that need to be moved to become
                     # *siblings* of the select_clause.
+                    # NOTE: Exclude meta segments. Some dialects place the
+                    # select clause's `Indent` after the leading whitespace,
+                    # i.e. inside this range. Moving it would insert a
+                    # zero-width segment and orphan its `Dedent`.
                     move_after_select_clause = select_children.select(
+                        select_if=sp.not_(sp.is_meta()),
                         start_seg=start_seg,
                         stop_seg=to_delete[-1],
                     )

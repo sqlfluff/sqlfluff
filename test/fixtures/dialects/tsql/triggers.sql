@@ -137,3 +137,11 @@ IF (UPDATE(stateprovinceid) OR UPDATE(postalcode))
         RAISERROR (50009, 16, 10)
     END;
 GO
+
+CREATE TRIGGER dbo.tr_append
+ON dbo.Orders
+FOR INSERT
+WITH APPEND
+AS
+SELECT 1;
+GO

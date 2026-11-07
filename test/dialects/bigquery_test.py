@@ -186,3 +186,18 @@ def test_semi_structured_wildcard_parses(sql):
     """A wildcard ending an accessor chain parses, with EXCEPT/REPLACE."""
     parsed = Linter(dialect="bigquery").parse_string(sql)
     assert not parsed.violations
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT WITH(1);",
+        "SELECT WITH (1);",
+        "SELECT WITH(a AS 1);",
+        "SELECT WITH (a AS 1);",
+    ],
+)
+def test_with_expression_requires_variable_and_result(sql):
+    """WITH expressions need a variable assignment and a result expression."""
+    parsed = Linter(dialect="bigquery").parse_string(sql)
+    assert any(violation.rule_code() == "PRS" for violation in parsed.violations)

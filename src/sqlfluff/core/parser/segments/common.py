@@ -26,6 +26,16 @@ class UnlexableSegment(CodeSegment):
     type = "unlexable"
 
 
+class ClientTextSegment(CodeSegment):
+    """Text that a command-line client reads itself, such as its delimiter.
+
+    The lexer has already said what this is, so a grammar matches it by type
+    only, never by its text: a delimiter `$$` or `go` is never a name.
+    """
+
+    type = "client_text"
+
+
 class CommentSegment(RawSegment):
     """Segment containing a comment."""
 

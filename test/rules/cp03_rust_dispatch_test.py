@@ -122,3 +122,45 @@ def test__cp03_dispatch__not_hijacked_by_cp01_rust_path():
         )
     assert cp03_spy.called
     assert not cp01_spy.called
+
+
+@pytest.mark.parametrize("policy", ["consistent", "upper", "lower"])
+@pytest.mark.parametrize(
+    "use_rust_parser,use_rust_rules",
+    [
+        (False, False),
+        pytest.param(
+            True,
+            False,
+            marks=pytest.mark.skipif(
+                not _HAS_RUST_PARSER, reason="Rust parser not available"
+            ),
+        ),
+        pytest.param(
+            True,
+            True,
+            marks=pytest.mark.skipif(
+                not _HAS_RUST_PARSER, reason="Rust parser not available"
+            ),
+        ),
+    ],
+)
+def test__cp03_dispatch__clickhouse_function_names_preserved(
+    policy, use_rust_rules, use_rust_parser
+):
+    """Case-sensitive function names survive linting and repeated autofixes."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\ndialect=clickhouse\nrules=CP03\n"
+        f"use_rust_parser={use_rust_parser}\nuse_rust_rules={use_rust_rules}\n"
+        "[sqlfluff:rules:capitalisation.functions]\n"
+        f"extended_capitalisation_policy={policy}\n"
+    )
+    linter = Linter(config=config)
+    sql = "SELECT randCanonical(), randBinomial(24, 0.5);\n"
+    result = linter.lint_string(sql, fix=True)
+    assert not result.violations
+    fixed = result.fix_string()[0]
+    assert fixed == sql
+    relinted = linter.lint_string(fixed, fix=True)
+    assert not relinted.violations
+    assert relinted.fix_string()[0] == fixed

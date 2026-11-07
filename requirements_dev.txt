@@ -6,11 +6,6 @@ ruff
 import-linter
 yamllint
 
-# documentation checks
-# --------------------
-doc8
-Pygments
-
 # python testing
 # --------------
 coverage>=6.4

@@ -24,7 +24,7 @@ def get_encoding(fname: str, config_encoding: str = "autodetect") -> str:
     if data.startswith(codecs.BOM_UTF8):
         return "utf-8-sig"
 
-    if all(char < 128 for char in data):
+    if data.isascii():
         return "ascii"
 
     detected_encoding = chardet.detect(data).get("encoding")

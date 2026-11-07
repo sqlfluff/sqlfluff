@@ -300,6 +300,11 @@ via `utils/rustify.py` (see "Syncing with Python").
 
 ### Benchmarking
 
+> **Reviewing a perf change?** Suspected extra allocations and copies are worth
+> raising, but the measurements in the PR outrank reasoning from the diff — ask,
+> don't assert. And don't ask the PR to run the parity suite or regenerate
+> dialects; CI does both. See root `AGENTS.md`, "Review Scope".
+
 Use Criterion for benchmarks:
 
 ```rust

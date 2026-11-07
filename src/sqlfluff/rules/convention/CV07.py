@@ -112,10 +112,16 @@ class Rule_CV07(BaseRule):
             lift_nodes = list(dict.fromkeys(leading + trailing))
             fixes = []
             if lift_nodes:
-                fixes.append(LintFix.create_before(parent, list(leading)))
-                fixes.append(LintFix.create_after(parent, list(trailing)))
+                # create_before()/create_after() assert a non-empty edit, and
+                # liftable content is often one-sided, so guard each side.
+                if leading:
+                    fixes.append(LintFix.create_before(parent, list(leading)))
+                if trailing:
+                    fixes.append(LintFix.create_after(parent, list(trailing)))
                 fixes.extend([LintFix.delete(segment) for segment in lift_nodes])
-                filtered_children = filtered_children[len(leading) : -len(trailing)]
+                filtered_children = filtered_children[
+                    len(leading) : len(filtered_children) - len(trailing)
+                ]
 
             fixes.append(
                 LintFix.replace(

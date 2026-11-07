@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7bc711e4bf7e6d19d3d17af4fa8c639830f936b461be5927debaa82b5fe3a0ef
+file:
+- statement:
+    detach_masking_policy_statement:
+    - keyword: DETACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_email
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customers
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: email
+        end_bracket: )
+    - keyword: FROM
+    - keyword: PUBLIC
+- statement_terminator: ;
+- statement:
+    detach_masking_policy_statement:
+    - keyword: DETACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        quoted_identifier: '"customer mask"'
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: customers
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: first_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: last_name
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: '"analyst role"'
+- statement_terminator: ;
+- statement:
+    detach_masking_policy_statement:
+    - keyword: DETACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: analytics
+      - dot: .
+      - naked_identifier: mask_amount
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: analytics
+      - dot: .
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: sales
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: amount
+        end_bracket: )
+    - keyword: FROM
+    - user_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    detach_masking_policy_statement:
+    - keyword: DETACH
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: mask_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customers
+    - bracketed:
+        start_bracket: (
+        column_reference:
+        - naked_identifier: person
+        - dot: .
+        - naked_identifier: name
+        - dot: .
+        - naked_identifier: first_name
+        end_bracket: )
+    - keyword: FROM
+    - keyword: PUBLIC
+- statement_terminator: ;

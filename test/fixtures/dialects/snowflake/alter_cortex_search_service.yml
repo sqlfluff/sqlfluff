@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c0e9e370d203815307e3fdae3549d03a3a687042008fdf05b178ea40279aa67e
+_hash: ef6da39bd80b4cc1b407e70434509e4549cc93b86efb9fb5c6bad2437811ec25
 file:
 - statement:
     alter_cortex_search_service_statement:
@@ -83,6 +83,28 @@ file:
         naked_identifier: mysvc
     - keyword: suspend
     - keyword: indexing
+- statement_terminator: ;
+- statement:
+    alter_cortex_search_service_statement:
+    - keyword: ALTER
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
+    - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    alter_cortex_search_service_statement:
+    - keyword: ALTER
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mysvc
+    - keyword: REFRESH
 - statement_terminator: ;
 - statement:
     alter_cortex_search_service_statement:
