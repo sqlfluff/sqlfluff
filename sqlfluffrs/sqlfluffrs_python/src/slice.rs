@@ -34,12 +34,11 @@ impl<'py> IntoPyObject<'py> for PySlice {
     type Error = PyErr;
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        Ok(PySliceType::new(
-            py,
-            self.0.start.try_into()?,
-            self.0.stop.try_into()?,
-            1,
-        ))
+        // slice(start, stop) with step None, to compare equal to Python's slices.
+        let obj = py
+            .get_type::<PySliceType>()
+            .call1((self.0.start, self.0.stop))?;
+        obj.cast_into::<PySliceType>().map_err(PyErr::from)
     }
 }
 
