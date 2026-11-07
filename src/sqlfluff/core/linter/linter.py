@@ -133,18 +133,19 @@ class Linter:
         # Check file size before loading.
         limit = file_config.get("large_file_skip_byte_limit")
 
-        if limit:
+        if limit is not None:
             # make sure the limit becomes an integer
             try:
                 limit = int(limit)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, OverflowError):
                 # A value which can't be converted is a problem with the user's
                 # config. Report it as a user error rather than letting a raw
-                # ValueError/TypeError escape as a traceback.
+                # exception escape as a traceback.
                 raise SQLFluffUserError(
                     "Config value 'large_file_skip_byte_limit' must be an "
                     f"integer, but was {limit!r}."
                 ) from None
+        if limit:
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:

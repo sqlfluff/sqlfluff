@@ -1331,6 +1331,10 @@ def test__cli__command_lint_warning():
     [
         "large_file_skip_byte_limit = abc\n",
         "large_file_skip_char_limit = abc\n",
+        "large_file_skip_byte_limit = \n",
+        "large_file_skip_char_limit = \n",
+        "large_file_skip_byte_limit = 1e999\n",
+        "large_file_skip_char_limit = 1e999\n",
     ],
 )
 def test__cli__command_invalid_large_file_skip_limit(
