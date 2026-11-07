@@ -409,6 +409,43 @@ def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):
         )
 
 
+def test__templater_dbt_registers_catalog_integrations(tmp_path, monkeypatch):
+    """Models using a catalog from catalogs.yml must parse (v1 and v2 formats)."""
+    pytest.importorskip("dbt.adapters.bigquery")
+    pytest.importorskip("dbt.config.catalogs")
+    (tmp_path / "models").mkdir()
+    (tmp_path / "models" / "my_model.sql").write_text(
+        "{{ config(catalog_name='my_catalog') }}\nSELECT 1 AS id\n"
+    )
+    (tmp_path / "profiles.yml").write_text(
+        "example:\n  target: dev\n  outputs:\n    dev:\n      type: bigquery\n"
+        "      method: oauth\n      project: p\n      dataset: d\n      threads: 1\n"
+    )
+    (tmp_path / "dbt_project.yml").write_text(
+        "name: example\nversion: '1.0.0'\nconfig-version: 2\nprofile: example\n"
+        "flags:\n  use_catalogs_v2: true\n"
+    )
+    (tmp_path / "catalogs.yml").write_text(
+        "catalogs:\n  - name: my_catalog\n    type: biglake_metastore\n"
+        "    table_format: iceberg\n    config:\n      bigquery:\n"
+        "        external_volume: 'gs://my-bucket'\n        file_format: parquet\n"
+    )
+    monkeypatch.chdir(tmp_path)
+    templater = FluffConfig(overrides={"dialect": "bigquery", "templater": "dbt"})
+    templater = templater.get_templater()
+    templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "bigquery"},
+            "templater": {
+                "dbt": {"project_dir": str(tmp_path), "profiles_dir": str(tmp_path)}
+            },
+        },
+    )
+    templater.project_dir = str(tmp_path)
+    templater.profiles_dir = str(tmp_path)
+    assert "model.example.my_model" in templater.dbt_manifest.nodes
+
+
 def test__find_node_with_symlinked_local_package(tmp_path):
     """Test that _find_node resolves symlinks for dbt local packages.
 

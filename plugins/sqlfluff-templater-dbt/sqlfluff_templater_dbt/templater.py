@@ -324,7 +324,44 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
+        self._register_catalog_integrations()
+
         return ManifestLoader.get_full_manifest(self.dbt_config)
+
+    def _register_catalog_integrations(self) -> None:
+        """Register the integrations from ``catalogs.yml`` with the adapter.
+
+        The dbt CLI does this before parsing (see ``setup_manifest``), without
+        it parsing a model which sets ``catalog_name`` fails.
+        """
+        try:
+            from dbt.config.catalogs import (
+                get_active_write_integration,
+                load_catalogs,
+            )
+        except ImportError:  # pragma: no cover
+            # Catalogs were introduced in dbt 1.10.
+            return
+        from dbt.adapters.factory import get_adapter
+        from dbt.flags import get_flags
+
+        project_root = self.dbt_config.project_root
+        project_name = self.dbt_config.project_name
+        adapter = get_adapter(self.dbt_config)
+        if getattr(get_flags(), "USE_CATALOGS_V2", False):
+            from dbt.config.catalogs import load_catalogs_v2
+
+            for catalog in load_catalogs_v2(
+                project_root, project_name, self._get_cli_vars()
+            ):
+                adapter.add_catalog_integration(adapter.bridge_v2_catalog(catalog))
+        else:
+            for v1_catalog in load_catalogs(
+                project_root, project_name, self._get_cli_vars()
+            ):
+                adapter.add_catalog_integration(
+                    get_active_write_integration(v1_catalog)
+                )
 
     @cached_property
     def dbt_selector_method(self):
