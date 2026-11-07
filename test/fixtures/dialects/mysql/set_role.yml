@@ -1,0 +1,74 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2366352dd2352eb41c93723206138bc5f6a8dd249204bf2745b7a5eef209a42f
+file:
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: "'reader'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: "'reader'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'writer'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: "'reader'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: EXCEPT
+    - role_reference:
+        quoted_identifier: "'writer'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: EXCEPT
+    - role_reference:
+      - quoted_identifier: "'reader'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'writer'"
+- statement_terminator: ;
