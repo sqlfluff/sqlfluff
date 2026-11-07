@@ -47,7 +47,7 @@ configuration values which you can use to set this:
 Each of these two configuration values accept a comma separated list of
 *references*. Each of those references can be:
 
-* a rule *code* e.g. `LN01`
+* a rule *code* e.g. `LT01`
 * a rule *name* e.g. `layout.indent`
 * a rule *alias*, which is often a deprecated *code* e.g. `L003`
 * a rule *group* e.g. `layout` or `capitalisation`
