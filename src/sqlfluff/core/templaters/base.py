@@ -541,6 +541,13 @@ class RawTemplater:
         # Default is to process in the original order.
         return fnames
 
+    def session_key(self, config: FluffConfig) -> tuple[str, ...]:
+        """Return a key for sharing this templater within one operation."""
+        return (self.name,)
+
+    def close(self) -> None:
+        """Release resources held by this templater after a file group."""
+
     @large_file_check
     def process(
         self,

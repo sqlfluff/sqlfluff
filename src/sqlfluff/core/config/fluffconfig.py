@@ -137,7 +137,8 @@ class FluffConfig:
         assert _dialect is None or isinstance(_dialect, str)
         self._initialise_dialect(_dialect, require_dialect)
 
-        self._configs["core"]["templater_obj"] = self.get_templater()
+        self.get_templater_class()
+        self._configs["core"]["templater_obj"] = None
 
         # Guard against an impossible Rust configuration.
         self._verify_rust_config()
@@ -587,11 +588,19 @@ class FluffConfig:
         ... )
         'consistent'
         """
-        section_dict = self.get_section(section)
+        normalized_section: str | tuple[str, ...] = (
+            section if isinstance(section, str) else tuple(section)
+        )
+        section_dict = self.get_section(normalized_section)
         if section_dict is None:
             return default
 
-        return section_dict.get(val, default)
+        value = section_dict.get(val, default)
+        is_core_section = normalized_section in ("core", ("core",))
+        if val == "templater_obj" and is_core_section and value is None:
+            value = self.get_templater()
+            section_dict[val] = value
+        return value
 
     def get_section(self, section: str | Iterable[str]) -> Any:
         """Return a whole section of config as a dict.
@@ -747,6 +756,14 @@ class FluffConfig:
         config_dict: ConfigMappingType = records_to_nested_dict([config_record])
         validate_config_dict(config_dict, f"inline config in {fname}")
         config_val = list(iter_records_from_nested_dict(config_dict))[0]
+
+        if config_val[0] == ("core", "templater"):
+            config_logger.warning(
+                "Ignoring inline templater configuration in %r. Set templater in a "
+                "configuration file instead.",
+                fname,
+            )
+            return
 
         # Set the value
         self.set_value(config_key, config_value)
