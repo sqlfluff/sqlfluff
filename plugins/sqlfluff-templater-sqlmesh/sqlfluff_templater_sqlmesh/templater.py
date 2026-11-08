@@ -9,6 +9,7 @@ such, all imports of the SQLMesh libraries are contained within the
 SQLMeshTemplater class and so are only imported when necessary.
 """
 
+import gc
 import logging
 import os
 import os.path
@@ -292,6 +293,16 @@ class SQLMeshTemplater(JinjaTemplater):
                 "pip install sqlmesh"
             )
 
+        # Works around a SQLMesh bug: loading a context forks model-loading
+        # processes from a multi-threaded process, and the children run
+        # Python. That is undefined behaviour: POSIX does not allow the child
+        # of a multi-threaded fork() to call anything but a short list of
+        # async-signal-safe functions until it calls exec. Here, a child that
+        # frees a dropped context's open DuckDB connection joins threads that
+        # don't exist in the child, and segfaults. The crash is intermittent,
+        # because it depends on when the garbage collector runs. Free dropped
+        # contexts here, before loading.
+        gc.collect()
         try:
             context = SQLMeshContext(
                 paths=self.project_dir,
