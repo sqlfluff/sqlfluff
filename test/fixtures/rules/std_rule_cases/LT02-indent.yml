@@ -3084,14 +3084,97 @@ test_pass_from_values_separate_line_implicit_allow:
       implicit_indents: allow
 
 test_pass_from_values_bracketed_implicit_allow:
-  # FROM with bracketed VALUES should pass
+  # FROM with bracketed VALUES should pass.
+  # Value rows align with the VALUES keyword (#9055).
   pass_str: |
     SELECT *
     FROM (
         VALUES
-            (1, 'something'),
-            (2, 'something')
+        (1, 'something'),
+        (2, 'something')
     );
+
+test_pass_issue_9055:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # The indents added to the shared ValuesClauseSegment (#8635) must not
+  # push the value rows of a `FROM (VALUES ...)` table constructor one
+  # level deeper than the VALUES keyword.
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2')
+    ) AS x (c1, c2);
+
+test_fix_issue_9055:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # Misaligned value rows are fixed to align with the VALUES keyword,
+  # not one level deeper.
+  fail_str: |
+    SELECT *
+    FROM (
+    VALUES
+    ('v1', 'v2')
+    ) AS x (c1, c2);
+  fix_str: |
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2')
+    ) AS x (c1, c2);
+
+test_pass_issue_9055_inline_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # An inline bracketed table constructor lints unchanged. The inert
+  # marking is tracked by segment uuid, so it cannot leak onto the
+  # enclosing constructor's own Dedent, which on a single line shares
+  # the working location of the clause's Dedent and compares equal.
+  pass_str: |
+    SELECT * FROM (VALUES ('v1')) AS x;
+
+test_pass_issue_9055_cte_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # The same applies to a VALUES clause inside a CTE: the brackets of
+  # the AS (...) already provide the indentation, so the clause's own
+  # indents must not push the rows one level deeper.
+  pass_str: |
+    WITH x AS (
+        VALUES
+        ('v1')
+    )
+    SELECT * FROM x;
+
+test_fix_issue_9055_cte_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # Misaligned value rows in a CTE are fixed to align with the VALUES
+  # keyword, not one level deeper.
+  fail_str: |
+    WITH x AS (
+    VALUES
+    ('v1')
+    )
+    SELECT * FROM x;
+  fix_str: |
+    WITH x AS (
+        VALUES
+        ('v1')
+    )
+    SELECT * FROM x;
+
+test_pass_issue_9055_insert_values_unaffected:
+  # The ValuesClauseSegment indents from #8635 still apply when the
+  # clause is part of an INSERT statement.
+  pass_str: |
+    INSERT INTO tbl
+    VALUES
+        (1, 'something'),
+        (2, 'something');
+
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2')
+    ) AS x (c1, c2);
   configs:
     core:
       dialect: snowflake
