@@ -29,6 +29,20 @@ from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 
+# Values at the top of u32 that the Rust side reserves, so no real id may reach
+# them. They must match the Rust side.
+# GrammarId::NONCODE in sqlfluffrs_types/src/grammar_inst.rs: not a grammar in
+# the tables but the terminator for any non-code token (Python's
+# NonCodeMatcher), which Delimited adds at runtime when allow_gaps is False.
+NONCODE_GRAMMAR_ID = 0xFFFFFFFE
+# NO_SIMPLE_HINT, NO_STRING, NO_REGEX and NO_REPEAT_LIMIT in
+# sqlfluffrs_types/src/grammar_tables.rs.
+NO_SIMPLE_HINT = 0xFFFFFFFF
+NO_STRING = 0xFFFFFFFF
+NO_REGEX = 0xFFFFFFFF
+# A count, not an index: max_times with no upper bound.
+NO_REPEAT_LIMIT = 0xFFFFFFFF
+
 
 @dataclass
 class DummyParseContext:
@@ -91,11 +105,11 @@ class TableBuilder:
         self.regex_patterns: List[str] = []
         self.simple_hints: List[SimpleHintData] = []
         self.hint_string_indices: List[int] = []  # Indices into strings for hints
-        # Per-instruction segment type index (into strings) or 0xFFFFFFFF
-        # if none
+        # Per-instruction segment type index (into strings) or NO_STRING
+        # (0xFFFFFFFF)
         self.segment_type_offsets: List[int] = []
         # Per-instruction segment class name index (into strings) or
-        # 0xFFFFFFFF if none
+        # NO_STRING (0xFFFFFFFF)
         self.segment_class_offsets: List[int] = []
         # Sparse casefold entries: list of (grammar_id, mode) tuples
         # mode: 0=None, 1=Upper, 2=Lower. Only populated for grammars that
@@ -136,6 +150,10 @@ class TableBuilder:
         if s in self.string_to_id:
             return self.string_to_id[s]
         string_id = len(self.strings)
+        if string_id == NO_STRING:
+            raise ValueError(
+                "Too many strings: the next index is NO_STRING (0xFFFFFFFF)."
+            )
         self.strings.append(s)
         self.string_to_id[s] = string_id
         return string_id
@@ -163,6 +181,10 @@ class TableBuilder:
         if pattern in self.regex_to_id:
             return self.regex_to_id[pattern]
         regex_id = len(self.regex_patterns)
+        if regex_id == NO_REGEX:
+            raise ValueError(
+                "Too many regex patterns: the next index is NO_REGEX (0xFFFFFFFF)."
+            )
         self.regex_patterns.append(pattern)
         self.regex_to_id[pattern] = regex_id
         return regex_id
@@ -203,6 +225,11 @@ class TableBuilder:
             token_types_count = len(type_indices)
 
             hint_id = len(self.simple_hints)
+            if hint_id == NO_SIMPLE_HINT:
+                raise ValueError(
+                    "Too many simple hints: the next position is NO_SIMPLE_HINT "
+                    "(0xFFFFFFFF)."
+                )
             self.simple_hints.append(
                 SimpleHintData(
                     raw_values_start=raw_values_start,
@@ -282,15 +309,20 @@ class TableBuilder:
         # append their instructions. If we don't reserve the slot first, this
         # instruction will end up at the wrong index!
         grammar_id = len(self.instructions)
+        if grammar_id == NONCODE_GRAMMAR_ID:
+            raise ValueError(
+                "Too many grammar instructions: the next id is GrammarId::NONCODE "
+                "(0xFFFFFFFE)."
+            )
         self.grammar_to_id[python_id] = grammar_id
         # Pin the object so its id() cannot be reused by a different grammar
         # while the cache entry is live (see _cached_grammars in __init__).
         self._cached_grammars.append(grammar)
         self.instructions.append(None)  # Reserve slot - will be replaced below
         # Reserve a slot for the segment_type offset (default: no type)
-        self.segment_type_offsets.append(0xFFFFFFFF)
+        self.segment_type_offsets.append(NO_STRING)
         # Reserve a slot for the segment_class offset (default: no class)
-        self.segment_class_offsets.append(0xFFFFFFFF)
+        self.segment_class_offsets.append(NO_STRING)
         # Note: casefold and trim_chars use sparse storage, no reservation needed
 
         # Convert to GrammarInst (variant-specific logic)
@@ -302,8 +334,8 @@ class TableBuilder:
         # If this grammar is a Segment class, record its `type` string index
         # into the per-instruction segment_type_offsets table. We store the
         # index into the existing strings table so runtime can map back to
-        # the textual type (e.g., "keyword", "file", etc.). Use 0xFFFFFFFF
-        # to indicate "no type".
+        # the textual type (e.g., "keyword", "file", etc.). NO_STRING
+        # (0xFFFFFFFF) means "no type".
         try:
             # If this grammar is a Segment class itself, use its `type` and
             # `__name__` attrs
@@ -671,12 +703,12 @@ class TableBuilder:
         aux_offset = len(self.aux_data)
         self.aux_data.append(grammar.min_times)
         self.aux_data.append(
-            grammar.max_times if grammar.max_times is not None else 0xFFFFFFFF
+            grammar.max_times if grammar.max_times is not None else NO_REPEAT_LIMIT
         )
         self.aux_data.append(
             grammar.max_times_per_element
             if grammar.max_times_per_element is not None
-            else 0xFFFFFFFF
+            else NO_REPEAT_LIMIT
         )
         self.aux_data.append(1 if exclude_id is not None else 0)
 
@@ -735,7 +767,7 @@ class TableBuilder:
         aux_offset = len(self.aux_data)
         self.aux_data.append(grammar.min_times)
         self.aux_data.append(
-            grammar.max_times if grammar.max_times is not None else 0xFFFFFFFF
+            grammar.max_times if grammar.max_times is not None else NO_REPEAT_LIMIT
         )
         self.aux_data.append(1)  # max_times_per_element=1 for AnySetOf
         self.aux_data.append(1 if exclude_id is not None else 0)  # has_exclude
@@ -1102,7 +1134,7 @@ class TableBuilder:
         anti_regex_id = (
             self._add_regex(grammar.anti_template)
             if grammar.anti_template
-            else 0xFFFFFFFF
+            else NO_REGEX
         )
         instance_type_ids = [
             self._add_string(t)
@@ -1502,7 +1534,7 @@ class TableBuilder:
         lines.append("")
 
         # Segment type offsets (indexed by GrammarId)
-        # - index into STRINGS or 0xFFFFFFFF
+        # - index into STRINGS or NO_STRING (0xFFFFFFFF)
         lines.append("pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[")
         for i in range(0, len(self.segment_type_offsets), 16):
             chunk = self.segment_type_offsets[i : i + 16]
@@ -1512,7 +1544,7 @@ class TableBuilder:
         lines.append("")
 
         # Segment class name offsets (indexed by GrammarId)
-        # - index into STRINGS or 0xFFFFFFFF
+        # - index into STRINGS or NO_STRING (0xFFFFFFFF)
         lines.append("pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[")
         for i in range(0, len(self.segment_class_offsets), 16):
             chunk = self.segment_class_offsets[i : i + 16]
@@ -1601,7 +1633,7 @@ class TableBuilder:
         lines.append("")
 
         # Simple hint position per instruction (indexed by GrammarId), or
-        # NO_SIMPLE_HINT, as the other tables mark "none" with 0xFFFFFFFF.
+        # NO_SIMPLE_HINT (0xFFFFFFFF).
         lines.append("pub static SIMPLE_HINT_INDICES: &[u32] = &[")
         for i in range(0, len(self.instructions), 16):
             chunk = [inst.simple_hint_index for inst in self.instructions[i : i + 16]]

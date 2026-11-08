@@ -109,15 +109,17 @@ pub struct GrammarTables {
     pub hint_string_indices: &'static [u32],
 
     /// Per-instruction position in `simple_hints` (indexed by GrammarId), or
-    /// `NO_SIMPLE_HINT`: Python's `simple()` returning None, so the caller
+    /// `NO_SIMPLE_HINT` (`u32::MAX`): Python's `simple()` returning None, so the caller
     /// must try a full match. A hint may be empty: a grammar that can never
     /// match, such as `Nothing`.
     pub simple_hint_indices: &'static [u32],
 
-    /// Per-instruction segment type offsets into the strings table (or 0xFFFFFFFF)
+    /// Per-instruction segment type offsets into the strings table, or `NO_STRING`
+    /// (`u32::MAX`)
     pub segment_type_offsets: &'static [u32],
 
-    /// Per-instruction segment class name offsets into the strings table (or 0xFFFFFFFF)
+    /// Per-instruction segment class name offsets into the strings table, or
+    /// `NO_STRING` (`u32::MAX`)
     pub segment_class_offsets: &'static [u32],
 
     /// Sparse casefold entries: (grammar_id, mode)
@@ -196,7 +198,7 @@ impl GrammarTables {
             return None;
         }
         let off = self.segment_type_offsets[id as usize];
-        if off == 0xFFFFFFFF {
+        if off == NO_STRING {
             None
         } else {
             Some(self.strings[off as usize])
@@ -359,9 +361,22 @@ impl TableMemoryStats {
 }
 
 /// In `GrammarTables::simple_hint_indices`: the grammar has no hint, so the
-/// caller must try a full match (Python's `simple()` returning None). Like the
-/// tables' other `0xFFFFFFFF` markers, only the accessor reads it.
+/// caller must try a full match (Python's `simple()` returning None). Only the
+/// accessor reads it.
 pub const NO_SIMPLE_HINT: u32 = u32::MAX;
+
+/// In a table that points into `strings` (segment type and class, templates,
+/// token types, raw classes, instance and class types): no string. No string
+/// may sit at this index.
+pub const NO_STRING: u32 = u32::MAX;
+
+/// In a RegexParser's aux data: no regex, as for a parser with no
+/// anti-template. No pattern may sit at this index in `regex_patterns`.
+pub const NO_REGEX: u32 = u32::MAX;
+
+/// For `max_times` and `max_times_per_element` in aux data: no upper bound.
+/// A count, not an index, so nothing has to stay below it.
+pub const NO_REPEAT_LIMIT: u32 = u32::MAX;
 
 /// Simple hint data (pre-computed for fast pruning)
 ///

@@ -3,7 +3,7 @@
 Most parity coverage is data-driven (see ``cases_test.py`` and
 ``test/fixtures/parity/``). The tests here can't be expressed as a plain
 SQL-plus-config case because they instrument the Python side: codegen
-object-lifetime probes, subprocess hash-seed probes.
+object-lifetime probes, subprocess hash-seed probes, codegen constants.
 """
 
 import gc
@@ -158,3 +158,45 @@ def test__parity__codegen_hint_table_matches_python(dialect_name):
 
     # Every state actually occurs, so the test can't pass by checking nothing.
     assert all(states.values()), states
+
+
+def test__parity__codegen_reserved_ids_match_rust():
+    """The reserved values codegen writes are the ones Rust reads."""
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    from utils.build_parsers import (
+        NO_REGEX,
+        NO_REPEAT_LIMIT,
+        NO_SIMPLE_HINT,
+        NO_STRING,
+        NONCODE_GRAMMAR_ID,
+    )
+
+    types = _REPO_ROOT / "sqlfluffrs" / "sqlfluffrs_types" / "src"
+    grammar_inst = (types / "grammar_inst.rs").read_text()
+    grammar_tables = (types / "grammar_tables.rs").read_text()
+
+    for rust_source, rust_declaration, python_value, value in (
+        (
+            grammar_inst,
+            "pub const NONCODE: GrammarId = GrammarId(u32::MAX - 1);",
+            NONCODE_GRAMMAR_ID,
+            2**32 - 2,
+        ),
+        (
+            grammar_tables,
+            "pub const NO_SIMPLE_HINT: u32 = u32::MAX;",
+            NO_SIMPLE_HINT,
+            2**32 - 1,
+        ),
+        (grammar_tables, "pub const NO_STRING: u32 = u32::MAX;", NO_STRING, 2**32 - 1),
+        (grammar_tables, "pub const NO_REGEX: u32 = u32::MAX;", NO_REGEX, 2**32 - 1),
+        (
+            grammar_tables,
+            "pub const NO_REPEAT_LIMIT: u32 = u32::MAX;",
+            NO_REPEAT_LIMIT,
+            2**32 - 1,
+        ),
+    ):
+        assert rust_declaration in rust_source, rust_declaration
+        assert python_value == value, rust_declaration

@@ -18,7 +18,7 @@ pub use grammar_api::{patterns as grammar_patterns, GrammarContext};
 pub use grammar_inst::{GrammarFlags, GrammarId, GrammarInst, GrammarVariant};
 pub use grammar_tables::{
     ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, TableMemoryStats, TerminatorsIter,
-    NO_SIMPLE_HINT,
+    NO_REGEX, NO_REPEAT_LIMIT, NO_SIMPLE_HINT, NO_STRING,
 };
 pub use marker::PositionMarker;
 pub use matcher::{BracketPairEntry, BracketPairSet, LexMatcher, LexMatcherConfig};

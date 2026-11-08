@@ -5,7 +5,7 @@
 //! type-safe, iterator-based access patterns.
 
 use crate::grammar_inst::{GrammarId, GrammarInst, GrammarVariant};
-use crate::grammar_tables::{GrammarInstExt, GrammarTables};
+use crate::grammar_tables::{GrammarInstExt, GrammarTables, NO_REPEAT_LIMIT, NO_STRING};
 
 /// Context for grammar table access
 ///
@@ -242,7 +242,7 @@ impl<'a> GrammarContext<'a> {
             return None;
         }
         let off = self.tables.segment_type_offsets[idx];
-        if off == 0xFFFFFFFF {
+        if off == NO_STRING {
             None
         } else {
             Some(self.tables.get_string(off))
@@ -257,7 +257,7 @@ impl<'a> GrammarContext<'a> {
             return None;
         }
         let off = self.tables.segment_class_offsets[idx];
-        if off == 0xFFFFFFFF {
+        if off == NO_STRING {
             None
         } else {
             Some(self.tables.get_string(off))
@@ -409,9 +409,9 @@ impl<'a> GrammarContext<'a> {
     pub fn max_times(&self, id: GrammarId) -> Option<usize> {
         let inst = self.inst(id);
         // max_times is stored in aux_data at index = first_child_idx
-        // If value is u32::MAX, it means None (unbounded)
+        // NO_REPEAT_LIMIT (`u32::MAX`) means None: no upper bound.
         let max_value = self.tables.get_aux(inst.first_child_idx);
-        if max_value == u32::MAX {
+        if max_value == NO_REPEAT_LIMIT {
             None
         } else {
             Some(max_value as usize)
@@ -533,7 +533,8 @@ impl<'a> GrammarContext<'a> {
 
     /// Get AnyNumberOf configuration from aux_data
     /// Returns: (min_times, max_times, max_times_per_element, has_exclude)
-    /// Note: max_times and max_times_per_element return None if 0xFFFFFFFF (unlimited)
+    /// Note: max_times and max_times_per_element return None if NO_REPEAT_LIMIT
+    /// (`u32::MAX`)
     #[inline]
     pub fn anynumberof_config(&self, id: GrammarId) -> (usize, Option<usize>, Option<usize>, bool) {
         let inst = self.inst(id);
@@ -545,13 +546,13 @@ impl<'a> GrammarContext<'a> {
         let max_per_element_raw = self.tables.aux_data[aux_offset + 2];
         let has_exclude = self.tables.aux_data[aux_offset + 3] != 0;
 
-        let max_times = if max_times_raw == 0xFFFFFFFF {
+        let max_times = if max_times_raw == NO_REPEAT_LIMIT {
             None
         } else {
             Some(max_times_raw as usize)
         };
 
-        let max_per_element = if max_per_element_raw == 0xFFFFFFFF {
+        let max_per_element = if max_per_element_raw == NO_REPEAT_LIMIT {
             None
         } else {
             Some(max_per_element_raw as usize)
@@ -573,7 +574,7 @@ impl<'a> GrammarContext<'a> {
         let max_times_raw = self.tables.aux_data[aux_offset + 1];
         let has_exclude = self.tables.aux_data[aux_offset + 2] != 0;
 
-        let max_times = if max_times_raw == 0xFFFFFFFF {
+        let max_times = if max_times_raw == NO_REPEAT_LIMIT {
             None
         } else {
             Some(max_times_raw as usize)
