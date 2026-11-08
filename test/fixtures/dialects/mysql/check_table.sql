@@ -1,3 +1,7 @@
+CHECK TABLE some_table;
+
+CHECK TABLE `some_schema`.`some_table`, some_table2;
+
 CHECK TABLE some_table FOR UPGRADE;
 
 CHECK TABLE some_table1, some_table2 FOR UPGRADE;

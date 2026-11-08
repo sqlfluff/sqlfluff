@@ -3852,7 +3852,6 @@ class CheckTableStatementSegment(BaseSegment):
             "MEDIUM",
             "EXTENDED",
             "CHANGED",
-            min_times=1,
         ),
     )
 
@@ -3873,6 +3872,7 @@ class ChecksumTableStatementSegment(BaseSegment):
         OneOf(
             "QUICK",
             "EXTENDED",
+            optional=True,
         ),
     )
 

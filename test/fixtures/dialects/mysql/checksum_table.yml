@@ -3,8 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59a13f3bdf5aff9ad8d165d083d825c9d4897885a57ea598ca91a825143195fe
+_hash: 3cd2a29987c31bb5a8acd3e7bb1bf99715d830e4f4e47594c8569ecc9b0005a9
 file:
+- statement:
+    checksum_table_statement:
+    - keyword: CHECKSUM
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    checksum_table_statement:
+    - keyword: CHECKSUM
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`some_schema`'
+      - dot: .
+      - quoted_identifier: '`some_table`'
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
 - statement:
     checksum_table_statement:
     - keyword: CHECKSUM
