@@ -5426,6 +5426,16 @@ class AnalyzeStatementSegment(BaseSegment):
     )
 
 
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://www.postgresql.org/docs/current/sql-checkpoint.html
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Ref.keyword("CHECKPOINT")
+
+
 # Adding PostgreSQL specific statements
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
@@ -5437,6 +5447,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReassignOwnedStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
+            Ref("CheckpointStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
