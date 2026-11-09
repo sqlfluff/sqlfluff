@@ -2509,7 +2509,10 @@ class ChangesClauseSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        # Unbounded form: no time bounds.
+        # Unbounded form: no time bounds. This must not be GREEDY, otherwise
+        # a table named CHANGES followed by a column list (e.g.
+        # `CREATE TABLE db.sch.CHANGES (col INT)`) matches this clause and
+        # terminates the object reference early.
         Sequence(
             "CHANGES",
             Bracketed(
@@ -2519,7 +2522,6 @@ class ChangesClauseSegment(BaseSegment):
                     OneOf("DEFAULT", "APPEND_ONLY"),
                     optional=True,
                 ),
-                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
