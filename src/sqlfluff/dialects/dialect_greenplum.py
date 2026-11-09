@@ -57,10 +57,14 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("FetchClauseSegment"),
             Ref("DeclareStatement"),
-            Ref("CloseStatementSegment"),
             Ref("AnalizeSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
+        ],
+        # Greenplum has its own DECLARE and FETCH segments above.
+        remove=[
+            Ref("DeclareStatementSegment"),
+            Ref("FetchStatementSegment"),
         ],
     )
 
