@@ -48,3 +48,30 @@ def test_inert_indent_marking_survives_tree_copies():
         assert _inert_indent_uuids.is_marked(seg.uuid), (
             f"uuid {seg.uuid} lost its marking once its copy was freed"
         )
+
+
+def test_inert_indent_registry_prunes_dead_buckets_eagerly():
+    """Dead uuid buckets are pruned by the weakref removal callbacks.
+
+    The registry is global and lives for the whole process, so without
+    a removal callback a bucket whose last live instance had been
+    freed would linger until that uuid happened to be looked up again
+    -- and would linger forever for uuids which never are.
+    """
+    config = FluffConfig(overrides={"dialect": "snowflake"})
+    linter = Linter(config=config)
+    root = linter.parse_string("SELECT * FROM (VALUES ('v1')) AS x;").tree
+    marked = _marked_indents(root)
+    assert marked, "expected the bracketed VALUES indents to be marked"
+
+    # Free the whole tree (parent links form cycles, hence gc). The
+    # weakref callbacks must then prune every bucket eagerly, even
+    # though none of these uuids is looked up afterwards.
+    uuids = [seg.uuid for seg in marked]
+    del root, marked
+    gc.collect()
+
+    for uuid in uuids:
+        assert uuid not in _inert_indent_uuids._refs, (
+            f"bucket for uuid {uuid} was not pruned once its tree was freed"
+        )

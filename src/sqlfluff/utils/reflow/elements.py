@@ -4,6 +4,7 @@ import logging
 import weakref
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import partial
 from itertools import chain
 from typing import Optional, Union, cast
 
@@ -56,29 +57,39 @@ class _InertIndentRegistry:
     still-live original; once that copy was freed, the uuid would lose
     its marking and the indent would start contributing an impulse
     again mid-lint. Here a uuid stays marked while any instance with
-    that uuid is alive, and dead references are pruned lazily on
-    lookup, so freed parse trees still release their entries.
+    that uuid is alive, and each weak reference carries a removal
+    callback which prunes it as soon as its segment is collected,
+    dropping the whole bucket once the last live instance for a uuid
+    is gone. The registry therefore never accumulates entries for
+    freed parse trees, even if their uuids are never looked up again.
     """
 
     def __init__(self) -> None:
         self._refs: dict[int, set["weakref.ref[BaseSegment]"]] = {}
 
+    def _forget(self, uuid: int, ref: "weakref.ref[BaseSegment]") -> None:
+        """Drop a dead reference, and its bucket once it empties.
+
+        Registered as the callback of the weak references, so cleanup
+        happens eagerly, as the tracked segment is collected, rather
+        than waiting for the uuid to be looked up again.
+        """
+        bucket = self._refs.get(uuid)
+        if bucket is not None:
+            bucket.discard(ref)
+            if not bucket:
+                del self._refs[uuid]
+
     def add(self, segment: BaseSegment) -> None:
         """Track a newly marked indent instance."""
-        self._refs.setdefault(segment.uuid, set()).add(weakref.ref(segment))
+        uuid = segment.uuid
+        self._refs.setdefault(uuid, set()).add(
+            weakref.ref(segment, partial(self._forget, uuid))
+        )
 
     def is_marked(self, uuid: int) -> bool:
         """Return whether any live segment instance carries this uuid."""
-        bucket = self._refs.get(uuid)
-        if not bucket:
-            self._refs.pop(uuid, None)
-            return False
-        alive = {ref for ref in bucket if ref() is not None}
-        if alive:
-            self._refs[uuid] = alive
-            return True
-        del self._refs[uuid]
-        return False
+        return any(ref() is not None for ref in self._refs.get(uuid, ()))
 
 
 #: Indent segments whose impulse should be ignored during reflow.
