@@ -111,6 +111,23 @@ def test__linter__raises_malformed_noqa():
                 "noqa:capitalisation",
             ),
         ),
+        # Test case-insensitivity (#9005)
+        (
+            "noqa: disable=ALL",
+            NoQaDirective(0, 0, None, "disable", "noqa: disable=ALL"),
+        ),
+        (
+            "noqa: enable=ALL",
+            NoQaDirective(0, 0, None, "enable", "noqa: enable=ALL"),
+        ),
+        (
+            "noqa:lt01",
+            NoQaDirective(0, 0, ("LT01",), None, "noqa:lt01"),
+        ),
+        (
+            "noqa: disable=prs",
+            NoQaDirective(0, 0, ("PRS",), "disable", "noqa: disable=prs"),
+        ),
     ],
 )
 def test_parse_noqa(input, expected):
@@ -129,6 +146,58 @@ def test_parse_noqa_no_dups():
         comment="noqa:L0*5,L01*", line_no=0, line_pos=0, reference_map=dummy_rule_map
     )
     assert len(result.rules) == len(set(result.rules))
+
+
+def test_parse_noqa_os_independent(monkeypatch):
+    """Test that noqa directive parsing behaves identically on POSIX and Windows (#9005)."""
+    test_inputs = [
+        "noqa: disable=PRS,ALL",
+        "noqa: disable=prs,all",
+        "noqa: disable=LAYOUT",
+        "noqa: disable=layout",
+        "noqa: lt01",
+        "noqa: LT01",
+        "noqa: disable=PRS",
+        "noqa: disable=prs",
+    ]
+    for inp in test_inputs:
+        # Simulate POSIX where os.path.normcase is a no-op
+        monkeypatch.setattr("os.path.normcase", lambda x: x)
+        posix_res = IgnoreMask._parse_noqa(
+            comment=inp, line_no=0, line_pos=0, reference_map=dummy_rule_map
+        )
+
+        # Simulate Windows where os.path.normcase lowercases
+        monkeypatch.setattr("os.path.normcase", lambda x: x.lower())
+        windows_res = IgnoreMask._parse_noqa(
+            comment=inp, line_no=0, line_pos=0, reference_map=dummy_rule_map
+        )
+
+        assert posix_res == windows_res
+
+    # Check specific semantics for PRS,ALL
+    res = IgnoreMask._parse_noqa(
+        comment="noqa: disable=PRS,ALL",
+        line_no=0,
+        line_pos=0,
+        reference_map=dummy_rule_map,
+    )
+    assert res.action == "disable"
+    assert "PRS" in res.rules
+    assert set(dummy_rule_map["all"]).issubset(set(res.rules))
+
+
+def test_noqa_disable_prs_all_os_independent(monkeypatch):
+    """End-to-end test that -- noqa: disable=PRS,ALL works across OSes (#9005)."""
+    sql = """-- noqa: disable=PRS,ALL
+SELECT a   AS b FROM t
+-- noqa: enable=PRS,ALL
+"""
+    for normcase_fn in (lambda x: x, lambda x: x.lower()):
+        monkeypatch.setattr("os.path.normcase", normcase_fn)
+        lntr = Linter(dialect="ansi", rules=["LT01"])
+        result = lntr.lint_string_wrapped(sql)
+        assert result.get_violations() == []
 
 
 def test_from_source_with_dialect_no_inline_comment_matcher():
