@@ -472,6 +472,30 @@ postgres_dialect.add(
             Ref("ObjectReferenceSegment"),
         ),
     ),
+    # The transaction modes of BEGIN, START TRANSACTION, SET TRANSACTION and
+    # SET SESSION CHARACTERISTICS. The SQL standard puts commas between them, but
+    # PostgreSQL also accepts them without (see the notes in the SET TRANSACTION
+    # docs).
+    # https://www.postgresql.org/docs/current/sql-set-transaction.html
+    TransactionModeListGrammar=Sequence(
+        Ref("TransactionModeGrammar"),
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment", optional=True), Ref("TransactionModeGrammar")),
+        ),
+    ),
+    TransactionModeGrammar=OneOf(
+        Sequence(
+            "ISOLATION",
+            "LEVEL",
+            OneOf(
+                "SERIALIZABLE",
+                Sequence("REPEATABLE", "READ"),
+                Sequence("READ", OneOf("COMMITTED", "UNCOMMITTED")),
+            ),
+        ),
+        Sequence("READ", OneOf("WRITE", "ONLY")),
+        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
+    ),
     # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
     # behaviour in every position and only rejects unsupported ones at analysis.
     # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
@@ -5466,6 +5490,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("SetTransactionStatementSegment"),
             Ref("AlterSystemStatementSegment"),
             Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
@@ -5945,6 +5970,44 @@ class SetStatementSegment(BaseSegment):
     )
 
 
+class SetTransactionStatementSegment(BaseSegment):
+    """A `SET TRANSACTION` or `SET SESSION CHARACTERISTICS` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-transaction.html
+    """
+
+    type = "set_transaction_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            # SET TRANSACTION transaction_mode [, ...]
+            # SET TRANSACTION SNAPSHOT snapshot_id
+            # PostgreSQL's grammar also takes SESSION or LOCAL before these.
+            Sequence(
+                OneOf("SESSION", "LOCAL", optional=True),
+                "TRANSACTION",
+                OneOf(
+                    Sequence("SNAPSHOT", Ref("QuotedLiteralSegment")),
+                    Ref("TransactionModeListGrammar"),
+                ),
+            ),
+            # SET SESSION CHARACTERISTICS AS TRANSACTION transaction_mode [, ...]
+            # As with SET SESSION AUTHORIZATION, SESSION or LOCAL can come first.
+            Sequence(
+                OneOf(
+                    Sequence(Ref.keyword("LOCAL", optional=True), "SESSION"),
+                    Sequence(Ref.keyword("SESSION", optional=True), "SESSION"),
+                ),
+                "CHARACTERISTICS",
+                "AS",
+                "TRANSACTION",
+                Ref("TransactionModeListGrammar"),
+            ),
+        ),
+    )
+
+
 class AlterSystemStatementSegment(BaseSegment):
     """An `ALTER SYSTEM` statement.
 
@@ -6233,29 +6296,6 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     https://www.postgresql.org/docs/current/sql-rollback-prepared.html
     """
 
-    _transaction_mode = OneOf(
-        Sequence(
-            "ISOLATION",
-            "LEVEL",
-            OneOf(
-                "SERIALIZABLE",
-                Sequence("REPEATABLE", "READ"),
-                Sequence("READ", OneOf("COMMITTED", "UNCOMMITTED")),
-            ),
-        ),
-        Sequence("READ", OneOf("WRITE", "ONLY")),
-        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
-    )
-
-    # The SQL standard puts commas between transaction modes, but PostgreSQL
-    # also accepts them without (see the notes in the SET TRANSACTION docs).
-    _transaction_modes = Sequence(
-        _transaction_mode,
-        AnyNumberOf(
-            Sequence(Ref("CommaSegment", optional=True), _transaction_mode),
-        ),
-    )
-
     _and_chain = Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN")
 
     match_grammar = OneOf(
@@ -6263,13 +6303,13 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
         Sequence(
             "BEGIN",
             OneOf("TRANSACTION", "WORK", optional=True),
-            Sequence(_transaction_modes, optional=True),
+            Ref("TransactionModeListGrammar", optional=True),
         ),
         # START TRANSACTION [ transaction_mode [, ...] ]
         Sequence(
             "START",
             "TRANSACTION",
-            Sequence(_transaction_modes, optional=True),
+            Ref("TransactionModeListGrammar", optional=True),
         ),
         # COMMIT | END | ABORT [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]
         Sequence(
