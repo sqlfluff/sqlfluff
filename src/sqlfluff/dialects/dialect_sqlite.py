@@ -164,6 +164,18 @@ sqlite_dialect.insert_lexer_matchers(
 
 sqlite_dialect.insert_lexer_matchers(
     [
+        RegexLexer(
+            "square_quote",
+            r"\[[^\]]*\]",
+            CodeSegment,
+            segment_kwargs={"quoted_value": (r"\[([^\]]*)\]", 1)},
+        ),
+    ],
+    before="start_square_bracket",
+)
+
+sqlite_dialect.insert_lexer_matchers(
+    [
         StringLexer("inline_path_operator", "->>", CodeSegment),
         StringLexer("column_path_operator", "->", CodeSegment),
     ],
@@ -176,6 +188,12 @@ sqlite_dialect.add(
         IdentifierSegment,
         type="quoted_identifier",
         # match ANSI's naked identifier casefold, sqlite is case-insensitive.
+        casefold=str.upper,
+    ),
+    BracketedIdentifierSegment=TypedParser(
+        "square_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
         casefold=str.upper,
     ),
     ColumnPathOperatorSegment=StringParser(
@@ -432,6 +450,7 @@ sqlite_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
+        Ref("BracketedIdentifierSegment"),
         terminators=[Ref("DotSegment")],
     ),
     # match ANSI's naked identifier casefold, sqlite is case-insensitive.
