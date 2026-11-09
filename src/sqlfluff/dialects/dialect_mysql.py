@@ -401,6 +401,7 @@ mysql_dialect.replace(
     ).copy(
         insert=[
             Ref("SessionVariableNameSegment"),
+            Ref("MatchAgainstExpressionSegment"),
             # Allow VALUES() function in expressions, e.g. in ON DUPLICATE KEY UPDATE.
             # https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
             Ref("ValuesClauseSegment"),
@@ -824,6 +825,35 @@ class FunctionSegment(ansi.FunctionSegment):
             ),
         ],
         at=0,
+    )
+
+
+class MatchAgainstExpressionSegment(BaseSegment):
+    """A full-text search, `MATCH (col, ...) AGAINST (expr [search_modifier])`.
+
+    https://dev.mysql.com/doc/refman/8.0/en/fulltext-search.html
+    """
+
+    type = "match_against_expression"
+    match_grammar: Matchable = Sequence(
+        "MATCH",
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "AGAINST",
+        Bracketed(
+            Ref("ExpressionSegment"),
+            OneOf(
+                Sequence(
+                    "IN",
+                    "NATURAL",
+                    "LANGUAGE",
+                    "MODE",
+                    Sequence("WITH", "QUERY", "EXPANSION", optional=True),
+                ),
+                Sequence("IN", "BOOLEAN", "MODE"),
+                Sequence("WITH", "QUERY", "EXPANSION"),
+                optional=True,
+            ),
+        ),
     )
 
 
