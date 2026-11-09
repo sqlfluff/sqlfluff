@@ -5693,10 +5693,11 @@ class AlterEventTriggerStatementSegment(BaseSegment):
                 "OWNER",
                 "TO",
                 OneOf(
-                    Ref("RoleReferenceSegment"),
                     "CURRENT_ROLE",
                     "CURRENT_USER",
                     "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
                 ),
             ),
             Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),

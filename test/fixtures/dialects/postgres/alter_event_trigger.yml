@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0ff0523e046adfd6949eb089f85adce5ce07d5a2168342f0f1b98665f969989
+_hash: aa391e142f6022716f04c2a411fac803eff14a9907c6255aa2626f011e7347bf
 file:
 - statement:
     alter_event_trigger_statement:
@@ -75,8 +75,7 @@ file:
         naked_identifier: abort_ddl
     - keyword: OWNER
     - keyword: TO
-    - role_reference:
-        naked_identifier: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_event_trigger_statement:
