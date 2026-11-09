@@ -36,6 +36,13 @@ class RF01Query(Query):
     parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
 
 
+def _normalize_ref_part(part: ObjectReferencePart) -> str:
+    """Normalize a reference part, taking dialect casefolding into account."""
+    seg = part.segments[0]
+    norm = seg.normalize(part.part)
+    return seg.casefold(norm) if seg.casefold else norm
+
+
 class Rule_RF01(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
@@ -114,6 +121,8 @@ class Rule_RF01(BaseRule):
         result: list[tuple[str, ...]] = []
         if alias_info.aliased:
             result.append((alias_info.ref_str,))
+            if alias_info.segment:
+                result.append((alias_info.segment.raw_normalized(),))
         if alias_info.object_reference:
             result += self._table_ref_as_tuple(
                 cast(ObjectReferenceSegment, alias_info.object_reference), dialect
@@ -129,6 +138,7 @@ class Rule_RF01(BaseRule):
         return [
             tuple(ref.part for ref in raw_references),
             tuple(ref.segments[0].normalize(ref.part) for ref in raw_references),
+            tuple(_normalize_ref_part(ref) for ref in raw_references),
         ]
 
     def _analyze_table_references(
@@ -256,6 +266,15 @@ class Rule_RF01(BaseRule):
                     ),
                 )
             )
+            tbl_refs.append(
+                (
+                    tr,
+                    (
+                        _normalize_ref_part(sr),
+                        _normalize_ref_part(tr),
+                    ),
+                )
+            )
         # Maybe check for simple table references. Two cases:
         # - For most dialects, skip this if it's a schema+table reference -- the
         #   reference was specific, so we shouldn't ignore that by looking
@@ -273,6 +292,7 @@ class Rule_RF01(BaseRule):
             ):
                 tbl_refs.append((tr, (tr.part,)))
                 tbl_refs.append((tr, (tr.segments[0].normalize(tr.part),)))
+                tbl_refs.append((tr, (_normalize_ref_part(tr),)))
         return tbl_refs
 
     def _resolve_reference(
@@ -292,6 +312,7 @@ class Rule_RF01(BaseRule):
         for standalone_alias in query.standalone_aliases:
             targets.append((standalone_alias.raw,))
             targets.append((standalone_alias.raw_normalized(False),))
+            targets.append((standalone_alias.raw_normalized(),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
         supports_struct_access = query.dialect.name in (
             "athena",
