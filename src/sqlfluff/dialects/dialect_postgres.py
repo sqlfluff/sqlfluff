@@ -472,6 +472,16 @@ postgres_dialect.add(
             Ref("ObjectReferenceSegment"),
         ),
     ),
+    # The query of `DECLARE ... CURSOR FOR`: a SELECT or VALUES command, in any
+    # number of brackets, e.g. `((SELECT 1))`.
+    # https://www.postgresql.org/docs/current/sql-declare.html
+    CursorQueryGrammar=OneOf(
+        Ref("WithCompoundStatementSegment"),
+        Ref("SelectStatementSegment"),
+        Ref("SetExpressionSegment"),
+        Ref("ValuesClauseSegment"),
+        Bracketed(Ref("CursorQueryGrammar")),
+    ),
     # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
     # behaviour in every position and only rejects unsupported ones at analysis.
     # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
@@ -7889,15 +7899,7 @@ class DeclareStatementSegment(BaseSegment):
         "CURSOR",
         Sequence(OneOf("WITH", "WITHOUT"), "HOLD", optional=True),
         "FOR",
-        # A SELECT or VALUES command
-        OptionallyBracketed(
-            OneOf(
-                Ref("WithCompoundStatementSegment"),
-                Ref("SelectStatementSegment"),
-                Ref("SetExpressionSegment"),
-                Ref("ValuesClauseSegment"),
-            ),
-        ),
+        Ref("CursorQueryGrammar"),
     )
 
 
