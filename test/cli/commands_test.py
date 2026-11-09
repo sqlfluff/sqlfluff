@@ -2798,6 +2798,30 @@ def test__cli__command_lint_serialize_gitlab():
     ]
 
 
+def test__cli__command_lint_serialize_gitlab_no_paths(tmp_path, monkeypatch):
+    """Test gitlab format output uses relative paths when no path is passed."""
+    sql_file = tmp_path / "test.sql"
+    sql_file.write_text("SELECT a from t\n")
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\nrules = CP01\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                "--format",
+                "gitlab",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    data = json.loads(result.stdout)
+    assert len(data) > 0
+    assert not os.path.isabs(data[0]["location"]["path"])
+    assert data[0]["location"]["path"] == "test.sql"
+
+
 def test__cli__command_lint_serialize_gitlab_parse_error():
     """Test gitlab Code Quality output for a failed parse."""
     fpath = "test/fixtures/linter/parse_error.sql"

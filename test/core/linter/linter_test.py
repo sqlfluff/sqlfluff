@@ -1507,3 +1507,16 @@ def test__linter__large_file_skip_fail_config(
     # But if large_file_skip_fail is set, the CLI would bump this to 1.
     would_fail = bool(result.files_skipped and config.get("large_file_skip_fail"))
     assert would_fail == expected_would_fail
+
+
+def test__linter__lint_paths_empty_defaults_to_relative(monkeypatch, tmp_path):
+    """Ensure lint_paths with empty paths defaults to '.' rather than absolute getcwd."""
+    sql_file = tmp_path / "test.sql"
+    sql_file.write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+    lntr = Linter(dialect="ansi")
+    result = lntr.lint_paths(())
+    records = result.as_records()
+    assert len(records) == 1
+    assert not os.path.isabs(records[0]["filepath"])
+    assert records[0]["filepath"] == "test.sql"

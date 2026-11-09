@@ -1155,7 +1155,7 @@ class Linter:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
         if not paths:  # pragma: no cover
-            paths = (os.getcwd(),)
+            paths = (".",)
         # Set up the result to hold what we get back
         result = LintingResult()
 
