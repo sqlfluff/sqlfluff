@@ -1634,3 +1634,145 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+
+test_pass_update_correlated_subquery_unqualified:
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  # The subquery can see the target table of the UPDATE, so removing the
+  # qualifiers would turn `l.id = o.id` into the always true `id = id`.
+  pass_str: |
+    UPDATE orders AS o SET x = 1
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_update_correlated_subquery_unaliased_target_unqualified:
+  pass_str: |
+    UPDATE orders SET x = 1
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = orders.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_update_from_correlated_subquery_unqualified:
+  pass_str: |
+    UPDATE orders AS o SET x = 1
+    FROM src AS s
+    WHERE o.id = s.id AND EXISTS (SELECT 1 FROM lines AS l WHERE l.id = s.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_delete_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE FROM orders AS o
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_delete_using_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE FROM orders AS o
+    USING src AS s
+    WHERE o.id = s.id AND EXISTS (SELECT 1 FROM lines AS l WHERE l.id = s.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_merge_correlated_subquery_unqualified:
+  pass_str: |
+    MERGE INTO orders AS o
+    USING src AS s ON o.id = s.id
+    WHEN MATCHED AND EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+    THEN DELETE
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_update_from_correlated_subquery_unqualified:
+  pass_str: |
+    UPDATE o SET x = 1
+    FROM orders AS o
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_delete_from_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE o
+    FROM orders AS o
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_unfixable_update_subquery_inconsistent:
+  # Inconsistent references in a subquery of an UPDATE are still reported, but
+  # not fixed, as more than one table is visible. This matches a subquery in
+  # a SELECT.
+  fail_str: |
+    UPDATE orders AS o SET x = 1
+    WHERE EXISTS (SELECT id FROM lines AS l WHERE l.id = 5)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_update_from_derived_table_qualified:
+  # A derived table in the FROM clause of an UPDATE can't see the target
+  # table, so it is still a single table select, and can be fixed.
+  fail_str: |
+    UPDATE orders AS o SET x = s.v
+    FROM (SELECT id, v FROM src) AS s
+    WHERE o.id = s.id
+  fix_str: |
+    UPDATE orders AS o SET x = s.v
+    FROM (SELECT src.id, src.v FROM src) AS s
+    WHERE o.id = s.id
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_merge_using_derived_table_qualified:
+  fail_str: |
+    MERGE INTO orders AS o
+    USING (SELECT id, v FROM src) AS s ON o.id = s.id
+    WHEN MATCHED THEN UPDATE SET x = s.v;
+  fix_str: |
+    MERGE INTO orders AS o
+    USING (SELECT src.id, src.v FROM src) AS s ON o.id = s.id
+    WHEN MATCHED THEN UPDATE SET x = s.v;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: qualified
