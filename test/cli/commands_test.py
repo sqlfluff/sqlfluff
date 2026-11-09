@@ -2851,6 +2851,7 @@ def test__cli__command_lint_templated_rule_exception(tmp_path, monkeypatch):
         return original_eval(self, context)
 
     monkeypatch.setattr(Rule_CP01, "_eval", fail_on_template)
+    monkeypatch.setattr(Rule_CP01, "_eval_rust", lambda self, context: None)
     (tmp_path / "a.sql").write_text("{{ 'select' }} 1\n", encoding="utf8")
     (tmp_path / "b.sql").write_text("select 2\n", encoding="utf8")
     result = invoke_assert_code(
