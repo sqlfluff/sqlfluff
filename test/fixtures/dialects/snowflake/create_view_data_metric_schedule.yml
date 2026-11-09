@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d95441388c1d89f64f73d10e640cf214e824d0f32fc0ed82c00043898f9f59fa
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v
+    - data_metric_schedule_equals:
+        keyword: DATA_METRIC_SCHEDULE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'60 MINUTE'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: DEFINE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: DCM_PROJECT
+      - dot: .
+      - naked_identifier: ANALYTICS
+      - dot: .
+      - naked_identifier: V_METRIC_SCHEDULE
+    - data_metric_schedule_equals:
+        keyword: DATA_METRIC_SCHEDULE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'5 minutes'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+- statement_terminator: ;

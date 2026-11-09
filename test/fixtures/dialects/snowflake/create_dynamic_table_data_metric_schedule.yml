@@ -1,0 +1,128 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 550673416c925c689c451c7718e331d17571268443212a4b554fcfbc5b3ccc9b
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'12 hours'"
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - keyword: INITIALIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - initialize_type: ON_CREATE
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - data_metric_schedule_equals:
+        - keyword: DATA_METRIC_SCHEDULE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: TRIGGER_ON_CHANGES
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dt_interval
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DOWNSTREAM
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+      - data_metric_schedule_equals:
+          keyword: DATA_METRIC_SCHEDULE
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'60 MINUTE'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: DEFINE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: DCM_PROJECT
+      - dot: .
+      - naked_identifier: ANALYTICS
+      - dot: .
+      - naked_identifier: DT_METRIC_SCHEDULE
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'1 DAY'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: DCM_PROJECT_WH
+      - keyword: INITIALIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - initialize_type: ON_SCHEDULE
+      - data_metric_schedule_equals:
+          keyword: DATA_METRIC_SCHEDULE
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'USING CRON 0 0 10-20 * TUE,THU UTC'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: b
+- statement_terminator: ;

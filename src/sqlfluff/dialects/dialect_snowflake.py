@@ -4162,6 +4162,25 @@ class MetricLevelEqualsSegment(BaseSegment):
     )
 
 
+class DataMetricScheduleEqualsSegment(BaseSegment):
+    """A DATA_METRIC_SCHEDULE property, e.g. on DYNAMIC TABLEs and views.
+
+    The value is a quoted interval or cron schedule, or TRIGGER_ON_CHANGES.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-view.html
+    """
+
+    type = "data_metric_schedule_equals"
+    match_grammar = Sequence(
+        "DATA_METRIC_SCHEDULE",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            "TRIGGER_ON_CHANGES",
+        ),
+    )
+
+
 class AutoEventLoggingEqualsSegment(BaseSegment):
     """AUTO_EVENT_LOGGING clause.
 
@@ -6412,6 +6431,7 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
+            Ref("DataMetricScheduleEqualsSegment", optional=True),
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
@@ -7987,6 +8007,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            Ref("DataMetricScheduleEqualsSegment"),
             # CLUSTER BY is only valid for materialized views, and it
             # requires the parenthesised expression list.
             Sequence(
