@@ -2,7 +2,6 @@
 
 from typing import Optional
 
-from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -64,37 +63,14 @@ class Rule_ST01(BaseRule):
             lambda child: child.raw_upper == "NULL"
         ):
             # Check if there are comments inside the else clause.
-            comments = list(else_clause[0].recursive_crawl("comment"))
+            comments = [s for s in else_clause[0].segments if s.is_comment]
             if comments:
                 # If comments exist within the else clause, preserve them
                 # rather than silently deleting them.
                 all_segs = list(else_clause[0].segments)
-                first_comment = comments[0]
-                last_comment = comments[-1]
-                if first_comment in all_segs and last_comment in all_segs:
-                    first_idx = all_segs.index(first_comment)
-                    last_idx = all_segs.index(last_comment)
-                    replacement = list(all_segs[first_idx : last_idx + 1])
-                else:
-                    replacement = list(comments)
-
-                # If the trailing comment is an inline comment, ensure it is
-                # followed by a newline so subsequent code (e.g. 'end') is not
-                # commented out.
-                if last_comment.is_type("inline_comment"):
-                    after_else = children.select(start_seg=else_clause[0])
-                    has_newline_after = any(s.is_type("newline") for s in after_else)
-                    if not has_newline_after:
-                        newline_added = False
-                        if last_comment in all_segs:
-                            for seg in all_segs[last_idx + 1 :]:
-                                if seg.is_type("newline"):
-                                    replacement.append(seg)
-                                    newline_added = True
-                                    break
-                        if not newline_added:
-                            replacement.append(NewlineSegment())
-
+                first_idx = all_segs.index(comments[0])
+                last_idx = all_segs.index(comments[-1])
+                replacement = list(all_segs[first_idx : last_idx + 1])
                 return LintResult(
                     anchor=context.segment,
                     fixes=[LintFix.replace(else_clause[0], replacement)],

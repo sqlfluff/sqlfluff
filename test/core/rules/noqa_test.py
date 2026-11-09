@@ -186,6 +186,37 @@ def test_parse_noqa_os_independent(monkeypatch):
     assert "PRS" in res.rules
     assert set(dummy_rule_map["all"]).issubset(set(res.rules))
 
+    # Check specific semantics for LAYOUT and layout (#9005)
+    for c in ("noqa: disable=LAYOUT", "noqa: disable=layout"):
+        res_layout = IgnoreMask._parse_noqa(
+            comment=c,
+            line_no=0,
+            line_pos=0,
+            reference_map=dummy_rule_map,
+        )
+        assert res_layout.action == "disable"
+        assert set(dummy_rule_map["layout"]).issubset(set(res_layout.rules))
+
+    # Check specific semantics for lt01 and LT01
+    for c in ("noqa: lt01", "noqa: LT01"):
+        res_lt = IgnoreMask._parse_noqa(
+            comment=c,
+            line_no=0,
+            line_pos=0,
+            reference_map=dummy_rule_map,
+        )
+        assert res_lt.rules == ("LT01",)
+
+    # Check specific semantics for prs
+    res_prs = IgnoreMask._parse_noqa(
+        comment="noqa: disable=prs",
+        line_no=0,
+        line_pos=0,
+        reference_map=dummy_rule_map,
+    )
+    assert res_prs.action == "disable"
+    assert res_prs.rules == ("PRS",)
+
 
 def test_noqa_disable_prs_all_os_independent(monkeypatch):
     """End-to-end test that -- noqa: disable=PRS,ALL works across OSes (#9005)."""
