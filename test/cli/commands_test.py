@@ -2845,6 +2845,55 @@ def test__cli__command_lint_gitlab_relative_paths(
     assert report == json.loads(reference.stdout)
 
 
+@pytest.mark.parametrize("write_output", [False, True])
+def test__cli__command_lint_gitlab_cross_drive_path(
+    tmp_path, monkeypatch, write_output
+):
+    """An unrelativizable path does not prevent reporting it or other files."""
+    cross_drive_file = tmp_path / "cross-drive.sql"
+    cross_drive_file.write_text("SELECT  1;\n", encoding="utf8")
+    (tmp_path / "same-drive.sql").write_text("SELECT  2;\n", encoding="utf8")
+    monkeypatch.chdir(tmp_path)
+    original_relpath = os.path.relpath
+
+    def cross_drive_relpath(path, *args, **kwargs):
+        if os.fspath(path) == str(cross_drive_file):
+            raise ValueError("path is on a different mount")
+        return original_relpath(path, *args, **kwargs)
+
+    monkeypatch.setattr(os.path, "relpath", cross_drive_relpath)
+    output_options = ("--write-output", "report.json") if write_output else ()
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                str(tmp_path),
+                "--ignore-local-config",
+                "--dialect",
+                "ansi",
+                "--rules",
+                "LT01",
+                "--format",
+                "gitlab",
+                "--disable-progress-bar",
+                *output_options,
+            ),
+        ],
+        ret_code=1,
+    )
+    output = (
+        (tmp_path / "report.json").read_text(encoding="utf8")
+        if write_output
+        else result.stdout
+    )
+    report = json.loads(output)
+    assert [finding["location"]["path"] for finding in report] == [
+        str(cross_drive_file).replace("\\", "/"),
+        "same-drive.sql",
+    ]
+    assert all(finding["check_name"] == "LT01" for finding in report)
+
+
 def test__cli__command_lint_gitlab_preserves_json_paths(tmp_path, monkeypatch):
     """Other output formats retain their existing absolute file paths."""
     sql_file = tmp_path / "query.sql"

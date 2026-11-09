@@ -1060,7 +1060,12 @@ def lint(
             "error": "critical",
         }[annotation_level]
         for record in result.as_records():
-            filepath = os.path.relpath(record["filepath"]).replace("\\", "/")
+            try:
+                filepath = os.path.relpath(record["filepath"])
+            except ValueError:
+                # Windows paths on different drives have no relative representation.
+                filepath = record["filepath"]
+            filepath = filepath.replace("\\", "/")
             for violation in record["violations"]:
                 gitlab_result.append(
                     {
