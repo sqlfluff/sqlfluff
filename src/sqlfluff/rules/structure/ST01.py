@@ -71,6 +71,18 @@ class Rule_ST01(BaseRule):
                 first_idx = all_segs.index(comments[0])
                 last_idx = all_segs.index(comments[-1])
                 replacement = list(all_segs[first_idx : last_idx + 1])
+
+                # If the trailing comment is an inline comment and no newline
+                # follows the else clause, preserve the terminating newline from
+                # inside the clause so subsequent code (e.g. 'end') is not commented out.
+                if comments[-1].is_type("inline_comment"):
+                    after_else = children.select(start_seg=else_clause[0])
+                    if not any(s.is_type("newline") for s in after_else):
+                        for seg in all_segs[last_idx + 1 :]:
+                            if seg.is_type("newline"):
+                                replacement.append(seg)
+                                break
+
                 return LintResult(
                     anchor=context.segment,
                     fixes=[LintFix.replace(else_clause[0], replacement)],
