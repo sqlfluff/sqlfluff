@@ -310,6 +310,12 @@ def _dml_table_aliases(statement: BaseSegment, dialect_name: str) -> list[AliasI
             aliases.append(
                 AliasInfo(parts[-1].part, parts[-1].segments[0], False, seg, None, ref)
             )
+        elif ref:
+            # A table without a name part, e.g. an unaliased T-SQL table
+            # variable (`UPDATE @orders ...`). Keep it, like
+            # get_from_expression_element_alias() does: a subquery can still
+            # reference it by its bracketed name (e.g. `[@orders].id`).
+            aliases.append(AliasInfo("", None, False, seg, None, ref))
     for element in statement.recursive_crawl(
         "from_expression_element", no_recursive_seg_type="select_statement"
     ):
