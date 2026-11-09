@@ -35,7 +35,7 @@ from typing import (
 
 import regex
 
-from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
+from sqlfluff.core.errors import SQLFluffUserError, SQLLintError, _SQLRuleError
 from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
@@ -576,7 +576,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 exception_line, _ = root_context.segment.pos_marker.source_position()
                 self._log_critical_errors(e)
                 vs.append(
-                    SQLLintError(
+                    _SQLRuleError(
                         rule=self,
                         segment=root_context.segment,
                         fixes=[],
@@ -636,7 +636,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 exception_line, _ = context.segment.pos_marker.source_position()
                 self._log_critical_errors(e)
                 vs.append(
-                    SQLLintError(
+                    _SQLRuleError(
                         rule=self,
                         segment=context.segment,
                         fixes=[],

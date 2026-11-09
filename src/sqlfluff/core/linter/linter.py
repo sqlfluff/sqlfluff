@@ -18,6 +18,7 @@ from sqlfluff.core.errors import (
     SQLLintError,
     SQLParseError,
     SQLTemplaterError,
+    _SQLRuleError,
 )
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
@@ -347,7 +348,7 @@ class Linter:
         # Filter out any linting errors in templated sections if relevant.
         result: list[SQLBaseError] = []
         for e in linting_errors:
-            if isinstance(e, SQLLintError):
+            if isinstance(e, SQLLintError) and not isinstance(e, _SQLRuleError):
                 assert e.segment.pos_marker
                 if (
                     # Is it in a literal section?
