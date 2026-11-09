@@ -122,3 +122,8 @@ CREATE TABLE catalog.silver.child2 (
     REFERENCES catalog.silver.parent (parent_key)
     ON UPDATE NO ACTION ON DELETE NO ACTION
 ) USING DELTA;
+
+-- Table clauses from the reference page.
+CREATE TABLE t (a INT) LOCATION 's3://example-bucket/t' WITH (CREDENTIAL cred);
+
+CREATE TABLE t (a STRING) DEFAULT COLLATION UTF8_BINARY;

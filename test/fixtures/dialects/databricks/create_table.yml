@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3901f10cb7b46483f262fb84994c722d7b9673457ccacccaed6789649dcd4440
+_hash: 578492b48adabe5338cdb11712c41696c17cfbfbae1fd47b55749e45c1fbbf7a
 file:
 - statement:
     create_table_statement:
@@ -974,4 +974,47 @@ file:
         keyword: USING
         data_source_format:
           keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: "'s3://example-bucket/t'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: CREDENTIAL
+        naked_identifier: cred
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - keyword: DEFAULT
+    - keyword: COLLATION
+    - naked_identifier: UTF8_BINARY
 - statement_terminator: ;
