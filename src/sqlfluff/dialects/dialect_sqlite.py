@@ -957,16 +957,36 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
 
 
 class TransactionStatementSegment(ansi.TransactionStatementSegment):
-    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
+    """A `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT` or `RELEASE` statement.
 
     As per https://www.sqlite.org/lang_transaction.html
+    and https://www.sqlite.org/lang_savepoint.html
     """
 
     type = "transaction_statement"
-    match_grammar: Matchable = Sequence(
-        OneOf("BEGIN", "COMMIT", "ROLLBACK", "END"),
-        OneOf("TRANSACTION", optional=True),
-        Sequence("TO", "SAVEPOINT", Ref("ObjectReferenceSegment"), optional=True),
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "BEGIN",
+            OneOf("DEFERRED", "IMMEDIATE", "EXCLUSIVE", optional=True),
+            Ref.keyword("TRANSACTION", optional=True),
+        ),
+        Sequence(OneOf("COMMIT", "END"), Ref.keyword("TRANSACTION", optional=True)),
+        Sequence(
+            "ROLLBACK",
+            Ref.keyword("TRANSACTION", optional=True),
+            Sequence(
+                "TO",
+                Ref.keyword("SAVEPOINT", optional=True),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence("SAVEPOINT", Ref("ObjectReferenceSegment")),
+        Sequence(
+            "RELEASE",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 
