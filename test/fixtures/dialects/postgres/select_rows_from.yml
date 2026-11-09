@@ -1,0 +1,277 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 52e5c6895023c5d39df1e6bda8da067077d33fd6819eb4cb070ed73b00476d24
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - keyword: ROWS
+            - keyword: FROM
+            - bracketed:
+                start_bracket: (
+                function:
+                  function_name:
+                    function_name_identifier: generate_series
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '3'
+                    - end_bracket: )
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - keyword: ROWS
+            - keyword: FROM
+            - bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: generate_series
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '3'
+                    - end_bracket: )
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: unnest
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - numeric_literal: '1'
+                          - comma: ','
+                          - numeric_literal: '2'
+                          - end_square_bracket: ']'
+                      end_bracket: )
+              - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: x
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - keyword: ROWS
+            - keyword: FROM
+            - bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: generate_series
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '3'
+                    - end_bracket: )
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: unnest
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - numeric_literal: '1'
+                          - comma: ','
+                          - numeric_literal: '2'
+                          - end_square_bracket: ']'
+                      end_bracket: )
+              - end_bracket: )
+            - keyword: WITH
+            - keyword: ORDINALITY
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: x
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                - comma: ','
+                - naked_identifier: n
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - keyword: ROWS
+            - keyword: FROM
+            - bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: json_to_record
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'{\"a\": 1, \"b\": \"x\"}'"
+                      end_bracket: )
+              - keyword: AS
+              - bracketed:
+                - start_bracket: (
+                - parameter: a
+                - data_type:
+                    keyword: int
+                - comma: ','
+                - parameter: b
+                - data_type:
+                    keyword: text
+                - end_bracket: )
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: generate_series
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
+              - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                - comma: ','
+                - naked_identifier: n
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: LATERAL
+            table_expression:
+            - keyword: ROWS
+            - keyword: FROM
+            - bracketed:
+                start_bracket: (
+                function:
+                  function_name:
+                    function_name_identifier: generate_series
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                        - naked_identifier: tbl
+                        - dot: .
+                        - naked_identifier: n
+                    - end_bracket: )
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: g
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: i
+                end_bracket: )
+- statement_terminator: ;

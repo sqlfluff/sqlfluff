@@ -7376,6 +7376,30 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
             Ref("FunctionSegment"),
             Sequence("WITH", "ORDINALITY", optional=True),
         ),
+        Sequence(
+            "ROWS",
+            "FROM",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("FunctionSegment"),
+                        Sequence(
+                            "AS",
+                            Bracketed(
+                                Delimited(
+                                    Sequence(
+                                        Ref("ParameterNameSegment"),
+                                        Ref("DatatypeSegment"),
+                                    )
+                                )
+                            ),
+                            optional=True,
+                        ),
+                    )
+                )
+            ),
+            Sequence("WITH", "ORDINALITY", optional=True),
+        ),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
