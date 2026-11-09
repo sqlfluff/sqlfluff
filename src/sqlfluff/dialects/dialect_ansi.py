@@ -679,6 +679,7 @@ ansi_dialect.add(
         Ref("ConditionalCrossJoinKeywordsGrammar"),
         Ref("NonStandardJoinTypeKeywordsGrammar"),
     ),
+    TimeZoneSpecifierGrammar=Sequence("TIME", "ZONE", Ref("ExpressionSegment")),
     JoinUsingConditionGrammar=Sequence(
         "USING",
         Indent,
@@ -1041,7 +1042,7 @@ class TimeZoneGrammar(BaseSegment):
 
     type = "time_zone_grammar"
     match_grammar = AnyNumberOf(
-        Sequence("AT", "TIME", "ZONE", Ref("ExpressionSegment")),
+        Sequence("AT", Ref("TimeZoneSpecifierGrammar")),
     )
 
 

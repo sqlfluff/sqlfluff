@@ -1,0 +1,124 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 79a89629a0e4a8b4aed4312c46a149c5d8fb8eba1e28c7e3ef428e6821146cc6
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+                keyword: TIMESTAMP
+              quoted_literal: "'2001-02-16 20:38:40'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: TIMESTAMP
+              - keyword: WITH
+              - keyword: TIME
+              - keyword: ZONE
+              quoted_literal: "'2001-02-16 20:38:40-05'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: TIME
+              - keyword: WITH
+              - keyword: TIME
+              - keyword: ZONE
+              quoted_literal: "'20:38:40-05'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2001-02-16 20:38:40'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: timestamptz
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: created_at
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'UTC'"
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: LOCAL
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: events
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: created_at
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: LOCAL
+                end_bracket: )
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: events
+- statement_terminator: ;
