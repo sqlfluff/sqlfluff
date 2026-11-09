@@ -1153,9 +1153,10 @@ class Linter:
         retain_files: bool = True,
     ) -> LintingResult:
         """Lint an iterable of paths."""
-        # If no paths specified - assume local
-        if not paths:  # pragma: no cover
-            paths = (os.getcwd(),)
+        # If no paths specified - assume local. Use a relative path, so that
+        # the reported file paths match those from linting "." explicitly.
+        if not paths:
+            paths = (".",)
         # Set up the result to hold what we get back
         result = LintingResult()
 

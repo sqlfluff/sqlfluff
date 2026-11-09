@@ -306,6 +306,20 @@ def test__linter__linting_result_stats(path, stats):
     assert result.stats(111, 222) == stats
 
 
+def test__linter__lint_paths_default_is_relative(tmp_path, monkeypatch):
+    """With no paths, files are reported relative to the working directory.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9078
+    """
+    (tmp_path / "models").mkdir()
+    (tmp_path / "models" / "x.sql").write_text("SELECT a  FROM b\n")
+    monkeypatch.chdir(tmp_path)
+    lntr = Linter(dialect="ansi")
+    default_paths = [r["filepath"] for r in lntr.lint_paths(()).as_records()]
+    explicit_paths = [r["filepath"] for r in lntr.lint_paths((".",)).as_records()]
+    assert default_paths == explicit_paths == [os.path.join("models", "x.sql")]
+
+
 @pytest.mark.parametrize("processes", [1, 2])
 def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
