@@ -2798,6 +2798,78 @@ def test__cli__command_lint_serialize_gitlab():
     ]
 
 
+@pytest.mark.parametrize(
+    "path_kind", ["omitted", "dot", "relative", "dot-relative", "absolute", "file"]
+)
+@pytest.mark.parametrize("write_output", [False, True])
+def test__cli__command_lint_gitlab_relative_paths(
+    tmp_path, monkeypatch, path_kind, write_output
+):
+    """GitLab paths and fingerprints do not depend on the input path form."""
+    models = tmp_path / "models"
+    models.mkdir()
+    sql_file = models / "query.sql"
+    sql_file.write_text("SELECT  1;\n", encoding="utf8")
+    monkeypatch.chdir(tmp_path)
+    paths = {
+        "omitted": (),
+        "dot": (".",),
+        "relative": ("models",),
+        "dot-relative": ("./models",),
+        "absolute": (str(models),),
+        "file": (str(sql_file),),
+    }
+    options = (
+        "--ignore-local-config",
+        "--dialect",
+        "ansi",
+        "--rules",
+        "LT01",
+        "--format",
+        "gitlab",
+        "--disable-progress-bar",
+    )
+    reference = invoke_assert_code(args=[lint, ("models", *options)], ret_code=1)
+    output_options = ("--write-output", "report.json") if write_output else ()
+    result = invoke_assert_code(
+        args=[lint, (*paths[path_kind], *options, *output_options)], ret_code=1
+    )
+    output = (
+        (tmp_path / "report.json").read_text(encoding="utf8")
+        if write_output
+        else result.stdout
+    )
+    report = json.loads(output)
+    assert len(report) == 1
+    assert report[0]["location"]["path"] == "models/query.sql"
+    assert report == json.loads(reference.stdout)
+
+
+def test__cli__command_lint_gitlab_preserves_json_paths(tmp_path, monkeypatch):
+    """Other output formats retain their existing absolute file paths."""
+    sql_file = tmp_path / "query.sql"
+    sql_file.write_text("SELECT  1;\n", encoding="utf8")
+    monkeypatch.chdir(tmp_path)
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                str(sql_file),
+                "--ignore-local-config",
+                "--dialect",
+                "ansi",
+                "--rules",
+                "LT01",
+                "--format",
+                "json",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    assert json.loads(result.stdout)[0]["filepath"] == str(sql_file)
+
+
 def test__cli__command_lint_serialize_gitlab_parse_error():
     """Test gitlab Code Quality output for a failed parse."""
     fpath = "test/fixtures/linter/parse_error.sql"

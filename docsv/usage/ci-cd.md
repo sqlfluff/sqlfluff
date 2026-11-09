@@ -31,6 +31,9 @@ When `sqlfluff lint` is run with the `--format gitlab` option, it produces a
 (the Code Climate issue format). GitLab can ingest that file and show findings
 in merge requests.
 
+Run the command from the repository root. Report paths are relative to the
+current working directory, including when input paths are absolute or omitted.
+
 A typical job writes the report with `--write-output` and publishes it as a
 `codequality` artifact:
 
