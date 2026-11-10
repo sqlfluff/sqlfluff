@@ -447,10 +447,12 @@ def test__rust_parser__parse_error_from_exception():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__rust_parser__missing_ref_error_reraised_via_dialect_ref():
+def test__rust_parser__missing_ref_error_reraised_via_dialect_ref(monkeypatch):
     """Test RustParser catches RsParseError with MISSING_REF_PREFIX and re-raises via dialect.ref()."""
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
+
+    monkeypatch.setattr(sys, "tracebacklimit", None, raising=False)
 
     config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
     parser = RustParser(config=config)
