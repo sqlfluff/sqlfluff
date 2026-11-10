@@ -929,21 +929,29 @@ def test__cli__verbose_machine_output_stays_serialized():
     "format", ["json", "yaml", "sarif", "gitlab", "github-annotation"]
 )
 def test__cli__lint_bench_keeps_machine_output_serialized(format):
-    """--bench must not append a timing table to a machine-readable payload."""
+    """--bench must not append a timing table to a machine-readable payload.
+
+    The payload must still parse: an appended table would leave a valid document
+    followed by a second one, which every one of these formats would reject on
+    the consumer's side.
+    """
     result = invoke_assert_code(
+        ret_code=1,
         args=[
             lint,
             [
                 f"--format={format}",
                 "--bench",
                 "--disable-progress-bar",
-                "test/fixtures/cli/passing_a.sql",
+                "test/fixtures/cli/fail_many.sql",
             ],
         ],
     )
     assert "==== overall timings ====" not in result.stdout
-    if format == "json":
-        json.loads(result.stdout)
+    payload = (
+        yaml.safe_load(result.stdout) if format == "yaml" else json.loads(result.stdout)
+    )
+    assert payload, f"the {format} payload must carry the run's violations"
 
 
 def test__cli__lint_bench_keeps_human_output():
