@@ -1,0 +1,55 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2f9d9aa6a34a65a0aa3154909ce823fada9d95a1929bcf1cee12d247a55143e5
+file:
+- statement:
+    drop_rule_statement:
+    - keyword: DROP
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: keep_orders
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    drop_rule_statement:
+    - keyword: DROP
+    - keyword: RULE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        quoted_identifier: '"Archive Order"'
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: sales
+      - dot: .
+      - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    drop_rule_statement:
+    - keyword: DROP
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: notify_orders
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_rule_statement:
+    - keyword: DROP
+    - keyword: RULE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: log_order_insert
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+    - keyword: RESTRICT
+- statement_terminator: ;
