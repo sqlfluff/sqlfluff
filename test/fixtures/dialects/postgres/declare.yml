@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db52a371cb817de219657fccd9cf12d4cc4e486d025766da2f6c977f2ddefb9b
+_hash: b67b7188e18b706f22e3aac189e4171e2f5f4ed1860284f6559dbdc31a447b8f
 file:
 - statement:
     declare_statement:
@@ -265,5 +265,148 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: t
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c11
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: t
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c12
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          bracketed:
+            start_bracket: (
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'a'"
+              - end_bracket: )
+            end_bracket: )
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c13
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          with_compound_statement:
+            keyword: WITH
+            common_table_expression:
+              naked_identifier: x
+              keyword: AS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: id
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: t
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: x
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c14
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: id
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: t
+              end_bracket: )
+          - set_operator:
+              keyword: UNION
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '2'
+              end_bracket: )
+          end_bracket: )
         end_bracket: )
 - statement_terminator: ;

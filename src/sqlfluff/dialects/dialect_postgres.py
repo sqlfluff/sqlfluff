@@ -496,6 +496,16 @@ postgres_dialect.add(
         Sequence("READ", OneOf("WRITE", "ONLY")),
         Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
     ),
+    # The query of `DECLARE ... CURSOR FOR`: a SELECT or VALUES command, in any
+    # number of brackets, e.g. `((SELECT 1))`.
+    # https://www.postgresql.org/docs/current/sql-declare.html
+    CursorQueryGrammar=OneOf(
+        Ref("WithCompoundStatementSegment"),
+        Ref("SelectStatementSegment"),
+        Ref("SetExpressionSegment"),
+        Ref("ValuesClauseSegment"),
+        Bracketed(Ref("CursorQueryGrammar")),
+    ),
     # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
     # behaviour in every position and only rejects unsupported ones at analysis.
     # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
@@ -5489,6 +5499,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CheckpointStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
+            Ref("CreateEventTriggerStatementSegment"),
+            Ref("AlterEventTriggerStatementSegment"),
+            Ref("DropEventTriggerStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("SetTransactionStatementSegment"),
             Ref("AlterSystemStatementSegment"),
@@ -5687,6 +5700,89 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateEventTriggerStatementSegment(BaseSegment):
+    """A `CREATE EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-createeventtrigger.html
+    """
+
+    type = "create_event_trigger_statement"
+
+    # filter_variable IN (filter_value [, ... ])
+    _filter = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EVENT",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        # The event, e.g. ddl_command_start
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            "WHEN",
+            _filter,
+            AnyNumberOf(Sequence("AND", _filter)),
+            optional=True,
+        ),
+        "EXECUTE",
+        OneOf("FUNCTION", "PROCEDURE"),
+        Ref("FunctionSegment"),
+    )
+
+
+class AlterEventTriggerStatementSegment(BaseSegment):
+    """An `ALTER EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-altereventtrigger.html
+    """
+
+    type = "alter_event_trigger_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "EVENT",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf(
+            "DISABLE",
+            Sequence("ENABLE", OneOf("REPLICA", "ALWAYS", optional=True)),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),
+        ),
+    )
+
+
+class DropEventTriggerStatementSegment(BaseSegment):
+    """A `DROP EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropeventtrigger.html
+    """
+
+    type = "drop_event_trigger_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EVENT",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
@@ -7929,15 +8025,7 @@ class DeclareStatementSegment(BaseSegment):
         "CURSOR",
         Sequence(OneOf("WITH", "WITHOUT"), "HOLD", optional=True),
         "FOR",
-        # A SELECT or VALUES command
-        OptionallyBracketed(
-            OneOf(
-                Ref("WithCompoundStatementSegment"),
-                Ref("SelectStatementSegment"),
-                Ref("SetExpressionSegment"),
-                Ref("ValuesClauseSegment"),
-            ),
-        ),
+        Ref("CursorQueryGrammar"),
     )
 
 
