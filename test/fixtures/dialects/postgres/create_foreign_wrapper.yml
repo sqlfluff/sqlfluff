@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 43b2813d5760fc078d59ae11a7fe6bec905c4f1bfeacc37bfe302af38a9b5d02
+_hash: 5c6b6005d6dae375c2dcdbd2b28a83cf4a8d4ac8b32a2742e28ab33a45aa95b8
 file:
-  statement:
+- statement:
     create_foreign_data_wrapper:
     - keyword: create
     - keyword: foreign
@@ -13,7 +13,67 @@ file:
     - keyword: wrapper
     - naked_identifier: stripe_wrapper
     - keyword: handler
-    - naked_identifier: stripe_fdw_handler
+    - function_name:
+        function_name_identifier: stripe_fdw_handler
     - keyword: validator
-    - naked_identifier: stripe_fdw_validator
-  statement_terminator: ;
+    - function_name:
+        function_name_identifier: stripe_fdw_validator
+- statement_terminator: ;
+- statement:
+    create_foreign_data_wrapper:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+- statement_terminator: ;
+- statement:
+    create_foreign_data_wrapper:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: no_functions
+    - keyword: 'NO'
+    - keyword: HANDLER
+    - keyword: 'NO'
+    - keyword: VALIDATOR
+- statement_terminator: ;
+- statement:
+    create_foreign_data_wrapper:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: qualified
+    - keyword: VALIDATOR
+    - function_name:
+        naked_identifier: ext
+        dot: .
+        function_name_identifier: my_validator
+    - keyword: HANDLER
+    - function_name:
+        naked_identifier: ext
+        dot: .
+        function_name_identifier: my_handler
+- statement_terminator: ;
+- statement:
+    create_foreign_data_wrapper:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: with_options
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: postgres_fdw_handler
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: debug
+      - quoted_literal: "'true'"
+      - comma: ','
+      - naked_identifier_all: retries
+      - quoted_literal: "'3'"
+      - end_bracket: )
+- statement_terminator: ;
