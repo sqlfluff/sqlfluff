@@ -767,19 +767,19 @@ class FileSegment(BaseFileSegment):
         ]
         if not parents:
             return {}
-        parent, children, index = min(
+        first_call = min(
             (
-                (parent, children, index)
-                for parent, children in parents
-                for index, child in enumerate(children)
+                child
+                for _, children in parents
+                for child in children
                 if match_class_name(child) == "ChainedFunctionCallSegment"
             ),
-            key=lambda item: match_bounds(item[1][item[2]])[0],
+            key=lambda child: match_bounds(child)[0],
         )
-        if _chain_match_is_indented(
-            parent,
-            children,
-            index,
+        input_context = _chain_input_context(match, match_bounds(first_call)[0])
+        if input_context and _chain_match_is_indented(
+            *input_context,
+            first_call,
             segments,
             offset,
             config.get("tab_space_size", ["indentation"]),
@@ -4068,19 +4068,40 @@ def _match_line_indent(segments: SequenceType[BaseSegment], index: int) -> str:
     return indent
 
 
+def _chain_input_context(
+    match: MatchResultLike, start: int
+) -> Optional[tuple[MatchResultLike, MatchResultLike]]:
+    """Find the input across anonymous native grammar wrappers.
+
+    Follow only the accepted path to the first call. A native accessor wrapper
+    can contain just calls, with their input in the enclosing expression.
+    """
+    context = None
+    while match_class_name(match) != "ChainedFunctionCallSegment":
+        children = match.child_matches
+        # The selected call is a descendant of this accepted match.
+        index, child = next(
+            (index, child)
+            for index, child in enumerate(children)
+            if match_bounds(child)[0] <= start < match_bounds(child)[1]
+        )
+        if index:
+            context = (match, children[index - 1])
+        match = child
+    return context
+
+
 def _chain_match_is_indented(
     parent: MatchResultLike,
-    children: SequenceType[MatchResultLike],
-    index: int,
+    input_match: MatchResultLike,
+    call: MatchResultLike,
     segments: SequenceType[BaseSegment],
     offset: int,
     tab_size: int,
 ) -> bool:
     """Classify the first accepted call boundary, including nested input calls."""
-    if index == 0:  # A chain input normally has its own preceding child match.
-        return False
-    start = match_bounds(children[index])[0] + offset
-    input_start, input_end = match_bounds(children[index - 1])
+    start = match_bounds(call)[0] + offset
+    input_start, input_end = match_bounds(input_match)
     input_start += offset
     input_end += offset
     if not any(seg.is_type("newline") for seg in segments[input_end:start]):

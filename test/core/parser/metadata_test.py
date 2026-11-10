@@ -1,5 +1,6 @@
 """Accepted match metadata must support optional grammar inserts immutably."""
 
+from itertools import groupby
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -177,8 +178,9 @@ def test_consistent_grammar_metadata_does_not_leak_between_files():
         ("SELECT ((foo).LOWER())\n    .TRIM();", False),
     ],
 )
+@pytest.mark.parametrize("anonymous_wrappers", [False, True])
 def test_consistent_metadata_uses_one_match_and_native_token_offsets(
-    sql, indented, monkeypatch
+    sql, indented, anonymous_wrappers, monkeypatch
 ):
     """Inference must survive native coordinates without a second grammar pass."""
     config = FluffConfig(overrides={"dialect": "bigquery", "use_rust_parser": False})
@@ -203,21 +205,60 @@ def test_consistent_metadata_uses_one_match_and_native_token_offsets(
     offset = next(index for index, token in enumerate(tokens) if token.is_code)
 
     def native_view(node):
-        """Expose accepted metadata as native class names and local token spans."""
+        """Expose native coordinates and optional anonymous accessor wrappers."""
+        children = tuple(native_view(child) for child in node.child_matches)
+        if anonymous_wrappers:
+            grouped = []
+            for is_chain, group in groupby(
+                children,
+                key=lambda child: child.matched_class == "ChainedFunctionCallSegment",
+            ):
+                matches = tuple(group)
+                if is_chain:
+                    grouped.append(
+                        SimpleNamespace(
+                            matched_class=None,
+                            matched_slice=(
+                                matches[0].matched_slice[0],
+                                matches[-1].matched_slice[1],
+                            ),
+                            child_matches=matches,
+                        )
+                    )
+                else:
+                    grouped.extend(matches)
+            children = tuple(grouped)
         return SimpleNamespace(
             matched_class=match_class_name(node) or None,
             matched_slice=tuple(index - offset for index in match_bounds(node)),
-            child_matches=tuple(native_view(child) for child in node.child_matches),
+            child_matches=children,
         )
 
     native = native_view(match)
-    native.matches_with_child_class = lambda name: [
-        native_view(parent) for parent in match.matches_with_child_class(name)
-    ]
+
+    def parents_with_child_class(name):
+        pending = [native]
+        found = []
+        while pending:
+            node = pending.pop()
+            if any(child.matched_class == name for child in node.child_matches):
+                found.append(node)
+            pending.extend(node.child_matches)
+        return found
+
+    native.matches_with_child_class = parents_with_child_class
     policy = parser.RootSegment.get_meta_exclusions
     python_exclusions = policy(match, tokens, config)
     native_exclusions = policy(native, tokens, config, offset=offset)
     assert bool(python_exclusions) is not indented
+    if anonymous_wrappers:
+        # Wrapper ownership differs; the omitted tokens must still be identical.
+        assert sorted(
+            (index + offset, cls)
+            for inserts in native_exclusions.values()
+            for index, cls in inserts
+        ) == sorted(item for inserts in python_exclusions.values() for item in inserts)
+        return
     assert {
         (name, start + offset, stop + offset): tuple(
             (index + offset, cls) for index, cls in inserts
