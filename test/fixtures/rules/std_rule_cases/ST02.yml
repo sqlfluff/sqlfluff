@@ -452,3 +452,30 @@ test_pass_differently_cased_clickhouse_indexed_columns_no_else:
   configs:
     core:
       dialect: clickhouse
+
+test_pass_oracle_case_statement:
+  # Issue #9101: a PL/SQL CASE statement has statements after THEN and
+  # ELSE, not expressions, and used to raise an IndexError.
+  pass_str: |
+    FUNCTION thing() RETURN VARCHAR2
+    IS
+    BEGIN
+        CASE
+            WHEN x = 'Y' THEN RETURN 'N1';
+            ELSE RETURN 'GREEN';
+        END CASE;
+    END thing;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_case_statement_no_else:
+  pass_str: |
+    BEGIN
+        CASE
+            WHEN x IS NULL THEN x := 1;
+        END CASE;
+    END;
+  configs:
+    core:
+      dialect: oracle

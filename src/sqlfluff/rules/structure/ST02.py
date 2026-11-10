@@ -214,8 +214,16 @@ class Rule_ST02(BaseRule):
                 return None
 
             # Find condition and then expressions.
-            condition_expression = when_clauses.children(sp.is_type("expression"))[0]
-            then_expression = when_clauses.children(sp.is_type("expression"))[1]
+            when_expressions = when_clauses.children(sp.is_type("expression"))
+            # A procedural CASE statement (e.g. Oracle PL/SQL) has statements
+            # rather than an expression after THEN or ELSE, so there's
+            # nothing to simplify.
+            if len(when_expressions) < 2 or (
+                else_clauses and not else_clauses.children(sp.is_type("expression"))
+            ):
+                return None
+            condition_expression = when_expressions[0]
+            then_expression = when_expressions[1]
 
             # Method 1: Check if THEN/ELSE expressions are both Boolean and can
             # therefore be reduced.
