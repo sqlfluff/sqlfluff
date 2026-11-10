@@ -6,6 +6,7 @@ This should be the default response from any `match` method.
 from collections import defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Union
 
 from sqlfluff.core.helpers.slice import slice_length
@@ -108,8 +109,13 @@ class MatchResult:
         return buffer
 
     @classmethod
+    @lru_cache(maxsize=4096)
     def empty_at(cls, idx: int) -> "MatchResult":
-        """Create an empty match at a particular index."""
+        """Create an empty match at a particular index.
+
+        Every failed match attempt returns one of these, so they're cached
+        by index. A MatchResult is frozen, so sharing them is safe.
+        """
         return cls(slice(idx, idx))
 
     def is_better_than(self, other: "MatchResult") -> bool:

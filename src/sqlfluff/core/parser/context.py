@@ -235,14 +235,13 @@ class ParseContext:
             # Trim back to original length.
             self.terminators = self.terminators[:-appended]
 
-    @contextmanager
     def deeper_match(
         self,
         name: str,
         clear_terminators: bool = False,
         push_terminators: Optional[Sequence["Matchable"]] = None,
         track_progress: Optional[bool] = None,
-    ) -> Iterator["ParseContext"]:
+    ) -> "_DeeperMatch":
         """Increment match depth.
 
         Args:
@@ -260,33 +259,14 @@ class ParseContext:
                 tracking for deeper matches. This avoids having the linting
                 progress bar jump forward when performing greedy matches on
                 terminators.
+
+        NOTE: This is called for every grammar element we try to match,
+        so it returns a small class-based context manager rather than
+        using ``@contextmanager``, which builds a generator on each call.
         """
-        self._match_stack.append(self.match_segment)
-        self.match_segment = name
-        self.match_depth += 1
-        if self.max_parse_depth > 0 and self.match_depth > self.max_parse_depth:
-            raise SQLParseError(
-                f"Maximum parse depth exceeded (limit {self.max_parse_depth}). "
-                "This may indicate deeply nested SQL or a malicious input."
-            )
-        _append, _terms = self._set_terminators(clear_terminators, push_terminators)
-        _track_progress = self.track_progress
-        if track_progress is False:
-            self.track_progress = False
-        elif track_progress is True:  # pragma: no cover
-            # We can't go from False to True. Raise an issue if not.
-            assert self.track_progress is True, "Cannot set tracking from False to True"
-        try:
-            yield self
-        finally:
-            self._reset_terminators(
-                _append, _terms, clear_terminators=clear_terminators
-            )
-            self.match_depth -= 1
-            # Reset back to old name
-            self.match_segment = self._match_stack.pop()
-            # Reset back to old progress tracking.
-            self.track_progress = _track_progress
+        return _DeeperMatch(
+            self, name, clear_terminators, push_terminators, track_progress
+        )
 
     @contextmanager
     def progress_bar(self, last_char: int) -> Iterator["ParseContext"]:
@@ -348,3 +328,66 @@ class ParseContext:
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache[(loc_key, matcher_key)] = match
+
+
+class _DeeperMatch:
+    """Context manager returned by :meth:`ParseContext.deeper_match`."""
+
+    __slots__ = (
+        "_ctx",
+        "_name",
+        "_clear_terminators",
+        "_push_terminators",
+        "_track_progress",
+        "_appended",
+        "_terminators",
+        "_old_track_progress",
+    )
+
+    def __init__(
+        self,
+        ctx: ParseContext,
+        name: str,
+        clear_terminators: bool,
+        push_terminators: Optional[Sequence["Matchable"]],
+        track_progress: Optional[bool],
+    ) -> None:
+        self._ctx = ctx
+        self._name = name
+        self._clear_terminators = clear_terminators
+        self._push_terminators = push_terminators
+        self._track_progress = track_progress
+
+    def __enter__(self) -> ParseContext:
+        ctx = self._ctx
+        ctx._match_stack.append(ctx.match_segment)
+        ctx.match_segment = self._name
+        ctx.match_depth += 1
+        if ctx.max_parse_depth > 0 and ctx.match_depth > ctx.max_parse_depth:
+            raise SQLParseError(
+                f"Maximum parse depth exceeded (limit {ctx.max_parse_depth}). "
+                "This may indicate deeply nested SQL or a malicious input."
+            )
+        self._appended, self._terminators = ctx._set_terminators(
+            self._clear_terminators, self._push_terminators
+        )
+        self._old_track_progress = ctx.track_progress
+        if self._track_progress is False:
+            ctx.track_progress = False
+        elif self._track_progress is True:  # pragma: no cover
+            # We can't go from False to True. Raise an issue if not.
+            assert ctx.track_progress is True, "Cannot set tracking from False to True"
+        return ctx
+
+    def __exit__(self, *exc_info: Any) -> None:
+        ctx = self._ctx
+        ctx._reset_terminators(
+            self._appended,
+            self._terminators,
+            clear_terminators=self._clear_terminators,
+        )
+        ctx.match_depth -= 1
+        # Reset back to old name
+        ctx.match_segment = ctx._match_stack.pop()
+        # Reset back to old progress tracking.
+        ctx.track_progress = self._old_track_progress

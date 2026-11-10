@@ -123,3 +123,15 @@ def test__parser__matchresult2_apply_zero_length_with_context(
         seg.to_tuple(show_raw=True, include_meta=True) for seg in out_segments
     )
     assert serialised == (("dedent", ""),)
+
+
+def test__parser__matchresult_empty_at():
+    """Test that empty matches are falsy and sit at the right index."""
+    match = MatchResult.empty_at(3)
+    assert not match
+    assert len(match) == 0
+    assert match.matched_slice == slice(3, 3)
+    assert match == MatchResult(slice(3, 3))
+    # Empty matches are cached, so check they don't leak between indices.
+    assert MatchResult.empty_at(4).matched_slice == slice(4, 4)
+    assert MatchResult.empty_at(3) == match
