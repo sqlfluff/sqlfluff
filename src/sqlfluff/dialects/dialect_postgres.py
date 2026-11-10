@@ -5502,6 +5502,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateEventTriggerStatementSegment"),
             Ref("AlterEventTriggerStatementSegment"),
             Ref("DropEventTriggerStatementSegment"),
+            Ref("CreateLanguageStatementSegment"),
+            Ref("AlterLanguageStatementSegment"),
+            Ref("DropLanguageStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("SetTransactionStatementSegment"),
             Ref("AlterSystemStatementSegment"),
@@ -5783,6 +5786,84 @@ class DropEventTriggerStatementSegment(BaseSegment):
         "TRIGGER",
         Ref("IfExistsGrammar", optional=True),
         Ref("TriggerReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateLanguageStatementSegment(BaseSegment):
+    """A `CREATE LANGUAGE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createlanguage.html
+    """
+
+    type = "create_language_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("TRUSTED", optional=True),
+        Ref.keyword("PROCEDURAL", optional=True),
+        "LANGUAGE",
+        Ref("ObjectReferenceSegment"),
+        # Without a handler, this is the obsolete form that PostgreSQL runs as
+        # `CREATE EXTENSION`.
+        Sequence(
+            Indent,
+            "HANDLER",
+            Ref("FunctionNameSegment"),
+            Sequence("INLINE", Ref("FunctionNameSegment"), optional=True),
+            OneOf(
+                Sequence("VALIDATOR", Ref("FunctionNameSegment")),
+                Sequence("NO", "VALIDATOR"),
+                optional=True,
+            ),
+            Dedent,
+            optional=True,
+        ),
+    )
+
+
+class AlterLanguageStatementSegment(BaseSegment):
+    """An `ALTER LANGUAGE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterlanguage.html
+    """
+
+    type = "alter_language_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        Ref.keyword("PROCEDURAL", optional=True),
+        "LANGUAGE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropLanguageStatementSegment(BaseSegment):
+    """A `DROP LANGUAGE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droplanguage.html
+    """
+
+    type = "drop_language_statement"
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("PROCEDURAL", optional=True),
+        "LANGUAGE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 

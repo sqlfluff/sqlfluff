@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5619f13750b31c1f3da6458a9b9f70ef9b4031e5e1a6c788c8ac5825e29fbf72
+file:
+- statement:
+    create_language_statement:
+    - keyword: CREATE
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: plpgsql_call_handler
+- statement_terminator: ;
+- statement:
+    create_language_statement:
+    - keyword: CREATE
+    - keyword: TRUSTED
+    - keyword: PROCEDURAL
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample2
+    - keyword: HANDLER
+    - function_name:
+        naked_identifier: pg_catalog
+        dot: .
+        function_name_identifier: plpgsql_call_handler
+    - keyword: INLINE
+    - function_name:
+        function_name_identifier: plpgsql_inline_handler
+    - keyword: VALIDATOR
+    - function_name:
+        function_name_identifier: plpgsql_validator
+- statement_terminator: ;
+- statement:
+    create_language_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: plpgsql_call_handler
+    - keyword: 'NO'
+    - keyword: VALIDATOR
+- statement_terminator: ;
+- statement:
+    create_language_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURAL
+    - keyword: LANGUAGE
+    - object_reference:
+        quoted_identifier: '"PlSample"'
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: plpgsql_call_handler
+    - keyword: INLINE
+    - function_name:
+        function_name_identifier: plpgsql_inline_handler
+- statement_terminator: ;
+- statement:
+    create_language_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRUSTED
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plpgsql
+- statement_terminator: ;
