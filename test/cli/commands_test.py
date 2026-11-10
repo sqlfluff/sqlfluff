@@ -925,6 +925,38 @@ def test__cli__verbose_machine_output_stays_serialized():
     assert result.stderr
 
 
+@pytest.mark.parametrize(
+    "format", ["json", "yaml", "sarif", "gitlab", "github-annotation"]
+)
+def test__cli__lint_bench_keeps_machine_output_serialized(format):
+    """--bench must not append a timing table to a machine-readable payload."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            [
+                f"--format={format}",
+                "--bench",
+                "--disable-progress-bar",
+                "test/fixtures/cli/passing_a.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" not in result.stdout
+    if format == "json":
+        json.loads(result.stdout)
+
+
+def test__cli__lint_bench_keeps_human_output():
+    """--bench still reports timings when the output is meant for a person."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            ["--bench", "--disable-progress-bar", "test/fixtures/cli/passing_a.sql"],
+        ],
+    )
+    assert "==== overall timings ====" in result.stdout
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""
