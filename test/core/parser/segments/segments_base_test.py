@@ -586,6 +586,26 @@ def test__parser__base_segments_copy_segments_reparents_children(
     assert old_seg.segments[0].get_parent()[0] is not old_seg
 
 
+def test__parser__base_segments_position_segments_reusable(DummySegment, raw_segments):
+    """Test that _position_segments only reuses segments it is allowed to."""
+    seg = DummySegment(segments=raw_segments)
+    # By default, segments are copied, even if already in the right place.
+    (positioned,) = BaseSegment._position_segments((seg,), parent_pos=seg.pos_marker)
+    assert positioned is not seg
+    assert positioned.raw == seg.raw
+    # A reusable segment which is already in the right place is kept.
+    (positioned,) = BaseSegment._position_segments(
+        (seg,), parent_pos=seg.pos_marker, reusable={id(seg)}
+    )
+    assert positioned is seg
+    # One which needs moving is still copied.
+    (_, positioned) = BaseSegment._position_segments(
+        (raw_segments[0].copy(), seg), parent_pos=seg.pos_marker, reusable={id(seg)}
+    )
+    assert positioned is not seg
+    assert positioned.pos_marker.working_loc != seg.pos_marker.working_loc
+
+
 def test__parser__raw_segment_raw_normalized():
     """Test comparison of raw segments."""
     template = TemplatedFile.from_string('"a"""."e"')

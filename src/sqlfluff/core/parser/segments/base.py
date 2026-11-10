@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import logging
 import weakref
-from collections.abc import Iterator, Sequence
+from collections.abc import Collection, Iterator, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from io import StringIO
@@ -555,6 +555,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cls,
         segments: tuple[BaseSegment, ...],
         parent_pos: PositionMarker,
+        reusable: Collection[int] = (),
     ) -> tuple[BaseSegment, ...]:
         """Refresh positions of segments within a span.
 
@@ -566,6 +567,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         New segments are assumed to be metas or insertions
         and so therefore have a zero-length position in the
         source and templated file.
+
+        Segments are copied so that the originals are left untouched.
+        `reusable` holds the `id()` of any segments which the caller has
+        just built and which nothing else refers to. If one of those is
+        already in the right position it is returned as it is, rather
+        than copying its whole subtree again.
         """
         assert segments, "_position_segments called on empty sequence."
         line_no = parent_pos.working_line_no
@@ -660,6 +667,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
             # NOTE: If the position is already correct, we still
             # need to copy, but we don't need to reposition any further.
+            if old_position == new_position and id(segment) in reusable:
+                segment_buffer += (segment,)
+                continue
             if segment.segments and old_position != new_position:
                 # Recurse to work out the child segments FIRST, before
                 # copying the parent so we don't double the work.
@@ -1437,10 +1447,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 f"\nMatched: {rematch.apply(trimmed_content, parse_context=ctx)}. "
                 f"\nUnmatched: {trimmed_content[rematch.matched_slice.stop :]}."
             )
+            # The message above builds trial segments too.
+            self.set_as_parent()
             return False
         opening_unparsables = set(self.recursive_crawl("unparsable"))
         closing_unparsables: set[BaseSegment] = set()
         new_segments = rematch.apply(trimmed_content, parse_context=ctx)
+        # Building the trial segments made them the parents of our raw
+        # segments, so point those back at this segment's own tree.
+        self.set_as_parent()
         for seg in new_segments:
             closing_unparsables.update(seg.recursive_crawl("unparsable"))
         # Check we don't introduce any _additional_ unparsables.

@@ -6,7 +6,7 @@ import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.linter.fix import compute_anchor_edit_info
+from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.patch import (
     FixPatch,
     generate_source_patches,
@@ -583,3 +583,45 @@ def test__fix__post_phase_skipped_when_main_phase_settles_after_a_fix():
     (_, post_rule), _, fixed_tree, _ = _lint_fix_with_rules(Rule_T903, Rule_T901)
     assert post_rule.evaluations == 2
     assert fixed_tree.raw == "SELECT b FROM b\n"
+
+
+def _assert_parent_links(segment: BaseSegment) -> None:
+    """Check every child in the tree points back at its own parent."""
+    for idx, child in enumerate(segment.segments):
+        assert child.get_parent() == (segment, idx)
+        assert child.get_parent()[0] is segment
+        _assert_parent_links(child)
+
+
+def test__fix__parent_links_after_fixes():
+    """The fixed tree keeps parent links, also where fixes were validated.
+
+    The comma spacing fix is a creation, so the fixed segments are reparsed
+    to validate them, and parts of the fixed tree are reused rather than
+    copied again by `apply_fixes()`.
+    """
+    linter = Linter(config=FluffConfig(overrides={"dialect": "ansi", "rules": "LT01"}))
+    linted = linter.lint_string("select a,b from t\n", fix=True)
+    assert linted.fix_string()[0] == "select a, b from t\n"
+    _assert_parent_links(linted.tree)
+
+
+def test__fix__parent_links_after_failed_validation():
+    """Parent links survive a fix whose validation finds an incomplete match.
+
+    Deleting the last operator in the brackets leaves an expression which
+    doesn't reparse in full. The brackets have no grammar to validate with,
+    so the fix still goes through, and the tree must still be linked up.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    tree = Linter(config=config).parse_string("SELECT (a + b + c) FROM t\n").tree
+    operator = list(tree.recursive_crawl("binary_operator"))[-1]
+    new_tree, _, _, _ = apply_fixes(
+        tree,
+        config.get("dialect_obj"),
+        "TEST",
+        compute_anchor_edit_info([LintFix.delete(operator)]),
+        max_parse_depth=255,
+    )
+    assert new_tree.raw == "SELECT (a + b  c) FROM t\n"
+    _assert_parent_links(new_tree)

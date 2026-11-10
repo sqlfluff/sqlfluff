@@ -249,6 +249,9 @@ def apply_fixes(
     # Then recurse (i.e. deal with the children) (Requeueing)
     seg_queue = seg_buffer
     seg_buffer = []
+    # Segments built by the recursive calls below belong to this new tree
+    # only, so they don't need copying again when positioned.
+    rebuilt: set[int] = set()
     for seg in seg_queue:
         s, pre, post, validated = apply_fixes(
             seg,
@@ -263,6 +266,8 @@ def apply_fixes(
         # whitespace) segments as the first or last children. This is
         # generally not allowed (see the can_start_end_non_code field),
         # and these segments need to be "bubbled up" the tree.
+        if s is not seg:
+            rebuilt.add(id(s))
         seg_buffer += pre + [s] + post
         # If we fail to validate a child segment, make sure to validate this
         # segment.
@@ -298,7 +303,7 @@ def apply_fixes(
         new_seg = segment.__class__(
             # Realign the segments within
             segments=segment._position_segments(
-                tuple(seg_buffer), parent_pos=segment.pos_marker
+                tuple(seg_buffer), parent_pos=segment.pos_marker, reusable=rebuilt
             ),
             pos_marker=segment.pos_marker,
             # Pass through any additional kwargs
