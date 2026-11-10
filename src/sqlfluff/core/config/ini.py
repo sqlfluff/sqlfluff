@@ -4,7 +4,9 @@ This includes `.sqlfluff` and `tox.ini` files.
 """
 
 import configparser
+from typing import Optional
 
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
 from sqlfluff.core.types import ConfigMappingType, ConfigValueType
 
@@ -32,7 +34,9 @@ def coerce_value(val: str) -> ConfigValueType:
     return v
 
 
-def load_ini_string(cfg_content: str) -> ConfigMappingType:
+def load_ini_string(
+    cfg_content: str, filename: Optional[str] = None
+) -> ConfigMappingType:
     """Read an ini-style config string.
 
     This would include loading a `.sqlfluff` file.
@@ -59,7 +63,13 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
     config.optionxform = lambda option: option  # type: ignore
 
     # Read the content.
-    config.read_string(cfg_content)
+    try:
+        config.read_string(cfg_content, source=filename or "<string>")
+    except configparser.Error as err:
+        target = f" {filename}" if filename else ""
+        raise SQLFluffUserError(
+            f"Failed to parse INI config file{target}: {err}"
+        ) from None
 
     # Build up a buffer of config values.
     config_buffer: list[NestedDictRecord[ConfigValueType]] = []

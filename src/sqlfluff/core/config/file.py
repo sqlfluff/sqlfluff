@@ -42,7 +42,7 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
         return load_toml_file_config(filepath)
     # If it's not a pyproject file, assume that it's an ini file.
     with open(filepath, mode="r") as file:
-        return load_ini_string(file.read())
+        return load_ini_string(file.read(), filename=filepath)
 
 
 def _resolve_path(filepath: str, val: str) -> list[str]:

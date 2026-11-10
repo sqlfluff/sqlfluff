@@ -2191,8 +2191,27 @@ def test__cli__command_fail_nice_not_found(command):
     )
 
 
-def test__cli__command_invalid_pyproject_toml_user_error(monkeypatch):
-    """Invalid pyproject.toml should surface a concise user error."""
+@pytest.mark.parametrize(
+    "config_filename, contents, expected_substring, extra_assertion",
+    [
+        (
+            "pyproject.toml",
+            '\ufeff[tool.sqlfluff.core]\ndialect = "ansi"\n',
+            "User Error: Failed to parse TOML config file",
+            "UTF-8 BOM",
+        ),
+        (
+            ".sqlfluff",
+            "[sqlfluff\ndialect = ansi\n",
+            "User Error: Failed to parse INI config file",
+            None,
+        ),
+    ],
+)
+def test__cli__command_invalid_config_user_error(
+    monkeypatch, config_filename, contents, expected_substring, extra_assertion
+):
+    """Invalid config files (TOML or INI) should surface a concise user error."""
     import sqlfluff.core.config.loader as config_loader
 
     original_load_config_at_path = config_loader.load_config_at_path
@@ -2214,8 +2233,8 @@ def test__cli__command_invalid_pyproject_toml_user_error(monkeypatch):
             continue
         try:
             project_path = pathlib.Path(tempfile.mkdtemp(dir=str(candidate)))
-            (project_path / "pyproject.toml").write_text(
-                '\ufeff[tool.sqlfluff.core]\ndialect = "ansi"\n',
+            (project_path / config_filename).write_text(
+                contents,
                 encoding="utf-8",
             )
             sql_file = project_path / "query.sql"
@@ -2235,15 +2254,16 @@ def test__cli__command_invalid_pyproject_toml_user_error(monkeypatch):
         result = invoke_assert_code(
             ret_code=2,
             args=[lint, ["--dialect", "ansi", str(sql_file)]],
-            assert_stderr_contains="User Error: Failed to parse TOML config file",
+            assert_stderr_contains=expected_substring,
         )
     finally:
         clear_config_caches()
         shutil.rmtree(project_path, ignore_errors=True)
 
     stderr = result.stderr.replace("\\", "/")
-    assert str(project_path / "pyproject.toml").replace("\\", "/") in stderr
-    assert "UTF-8 BOM" in stderr
+    assert str(project_path / config_filename).replace("\\", "/") in stderr
+    if extra_assertion:
+        assert extra_assertion in stderr
     assert "Traceback" not in result.output
 
 
