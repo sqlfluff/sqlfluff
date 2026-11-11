@@ -23,7 +23,7 @@
 #![allow(dead_code)]
 
 use std::borrow::Cow;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::sync::Arc;
 
 use hashbrown::{HashMap, HashSet};
@@ -97,6 +97,11 @@ struct ArenaNode {
     /// Cached `class_types` (mirrors `BaseSegment.class_types`) — computed
     /// once per node, then handed out as a cheap `Arc` clone.
     class_types_cache: RefCell<Option<Arc<Vec<String>>>>,
+    /// Cached `is_code` (mirrors `BaseSegment.is_code`); a container's value
+    /// otherwise means a subtree walk on every call.  Depends on descendants,
+    /// so like `cached_raw` it must be reset on this node and its ancestors
+    /// by any edit below it.
+    is_code_cache: Cell<Option<bool>>,
 }
 
 /// A flattened, parent-linked, id-addressable parse tree.
@@ -107,13 +112,13 @@ pub struct Arena {
 }
 
 /// A single step on a path between two nodes — mirrors Python's `PathStep`
-/// dataclass (`segment`, `idx`, `len`, `code_idxs`).
+/// dataclass (`segment`, `idx`, `len`). The facade adds `code_idxs` from its
+/// per-node cache, as native does, rather than rebuilding them per call.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct PathStep {
     pub(crate) node: NodeId,
     pub(crate) idx: usize,
     pub(crate) len: usize,
-    pub(crate) code_idxs: Vec<usize>,
 }
 
 impl Arena {
@@ -155,6 +160,7 @@ impl Arena {
             cached_raw: RefCell::new(None),
             descendant_types: RefCell::new(None),
             class_types_cache: RefCell::new(None),
+            is_code_cache: Cell::new(None),
         });
         self.by_uuid.insert(uuid, id);
         id
@@ -536,7 +542,11 @@ impl Arena {
 
     /// Mirrors [`Node::is_code`].
     pub fn is_code(&self, id: NodeId) -> bool {
-        match &self.node(id).kind {
+        let cache = &self.node(id).is_code_cache;
+        if let Some(cached) = cache.get() {
+            return cached;
+        }
+        let is_code = match &self.node(id).kind {
             ArenaKind::Meta { .. } | ArenaKind::Empty => false,
             ArenaKind::Raw {
                 segment_type,
@@ -562,7 +572,9 @@ impl Arena {
             }
             ArenaKind::Segment { .. } => self.children(id).iter().any(|&c| self.is_code(c)),
             ArenaKind::Unparsable { .. } => true,
-        }
+        };
+        cache.set(Some(is_code));
+        is_code
     }
 
     pub fn is_whitespace(&self, id: NodeId) -> bool {
@@ -759,19 +771,10 @@ impl Arena {
         let mut steps = Vec::with_capacity(chain.len());
         let mut parent = from;
         for node in chain {
-            let idx = self.node(node).parent_idx;
-            let siblings = self.children(parent);
-            let code_idxs: Vec<usize> = siblings
-                .iter()
-                .enumerate()
-                .filter(|(_, &s)| self.is_code(s))
-                .map(|(i, _)| i)
-                .collect();
             steps.push(PathStep {
                 node: parent,
-                idx,
-                len: siblings.len(),
-                code_idxs,
+                idx: self.node(node).parent_idx,
+                len: self.children(parent).len(),
             });
             parent = node;
         }
@@ -900,6 +903,10 @@ mod tests {
         let (p, idx) = arena.get_parent(ident).unwrap();
         assert_eq!(arena.get_type(p), "column_reference");
         assert_eq!(idx, 0);
+        // ...and the last step names that parent, the index and its child count.
+        let last = steps.last().unwrap();
+        assert_eq!((last.node, last.idx), (p, idx));
+        assert_eq!(last.len, arena.children(p).len());
     }
 
     #[test]
