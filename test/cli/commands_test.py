@@ -286,15 +286,23 @@ def test__cli__command_extra_config_fail():
 def test__cli__command_invalid_ini_config(tmp_path, monkeypatch):
     """A malformed INI config is reported cleanly, not as a traceback.
 
+    The malformed file deliberately avoids a standard config filename: on CI
+    pytest's basetemp lives *inside* the repository, and a stray ``.sqlfluff``
+    left behind there would be picked up by discovery tests which scan the
+    repository root (e.g. ``test__linter__path_from_paths__dot``). Any
+    non-``pyproject.toml`` file passed via ``--config`` is still parsed as INI,
+    so the error path under test is unchanged.
+
     https://github.com/sqlfluff/sqlfluff/issues/9067
     """
-    (tmp_path / ".sqlfluff").write_text("[sqlfluff\ndialect = ansi\n")
+    invalid_config = tmp_path / "invalid_config.ini"
+    invalid_config.write_text("[sqlfluff\ndialect = ansi\n")
     (tmp_path / "in.sql").write_text("SELECT 1;\n")
     monkeypatch.chdir(tmp_path)
 
     invoke_assert_code(
         ret_code=2,
-        args=[lint, ["in.sql"]],
+        args=[lint, ["in.sql", "--config", str(invalid_config)]],
         assert_stdout_contains=(
             "Error loading config: Failed to parse INI config file"
         ),
