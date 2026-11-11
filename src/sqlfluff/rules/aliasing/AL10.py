@@ -15,8 +15,10 @@ class Rule_AL10(BaseRule):
     .. note::
        BigQuery, DuckDB, Snowflake and SQLite accept a derived table without
        an alias, so this rule does not apply to them. ClickHouse accepts one
-       only as the single source of a ``FROM`` clause, so for ClickHouse this
-       rule only flags derived tables in a join or a comma list.
+       as the single source of a ``FROM`` clause and in a ``PASTE JOIN``, but
+       requires an alias in other joins and in a comma list. For ClickHouse
+       this rule flags derived tables in a ``FROM`` clause with more than one
+       source, so it still flags a ``PASTE JOIN``.
 
     **Anti-pattern**
 
