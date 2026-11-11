@@ -24,3 +24,16 @@ GRANT SELECT ON abc TO xyz, mno;
 GRANT EXECUTE ON ALL ROUTINES IN SCHEMA my_schema TO my_user, my_other_user;
 GRANT EXECUTE ON FUNCTION test(a IN TEXT, b OUT TEXT, INOUT c TEXT, VARIADIC d TEXT) TO my_user;
 GRANT EXECUTE ON FUNCTION test(a TEXT, b my_table.my_column%type) TO my_user;
+
+-- Role membership options (PostgreSQL 16+). OPTION is a synonym for TRUE, and
+-- several options can be given as a comma-separated list.
+-- https://www.postgresql.org/docs/16/sql-grant.html
+GRANT my_user TO my_group WITH ADMIN TRUE;
+GRANT my_user TO my_group WITH ADMIN FALSE;
+GRANT my_user TO my_group WITH INHERIT TRUE;
+GRANT my_user TO my_group WITH INHERIT FALSE;
+GRANT my_user TO my_group WITH SET OPTION;
+GRANT my_user TO my_group WITH SET FALSE;
+GRANT my_user TO my_group WITH INHERIT TRUE, SET FALSE;
+GRANT my_user TO my_group WITH ADMIN OPTION, INHERIT FALSE, SET TRUE
+    GRANTED BY CURRENT_ROLE;

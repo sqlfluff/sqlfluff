@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b40091e0dae6d763571aaf281a7c26627d5826b4b2eaf238645bec20c013209
+_hash: 7253a940838925f30ccf205746f981421a4667937e430883423981b7a438512b
 file:
 - statement:
     access_statement:
@@ -545,4 +545,128 @@ file:
       - access_target:
           role_reference:
             naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: ADMIN
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: ADMIN
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: INHERIT
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: INHERIT
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: SET
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: SET
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: INHERIT
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: SET
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - object_reference:
+          naked_identifier: my_user
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+      - comma: ','
+      - keyword: INHERIT
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: SET
+      - boolean_literal: 'TRUE'
+      - keyword: GRANTED
+      - keyword: BY
+      - keyword: CURRENT_ROLE
 - statement_terminator: ;
