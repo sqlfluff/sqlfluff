@@ -281,6 +281,17 @@ class Rule_CV11(BaseRule):
             ]
         )
 
+        # If the cast expression is followed by an array accessor (e.g. CAST(y AS TEXT)[1]),
+        # wrap the entire shorthand cast in parentheses so it does not turn into an
+        # array type cast (e.g. y::TEXT[1] -> (y::TEXT)[1]).
+        first_post_code = next((s for s in context.siblings_post if s.is_code), None)
+        if first_post_code and first_post_code.is_type("array_accessor"):
+            edits = [
+                SymbolSegment("(", type="start_bracket"),
+                *edits,
+                SymbolSegment(")", type="end_bracket"),
+            ]
+
         fixes = [
             LintFix.replace(
                 context.segment,
