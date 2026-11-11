@@ -340,8 +340,8 @@ impl PyHandle {
     }
 
     /// Path from this node (an ancestor) down to `other`, as a list of
-    /// `(parent_handle, idx, len, code_idxs)` tuples for building `PathStep`s.
-    fn path_to(&self, other: &PyHandle) -> Vec<(PyHandle, usize, usize, Vec<usize>)> {
+    /// `(parent_handle, idx, len)` tuples for building `PathStep`s.
+    fn path_to(&self, other: &PyHandle) -> Vec<(PyHandle, usize, usize)> {
         // Handles into a different arena share no path (mirrors the Python façade
         // returning an empty path). Guard before indexing *this* arena with the
         // other handle's NodeId, which could otherwise alias or panic.
@@ -351,7 +351,7 @@ impl PyHandle {
         let steps = self.inner.lock().unwrap().path_to(self.node, other.node);
         steps
             .into_iter()
-            .map(|s| (self.wrap(s.node), s.idx, s.len, s.code_idxs))
+            .map(|s| (self.wrap(s.node), s.idx, s.len))
             .collect()
     }
 
