@@ -1656,6 +1656,36 @@ def _lint_line_untaken_positive_indents(
     return results, [closing_trough]
 
 
+def _is_cte_query_end_bracket(elements: ReflowSequenceType, block_idx: int) -> bool:
+    """Match LT07's last direct bracketed child of a CTE using depth metadata."""
+    block = cast(ReflowBlock, elements[block_idx])
+    depth = block.depth_info
+    if (
+        "end_bracket" not in block.class_types
+        or depth.stack_depth < 2
+        or "common_table_expression" not in depth.stack_class_types[-2]
+    ):
+        return False
+
+    cte_depth = depth.stack_depth - 2
+    cte_hash = depth.stack_hashes[cte_depth]
+    bracket_hash = depth.stack_hashes[-1]
+    # DuckDB's USING KEY (...) is also a direct bracketed child of the CTE.
+    # Only the last such child is the query. Do not rely on it being the last
+    # code child: PostgreSQL SEARCH/CYCLE clauses can follow the query.
+    for idx in range(block_idx + 2, len(elements), 2):
+        following = cast(ReflowBlock, elements[idx]).depth_info
+        if cte_hash not in following.stack_hash_set:
+            break
+        if (
+            following.stack_depth > cte_depth + 1
+            and "bracketed" in following.stack_class_types[cte_depth + 1]
+            and following.stack_hashes[cte_depth + 1] != bracket_hash
+        ):
+            return False
+    return True
+
+
 def _lint_line_untaken_negative_indents(
     elements: ReflowSequenceType,
     indent_line: _IndentLine,
@@ -1699,6 +1729,11 @@ def _lint_line_untaken_negative_indents(
         untaken_indents = set(ip.untaken_indents).difference(forced_indents)
         if covered_indents.issubset(untaken_indents):
             # Yep, untaken.
+            continue
+
+        # LT07 owns line breaks before CTE query closing brackets. Nested
+        # subqueries and CTE column lists still need normal dedent handling.
+        if _is_cte_query_end_bracket(elements, ip.idx + 1):
             continue
 
         # Edge Case: Comments. Since introducing the code to push indent effects
