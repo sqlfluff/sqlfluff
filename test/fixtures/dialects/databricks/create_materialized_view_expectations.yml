@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6157492af9e3386cd9851769644b9643a9451e8479b663b765ca4c40a9ea771
+_hash: ba59f4843d8aecd80d446fc82d91d3278ffffef6dee783c711ff67c8994bb368
 file:
 - statement:
     create_materialized_view_statement:
@@ -35,8 +35,9 @@ file:
         - keyword: DROP
         - keyword: ROW
         end_bracket: )
-    - keyword: COMMENT
-    - quoted_literal: '"The cleansed Johns Hopkins COVID-19 dataset."'
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: '"The cleansed Johns Hopkins COVID-19 dataset."'
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
