@@ -1,0 +1,5 @@
+DROP LANGUAGE plsample_renamed;
+
+DROP PROCEDURAL LANGUAGE IF EXISTS plsample2 CASCADE;
+
+DROP LANGUAGE IF EXISTS "PlSample", plsample_missing RESTRICT;
