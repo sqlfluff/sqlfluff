@@ -598,6 +598,30 @@ postgres_dialect.add(
     OptionsGrammar=Sequence(
         "OPTIONS", Bracketed(AnyNumberOf(Ref("OptionsListGrammar")))
     ),
+    # The OPTIONS clause of the ALTER statements for foreign objects, which can
+    # add, set or drop each option.
+    # https://www.postgresql.org/docs/current/sql-alterforeigntable.html
+    AlterOptionsGrammar=Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("ADD", "SET", "DROP", optional=True),
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedLiteralSegment", optional=True),
+                )
+            )
+        ),
+    ),
+    # The HANDLER and VALIDATOR clauses of CREATE and ALTER FOREIGN DATA WRAPPER.
+    # PostgreSQL accepts them in any order.
+    # https://www.postgresql.org/docs/current/sql-createforeigndatawrapper.html
+    ForeignDataWrapperFunctionGrammar=OneOf(
+        Sequence("HANDLER", Ref("FunctionNameSegment")),
+        Sequence("NO", "HANDLER"),
+        Sequence("VALIDATOR", Ref("FunctionNameSegment")),
+        Sequence("NO", "VALIDATOR"),
+    ),
     CreateUserMappingGrammar=Sequence("CREATE", "USER", "MAPPING"),
     SessionInformationUserFunctionsGrammar=OneOf(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
@@ -3427,7 +3451,7 @@ class AlterExtensionStatementSegment(BaseSegment):
 class CreateForeignDataWrapperStatementSegment(BaseSegment):
     """A CREATE FOREIGN DATA WRAPPER Statement.
 
-    Docs: https://fdw.dev/catalog/
+    https://www.postgresql.org/docs/current/sql-createforeigndatawrapper.html
     """
 
     type = "create_foreign_data_wrapper"
@@ -3436,13 +3460,60 @@ class CreateForeignDataWrapperStatementSegment(BaseSegment):
         Ref("ForeignDataWrapperGrammar"),
         Ref("SingleIdentifierGrammar"),
         Indent,
-        "HANDLER",
-        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(Ref("ForeignDataWrapperFunctionGrammar")),
+        Ref("OptionsGrammar", optional=True),
         Dedent,
-        Indent,
-        "VALIDATOR",
+    )
+
+
+class AlterForeignDataWrapperStatementSegment(BaseSegment):
+    """An ALTER FOREIGN DATA WRAPPER Statement.
+
+    https://www.postgresql.org/docs/current/sql-alterforeigndatawrapper.html
+    """
+
+    type = "alter_foreign_data_wrapper_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref("ForeignDataWrapperGrammar"),
         Ref("SingleIdentifierGrammar"),
-        Dedent,
+        OneOf(
+            Sequence(
+                Indent,
+                AnyNumberOf(Ref("ForeignDataWrapperFunctionGrammar"), min_times=1),
+                Ref("AlterOptionsGrammar", optional=True),
+                Dedent,
+            ),
+            Sequence(Indent, Ref("AlterOptionsGrammar"), Dedent),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
+        ),
+    )
+
+
+class DropForeignDataWrapperStatementSegment(BaseSegment):
+    """A DROP FOREIGN DATA WRAPPER Statement.
+
+    https://www.postgresql.org/docs/current/sql-dropforeigndatawrapper.html
+    """
+
+    type = "drop_foreign_data_wrapper_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SingleIdentifierGrammar")),
+        Ref("CascadeRestrictGrammar", optional=True),
     )
 
 
@@ -5577,6 +5648,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("AlterForeignDataWrapperStatementSegment"),
+            Ref("DropForeignDataWrapperStatementSegment"),
             Ref("MetaCommandQueryBufferStatement"),
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
@@ -8106,16 +8179,7 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
                     Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),
-                "OPTIONS",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf("ADD", "SET", "DROP", optional=True),
-                            Ref("SingleIdentifierGrammar"),
-                            Ref("QuotedLiteralSegment", optional=True),
-                        )
-                    )
-                ),
+                Ref("AlterOptionsGrammar"),
             )
         ]
     )
