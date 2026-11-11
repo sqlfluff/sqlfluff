@@ -15,6 +15,7 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -164,6 +165,46 @@ def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
         assert not raises
     except (ValueError, TypeError):
         assert raises
+
+
+@pytest.mark.parametrize(
+    "byte_lim",
+    ["Not a Valid value", "20,000", "None", [1], float("inf"), 1e999, ""],
+)
+def test__linter__large_file_skip_byte_limit__invalid_raises_user_error(byte_lim):
+    """Invalid large_file_skip_byte_limit values raise a user error.
+
+    Previously these escaped as a raw ValueError/TypeError/OverflowError traceback.
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    config = FluffConfig(
+        overrides={"large_file_skip_byte_limit": byte_lim, "dialect": "ansi"}
+    )
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        Linter.load_raw_file_and_config(
+            "test/fixtures/linter/indentation_errors.sql", config
+        )
+    assert "large_file_skip_byte_limit" in str(excinfo.value)
+    assert "integer" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "char_lim",
+    ["Not a Valid value", [1], float("inf"), 1e999, ""],
+)
+def test__linter__large_file_skip_char_limit__invalid_raises_user_error(char_lim):
+    """Invalid large_file_skip_char_limit values raise a user error.
+
+    Previously these escaped as a raw TypeError/OverflowError traceback.
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    config = FluffConfig(
+        overrides={"large_file_skip_char_limit": char_lim, "dialect": "ansi"}
+    )
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        Linter(config).render_string("SELECT 1;", "test.sql", config, "utf8")
+    assert "large_file_skip_char_limit" in str(excinfo.value)
+    assert "integer" in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
