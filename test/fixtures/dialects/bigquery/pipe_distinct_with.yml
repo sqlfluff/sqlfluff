@@ -1,0 +1,284 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5b35825114e87f13eed706d19c76c3e7dfae7a030e8f9c757939405f24bb4c0d
+file:
+- statement:
+    pipe_statement:
+    - bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'apples'"
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '2'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: sales
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'bananas'"
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '5'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: sales
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'bananas'"
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '5'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: sales
+        end_bracket: )
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        keyword: DISTINCT
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: sales
+            comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+            numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        keyword: DISTINCT
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: key
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        pipe_with_clause:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: t
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '1'
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: key
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'my_value'"
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: value
+              end_bracket: )
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        join_clause:
+        - keyword: INNER
+        - keyword: JOIN
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+        - keyword: USING
+        - bracketed:
+            start_bracket: (
+            naked_identifier: key
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: key
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        pipe_with_clause:
+        - keyword: WITH
+        - common_table_expression:
+            naked_identifier: t1
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '2'
+              end_bracket: )
+        - comma: ','
+        - common_table_expression:
+            naked_identifier: t2
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '3'
+              end_bracket: )
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - bracketed:
+            start_bracket: (
+            pipe_statement:
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t1
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            pipe_statement:
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t2
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: key
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        pipe_with_clause:
+        - keyword: WITH
+        - common_table_expression:
+            naked_identifier: t1
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '2'
+              end_bracket: )
+        - comma: ','
+        - common_table_expression:
+            naked_identifier: t2
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '3'
+              end_bracket: )
+        - comma: ','
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - bracketed:
+            start_bracket: (
+            pipe_statement:
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t1
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            pipe_statement:
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t2
+            end_bracket: )
+- statement_terminator: ;
