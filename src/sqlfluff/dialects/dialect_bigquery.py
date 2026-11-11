@@ -3896,7 +3896,28 @@ class PipeOperatorClauseSegment(BaseSegment):
             Ref("SamplingExpressionSegment"),
             Ref("PivotOperatorSegment"),
             Ref("UnpivotOperatorSegment"),
+            "DISTINCT",
+            Ref("PipeWithClauseSegment"),
         ),
+    )
+
+
+class PipeWithClauseSegment(BaseSegment):
+    """A `WITH` pipe operator, defining CTEs for the rest of the query.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax#with_pipe_operator
+    """
+
+    type = "pipe_with_clause"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        Indent,
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            allow_trailing=True,
+        ),
+        Dedent,
     )
 
 
