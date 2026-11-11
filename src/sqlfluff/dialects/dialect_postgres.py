@@ -5511,6 +5511,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
+            Ref("CreateRuleStatementSegment"),
+            Ref("AlterRuleStatementSegment"),
+            Ref("DropRuleStatementSegment"),
             Ref("CreateDomainStatementSegment"),
             Ref("AlterDomainStatementSegment"),
             Ref("DropDomainStatementSegment"),
@@ -6400,6 +6403,87 @@ class DropPolicyStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DROP",
         "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateRuleStatementSegment(BaseSegment):
+    """A `CREATE RULE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createrule.html
+    """
+
+    # A rule action is a SELECT, INSERT, UPDATE, DELETE or NOTIFY command.
+    _rule_action = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("NotifyStatementSegment"),
+    )
+
+    type = "create_rule_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "RULE",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        "ON",
+        OneOf("SELECT", "INSERT", "UPDATE", "DELETE"),
+        "TO",
+        Ref("TableReferenceSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        "DO",
+        OneOf("ALSO", "INSTEAD", optional=True),
+        OneOf(
+            "NOTHING",
+            # `( command ; command ... )`, where PostgreSQL also allows empty
+            # commands, so extra and trailing semicolons.
+            Bracketed(
+                AnyNumberOf(Ref("DelimiterGrammar")),
+                Delimited(
+                    _rule_action,
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_trailing=True,
+                    optional=True,
+                ),
+            ),
+            _rule_action,
+        ),
+    )
+
+
+class AlterRuleStatementSegment(BaseSegment):
+    """An `ALTER RULE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterrule.html
+    """
+
+    type = "alter_rule_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "RULE",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        "RENAME",
+        "TO",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropRuleStatementSegment(BaseSegment):
+    """A `DROP RULE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droprule.html
+    """
+
+    type = "drop_rule_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "RULE",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "ON",
