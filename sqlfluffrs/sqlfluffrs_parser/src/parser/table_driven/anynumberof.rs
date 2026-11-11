@@ -282,19 +282,27 @@ impl Parser<'_> {
                 );
             }
 
-            // Update longest_match if this child is better
-            if !child_match.is_empty() && child_end_pos <= ctx.max_idx {
-                ctx.update_longest_match(
+            // Update longest_match if this child is better. Like Python's
+            // longest_match, a new best followed by a terminator ends the
+            // search: later (possibly longer) candidates aren't tried.
+            let mut terminated = false;
+            if !child_match.is_empty()
+                && child_end_pos <= ctx.max_idx
+                && ctx.update_longest_match(
                     Arc::clone(&child_match),
                     child_end_pos,
                     current_candidate,
-                );
+                )
+                && !frame.table_terminators.is_empty()
+            {
+                self.pos = self.skip_start_index_forward_to_code(child_end_pos, ctx.max_idx);
+                terminated = self.is_terminated(&frame.table_terminators);
             }
 
             ctx.tried_elements += 1;
 
             // Try next element candidate if there are more
-            if ctx.has_more_candidates() {
+            if !terminated && ctx.has_more_candidates() {
                 let next_element_idx = ctx.tried_elements;
                 let next_candidate = ctx.pruned_children[next_element_idx];
                 let working_idx = ctx.working_idx;
