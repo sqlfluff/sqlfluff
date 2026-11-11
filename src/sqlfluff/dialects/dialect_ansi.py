@@ -4163,8 +4163,8 @@ class DropRoleStatementSegment(BaseSegment):
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
-    type = "drop_MODELstatement"
-    # DROP MODEL <Model name> [IF EXISTS}
+    type = "drop_model_statement"
+    # DROP MODEL [IF EXISTS] <Model name>
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
     match_grammar: Matchable = Sequence(
         "DROP",
