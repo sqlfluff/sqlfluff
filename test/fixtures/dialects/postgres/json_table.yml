@@ -1,0 +1,717 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: faf9f7f287077b93d61e85981785bb5d3fc92e7fe3c45397e2a019078175767e
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: o
+          - dot: .
+          - naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: li
+          - dot: .
+          - naked_identifier: line_no
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: li
+          - dot: .
+          - naked_identifier: sku
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: li
+          - dot: .
+          - naked_identifier: qty
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: o
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: o
+                      - dot: .
+                      - naked_identifier: doc
+                    comma: ','
+                    quoted_literal: "'$.line_items[*]'"
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                        - naked_identifier: line_no
+                        - keyword: FOR
+                        - keyword: ORDINALITY
+                      - comma: ','
+                      - json_table_column_definition:
+                          naked_identifier: sku
+                          data_type:
+                            keyword: text
+                          keyword: PATH
+                          quoted_literal: "'$.sku'"
+                      - comma: ','
+                      - json_table_column_definition:
+                          naked_identifier: qty
+                          data_type:
+                            keyword: integer
+                          keyword: PATH
+                          quoted_literal: "'$.qty'"
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: li
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: json_table
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      cast_expression:
+                        quoted_literal: "'[{\"a\": 1, \"b\": \"x\"}]'"
+                        casting_operator: '::'
+                        data_type:
+                          keyword: jsonb
+                    comma: ','
+                    quoted_literal: "'$[*]'"
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                          naked_identifier: a
+                          data_type:
+                            keyword: int
+                      - comma: ','
+                      - json_table_column_definition:
+                          naked_identifier: b
+                          data_type:
+                            keyword: text
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: p
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: p
+                      - dot: .
+                      - naked_identifier: doc
+                    comma: ','
+                    quoted_literal: "'$'"
+                    keyword: AS
+                    naked_identifier: root_path
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                        - naked_identifier: product_name
+                        - data_type:
+                            keyword: text
+                        - keyword: PATH
+                        - quoted_literal: "'$.name'"
+                        - keyword: DEFAULT
+                        - expression:
+                            quoted_literal: "'unknown'"
+                        - keyword: 'ON'
+                        - keyword: EMPTY
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: price
+                        - data_type:
+                            keyword: numeric
+                        - keyword: PATH
+                        - quoted_literal: "'$.price'"
+                        - keyword: DEFAULT
+                        - expression:
+                            numeric_literal: '0'
+                        - keyword: 'ON'
+                        - keyword: EMPTY
+                        - keyword: 'NULL'
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: stock
+                        - data_type:
+                            keyword: integer
+                        - keyword: PATH
+                        - quoted_literal: "'$.stock'"
+                        - keyword: ERROR
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: tags
+                        - data_type:
+                            keyword: jsonb
+                        - keyword: PATH
+                        - quoted_literal: "'$.tags'"
+                        - keyword: EMPTY
+                        - keyword: ARRAY
+                        - keyword: 'ON'
+                        - keyword: EMPTY
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: attrs
+                        - data_type:
+                            keyword: jsonb
+                        - keyword: PATH
+                        - quoted_literal: "'$.attrs'"
+                        - keyword: EMPTY
+                        - keyword: OBJECT
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: p
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: p
+                      - dot: .
+                      - naked_identifier: doc
+                    comma: ','
+                    quoted_literal: "'$'"
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                        - naked_identifier: has_price
+                        - data_type:
+                            keyword: boolean
+                        - keyword: EXISTS
+                        - keyword: PATH
+                        - quoted_literal: "'$.price'"
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: has_tags
+                        - data_type:
+                            keyword: boolean
+                        - keyword: EXISTS
+                        - keyword: PATH
+                        - quoted_literal: "'$.tags'"
+                        - keyword: 'FALSE'
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: is_active
+                        - data_type:
+                            keyword: boolean
+                        - keyword: EXISTS
+                        - keyword: PATH
+                        - quoted_literal: "'$.active'"
+                        - keyword: UNKNOWN
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - comma: ','
+                      - json_table_column_definition:
+                          naked_identifier: name
+                          data_type:
+                            keyword: boolean
+                          keyword: EXISTS
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: shipments
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: s
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: s
+                      - dot: .
+                      - naked_identifier: doc
+                    comma: ','
+                    quoted_literal: "'$.packages[*]'"
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                          naked_identifier: package_id
+                          data_type:
+                            keyword: text
+                          keyword: PATH
+                          quoted_literal: "'$.id'"
+                      - comma: ','
+                      - json_table_column_definition:
+                        - keyword: NESTED
+                        - keyword: PATH
+                        - quoted_literal: "'$.items[*]'"
+                        - keyword: AS
+                        - naked_identifier: items_path
+                        - json_table_columns_clause:
+                            keyword: COLUMNS
+                            bracketed:
+                            - start_bracket: (
+                            - json_table_column_definition:
+                              - naked_identifier: item_no
+                              - keyword: FOR
+                              - keyword: ORDINALITY
+                            - comma: ','
+                            - json_table_column_definition:
+                                naked_identifier: item_sku
+                                data_type:
+                                  keyword: text
+                                keyword: PATH
+                                quoted_literal: "'$.sku'"
+                            - comma: ','
+                            - json_table_column_definition:
+                                keyword: NESTED
+                                quoted_literal: "'$.serials[*]'"
+                                json_table_columns_clause:
+                                  keyword: COLUMNS
+                                  bracketed:
+                                    start_bracket: (
+                                    json_table_column_definition:
+                                      naked_identifier: serial
+                                      data_type:
+                                        keyword: text
+                                      keyword: PATH
+                                      quoted_literal: "'$'"
+                                    end_bracket: )
+                            - end_bracket: )
+                      - comma: ','
+                      - json_table_column_definition:
+                        - keyword: NESTED
+                        - keyword: PATH
+                        - quoted_literal: "'$.labels[*]'"
+                        - json_table_columns_clause:
+                            keyword: COLUMNS
+                            bracketed:
+                              start_bracket: (
+                              json_table_column_definition:
+                                naked_identifier: label
+                                data_type:
+                                  keyword: text
+                                keyword: PATH
+                                quoted_literal: "'$'"
+                              end_bracket: )
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'[1, 2]'"
+                        casting_operator: '::'
+                        data_type:
+                          keyword: jsonb
+                  - comma: ','
+                  - quoted_literal: "'$[*]'"
+                  - json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                        start_bracket: (
+                        json_table_column_definition:
+                          naked_identifier: v
+                          data_type:
+                            keyword: int
+                          keyword: PATH
+                          quoted_literal: "'$'"
+                        end_bracket: )
+                  - keyword: ERROR
+                  - keyword: 'ON'
+                  - keyword: ERROR
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'[1, 2]'"
+                        casting_operator: '::'
+                        data_type:
+                          keyword: jsonb
+                  - comma: ','
+                  - quoted_literal: "'$[*]'"
+                  - json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                        start_bracket: (
+                        json_table_column_definition:
+                          naked_identifier: v
+                          data_type:
+                            keyword: int
+                          keyword: PATH
+                          quoted_literal: "'$'"
+                        end_bracket: )
+                  - keyword: EMPTY
+                  - keyword: 'ON'
+                  - keyword: ERROR
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'[1, 2]'"
+                        casting_operator: '::'
+                        data_type:
+                          keyword: jsonb
+                  - comma: ','
+                  - quoted_literal: "'$[*]'"
+                  - json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                        start_bracket: (
+                        json_table_column_definition:
+                          naked_identifier: v
+                          data_type:
+                            keyword: int
+                          keyword: PATH
+                          quoted_literal: "'$'"
+                        end_bracket: )
+                  - keyword: EMPTY
+                  - keyword: ARRAY
+                  - keyword: 'ON'
+                  - keyword: ERROR
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'[1]'"
+                        casting_operator: '::'
+                        data_type:
+                          keyword: jsonb
+                  - comma: ','
+                  - quoted_literal: "'$[*]'"
+                  - json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                        - naked_identifier: v
+                        - data_type:
+                            keyword: int
+                        - keyword: PATH
+                        - quoted_literal: "'$'"
+                        - keyword: 'TRUE'
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: e
+                        - data_type:
+                            keyword: boolean
+                        - keyword: EXISTS
+                        - keyword: PATH
+                        - quoted_literal: "'$'"
+                        - keyword: DEFAULT
+                        - expression:
+                            boolean_literal: 'false'
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - end_bracket: )
+                  - keyword: 'NULL'
+                  - keyword: 'ON'
+                  - keyword: ERROR
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: o
+          - dot: .
+          - naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: li
+          - dot: .
+          - naked_identifier: sku
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: o
+          join_clause:
+          - keyword: CROSS
+          - keyword: JOIN
+          - from_expression_element:
+              keyword: LATERAL
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: JSON_TABLE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: o
+                        - dot: .
+                        - naked_identifier: doc
+                      comma: ','
+                      quoted_literal: "'$.line_items[*]'"
+                      json_table_columns_clause:
+                        keyword: COLUMNS
+                        bracketed:
+                          start_bracket: (
+                          json_table_column_definition:
+                            naked_identifier: sku
+                            data_type:
+                              keyword: text
+                            keyword: PATH
+                            quoted_literal: "'$.sku'"
+                          end_bracket: )
+                      end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: li
+- statement_terminator: ;

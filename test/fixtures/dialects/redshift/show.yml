@@ -1,0 +1,109 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5c7904bd5305629ee5fd97011eefbc05e46c5e70769ed4d8b0600e44f379bb8e
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: FROM
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: dev
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+    - keyword: FROM
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+    - keyword: FROM
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      parameter: search_path
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      parameter: datestyle
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      parameter: timezone
+- statement_terminator: ;

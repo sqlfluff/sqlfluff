@@ -42,7 +42,8 @@ parser_logger = logging.getLogger("sqlfluff.parser")
 # RustParser.parse() is a fast Rust core wrapped in O(nodes) Python work. To find
 # out where the time actually goes (Rust parse vs. the Python re-conversion vs.
 # building the BaseSegment tree vs. building the Rust arena tree (_rs_tree)),
-# the internal stages can be timed individually.
+# the internal stages can be timed individually. The arena is only built,
+# and so only timed, when core.use_rust_rules is enabled.
 #
 # This is OFF by default (zero overhead). Enable it either by setting the
 # SQLFLUFF_RS_PROFILE environment variable, or by calling set_profiling(True)
@@ -81,7 +82,8 @@ def get_parse_profile() -> dict[str, float]:
         meta_policy    - selecting optional grammar indentation inserts
         convert        - Python rebuild of the tree as a MatchResult
         apply          - building the BaseSegment tree (MatchResult.apply)
-        apply_as_tree  - building the Rust arena tree (_rs_tree)
+        apply_as_tree  - building the Rust arena tree (_rs_tree); only built (and
+                         timed) when core.use_rust_rules is enabled
     """
     return dict(_PARSE_PROFILE)
 
@@ -259,6 +261,7 @@ try:
                 # The Rust parser may raise RsParseError for certain parse errors (e.g.,
                 # missing closing brackets in terminators). We catch these and convert to
                 # SQLParseError. Regular parse errors are embedded in the MatchResult.
+                panic: Optional[str] = None
                 try:
                     if _prof is not None:
                         _ts = time.perf_counter()
@@ -287,6 +290,18 @@ try:
                     raise SQLParseError.from_rs_parse_error(
                         e, segments[_start_idx:_end_idx]
                     ) from e
+                # Any other Exception is a bug in sqlfluff, not in the user's SQL.
+                except (Exception, KeyboardInterrupt, SystemExit):
+                    raise
+                except BaseException as e:  # noqa: BLE001
+                    # A Rust panic, e.g. from going over rust_parser_max_iterations,
+                    # isn't an Exception, so we report it as a parse error. We raise
+                    # it outside this block so that the panic isn't its __context__:
+                    # the panic can't be pickled, so the error couldn't leave a
+                    # worker process.
+                    panic = str(e)
+                if panic is not None:
+                    raise SQLParseError(panic)
 
                 # Build the BaseSegment tree from the Rust match result.
                 # PYTHON PARITY: only the code portion (segments[_start_idx:_end_idx])
@@ -377,49 +392,52 @@ try:
                 # Build the mutable Rust arena tree (RsTree) from the MatchResult.
                 # This is the id-addressable façade tree (RsTree/RsHandle) used by
                 # Rust-side linting/fixing to avoid round-tripping through Python's
-                # segment tree.
-                try:
-                    # Extract leading non-code tokens (segments before _start_idx:
-                    # whitespace/newlines at the start of the file) so the arena's
-                    # flat raw list matches Python's raw_segments ordering exactly.
-                    leading_tokens = (
-                        self._extract_tokens_from_segments(segments[:_start_idx])
-                        if _start_idx
-                        else []
-                    )
-                    # Extract trailing non-code tokens (segments after _end_idx: newline,
-                    # end_of_file, etc.) and include them in the arena so that the
-                    # reflow/respace rules can correctly detect EOF and trailing newlines.
-                    trailing_tokens = (
-                        self._extract_tokens_from_segments(segments[_end_idx:])
-                        if _end_idx < len(segments)
-                        else []
-                    )
-                    if _prof is not None:
-                        _ts = time.perf_counter()
-                    result._rs_tree = rs_match.apply_as_tree(
-                        tokens,
-                        leading=leading_tokens,
-                        trailing=trailing_tokens,
-                    )
-                    if _prof is not None:
-                        _prof["apply_as_tree"] = time.perf_counter() - _ts
-                except (KeyboardInterrupt, SystemExit):  # pragma: no cover
-                    # Never swallow interpreter control-flow exceptions.
-                    raise
-                except BaseException:  # noqa: BLE001  # pragma: no cover
-                    # Non-critical: if arena-tree building fails, rules fall back
-                    # to the Python-built tree. Deliberately `except
-                    # BaseException` (minus the control-flow exceptions above):
-                    # a Rust-side panic crosses pyo3 as PanicException, which is
-                    # a BaseException, NOT an Exception, so a bare `except
-                    # Exception` would let a panic abort the whole parse instead
-                    # of engaging this documented fallback.
-                    parser_logger.warning(
-                        f"Unable to apply match result in parse tree for {fname}, falling"
-                        " back to Python. Please report this as a bug with the SQL that"
-                        " caused it."
-                    )
+                # segment tree. It is only built when core.use_rust_rules is enabled.
+                if self.config.rust_rules_enabled():
+                    try:
+                        # Extract leading non-code tokens (segments before _start_idx:
+                        # whitespace/newlines at the start of the file) so the arena's
+                        # flat raw list matches Python's raw_segments ordering exactly.
+                        leading_tokens = (
+                            self._extract_tokens_from_segments(segments[:_start_idx])
+                            if _start_idx
+                            else []
+                        )
+                        # Extract trailing non-code tokens (segments after _end_idx: newline,
+                        # end_of_file, etc.) and include them in the arena so that the
+                        # reflow/respace rules can correctly detect EOF and trailing newlines.
+                        trailing_tokens = (
+                            self._extract_tokens_from_segments(segments[_end_idx:])
+                            if _end_idx < len(segments)
+                            else []
+                        )
+                        if _prof is not None:
+                            _ts = time.perf_counter()
+                        result._rs_tree = rs_match.apply_as_tree(
+                            tokens,
+                            leading=leading_tokens,
+                            trailing=trailing_tokens,
+                        )
+                        if _prof is not None:
+                            _prof["apply_as_tree"] = time.perf_counter() - _ts
+                    except (KeyboardInterrupt, SystemExit):  # pragma: no cover
+                        # Never swallow interpreter control-flow exceptions.
+                        raise
+                    except BaseException:  # noqa: BLE001  # pragma: no cover
+                        # Non-critical: if arena-tree building fails, rules fall back
+                        # to the Python-built tree. Deliberately `except
+                        # BaseException` (minus the control-flow exceptions above):
+                        # a Rust-side panic crosses pyo3 as PanicException, which is
+                        # a BaseException, NOT an Exception, so a bare `except
+                        # Exception` would let a panic abort the whole parse instead
+                        # of engaging this documented fallback.
+                        parser_logger.warning(
+                            f"Unable to apply match result in parse tree for {fname}, falling"
+                            " back to Python. Please report this as a bug with the SQL that"
+                            " caused it."
+                        )
+                        result._rs_tree = None
+                else:
                     result._rs_tree = None
 
                 # Accumulate this variant's per-stage timings into the profile

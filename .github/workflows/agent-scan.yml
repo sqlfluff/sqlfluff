@@ -85,7 +85,7 @@ jobs:
 
             if (!alreadyCommented) {
               const closingNote = shouldClose
-                ? "We're closing this for now as the account looks automated. If we got that wrong, please just reopen the PR and we'll take another look."
+                ? "We're closing this for now as the account looks automated. If we got that wrong, please reply here and a maintainer will reopen this for you."
                 : "If this was flagged in error, we apologise! Just let us know.";
 
               await github.rest.issues.createComment({

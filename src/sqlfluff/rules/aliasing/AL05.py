@@ -2,7 +2,7 @@
 
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import cast
+from typing import Optional, cast
 
 from sqlfluff.core.dialects.common import (
     AliasInfo,
@@ -29,6 +29,9 @@ class AL05Query(Query):
 
     aliases: list[AliasInfo] = field(default_factory=list)
     tbl_refs: set[str] = field(default_factory=set)
+    # The ids of the aliases above, with how many aliases there were when
+    # they were built. See `Rule_AL05._alias_ids()`.
+    alias_ids_cache: Optional[tuple[int, set[str]]] = field(default=None, repr=False)
 
 
 class Rule_AL05(BaseRule):
@@ -107,6 +110,9 @@ class Rule_AL05(BaseRule):
         query = cast(
             AL05Query, AL05Query.from_segment(context.segment, dialect=context.dialect)
         )
+        # The query's only selectable is this SELECT, which has aliases, so its
+        # full info is what we just built. Don't build it a second time.
+        query.selectables[0].select_info = select_info
         self._analyze_table_aliases(
             query,
             allow_row_references=context.dialect.name
@@ -419,10 +425,26 @@ class Rule_AL05(BaseRule):
                 cast(AL05Query, child), allow_row_references=allow_row_references
             )
 
+    def _alias_ids(self, query: AL05Query) -> set[str]:
+        """Get the ids (see `_cs_str_id()`) of the aliases a query defines.
+
+        Every reference is checked against these, so they're cached on the
+        query. Its alias list only ever grows, so its length identifies the
+        cache.
+        """
+        cached = query.alias_ids_cache
+        if cached is None or cached[0] != len(query.aliases):
+            cached = (
+                len(query.aliases),
+                {self._cs_str_id(a.segment) for a in query.aliases if a.segment},
+            )
+            query.alias_ids_cache = cached
+        return cached[1]
+
     def _resolve_and_mark_reference(self, query: AL05Query, ref: BaseSegment) -> None:
         # Does this query define the referenced alias?
         _ref = self._cs_str_id(ref)
-        if any(_ref == self._cs_str_id(a.segment) for a in query.aliases if a.segment):
+        if _ref in self._alias_ids(query):
             # Yes. Record the reference.
             query.tbl_refs.add(_ref)
         elif query.parent:

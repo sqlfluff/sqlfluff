@@ -14,6 +14,7 @@ from sqlfluff.core.config import FluffConfig, progress_bar_configuration
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -21,6 +22,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.helpers.string import curtail_string
 from sqlfluff.core.linter.common import (
     ParsedString,
     ParsedVariant,
@@ -131,21 +133,19 @@ class Linter:
         # Check file size before loading.
         limit = file_config.get("large_file_skip_byte_limit")
 
-        if limit:
+        if limit is not None:
             # make sure the limit becomes an integer
             try:
                 limit = int(limit)
-            except ValueError:
-                raise ValueError(f"""
-                large_file_skip_byte_limit parameter from config
-                cannot be converted to integer,
-                current value {limit}, type {type(limit)}
-                """)
-            except TypeError:
-                raise TypeError(f"""
-                failed to get large_file_skip_byte_limit parameter from config,
-                or it is of invalid type {type(limit)}
-                """)
+            except (ValueError, TypeError, OverflowError):
+                # A value which can't be converted is a problem with the user's
+                # config. Report it as a user error rather than letting a raw
+                # exception escape as a traceback.
+                raise SQLFluffUserError(
+                    "Config value 'large_file_skip_byte_limit' must be an "
+                    f"integer, but was {limit!r}."
+                ) from None
+        if limit:
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:
@@ -320,20 +320,19 @@ class Linter:
             # No exception has been raised explicitly, but we still create one here
             # so that we can use the common interface
             assert unparsable.pos_marker
-            violations.append(
-                SQLParseError(
-                    "Line {0[0]}, Position {0[1]}: Found unparsable section: "
-                    "{1!r}".format(
-                        unparsable.pos_marker.working_loc,
-                        (
-                            unparsable.raw
-                            if len(unparsable.raw) < 40
-                            else unparsable.raw[:40] + "..."
-                        ),
-                    ),
-                    segment=unparsable,
+            _raw = unparsable.raw
+            if len(_raw) > 80:
+                _raw = _raw[:80] + "..."
+            _description = (
+                "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                    unparsable.pos_marker.working_loc, _raw
                 )
             )
+            if unparsable._expected:
+                _description += ". Expected: {0}".format(
+                    curtail_string(unparsable._expected, 80)
+                )
+            violations.append(SQLParseError(_description, segment=unparsable))
             if linter_logger.isEnabledFor(logging.INFO):
                 linter_logger.info("Found unparsable segment...")
                 linter_logger.info(unparsable.stringify())
@@ -506,13 +505,32 @@ class Linter:
         # interact and cause a cascade of fixes requiring multiple passes.
         # These are run the `runaway_limit` number of times (default 10).
         # 2. The post loop is for post-processing rules, not expected to trigger
-        # any downstream rules, e.g. capitalization fixes. They are run on the
-        # first loop and then twice at the end (once to fix, and once again to
-        # check result of fixes), but not in the intervening loops.
+        # any downstream rules, e.g. capitalization fixes.
+        # After the first pass `rules_this_phase` keeps the full rule list, so
+        # the main loops also run the post rules. The post phase then runs them
+        # again (up to twice, once to fix and once to check the result), unless
+        # it is skipped as described below.
         phases = ["main"]
         if fix:
             phases.append("post")
+        post_rules = (
+            [rule for rule in rule_pack.rules if rule.lint_phase == "post"]
+            if fix
+            else []
+        )
+        # Set when the main phase ends stable, no rule returned fixes in its
+        # final loop, and that loop's rule list included every post-phase rule.
+        # Rules are assumed to give the same result on an unchanged tree, so the
+        # post phase would return no fixes. The rule list check always passes
+        # today. It keeps the post phase running if the main loops ever stop
+        # including the post rules.
+        skip_post_phase = False
         for phase in phases:
+            if phase == "post" and skip_post_phase:
+                linter_logger.info(
+                    "Skipping post phase, the final main loop returned no fixes."
+                )
+                continue
             if len(phases) > 1:
                 rules_this_phase = [
                     rule for rule in rule_pack.rules if rule.lint_phase == phase
@@ -530,6 +548,7 @@ class Linter:
                     f"\n\nEntering linter phase {phase}, loop {loop + 1}/{loop_limit}\n"
                 )
                 changed = False
+                fixes_returned = False
 
                 if is_first_linter_pass():
                     # In order to compute initial_linting_errors correctly, need
@@ -576,6 +595,7 @@ class Linter:
                         initial_linting_errors += linting_errors
 
                     if fix and fixes:
+                        fixes_returned = True
                         linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                         # Do some sanity checks on the fixes before applying.
                         anchor_info = compute_anchor_edit_info(fixes)
@@ -670,6 +690,9 @@ class Linter:
                     linter_logger.info(
                         f"Fix loop complete for {phase} phase. Stability "
                         f"achieved after {loop}/{loop_limit} loops."
+                    )
+                    skip_post_phase = not fixes_returned and all(
+                        rule in rules_this_phase for rule in post_rules
                     )
                     break
             else:

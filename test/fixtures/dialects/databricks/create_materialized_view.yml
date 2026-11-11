@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7bb724f518b9dd85bd4eb4bb2b071a52c4ac1756b518a457e43e2b14dc7f52d0
+_hash: 3247631c29b1dec6ff0e4aa700aa5a7cb401fc79d6e8b831c729a33bd2771d1c
 file:
 - statement:
     create_materialized_view_statement:
@@ -403,8 +403,9 @@ file:
     - keyword: VIEW
     - table_reference:
         naked_identifier: sales_mv
-    - keyword: COMMENT
-    - quoted_literal: "'Materialized view for sales analytics'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Materialized view for sales analytics'"
     - keyword: AS
     - select_statement:
         select_clause:
@@ -998,8 +999,9 @@ file:
           column_reference:
             naked_identifier: id
           end_bracket: )
-    - keyword: COMMENT
-    - quoted_literal: "'Comprehensive materialized view example'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Comprehensive materialized view example'"
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
@@ -1148,8 +1150,9 @@ file:
             keyword: COMMENT
             quoted_literal: "'b'"
       - end_bracket: )
-    - keyword: COMMENT
-    - quoted_literal: "'DLT private materialized view'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'DLT private materialized view'"
     - keyword: AS
     - select_statement:
         select_clause:
@@ -1203,8 +1206,9 @@ file:
             keyword: COMMENT
             quoted_literal: "'b'"
       - end_bracket: )
-    - keyword: COMMENT
-    - quoted_literal: "'DLT refreshed private materialized view'"
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'DLT refreshed private materialized view'"
     - keyword: AS
     - select_statement:
         select_clause:

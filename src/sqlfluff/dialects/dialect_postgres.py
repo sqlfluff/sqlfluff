@@ -457,6 +457,67 @@ postgres_dialect.add(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # The arguments of FETCH and MOVE: [ direction ] [ FROM | IN ] cursor_name
+    # Two alternatives, so that a cursor named like a direction keyword
+    # (`FETCH next;`) is read as the cursor name.
+    # https://www.postgresql.org/docs/current/sql-fetch.html
+    CursorFetchArgumentsGrammar=OneOf(
+        Sequence(
+            Ref("CursorDirectionSegment"),
+            OneOf("FROM", "IN", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            OneOf("FROM", "IN", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+    ),
+    # The transaction modes of BEGIN, START TRANSACTION, SET TRANSACTION and
+    # SET SESSION CHARACTERISTICS. The SQL standard puts commas between them, but
+    # PostgreSQL also accepts them without (see the notes in the SET TRANSACTION
+    # docs).
+    # https://www.postgresql.org/docs/current/sql-set-transaction.html
+    TransactionModeListGrammar=Sequence(
+        Ref("TransactionModeGrammar"),
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment", optional=True), Ref("TransactionModeGrammar")),
+        ),
+    ),
+    TransactionModeGrammar=OneOf(
+        Sequence(
+            "ISOLATION",
+            "LEVEL",
+            OneOf(
+                "SERIALIZABLE",
+                Sequence("REPEATABLE", "READ"),
+                Sequence("READ", OneOf("COMMITTED", "UNCOMMITTED")),
+            ),
+        ),
+        Sequence("READ", OneOf("WRITE", "ONLY")),
+        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
+    ),
+    # The query of `DECLARE ... CURSOR FOR`: a SELECT or VALUES command, in any
+    # number of brackets, e.g. `((SELECT 1))`.
+    # https://www.postgresql.org/docs/current/sql-declare.html
+    CursorQueryGrammar=OneOf(
+        Ref("WithCompoundStatementSegment"),
+        Ref("SelectStatementSegment"),
+        Ref("SetExpressionSegment"),
+        Ref("ValuesClauseSegment"),
+        Bracketed(Ref("CursorQueryGrammar")),
+    ),
+    # SQL/JSON ON EMPTY / ON ERROR behaviour. PostgreSQL's grammar accepts any
+    # behaviour in every position and only rejects unsupported ones at analysis.
+    # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    JsonBehaviourGrammar=OneOf(
+        "ERROR",
+        "NULL",
+        "TRUE",
+        "FALSE",
+        "UNKNOWN",
+        Sequence("EMPTY", OneOf("ARRAY", "OBJECT", optional=True)),
+        Sequence("DEFAULT", Ref("ExpressionSegment")),
+    ),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
@@ -536,6 +597,30 @@ postgres_dialect.add(
     ),
     OptionsGrammar=Sequence(
         "OPTIONS", Bracketed(AnyNumberOf(Ref("OptionsListGrammar")))
+    ),
+    # The OPTIONS clause of the ALTER statements for foreign objects, which can
+    # add, set or drop each option.
+    # https://www.postgresql.org/docs/current/sql-alterforeigntable.html
+    AlterOptionsGrammar=Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("ADD", "SET", "DROP", optional=True),
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedLiteralSegment", optional=True),
+                )
+            )
+        ),
+    ),
+    # The HANDLER and VALIDATOR clauses of CREATE and ALTER FOREIGN DATA WRAPPER.
+    # PostgreSQL accepts them in any order.
+    # https://www.postgresql.org/docs/current/sql-createforeigndatawrapper.html
+    ForeignDataWrapperFunctionGrammar=OneOf(
+        Sequence("HANDLER", Ref("FunctionNameSegment")),
+        Sequence("NO", "HANDLER"),
+        Sequence("VALIDATOR", Ref("FunctionNameSegment")),
+        Sequence("NO", "VALIDATOR"),
     ),
     CreateUserMappingGrammar=Sequence("CREATE", "USER", "MAPPING"),
     SessionInformationUserFunctionsGrammar=OneOf(
@@ -880,7 +965,9 @@ postgres_dialect.replace(
         ),
         Sequence(
             OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
-            Ref("ExpressionSegment"),
+            # Aggregate options such as STYPE/MSTYPE can use array data types
+            # (e.g. numeric[]), which are not valid expressions.
+            OneOf(Ref("ExpressionSegment"), Ref("DatatypeSegment")),
             optional=True,
         ),
     ),
@@ -947,7 +1034,7 @@ postgres_dialect.replace(
         Ref("SemiStructuredAccessorSegment"),
     ),
     # PostgreSQL supports the non-standard "RETURNING" keyword, and therefore the
-    # INSERT/UPDATE/DELETE statements can also be used in subqueries.
+    # INSERT/UPDATE/DELETE/MERGE statements can also be used in subqueries.
     NonWithSelectableGrammar=OneOf(
         Ref("SetExpressionSegment"),
         OptionallyBracketed(Ref("SelectStatementSegment")),
@@ -956,6 +1043,7 @@ postgres_dialect.replace(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("DeleteStatementSegment"),
+        Ref("MergeStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
     # https://www.postgresql.org/docs/current/functions-datetime.html
@@ -1629,7 +1717,7 @@ class AlterFunctionActionSegment(BaseSegment):
     type = "alter_function_action_segment"
 
     match_grammar = Sequence(
-        OneOf(
+        AnyNumberOf(
             OneOf(
                 Sequence("CALLED", "ON", "NULL", "INPUT"),
                 Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1652,16 +1740,22 @@ class AlterFunctionActionSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         OneOf("TO", Ref("EqualsSegment")),
+                        # The same values as in `SET`.
                         OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("NakedIdentifierSegment"),
                             "DEFAULT",
+                            Delimited(
+                                Ref("LiteralGrammar"),
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedIdentifierSegment"),
+                                Ref("OnKeywordAsIdentifierSegment"),
+                            ),
                         ),
                     ),
                     Sequence("FROM", "CURRENT"),
                 ),
             ),
             Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+            min_times=1,
         ),
         Ref.keyword("RESTRICT", optional=True),
     )
@@ -1676,7 +1770,7 @@ class AlterProcedureActionSegment(BaseSegment):
     type = "alter_procedure_action_segment"
 
     match_grammar = Sequence(
-        OneOf(
+        AnyNumberOf(
             Sequence(
                 Ref.keyword("EXTERNAL", optional=True),
                 "SECURITY",
@@ -1688,16 +1782,22 @@ class AlterProcedureActionSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         OneOf("TO", Ref("EqualsSegment")),
+                        # The same values as in `SET`.
                         OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("NakedIdentifierSegment"),
                             "DEFAULT",
+                            Delimited(
+                                Ref("LiteralGrammar"),
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedIdentifierSegment"),
+                                Ref("OnKeywordAsIdentifierSegment"),
+                            ),
                         ),
                     ),
                     Sequence("FROM", "CURRENT"),
                 ),
             ),
             Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+            min_times=1,
         ),
         Ref.keyword("RESTRICT", optional=True),
     )
@@ -1724,22 +1824,6 @@ class AlterProcedureStatementSegment(BaseSegment):
             Ref("AlterProcedureActionSegment", optional=True),
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
-            Sequence(
-                "SET",
-                Ref("ParameterNameSegment"),
-                OneOf(
-                    Sequence(
-                        OneOf("TO", Ref("EqualsSegment")),
-                        Delimited(
-                            OneOf(
-                                Ref("ParameterNameSegment"),
-                                Ref("LiteralGrammar"),
-                            ),
-                        ),
-                    ),
-                    Sequence("FROM", "CURRENT"),
-                ),
-            ),
             Sequence(
                 "OWNER",
                 "TO",
@@ -1928,6 +2012,114 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
+class JsonTableColumnDefinitionSegment(BaseSegment):
+    """A column definition in a JSON_TABLE COLUMNS clause.
+
+    Column names describe the shape of the table produced by JSON_TABLE; they
+    are not references to columns of an outer table, so they are modelled as
+    identifiers rather than column references.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "json_table_column_definition"
+
+    _path_clause = Sequence("PATH", Ref("QuotedLiteralSegment"), optional=True)
+
+    match_grammar: Matchable = OneOf(
+        # name FOR ORDINALITY
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            "FOR",
+            "ORDINALITY",
+        ),
+        # name type [PATH path] [behaviour ON EMPTY] [behaviour ON ERROR]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            _path_clause,
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+        ),
+        # name type EXISTS [PATH path] [behaviour ON ERROR]
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment"),
+            "EXISTS",
+            _path_clause,
+            Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+        ),
+        # NESTED [PATH] path [AS name] COLUMNS (...)
+        Sequence(
+            "NESTED",
+            Ref.keyword("PATH", optional=True),
+            Ref("QuotedLiteralSegment"),
+            Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+            Ref("JsonTableColumnsClauseSegment"),
+        ),
+    )
+
+
+class JsonTableColumnsClauseSegment(BaseSegment):
+    """The COLUMNS clause in a JSON_TABLE function.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "json_table_columns_clause"
+    match_grammar: Matchable = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Delimited(
+                Ref("JsonTableColumnDefinitionSegment"),
+            ),
+        ),
+    )
+
+
+class JsonTableFunctionContentsSegment(BaseSegment):
+    """JSON_TABLE function contents.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-TABLE
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("ExpressionSegment"),
+        Ref("CommaSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Ref("JsonTableColumnsClauseSegment"),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+    )
+
+
+class JsonTableFunctionNameSegment(BaseSegment):
+    """JSON_TABLE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "JSON_TABLE", WordSegment, type="function_name_identifier"
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with JSON_TABLE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("JsonTableFunctionNameSegment"),
+                Ref("JsonTableFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
+    )
+
+
 class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
@@ -2037,7 +2229,9 @@ class IntoClauseSegment(BaseSegment):
         "INTO",
         OneOf("TEMPORARY", "TEMP", "UNLOGGED", optional=True),
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
     )
 
 
@@ -2060,9 +2254,11 @@ class ForClauseSegment(BaseSegment):
         ),
         Sequence(
             "OF",
+            Indent,
             Delimited(
                 Ref("TableReferenceSegment"),
             ),
+            Dedent,
             optional=True,
         ),
         OneOf(
@@ -2136,7 +2332,10 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         Dedent,
         terminators=[
             "INTO",
-            "FROM",
+            Ref(
+                "FromKeywordSegment",
+                exclude=is_distinct_from_lookbehind,
+            ),
             "WHERE",
             Sequence("ORDER", "BY"),
             Sequence("ON", "CONFLICT"),
@@ -2183,12 +2382,17 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class GroupByClauseSegment(BaseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY
+    """
 
     type = "groupby_clause"
     match_grammar = Sequence(
         "GROUP",
         "BY",
+        # Set quantifier for grouping sets, e.g. `GROUP BY DISTINCT ROLLUP (a, b)`
+        OneOf("ALL", "DISTINCT", optional=True),
         Indent,
         Delimited(
             OneOf(
@@ -2827,6 +3031,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             Sequence(
                 Ref("IfExistsGrammar", optional=True),
+                Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
@@ -2834,7 +3039,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Sequence(
                         "ATTACH",
                         "PARTITION",
-                        Ref("ParameterNameSegment"),
+                        Ref("TableReferenceSegment"),
                         OneOf(
                             Sequence("FOR", "VALUES", Ref("PartitionBoundSpecSegment")),
                             "DEFAULT",
@@ -2843,7 +3048,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Sequence(
                         "DETACH",
                         "PARTITION",
-                        Ref("ParameterNameSegment"),
+                        Ref("TableReferenceSegment"),
                         Ref.keyword("CONCURRENTLY", optional=True),
                         Ref.keyword("FINALIZE", optional=True),
                     ),
@@ -3242,7 +3447,7 @@ class AlterExtensionStatementSegment(BaseSegment):
 class CreateForeignDataWrapperStatementSegment(BaseSegment):
     """A CREATE FOREIGN DATA WRAPPER Statement.
 
-    Docs: https://fdw.dev/catalog/
+    https://www.postgresql.org/docs/current/sql-createforeigndatawrapper.html
     """
 
     type = "create_foreign_data_wrapper"
@@ -3251,13 +3456,60 @@ class CreateForeignDataWrapperStatementSegment(BaseSegment):
         Ref("ForeignDataWrapperGrammar"),
         Ref("SingleIdentifierGrammar"),
         Indent,
-        "HANDLER",
-        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(Ref("ForeignDataWrapperFunctionGrammar")),
+        Ref("OptionsGrammar", optional=True),
         Dedent,
-        Indent,
-        "VALIDATOR",
+    )
+
+
+class AlterForeignDataWrapperStatementSegment(BaseSegment):
+    """An ALTER FOREIGN DATA WRAPPER Statement.
+
+    https://www.postgresql.org/docs/current/sql-alterforeigndatawrapper.html
+    """
+
+    type = "alter_foreign_data_wrapper_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref("ForeignDataWrapperGrammar"),
         Ref("SingleIdentifierGrammar"),
-        Dedent,
+        OneOf(
+            Sequence(
+                Indent,
+                AnyNumberOf(Ref("ForeignDataWrapperFunctionGrammar"), min_times=1),
+                Ref("AlterOptionsGrammar", optional=True),
+                Dedent,
+            ),
+            Sequence(Indent, Ref("AlterOptionsGrammar"), Dedent),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
+        ),
+    )
+
+
+class DropForeignDataWrapperStatementSegment(BaseSegment):
+    """A DROP FOREIGN DATA WRAPPER Statement.
+
+    https://www.postgresql.org/docs/current/sql-dropforeigndatawrapper.html
+    """
+
+    type = "drop_foreign_data_wrapper_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SingleIdentifierGrammar")),
+        Ref("CascadeRestrictGrammar", optional=True),
     )
 
 
@@ -5290,6 +5542,16 @@ class AnalyzeStatementSegment(BaseSegment):
     )
 
 
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://www.postgresql.org/docs/current/sql-checkpoint.html
+    """
+
+    type = "checkpoint_statement"
+    match_grammar = Ref.keyword("CHECKPOINT")
+
+
 # Adding PostgreSQL specific statements
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
@@ -5301,13 +5563,24 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReassignOwnedStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
+            Ref("CheckpointStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
+            Ref("CreateEventTriggerStatementSegment"),
+            Ref("AlterEventTriggerStatementSegment"),
+            Ref("DropEventTriggerStatementSegment"),
+            Ref("CreateLanguageStatementSegment"),
+            Ref("AlterLanguageStatementSegment"),
+            Ref("DropLanguageStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("SetTransactionStatementSegment"),
             Ref("AlterSystemStatementSegment"),
             Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
+            Ref("CreateRuleStatementSegment"),
+            Ref("AlterRuleStatementSegment"),
+            Ref("DropRuleStatementSegment"),
             Ref("CreateDomainStatementSegment"),
             Ref("AlterDomainStatementSegment"),
             Ref("DropDomainStatementSegment"),
@@ -5354,6 +5627,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
+            Ref("CreateTablespaceStatementSegment"),
+            Ref("AlterTablespaceStatementSegment"),
+            Ref("DropTablespaceStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
@@ -5368,6 +5644,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("AlterForeignDataWrapperStatementSegment"),
+            Ref("DropForeignDataWrapperStatementSegment"),
             Ref("MetaCommandQueryBufferStatement"),
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
@@ -5378,6 +5656,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeallocateStatementSegment"),
             Ref("SetSessionAuthorizationStatementSegment"),
             Ref("ResetSessionAuthorizationStatementSegment"),
+            Ref("DeclareStatementSegment"),
+            Ref("FetchStatementSegment"),
+            Ref("MoveStatementSegment"),
+            Ref("CloseStatementSegment"),
         ],
     )
 
@@ -5493,6 +5775,167 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateEventTriggerStatementSegment(BaseSegment):
+    """A `CREATE EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-createeventtrigger.html
+    """
+
+    type = "create_event_trigger_statement"
+
+    # filter_variable IN (filter_value [, ... ])
+    _filter = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EVENT",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        # The event, e.g. ddl_command_start
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            "WHEN",
+            _filter,
+            AnyNumberOf(Sequence("AND", _filter)),
+            optional=True,
+        ),
+        "EXECUTE",
+        OneOf("FUNCTION", "PROCEDURE"),
+        Ref("FunctionSegment"),
+    )
+
+
+class AlterEventTriggerStatementSegment(BaseSegment):
+    """An `ALTER EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-altereventtrigger.html
+    """
+
+    type = "alter_event_trigger_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "EVENT",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf(
+            "DISABLE",
+            Sequence("ENABLE", OneOf("REPLICA", "ALWAYS", optional=True)),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),
+        ),
+    )
+
+
+class DropEventTriggerStatementSegment(BaseSegment):
+    """A `DROP EVENT TRIGGER` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropeventtrigger.html
+    """
+
+    type = "drop_event_trigger_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EVENT",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateLanguageStatementSegment(BaseSegment):
+    """A `CREATE LANGUAGE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createlanguage.html
+    """
+
+    type = "create_language_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("TRUSTED", optional=True),
+        Ref.keyword("PROCEDURAL", optional=True),
+        "LANGUAGE",
+        Ref("ObjectReferenceSegment"),
+        # Without a handler, this is the obsolete form that PostgreSQL runs as
+        # `CREATE EXTENSION`.
+        Sequence(
+            Indent,
+            "HANDLER",
+            Ref("FunctionNameSegment"),
+            Sequence("INLINE", Ref("FunctionNameSegment"), optional=True),
+            OneOf(
+                Sequence("VALIDATOR", Ref("FunctionNameSegment")),
+                Sequence("NO", "VALIDATOR"),
+                optional=True,
+            ),
+            Dedent,
+            optional=True,
+        ),
+    )
+
+
+class AlterLanguageStatementSegment(BaseSegment):
+    """An `ALTER LANGUAGE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterlanguage.html
+    """
+
+    type = "alter_language_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        Ref.keyword("PROCEDURAL", optional=True),
+        "LANGUAGE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropLanguageStatementSegment(BaseSegment):
+    """A `DROP LANGUAGE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droplanguage.html
+    """
+
+    type = "drop_language_statement"
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("PROCEDURAL", optional=True),
+        "LANGUAGE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
@@ -5638,9 +6081,11 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     match_grammar = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         OneOf(
             Sequence("DEFAULT", "VALUES"),
@@ -5657,9 +6102,9 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AsAliasExpressionSegment", optional=True),
@@ -5770,6 +6215,44 @@ class SetStatementSegment(BaseSegment):
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
             Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
+        ),
+    )
+
+
+class SetTransactionStatementSegment(BaseSegment):
+    """A `SET TRANSACTION` or `SET SESSION CHARACTERISTICS` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-transaction.html
+    """
+
+    type = "set_transaction_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            # SET TRANSACTION transaction_mode [, ...]
+            # SET TRANSACTION SNAPSHOT snapshot_id
+            # PostgreSQL's grammar also takes SESSION or LOCAL before these.
+            Sequence(
+                OneOf("SESSION", "LOCAL", optional=True),
+                "TRANSACTION",
+                OneOf(
+                    Sequence("SNAPSHOT", Ref("QuotedLiteralSegment")),
+                    Ref("TransactionModeListGrammar"),
+                ),
+            ),
+            # SET SESSION CHARACTERISTICS AS TRANSACTION transaction_mode [, ...]
+            # As with SET SESSION AUTHORIZATION, SESSION or LOCAL can come first.
+            Sequence(
+                OneOf(
+                    Sequence(Ref.keyword("LOCAL", optional=True), "SESSION"),
+                    Sequence(Ref.keyword("SESSION", optional=True), "SESSION"),
+                ),
+                "CHARACTERISTICS",
+                "AS",
+                "TRANSACTION",
+                Ref("TransactionModeListGrammar"),
+            ),
         ),
     )
 
@@ -5997,6 +6480,87 @@ class DropPolicyStatementSegment(BaseSegment):
     )
 
 
+class CreateRuleStatementSegment(BaseSegment):
+    """A `CREATE RULE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createrule.html
+    """
+
+    # A rule action is a SELECT, INSERT, UPDATE, DELETE or NOTIFY command.
+    _rule_action = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("NotifyStatementSegment"),
+    )
+
+    type = "create_rule_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "RULE",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        "ON",
+        OneOf("SELECT", "INSERT", "UPDATE", "DELETE"),
+        "TO",
+        Ref("TableReferenceSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        "DO",
+        OneOf("ALSO", "INSTEAD", optional=True),
+        OneOf(
+            "NOTHING",
+            # `( command ; command ... )`, where PostgreSQL also allows empty
+            # commands, so extra and trailing semicolons.
+            Bracketed(
+                AnyNumberOf(Ref("DelimiterGrammar")),
+                Delimited(
+                    _rule_action,
+                    delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+                    allow_trailing=True,
+                    optional=True,
+                ),
+            ),
+            _rule_action,
+        ),
+    )
+
+
+class AlterRuleStatementSegment(BaseSegment):
+    """An `ALTER RULE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterrule.html
+    """
+
+    type = "alter_rule_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "RULE",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        "RENAME",
+        "TO",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropRuleStatementSegment(BaseSegment):
+    """A `DROP RULE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droprule.html
+    """
+
+    type = "drop_rule_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "RULE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class LoadStatementSegment(BaseSegment):
     """A `LOAD` statement.
 
@@ -6039,6 +6603,81 @@ class DiscardStatementSegment(BaseSegment):
             "SEQUENCES",
             "TEMPORARY",
             "TEMP",
+        ),
+    )
+
+
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
+    """A transaction control statement.
+
+    `BEGIN`, `START TRANSACTION`, `COMMIT`, `END`, `ROLLBACK` and `ABORT`, with
+    savepoints and two-phase commit.
+
+    https://www.postgresql.org/docs/current/sql-begin.html
+    https://www.postgresql.org/docs/current/sql-start-transaction.html
+    https://www.postgresql.org/docs/current/sql-commit.html
+    https://www.postgresql.org/docs/current/sql-rollback.html
+    https://www.postgresql.org/docs/current/sql-abort.html
+    https://www.postgresql.org/docs/current/sql-savepoint.html
+    https://www.postgresql.org/docs/current/sql-release-savepoint.html
+    https://www.postgresql.org/docs/current/sql-rollback-to.html
+    https://www.postgresql.org/docs/current/sql-prepare-transaction.html
+    https://www.postgresql.org/docs/current/sql-commit-prepared.html
+    https://www.postgresql.org/docs/current/sql-rollback-prepared.html
+    """
+
+    _and_chain = Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN")
+
+    match_grammar = OneOf(
+        # BEGIN [ WORK | TRANSACTION ] [ transaction_mode [, ...] ]
+        Sequence(
+            "BEGIN",
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Ref("TransactionModeListGrammar", optional=True),
+        ),
+        # START TRANSACTION [ transaction_mode [, ...] ]
+        Sequence(
+            "START",
+            "TRANSACTION",
+            Ref("TransactionModeListGrammar", optional=True),
+        ),
+        # COMMIT | END | ABORT [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]
+        Sequence(
+            OneOf("COMMIT", "END", "ABORT"),
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Sequence(_and_chain, optional=True),
+        ),
+        # ROLLBACK [ WORK | TRANSACTION ] [ AND [ NO ] CHAIN ]
+        # ROLLBACK [ WORK | TRANSACTION ] TO [ SAVEPOINT ] savepoint_name
+        Sequence(
+            "ROLLBACK",
+            OneOf("TRANSACTION", "WORK", optional=True),
+            OneOf(
+                _and_chain,
+                Sequence(
+                    "TO",
+                    Ref.keyword("SAVEPOINT", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        # SAVEPOINT savepoint_name
+        Sequence("SAVEPOINT", Ref("ObjectReferenceSegment")),
+        # RELEASE [ SAVEPOINT ] savepoint_name
+        Sequence(
+            "RELEASE",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        # PREPARE TRANSACTION transaction_id
+        Sequence("PREPARE", "TRANSACTION", Ref("QuotedLiteralSegment")),
+        # COMMIT PREPARED transaction_id
+        # ROLLBACK PREPARED transaction_id
+        Sequence(
+            OneOf("COMMIT", "ROLLBACK"),
+            "PREPARED",
+            Ref("QuotedLiteralSegment"),
         ),
     )
 
@@ -6096,6 +6735,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Delimited(
             OneOf(
                 Sequence(
@@ -6108,6 +6748,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
                 ),
             ),
         ),
+        Dedent,
         Sequence(
             OneOf("RESTART", "CONTINUE"),
             "IDENTITY",
@@ -6358,9 +6999,9 @@ class DoStatementSegment(BaseSegment):
 class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     """A CTE Definition from a WITH statement.
 
-    https://www.postgresql.org/docs/14/queries-with.html
+    https://www.postgresql.org/docs/17/queries-with.html
 
-    Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH are
+    Data-Modifying Statements (INSERT, UPDATE, DELETE, MERGE) in WITH are
     matched by ansi.SelectableGrammar > NonWithSelectableGrammar.
     """
 
@@ -6404,6 +7045,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -6415,6 +7057,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 parse_mode=ParseMode.GREEDY,
             ),
         ),
+        Dedent,
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -6431,9 +7074,11 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         "DELETE",
         "FROM",
         Ref.keyword("ONLY", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("StarSegment", optional=True),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Sequence(
             "USING",
             Indent,
@@ -6456,9 +7101,9 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment", optional=True),
@@ -6563,9 +7208,9 @@ class UpdateStatementSegment(BaseSegment):
             "RETURNING",
             Ref("ReturningOldNewAliasesGrammar", optional=True),
             Indent,
-            OneOf(
-                Ref("StarSegment"),
-                Delimited(
+            Delimited(
+                OneOf(
+                    Ref("StarSegment"),
                     Sequence(
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment", optional=True),
@@ -6876,6 +7521,76 @@ class DropCollationStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateTablespaceStatementSegment(BaseSegment):
+    """A `CREATE TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtablespace.html
+    """
+
+    type = "create_tablespace_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLESPACE",
+        Ref("TablespaceReferenceSegment"),
+        Sequence(
+            "OWNER",
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                Ref("RoleReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
+    )
+
+
+class AlterTablespaceStatementSegment(BaseSegment):
+    """An `ALTER TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-altertablespace.html
+    """
+
+    type = "alter_tablespace_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLESPACE",
+        Ref("TablespaceReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TablespaceReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence(OneOf("SET", "RESET"), Ref("RelationOptionsSegment")),
+        ),
+    )
+
+
+class DropTablespaceStatementSegment(BaseSegment):
+    """A `DROP TABLESPACE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droptablespace.html
+    """
+
+    type = "drop_tablespace_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TABLESPACE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TablespaceReferenceSegment"),
     )
 
 
@@ -7456,20 +8171,11 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
             Sequence(
                 Sequence(
                     "ALTER",
-                    Ref("COLUMN", optional=True),
+                    Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnReferenceSegment"),
                     optional=True,
                 ),
-                "OPTIONS",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf("ADD", "SET", "DROP", optional=True),
-                            Ref("SingleIdentifierGrammar"),
-                            Ref("QuotedLiteralSegment", optional=True),
-                        )
-                    )
-                ),
+                Ref("AlterOptionsGrammar"),
             )
         ]
     )
@@ -7522,6 +8228,91 @@ class DeallocateStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             "ALL",
         ),
+    )
+
+
+class DeclareStatementSegment(BaseSegment):
+    """A `DECLARE` statement, which defines a cursor.
+
+    https://www.postgresql.org/docs/current/sql-declare.html
+    """
+
+    type = "declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("ObjectReferenceSegment"),
+        # PostgreSQL accepts these options in any order.
+        AnySetOf(
+            "BINARY",
+            OneOf("ASENSITIVE", "INSENSITIVE"),
+            Sequence(Ref.keyword("NO", optional=True), "SCROLL"),
+        ),
+        "CURSOR",
+        Sequence(OneOf("WITH", "WITHOUT"), "HOLD", optional=True),
+        "FOR",
+        Ref("CursorQueryGrammar"),
+    )
+
+
+class CursorDirectionSegment(BaseSegment):
+    """The direction of a `FETCH` or `MOVE` statement.
+
+    https://www.postgresql.org/docs/current/sql-fetch.html
+    """
+
+    type = "cursor_direction"
+
+    # A possibly-signed integer constant
+    _count = Sequence(
+        Ref("SignedSegmentGrammar", optional=True),
+        Ref("NumericLiteralSegment"),
+    )
+
+    match_grammar = OneOf(
+        "NEXT",
+        "PRIOR",
+        "FIRST",
+        "LAST",
+        Sequence(OneOf("ABSOLUTE", "RELATIVE"), _count),
+        _count,
+        "ALL",
+        Sequence(
+            OneOf("FORWARD", "BACKWARD"),
+            OneOf(_count, "ALL", optional=True),
+        ),
+    )
+
+
+class FetchStatementSegment(BaseSegment):
+    """A `FETCH` statement, which reads rows from a cursor.
+
+    https://www.postgresql.org/docs/current/sql-fetch.html
+    """
+
+    type = "fetch_statement"
+    match_grammar = Sequence("FETCH", Ref("CursorFetchArgumentsGrammar"))
+
+
+class MoveStatementSegment(BaseSegment):
+    """A `MOVE` statement, which repositions a cursor.
+
+    https://www.postgresql.org/docs/current/sql-move.html
+    """
+
+    type = "move_statement"
+    match_grammar = Sequence("MOVE", Ref("CursorFetchArgumentsGrammar"))
+
+
+class CloseStatementSegment(BaseSegment):
+    """A `CLOSE` statement, which closes a cursor.
+
+    https://www.postgresql.org/docs/current/sql-close.html
+    """
+
+    type = "close_statement"
+    match_grammar = Sequence(
+        "CLOSE",
+        OneOf(Ref("ObjectReferenceSegment"), "ALL"),
     )
 
 
@@ -7663,9 +8454,9 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
                 "RETURNING",
                 Ref("ReturningOldNewAliasesGrammar", optional=True),
                 Indent,
-                OneOf(
-                    Ref("StarSegment"),
-                    Delimited(
+                Delimited(
+                    OneOf(
+                        Ref("StarSegment"),
                         Sequence(
                             Ref("ExpressionSegment"),
                             Ref("AliasExpressionSegment", optional=True),

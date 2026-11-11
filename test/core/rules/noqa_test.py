@@ -617,3 +617,43 @@ def test_linter_disable_noqa_except():
         result_disable_noqa_except_core.get_violations()
     )
     assert len(violations_disable_noqa_except_core) == 0
+
+
+def test_linter_disable_noqa_except_line_range():
+    """Test line-range noqa directives with disable_noqa_except (#8834)."""
+    lntr_disable_noqa_except_cp01 = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa_except": "CP01",
+                "rules": "LT01, CP01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    lntr_disable_noqa_except_lt01 = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa_except": "LT01",
+                "rules": "LT01, CP01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    # This query raises CP01 and LT01 violations on line 3.
+    # It contains a range directive disabling LT01.
+    sql = """select 1 -- noqa: disable=LT01
+;
+SELECT a+b FROM t
+"""
+
+    # When disable_noqa_except is CP01, the range directive for LT01 is not
+    # allowed and should have no effect (both CP01 and LT01 violations remain).
+    result_cp01 = lntr_disable_noqa_except_cp01.lint_string(sql)
+    violations_cp01 = result_cp01.get_violations()
+    assert [v.rule_code() for v in violations_cp01] == ["CP01", "LT01", "LT01", "CP01"]
+
+    # When disable_noqa_except is LT01, the range directive for LT01 is
+    # allowed, so LT01 violations are suppressed while CP01 violations remain.
+    result_lt01 = lntr_disable_noqa_except_lt01.lint_string(sql)
+    violations_lt01 = result_lt01.get_violations()
+    assert [v.rule_code() for v in violations_lt01] == ["CP01", "CP01"]

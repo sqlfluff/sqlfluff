@@ -1,0 +1,51 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 22ac503dd9faed80e504d63946dffa83dedab6f72d67180cf747d6b90bde8072
+file:
+- statement:
+    alter_external_location_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - naked_identifier: l
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: m
+- statement_terminator: ;
+- statement:
+    alter_external_location_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - naked_identifier: l
+    - keyword: SET
+    - keyword: URL
+    - quoted_literal: "'s3://b/'"
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_external_location_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - naked_identifier: l
+    - keyword: SET
+    - keyword: STORAGE
+    - keyword: CREDENTIAL
+    - object_reference:
+        naked_identifier: c
+- statement_terminator: ;
+- statement:
+    alter_external_location_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: LOCATION
+    - naked_identifier: l
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`u`'
+- statement_terminator: ;

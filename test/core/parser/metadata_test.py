@@ -136,6 +136,8 @@ def test_parser_grammar_metadata_backend_parity(backend, style, sql, monkeypatch
         if rust_parser.RustParser is None:
             pytest.skip("sqlfluffrs unavailable")
         config.set_value(("core", "use_rust_parser"), True)
+        # The arena is now opt-in; this test verifies its metadata too.
+        config.set_value(("core", "use_rust_rules"), True)
         monkeypatch.setattr(rust_parser, "_NATIVE_AST_ENABLED", backend == "native")
         tokens, errors = Lexer(config=config).lex(sql)
         assert not errors

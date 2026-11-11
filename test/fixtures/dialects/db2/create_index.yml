@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69d8bf392480a9a51a81b274c0109f1ad758f91f6f684e79f3677138b56c5ac4
+_hash: b11f425ee2a48932ea8991d02efb6babd8226f9bef96784763b4246f520a8b36
 file:
 - statement:
     create_index_statement:
@@ -459,4 +459,68 @@ file:
           naked_identifier: ID
         end_bracket: )
     - keyword: CLUSTER
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx_xml
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: col
+        end_bracket: )
+    - keyword: GENERATE
+    - keyword: KEY
+    - keyword: USING
+    - keyword: XMLPATTERN
+    - quoted_literal: "'/a/b'"
+    - keyword: AS
+    - keyword: SQL
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '50'
+            end_bracket: )
+    - keyword: IGNORE
+    - keyword: INVALID
+    - keyword: VALUES
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx_xml2
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: col
+        end_bracket: )
+    - keyword: GENERATE
+    - keyword: KEYS
+    - keyword: USING
+    - keyword: XMLPATTERN
+    - quoted_literal: "'/a/b'"
+    - keyword: AS
+    - keyword: SQL
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '50'
+            end_bracket: )
+    - keyword: REJECT
+    - keyword: INVALID
+    - keyword: VALUES
 - statement_terminator: ;

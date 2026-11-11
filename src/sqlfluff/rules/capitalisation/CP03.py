@@ -18,6 +18,10 @@ except ImportError:  # pragma: no cover
 class Rule_CP03(Rule_CP01):
     """Inconsistent capitalisation of function names.
 
+    .. note::
+       This rule is disabled for ClickHouse because its function names are
+       case-sensitive.
+
     **Anti-pattern**
 
     In this example, the two ``SUM`` functions don't have the same capitalisation.
@@ -59,6 +63,12 @@ class Rule_CP03(Rule_CP01):
     ]
     _description_elem = "Function names"
 
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
+        """Preserve case-sensitive ClickHouse function names."""
+        if context.dialect.name == "clickhouse":
+            return None
+        return super()._eval(context)
+
     def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Rust-native CP03 detection over the arena.
 
@@ -72,6 +82,8 @@ class Rule_CP03(Rule_CP01):
         there's nothing for a future capitalisation subclass to hijack, same as
         CP04's.
         """
+        if context.dialect.name == "clickhouse":
+            return []
         if not _HAS_SQLFLUFFRS:
             return None  # pragma: no cover
         if self.name != "capitalisation.functions":

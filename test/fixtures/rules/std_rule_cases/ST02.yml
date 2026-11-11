@@ -1,5 +1,25 @@
 rule: ST02
 
+test_fail_negated_case_is_null:
+  fail_str: SELECT CASE WHEN TRUE THEN FALSE ELSE TRUE END IS NULL;
+  fix_str: SELECT (not coalesce(TRUE, false)) IS NULL;
+
+test_fail_negated_case_comparison:
+  fail_str: SELECT CASE WHEN TRUE THEN FALSE ELSE TRUE END = FALSE;
+  fix_str: SELECT (not coalesce(TRUE, false)) = FALSE;
+
+test_fail_negated_case_and:
+  fail_str: SELECT CASE WHEN FALSE THEN FALSE ELSE TRUE END AND FALSE;
+  fix_str: SELECT (not coalesce(FALSE, false)) AND FALSE;
+
+test_fail_negated_case_standalone:
+  fail_str: SELECT CASE WHEN TRUE THEN FALSE ELSE TRUE END;
+  fix_str: SELECT not coalesce(TRUE, false);
+
+test_fail_negated_case_parenthesised:
+  fail_str: SELECT (CASE WHEN TRUE THEN FALSE ELSE TRUE END);
+  fix_str: SELECT (not coalesce(TRUE, false));
+
 test_pass_case_cannot_be_reduced_1:
   pass_str: |
     select

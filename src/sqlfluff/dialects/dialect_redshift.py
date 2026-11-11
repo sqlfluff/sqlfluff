@@ -1742,12 +1742,16 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
             Sequence("DEFAULT", "VALUES"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("ValuesClauseSegment"),
                     OptionallyBracketed(Ref("SelectableGrammar")),
@@ -2099,6 +2103,57 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class ShowStatementSegment(BaseSegment):
+    """A `SHOW` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW.html
+    """
+
+    type = "show_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            "ALL",
+            Sequence(
+                "DATABASES",
+            ),
+            Sequence(
+                "SCHEMAS",
+                Sequence(
+                    "FROM",
+                    "DATABASE",
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    "FROM",
+                    "SCHEMA",
+                    Ref("SchemaReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMNS",
+                "FROM",
+                Sequence(
+                    "TABLE",
+                    optional=True,
+                ),
+                Ref("TableReferenceSegment"),
+            ),
+            "PRIVILEGES",
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
 class GrantUsageDatashareStatementSegment(BaseSegment):
     """A `GRANT DATASHARES` statement.
 
@@ -2389,6 +2444,86 @@ class VacuumStatementSegment(postgres.VacuumStatementSegment):
     )
 
 
+class AlterDatabaseStatementSegment(BaseSegment):
+    """An `ALTER DATABASE` statement.
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATABASE.html
+    """
+
+    type = "alter_database_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("DatabaseReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+            ),
+            Sequence(
+                "COLLATE",
+                OneOf("CASE_SENSITIVE", "CS", "CASE_INSENSITIVE", "CI"),
+            ),
+            Sequence(
+                "ISOLATION",
+                "LEVEL",
+                OneOf("SNAPSHOT", "SERIALIZABLE"),
+            ),
+        ),
+    )
+
+
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
+    """An `EXPLAIN` statement.
+
+    EXPLAIN [ VERBOSE ] statement
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXPLAIN.html
+    """
+
+    match_grammar = Sequence(
+        "EXPLAIN",
+        Ref.keyword("VERBOSE", optional=True),
+        ansi.ExplainStatementSegment.explainable_stmt,
+    )
+
+
+class AnalyzeStatementSegment(BaseSegment):
+    """An `ANALYZE` statement.
+
+    ANALYZE [ VERBOSE ] [ table_name [ ( column_name [, ...] ) ] ]
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ANALYZE.html
+    """
+
+    type = "analyze_statement"
+
+    match_grammar = Sequence(
+        OneOf("ANALYZE", "ANALYSE"),
+        Ref.keyword("VERBOSE", optional=True),
+        Sequence(
+            Ref("TableReferenceSegment"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 class StatementSegment(postgres.StatementSegment):
     """A generic segment, to any of its child subsegments."""
@@ -2412,10 +2547,10 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DescDatashareStatementSegment"),
             Ref("DropDatashareStatementSegment"),
             Ref("ShowDatasharesStatementSegment"),
+            # The generic SHOW segment is listed after the dedicated ShowModel
+            # and ShowDatashares segments so those still match first.
+            Ref("ShowStatementSegment"),
             Ref("AltereDatashareStatementSegment"),
-            Ref("DeclareStatementSegment"),
-            Ref("FetchStatementSegment"),
-            Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
@@ -2432,6 +2567,13 @@ class StatementSegment(postgres.StatementSegment):
         ],
         remove=[
             Ref("ShowStatementSegment"),
+            Ref("MoveStatementSegment"),
+            Ref("AlterSubscriptionStatementSegment"),
+            Ref("CreateCollationStatementSegment"),
+            Ref("CreateForeignTableStatementSegment"),
+            Ref("CreateOperatorStatementSegment"),
+            Ref("CreatePolicyStatementSegment"),
+            Ref("CreateStatisticsStatementSegment"),
         ],
     )
 

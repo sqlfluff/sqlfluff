@@ -1,0 +1,103 @@
+rule: CP01
+configs:
+  core:
+    dialect: bigquery
+  rules:
+    capitalisation.keywords:
+      capitalisation_policy: upper
+
+test_pass_datepart_named_function_arguments:
+  # https://github.com/sqlfluff/sqlfluff/issues/5015
+  pass_str: |
+    SELECT
+        REGEXP_EXTRACT(year, r'[0-9]{4}'),
+        DATE_ADD(year, INTERVAL 5 YEAR),
+        COALESCE(month, year),
+        my_dataset.DATE_DIFF(year, month, day)
+    FROM foo;
+
+test_pass_datetime_function_argument_positions:
+  pass_str: |
+    SELECT
+        DATE_DIFF(year, month, YEAR),
+        DATETIME_DIFF(day, hour, DAY),
+        TIME_DIFF(minute, second, MINUTE),
+        TIMESTAMP_DIFF(hour, minute, HOUR),
+        DATE_TRUNC(year, MONTH),
+        DATETIME_TRUNC(day, HOUR, month),
+        TIME_TRUNC(hour, MINUTE),
+        TIMESTAMP_TRUNC(year, DAY, month),
+        LAST_DAY(year, MONTH),
+        LAST_DAY(month)
+    FROM foo;
+
+test_pass_safe_datetime_function_argument_positions:
+  pass_str: |
+    SELECT
+        SAFE.DATE_DIFF(year, month, YEAR),
+        SAFE.DATETIME_DIFF(day, hour, DAY),
+        SAFE.TIME_DIFF(minute, second, MINUTE),
+        SAFE.TIMESTAMP_DIFF(hour, minute, HOUR),
+        SAFE.DATE_TRUNC(year, MONTH),
+        SAFE.DATETIME_TRUNC(day, HOUR, month),
+        SAFE.TIME_TRUNC(hour, MINUTE),
+        SAFE.TIMESTAMP_TRUNC(year, DAY, month),
+        SAFE.LAST_DAY(year, MONTH),
+        SAFE.LAST_DAY(month)
+    FROM foo;
+
+test_fail_only_capitalise_actual_dateparts:
+  fail_str: |
+    SELECT
+        DATE_ADD(year, INTERVAL 5 year),
+        DATE_DIFF(year, month, week(monday)),
+        DATE_TRUNC(year, month),
+        LAST_DAY(year, week(monday)),
+        SAFE.DATE_DIFF(year, month, year),
+        SAFE.TIMESTAMP_TRUNC(year, day, month),
+        SAFE.LAST_DAY(year, week(monday)),
+        EXTRACT(year FROM year)
+    FROM foo;
+  fix_str: |
+    SELECT
+        DATE_ADD(year, INTERVAL 5 YEAR),
+        DATE_DIFF(year, month, WEEK(MONDAY)),
+        DATE_TRUNC(year, MONTH),
+        LAST_DAY(year, WEEK(MONDAY)),
+        SAFE.DATE_DIFF(year, month, YEAR),
+        SAFE.TIMESTAMP_TRUNC(year, DAY, month),
+        SAFE.LAST_DAY(year, WEEK(MONDAY)),
+        EXTRACT(YEAR FROM year)
+    FROM foo;
+
+test_fail_chained_datetime_dateparts:
+  fail_str: |
+    SELECT
+        (year).REGEXP_EXTRACT(month),
+        (year).DATE_ADD(INTERVAL 5 year),
+        (year).DATE_DIFF(month, year),
+        (day).DATETIME_DIFF(hour, day),
+        (minute).TIME_DIFF(second, minute),
+        (hour).TIMESTAMP_DIFF(minute, hour),
+        (year).DATE_TRUNC(month),
+        (day).DATETIME_TRUNC(hour, month),
+        (hour).TIME_TRUNC(minute),
+        (year).TIMESTAMP_TRUNC(day, month),
+        (year).LAST_DAY(week(monday)),
+        (month).LAST_DAY()
+    FROM foo;
+  fix_str: |
+    SELECT
+        (year).REGEXP_EXTRACT(month),
+        (year).DATE_ADD(INTERVAL 5 YEAR),
+        (year).DATE_DIFF(month, YEAR),
+        (day).DATETIME_DIFF(hour, DAY),
+        (minute).TIME_DIFF(second, MINUTE),
+        (hour).TIMESTAMP_DIFF(minute, HOUR),
+        (year).DATE_TRUNC(MONTH),
+        (day).DATETIME_TRUNC(HOUR, month),
+        (hour).TIME_TRUNC(MINUTE),
+        (year).TIMESTAMP_TRUNC(DAY, month),
+        (year).LAST_DAY(WEEK(MONDAY)),
+        (month).LAST_DAY()
+    FROM foo;

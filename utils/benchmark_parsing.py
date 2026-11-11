@@ -15,6 +15,8 @@ Usage:
 The --profile flag breaks the Rust parse down by internal stage
 (rust_core/meta_policy/convert/apply/apply_as_tree); it requires the Rust parser
 (--compare or --rust-only) and has no effect on the pure-Python parser.
+This harness runs with core.use_rust_rules off, so the Rust arena tree is
+never built and apply_as_tree always reports 0.
 """
 
 import argparse
@@ -546,7 +548,8 @@ def print_profile_summary(rust_results: list[dict]) -> None:
     print(
         "Stages: rust_core (Rust parse) | meta_policy (grammar indentation) |\n"
         "        convert (Python MatchResult rebuild) |\n"
-        "        apply (build BaseSegment tree) | apply_as_tree (build _rs_tree)"
+        "        apply (build BaseSegment tree) | apply_as_tree (build _rs_tree;\n"
+        "        always 0 here, as this harness runs with core.use_rust_rules off)"
     )
 
     ok = [r for r in rust_results if r.get("success") and r.get("stage_profile")]

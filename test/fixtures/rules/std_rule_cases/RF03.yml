@@ -648,6 +648,41 @@ test_pass_placeholder_colon_double_colon_cast:
       placeholder:
         param_style: colon
 
+test_fail_jinja_templated_unqualified_reference_inconsistent:
+  # A `{{ var }}` reference rendered by the Jinja templater is a genuine
+  # column name the user intends to select, unlike a `placeholder`-templater
+  # bind parameter (e.g. `:colname` above). It must still be checked for
+  # qualification consistency, not silently exempted just because it is
+  # templated. No `fix_str` is given: the inconsistency is flagged, but the
+  # rule must not rewrite inside the template slice (see
+  # `test_fail_jinja_templated_multi_column_reference_not_autofixed` for why),
+  # so it is reported for the user to resolve by hand.
+  fail_str: |
+    {% set my_col = 'customer_id' %}
+    SELECT {{ my_col }}, orders.total
+    FROM orders
+  configs:
+    core:
+      templater: jinja
+
+test_fail_jinja_templated_multi_column_reference_not_autofixed:
+  # A single templated expression can render to MORE THAN ONE column, e.g.
+  # `{% set cols = 'customer_id, region' %}` (or `dbt_utils.star()`, which
+  # returns such comma-separated strings). The rendered `{{ cols }}` is lexed
+  # as several column references that all map back to the one `{{ cols }}`
+  # source slice. The mixed qualified/unqualified usage is still flagged, but
+  # the rule must NOT attach a fix: prepending the qualifier would yield
+  # `orders.{{ cols }}` -> `orders.customer_id, region`, qualifying only the
+  # first rendered column and silently leaving `region` unqualified. The
+  # absence of a `fix_str` asserts the SQL is left untouched for the user.
+  fail_str: |
+    {% set cols = 'customer_id, region' %}
+    SELECT {{ cols }}, orders.total
+    FROM orders
+  configs:
+    core:
+      templater: jinja
+
 test_pass_postgres_whole_row_json_operator:
   # A bare reference matching the table's own alias is a whole-row reference
   # (here the left operand of the `->>` JSON operator), not a column, so RF03
@@ -1573,3 +1608,29 @@ test_pass_tsql_cross_apply_outer_table_variable_named_unqualified_8626:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_pass_sqlite_order_by_aggregate:
+  # SQLite used to parse a bare function in ORDER BY as a column_reference,
+  # so the fix produced `p.p.COUNT(*)`.
+  pass_str: |
+    SELECT p.diagnosis
+    FROM patient AS p
+    GROUP BY p.diagnosis
+    ORDER BY COUNT(*) DESC
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_group_by_ordinal:
+  # Numeric literals were affected the same way (`p.p.1`).
+  pass_str: SELECT p.a, COUNT(*) FROM t AS p GROUP BY 1 ORDER BY 2 DESC
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_sqlite_order_by_function_with_unqualified_reference:
+  fail_str: SELECT p.a, b FROM t AS p ORDER BY COUNT(*), LOWER(c)
+  fix_str: SELECT p.a, p.b FROM t AS p ORDER BY COUNT(*), LOWER(p.c)
+  configs:
+    core:
+      dialect: sqlite

@@ -234,6 +234,10 @@ def test_jinja_conditional_source_is_preserved(include_column: bool) -> None:
     expected = sql
     if include_column:
         expected = "SELECT\n    {% if include_column %}\n        (foo)\n            .LOWER()\n            .TRIM() AS cleaned,\n    {% endif %}\n    bar\nFROM t;\n"
+    else:
+        # LT02 indents the opening tag even when its branch is unrendered.
+        # The inactive chain itself must retain its original source.
+        expected = sql.replace("{% if include_column %}", "    {% if include_column %}")
     assert not linter.parse_string(sql).violations
     fixed = linter.lint_string(sql, fix=True).fix_string()[0]
     assert fixed == expected
