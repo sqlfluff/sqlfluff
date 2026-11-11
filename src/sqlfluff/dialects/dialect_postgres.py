@@ -5649,6 +5649,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MetaCommandQueryBufferStatement"),
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
+            Ref("CreateAccessMethodStatementSegment"),
+            Ref("DropAccessMethodStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
             Ref("SecurityLabelStatementSegment"),
             Ref("PrepareStatementSegment"),
@@ -8123,6 +8125,44 @@ class CreateOperatorStatementSegment(BaseSegment):
                 Ref.keyword("MERGES", optional=True),
             )
         ),
+    )
+
+
+class CreateAccessMethodStatementSegment(BaseSegment):
+    """A `CREATE ACCESS METHOD` statement.
+
+    https://www.postgresql.org/docs/current/sql-create-access-method.html
+    """
+
+    type = "create_access_method_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "ACCESS",
+        "METHOD",
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        "TYPE",
+        OneOf("TABLE", "INDEX"),
+        "HANDLER",
+        Ref("FunctionNameSegment"),
+        Dedent,
+    )
+
+
+class DropAccessMethodStatementSegment(BaseSegment):
+    """A `DROP ACCESS METHOD` statement.
+
+    https://www.postgresql.org/docs/current/sql-drop-access-method.html
+    """
+
+    type = "drop_access_method_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "ACCESS",
+        "METHOD",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 

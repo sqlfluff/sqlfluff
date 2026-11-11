@@ -1,0 +1,7 @@
+CREATE ACCESS METHOD heap2 TYPE TABLE HANDLER heap_tableam_handler;
+
+CREATE ACCESS METHOD "Btree2"
+    TYPE INDEX
+    HANDLER pg_catalog.bthandler;
+
+CREATE ACCESS METHOD hash2 TYPE INDEX HANDLER hashhandler;
