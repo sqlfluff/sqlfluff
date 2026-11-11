@@ -19,7 +19,7 @@ pip install sqlfluff-templater-sqlmesh
 This also installs SQLMesh (if you haven't already) and a compatible
 version of SQLFluff. You'll still need to install any SQLMesh extras
 required by your project's database connection separately if those
-aren't already installed (e.g. `sqlmesh[duckdb]` for DuckDB.
+aren't already installed (e.g. `sqlmesh[duckdb]` for DuckDB).
 
 In a `.sqlfluff` file in your project root, select the templater and the SQLFluff
 dialect matching your model SQL. For example, for a DuckDB project:
