@@ -8,6 +8,50 @@ import pytest
 from sqlfluff.core import FluffConfig, Linter
 
 
+@pytest.mark.parametrize("multiline_newline", [False, True])
+@pytest.mark.parametrize("require_final_semicolon", [False, True])
+@pytest.mark.parametrize("comment", ["", " -- trailing comment"])
+def test__rules__CV06_missing_intermediate_terminator(
+    multiline_newline: bool, require_final_semicolon: bool, comment: str
+) -> None:
+    """Require intermediate terminators independently of the final-statement option."""
+    config = FluffConfig(
+        configs={
+            "rules": {
+                "convention.terminator": {
+                    "multiline_newline": multiline_newline,
+                    "require_final_semicolon": require_final_semicolon,
+                }
+            }
+        },
+        overrides={"dialect": "oracle", "rules": "CV06", "templater": "raw"},
+    )
+    linter = Linter(config=config)
+    first = "DELETE\nFROM code_detail"
+    second = "INSERT INTO code_head(code_type)\nVALUES('PLTQ')"
+    sql = first + comment + "\n-- between statements\n" + second + "\n\n"
+    terminator = "\n;" if multiline_newline else ";"
+    fixed_first = (
+        first + comment + terminator
+        if multiline_newline
+        else first + terminator + comment
+    )
+    expected = fixed_first + "\n-- between statements\n" + second
+    expected += (terminator if require_final_semicolon else "") + "\n\n"
+
+    assert not linter.parse_string(sql).violations
+    violations = linter.lint_string(sql).violations
+    assert [v.rule_code() for v in violations] == ["CV06"] * (
+        2 if require_final_semicolon else 1
+    )
+    assert violations[0].line_no == 2
+    fixed = linter.lint_string(sql, fix=True).fix_string()[0]
+    assert fixed == expected
+    assert not linter.parse_string(fixed).violations
+    assert not linter.lint_string(fixed).violations
+    assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
+
+
 @pytest.mark.parametrize("dialect", ["ansi", "oracle"])
 @pytest.mark.parametrize(
     "sql,multiline_newline,description,fixed",
