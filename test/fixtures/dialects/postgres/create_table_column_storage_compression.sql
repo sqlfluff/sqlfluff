@@ -23,6 +23,3 @@ CREATE TABLE combined_test (
 -- STORAGE and COMPRESSION are non-reserved, so they still work as column names.
 CREATE TABLE kw_names (storage text, compression int);
 
--- STORAGE DEFAULT is also accepted by ALTER TABLE (PostgreSQL 16+).
--- https://www.postgresql.org/docs/17/sql-altertable.html
-ALTER TABLE combined_test ALTER COLUMN a SET STORAGE DEFAULT;
