@@ -1693,7 +1693,7 @@ class AlterFunctionActionSegment(BaseSegment):
     type = "alter_function_action_segment"
 
     match_grammar = Sequence(
-        OneOf(
+        AnyNumberOf(
             OneOf(
                 Sequence("CALLED", "ON", "NULL", "INPUT"),
                 Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1716,16 +1716,22 @@ class AlterFunctionActionSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         OneOf("TO", Ref("EqualsSegment")),
+                        # The same values as in `SET`.
                         OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("NakedIdentifierSegment"),
                             "DEFAULT",
+                            Delimited(
+                                Ref("LiteralGrammar"),
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedIdentifierSegment"),
+                                Ref("OnKeywordAsIdentifierSegment"),
+                            ),
                         ),
                     ),
                     Sequence("FROM", "CURRENT"),
                 ),
             ),
             Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+            min_times=1,
         ),
         Ref.keyword("RESTRICT", optional=True),
     )
@@ -1740,7 +1746,7 @@ class AlterProcedureActionSegment(BaseSegment):
     type = "alter_procedure_action_segment"
 
     match_grammar = Sequence(
-        OneOf(
+        AnyNumberOf(
             Sequence(
                 Ref.keyword("EXTERNAL", optional=True),
                 "SECURITY",
@@ -1752,16 +1758,22 @@ class AlterProcedureActionSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         OneOf("TO", Ref("EqualsSegment")),
+                        # The same values as in `SET`.
                         OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("NakedIdentifierSegment"),
                             "DEFAULT",
+                            Delimited(
+                                Ref("LiteralGrammar"),
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedIdentifierSegment"),
+                                Ref("OnKeywordAsIdentifierSegment"),
+                            ),
                         ),
                     ),
                     Sequence("FROM", "CURRENT"),
                 ),
             ),
             Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+            min_times=1,
         ),
         Ref.keyword("RESTRICT", optional=True),
     )
@@ -1788,22 +1800,6 @@ class AlterProcedureStatementSegment(BaseSegment):
             Ref("AlterProcedureActionSegment", optional=True),
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
-            Sequence(
-                "SET",
-                Ref("ParameterNameSegment"),
-                OneOf(
-                    Sequence(
-                        OneOf("TO", Ref("EqualsSegment")),
-                        Delimited(
-                            OneOf(
-                                Ref("ParameterNameSegment"),
-                                Ref("LiteralGrammar"),
-                            ),
-                        ),
-                    ),
-                    Sequence("FROM", "CURRENT"),
-                ),
-            ),
             Sequence(
                 "OWNER",
                 "TO",

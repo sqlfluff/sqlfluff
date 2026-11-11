@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1778fedc288d89d634477c6fc5d8e8f07e816b42b47d6a2ce491e73b64386e16
+_hash: 4e8fbde9dce3c00fb4a404566400bafea58a9ccecbcad47ec586934c037fc935
 file:
 - statement:
     alter_procedure_statement:
@@ -116,13 +116,14 @@ file:
           data_type:
             keyword: text
           end_bracket: )
-    - keyword: SET
-    - parameter: search_path
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - parameter: admin
-    - comma: ','
-    - parameter: pg_temp
+    - alter_procedure_action_segment:
+      - keyword: SET
+      - parameter: search_path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: admin
+      - comma: ','
+      - naked_identifier: pg_temp
 - statement_terminator: ;
 - statement:
     alter_procedure_statement:
@@ -139,4 +140,73 @@ file:
     - alter_procedure_action_segment:
         keyword: RESET
         parameter: search_path
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: text
+          end_bracket: )
+    - alter_procedure_action_segment:
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: SET
+      - parameter: search_path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: admin
+      - comma: ','
+      - naked_identifier: pg_temp
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: text
+          end_bracket: )
+    - alter_procedure_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: INVOKER
+      - keyword: RESET
+      - keyword: ALL
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: text
+          end_bracket: )
+    - alter_procedure_action_segment:
+      - keyword: SET
+      - parameter: search_path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: '"$user"'
+      - comma: ','
+      - naked_identifier: public
+      - keyword: SET
+      - parameter: work_mem
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'1MB'"
 - statement_terminator: ;
