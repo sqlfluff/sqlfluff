@@ -1507,7 +1507,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     _view_clauses = AnyNumberOf(
         Ref("PartitionSpecGrammar"),
         Ref("TableClusterByClauseSegment"),
-        Ref("CommentGrammar"),
+        Ref("CommentClauseSegment"),
         Sequence(
             "DEFAULT",
             "COLLATION",
