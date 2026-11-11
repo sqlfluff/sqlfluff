@@ -1046,7 +1046,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_cli"
-version = "4.4.0"
+version = "4.5.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -1073,7 +1073,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_engine"
-version = "4.4.0"
+version = "4.5.0"
 dependencies = [
  "anyhow",
  "hashbrown 0.16.1",
