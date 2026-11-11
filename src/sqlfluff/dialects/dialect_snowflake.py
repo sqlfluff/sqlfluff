@@ -11832,11 +11832,29 @@ class ObjectTypeSchemaSegment(BaseSegment):
     )
 
 
+class VectorTypeSegment(BaseSegment):
+    """VECTOR datatype.
+
+    https://docs.snowflake.com/en/sql-reference/data-types-vector
+    """
+
+    type = "vector_type"
+    match_grammar = Sequence(
+        "VECTOR",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
+
+
 class DatatypeSegment(ansi.DatatypeSegment):
     """A Snowflake data type segment."""
 
     match_grammar = OneOf(
         Ref("ObjectTypeSegment"),
+        Ref("VectorTypeSegment"),
         ansi.DatatypeSegment.match_grammar,
     )
 
