@@ -906,6 +906,7 @@ class StatementSegment(ansi.StatementSegment):
             # https://learn.microsoft.com/en-us/sql/t-sql/statements/statements
             # Ref("CreateDatabaseStatementSegment") -> Override
             Ref("AlterDatabaseStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
             Ref("RestoreDatabaseStatementSegment"),
             # Ref("DropDatabaseStatementSegment"),
             # Ref("CreateTableStatementSegment"),
@@ -7544,6 +7545,31 @@ class CreateSchemaStatementSegment(BaseSegment):
             Ref("RoleReferenceSegment"),
             optional=True,
         ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-schema-transact-sql
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        "TRANSFER",
+        Sequence(
+            OneOf(
+                "OBJECT",
+                "TYPE",
+                Sequence("XML", "SCHEMA", "COLLECTION"),
+            ),
+            Ref("CastOperatorSegment"),
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
     )
 
 
