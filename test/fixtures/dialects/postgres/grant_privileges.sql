@@ -29,3 +29,18 @@ GRANT SELECT, MAINTAIN ON ALL TABLES IN SCHEMA my_schema TO my_user;
 GRANT SET ON PARAMETER work_mem TO my_user;
 GRANT SET, ALTER SYSTEM ON PARAMETER work_mem, plpgsql.extra_warnings TO my_user WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON PARAMETER log_min_duration_statement TO my_user;
+
+-- Role membership options (PostgreSQL 16+). OPTION is a synonym for TRUE, and
+-- several options can be given as a comma-separated list.
+-- https://www.postgresql.org/docs/16/sql-grant.html
+GRANT my_user TO my_group WITH ADMIN TRUE;
+GRANT my_user TO my_group WITH ADMIN FALSE;
+GRANT my_user TO my_group WITH INHERIT TRUE;
+GRANT my_user TO my_group WITH INHERIT FALSE;
+GRANT my_user TO my_group WITH SET OPTION;
+GRANT my_user TO my_group WITH SET FALSE;
+GRANT my_user TO my_group WITH INHERIT TRUE, SET FALSE;
+GRANT my_user TO my_group WITH ADMIN OPTION, INHERIT FALSE, SET TRUE
+    GRANTED BY CURRENT_ROLE;
+GRANT role_a, role_b TO role_c WITH ADMIN OPTION;
+GRANT role_a, role_b, role_c TO my_group WITH INHERIT FALSE GRANTED BY CURRENT_ROLE;
