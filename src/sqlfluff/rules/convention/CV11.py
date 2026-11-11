@@ -286,10 +286,14 @@ class Rule_CV11(BaseRule):
         # array type cast (e.g. y::TEXT[1] -> (y::TEXT)[1]).
         first_post_code = next((s for s in context.siblings_post if s.is_code), None)
         if first_post_code and first_post_code.is_type("array_accessor"):
+            start = SymbolSegment("(", type="start_bracket")
+            end = SymbolSegment(")", type="end_bracket")
             edits = [
-                SymbolSegment("(", type="start_bracket"),
-                *edits,
-                SymbolSegment(")", type="end_bracket"),
+                BracketedSegment(
+                    segments=(start, *edits, end),
+                    start_bracket=(start,),
+                    end_bracket=(end,),
+                )
             ]
 
         fixes = [
