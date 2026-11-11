@@ -143,23 +143,10 @@ impl Parser<'_> {
         try_match_grammar(self, grammar_id, pos, terminators)
     }
 
-    /// Returns true if position `i` in the token stream is preceded (looking
-    /// backwards past meta/transparent tokens) by a whitespace or newline token.
+    /// True if the last non-meta token before `i` is whitespace or a newline.
     ///
-    /// PYTHON PARITY: In `greedy_match()`, Python checks `matcher.simple()` and
-    /// if all returned strings are alphabetical with no token-type matches,
-    /// requires that the matched segment is preceded by whitespace:
-    ///
-    /// ```python
-    /// if all(_s.isalpha() for _s in _strings) and not _types:
-    ///     # work backward looking for whitespace
-    /// ```
-    ///
-    /// Edge case: if the terminator is at the very start of the search range
-    /// (`_start_idx == working_idx`), Python allows it without whitespace.
-    ///
-    /// A closing bracket also counts: a keyword glued to one (`(a)FROM t`) is
-    /// still a terminator, because no word-like token can absorb it.
+    /// Also true at `start_idx` (Python's `_start_idx == working_idx` case)
+    /// and after a closing bracket (`(a)FROM t`), which no word can absorb.
     pub(crate) fn is_preceded_by_whitespace(
         &self,
         tokens: &[Token],
@@ -255,24 +242,26 @@ impl Parser<'_> {
                     result
                 };
                 if matched {
-                    // If the matched terminator is a simple all-alphabetic token and the
-                    // token is not preceded by whitespace, reject it. This prevents
-                    // accidental matches of bare word tokens (e.g. identifiers) by
-                    // string-based terminators when the string matcher does not enforce
-                    // token-type constraints. Terminators implemented as TypedParser
-                    // (which match by token type rather than raw text) are exempt.
-                    let tok_is_alpha = tokens[i].is_code()
-                        && !tokens[i].raw().is_empty()
-                        && tokens[i].raw().chars().all(|c| c.is_ascii_alphabetic());
-                    if tok_is_alpha && !self.is_preceded_by_whitespace(tokens, i, start_idx) {
-                        let variant = tables.get_inst(term_id).variant;
-                        if variant != GrammarVariant::TypedParser {
-                            vdebug!(
-                                "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
-                                term_id, i
-                            );
-                            continue;
+                    // PYTHON PARITY: keyword terminators need whitespace before
+                    // them. Decided per terminator, not per token: one non-alpha
+                    // option (e.g. BigQuery's `|>`) lifts it for the whole set.
+                    // No hint: fall back to the token, as before.
+                    let needs_ws = match tables.get_simple_hint_for_grammar(term_id) {
+                        Some(hint) if !hint.is_empty() => tables.hint_is_all_alpha(hint),
+                        _ => {
+                            let raw = tokens[i].raw();
+                            tokens[i].is_code()
+                                && !raw.is_empty()
+                                && raw.chars().all(|c| c.is_ascii_alphabetic())
+                                && tables.get_inst(term_id).variant != GrammarVariant::TypedParser
                         }
+                    };
+                    if needs_ws && !self.is_preceded_by_whitespace(tokens, i, start_idx) {
+                        vdebug!(
+                            "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — keyword terminator not preceded by whitespace",
+                            term_id, i
+                        );
+                        continue;
                     }
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match: terminator {:?} matched at {}",

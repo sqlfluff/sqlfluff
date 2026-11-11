@@ -270,6 +270,21 @@ impl GrammarTables {
         false
     }
 
+    /// True if `hint` is keywords only: all raw values alphabetic, no types.
+    ///
+    /// PYTHON PARITY: `all(_s.isalpha() for _s in _strings) and not _types`
+    /// in `greedy_match()`.
+    pub fn hint_is_all_alpha(&self, hint: &SimpleHintData) -> bool {
+        let start = hint.raw_values_start as usize;
+        hint.token_types_count == 0
+            && self.hint_string_indices[start..start + hint.raw_values_count as usize]
+                .iter()
+                .all(|&i| {
+                    let s = self.strings[i as usize];
+                    !s.is_empty() && s.chars().all(char::is_alphabetic)
+                })
+    }
+
     /// Get memory usage statistics
     pub fn memory_stats(&self) -> TableMemoryStats {
         use std::mem::size_of;
