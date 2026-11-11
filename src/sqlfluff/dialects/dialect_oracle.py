@@ -302,7 +302,8 @@ oracle_dialect.add(
         # The top-level BatchSegment references StatementSegment directly, so it is
         # shielded from ProcedureCallStatementSegment and cannot silently absorb DDL
         # unreserved keywords (e.g. NOCACHE, NOROWDEPENDENCIES) as phantom calls.
-        Ref("PlsqlStatementSegment"),
+        # Keep ELSIF (...) for the enclosing IF statement.
+        Ref("PlsqlStatementSegment", exclude=Ref.keyword("ELSIF")),
         Ref("DelimiterGrammar", optional=True),
     ),
     OneOrMoreStatementsGrammar=AnyNumberOf(
