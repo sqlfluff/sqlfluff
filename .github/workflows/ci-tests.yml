@@ -685,9 +685,11 @@ jobs:
       shell: bash
       # Set python temp dir in working dir as on GitHub Actions Windows
       # machine often has system temp dir (which tox uses) on C drive and
-      # working dir on D drive which causes problems.
+      # working dir on D drive which causes problems. Keep it outside the
+      # checkout, so temporary config files written by tests are not picked
+      # up by tests which scan the working tree.
       run: |
-        mkdir temp_pytest
+        mkdir ../temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
 
     - name: Upload coverage data (github)
