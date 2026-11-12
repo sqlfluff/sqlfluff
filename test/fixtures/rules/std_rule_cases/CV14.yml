@@ -1,0 +1,140 @@
+rule: CV14
+
+# This is an opt-in convention; exercise the checks by enabling it.
+configs:
+  rules:
+    convention.case_then_column:
+      force_enable: true
+
+test_fail_basic:
+  fail_str: SELECT CASE WHEN status = 'open' THEN 'open' END FROM orders
+
+test_fail_qualified_column:
+  fail_str: SELECT CASE WHEN o.status = 'open' THEN 'open' ELSE 'unknown' END FROM orders o
+
+test_fail_quoted_column:
+  fail_str: SELECT CASE WHEN o."Status" = 'open' THEN 'open' END FROM orders o
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.case_then_column:
+        force_enable: true
+
+test_fail_multiple_when:
+  fail_str: |
+    SELECT CASE
+      WHEN status = 'open' THEN 'open'
+      WHEN status = 'closed' THEN 'closed'
+      ELSE 'unknown'
+    END FROM orders
+  line_numbers: [2, 3]
+
+test_fail_update_statement:
+  fail_str: UPDATE orders SET state = CASE WHEN status = 'open' THEN 'open' END
+
+test_fail_postgres:
+  fail_str: SELECT CASE WHEN status = 'open' THEN 'open' END FROM orders
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.case_then_column:
+        force_enable: true
+
+test_fail_snowflake:
+  fail_str: SELECT CASE WHEN status = 'open' THEN 'open' END FROM orders
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.case_then_column:
+        force_enable: true
+
+test_fail_nested_else_case_only_inner:
+  fail_str: |
+    SELECT CASE
+      WHEN status = 'open' THEN 'something else'
+      ELSE CASE WHEN action = 'save' THEN 'save' END
+    END FROM orders
+  line_numbers: [3]
+
+test_pass_disabled_by_default:
+  pass_str: SELECT CASE WHEN status = 'open' THEN 'open' END FROM orders
+  configs:
+    rules:
+      convention.case_then_column:
+        force_enable: false
+
+test_pass_simple_case:
+  pass_str: SELECT CASE status WHEN 'open' THEN 'open' END FROM orders
+
+test_pass_return_column:
+  pass_str: SELECT CASE WHEN status = 'open' THEN status END FROM orders
+
+test_pass_different_literal:
+  pass_str: SELECT CASE WHEN status = 'open' THEN 'closed' END FROM orders
+
+test_pass_different_quote_style:
+  pass_str: SELECT CASE WHEN status = 'open' THEN "open" END FROM orders
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      convention.case_then_column:
+        force_enable: true
+
+test_pass_other_comparison:
+  pass_str: SELECT CASE WHEN status != 'open' THEN 'open' END FROM orders
+
+test_pass_other_comparison_direction:
+  pass_str: SELECT CASE WHEN 'open' = status THEN 'open' END FROM orders
+
+test_pass_and:
+  pass_str: SELECT CASE WHEN status = 'open' AND active THEN 'open' END FROM orders
+
+test_pass_or:
+  pass_str: SELECT CASE WHEN status = 'open' OR active THEN 'open' END FROM orders
+
+test_pass_parenthesized_condition:
+  pass_str: SELECT CASE WHEN (status = 'open') THEN 'open' END FROM orders
+
+test_pass_parenthesized_literal:
+  pass_str: SELECT CASE WHEN status = 'open' THEN ('open') END FROM orders
+
+test_pass_function_condition:
+  pass_str: SELECT CASE WHEN LOWER(status) = 'open' THEN 'open' END FROM orders
+
+test_pass_function_then:
+  pass_str: SELECT CASE WHEN status = 'open' THEN LOWER('open') END FROM orders
+
+test_pass_cast_condition:
+  pass_str: SELECT CASE WHEN CAST(status AS VARCHAR) = 'open' THEN 'open' END FROM orders
+
+test_pass_cast_then:
+  pass_str: SELECT CASE WHEN status = 'open' THEN CAST('open' AS VARCHAR) END FROM orders
+
+test_pass_numeric_then:
+  pass_str: SELECT CASE WHEN status = 'open' THEN 1 END FROM orders
+
+test_pass_other_else:
+  pass_str: SELECT CASE WHEN status = 'open' THEN 'closed' ELSE status END FROM orders
+
+test_pass_nested_case_in_then:
+  pass_str: |
+    SELECT CASE WHEN status = 'open' THEN
+      CASE WHEN active THEN 'open' ELSE 'closed' END
+    END FROM orders
+
+test_pass_templated_column:
+  pass_str: SELECT CASE WHEN {{ column_name }} = 'open' THEN 'open' END FROM orders
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          column_name: status
+    rules:
+      convention.case_then_column:
+        force_enable: true
