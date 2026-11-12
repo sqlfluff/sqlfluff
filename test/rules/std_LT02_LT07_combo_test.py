@@ -34,6 +34,31 @@ def test_cte_closing_bracket_rule_ownership(dialect, exclude_lt07, indent):
     assert linter.lint_string(fixed_sql, fix=True).fix_string()[0] == fixed_sql
 
 
+@pytest.mark.parametrize("dialect", ["ansi", "bigquery", "postgres", "duckdb"])
+@pytest.mark.parametrize("rules", ["LT07", "LT02,LT07", "all"])
+@pytest.mark.parametrize("indent", [2, 4])
+def test_many_cte_closing_brackets_fixed(dialect, rules, indent):
+    """Fix all CTE brackets without exhausting the default fix-loop limit."""
+    queries = ["SELECT a FROM foo"] + [f"SELECT a FROM cte_{idx}" for idx in range(11)]
+    ctes = ",\n".join(
+        f"cte_{idx} AS (\n{' ' * indent}{query})" for idx, query in enumerate(queries)
+    )
+    sql = f"WITH {ctes}\n\nSELECT * FROM cte_11\n"
+    linter = Linter(config=FluffConfig(overrides={"dialect": dialect, "rules": rules}))
+    linted = linter.lint_string(sql, fix=True)
+    expected_indent = indent if rules == "LT07" else 4
+    expected_ctes = (",\n\n" if rules == "all" else ",\n").join(
+        f"cte_{idx} AS (\n{' ' * expected_indent}{query}\n)"
+        for idx, query in enumerate(queries)
+    )
+    expected_sql = f"WITH {expected_ctes}\n\nSELECT * FROM cte_11\n"
+    fixed_sql, _ = linted.fix_string()
+    assert fixed_sql == expected_sql
+    assert len(linted.get_violations(rules="LT07")) == 12
+    assert not linter.lint_string(fixed_sql).get_violations()
+    assert linter.lint_string(fixed_sql, fix=True).fix_string()[0] == fixed_sql
+
+
 @pytest.mark.parametrize("exclude_lt07", [True, False])
 @pytest.mark.parametrize("nested_cte", [True, False])
 @pytest.mark.parametrize("indent", [6, 8])
