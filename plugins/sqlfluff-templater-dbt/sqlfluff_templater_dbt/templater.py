@@ -14,6 +14,7 @@ import os
 import os.path
 from collections import deque
 from contextlib import contextmanager
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
@@ -28,6 +29,7 @@ from typing import (
     TypeVar,
     Union,
 )
+from weakref import WeakKeyDictionary
 
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
@@ -174,6 +176,7 @@ class DbtTemplater(JinjaTemplater):
     name = "dbt"
     sequential_fail_limit = 3
     adapters = {}
+    _catalog_integrations: WeakKeyDictionary[Any, dict[str, Any]] = WeakKeyDictionary()
     # dbt builds a cross-file manifest in the main process, so templating
     # cannot be deferred to worker processes.
     templates_in_worker = False
@@ -306,6 +309,79 @@ class DbtTemplater(JinjaTemplater):
 
         return DbtCompiler(self.dbt_config)
 
+    def _register_catalog_integrations(self) -> None:
+        """Mirror dbt's catalog setup before the manifest looks up integrations."""
+        from dbt import flags
+        from dbt.adapters.factory import get_adapter
+
+        config = self.dbt_config
+        use_v2 = getattr(flags.get_flags(), "USE_CATALOGS_V2", False)
+        if use_v2 and self.dbt_version_tuple < (1, 12):
+            raise SQLFluffUserError("catalogs.yml v2 requires dbt-core 1.12 or newer.")
+        if self.dbt_version_tuple < (1, 10):
+            return
+
+        error_message = None
+        try:
+            from dbt.config.catalogs import get_active_write_integration, load_catalogs
+
+            adapter = get_adapter(config)
+            if use_v2:
+                from dbt.adapters.capability import Capability
+                from dbt.config.catalogs import load_catalogs_v2
+
+                catalogs = load_catalogs_v2(
+                    config.project_root, config.project_name, config.cli_vars
+                )
+                capability = getattr(Capability, "CatalogsV2", None)
+                if catalogs and (
+                    capability is None or not adapter.capabilities()[capability]
+                ):
+                    error_message = (
+                        "The dbt adapter does not support catalogs.yml v2. "
+                        "Use v1 or upgrade the adapter."
+                    )
+                    integrations = []
+                else:
+                    integrations = [adapter.bridge_v2_catalog(c) for c in catalogs]
+            else:
+                integrations = [
+                    get_active_write_integration(c)
+                    for c in load_catalogs(
+                        config.project_root, config.project_name, config.cli_vars
+                    )
+                ]
+
+            if error_message is None:
+                incoming = {c.name: c for c in integrations}
+                if len(incoming) != len(integrations):
+                    raise ValueError("Duplicate catalog names.")
+                # dbt shares adapters across templaters, including different projects.
+                registered = self._catalog_integrations.setdefault(adapter, {})
+                if any(
+                    name not in incoming or previous != incoming[name]
+                    for name, previous in registered.items()
+                ):
+                    error_message = (
+                        "A dbt catalog is already registered with a different "
+                        "configuration. Restart SQLFluff to load the new "
+                        "catalogs.yml configuration."
+                    )
+                else:
+                    for integration in integrations:
+                        if integration.name not in registered:
+                            adapter.add_catalog_integration(integration)
+                            registered[integration.name] = deepcopy(integration)
+                    return
+        except Exception:
+            # Keep config values and unpickleable parser exceptions out of workers.
+            error_message = (
+                "dbt could not load catalogs.yml. Check the catalog configuration "
+                "and adapter support with `dbt parse`."
+            )
+        # Raising outside the handler also removes unsafe chained exception context.
+        raise SQLFluffUserError(error_message)
+
     @cached_property
     @handle_dbt_errors(
         SQLFluffUserError,
@@ -324,6 +400,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
+        self._register_catalog_integrations()
         return ManifestLoader.get_full_manifest(self.dbt_config)
 
     @cached_property
