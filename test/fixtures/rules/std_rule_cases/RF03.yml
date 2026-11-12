@@ -1686,3 +1686,31 @@ test_fail_postgres_where_subquery_outer_unnest_alias_unqualified_9134:
     rules:
       references.consistent:
         single_table_references: unqualified
+
+test_fail_postgres_derived_table_subquery_outer_unnest_alias_9134:
+  # The derived table `d` can't see `k` from the outer `unnest`, so `x`
+  # belongs to `widget` and qualifying it is safe.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k,
+    (SELECT (SELECT 1 FROM widget AS w WHERE w.id = x) AS c) AS d
+  fix_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k,
+    (SELECT (SELECT 1 FROM widget AS w WHERE w.id = w.x) AS c) AS d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_lateral_subquery_outer_unnest_alias_9134:
+  # A LATERAL subquery can see `k`, so the nested subquery can too.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k,
+    LATERAL (SELECT (SELECT 1 FROM widget AS w WHERE w.id = k) AS c) AS d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
