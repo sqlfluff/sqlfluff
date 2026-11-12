@@ -1634,3 +1634,55 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+
+test_fail_no_fix_postgres_where_subquery_outer_unnest_alias_9134:
+  # `k` is the column of the outer `unnest(...) AS k`, not of `widget`, so
+  # qualifying it with `w` would be wrong.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_where_subquery_outer_generate_series_alias_9134:
+  fail_str: |
+    SELECT k FROM generate_series(1, 3) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_where_subquery_outer_unnest_column_alias_9134:
+  # The column isn't named after the table alias here.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS u (k)
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_postgres_where_subquery_outer_unnest_alias_unqualified_9134:
+  # Removing qualifiers is still safe: unqualified names resolve to the
+  # inner table first.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = 1)
+  fix_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE id = 1)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified

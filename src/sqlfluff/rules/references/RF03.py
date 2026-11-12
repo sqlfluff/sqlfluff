@@ -159,6 +159,22 @@ class Rule_RF03(BaseRule):
             child = child.parent
         return outer_aliases
 
+    def _outer_standalone_aliases(self, query: Query) -> list[BaseSegment]:
+        """Get the standalone aliases of all queries enclosing this subquery.
+
+        These are columns without a table, e.g. the alias of ``UNNEST(...) AS
+        k``. Follows the same chain of ancestors as ``_outer_visible_aliases``.
+        """
+        outer_aliases: list[BaseSegment] = []
+        child = query
+        while child.parent:
+            if child.cte_definition_segment is None:
+                for selectable in child.parent.selectables:
+                    if selectable.select_info:
+                        outer_aliases += selectable.select_info.standalone_aliases
+            child = child.parent
+        return outer_aliases
+
     def _visit_queries(
         self, query: Query, visited: set, templater_name: str
     ) -> Iterator[LintResult]:
@@ -205,6 +221,15 @@ class Rule_RF03(BaseRule):
                     and _sees_outer_columns(query.selectables[0].selectable)
                 ):
                     possible_ref_tables += outer_aliases
+                # An unqualified column may also be a standalone alias of an
+                # enclosing query (e.g. `k` in `FROM UNNEST(...) AS k`), which
+                # can't be qualified with the inner table.
+                if (
+                    self._may_add_qualifiers
+                    and self._outer_standalone_aliases(query)
+                    and _sees_outer_columns(query.selectables[0].selectable)
+                ):
+                    fixable = False
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
                     # potential lint warnings, but don't generate fixes, because
