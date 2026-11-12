@@ -24,6 +24,41 @@ except ImportError:
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sql,clean_tree",
+    [
+        ("select a:from FROM t;", False),
+        ("SELECT a FROM t;", True),
+        ("SELECT a FROM t |> WHERE a > 0;", True),
+        ("SELECT (a)FROM t;", True),
+    ],
+)
+def test__rust_parser__bigquery_recovery_lint_parity(sql, clean_tree):
+    """Recovery boundaries and lint findings agree with the Python parser."""
+    from sqlfluff.core import FluffConfig, Linter
+
+    results = []
+    for use_rust in (False, True):
+        config = FluffConfig(
+            overrides={"dialect": "bigquery", "use_rust_parser": use_rust}
+        )
+        linted = Linter(config=config).lint_string(sql)
+        assert linted.tree is not None
+        if clean_tree:
+            assert not list(linted.tree.recursive_crawl("unparsable"))
+        results.append(
+            (
+                linted.tree.stringify(),
+                [
+                    (v.rule_code(), v.line_no, v.line_pos, v.desc())
+                    for v in linted.get_violations()
+                ],
+            )
+        )
+    assert results[0] == results[1]
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__max_parse_depth_invalid_string_raises_config_error():
     """Invalid string values for max_parse_depth are rejected by config validation."""
     from sqlfluff.core import FluffConfig
