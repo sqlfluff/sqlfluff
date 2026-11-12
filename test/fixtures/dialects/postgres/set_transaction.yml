@@ -1,0 +1,108 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3183670eb3a227896abc07906e011d0bec11bd75f20a39bd456aa084bf346881
+file:
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: REPEATABLE
+    - keyword: READ
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: COMMITTED
+    - comma: ','
+    - keyword: READ
+    - keyword: WRITE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+    - comma: ','
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: UNCOMMITTED
+    - keyword: READ
+    - keyword: ONLY
+    - keyword: NOT
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: SNAPSHOT
+    - quoted_literal: "'00000003-0000001B-1'"
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: CHARACTERISTICS
+    - keyword: AS
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: CHARACTERISTICS
+    - keyword: AS
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+    - comma: ','
+    - keyword: NOT
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - keyword: SESSION
+    - keyword: CHARACTERISTICS
+    - keyword: AS
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: WRITE
+- statement_terminator: ;

@@ -2517,7 +2517,10 @@ class ChangesClauseSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        # Unbounded form: no time bounds.
+        # Unbounded form: no time bounds. This must not be GREEDY, otherwise
+        # a table named CHANGES followed by a column list (e.g.
+        # `CREATE TABLE db.sch.CHANGES (col INT)`) matches this clause and
+        # terminates the object reference early.
         Sequence(
             "CHANGES",
             Bracketed(
@@ -2527,7 +2530,6 @@ class ChangesClauseSegment(BaseSegment):
                     OneOf("DEFAULT", "APPEND_ONLY"),
                     optional=True,
                 ),
-                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -11838,11 +11840,29 @@ class ObjectTypeSchemaSegment(BaseSegment):
     )
 
 
+class VectorTypeSegment(BaseSegment):
+    """VECTOR datatype.
+
+    https://docs.snowflake.com/en/sql-reference/data-types-vector
+    """
+
+    type = "vector_type"
+    match_grammar = Sequence(
+        "VECTOR",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
+
+
 class DatatypeSegment(ansi.DatatypeSegment):
     """A Snowflake data type segment."""
 
     match_grammar = OneOf(
         Ref("ObjectTypeSegment"),
+        Ref("VectorTypeSegment"),
         ansi.DatatypeSegment.match_grammar,
     )
 

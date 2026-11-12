@@ -1,6 +1,13 @@
 # Parity test cases - data for test/core/parser/parity/cases_test.py.
 # See test/fixtures/parity/README.md for the schema and strictness contract.
 
+bigquery_select_recovery_mixed_terminator_hint:
+  sql: select a:from FROM t;
+  dialect: bigquery
+  expect: tree
+  pins: Issue 9096, mixed keyword and pipe-operator terminators must use the
+    complete simple hint when deciding whether preceding whitespace is required.
+
 anything_dialect_exclude_bracket:
   sql: CREATE TABLE t (c VARCHAR({- 1 -}) AS y)
   dialect: snowflake

@@ -237,6 +237,18 @@ values can override these helpers.
 SELECT {{ columns | join(', ') }} FROM my_table
 ```
 
+The same configuration also enables dbt's `fromyaml(value, default=None)` and
+`toyaml(value, default=None, sort_keys=False)` helpers for YAML. They use safe YAML
+loading and dumping. Invalid YAML and values that cannot be represented as safe
+YAML return `default`. Serialization preserves dictionary insertion order unless
+`sort_keys=True` is passed. Configured macros and context values can override
+these helpers too.
+
+```jinja
+{% set columns = fromyaml('[a, b]') %}
+SELECT {{ columns | join(', ') }} FROM my_table
+```
+
 It also understands the dbt `{% test %}` and `{% materialization %}` blocks,
 so files which define generic tests or custom materializations can be linted
 like other macro files.

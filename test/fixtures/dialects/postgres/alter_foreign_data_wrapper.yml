@@ -1,0 +1,105 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f2bb0545a09f3695cf7804d24d12486e448dc1acbb721fc355692338a1dbf71c
+file:
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: postgres_fdw_handler
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: 'NO'
+    - keyword: HANDLER
+    - keyword: 'NO'
+    - keyword: VALIDATOR
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: VALIDATOR
+    - function_name:
+        naked_identifier: ext
+        dot: .
+        function_name_identifier: my_validator
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - keyword: ADD
+      - naked_identifier: debug
+      - quoted_literal: "'true'"
+      - comma: ','
+      - naked_identifier: retries
+      - quoted_literal: "'3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - keyword: SET
+      - naked_identifier: debug
+      - quoted_literal: "'false'"
+      - comma: ','
+      - keyword: DROP
+      - naked_identifier: retries
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: some_role
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: RENAME
+    - keyword: TO
+    - naked_identifier: renamed
+- statement_terminator: ;

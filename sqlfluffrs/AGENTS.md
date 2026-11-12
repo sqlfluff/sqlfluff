@@ -18,7 +18,8 @@ from 5.0.
   lightweight `MatchResult` (slices/classes/inserts); Python's
   `MatchResult.apply()` still builds the `BaseSegment` AST. A parallel,
   id-addressable Rust arena (`_rs_tree`, `RsTree`/`RsHandle`) is built and cached
-  as the substrate for Rust-side rules (read-only to Python today).
+  only when `core.use_rust_rules` is enabled, as the substrate for Rust-side
+  rules (read-only to Python today).
 - **Linting rules** — mostly Python; **three experimental rules are wired end
   to end**. CP01, CP03 and CP04 detection lives in the `sqlfluffrs_rules` crate
   (CP02 and CP05 remain Python-only), runs over the arena's public read API
@@ -342,11 +343,13 @@ four stages so you can see where the time goes:
 - `rust_core` — the Rust parse (`parse_match_result_from_tokens`)
 - `convert` — rebuilding the result as a Python `MatchResult`
 - `apply` — building the `BaseSegment` tree (`MatchResult.apply`)
-- `apply_as_tree` — building the Rust arena tree (`_rs_tree`)
+- `apply_as_tree` — building the Rust arena tree (`_rs_tree`); only built (and
+  timed) when `core.use_rust_rules` is enabled
 
 Enable it via the `SQLFLUFF_RS_PROFILE` env var or `set_profiling(True)`, then
 read the most recent parse with `get_parse_profile()`. The benchmark harness
-surfaces it directly (overall + small/medium/large file buckets):
+surfaces it directly (overall + small/medium/large file buckets). It runs with
+`core.use_rust_rules` off, so its `apply_as_tree` stage is always 0:
 
 ```bash
 # Requires the Rust parser (--compare or --rust-only); no effect on pure Python.

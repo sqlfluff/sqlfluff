@@ -5,3 +5,6 @@ ALTER PROCEDURE insert_data(integer, integer) SET SCHEMA accounting;
 ALTER PROCEDURE insert_data(integer, integer) DEPENDS ON EXTENSION myext;
 ALTER PROCEDURE check_password(text) SET search_path = admin, pg_temp;
 ALTER PROCEDURE check_password(text) RESET search_path;
+ALTER PROCEDURE check_password(text) SECURITY DEFINER SET search_path = admin, pg_temp;
+ALTER PROCEDURE check_password(text) EXTERNAL SECURITY INVOKER RESET ALL RESTRICT;
+ALTER PROCEDURE check_password(text) SET search_path = "$user", public SET work_mem = '1MB';

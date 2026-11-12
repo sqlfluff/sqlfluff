@@ -12,7 +12,7 @@ from typing import (
 )
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import zero_slice
 
@@ -54,19 +54,31 @@ def large_file_check(func: Callable[..., T]) -> Callable[..., T]:
     ) -> T:
         if config:
             limit = config.get("large_file_skip_char_limit")
+            if limit is not None:
+                # Make sure the limit becomes an integer. A value which can't be
+                # converted is a problem with the user's config, so report it as
+                # a user error rather than letting a raw exception escape.
+                try:
+                    limit = int(limit)
+                except (ValueError, TypeError, OverflowError):
+                    raise SQLFluffUserError(
+                        "Config value 'large_file_skip_char_limit' must be an "
+                        f"integer, but was {limit!r}."
+                    ) from None
             if limit:
                 templater_logger.warning(
                     "The config value large_file_skip_char_limit was found set. "
                     "This feature will be removed in a future release, please "
                     "use the more efficient 'large_file_skip_byte_limit' instead."
                 )
-            if limit and len(in_str) > limit:
-                raise SQLFluffSkipFile(
-                    f"Length of file {fname!r} is over {limit} characters. "
-                    "Skipping to avoid parser lock. Users can increase this limit "
-                    "in their config by setting the 'large_file_skip_char_limit' "
-                    "value, or disable by setting it to zero."
-                )
+                if len(in_str) > limit:
+                    raise SQLFluffSkipFile(
+                        f"Length of file {fname!r} is over {limit} characters. "
+                        "Skipping to avoid parser lock. Users can increase this "
+                        "limit in their config by setting the "
+                        "'large_file_skip_char_limit' value, or disable by "
+                        "setting it to zero."
+                    )
         return func(
             self, in_str=in_str, fname=fname, config=config, formatter=formatter
         )

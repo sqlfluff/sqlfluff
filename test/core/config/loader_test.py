@@ -527,6 +527,26 @@ def test__config__load_toml_invalid_syntax(tmp_path):
     assert "UTF-8 BOM" not in message
 
 
+def test__config__load_ini_invalid_syntax(tmp_path):
+    """Invalid INI should raise a SQLFluff user error with the file path.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9067
+    """
+    sqlfluff_path = tmp_path / ".sqlfluff"
+    sqlfluff_path.write_text("[sqlfluff\ndialect = ansi\n", encoding="utf-8")
+
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), ".sqlfluff")
+    finally:
+        clear_config_caches()
+        sqlfluff_path.unlink(missing_ok=True)
+
+    message = str(exc_info.value)
+    assert str(sqlfluff_path).replace("\\", "/") in message.replace("\\", "/")
+    assert "Failed to parse INI config file" in message
+
+
 def test__config__load_toml_utf8_bom_hint(tmp_path):
     """A UTF-8 BOM should surface a targeted configuration hint."""
     pyproject_path = tmp_path / "pyproject.toml"

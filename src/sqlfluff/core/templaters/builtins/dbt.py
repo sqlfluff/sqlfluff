@@ -3,6 +3,7 @@
 import json
 from typing import Any, Callable, Union
 
+import yaml
 from jinja2.runtime import Context, Macro
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -86,6 +87,22 @@ def _builtin_tojson(value: Any, default: Any = None, sort_keys: bool = False) ->
         return default
 
 
+def _builtin_fromyaml(value: str, default: Any = None) -> Any:
+    """Deserialize YAML safely, returning the default on dbt's handled errors."""
+    try:
+        return yaml.safe_load(value)
+    except (AttributeError, ValueError, yaml.YAMLError):
+        return default
+
+
+def _builtin_toyaml(value: Any, default: Any = None, sort_keys: bool = False) -> Any:
+    """Serialize YAML safely with dbt's fallback and key-order behavior."""
+    try:
+        return yaml.safe_dump(value, sort_keys=sort_keys)
+    except (ValueError, yaml.YAMLError):
+        return default
+
+
 class DbtSandboxedEnvironment(SandboxedEnvironment):
     """Handle dbt returns at every macro call, including same-file calls."""
 
@@ -155,4 +172,6 @@ DBT_BUILTINS = {
     "return": FunctionWrapper("return", _builtin_return),
     "fromjson": FunctionWrapper("fromjson", _builtin_fromjson),
     "tojson": FunctionWrapper("tojson", _builtin_tojson),
+    "fromyaml": FunctionWrapper("fromyaml", _builtin_fromyaml),
+    "toyaml": FunctionWrapper("toyaml", _builtin_toyaml),
 }
