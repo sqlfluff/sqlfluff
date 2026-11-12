@@ -1362,6 +1362,50 @@ def test__linter__templater_override_is_borrowed():
     assert not other_templater.closed
 
 
+@pytest.mark.parametrize("copy_config", [False, True])
+@pytest.mark.parametrize("operation", ["render", "lint"])
+def test__linter__closes_templater_after_lazy_root_access(
+    monkeypatch, operation, copy_config
+):
+    """Reading the lazy root templater does not leave rendering templaters open."""
+
+    class TrackingTemplater(RawTemplater):
+        def __init__(self):
+            self.processed = False
+            self.closed = False
+
+        def process(self, **kwargs):
+            self.processed = True
+            return super().process(**kwargs)
+
+        def close(self):
+            self.closed = True
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    instances = []
+
+    def get_templater():
+        templater = TrackingTemplater()
+        instances.append(templater)
+        return templater
+
+    monkeypatch.setattr(config, "get_templater", get_templater)
+    lazy_templater = config.get("templater_obj")
+    if copy_config:
+        config = config.copy()
+    linter = Linter(config=config)
+
+    if operation == "render":
+        linter.render_string("SELECT 1", "first.sql", config, "utf-8")
+    else:
+        linter.lint_string("SELECT 1", fname="first.sql")
+
+    rendering_templaters = [t for t in instances if t.processed]
+    assert rendering_templaters
+    assert all(t.closed for t in rendering_templaters)
+    assert linter.templater is lazy_templater
+
+
 @pytest.mark.parametrize("operation_failed", [False, True])
 def test__linter__release_templater_close_failure(
     monkeypatch, caplog, operation_failed

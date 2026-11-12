@@ -139,6 +139,7 @@ class FluffConfig:
 
         self.get_templater_class()
         self._configs["core"]["templater_obj"] = None
+        self._lazy_templater_obj: Optional[RawTemplater] = None
 
         # Guard against an impossible Rust configuration.
         self._verify_rust_config()
@@ -239,6 +240,7 @@ class FluffConfig:
         state["_configs"] = state["_configs"].copy()
         state["_configs"]["core"] = state["_configs"]["core"].copy()
         state["_configs"]["core"]["templater_obj"] = None
+        state["_lazy_templater_obj"] = None
         return state
 
     def __setstate__(self, state: dict[str, Any]) -> None:  # pragma: no cover
@@ -274,6 +276,7 @@ class FluffConfig:
 
         config_copy = copy(self)
         config_copy._configs = configs_attribute_copy
+        config_copy._lazy_templater_obj = self._lazy_templater_obj
         return config_copy
 
     @classmethod
@@ -600,6 +603,7 @@ class FluffConfig:
         if val == "templater_obj" and is_core_section and value is None:
             value = self.get_templater()
             section_dict[val] = value
+            self._lazy_templater_obj = value
         return value
 
     def get_section(self, section: str | Iterable[str]) -> Any:

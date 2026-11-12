@@ -1037,7 +1037,10 @@ class Linter:
                 Optional["RawTemplater"],
                 self.config._configs["core"].get("templater_obj"),
             )
-            if root_templater is not None:
+            if (
+                root_templater is not None
+                and root_templater is not self.config._lazy_templater_obj
+            ):
                 self._templater_session.borrow(self.config, root_templater)
         session = self._templater_session
         self._templater_session_depth += 1
