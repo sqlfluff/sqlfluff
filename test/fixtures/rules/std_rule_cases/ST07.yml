@@ -218,3 +218,26 @@ test_fail_wildcard_inside_subquery_still_fixed:
     select (select * from t) as everything
     from a
     inner join b ON a.id = b.id
+
+test_fail_wildcard_except_all_keys_still_fixed:
+  # ``* EXCEPT (id)`` never exposes ``id``, so the merged-vs-duplicated
+  # column distinction cannot reach the result and the fix is safe.
+  fail_str: |
+    select * except (id) from a
+    inner join b using (id)
+  fix_str: |
+    select * except (id) from a
+    inner join b ON a.id = b.id
+  configs:
+    core:
+      dialect: bigquery
+
+test_unfixable_wildcard_except_partial_keys:
+  # Only ``id`` is excluded, so ``name`` still expands from one merged
+  # copy to one copy per table.
+  fail_str: |
+    select * except (id) from a
+    inner join b using (id, name)
+  configs:
+    core:
+      dialect: bigquery

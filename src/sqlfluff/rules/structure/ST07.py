@@ -168,7 +168,7 @@ class Rule_ST07(BaseRule):
         # That changes the result set without raising a parse error, so mapping
         # the clause onto a fix would silently change what the query returns.
         # https://github.com/sqlfluff/sqlfluff/issues/8950
-        if _has_unqualified_wildcard(parent_select):
+        if _has_unqualified_wildcard(parent_select, using_cols_normalized):
             return unfixable_result
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
@@ -213,8 +213,10 @@ class Rule_ST07(BaseRule):
         )
 
 
-def _has_unqualified_wildcard(select_statement: BaseSegment) -> bool:
-    """Return whether the select clause selects a bare ``*``."""
+def _has_unqualified_wildcard(
+    select_statement: BaseSegment, using_cols: set[str]
+) -> bool:
+    """Return whether the select clause exposes a USING column via a bare ``*``."""
     select_clause = select_statement.get_child("select_clause")
     if not select_clause:
         return False
@@ -230,10 +232,24 @@ def _has_unqualified_wildcard(select_statement: BaseSegment) -> bool:
             # A qualified wildcard (``table.*``) still expands to the columns
             # of a single table, which USING does not change, so only the
             # unqualified ``*`` is a problem.
-            if not any(
+            if any(
                 seg.is_type("symbol") and seg.raw == "." for seg in identifier.segments
             ):
-                return True
+                continue
+            # ``* EXCEPT (id)`` never exposes ``id``, so a wildcard whose
+            # exclusions cover every USING key expands to the same columns
+            # either way and the rewrite stays safe.
+            except_clause = wildcard.get_child("select_except_clause")
+            if except_clause:
+                excluded = {
+                    seg.raw_normalized()
+                    for seg in except_clause.recursive_crawl(
+                        "naked_identifier", "quoted_identifier"
+                    )
+                }
+                if using_cols and using_cols <= excluded:
+                    continue
+            return True
     return False
 
 
