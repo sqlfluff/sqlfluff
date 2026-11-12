@@ -1,0 +1,186 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3e295a9545746c6032f24332c300bb9ef61f23c8517deb7283b63e710e9edd96
+file:
+- statement:
+    create_transform_statement:
+    - keyword: CREATE
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - bracketed:
+      - start_bracket: (
+      - keyword: FROM
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: hstore_to_plpython
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: internal
+            end_bracket: )
+      - comma: ','
+      - keyword: TO
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: plpython_to_hstore
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: internal
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_transform_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        naked_identifier: public
+        dot: .
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - bracketed:
+      - start_bracket: (
+      - keyword: FROM
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          naked_identifier: public
+          dot: .
+          function_name_identifier: hstore_to_plpython
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: internal
+            end_bracket: )
+      - comma: ','
+      - keyword: TO
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          naked_identifier: public
+          dot: .
+          function_name_identifier: plpython_to_hstore
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: internal
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_transform_statement:
+    - keyword: CREATE
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - bracketed:
+      - start_bracket: (
+      - keyword: FROM
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: hstore_to_plpython
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_transform_statement:
+    - keyword: CREATE
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - bracketed:
+      - start_bracket: (
+      - keyword: TO
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: plpython_to_hstore
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_transform_statement:
+    - keyword: CREATE
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+      - quoted_identifier: '"app"'
+      - dot: .
+      - quoted_identifier: '"Custom Type"'
+    - keyword: LANGUAGE
+    - quoted_identifier: '"plpython3u"'
+    - bracketed:
+      - start_bracket: (
+      - keyword: FROM
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+        - quoted_identifier: '"app"'
+        - dot: .
+        - quoted_identifier: '"From SQL"'
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: internal
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_transform_statement:
+    - keyword: CREATE
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        keyword: integer
+        array_type_suffix:
+          start_square_bracket: '['
+          end_square_bracket: ']'
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - bracketed:
+      - start_bracket: (
+      - keyword: TO
+      - keyword: SQL
+      - keyword: WITH
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: array_from_python
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            data_type:
+              data_type_identifier: internal
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

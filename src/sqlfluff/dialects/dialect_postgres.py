@@ -5569,6 +5569,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateEventTriggerStatementSegment"),
             Ref("AlterEventTriggerStatementSegment"),
             Ref("DropEventTriggerStatementSegment"),
+            Ref("CreateTransformStatementSegment"),
+            Ref("DropTransformStatementSegment"),
             Ref("CreateLanguageStatementSegment"),
             Ref("AlterLanguageStatementSegment"),
             Ref("DropLanguageStatementSegment"),
@@ -5858,6 +5860,55 @@ class DropEventTriggerStatementSegment(BaseSegment):
         "TRIGGER",
         Ref("IfExistsGrammar", optional=True),
         Ref("TriggerReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateTransformStatementSegment(BaseSegment):
+    """A `CREATE TRANSFORM` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtransform.html
+    """
+
+    type = "create_transform_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "TRANSFORM",
+        "FOR",
+        Ref("DatatypeSegment"),
+        "LANGUAGE",
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("FROM", "TO"),
+                    "SQL",
+                    "WITH",
+                    "FUNCTION",
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+            ),
+        ),
+    )
+
+
+class DropTransformStatementSegment(BaseSegment):
+    """A `DROP TRANSFORM` statement.
+
+    https://www.postgresql.org/docs/current/sql-droptransform.html
+    """
+
+    type = "drop_transform_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TRANSFORM",
+        Ref("IfExistsGrammar", optional=True),
+        "FOR",
+        Ref("DatatypeSegment"),
+        "LANGUAGE",
+        Ref("SingleIdentifierGrammar"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 

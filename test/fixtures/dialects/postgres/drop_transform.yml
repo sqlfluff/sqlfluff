@@ -1,0 +1,80 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0ee7f7c98de1f501aec15f3670f67bfd56c0c59f23b5d5e1773303a97999a131
+file:
+- statement:
+    drop_transform_statement:
+    - keyword: DROP
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+- statement_terminator: ;
+- statement:
+    drop_transform_statement:
+    - keyword: DROP
+    - keyword: TRANSFORM
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FOR
+    - data_type:
+        naked_identifier: public
+        dot: .
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+- statement_terminator: ;
+- statement:
+    drop_transform_statement:
+    - keyword: DROP
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_transform_statement:
+    - keyword: DROP
+    - keyword: TRANSFORM
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FOR
+    - data_type:
+        data_type_identifier: hstore
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_transform_statement:
+    - keyword: DROP
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+      - quoted_identifier: '"app"'
+      - dot: .
+      - quoted_identifier: '"Custom Type"'
+    - keyword: LANGUAGE
+    - quoted_identifier: '"plpython3u"'
+- statement_terminator: ;
+- statement:
+    drop_transform_statement:
+    - keyword: DROP
+    - keyword: TRANSFORM
+    - keyword: FOR
+    - data_type:
+        keyword: integer
+        array_type_suffix:
+          start_square_bracket: '['
+          end_square_bracket: ']'
+    - keyword: LANGUAGE
+    - naked_identifier: plpython3u
+- statement_terminator: ;
