@@ -769,11 +769,11 @@ test_fail_oracle_missing_intermediate_semicolons:
 
 test_fail_tsql_missing_intermediate_semicolon:
   fail_str: |
-    CREATE SCHEMA staging
-    CREATE TABLE test (id INT);
+    SELECT 1
+    SELECT 2;
   fix_str: |
-    CREATE SCHEMA staging;
-    CREATE TABLE test (id INT);
+    SELECT 1;
+    SELECT 2;
   configs:
     core:
       dialect: tsql
