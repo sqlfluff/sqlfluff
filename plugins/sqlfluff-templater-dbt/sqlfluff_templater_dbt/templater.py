@@ -176,7 +176,9 @@ class DbtTemplater(JinjaTemplater):
     name = "dbt"
     sequential_fail_limit = 3
     adapters = {}
-    _catalog_integrations: WeakKeyDictionary[Any, dict[str, Any]] = WeakKeyDictionary()
+    _catalog_integrations: WeakKeyDictionary[
+        Any, dict[Path, tuple[Any, dict[str, Any]]]
+    ] = WeakKeyDictionary()
     # dbt builds a cross-file manifest in the main process, so templating
     # cannot be deferred to worker processes.
     templates_in_worker = False
@@ -309,6 +311,26 @@ class DbtTemplater(JinjaTemplater):
 
         return DbtCompiler(self.dbt_config)
 
+    def _activate_catalog_integrations(self, adapter) -> dict[str, Any]:
+        """Select this project's catalog registry on dbt's shared adapter."""
+        from dbt.mp_context import get_mp_context
+
+        projects = self._catalog_integrations.setdefault(adapter, {})
+        project = Path(self.dbt_config.project_root).resolve()
+        if project not in projects:
+            # dbt cannot remove integrations, and its shared adapter may already
+            # contain another project's catalogs from a previous dbt invocation.
+            # A fresh adapter supplies only its constructor-installed defaults.
+            defaults = type(adapter)(self.dbt_config, get_mp_context())
+            try:
+                client = defaults._catalog_client
+            finally:
+                defaults.cleanup_connections()
+            projects[project] = (client, {})
+        client, registered = projects[project]
+        adapter._catalog_client = client
+        return registered
+
     def _register_catalog_integrations(self) -> None:
         """Mirror dbt's catalog setup before the manifest looks up integrations."""
         from dbt import flags
@@ -326,6 +348,7 @@ class DbtTemplater(JinjaTemplater):
             from dbt.config.catalogs import get_active_write_integration, load_catalogs
 
             adapter = get_adapter(config)
+            registered = self._activate_catalog_integrations(adapter)
             if use_v2:
                 from dbt.adapters.capability import Capability
                 from dbt.config.catalogs import load_catalogs_v2
@@ -356,8 +379,6 @@ class DbtTemplater(JinjaTemplater):
                 incoming = {c.name: c for c in integrations}
                 if len(incoming) != len(integrations):
                     raise ValueError("Duplicate catalog names.")
-                # dbt shares adapters across templaters, including different projects.
-                registered = self._catalog_integrations.setdefault(adapter, {})
                 if any(
                     name not in incoming or previous != incoming[name]
                     for name, previous in registered.items()
@@ -950,6 +971,11 @@ class DbtTemplater(JinjaTemplater):
     def connection(self):
         """Context manager that manages a dbt connection, if needed."""
         from dbt.adapters.factory import get_adapter
+
+        # Manifests and connections may both be cached when an API caller returns
+        # to a project after linting another one through the same dbt adapter.
+        if self.dbt_version_tuple >= (1, 10):
+            self._activate_catalog_integrations(get_adapter(self.dbt_config))
 
         # We have to register the connection in dbt >= 1.0.0 ourselves
         # In previous versions, we relied on the functionality removed in
