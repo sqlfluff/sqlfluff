@@ -8161,6 +8161,8 @@ class DropAccessMethodStatementSegment(BaseSegment):
         "ACCESS",
         "METHOD",
         Ref("IfExistsGrammar", optional=True),
+        # The synopsis shows one name, but PostgreSQL also accepts a list:
+        # `DROP ACCESS METHOD a, b` drops both.
         Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
