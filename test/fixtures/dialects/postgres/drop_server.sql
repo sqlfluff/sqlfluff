@@ -1,0 +1,5 @@
+DROP SERVER IF EXISTS "Foo2";
+
+DROP SERVER bar CASCADE;
+
+DROP SERVER IF EXISTS no_such_server, other_server RESTRICT;
