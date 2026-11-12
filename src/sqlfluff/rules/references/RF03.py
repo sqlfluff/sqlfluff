@@ -498,7 +498,7 @@ def _validate_one_reference(
 
     # Oddball case: tsql table variables can't be used to qualify references.
     # This appears here as an empty string for table_ref_str.
-    if not table_ref_str:
+    if not table_ref_str or table_ref_str_source is None:
         return None
 
     # Certain dialects allow use of SELECT alias in WHERE clauses
@@ -553,15 +553,23 @@ def _validate_one_reference(
 
     fixes = None
     if fixable and not ref_is_templated:
+        # Reuse the table's own identifier segment so that the inserted
+        # qualifier keeps the same quoting and segment type as the table
+        # name in the FROM clause. A synthesized naked identifier fails
+        # the reparse validation for quoted table names (silently
+        # dropping the fix) and, in dialects like MySQL, strips the
+        # quotes entirely, which breaks keyword table names like
+        # `order`.
+        table_identifier = IdentifierSegment(
+            raw=table_ref_str_source.raw,
+            instance_types=table_ref_str_source.instance_types,
+        )
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,
                 source=[table_ref_str_source] if table_ref_str_source else None,
                 edit_segments=[
-                    IdentifierSegment(
-                        raw=table_ref_str,
-                        type="naked_identifier",
-                    ),
+                    table_identifier,
                     SymbolSegment(raw=".", type="symbol"),
                 ],
             )

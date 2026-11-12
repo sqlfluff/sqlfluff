@@ -1634,3 +1634,55 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+
+test_fail_qualify_single_table_backticked_table:
+  # The inserted qualifier must keep the quoting of the table name.
+  fail_str: SELECT `c` FROM `t`;
+  fix_str: SELECT `t`.`c` FROM `t`;
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_qualify_single_table_quoted_keyword_table:
+  # `order` is a keyword: a naked qualifier would make the fixed SQL
+  # unparsable, so the fix used to be silently discarded.
+  fail_str: SELECT `select` FROM `order`;
+  fix_str: SELECT `order`.`select` FROM `order`;
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_qualify_single_table_double_quoted_table:
+  fail_str: SELECT "c" FROM "t";
+  fix_str: SELECT "t"."c" FROM "t";
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_qualify_single_table_bracket_quoted_table:
+  fail_str: SELECT [c] FROM [t];
+  fix_str: SELECT [t].[c] FROM [t];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_single_table_mixed_qualification_quoted_references:
+  # With the default "consistent" setting, the inserted qualifier must
+  # keep the table's quoting for the fix to stay parseable.
+  fail_str: SELECT `weird name`.`col`, `select` FROM `order`;
+  fix_str: SELECT `weird name`.`col`, `order`.`select` FROM `order`;
+  configs:
+    core:
+      dialect: mysql
