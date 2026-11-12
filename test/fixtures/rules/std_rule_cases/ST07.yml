@@ -241,3 +241,25 @@ test_unfixable_wildcard_except_partial_keys:
   configs:
     core:
       dialect: bigquery
+
+test_fail_comma_join_after_the_first_join:
+  # The comma join that follows the first join is a sibling which is not
+  # itself a join clause; it must not be read as a later USING join.
+  fail_str: |
+    select a.x, c.y from a
+    inner join b using (id),
+    c
+  fix_str: |
+    select a.x, c.y from a
+    inner join b ON a.id = b.id,
+    c
+
+test_fail_qualified_wildcard_still_fixed:
+  # ``table.*`` expands to that table's own columns, which USING does not
+  # merge, so the rewrite cannot change what the wildcard expands to.
+  fail_str: |
+    select a.*, b.* from a
+    inner join b using (id)
+  fix_str: |
+    select a.*, b.* from a
+    inner join b ON a.id = b.id

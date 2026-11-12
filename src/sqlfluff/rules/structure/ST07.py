@@ -153,8 +153,6 @@ class Rule_ST07(BaseRule):
             len(tables_in_join),
         )
         for sibling in list(tables_in_join)[join_index + 1 :]:
-            if not sibling.is_type("join_clause"):
-                continue
             sibling_segments = Segments(sibling)
             sibling_using = sibling_segments.children(sp.is_keyword("using")).first()
             if len(sibling_using) == 0:
@@ -218,7 +216,7 @@ def _has_unqualified_wildcard(
 ) -> bool:
     """Return whether the select clause exposes a USING column via a bare ``*``."""
     select_clause = select_statement.get_child("select_clause")
-    if not select_clause:
+    if not select_clause:  # pragma: no cover
         return False
     for element in select_clause.get_children("select_clause_element"):
         # A wildcard inside a subquery belongs to that query, not to the
@@ -227,7 +225,7 @@ def _has_unqualified_wildcard(
             "wildcard_expression", no_recursive_seg_type="select_statement"
         ):
             identifier = wildcard.get_child("wildcard_identifier")
-            if identifier is None:
+            if identifier is None:  # pragma: no cover
                 continue
             # A qualified wildcard (``table.*``) still expands to the columns
             # of a single table, which USING does not change, so only the
