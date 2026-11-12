@@ -138,6 +138,39 @@ class Rule_ST07(BaseRule):
                 if parts[0].segments[0].raw_normalized() in using_cols_normalized:
                     return unfixable_result
 
+        # A later USING join re-merges its own keys across its whole left flank.
+        # Once this join becomes ON, that flank keeps a distinct copy of every
+        # key rather than the single merged column, so a later USING on the same
+        # key becomes ambiguous and the query stops being valid. Flag the clause
+        # but leave it unfixable.
+        # https://github.com/sqlfluff/sqlfluff/issues/8950
+        join_index = next(
+            (
+                i
+                for i, sibling in enumerate(tables_in_join)
+                if sibling is context.segment
+            ),
+            len(tables_in_join),
+        )
+        for sibling in list(tables_in_join)[join_index + 1 :]:
+            if not sibling.is_type("join_clause"):
+                continue
+            sibling_segments = Segments(sibling)
+            sibling_using = sibling_segments.children(sp.is_keyword("using")).first()
+            if len(sibling_using) == 0:
+                continue
+            sibling_cols = _extract_cols_from_using(sibling_segments, sibling_using)
+            if {col.raw_normalized() for col in sibling_cols} & using_cols_normalized:
+                return unfixable_result
+
+        # An unqualified ``*`` expands to the single merged copy of each USING
+        # column, but to one copy per joined table once the clause becomes ON.
+        # That changes the result set without raising a parse error, so mapping
+        # the clause onto a fix would silently change what the query returns.
+        # https://github.com/sqlfluff/sqlfluff/issues/8950
+        if _has_unqualified_wildcard(parent_select):
+            return unfixable_result
+
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
         # This join connects the base table of its from_expression with the
@@ -178,6 +211,26 @@ class Rule_ST07(BaseRule):
             description=description,
             fixes=fixes,
         )
+
+
+def _has_unqualified_wildcard(select_statement: BaseSegment) -> bool:
+    """Return whether the select clause selects a bare ``*``."""
+    select_clause = select_statement.get_child("select_clause")
+    if not select_clause:
+        return False
+    for element in select_clause.get_children("select_clause_element"):
+        for wildcard in element.recursive_crawl("wildcard_expression"):
+            identifier = wildcard.get_child("wildcard_identifier")
+            if identifier is None:
+                continue
+            # A qualified wildcard (``table.*``) still expands to the columns
+            # of a single table, which USING does not change, so only the
+            # unqualified ``*`` is a problem.
+            if not any(
+                seg.is_type("symbol") and seg.raw == "." for seg in identifier.segments
+            ):
+                return True
+    return False
 
 
 def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> Segments:

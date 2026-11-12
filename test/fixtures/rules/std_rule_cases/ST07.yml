@@ -23,7 +23,10 @@ test_fail_specify_join_keys_2:
   desc: Keys were specified for first join but not the second one.
   fail_str: select x.a from x inner join y on x.id = y.id inner join z using (id)
 
-test_partial_fixed_up_to_2nd_join:
+test_unfixable_when_later_join_reuses_key:
+  # Only the first join is eligible for a fix, and rewriting it here would
+  # leave two copies of ``id`` on the left of ``inner join z using(id)``.
+  # See https://github.com/sqlfluff/sqlfluff/issues/8950
   fail_str: |
     select x.a
     from x
@@ -32,19 +35,29 @@ test_partial_fixed_up_to_2nd_join:
   fix_str: |
     select x.a
     from x
-    inner join y ON x.id = y.id AND x.foo = y.foo
+    inner join y using(id, foo)
     inner join z using(id)
   violations_after_fix:
     - description: Found USING statement. Expected only ON statements.
       name: structure.using
       warning: false
       fixes: []
+      start_line_no: 3
+      start_line_pos: 14
+      start_file_pos: 31
+      end_line_no: 3
+      end_line_pos: 19
+      end_file_pos: 36
+    - description: Found USING statement. Expected only ON statements.
+      name: structure.using
+      warning: false
+      fixes: []
       start_line_no: 4
       start_line_pos: 14
-      start_file_pos: 77
+      start_file_pos: 59
       end_line_no: 4
       end_line_pos: 19
-      end_file_pos: 82
+      end_file_pos: 64
 
 select_using_fail:
   fail_str: |
@@ -58,19 +71,60 @@ select_using_fail:
 test_fail_parent_child_positioning:
   # Check for issue from https://github.com/sqlfluff/sqlfluff/issues/3656
   fail_str: |
-    select * from c1 join c2 using (ID)
-    join (select * from c3 join c4 using (ID)) as c5 on c1.ID = c5.ID
+    select c1.a from c1 join c2 using (ID)
+    join (select c3.a from c3 join c4 using (ID)) as c5 on c1.ID = c5.ID
   fix_str: |
-    select * from c1 join c2 ON c1.ID = c2.ID
-    join (select * from c3 join c4 ON c3.ID = c4.ID) as c5 on c1.ID = c5.ID
+    select c1.a from c1 join c2 ON c1.ID = c2.ID
+    join (select c3.a from c3 join c4 ON c3.ID = c4.ID) as c5 on c1.ID = c5.ID
 
 test_fail_comma_join_before_using:
   # A comma-join before the first USING join must pair the two tables the
   # join actually connects, not the SELECT's first two tables.
   fail_str: |
-    SELECT * FROM a, b JOIN c USING (id)
+    SELECT b.id, c.id FROM a, b JOIN c USING (id)
   fix_str: |
-    SELECT * FROM a, b JOIN c ON b.id = c.id
+    SELECT b.id, c.id FROM a, b JOIN c ON b.id = c.id
+
+test_unfixable_with_unqualified_wildcard:
+  # ``SELECT *`` exposes one merged copy of ``id`` under USING but one copy
+  # per table under ON, so the rewrite would change the result columns.
+  # See https://github.com/sqlfluff/sqlfluff/issues/8950
+  fail_str: |
+    SELECT * FROM a JOIN b USING (id)
+
+test_fail_when_later_join_uses_other_keys:
+  # A later join on unrelated keys is unaffected by the rewrite, so the first
+  # join can still be fixed. The second USING clause stays reported.
+  fail_str: |
+    SELECT a.id, c.name
+    FROM a
+    INNER JOIN b USING (id)
+    INNER JOIN c USING (name)
+  fix_str: |
+    SELECT a.id, c.name
+    FROM a
+    INNER JOIN b ON a.id = b.id
+    INNER JOIN c USING (name)
+  violations_after_fix:
+    - description: Found USING statement. Expected only ON statements.
+      name: structure.using
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 14
+      start_file_pos: 68
+      end_line_no: 4
+      end_line_pos: 19
+      end_file_pos: 73
+
+test_unfixable_when_a_later_join_reuses_the_key_two_joins_away:
+  # The reused key is two joins down: every later USING join must be checked.
+  fail_str: |
+    SELECT a.id, d.value
+    FROM a
+    INNER JOIN b USING (id)
+    INNER JOIN c USING (name)
+    INNER JOIN d USING (id)
 
 fail_but_dont_fix_templated_table_names:
   fail_str: |
