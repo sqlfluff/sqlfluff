@@ -50,6 +50,7 @@ from sqlfluff.core.templaters.builtins.dbt import (
     DBT_BUILTINS,
     DbtMacroWrapper,
     DbtSandboxedEnvironment,
+    get_dbt_modules,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
@@ -720,6 +721,8 @@ class JinjaTemplater(PythonTemplater):
                     # Only apply if it hasn't already been set at this stage.
                     if name not in live_context:
                         live_context[name] = DBT_BUILTINS[name]
+                if "modules" not in live_context:
+                    live_context["modules"] = get_dbt_modules()
 
         # Load macros from path (if applicable)
         if config:

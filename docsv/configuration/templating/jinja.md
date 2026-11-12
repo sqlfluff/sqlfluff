@@ -249,6 +249,19 @@ these helpers too.
 SELECT {{ columns | join(', ') }} FROM my_table
 ```
 
+The `modules` namespace provides dbt's supported `datetime`, `pytz`, `re`, and
+`itertools` exports with `apply_dbt_builtins = True`. It does not expose arbitrary
+Python imports. Configured context values can override the namespace, and each
+render receives its own namespace dictionaries.
+
+```jinja
+SELECT '{{ modules.datetime.date(2024, 1, 2).isoformat() }}' AS report_date
+```
+
+See [dbt's modules reference](https://docs.getdbt.com/reference/dbt-jinja-functions/modules)
+for the supported exports. dbt deprecated `modules.itertools` in dbt-core 1.10.6;
+SQLFluff retains those exports for compatibility.
+
 It also understands the dbt `{% test %}` and `{% materialization %}` blocks,
 so files which define generic tests or custom materializations can be linted
 like other macro files.

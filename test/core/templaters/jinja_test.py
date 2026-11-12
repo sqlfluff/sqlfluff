@@ -776,6 +776,80 @@ def test__templater_jinja_dbt_conversion_context_override(name, override, call):
     assert not violations
 
 
+@pytest.mark.parametrize(
+    "expression,expected",
+    [
+        ("modules.datetime.date(2024, 2, 29).isoformat()", "2024-02-29"),
+        (
+            "modules.datetime.datetime(2024, 1, 2, 3, 4, 5).isoformat()",
+            "2024-01-02T03:04:05",
+        ),
+        ("modules.datetime.time(3, 4, 5).isoformat()", "03:04:05"),
+        (
+            "(modules.datetime.date(2024, 1, 2) - modules.datetime.timedelta(days=1)).isoformat()",
+            "2024-01-01",
+        ),
+        (
+            "modules.pytz.timezone('US/Eastern').localize(modules.datetime.datetime(2002, 10, 27, 6)).isoformat()",
+            "2002-10-27T06:00:00-05:00",
+        ),
+        ("modules.re.sub('[0-9]+', 'x', 'abc123')", "abcx"),
+        ("modules.re.match('ABC', 'abc', modules.re.IGNORECASE).group()", "abc"),
+        ("modules.itertools.chain([1], [2, 3]) | join(', ')", "1, 2, 3"),
+        (
+            "modules.itertools.islice(modules.itertools.count(2), 3) | join(', ')",
+            "2, 3, 4",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_modules(expression, expected):
+    """Documented dbt modules render through the public templater."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    outstr, violations = JinjaTemplater().process(
+        in_str="SELECT '{{ " + expression + " }}'", fname="test.sql", config=config
+    )
+    assert str(outstr) == f"SELECT '{expected}'"
+    assert not violations
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test__templater_jinja_dbt_modules_enabled(enabled):
+    """The namespace follows the existing dbt builtin switch."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": enabled}},
+        }
+    )
+    _, context, _ = JinjaTemplater().construct_render_func(config=config)
+    assert ("modules" in context) is enabled
+
+
+def test__templater_jinja_dbt_modules_context_override():
+    """A user-supplied namespace takes precedence over dbt defaults."""
+    outstr, violations = JinjaTemplater(
+        override_context={"modules": {"custom": lambda: 42}}
+    ).process(
+        in_str="SELECT {{ modules.custom() }}",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
+def test__templater_jinja_dbt_modules_isolated():
+    """Template-side dictionary updates cannot leak into later renders."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    templater = JinjaTemplater()
+    _, first, _ = templater.construct_render_func(config=config)
+    _, second, _ = templater.construct_render_func(config=config)
+    first["modules"]["datetime"].clear()
+    first["modules"].clear()
+    assert set(second["modules"]) == {"datetime", "pytz", "re", "itertools"}
+    assert second["modules"]["datetime"]["date"](2024, 1, 2).isoformat() == "2024-01-02"
+
+
 def test__templater_jinja_dbt_builtin_function():
     """Test that dbt's `function()` builtin mock is available in Jinja templater."""
     config = FluffConfig.from_string(

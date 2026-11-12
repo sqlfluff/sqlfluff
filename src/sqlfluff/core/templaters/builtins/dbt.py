@@ -1,13 +1,48 @@
 """Defines the jinja builtins for dbt."""
 
+import datetime
+import itertools
 import json
+import re
 from typing import Any, Callable, Union
 
+import pytz
 import yaml
 from jinja2.runtime import Context, Macro
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.templaters.builtins.common import FunctionWrapper
+
+
+def get_dbt_modules() -> dict[str, dict[str, Any]]:
+    """Create a fresh namespace containing dbt's supported module exports."""
+    return {
+        "datetime": {
+            name: getattr(datetime, name)
+            for name in ("date", "datetime", "time", "timedelta", "tzinfo")
+        },
+        "pytz": {name: getattr(pytz, name) for name in pytz.__all__},
+        "re": {name: getattr(re, name) for name in re.__all__},
+        "itertools": {
+            name: getattr(itertools, name)
+            for name in (
+                "count",
+                "cycle",
+                "repeat",
+                "accumulate",
+                "chain",
+                "compress",
+                "islice",
+                "starmap",
+                "tee",
+                "zip_longest",
+                "product",
+                "permutations",
+                "combinations",
+                "combinations_with_replacement",
+            )
+        },
+    }
 
 
 class RelationEmulator:
