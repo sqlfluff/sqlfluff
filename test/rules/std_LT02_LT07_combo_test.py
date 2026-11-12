@@ -32,3 +32,46 @@ def test_cte_closing_bracket_rule_ownership(dialect, exclude_lt07, indent):
     assert fixed_sql == expected_sql
     assert not linter.lint_string(fixed_sql).get_violations()
     assert linter.lint_string(fixed_sql, fix=True).fix_string()[0] == fixed_sql
+
+
+@pytest.mark.parametrize("exclude_lt07", [True, False])
+@pytest.mark.parametrize("nested_cte", [True, False])
+@pytest.mark.parametrize("indent", [6, 8])
+def test_pipe_cte_closing_bracket_rule_ownership(exclude_lt07, nested_cte, indent):
+    """LT02 retains pipe CTE brackets, including around an ordinary nested CTE."""
+    body = "WITH u AS (\n            SELECT 2)\n\n" if nested_cte else ""
+    query = "SELECT * FROM u" if nested_cte else "SELECT 2"
+    sql = (
+        "SELECT 1\n|> WITH\n    t AS (\n"
+        + ("        " + body if body else "")
+        + " " * indent
+        + query
+        + ")\n|> SELECT * FROM t\n"
+    )
+    linter = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "bigquery",
+                "rules": "LT02,LT07",
+                "exclude_rules": "LT07" if exclude_lt07 else "",
+            }
+        )
+    )
+    linted = linter.lint_string(sql, fix=True)
+    codes = {violation.rule_code() for violation in linted.get_violations()}
+    assert "LT02" in codes
+    assert ("LT07" in codes) == (nested_cte and not exclude_lt07)
+    expected_body = "        " + body if body else ""
+    if nested_cte and not exclude_lt07:
+        expected_body = expected_body.replace("SELECT 2)", "SELECT 2\n        )")
+    expected_sql = (
+        "SELECT 1\n|> WITH\n    t AS (\n"
+        + expected_body
+        + "        "
+        + query
+        + "\n    )\n|> SELECT * FROM t\n"
+    )
+    fixed_sql, _ = linted.fix_string()
+    assert fixed_sql == expected_sql
+    assert not linter.lint_string(fixed_sql).get_violations()
+    assert linter.lint_string(fixed_sql, fix=True).fix_string()[0] == fixed_sql

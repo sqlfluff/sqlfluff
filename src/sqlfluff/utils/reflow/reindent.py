@@ -1657,13 +1657,15 @@ def _lint_line_untaken_positive_indents(
 
 
 def _is_cte_query_end_bracket(elements: ReflowSequenceType, block_idx: int) -> bool:
-    """Match LT07's last direct bracketed child of a CTE using depth metadata."""
+    """Match a CTE query bracket reached by LT07's WITH statement crawler."""
     block = cast(ReflowBlock, elements[block_idx])
     depth = block.depth_info
     if (
         "end_bracket" not in block.class_types
-        or depth.stack_depth < 2
+        or depth.stack_depth < 3
         or "common_table_expression" not in depth.stack_class_types[-2]
+        # Pipe WITH clauses contain CTEs too, but LT07 does not visit them.
+        or "with_compound_statement" not in depth.stack_class_types[-3]
     ):
         return False
 
