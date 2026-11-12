@@ -1948,6 +1948,67 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
+class AlterRoutineStatementSegment(BaseSegment):
+    """An `ALTER ROUTINE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterroutine.html
+    """
+
+    type = "alter_routine_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "ROUTINE",
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar", optional=True),
+        OneOf(
+            # PostgreSQL takes the actions of `ALTER FUNCTION` here, and rejects
+            # the ones a procedure doesn't have when the routine is a procedure.
+            Ref("AlterFunctionActionSegment"),
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+                Ref("ExtensionReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class DropRoutineStatementSegment(BaseSegment):
+    """A `DROP ROUTINE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droproutine.html
+    """
+
+    type = "drop_routine_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "ROUTINE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            ),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class WellKnownTextGeometrySegment(BaseSegment):
     """A Data Type Segment to identify Well Known Text Geometric Data Types.
 
@@ -5603,6 +5664,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterProcedureStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
+            Ref("AlterRoutineStatementSegment"),
+            Ref("DropRoutineStatementSegment"),
             Ref("CopyStatementSegment"),
             Ref("DoStatementSegment"),
             Ref("AlterIndexStatementSegment"),

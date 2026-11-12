@@ -1,0 +1,172 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 98a0433d4b767c262865ca1821604f3df94bd3438bba83ef09e090b1514a3463
+file:
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: foo
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: foobar
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: foobar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: STABLE
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: SET
+      - parameter: search_path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: s2
+      - comma: ','
+      - naked_identifier: pg_temp
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: foobar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: routine_owner
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: foobar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: foobar
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s2
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        naked_identifier: s2
+        dot: .
+        function_name_identifier: foobar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          keyword: IN
+          parameter: a
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: COST
+      - numeric_literal: '10'
+      - keyword: NOT
+      - keyword: LEAKPROOF
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        naked_identifier: s2
+        dot: .
+        function_name_identifier: foobar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+        keyword: STRICT
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: pr
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: RESET
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_routine_statement:
+    - keyword: ALTER
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: pr
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: 'NO'
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: plpgsql
+- statement_terminator: ;
