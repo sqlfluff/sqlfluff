@@ -206,3 +206,15 @@ test_fail_no_fix_when_using_col_struct_access_matches_table_name:
   configs:
     core:
       dialect: bigquery
+
+test_fail_wildcard_inside_subquery_still_fixed:
+  # The wildcard belongs to the subquery, which the outer join does not
+  # widen, so it must not be treated as a bare ``*`` of this select.
+  fail_str: |
+    select (select * from t) as everything
+    from a
+    inner join b using (id)
+  fix_str: |
+    select (select * from t) as everything
+    from a
+    inner join b ON a.id = b.id

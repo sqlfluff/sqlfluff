@@ -219,7 +219,11 @@ def _has_unqualified_wildcard(select_statement: BaseSegment) -> bool:
     if not select_clause:
         return False
     for element in select_clause.get_children("select_clause_element"):
-        for wildcard in element.recursive_crawl("wildcard_expression"):
+        # A wildcard inside a subquery belongs to that query, not to the
+        # select clause being widened, so stop at a nested select statement.
+        for wildcard in element.recursive_crawl(
+            "wildcard_expression", no_recursive_seg_type="select_statement"
+        ):
             identifier = wildcard.get_child("wildcard_identifier")
             if identifier is None:
                 continue
