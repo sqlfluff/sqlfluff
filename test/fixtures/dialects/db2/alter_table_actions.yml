@@ -1,0 +1,343 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 48c605e077f18cd38ed35d79656b8725f0ac020a601da64749888bf0d33bc199
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: b
+        data_type:
+          data_type_identifier: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - column_definition:
+      - naked_identifier: b
+      - data_type:
+          data_type_identifier: INT
+      - column_constraint_segment:
+          keyword: DEFAULT
+          numeric_literal: '0'
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: fk
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+          naked_identifier: p
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: ck
+      - keyword: CHECK
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '0'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+        keyword: CHECK
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: a
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '0'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: uq
+      - keyword: UNIQUE
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: fk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: SET
+    - keyword: DATA
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: BIGINT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - naked_identifier: b
+    - keyword: SET
+    - keyword: DATA
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: SET
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: SET
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: DROP
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: id
+    - keyword: SET
+    - keyword: GENERATED
+    - keyword: ALWAYS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: id
+    - keyword: SET
+    - keyword: GENERATED
+    - keyword: BY
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: id
+    - keyword: SET
+    - keyword: INCREMENT
+    - keyword: BY
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: id
+    - keyword: RESTART
+    - keyword: WITH
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: id
+    - keyword: RESTART
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: b
+        data_type:
+          data_type_identifier: INT
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: b
+    - keyword: SET
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: RENAME
+    - keyword: COLUMN
+    - naked_identifier: a
+    - keyword: TO
+    - naked_identifier: b
+- statement_terminator: ;

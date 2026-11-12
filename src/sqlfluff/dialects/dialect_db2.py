@@ -547,6 +547,109 @@ class TableEndClauseSegment(ansi.TableEndClauseSegment):
     )
 
 
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for ``CREATE TABLE``.
+
+    Db2 also allows ``CHECK`` constraints in the table element list.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(  # UNIQUE ( column_name [, ... ] )
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] )
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("ReferenceDefinitionGrammar"),
+            ),
+            Sequence(  # CHECK ( check-condition )
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
+        ),
+    )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An ``ALTER TABLE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-alter-table
+    """
+
+    type = "alter_table_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # ADD [COLUMN] column-definition | (column-definition, ...)
+                # or ADD table-constraint
+                Sequence(
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Bracketed(Delimited(Ref("ColumnDefinitionSegment"))),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                ),
+                # DROP CONSTRAINT constraint-name
+                Sequence("DROP", "CONSTRAINT", Ref("ObjectReferenceSegment")),
+                # DROP [COLUMN] column-name [CASCADE | RESTRICT]
+                Ref("AlterTableDropColumnGrammar"),
+                # ALTER [COLUMN] column-name action
+                Sequence(
+                    "ALTER",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("SingleIdentifierGrammar"),
+                    OneOf(
+                        Sequence("SET", "DATA", "TYPE", Ref("DatatypeSegment")),
+                        Sequence("SET", "DEFAULT", Ref("ExpressionSegment")),
+                        Sequence("SET", "NOT", "NULL"),
+                        Sequence("SET", "GENERATED", "ALWAYS"),
+                        Sequence("SET", "GENERATED", "BY", "DEFAULT"),
+                        Sequence(
+                            "SET", "INCREMENT", "BY", Ref("NumericLiteralSegment")
+                        ),
+                        Sequence("DROP", "DEFAULT"),
+                        Sequence("DROP", "NOT", "NULL"),
+                        Sequence(
+                            "RESTART",
+                            Ref.keyword("WITH", optional=True),
+                            Ref("NumericLiteralSegment", optional=True),
+                        ),
+                    ),
+                ),
+                # RENAME COLUMN source-column-name TO target-column-name
+                Sequence(
+                    "RENAME",
+                    "COLUMN",
+                    Ref("SingleIdentifierGrammar"),
+                    "TO",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                # Fall back to the ANSI options so that Db2 table options
+                # which are not modelled explicitly keep parsing.
+                Ref("AlterTableOptionsGrammar"),
+            )
+        ),
+    )
+
+
 class IndexColumnDefinitionSegment(ansi.IndexColumnDefinitionSegment):
     """A column definition for CREATE INDEX."""
 
