@@ -1,0 +1,190 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6722cb02f47590f286e67c0dd947eaba03b2bfcdd38994b17c9ca73f1897a724
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - sign_indicator: '-'
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: a
+      - keyword: SET
+      - keyword: STATISTICS
+      - keyword: DEFAULT
+    - comma: ','
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: b
+      - keyword: SET
+      - keyword: STATISTICS
+      - numeric_literal: '500'
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ft
+    - alter_foreign_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: i
+    - keyword: ALTER
+    - keyword: COLUMN
+    - numeric_literal: '1'
+    - keyword: SET
+    - keyword: STATISTICS
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: i
+    - keyword: ALTER
+    - numeric_literal: '2'
+    - keyword: SET
+    - keyword: STATISTICS
+    - sign_indicator: '-'
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: mv
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: mv
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: c
+      - keyword: SET
+      - keyword: STATISTICS
+      - sign_indicator: '-'
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_statistics_statement:
+    - keyword: ALTER
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - keyword: STATISTICS
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_statistics_statement:
+    - keyword: ALTER
+    - keyword: STATISTICS
+    - keyword: IF
+    - keyword: EXISTS
+    - statistics_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - keyword: STATISTICS
+    - sign_indicator: '-'
+    - numeric_literal: '1'
+- statement_terminator: ;
