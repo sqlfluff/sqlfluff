@@ -24,3 +24,8 @@ GRANT SELECT ON abc TO xyz, mno;
 GRANT EXECUTE ON ALL ROUTINES IN SCHEMA my_schema TO my_user, my_other_user;
 GRANT EXECUTE ON FUNCTION test(a IN TEXT, b OUT TEXT, INOUT c TEXT, VARIADIC d TEXT) TO my_user;
 GRANT EXECUTE ON FUNCTION test(a TEXT, b my_table.my_column%type) TO my_user;
+GRANT MAINTAIN ON TABLE my_table TO my_user;
+GRANT SELECT, MAINTAIN ON ALL TABLES IN SCHEMA my_schema TO my_user;
+GRANT SET ON PARAMETER work_mem TO my_user;
+GRANT SET, ALTER SYSTEM ON PARAMETER work_mem, plpgsql.extra_warnings TO my_user WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON PARAMETER log_min_duration_statement TO my_user;
