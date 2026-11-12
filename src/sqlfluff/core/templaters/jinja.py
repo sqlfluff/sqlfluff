@@ -49,6 +49,7 @@ from sqlfluff.core.templaters.base import (
 from sqlfluff.core.templaters.builtins.dbt import (
     DBT_BUILTINS,
     DbtMacroWrapper,
+    DbtModules,
     DbtSandboxedEnvironment,
     get_dbt_modules,
 )
@@ -724,34 +725,37 @@ class JinjaTemplater(PythonTemplater):
                 if "modules" not in live_context:
                     live_context["modules"] = get_dbt_modules()
 
-        # Load macros from path (if applicable)
         if config:
-            # References to variables are fixed when macros are compiled. In
-            # order to handle macros that refer to other macros from another
-            # file, we have to make two passes:
-
-            # Pass 1: get all macro names and insert late-bound functions into
-            # the context for every known macro.
-            macro_names = self._extract_macros(
-                config=config, env=env, ctx=live_context
-            ).keys()
-            late_binding_macros = {}
-            for k in macro_names:
-
-                def late_binding_macro(macro_name: str) -> Callable[..., Any]:
-                    return lambda *args, **kwargs: live_context[macro_name](
-                        *args, **kwargs
-                    )
-
-                late_binding_macros[k] = late_binding_macro(k)
-            # Pass 2: load the macros, with the late bindings in the context
-            live_context.update(
-                self._extract_macros(
-                    config=config, env=env, ctx=live_context | late_binding_macros
-                )
-            )
+            self._load_macros(config, env, live_context)
 
         return live_context
+
+    def _load_macros(
+        self, config: FluffConfig, env: Environment, live_context: dict[str, Any]
+    ) -> None:
+        """Bind configured macros to this render's context, including aliases."""
+        # References to variables are fixed when macros are compiled. In
+        # order to handle macros that refer to other macros from another
+        # file, we have to make two passes:
+
+        # Pass 1: get all macro names and insert late-bound functions into
+        # the context for every known macro.
+        macro_names = self._extract_macros(
+            config=config, env=env, ctx=live_context
+        ).keys()
+        late_binding_macros = {}
+        for k in macro_names:
+
+            def late_binding_macro(macro_name: str) -> Callable[..., Any]:
+                return lambda *args, **kwargs: live_context[macro_name](*args, **kwargs)
+
+            late_binding_macros[k] = late_binding_macro(k)
+        # Pass 2: load the macros, with the late bindings in the context
+        live_context.update(
+            self._extract_macros(
+                config=config, env=env, ctx=live_context | late_binding_macros
+            )
+        )
 
     def construct_render_func(
         self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
@@ -783,8 +787,14 @@ class JinjaTemplater(PythonTemplater):
 
             https://www.programiz.com/python-programming/closure
             """
+            render_context = live_context
+            if config and isinstance(live_context.get("modules"), DbtModules):
+                # Tracing renders repeatedly. Rebind macros too: they can retain
+                # aliases to nested module data from their compilation context.
+                render_context = live_context | {"modules": get_dbt_modules()}
+                self._load_macros(config, env, render_context)
             try:
-                template = env.from_string(in_str, globals=live_context)
+                template = env.from_string(in_str, globals=render_context)
             except TemplateSyntaxError as err:  # pragma: no cover
                 # NOTE: If the template fails to parse, then this clause
                 # will be triggered. However in normal that should never
