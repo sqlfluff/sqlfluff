@@ -91,13 +91,15 @@ def test__linter__path_from_paths__sqlfluffignore_current_directory():
         os.chdir(oldcwd)
 
 
-def test__linter__path_from_paths__dot():
+def test__linter__path_from_paths__dot(monkeypatch):
     """Test extracting paths from a dot."""
-    # Use set theory to check that we get AT LEAST these files
-    assert normalise_paths(paths_from_path(".")) >= {
-        "test.fixtures.lexer.block_comment.sql",
-        "test.fixtures.lexer.inline_comment.sql",
-        "test.fixtures.lexer.basic.sql",
+    # Don't walk from the repo root: on Windows CI the pytest tmp dir lives
+    # inside the repo, and other tests leave broken configs in there.
+    monkeypatch.chdir("test/fixtures/lexer")
+    assert normalise_paths(paths_from_path(".")) == {
+        "block_comment.sql",
+        "inline_comment.sql",
+        "basic.sql",
     }
 
 
