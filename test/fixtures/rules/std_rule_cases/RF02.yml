@@ -1,5 +1,62 @@
 rule: RF02
 
+test_pass_using_columns_case_insensitive:
+  pass_str: |
+    SELECT a, B FROM t1 JOIN t2 USING (A, b)
+
+test_pass_using_columns_case_insensitive_postgres:
+  pass_str: |
+    SELECT a, B FROM t1 JOIN t2 USING (A, b)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_using_columns_case_insensitive_snowflake:
+  pass_str: |
+    SELECT a, B FROM t1 JOIN t2 USING (A, b)
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_using_columns_quoted_postgres:
+  pass_str: |
+    SELECT A, "b", "Mixed" FROM t1 JOIN t2 USING ("a", B, "Mixed")
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_using_columns_quoted_ansi:
+  pass_str: |
+    SELECT a, "B", "Mixed" FROM t1 JOIN t2 USING ("A", b, "Mixed")
+
+test_fail_using_columns_distinct_quoted_postgres:
+  fail_str: |
+    SELECT "A" FROM t1 JOIN t2 USING (a)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_using_columns_distinct_quoted_ansi:
+  fail_str: |
+    SELECT "a" FROM t1 JOIN t2 USING (a)
+
+test_fail_using_columns_unrelated_reference:
+  fail_str: |
+    SELECT a, other FROM t1 JOIN t2 USING (A)
+  violations:
+    - code: RF02
+      description: Unqualified reference 'other' found in select with more than one
+        referenced table/view.
+      name: references.qualification
+      warning: false
+      fixes: []
+      start_line_no: 1
+      start_line_pos: 11
+      start_file_pos: 10
+      end_line_no: 1
+      end_line_pos: 16
+      end_file_pos: 15
+
 test_pass_qualified_references_multi_table_statements:
   pass_str: |
     SELECT foo.a, vee.b
