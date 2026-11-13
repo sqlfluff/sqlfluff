@@ -1,0 +1,52 @@
+rule: BQ01
+
+test_fail_with_expression_is_flagged:
+  fail_str: |
+    SELECT WITH(a AS 1, a) AS x;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
+
+test_fail_nested_with_expression:
+  fail_str: |
+    SELECT CONCAT(WITH(a AS 'x', a), 'y') AS joined;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
+
+test_pass_default_config_is_noop:
+  pass_str: |
+    SELECT WITH(a AS 1, a) AS x;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_cte_is_not_a_with_expression:
+  pass_str: |
+    WITH a AS (
+        SELECT 1 AS x
+    )
+    SELECT *
+    FROM a;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
+
+test_pass_other_dialect:
+  pass_str: |
+    SELECT 1 AS x;
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
