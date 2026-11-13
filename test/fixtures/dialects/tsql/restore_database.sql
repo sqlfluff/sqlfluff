@@ -64,3 +64,8 @@ WITH NO_TRUNCATE,
 RESTORE DATABASE mydb
 FROM DISK = N'D:\Backups\mydb.bak'
 WITH RECOVERY;
+
+-- Restore from URL with a credential
+RESTORE DATABASE Sales
+FROM URL = 'https://mystorage.blob.core.windows.net/backups/Sales.bak'
+WITH CREDENTIAL = 'mycredential';

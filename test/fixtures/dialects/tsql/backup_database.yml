@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5059daacafbaedf1b78760fd416ac20ef8c60cf61a4786081d6ba463fc907fd5
+_hash: a2196a701dfc7f01e8ce9785a7b0d075e4b1059f1c4de17afba65364605e5d4b
 file:
   batch:
   - statement:
@@ -220,4 +220,23 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'2026-12-31'"
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: TO
+      - keyword: URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://mystorage.blob.core.windows.net/backups/Sales.bak'"
+      - keyword: WITH
+      - keyword: CREDENTIAL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'mycredential'"
+      - comma: ','
+      - keyword: COMPRESSION
   - statement_terminator: ;

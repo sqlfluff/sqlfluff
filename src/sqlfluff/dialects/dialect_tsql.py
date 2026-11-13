@@ -1308,7 +1308,17 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         "REPLACE",
         "RESTART",
         "RESTRICTED_USER",
-        "CREDENTIAL",
+        Sequence(
+            "CREDENTIAL",
+            Sequence(
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                    Ref("ParameterNameSegment"),
+                ),
+                optional=True,
+            ),
+        ),
         # Backup set options
         Sequence(
             "FILE",

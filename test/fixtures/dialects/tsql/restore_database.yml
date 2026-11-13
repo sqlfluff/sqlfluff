@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c840aef89cdf3ff032955c6ea2f6adbf57333cf433c1ef3276c49fda393cfaa
+_hash: 0214c4ad29e4aa031b94ce91b69267c17f0ac8e39fef376248235c9053bdfb93
 file:
   batch:
   - statement:
@@ -214,4 +214,21 @@ file:
       - quoted_literal: "N'D:\\Backups\\mydb.bak'"
       - keyword: WITH
       - keyword: RECOVERY
+  - statement_terminator: ;
+  - statement:
+      restore_database_statement:
+      - keyword: RESTORE
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: FROM
+      - keyword: URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://mystorage.blob.core.windows.net/backups/Sales.bak'"
+      - keyword: WITH
+      - keyword: CREDENTIAL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'mycredential'"
   - statement_terminator: ;

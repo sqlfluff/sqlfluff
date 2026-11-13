@@ -47,3 +47,8 @@ TO DISK = 'C:\MySQLServer\Backups\Sales\SalesFiles.bck';
 BACKUP LOG Sales
 TO DISK = 'D:\Backups\Sales_tail.trn'
 WITH NORECOVERY, NO_TRUNCATE, EXPIREDATE = '2026-12-31';
+
+-- Backup to URL with a credential
+BACKUP DATABASE Sales
+TO URL = 'https://mystorage.blob.core.windows.net/backups/Sales.bak'
+WITH CREDENTIAL = 'mycredential', COMPRESSION;
