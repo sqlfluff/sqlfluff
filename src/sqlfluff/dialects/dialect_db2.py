@@ -198,6 +198,39 @@ db2_dialect.patch_lexer_matchers(
 
 db2_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # Db2-specific trailing clauses for CREATE TABLE. These are only used by
+    # TableEndClauseSegment and don't need dedicated segment types.
+    CompressClauseGrammar=Sequence(
+        "COMPRESS",
+        OneOf(
+            Sequence(
+                "YES",
+                OneOf("ADAPTIVE", "STATIC", optional=True),
+            ),
+            "NO",
+        ),
+    ),
+    ValueCompressionClauseGrammar=Sequence("VALUE", "COMPRESSION"),
+    DataCaptureClauseGrammar=Sequence("DATA", "CAPTURE", OneOf("NONE", "CHANGES")),
+    NotLoggedInitiallyClauseGrammar=Sequence("NOT", "LOGGED", "INITIALLY"),
+    CcsidClauseGrammar=Sequence(
+        "CCSID",
+        OneOf("ASCII", "EBCDIC", "UNICODE", Ref("NumericLiteralSegment")),
+    ),
+    SecurityPolicyClauseGrammar=Sequence(
+        "SECURITY", "POLICY", Ref("ObjectReferenceSegment")
+    ),
+    TableOptionsClauseGrammar=Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+    ),
     # https://www.ibm.com/docs/en/db2/11.5?topic=expressions-datetime-operations-durations
     LabeledDurationGrammar=Sequence(
         OneOf(
@@ -504,6 +537,13 @@ class TableEndClauseSegment(ansi.TableEndClauseSegment):
         Ref("DistributionClauseSegment"),
         Ref("TablespaceClauseSegment"),
         Ref("WithRestrictOnDropClauseSegment"),
+        Ref("CompressClauseGrammar"),
+        Ref("ValueCompressionClauseGrammar"),
+        Ref("DataCaptureClauseGrammar"),
+        Ref("NotLoggedInitiallyClauseGrammar"),
+        Ref("CcsidClauseGrammar"),
+        Ref("SecurityPolicyClauseGrammar"),
+        Ref("TableOptionsClauseGrammar"),
     )
 
 
