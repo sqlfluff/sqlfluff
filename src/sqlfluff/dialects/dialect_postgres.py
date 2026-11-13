@@ -444,6 +444,16 @@ postgres_dialect.sets("date_part_function_name").clear()
 postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
+    # PostgreSQL 18 temporal foreign keys mark the range column with PERIOD.
+    # https://www.postgresql.org/docs/18/sql-createtable.html
+    BracketedForeignKeyColumnReferenceListGrammar=Bracketed(
+        Delimited(
+            OneOf(
+                Sequence("PERIOD", Ref("ColumnReferenceSegment")),
+                Ref("ColumnReferenceSegment"),
+            )
+        )
+    ),
     JsonOperatorSegment=TypedParser(
         "json_operator", SymbolSegment, type="binary_operator"
     ),
@@ -1056,6 +1066,13 @@ postgres_dialect.replace(
         ),
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    ReferenceDefinitionGrammar=ansi_dialect.get_grammar(
+        "ReferenceDefinitionGrammar"
+    ).copy(
+        insert=[Ref("BracketedForeignKeyColumnReferenceListGrammar", optional=True)],
+        before=Ref("BracketedColumnReferenceListGrammar", optional=True),
+        remove=[Ref("BracketedColumnReferenceListGrammar", optional=True)],
+    ),
     ReferentialActionGrammar=OneOf(
         "CASCADE",
         Sequence(
@@ -4578,7 +4595,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 "FOREIGN",
                 "KEY",
                 # Local columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("BracketedForeignKeyColumnReferenceListGrammar"),
                 Ref(
                     "ReferenceDefinitionGrammar"
                 ),  # REFERENCES reftable [ ( refcolumn) ]
