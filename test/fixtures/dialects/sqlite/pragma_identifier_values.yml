@@ -1,0 +1,110 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5ea69b79a5543d1959becc47d1b4178492133613f77ff96dc11684e236f6f13d
+file:
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: table_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_xinfo
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: index_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        naked_identifier: my_index
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: foreign_key_list
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: index_info
+      bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: my_index
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'my_table'"
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        quoted_identifier: '"my_table"'
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      object_reference:
+        quoted_identifier: '[my_table]'
+- statement_terminator: ;

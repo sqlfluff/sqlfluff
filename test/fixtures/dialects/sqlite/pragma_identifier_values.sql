@@ -1,0 +1,10 @@
+PRAGMA table_info = my_table;
+PRAGMA main.table_info = my_table;
+PRAGMA table_xinfo = my_table;
+PRAGMA index_info = my_index;
+PRAGMA foreign_key_list = my_table;
+PRAGMA table_info(my_table);
+PRAGMA index_info(my_index);
+PRAGMA table_info = 'my_table';
+PRAGMA table_info = "my_table";
+PRAGMA table_info = [my_table];
