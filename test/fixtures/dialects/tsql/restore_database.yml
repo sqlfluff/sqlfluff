@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4da9aa6b77351b39e4c0aa345f9b4f32d3468423ea8b8440f87e7c1f1799146b
+_hash: 8c840aef89cdf3ff032955c6ea2f6adbf57333cf433c1ef3276c49fda393cfaa
 file:
   batch:
   - statement:
@@ -200,4 +200,18 @@ file:
       - keyword: NO_TRUNCATE
       - comma: ','
       - keyword: NORECOVERY
+  - statement_terminator: ;
+  - statement:
+      restore_database_statement:
+      - keyword: RESTORE
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: mydb
+      - keyword: FROM
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'D:\\Backups\\mydb.bak'"
+      - keyword: WITH
+      - keyword: RECOVERY
   - statement_terminator: ;

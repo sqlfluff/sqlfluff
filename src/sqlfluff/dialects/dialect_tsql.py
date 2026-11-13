@@ -908,6 +908,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("RestoreDatabaseStatementSegment"),
+            Ref("BackupStatementSegment"),
+            Ref("CheckpointStatementSegment"),
+            Ref("ExecuteAsStatementSegment"),
+            Ref("RevertStatementSegment"),
             # Ref("DropDatabaseStatementSegment"),
             # Ref("CreateTableStatementSegment"),
             Ref("CreateTableGraphStatementSegment"),
@@ -1242,13 +1246,13 @@ class RestoreDatabaseStatementSegment(BaseSegment):
     https://learn.microsoft.com/en-us/sql/t-sql/statements/restore-statements-transact-sql
     """
 
-    # Backup device grammar (specific to RESTORE statements)
+    # Backup device grammar (shared with BACKUP statements)
     _backup_device = OneOf(
         Sequence(
             OneOf("DISK", "TAPE", "URL"),
             Ref("EqualsSegment"),
             OneOf(
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegmentOptWithN"),
                 Ref("ParameterNameSegment"),
             ),
         ),
@@ -1258,7 +1262,7 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         ),
     )
 
-    # Files or filegroups grammar (specific to RESTORE statements)
+    # Files or filegroups grammar (shared with BACKUP statements)
     _files_or_filegroups = OneOf(
         Sequence(
             "FILE",
@@ -1281,7 +1285,7 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         "READ_WRITE_FILEGROUPS",
     )
 
-    # General WITH options grammar (specific to RESTORE statements)
+    # General WITH options grammar (shared with BACKUP statements)
     _general_WITH_options = OneOf(
         # Recovery options
         "RECOVERY",
@@ -1414,6 +1418,166 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             Delimited(_general_WITH_options),
+            optional=True,
+        ),
+    )
+
+
+class BackupStatementSegment(BaseSegment):
+    """A `BACKUP DATABASE` or `BACKUP LOG` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/backup-transact-sql
+    """
+
+    _string_or_parameter = OneOf(
+        Ref("QuotedLiteralSegmentOptWithN"),
+        Ref("ParameterNameSegment"),
+    )
+
+    # Options only BACKUP takes. The ones it shares with RESTORE (CHECKSUM,
+    # STATS, NORECOVERY, MEDIANAME and so on) come from that statement.
+    _backup_WITH_options = OneOf(
+        "DIFFERENTIAL",
+        "COPY_ONLY",
+        Sequence(
+            "COMPRESSION",
+            Bracketed(
+                Sequence(
+                    "ALGORITHM",
+                    Ref("EqualsSegment"),
+                    Ref("NakedIdentifierSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        "NO_COMPRESSION",
+        "INIT",
+        "NOINIT",
+        "SKIP",
+        "NOSKIP",
+        "FORMAT",
+        "NOFORMAT",
+        "FILE_SNAPSHOT",
+        Sequence(
+            OneOf("NAME", "DESCRIPTION", "MEDIADESCRIPTION", "EXPIREDATE"),
+            Ref("EqualsSegment"),
+            _string_or_parameter,
+        ),
+        Sequence(
+            "RETAINDAYS",
+            Ref("EqualsSegment"),
+            OneOf(Ref("NumericLiteralSegment"), Ref("ParameterNameSegment")),
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "ALGORITHM",
+                        Ref("EqualsSegment"),
+                        Ref("NakedIdentifierSegment"),
+                    ),
+                    Sequence(
+                        "SERVER",
+                        OneOf("CERTIFICATE", Sequence("ASYMMETRIC", "KEY")),
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                )
+            ),
+        ),
+    )
+
+    type = "backup_statement"
+    match_grammar: Matchable = Sequence(
+        "BACKUP",
+        OneOf("DATABASE", "LOG"),
+        OneOf(
+            Ref("DatabaseReferenceSegment"),
+            Ref("ParameterNameSegment"),
+        ),
+        Sequence(
+            Delimited(RestoreDatabaseStatementSegment._files_or_filegroups),
+            optional=True,
+        ),
+        "TO",
+        Delimited(RestoreDatabaseStatementSegment._backup_device),
+        AnyNumberOf(
+            Sequence(
+                "MIRROR",
+                "TO",
+                Delimited(RestoreDatabaseStatementSegment._backup_device),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Delimited(
+                OneOf(
+                    _backup_WITH_options,
+                    RestoreDatabaseStatementSegment._general_WITH_options,
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/checkpoint-transact-sql
+    """
+
+    type = "checkpoint_statement"
+    match_grammar: Matchable = Sequence(
+        "CHECKPOINT",
+        Ref("NumericLiteralSegment", optional=True),
+    )
+
+
+class ExecuteAsStatementSegment(BaseSegment):
+    """An `EXECUTE AS` statement, which switches the session's context.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/execute-as-transact-sql
+    """
+
+    type = "execute_as_statement"
+    match_grammar: Matchable = Sequence(
+        OneOf("EXEC", "EXECUTE"),
+        "AS",
+        OneOf(
+            Sequence(
+                OneOf("LOGIN", "USER"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegmentOptWithN"),
+                Sequence(
+                    "WITH",
+                    OneOf(
+                        Sequence("NO", "REVERT"),
+                        Sequence("COOKIE", "INTO", Ref("ParameterNameSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            "CALLER",
+        ),
+    )
+
+
+class RevertStatementSegment(BaseSegment):
+    """A `REVERT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/revert-transact-sql
+    """
+
+    type = "revert_statement"
+    match_grammar: Matchable = Sequence(
+        "REVERT",
+        Sequence(
+            "WITH",
+            "COOKIE",
+            Ref("EqualsSegment"),
+            Ref("ParameterNameSegment"),
             optional=True,
         ),
     )
