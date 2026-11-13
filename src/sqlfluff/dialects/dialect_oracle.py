@@ -120,6 +120,13 @@ oracle_dialect.patch_lexer_matchers(
 oracle_dialect.insert_lexer_matchers(
     [
         RegexLexer(
+            "alternative_quote",
+            r"(?is)n?q'(?:\[.*?\]|\{.*?\}|\(.*?\)|<.*?>|"
+            r"(?P<delimiter>[^\s\[\{(<]).*?(?P=delimiter))'",
+            CodeSegment,
+            segment_kwargs={"quoted_value": (r"(?is)n?q'.(.*).'", 1)},
+        ),
+        RegexLexer(
             "prompt_command",
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
@@ -704,6 +711,10 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    QuotedLiteralSegment=OneOf(
+        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("alternative_quote", LiteralSegment, type="quoted_literal"),
+    ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "FromClauseTerminatorGrammar"
     ).copy(insert=[Ref("ReturningClauseSegment")]),
