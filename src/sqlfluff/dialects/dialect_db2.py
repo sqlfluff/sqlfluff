@@ -231,6 +231,18 @@ db2_dialect.add(
             ),
         ),
     ),
+    # A boundary value in a PARTITION BY RANGE clause. Multi-column partition
+    # keys use a bracketed list of values, e.g. STARTING (1, 10).
+    TablePartitionBoundaryValueGrammar=OneOf(
+        "MINVALUE",
+        "MAXVALUE",
+        Bracketed(
+            Delimited(
+                OneOf("MINVALUE", "MAXVALUE", Ref("ExpressionSegment")),
+            ),
+        ),
+        Ref("ExpressionSegment"),
+    ),
     # https://www.ibm.com/docs/en/db2/11.5?topic=expressions-datetime-operations-durations
     LabeledDurationGrammar=Sequence(
         OneOf(
@@ -529,6 +541,92 @@ class WithRestrictOnDropClauseSegment(BaseSegment):
     match_grammar = Sequence("WITH", "RESTRICT", "ON", "DROP")
 
 
+class TablePartitionStartingClauseSegment(BaseSegment):
+    """The ``STARTING`` clause of a Db2 table partition element.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_partition_starting_clause"
+    match_grammar = Sequence(
+        "STARTING",
+        Ref.keyword("FROM", optional=True),
+        Ref("TablePartitionBoundaryValueGrammar"),
+        OneOf("INCLUSIVE", "EXCLUSIVE", optional=True),
+    )
+
+
+class TablePartitionEndingClauseSegment(BaseSegment):
+    """The ``ENDING`` clause of a Db2 table partition element.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_partition_ending_clause"
+    match_grammar = Sequence(
+        "ENDING",
+        Ref.keyword("AT", optional=True),
+        Ref("TablePartitionBoundaryValueGrammar"),
+        OneOf("INCLUSIVE", "EXCLUSIVE", optional=True),
+    )
+
+
+class TablePartitionElementSegment(BaseSegment):
+    """A single element of a Db2 ``PARTITION BY RANGE`` specification.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_partition_element"
+    match_grammar = Sequence(
+        Sequence("PARTITION", Ref("SingleIdentifierGrammar"), optional=True),
+        AnySetOf(
+            Ref("TablePartitionStartingClauseSegment"),
+            Ref("TablePartitionEndingClauseSegment"),
+            Ref("TablespaceClauseSegment"),
+        ),
+        Sequence(
+            "EVERY",
+            OptionallyBracketed(
+                OneOf(
+                    Ref("LabeledDurationGrammar"),
+                    Ref("ExpressionSegment"),
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+class TablePartitioningClauseSegment(BaseSegment):
+    """The ``PARTITION BY RANGE`` clause of a Db2 ``CREATE TABLE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_partitioning_clause"
+    match_grammar = Sequence(
+        "PARTITION",
+        "BY",
+        "RANGE",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    OneOf(
+                        Sequence("NULLS", "FIRST"),
+                        Sequence("NULLS", "LAST"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        Bracketed(
+            Delimited(Ref("TablePartitionElementSegment")),
+        ),
+    )
+
+
 class TableEndClauseSegment(ansi.TableEndClauseSegment):
     """Db2-specific trailing clauses for ``CREATE TABLE``."""
 
@@ -536,6 +634,7 @@ class TableEndClauseSegment(ansi.TableEndClauseSegment):
         Ref("TableOrganizationClauseSegment"),
         Ref("DistributionClauseSegment"),
         Ref("TablespaceClauseSegment"),
+        Ref("TablePartitioningClauseSegment"),
         Ref("WithRestrictOnDropClauseSegment"),
         Ref("CompressClauseGrammar"),
         Ref("ValueCompressionClauseGrammar"),
