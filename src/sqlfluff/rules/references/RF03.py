@@ -560,7 +560,15 @@ def _validate_one_reference(
         if table_ref_str_source and table_ref_str_source.is_type("quoted_identifier"):
             assert isinstance(table_ref_str_source, RawSegment)
             if table_ref_str_source.raw_trimmed() == table_ref_str:
-                qualifier_segment = table_ref_str_source.edit(source_fixes=[])
+                qualifier_segment = table_ref_str_source.__class__(
+                    raw=table_ref_str_source.raw,
+                    instance_types=table_ref_str_source.instance_types,
+                    trim_start=table_ref_str_source.trim_start,
+                    trim_chars=table_ref_str_source.trim_chars,
+                    quoted_value=table_ref_str_source.quoted_value,
+                    escape_replacements=table_ref_str_source.escape_replacements,
+                    casefold=table_ref_str_source.casefold,
+                )
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,
