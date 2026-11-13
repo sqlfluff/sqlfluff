@@ -36,11 +36,30 @@ class RF01Query(Query):
     parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
 
 
-def _normalize_ref_part(part: ObjectReferencePart) -> str:
+def _normalize_ref_part(
+    part: ObjectReferencePart, dialect: Optional[Dialect] = None
+) -> str:
     """Normalize a reference part, taking dialect casefolding into account."""
     seg = part.segments[0]
     norm = seg.normalize(part.part)
-    return seg.casefold(norm) if seg.casefold else norm
+    casefold = getattr(seg, "casefold", None)
+    if casefold:
+        return casefold(norm)
+    if dialect:
+        is_quoted = seg.is_type(
+            "quoted_identifier", "backquoted_identifier", "bracketed_identifier"
+        )
+        target_ref = (
+            "QuotedIdentifierSegment" if is_quoted else "NakedIdentifierSegment"
+        )
+        try:
+            target_seg = dialect.ref(target_ref)
+            d_casefold = getattr(target_seg, "casefold", None)
+            if d_casefold:
+                return d_casefold(norm)
+        except Exception:
+            pass
+    return norm
 
 
 class Rule_RF01(BaseRule):
@@ -120,9 +139,32 @@ class Rule_RF01(BaseRule):
     ) -> list[tuple[str, ...]]:
         result: list[tuple[str, ...]] = []
         if alias_info.aliased:
-            result.append((alias_info.ref_str,))
             if alias_info.segment:
-                result.append((alias_info.segment.raw_normalized(),))
+                norm = alias_info.segment.raw_normalized()
+                is_quoted = alias_info.segment.is_type(
+                    "quoted_identifier", "backquoted_identifier", "bracketed_identifier"
+                )
+                target_ref = (
+                    "QuotedIdentifierSegment" if is_quoted else "NakedIdentifierSegment"
+                )
+                try:
+                    target_seg = dialect.ref(target_ref)
+                    d_casefold = getattr(target_seg, "casefold", None)
+                    if d_casefold:
+                        norm = d_casefold(norm)
+                except Exception:
+                    pass
+                result.append((norm,))
+            else:
+                norm = alias_info.ref_str
+                try:
+                    target_seg = dialect.ref("NakedIdentifierSegment")
+                    d_casefold = getattr(target_seg, "casefold", None)
+                    if d_casefold:
+                        norm = d_casefold(norm)
+                except Exception:
+                    pass
+                result.append((norm,))
         if alias_info.object_reference:
             result += self._table_ref_as_tuple(
                 cast(ObjectReferenceSegment, alias_info.object_reference), dialect
@@ -136,9 +178,7 @@ class Rule_RF01(BaseRule):
     ) -> list[tuple[str, ...]]:
         raw_references = list(iter_raw_references(table_reference, dialect.name))
         return [
-            tuple(ref.part for ref in raw_references),
-            tuple(ref.segments[0].normalize(ref.part) for ref in raw_references),
-            tuple(_normalize_ref_part(ref) for ref in raw_references),
+            tuple(_normalize_ref_part(ref, dialect) for ref in raw_references),
         ]
 
     def _analyze_table_references(
@@ -256,22 +296,12 @@ class Rule_RF01(BaseRule):
             ],
             dialect_name=dialect.name,
         ):
-            tbl_refs.append((tr, (sr.part, tr.part)))
             tbl_refs.append(
                 (
                     tr,
                     (
-                        sr.segments[0].normalize(sr.part),
-                        tr.segments[0].normalize(tr.part),
-                    ),
-                )
-            )
-            tbl_refs.append(
-                (
-                    tr,
-                    (
-                        _normalize_ref_part(sr),
-                        _normalize_ref_part(tr),
+                        _normalize_ref_part(sr, dialect),
+                        _normalize_ref_part(tr, dialect),
                     ),
                 )
             )
@@ -290,9 +320,7 @@ class Rule_RF01(BaseRule):
             for tr in extract_possible_references(
                 ref, level=ObjectReferenceLevel.TABLE, dialect_name=dialect.name
             ):
-                tbl_refs.append((tr, (tr.part,)))
-                tbl_refs.append((tr, (tr.segments[0].normalize(tr.part),)))
-                tbl_refs.append((tr, (_normalize_ref_part(tr),)))
+                tbl_refs.append((tr, (_normalize_ref_part(tr, dialect),)))
         return tbl_refs
 
     def _resolve_reference(
@@ -310,9 +338,21 @@ class Rule_RF01(BaseRule):
         for alias in query.aliases:
             targets += self._alias_info_as_tuples(alias, query.dialect)
         for standalone_alias in query.standalone_aliases:
-            targets.append((standalone_alias.raw,))
-            targets.append((standalone_alias.raw_normalized(False),))
-            targets.append((standalone_alias.raw_normalized(),))
+            norm = standalone_alias.raw_normalized()
+            is_quoted = standalone_alias.is_type(
+                "quoted_identifier", "backquoted_identifier", "bracketed_identifier"
+            )
+            target_ref = (
+                "QuotedIdentifierSegment" if is_quoted else "NakedIdentifierSegment"
+            )
+            try:
+                target_seg = query.dialect.ref(target_ref)
+                d_casefold = getattr(target_seg, "casefold", None)
+                if d_casefold:
+                    norm = d_casefold(norm)
+            except Exception:
+                pass
+            targets.append((norm,))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
         supports_struct_access = query.dialect.name in (
             "athena",
@@ -388,6 +428,7 @@ class Rule_RF01(BaseRule):
         return None
 
     def _get_implicit_targets(self, query: RF01Query) -> list[tuple[str, ...]]:
+        targets: list[tuple[str, ...]] = []
         if query.dialect.name == "sqlite":
             maybe_create_trigger: Optional[BaseSegment] = next(
                 (
@@ -401,15 +442,18 @@ class Rule_RF01(BaseRule):
                 return []
             for seg in maybe_create_trigger.segments:
                 if seg.is_type("keyword") and seg.raw_upper == "INSERT":
-                    return [("new",)]
+                    targets = [("new",)]
+                    break
                 elif seg.is_type("keyword") and seg.raw_upper == "UPDATE":
-                    return [("new",), ("old",)]
+                    targets = [("new",), ("old",)]
+                    break
                 elif seg.is_type("keyword") and seg.raw_upper == "DELETE":
-                    return [("old",)]
+                    targets = [("old",)]
+                    break
                 else:
                     pass  # pragma: no cover
 
-        if query.dialect.name == "postgres":
+        elif query.dialect.name == "postgres":
             for seg in reversed(query.parent_stack):
                 if seg.is_type("create_policy_statement") or seg.is_type(
                     "alter_policy_statement"
@@ -421,7 +465,15 @@ class Rule_RF01(BaseRule):
                             query.dialect,
                         )
 
-        return []
+        if targets:
+            try:
+                target_seg = query.dialect.ref("NakedIdentifierSegment")
+                d_casefold = getattr(target_seg, "casefold", None)
+                if d_casefold:
+                    return [tuple(d_casefold(p) for p in t) for t in targets]
+            except Exception:
+                pass
+        return targets
 
     def _dialect_supports_dot_access(self, dialect: Dialect) -> bool:
         # Athena:
@@ -456,3 +508,4 @@ class Rule_RF01(BaseRule):
             "sparksql",
             "trino",
         )
+
