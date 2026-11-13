@@ -7,7 +7,25 @@ import subprocess
 import sys
 from pathlib import Path
 
-from sqlfluff.core.dialects import dialect_readout
+# pip's isolated build environment can remove an editable checkout's src path
+# from PYTHONPATH before this script starts. Prefer the checkout explicitly.
+SOURCE_DIR = Path(__file__).resolve().parent.parent / "src"
+sys.path.insert(0, str(SOURCE_DIR))
+
+from sqlfluff.core.dialects import dialect_readout  # noqa: E402
+
+
+def generator_command(build_path: Path, build_arg: list[str]) -> list[str]:
+    """Run a generator with the checkout first on its own import path."""
+    return [
+        sys.executable,
+        "-c",
+        "import runpy, sys; sys.path.insert(0, sys.argv.pop(1)); "
+        "runpy.run_path(sys.argv.pop(1), run_name='__main__')",
+        str(SOURCE_DIR),
+        str(build_path),
+        *build_arg,
+    ]
 
 
 def check_generated_output(
@@ -19,7 +37,7 @@ def check_generated_output(
     output_hash = hashlib.sha256(output_bytes).hexdigest()
     try:
         result = subprocess.run(
-            [sys.executable, str(build_path), *build_arg],
+            generator_command(build_path, build_arg),
             capture_output=True,
             check=True,
         )
@@ -45,7 +63,7 @@ def build_generated_output(build_path: Path, output_path: Path, build_arg: list[
     """Builds rust output from python."""
     try:
         result = subprocess.run(
-            [sys.executable, build_path, *build_arg], capture_output=True, check=True
+            generator_command(build_path, build_arg), capture_output=True, check=True
         )
     except subprocess.CalledProcessError as exc:  # pragma: no cover - repro on CI
         out = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
