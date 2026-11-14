@@ -600,12 +600,14 @@ test_pass_oracle_mixed_terminators:
       convention.terminator:
         require_final_semicolon: true
 
-test_pass_oracle_slash_positioning_same_line:
+test_pass_oracle_slash_after_division:
   pass_str: |
     CREATE PROCEDURE test_proc AS
+        result NUMBER;
     BEGIN
-        NULL;
-    END; /
+        result := 8 / 2;
+    END;
+    /
   configs:
     core:
       dialect: oracle
@@ -626,7 +628,8 @@ test_pass_oracle_slash_with_extra_spacing:
     CREATE PROCEDURE test_proc AS
     BEGIN
         NULL;
-    END;   /
+    END;
+       /
   configs:
     core:
       dialect: oracle
