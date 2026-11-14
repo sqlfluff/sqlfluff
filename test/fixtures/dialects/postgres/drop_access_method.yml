@@ -1,0 +1,40 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b04410f67742bef20c91c09a5e4b42fba0f0a86706b7baa66a0221316c4d14d3
+file:
+- statement:
+    drop_access_method_statement:
+    - keyword: DROP
+    - keyword: ACCESS
+    - keyword: METHOD
+    - object_reference:
+        naked_identifier: heap2
+- statement_terminator: ;
+- statement:
+    drop_access_method_statement:
+    - keyword: DROP
+    - keyword: ACCESS
+    - keyword: METHOD
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        quoted_identifier: '"Btree2"'
+    - comma: ','
+    - object_reference:
+        naked_identifier: hash2
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_access_method_statement:
+    - keyword: DROP
+    - keyword: ACCESS
+    - keyword: METHOD
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: no_such_method
+    - keyword: RESTRICT
+- statement_terminator: ;
