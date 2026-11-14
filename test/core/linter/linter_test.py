@@ -556,7 +556,19 @@ def test__parallel_runner__apply_skip_file():
     assert isinstance(result.ee, SQLFluffSkipFile)
 
 
-def test__parallel_runner__apply_unpicklable_base_exception():
+def _apply_raising(monkeypatch, exception):
+    """Run _apply on a file whose rendering raises the given exception."""
+
+    def _render_file(self, fname, root_config):
+        raise exception
+
+    monkeypatch.setattr(Linter, "render_file", _render_file)
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    task = DeferredRenderTask(fname="a.sql", fix=False)
+    return _apply_in_worker(("a.sql", task), config)
+
+
+def test__parallel_runner__apply_unpicklable_base_exception(monkeypatch):
     """A BaseException which can't be pickled still reaches the main process.
 
     If _apply lets one escape then the worker dies and the main process waits
@@ -566,10 +578,7 @@ def test__parallel_runner__apply_unpicklable_base_exception():
     class UnpicklableAbort(BaseException):
         pass
 
-    def _task():
-        raise UnpicklableAbort("Out of budget")
-
-    result = _apply_in_worker(("a.sql", _task))
+    result = _apply_raising(monkeypatch, UnpicklableAbort("Out of budget"))
     assert isinstance(result, runner.DelayedException)
     unpickled = pickle.loads(pickle.dumps(result))
     assert unpickled.fname == "a.sql"
@@ -577,30 +586,23 @@ def test__parallel_runner__apply_unpicklable_base_exception():
     assert "UnpicklableAbort: Out of budget" in str(unpickled.ee)
 
 
-def test__parallel_runner__apply_unprintable_base_exception():
+def test__parallel_runner__apply_unprintable_base_exception(monkeypatch):
     """A BaseException which can't be printed is still reported."""
 
     class UnprintableAbort(BaseException):
         def __str__(self):
             raise SystemExit("Can't print this")
 
-    def _task():
-        raise UnprintableAbort()
-
-    result = _apply_in_worker(("a.sql", _task))
+    result = _apply_raising(monkeypatch, UnprintableAbort())
     assert result.fname == "a.sql"
     assert isinstance(result.ee, RuntimeError)
     assert "UnprintableAbort" in str(result.ee)
 
 
-def test__parallel_runner__apply_leaves_system_exit():
+def test__parallel_runner__apply_leaves_system_exit(monkeypatch):
     """SystemExit ends the worker, as pool.terminate() may rely on that."""
-
-    def _task():
-        raise SystemExit("Stop")
-
     with pytest.raises(SystemExit):
-        _apply_in_worker(("a.sql", _task))
+        _apply_raising(monkeypatch, SystemExit("Stop"))
 
 
 def test__parallel_runner__worker_base_exception_skips_file(monkeypatch):
