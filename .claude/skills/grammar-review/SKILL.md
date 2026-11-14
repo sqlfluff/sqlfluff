@@ -10,7 +10,8 @@ Output: findings grouped as **Blocking / Required / Suggestion / Question / Nit*
 gets a `file:line` and, where it applies, the doc link or DB output that backs it.
 Never post to GitHub unless the user asks.
 
-Supporting files (read them when you reach the step):
+Supporting files (read them when you reach the step). `<skill-dir>` is the folder this file is in: Claude Code
+prints it as "Base directory for this skill"; in the repo it's `.claude/skills/grammar-review/`.
 - [checklist.md](checklist.md): recurring reviewer requests from past PRs, each tagged with its severity. Go through it line by line.
 - [sources.md](sources.md): precedent PRs and quotes per checklist item. **Don't read it
   unless the user asks for a source**, or wants a precedent to cite against pushback.
@@ -101,7 +102,7 @@ Then:
    sqlite, duckdb) or drop/recreate (mysql/mariadb/oracle). When statements need
    conflicting states (`ADD COLUMN b` vs `ALTER COLUMN b`), write setup *variants*; a
    statement passes if it succeeds under any variant. For db2, postgres, sqlite and duckdb, use
-   `~/.claude/skills/grammar-review/sql_run.py ENGINE FIXTURE.sql [SETUP1.sql ...]`. It
+   `<skill-dir>/sql_run.py ENGINE FIXTURE.sql [SETUP1.sql ...]`. It
    does all of this and prints TSV verdicts (PASS/SYNTAX/SEMANTIC/UNKNOWN). Treat UNKNOWN
    as unchecked. For other engines, use the commands in dialects.md. Strip `{{ }}`/Jinja first if present.
 3. Classify each statement with the signature column. **Syntax error** = the DB
