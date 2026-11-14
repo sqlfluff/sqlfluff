@@ -3684,7 +3684,7 @@ class ParameterizedSegment(BaseSegment):
     match_grammar = OneOf(
         # Colon-based parameters: :param_name
         Sequence(
-            Ref("ColonSegment"),
+            Ref("ColonPrefixSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("BackQuotedIdentifierSegment"),
