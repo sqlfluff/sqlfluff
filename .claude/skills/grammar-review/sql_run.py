@@ -69,7 +69,7 @@ ENGINES = {
         begin="BEGIN;",
         mark="\\warn {}",
         error=r"ERROR:",
-        syntax=r"syntax error",
+        syntax=r"syntax error|unterminated",  # unterminated quote/$$/identifier
     ),
     "sqlite": dict(  # host binary; -safe blocks .shell/.system, ATTACH and writefile()
         cmd=lambda c: ["sqlite3", "-safe", ":memory:"],
@@ -147,22 +147,35 @@ def run(engine: str, setup: str, stmts: list[str], cwd: str) -> dict[int, str]:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     ).stdout
-    errs, cur, setup_err, seen = {}, None, None, set()
+    return parse_batch(out, len(stmts), e["error"])
+
+
+def parse_batch(out: str, n: int, error: str) -> dict[int, str]:
+    """Map batched client output to {statement index: first error line}.
+
+    A statement counts only once its @@E end marker appears; without it (client
+    crashed or stopped mid-statement) it's UNKNOWN, never a silent PASS. Exit
+    codes can't stand in for this: db2's CLP exits non-zero whenever any
+    statement fails, and psql exits 0 despite script errors.
+    """
+    errs, cur, setup_err, ended = {}, None, None, set()
     for line in out.splitlines():
         if m := re.match(r"@@S (\d+)", line):
             cur = int(m[1])
-            seen.add(cur)
             if setup_err:  # the state is not what the setup describes, so don't judge
                 errs[cur], setup_err = f"?? setup failed in batch: {setup_err}", None
         elif line.startswith("@@E"):
+            if cur is not None:
+                ended.add(cur)
             cur = None
-        elif re.search(e["error"], line):
+        elif re.search(error, line):
             if cur is None:
                 setup_err = setup_err or line.strip()
             elif cur not in errs:
                 errs[cur] = line.strip()
-    for i in set(range(len(stmts))) - seen:
-        errs[i] = "?? no marker in output (client stopped early?)"
+    for i in range(n):
+        if i not in ended and i not in errs:
+            errs[i] = "?? no end marker in output (client stopped early?)"
     return errs
 
 
@@ -223,6 +236,13 @@ def selftest() -> None:
         "SELECT 1",
     ]
     assert split("SELECT '$x$';\nSELECT 1") == ["SELECT '$x$'", "SELECT 1"]
+    # Batched engines: a statement whose end marker never arrives is UNKNOWN, not PASS.
+    got = parse_batch("@@S 0\n@@E\n@@S 1\nERROR: boom\n@@E\n@@S 2\n", 4, r"ERROR:")
+    assert got == {
+        1: "ERROR: boom",
+        2: "?? no end marker in output (client stopped early?)",
+        3: "?? no end marker in output (client stopped early?)",
+    }, got
     print("selftest ok")
 
 

@@ -37,14 +37,21 @@ and **don't use `git stash`**:
 git fetch https://github.com/sqlfluff/sqlfluff.git pull/N/head && git worktree add <scratchpad>/pr-N FETCH_HEAD
 ```
 
-## 2. Mechanical checks (run them, don't eyeball)
+## 2. Mechanical checks (don't eyeball)
 
-From the PR worktree:
+Start from CI. It regenerates fixtures and runs the dialect tests on every push:
+`gh pr checks N -R sqlfluff/sqlfluff`. A red fixture or dialect-test job is **Blocking**; quote the job.
+Reading fixtures runs nothing, so always do this one:
+`grep -ln "unparsable" test/fixtures/dialects/<dialect>/<changed>.yml`.
+
+**Running tox executes the PR's own code** (`tox.ini`, `conftest.py`, tests, package hooks). Only run it
+when CI doesn't settle a question, and check first: `gh pr diff N -R sqlfluff/sqlfluff --name-only`. If
+anything outside `src/sqlfluff/dialects/` and `test/fixtures/dialects/` changed, ask the user before running.
+Then, from the PR worktree:
 
 ```bash
 tox -e generate-fixture-yml -- -d <dialect>     # then: git status --porcelain test/fixtures
 tox -e py312 -- test/dialects/ -k <dialect> -n auto
-grep -ln "unparsable" test/fixtures/dialects/<dialect>/<changed>.yml
 ```
 
 - Any diff after regenerating means stale `.yml` or a bad `_hash`: **Blocking**.
@@ -77,8 +84,8 @@ For each new or changed segment:
    "works" because the grammar is loose is **Required**.
 5. Calibrate severity to the maintainers' line (top of checklist.md). Missing valid
    syntax matters more than accepting invalid syntax. Flag over-acceptance only when
-   it is *structural*: clause order, syntax the dialect lacks, a widened shared grammar.
-   Never ask for negative tests. Syntax you can't find in any doc → a **Question**
+   it is *structural*: syntax the dialect lacks. Accepting another clause order, repeats, or extra syntax
+   through a shared grammar isn't a finding unless valid SQL mis-parses. Never ask for negative tests. Syntax you can't find in any doc → a **Question**
    ("where is this documented?"). If a DB is runnable, say step 4 could settle it.
 
 ## 4. Live database check (optional, only on request)

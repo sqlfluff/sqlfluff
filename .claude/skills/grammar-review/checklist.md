@@ -10,8 +10,8 @@ the author's answer. **Nit** = cosmetic or process.
 
 **Strictness:** parsing all valid SQL matters more than rejecting invalid SQL.
 Accepting a superset is fine if it keeps the grammar simple. Flag only *structural*
-over-acceptance: wrong clause order, syntax the dialect lacks, a widened shared grammar.
-Never ask for negative tests.
+over-acceptance: syntax the dialect lacks. Accepting another clause order, repeats, or SQL the vendor would
+reject is not a finding on its own. Never ask for negative tests.
 
 ## Simplifications (Required)
 
@@ -38,8 +38,9 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
    nothing.** Make the outer grammar optional.
 4. **Merge branches with the same structure:** `OneOf(Sequence("A", x), Sequence("B", x))` →
    `Sequence(OneOf("A", "B"), x)`.
-5. **Options that appear once each, in any order → `AnySetOf`.** Not `AnyNumberOf`
-   (allows repeats), not `max_times_per_element=1`, not a `Sequence` of optionals.
+5. **Options that can come in any order → `AnySetOf`, not a `Sequence` of optionals** (that fails valid orders).
+   `AnyNumberOf(max_times_per_element=1)` is `AnySetOf`, so use the name. A plain `AnyNumberOf` accepting
+   repeats isn't a finding on its own.
 6. **`OneOf(X, Bracketed(X))` → `OptionallyBracketed(X)`.** Note that
    `Bracketed(X, optional=True)` means (X) or nothing.
 7. **A helper used by one statement → a private `_name` grammar in the class.** If it has
@@ -50,7 +51,8 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
 
 ## Grammar correctness (Required)
 
-9. Documented clause order → an ordered `Sequence`, not a flat `OneOf`/`Delimited`.
+9. Use an ordered `Sequence` for documented clause order only when a flat `OneOf`/`Delimited` mis-parses valid
+   SQL or gives the wrong tree. Accepting other orders isn't a finding.
 10. Use defined grammar instead of `Anything()` wherever it can be written. If `Anything()` is unavoidable,
     it needs a termination point, e.g. inside `Bracketed(...)`; unbounded, it swallows the next statement.
     Likewise, no `ExpressionSegment` where a narrower ref fits.
@@ -74,9 +76,9 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
       mysql → mariadb/doris/starrocks, hive → impala.
     - Siblings that override the same segment don't get the fix.
     - Databricks-only syntax goes in databricks.
-18. Only widen a shared grammar with syntax that's valid everywhere it's used. One statement's syntax added to a
-    grammar other statements use (`FunctionParameterGrammar`, access-object grammars) makes them accept it too,
-    so scope it to that statement.
+18. Widening a shared grammar (`FunctionParameterGrammar`, access-object grammars) for one statement is
+    **Required** to scope locally when it changes how other statements parse valid SQL. If it only lets them
+    accept extra syntax, scoping it is a **Suggestion**.
 19. **Suggestion:** syntax valid in many dialects goes in ANSI once, instead of an override in each dialect.
     ANSI may be a little looser than individual dialects.
 19a. A new *selectable* node type (anything added to `SelectableGrammar`/`NonSetSelectableGrammar`): run
@@ -122,7 +124,7 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
     get their own PR.
 36. **Required:** a new dialect also needs entries in `pyproject.toml` keywords, the README, `.github/labeler.yml` and `src/sqlfluff/core/dialects/__init__.py`.
 37. **Question:** for AI-assisted PRs, has the author reviewed the code and answered cubic's comments?
-38. **Nit:** if CI lint fails, run pre-commit (`tox -e pre-commit -- run --all`). If the branch is stale or CI fails
+38. **Nit:** if CI lint fails, run pre-commit (`tox -e pre-commit -- run --all-files`). If the branch is stale or CI fails
     for unrelated reasons, merge or rebase on `main`. Avoid force-pushing once review has started. Title format:
     `<Dialect>: <short description>`.
 
