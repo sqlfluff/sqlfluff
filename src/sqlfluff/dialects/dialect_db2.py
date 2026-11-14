@@ -1177,3 +1177,95 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("ViewCheckOptionClauseSegment"),
         ],
     )
+
+
+class CreateSequenceOptionsSegment(ansi.CreateSequenceOptionsSegment):
+    """Options for a Db2 ``CREATE SEQUENCE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-sequence
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        # Db2 sequences can be restricted to a specific data type.
+        Sequence("AS", Ref("DatatypeSegment")),
+        Sequence(
+            "START",
+            Ref.keyword("WITH", optional=True),
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MINVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MAXVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence("NO", "MINVALUE"),
+        "NOMINVALUE",
+        Sequence("NO", "MAXVALUE"),
+        "NOMAXVALUE",
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "CACHE"),
+        "NOCACHE",
+        "CYCLE",
+        Sequence("NO", "CYCLE"),
+        "NOCYCLE",
+        "ORDER",
+        Sequence("NO", "ORDER"),
+        "NOORDER",
+    )
+
+
+class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
+    """Options for a Db2 ``ALTER SEQUENCE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-alter-sequence
+    """
+
+    type = "alter_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "RESTART",
+            Ref.keyword("WITH", optional=True),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("QualifiedNumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MINVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MAXVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence("NO", "MINVALUE"),
+        "NOMINVALUE",
+        Sequence("NO", "MAXVALUE"),
+        "NOMAXVALUE",
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "CACHE"),
+        "NOCACHE",
+        "CYCLE",
+        Sequence("NO", "CYCLE"),
+        "NOCYCLE",
+        "ORDER",
+        Sequence("NO", "ORDER"),
+        "NOORDER",
+    )
