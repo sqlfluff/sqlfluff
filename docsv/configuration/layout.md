@@ -99,7 +99,7 @@ align_scope = bracketed
 ```
 
 Of these configuration values, the `align_scope` is potentially
-the least obvious. The following examples illustrates the impact it has.
+the least obvious. The following examples illustrate the impact it has.
 
 | align_within  | align_scope | Result                                                |
 | ------------- | ----------- | ----------------------------------------------------- |
@@ -158,9 +158,9 @@ SELECT
 FROM foo AS bar;
 ```
 
-| align_within | align_scope | Result                                                                                                    |
-| ------------ | ----------- | --------------------------------------------------------------------------------------------------------- |
-| statement    | file        | Aliases aligned across the statements in the file (e.g., aliases in `SELECT`, `FROM`, and `JOIN` clauses) |
+| align_within | align_scope | Result                                                                  |
+| ------------ | ----------- | ----------------------------------------------------------------------- |
+| statement    | file        | Aliases aligned across the inner and outer queries within the statement |
 
 ```sql
 WITH foo AS (
