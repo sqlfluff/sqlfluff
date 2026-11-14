@@ -1097,6 +1097,98 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
+class CreateAliasStatementSegment(BaseSegment):
+    """A Db2 ``CREATE ALIAS`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-alias
+    """
+
+    type = "create_alias_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "ALIAS",
+        Ref("ObjectReferenceSegment"),
+        "FOR",
+        OneOf(
+            Sequence(
+                OneOf("TABLE", "MODULE", "SEQUENCE"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+
+class DropAliasStatementSegment(BaseSegment):
+    """A Db2 ``DROP ALIAS`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-drop
+    """
+
+    type = "drop_alias_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "ALIAS",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FOR",
+            OneOf("TABLE", "MODULE", "SEQUENCE"),
+            optional=True,
+        ),
+    )
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A Db2 ``CREATE SYNONYM`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-alias
+    """
+
+    type = "create_synonym_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("ObjectReferenceSegment"),
+        "FOR",
+        OneOf(
+            Sequence(
+                OneOf("TABLE", "MODULE", "SEQUENCE"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A Db2 ``DROP SYNONYM`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-drop
+    """
+
+    type = "drop_synonym_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FOR",
+            OneOf("TABLE", "MODULE", "SEQUENCE"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1105,6 +1197,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CallStoredProcedureSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("DeclareGlobalTempTableSegment"),
+            Ref("CreateAliasStatementSegment"),
+            Ref("DropAliasStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
         ]
     )
 
