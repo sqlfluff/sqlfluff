@@ -50,6 +50,7 @@ def test__linter__path_from_paths__nested_exts(tmp_path):
     """Test configuration of file discovery by directory."""
     nested = tmp_path / "nested"
     nested.mkdir()
+    nested.joinpath(".sqlfluff").touch()
     root_file = tmp_path / "root.sql"
     nested_file = nested / "nested.bq"
     root_file.touch()
@@ -64,6 +65,30 @@ def test__linter__path_from_paths__nested_exts(tmp_path):
     )
 
     assert set(paths) == {str(root_file), str(nested_file)}
+
+
+def test__linter__path_from_paths__nested_exts_inherited(tmp_path):
+    """Directories without config files inherit their parent's extensions."""
+    configured = tmp_path / "configured"
+    inherited = configured / "inherited"
+    inherited.mkdir(parents=True)
+    configured.joinpath(".sqlfluff").touch()
+    nested_file = inherited / "nested.bq"
+    nested_file.touch()
+    looked_up = []
+
+    def file_exts_for_path(path):
+        looked_up.append(os.path.normpath(path))
+        return [".bq"] if os.path.normpath(path) == str(configured) else [".sql"]
+
+    paths = paths_from_path(
+        str(tmp_path),
+        target_file_exts=[".sql"],
+        target_file_exts_for_path=file_exts_for_path,
+    )
+
+    assert paths == [str(nested_file)]
+    assert looked_up == [str(tmp_path), str(configured)]
 
 
 def test__linter__path_from_paths__exact_nested_ext(tmp_path):

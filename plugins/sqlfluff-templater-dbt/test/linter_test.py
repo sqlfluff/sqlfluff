@@ -172,8 +172,9 @@ def test__linter__nested_dbt_templater_ignored(tmp_path, project_dir, profiles_d
     assert rendered.templated_variants[0].templated_str == "select 1\n"
 
 
+@pytest.mark.parametrize("nested_templater", ["jinja", "placeholder"])
 def test__linter__root_dbt_templater_used_for_nested_config(
-    project_dir, dbt_fluff_config
+    nested_templater, project_dir, dbt_fluff_config
 ):
     """A root dbt templater renders files whose nested config sets another one.
 
@@ -183,7 +184,7 @@ def test__linter__root_dbt_templater_used_for_nested_config(
     file_config = FluffConfig(
         configs={
             **dbt_fluff_config,
-            "core": {"templater": "jinja", "dialect": "postgres"},
+            "core": {"templater": nested_templater, "dialect": "postgres"},
         }
     )
     fname = os.path.join(project_dir, "models/depends_on_ephemeral/b.sql")
@@ -193,7 +194,7 @@ def test__linter__root_dbt_templater_used_for_nested_config(
     with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
         rendered = lntr.render_string(in_str, fname, file_config, "utf-8")
 
-    assert "Attempt to set templater to jinja failed" in caplog.text
+    assert f"Attempt to set templater to {nested_templater} failed" in caplog.text
     assert not rendered.templater_violations
     # Only dbt can resolve the `ref()`.
     assert "__dbt__cte__c" in rendered.templated_variants[0].templated_str

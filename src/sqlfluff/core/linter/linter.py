@@ -5,12 +5,16 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 import regex
 from tqdm import tqdm
 
-from sqlfluff.core.config import FluffConfig, progress_bar_configuration
+from sqlfluff.core.config import (
+    FluffConfig,
+    load_config_up_to_path,
+    progress_bar_configuration,
+)
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
@@ -44,6 +48,7 @@ from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
+from sqlfluff.core.types import ConfigMappingType
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects import Dialect
@@ -943,7 +948,34 @@ class Linter:
     # These are tied to a specific instance and so are not necessarily
     # safe to use in parallel operations.
 
-    def _templater_for_config(self, config: FluffConfig) -> "RawTemplater":
+    def _loaded_core_config(self, path: str) -> ConfigMappingType:
+        """Load the core config set by config files up to a path."""
+        configs = load_config_up_to_path(
+            path,
+            extra_config_path=self.config._extra_config_path,
+            ignore_local_config=self.config._ignore_local_config,
+        )
+        core_config = configs.get("core", {})
+        assert isinstance(core_config, dict)
+        return core_config
+
+    def _nested_core_value(self, path: str, key: str) -> Any:
+        """Return a core config value set by nested config files for a path.
+
+        A value set by config files for a path only applies when it differs
+        from the value set for the current working directory, and isn't
+        overridden. Otherwise this returns None, and the value in the root
+        config applies, so that values set when creating it (e.g. with
+        ``FluffConfig(configs=...)``) are still used.
+        """
+        if self.config._overrides and key in self.config._overrides:
+            return None
+        value = self._loaded_core_config(path).get(key)
+        if value == self._loaded_core_config(os.getcwd()).get(key):
+            return None
+        return value
+
+    def _templater_for_config(self, config: FluffConfig, fname: str) -> "RawTemplater":
         """Return the templater to render a file with the given config.
 
         A templater set in a nested config is used when both it and the root
@@ -953,24 +985,27 @@ class Linter:
         file_templater: "RawTemplater" = config.get("templater_obj") or self.templater
         if type(file_templater) is type(self.templater):
             return self.templater
-        if self.templater.templates_in_worker and file_templater.templates_in_worker:
+        if (
+            self.templater.templates_in_worker
+            and file_templater.templates_in_worker
+            and self._nested_core_value(fname, "templater") == file_templater.name
+        ):
             return file_templater
-        if not file_templater == self.templater:
-            linter_logger.warning(
-                f"Attempt to set templater to {file_templater.name} failed. "
-                f"Using {self.templater.name} templater. Templaters which cannot "
-                "render in worker processes (e.g. dbt) must be set in a .sqlfluff "
-                "in the current working directory, and cannot be set or replaced "
-                "in a .sqlfluff file in a subdirectory of it. See Nesting section "
-                "of the docs for more details."
-            )
+        linter_logger.warning(
+            f"Attempt to set templater to {file_templater.name} failed. "
+            f"Using {self.templater.name} templater. Templaters which cannot "
+            "render in worker processes (e.g. dbt) must be set in a .sqlfluff "
+            "in the current working directory, and cannot be set or replaced "
+            "in a .sqlfluff file in a subdirectory of it. See Nesting section "
+            "of the docs for more details."
+        )
         return self.templater
 
     def render_string(
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        templater = self._templater_for_config(config)
+        templater = self._templater_for_config(config, fname)
         linter_logger.info("Rendering String [%s] (%s)", templater.name, fname)
 
         # Start the templating timer
@@ -1139,27 +1174,12 @@ class Linter:
             encoding=encoding,
         )
 
-    def _file_extensions_lookup(self) -> Callable[[str], list[str]]:
-        """Return a lookup of the file extensions configured for a path.
-
-        Config is loaded once per directory and cached in the returned
-        callable, so use a new lookup for each operation.
-        """
-        cache: dict[str, list[str]] = {}
-
-        def file_extensions_for_path(path: str) -> list[str]:
-            directory = os.path.abspath(path)
-            if os.path.isfile(directory):
-                directory = os.path.dirname(directory)
-            if directory not in cache:
-                config = self.config.make_child_from_path(
-                    directory, require_dialect=False
-                )
-                extensions: str = config.get("sql_file_exts", default=".sql")
-                cache[directory] = extensions.lower().split(",")
-            return cache[directory]
-
-        return file_extensions_for_path
+    def _file_extensions_for_path(self, path: str) -> list[str]:
+        """Return the file extensions to discover at a path."""
+        extensions: str = self._nested_core_value(path, "sql_file_exts") or (
+            self.config.get("sql_file_exts", default=".sql")
+        )
+        return extensions.lower().split(",")
 
     def lint_string_wrapped(
         self,
@@ -1222,7 +1242,6 @@ class Linter:
         expanded_paths: list[str] = []
         expanded_path_to_linted_dir = {}
         sql_exts = self.config.get("sql_file_exts", default=".sql").lower().split(",")
-        file_exts_for_path = self._file_extensions_lookup()
 
         for path in paths:
             linted_dir = LintedDir(path, retain_files=retain_files)
@@ -1232,7 +1251,7 @@ class Linter:
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
                 target_file_exts=sql_exts,
-                target_file_exts_for_path=file_exts_for_path,
+                target_file_exts_for_path=self._file_extensions_for_path,
             ):
                 expanded_paths.append(fname)
                 expanded_path_to_linted_dir[fname] = linted_dir
@@ -1324,7 +1343,7 @@ class Linter:
         for fname in paths_from_path(
             path,
             target_file_exts=sql_exts,
-            target_file_exts_for_path=self._file_extensions_lookup(),
+            target_file_exts_for_path=self._file_extensions_for_path,
         ):
             if self.formatter:
                 self.formatter.dispatch_path(path)

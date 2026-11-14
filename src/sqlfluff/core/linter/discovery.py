@@ -15,6 +15,7 @@ from typing import Callable, Optional, Protocol
 import pathspec
 
 from sqlfluff.core.config.file import load_config_file_as_dict
+from sqlfluff.core.config.loader import CONFIG_FILENAMES
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.file import iter_intermediate_paths
 
@@ -198,13 +199,27 @@ def _iter_files_in_path(
     """
     inner_ignore_specs: IgnoreSpecRecords = []
     ignore_filename_set = frozenset(ignore_file_loaders.keys())
+    config_filename_set = frozenset(CONFIG_FILENAMES)
+
+    # The file extensions for each directory walked so far.
+    dir_file_exts: dict[str, tuple[str, ...]] = {}
 
     for dirname, subdirs, filenames in os.walk(path, topdown=True):
         current_file_exts = lower_file_exts
         if target_file_exts_for_path:
-            current_file_exts = tuple(
-                extension.lower() for extension in target_file_exts_for_path(dirname)
-            )
+            # Directories inherit their parent's extensions, unless they
+            # contain config files which might change them.
+            parent_file_exts = dir_file_exts.get(os.path.dirname(dirname))
+            if parent_file_exts is None or not config_filename_set.isdisjoint(
+                filenames
+            ):
+                current_file_exts = tuple(
+                    extension.lower()
+                    for extension in target_file_exts_for_path(dirname)
+                )
+            else:
+                current_file_exts = parent_file_exts
+            dir_file_exts[dirname] = current_file_exts
         # Before adding new ignore specs, remove any which are no longer relevant
         # as indicated by us no longer being in a subdirectory of them.
         # NOTE: Slice so we can modify as we go.
