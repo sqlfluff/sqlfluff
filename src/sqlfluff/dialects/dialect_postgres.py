@@ -4740,6 +4740,56 @@ class ExclusionConstraintElementSegment(BaseSegment):
     )
 
 
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement.
+
+    As ANSI (all its branches kept), but a role grant also takes the
+    PostgreSQL 16 membership options
+    `WITH { ADMIN | INHERIT | SET } { OPTION | TRUE | FALSE } [, ...]`
+    and `GRANTED BY CURRENT_ROLE`.
+    https://www.postgresql.org/docs/16/sql-grant.html
+    """
+
+    _role_option = Sequence(
+        OneOf("ADMIN", "INHERIT", "SET"),
+        OneOf("OPTION", Ref("BooleanLiteralGrammar")),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        OneOf(
+            Sequence(
+                Ref("AccessPermissionsSegment"),
+                "ON",
+                Ref("AccessObjectSegment"),
+            ),
+            Sequence("ROLE", Ref("RoleReferenceSegment")),
+            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+            # A role granted non-explicitly, e.g. GRANT role_name TO other_role
+            Ref("ObjectReferenceSegment"),
+        ),
+        "TO",
+        Ref("AccessTargetSegment"),
+        OneOf(
+            Sequence("WITH", "GRANT", "OPTION"),
+            Sequence("WITH", Delimited(_role_option)),
+            Sequence("COPY", "CURRENT", "GRANTS"),
+            optional=True,
+        ),
+        Sequence(
+            "GRANTED",
+            "BY",
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                Ref("UserReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class AlterDefaultPrivilegesStatementSegment(BaseSegment):
     """`ALTER DEFAULT PRIVILEGES` statement.
 
