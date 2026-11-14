@@ -16,6 +16,7 @@ from sqlfluff.utils.reflow.elements import (
     ReflowBlock,
     ReflowPoint,
     ReflowSequenceType,
+    _mark_inert_indents,
     get_consumed_whitespace,
 )
 from sqlfluff.utils.reflow.helpers import fixes_from_results
@@ -167,6 +168,13 @@ class ReflowSequence:
         NOTE: ReflowBlock elements should only ever have one segment
         which simplifies iteration here.
         """
+        # Mark indents which should not contribute an indent impulse,
+        # so that e.g. the value rows of a `FROM (VALUES ...)` table
+        # constructor are not pushed one level deeper than the
+        # `VALUES` keyword by the indents of the shared
+        # `ValuesClauseSegment` grammar (#9055). See
+        # `elements._mark_inert_indents` for the rationale.
+        _mark_inert_indents(segments, depth_map)
         elem_buff: ReflowSequenceType = []
         seg_buff: list[RawSegment] = []
         for seg in segments:

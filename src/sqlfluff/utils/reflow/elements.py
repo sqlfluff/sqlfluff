@@ -1,8 +1,10 @@
 """Dataclasses for reflow work."""
 
 import logging
+import weakref
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import partial
 from itertools import chain
 from typing import Optional, Union, cast
 
@@ -19,7 +21,7 @@ from sqlfluff.core.parser.segments import (
 )
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
-from sqlfluff.utils.reflow.depthmap import DepthInfo
+from sqlfluff.utils.reflow.depthmap import DepthInfo, DepthMap
 
 # Respace Algorithms
 from sqlfluff.utils.reflow.respace import (
@@ -33,6 +35,113 @@ from sqlfluff.utils.reflow.respace import (
 # logs to appear in the context of rules. Hence it's a subset
 # of the rules logger.
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
+
+
+class _InertIndentRegistry:
+    """Set-like registry of inert indent segments, tracked by uuid.
+
+    The registry is keyed by uuid rather than holding the segments
+    themselves because `BaseSegment.__eq__` compares by value (class
+    name, raw and working location), so distinct zero-width indents
+    sitting at the same location (e.g. the Dedent of a `VALUES` clause
+    and the Dedent of its enclosing brackets on a single-line table
+    constructor) would otherwise be indistinguishable in a set
+    membership test.
+
+    Each uuid maps to weak references of *every* live instance marked
+    so far, not just the most recent one, because `BaseSegment.copy()`
+    preserves the uuid of its source and copies are created routinely
+    while fixing: `_position_segments` copies every segment it
+    realigns, and `LintFix` copies its edit segments. With a single
+    weak value per uuid, a copy could overwrite the entry for a
+    still-live original; once that copy was freed, the uuid would lose
+    its marking and the indent would start contributing an impulse
+    again mid-lint. Here a uuid stays marked while any instance with
+    that uuid is alive, and each weak reference carries a removal
+    callback which prunes it as soon as its segment is collected,
+    dropping the whole bucket once the last live instance for a uuid
+    is gone. The registry therefore never accumulates entries for
+    freed parse trees, even if their uuids are never looked up again.
+    """
+
+    def __init__(self) -> None:
+        self._refs: dict[int, set["weakref.ref[BaseSegment]"]] = {}
+
+    def _forget(self, uuid: int, ref: "weakref.ref[BaseSegment]") -> None:
+        """Drop a dead reference, and its bucket once it empties.
+
+        Registered as the callback of the weak references, so cleanup
+        happens eagerly, as the tracked segment is collected, rather
+        than waiting for the uuid to be looked up again.
+        """
+        bucket = self._refs.get(uuid)
+        if bucket is not None:
+            bucket.discard(ref)
+            if not bucket:
+                del self._refs[uuid]
+
+    def add(self, segment: BaseSegment) -> None:
+        """Track a newly marked indent instance."""
+        uuid = segment.uuid
+        self._refs.setdefault(uuid, set()).add(
+            weakref.ref(segment, partial(self._forget, uuid))
+        )
+
+    def is_marked(self, uuid: int) -> bool:
+        """Return whether any live segment instance carries this uuid."""
+        return any(ref() is not None for ref in self._refs.get(uuid, ()))
+
+
+#: Indent segments whose impulse should be ignored during reflow.
+#: Populated by `_mark_inert_indents` and consulted wherever indent
+#: impulses are summed. See the class docstring above for why the
+#: entries are tracked per uuid with weak references.
+_inert_indent_uuids = _InertIndentRegistry()
+
+
+def _mark_inert_indents(segments: Sequence[RawSegment], depth_map: DepthMap) -> None:
+    """Mark indents whose impulse should be ignored during reflow.
+
+    The shared `ValuesClauseSegment` grammar carries an `Indent` and
+    `Dedent` pair, added so that the rows of an `INSERT ... VALUES`
+    statement sit one level deeper than the table name (#8635). When
+    the same clause is enclosed in brackets, however, the surrounding
+    brackets already provide the indentation: in a `FROM (VALUES ...)`
+    table constructor or a `WITH ... AS (VALUES ...)` CTE the impulse
+    of those indents would wrongly push the value rows one level
+    deeper than the `VALUES` keyword (#9055).
+
+    Indents in that bracketed context are marked here and are then
+    skipped wherever their impulse is considered (see
+    `ReflowPoint._generate_indent_stats` and
+    `ReflowPoint.get_indent_segment_vals`), consistently across every
+    reflow pass. Outside brackets (e.g. an unbracketed `FROM VALUES`
+    constructor, a top-level `VALUES` statement, or the `VALUES` of an
+    `INSERT`/`REPLACE`/`MERGE`) the pair keeps its intended effect.
+    The segments themselves are untouched: the parse tree, and with it
+    the rendered SQL, is unchanged.
+
+    NOTE: Marking is per segment *instance* (tracked by uuid), so it
+    automatically survives reflow passes which rebuild reflow elements
+    from the same raw segments, and even across copies of the tree,
+    which keep their uuids.
+    """
+    for seg in segments:
+        if not seg.is_type("indent"):
+            continue
+        depth_info = depth_map.depth_info.get(seg.uuid)
+        if depth_info is None or len(depth_info.stack_class_types) < 2:
+            continue
+        stack = depth_info.stack_class_types
+        if "values_clause" not in stack[-1]:
+            continue
+        # Inert only when the values clause is enclosed in brackets,
+        # which already provide the indentation. The clause may sit
+        # directly inside them (e.g. a `WITH ... AS (VALUES ...)`) or
+        # via a table expression (e.g. a `FROM (VALUES ...)`
+        # constructor), with or without an alias.
+        if any("bracketed" in level for level in stack[:-1]):
+            _inert_indent_uuids.add(seg)
 
 
 def get_consumed_whitespace(segment: Optional[RawSegment]) -> Optional[str]:
@@ -374,6 +483,8 @@ class ReflowPoint(ReflowElement):
         values = []
         for seg in self.segments:
             if seg.is_type("indent"):
+                if _inert_indent_uuids.is_marked(seg.uuid):
+                    continue
                 indent_seg = cast(Indent, seg)
                 if exclude_block_indents and indent_seg.block_uuid:
                     continue
@@ -386,13 +497,19 @@ class ReflowPoint(ReflowElement):
     ) -> IndentStats:
         """Generate the change in intended indent balance.
 
-        This is the main logic which powers .get_indent_impulse()
+        This is the main logic which powers .get_indent_impulse().
+
+        Indent segments marked by `_mark_inert_indents` are skipped
+        entirely, i.e. they contribute no impulse (positive or
+        negative) to the indent balance.
         """
         trough = 0
         running_sum = 0
         implicit_indents = []
         for seg in segments:
             if seg.is_type("indent"):
+                if _inert_indent_uuids.is_marked(seg.uuid):
+                    continue
                 indent_seg = cast(Indent, seg)
                 running_sum += indent_seg.indent_val
                 # Do we need to add a new implicit indent?
