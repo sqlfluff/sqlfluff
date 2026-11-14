@@ -25,12 +25,13 @@ from collections.abc import Generator, Iterable, Iterator
 from contextvars import ContextVar
 from multiprocessing.shared_memory import SharedMemory
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, Union
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile, RenderedFile
 from sqlfluff.core.linter.common import DeferredRenderTask
+from sqlfluff.core.linter.linter import _selectable_by_nested_config
 from sqlfluff.core.plugin.host import is_main_process
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -198,7 +199,7 @@ def _warm_worker_apply(
         return DelayedException(e, fname=fname)
 
 
-class PreparedFile(NamedTuple):
+class _PreparedFile(NamedTuple):
     """A file with its effective config and the templater to render it."""
 
     fname: str
@@ -241,7 +242,7 @@ class BaseRunner(ABC):
 
     def _iter_prepared(
         self, fnames: list[str], formatter: Optional["FormatterInterface"]
-    ) -> Iterator[PreparedFile]:
+    ) -> Iterator[_PreparedFile]:
         """Iterate through files with the templater for each, in render order.
 
         Files are grouped by templater, so each templater can sequence its
@@ -249,45 +250,48 @@ class BaseRunner(ABC):
         templater's files had. Each templater created for the operation is
         released after its last file.
         """
-        with self.linter.templater_session():
-            groups: dict[int, list[tuple[int, PreparedFile]]] = {}
-            # Whether files in each directory may need a templater other than
-            # the root one. Their configs are only built here if so.
-            may_select_by_dir: dict[str, bool] = {}
+        with self.linter._templater_session() as session:
+            groups: dict[int, list[tuple[int, _PreparedFile]]] = {}
+            # The templater for the files in each directory, if it can be
+            # chosen without their configs. Otherwise each file's config is
+            # built here, and kept to render it.
+            templater_by_dir: dict[str, Optional["RawTemplater"]] = {}
             for index, fname in enumerate(fnames):
                 dirname = os.path.dirname(fname)
-                if dirname not in may_select_by_dir:
-                    may_select_by_dir[dirname] = (
-                        self.linter._may_select_nested_templater(fname)
+                if dirname not in templater_by_dir:
+                    templater_by_dir[dirname] = self.linter._templater_for_path(
+                        session, fname
                     )
+                templater = templater_by_dir[dirname]
                 config: Optional[FluffConfig] = None
-                templater = self.linter.templater
-                if may_select_by_dir[dirname]:
+                if templater is None:
                     config = self.config.make_child_from_path(
                         fname, require_dialect=False
                     )
                     # Any warning is logged when the file is rendered.
-                    templater = self.linter.templater_for_config(
-                        config, fname, warn=False
+                    templater = self.linter._templater_for_config(
+                        session, config, fname, warn=False
                     )
                 groups.setdefault(id(templater), []).append(
-                    (index, PreparedFile(fname, config, templater))
+                    (index, _PreparedFile(fname, config, templater))
                 )
-            ordered: dict[int, PreparedFile] = {}
+            ordered: dict[int, _PreparedFile] = {}
             for group in groups.values():
-                templater = group[0][1].templater
-                files_by_name: dict[str, deque[PreparedFile]] = defaultdict(deque)
+                first = group[0][1]
+                templater = first.templater
+                # The root templater is sequenced with the root config, and
+                # others with the config of their first file.
+                sequence_config = self.config
+                if templater is not self.linter.templater:
+                    sequence_config = first.config or self.config.make_child_from_path(
+                        first.fname, require_dialect=False
+                    )
+                files_by_name: dict[str, deque[_PreparedFile]] = defaultdict(deque)
                 for _, prepared in group:
                     files_by_name[prepared.fname].append(prepared)
                 sequenced = templater.sequence_files(
                     [prepared.fname for _, prepared in group],
-                    # The root templater is sequenced with the root config.
-                    # Other templaters are only chosen with a file's config.
-                    config=(
-                        self.config
-                        if templater is self.linter.templater
-                        else cast(FluffConfig, group[0][1].config)
-                    ),
+                    config=sequence_config,
                     formatter=formatter,
                 )
                 for (index, _), fname in zip(group, sequenced):
@@ -298,14 +302,14 @@ class BaseRunner(ABC):
                 yield prepared
                 remaining[id(prepared.templater)] -= 1
                 if not remaining[id(prepared.templater)]:
-                    self.linter.release_templater(prepared.templater)
+                    session.release(prepared.templater)
 
-    def _render(self, prepared: PreparedFile) -> Optional[RenderedFile]:
+    def _render(self, prepared: _PreparedFile) -> Optional[RenderedFile]:
         """Render a file, or return None if it's skipped."""
         try:
             if prepared.config is None:
                 return self.linter.render_file(prepared.fname, self.config)
-            raw_file, encoding = self.linter.load_raw_file(
+            raw_file, encoding = self.linter._load_raw_file(
                 prepared.fname, prepared.config
             )
             return self.linter.render_string(
@@ -493,9 +497,12 @@ class ParallelRunner(BaseRunner):
     def _root_config_for_workers(self) -> Optional[bytes]:
         """The pickled root config to send each worker, so it can render files.
 
-        Nested configuration may select a templater which renders in workers
-        even if the root templater doesn't, so it's always sent.
+        It's needed if the root templater renders in workers, or if nested
+        configuration may select one which does. Otherwise (e.g. dbt) every
+        file is rendered in the main process.
         """
+        if not _selectable_by_nested_config(self.linter.templater):
+            return None
         config = self.config.copy()
         # Workers build each file's config, with its own dialect, from the
         # file's path, so they never use the root config's expanded dialect.

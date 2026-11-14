@@ -483,16 +483,15 @@ def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
 
 @pytest.mark.parametrize("templates_in_worker", [True, False])
 def test__parallel_runner__root_config_for_workers(templates_in_worker, monkeypatch):
-    """Workers get the root config, without its dialect.
-
-    It's sent even if the root templater doesn't render in workers, as nested
-    config may select one which does.
-    """
+    """Workers get the root config, without its dialect, only if they render."""
     config = FluffConfig(overrides={"dialect": "ansi"})
     lntr = Linter(config=config)
     monkeypatch.setattr(lntr.templater, "templates_in_worker", templates_in_worker)
     thd_runner = runner.MultiThreadRunner(lntr, config, processes=2)
     pickled = thd_runner._root_config_for_workers()
+    if not templates_in_worker:
+        assert pickled is None
+        return
     worker_config = pickle.loads(pickled)
     assert worker_config.get("dialect") == "ansi"
     assert worker_config.get("dialect_obj") is None
@@ -1809,7 +1808,7 @@ def test__linter__templater_session_close_failure(
     fnames = [_stateful_file(tmp_path, key) for key in ("a", "b")]
     lntr = Linter(dialect="ansi")
     with pytest.raises(RuntimeError, match="close failed"):
-        with lntr.templater_session():
+        with lntr._templater_session():
             for fname in fnames:
                 lntr.render_file(fname, lntr.config)
     assert [event[0] for event in stateful_events] == [
@@ -1847,10 +1846,125 @@ def test__linter__templater_session_close_failure_after_error(
     fname = _stateful_file(tmp_path, "a")
     lntr = Linter(dialect="ansi")
     with pytest.raises(ValueError, match="render failed"):
-        with lntr.templater_session():
+        with lntr._templater_session():
             lntr.render_file(fname, lntr.config)
             raise ValueError("render failed")
     assert "Failed to close templater session" in caplog.text
+
+
+def test__parallel_runner__root_config_for_workers_stateful_root():
+    """Workers get the root config if nested config may select their templater.
+
+    That's possible under a main-process root templater with a session key.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(config=config)
+    lntr.templater = StatefulTemplater()
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=2)
+    assert pickle.loads(thd_runner._root_config_for_workers()).get("dialect") == "ansi"
+
+
+def test__sequential_runner__release_failure_raised_at_end(
+    tmp_path, monkeypatch, caplog, stateful_events
+):
+    """A templater which fails to close doesn't stop the other files.
+
+    The failure is raised once the run ends.
+    """
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fnames = [_stateful_file(tmp_path, key, index) for index, key in enumerate("xyz")]
+    lntr = Linter(dialect="ansi")
+    linted = []
+    with pytest.raises(RuntimeError, match="close failed"):
+        for linted_file in runner.SequentialRunner(lntr, lntr.config).run(
+            fnames, fix=False
+        ):
+            linted.append(linted_file.path)
+    assert linted == fnames
+    assert [event[0] for event in stateful_events] == ["render", "close"] * 3
+    assert caplog.text.count("Failed to close templater") == 2
+
+
+def test__parallel_runner__run_closes_session_on_early_exit(tmp_path, stateful_events):
+    """Stopping a parallel run early closes its templater session."""
+    fnames = [
+        _stateful_file(tmp_path, key, index)
+        for index, key in enumerate(["x", "x", None, "x"])
+    ]
+    lntr = Linter(dialect="ansi")
+    results = runner.MultiThreadRunner(lntr, lntr.config, processes=2).run(
+        fnames, fix=False
+    )
+    next(results)
+    results.close()
+    assert stateful_events[-1][0] == "close"
+    assert not lntr._templater_sessions
+
+
+def test__linter__templater_sessions_per_thread():
+    """Each thread using a linter has its own templater session."""
+    lntr = Linter(dialect="ansi")
+    sessions = []
+    opened = threading.Event()
+    finish = threading.Event()
+
+    def hold_session():
+        with lntr._templater_session() as session:
+            sessions.append(session)
+            opened.set()
+            finish.wait(10)
+
+    thread = threading.Thread(target=hold_session)
+    thread.start()
+    try:
+        assert opened.wait(10)
+        with lntr._templater_session() as session:
+            assert session is not sessions[0]
+            # Another thread's session ending doesn't end this one.
+            finish.set()
+            thread.join(10)
+            assert lntr.lint_string("select 1\n").tree
+            assert lntr._templater_sessions == {threading.get_ident(): session}
+    finally:
+        finish.set()
+        thread.join(10)
+    assert not lntr._templater_sessions
+
+
+def test__linter__nested_templater_chosen_without_config(tmp_path, monkeypatch):
+    """Files using a nested worker templater don't need their config to group.
+
+    Only one config is built, to sequence the files.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+    nested = tmp_path / "placeholder"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = placeholder\n\n"
+        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
+        encoding="utf-8",
+    )
+    fnames = []
+    for index in range(3):
+        nested.joinpath(f"{index}.sql").write_text("SELECT :value\n", encoding="utf-8")
+        fnames.append(str(nested / f"{index}.sql"))
+    lntr = Linter(config=FluffConfig.from_path(str(tmp_path)))
+    built = []
+    make_child = FluffConfig.make_child_from_path
+
+    def record(config, path, **kwargs):
+        built.append(path)
+        return make_child(config, path, **kwargs)
+
+    monkeypatch.setattr(FluffConfig, "make_child_from_path", record)
+    partials = list(
+        runner.MultiThreadRunner(lntr, lntr.config, processes=2).iter_partials(fnames)
+    )
+    assert [fname for fname, _ in partials] == fnames
+    assert all(isinstance(task, DeferredRenderTask) for _, task in partials)
+    assert built == fnames[:1]
 
 
 def test__linter__closing_parse_path_ends_templater_session():
@@ -1860,10 +1974,10 @@ def test__linter__closing_parse_path_ends_templater_session():
     parsed = lntr.parse_path(root)
 
     assert next(parsed).tree
-    assert lntr._templater_session
+    assert lntr._templater_sessions
     parsed.close()
 
-    assert not lntr._templater_session
+    assert not lntr._templater_sessions
 
 
 def test_advanced_api_methods():
