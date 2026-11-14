@@ -13,7 +13,7 @@ from sqlfluff.core.dialects.common import (
     qualification,
 )
 from sqlfluff.core.parser import IdentifierSegment
-from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment, SymbolSegment
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
@@ -553,15 +553,28 @@ def _validate_one_reference(
 
     fixes = None
     if fixable and not ref_is_templated:
+        qualifier_segment: BaseSegment = IdentifierSegment(
+            raw=table_ref_str,
+            type="naked_identifier",
+        )
+        if table_ref_str_source and table_ref_str_source.is_type("quoted_identifier"):
+            assert isinstance(table_ref_str_source, RawSegment)
+            if table_ref_str_source.raw_trimmed() == table_ref_str:
+                qualifier_segment = table_ref_str_source.__class__(
+                    raw=table_ref_str_source.raw,
+                    instance_types=table_ref_str_source.instance_types,
+                    trim_start=table_ref_str_source.trim_start,
+                    trim_chars=table_ref_str_source.trim_chars,
+                    quoted_value=table_ref_str_source.quoted_value,
+                    escape_replacements=table_ref_str_source.escape_replacements,
+                    casefold=table_ref_str_source.casefold,
+                )
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,
                 source=[table_ref_str_source] if table_ref_str_source else None,
                 edit_segments=[
-                    IdentifierSegment(
-                        raw=table_ref_str,
-                        type="naked_identifier",
-                    ),
+                    qualifier_segment,
                     SymbolSegment(raw=".", type="symbol"),
                 ],
             )
