@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b40091e0dae6d763571aaf281a7c26627d5826b4b2eaf238645bec20c013209
+_hash: 26e31c45eaacc8736988ff8c44b1be5a4a92f36cceecc813a192c9b2116a6edd
 file:
 - statement:
     access_statement:
@@ -541,6 +541,108 @@ file:
                 binary_operator: '%'
                 keyword: type
             - end_bracket: )
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: MAINTAIN
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: my_table
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SELECT
+        - comma: ','
+        - access_permission:
+            keyword: MAINTAIN
+      - keyword: 'ON'
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+            keyword: TABLES
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+            naked_identifier: my_schema
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: SET
+      - keyword: 'ON'
+      - access_object:
+          keyword: PARAMETER
+          parameter: work_mem
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+            keyword: SET
+        - comma: ','
+        - access_permission:
+          - keyword: ALTER
+          - keyword: SYSTEM
+      - keyword: 'ON'
+      - access_object:
+        - keyword: PARAMETER
+        - parameter: work_mem
+        - comma: ','
+        - parameter: plpgsql
+        - dot: .
+        - parameter: extra_warnings
+      - keyword: TO
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+          - keyword: ALL
+          - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - access_object:
+          keyword: PARAMETER
+          parameter: log_min_duration_statement
       - keyword: TO
       - access_target:
           role_reference:
