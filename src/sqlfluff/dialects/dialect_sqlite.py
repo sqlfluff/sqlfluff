@@ -260,7 +260,7 @@ sqlite_dialect.replace(
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
         Sequence(
-            Ref("DatatypeSegment"),
+            Ref("DatatypeSegment", exclude=Ref.keyword("SELECT")),
             Ref("LiteralGrammar"),
         ),
         terminators=[

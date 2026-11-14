@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5fff04d594be9b0316ed4fbf1d242ec0a6e9ec6d23aa44e97efec09672d5f02c
+_hash: 50960c3f91b168c573ce3d019153fd635ff8f244e05925ed91eb58a21c954d14
 file:
 - batch:
     statement:
@@ -2710,51 +2710,48 @@ file:
                     naked_identifier: department_name
               - comma: ','
               - select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: CURSOR
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          select_statement:
-                            select_clause:
-                              keyword: SELECT
-                              select_clause_element:
-                                column_reference:
-                                - naked_identifier: e
-                                - dot: .
-                                - naked_identifier: last_name
-                            from_clause:
-                              keyword: FROM
-                              from_expression:
-                                from_expression_element:
-                                  table_expression:
-                                    table_reference:
-                                      naked_identifier: employees
-                                  alias_expression:
-                                    naked_identifier: e
-                            where_clause:
-                              keyword: WHERE
-                              expression:
-                              - column_reference:
-                                - naked_identifier: e
-                                - dot: .
-                                - naked_identifier: department_id
-                              - comparison_operator:
-                                  raw_comparison_operator: '='
-                              - column_reference:
-                                - naked_identifier: d
-                                - dot: .
-                                - naked_identifier: department_id
-                            orderby_clause:
-                            - keyword: ORDER
-                            - keyword: BY
-                            - column_reference:
-                              - naked_identifier: e
-                              - dot: .
-                              - naked_identifier: last_name
-                        end_bracket: )
+                  expression:
+                    keyword: CURSOR
+                    bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            column_reference:
+                            - naked_identifier: e
+                            - dot: .
+                            - naked_identifier: last_name
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: employees
+                              alias_expression:
+                                naked_identifier: e
+                        where_clause:
+                          keyword: WHERE
+                          expression:
+                          - column_reference:
+                            - naked_identifier: e
+                            - dot: .
+                            - naked_identifier: department_id
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - column_reference:
+                            - naked_identifier: d
+                            - dot: .
+                            - naked_identifier: department_id
+                        orderby_clause:
+                        - keyword: ORDER
+                        - keyword: BY
+                        - column_reference:
+                          - naked_identifier: e
+                          - dot: .
+                          - naked_identifier: last_name
+                      end_bracket: )
                   alias_expression:
                     naked_identifier: employees
               from_clause:
