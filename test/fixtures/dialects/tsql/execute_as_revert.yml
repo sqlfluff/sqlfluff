@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5090521d365ccb6f0628c9ca962bc6499c2b87d5c71fe69a2dfc16b608434986
+file:
+  batch:
+  - statement:
+      execute_as_statement:
+      - keyword: EXECUTE
+      - keyword: AS
+      - keyword: LOGIN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'login1'"
+  - statement_terminator: ;
+  - statement:
+      execute_as_statement:
+      - keyword: EXECUTE
+      - keyword: AS
+      - keyword: USER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'user2'"
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: REVERT
+  - statement_terminator: ;
+  - statement:
+      execute_as_statement:
+      - keyword: EXEC
+      - keyword: AS
+      - keyword: USER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'user1'"
+      - keyword: WITH
+      - keyword: COOKIE
+      - keyword: INTO
+      - parameter: '@cookie'
+  - statement_terminator: ;
+  - statement:
+      revert_statement:
+      - keyword: REVERT
+      - keyword: WITH
+      - keyword: COOKIE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@cookie'
+  - statement_terminator: ;
+  - statement:
+      execute_as_statement:
+      - keyword: EXECUTE
+      - keyword: AS
+      - keyword: CALLER
+  - statement_terminator: ;
+  - statement:
+      revert_statement:
+        keyword: REVERT
+  - statement_terminator: ;
