@@ -398,6 +398,12 @@ postgres_dialect.sets("cannot_be_type_keywords").update(
 # still match them.
 postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 
+# `MAINTAIN` (PostgreSQL 17) is a privilege name rather than a keyword, and
+# `PARAMETER` (PostgreSQL 15) is only needed for `GRANT ... ON PARAMETER`.
+# Register them as unreserved so the GRANT/REVOKE grammar can match them while
+# they stay usable as ordinary identifiers.
+postgres_dialect.sets("unreserved_keywords").update(["MAINTAIN", "PARAMETER"])
+
 # Add datetime units
 postgres_dialect.sets("datetime_units").update(
     [
@@ -4737,6 +4743,53 @@ class ExclusionConstraintElementSegment(BaseSegment):
         Ref("IndexElementSegment"),
         "WITH",
         Ref("ComparisonOperatorGrammar"),
+    )
+
+
+class AccessPermissionSegment(ansi.AccessPermissionSegment):
+    """An access permission, with the PostgreSQL-only privileges.
+
+    Adds `MAINTAIN` (PostgreSQL 17) and the `SET` / `ALTER SYSTEM` privileges
+    on configuration parameters (PostgreSQL 15).
+    https://www.postgresql.org/docs/current/sql-grant.html
+    """
+
+    match_grammar = ansi.AccessPermissionSegment.match_grammar.copy(
+        insert=[
+            Ref.keyword("MAINTAIN"),
+            Sequence("ALTER", "SYSTEM"),
+            Ref.keyword("SET"),
+        ],
+    )
+
+
+class AccessObjectSegment(ansi.AccessObjectSegment):
+    """An access object, with `PARAMETER` for configuration parameters.
+
+    https://www.postgresql.org/docs/current/sql-grant.html
+    """
+
+    match_grammar = ansi.AccessObjectSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                "PARAMETER",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("DotSegment"),
+                                Ref("ParameterNameSegment"),
+                                allow_gaps=False,
+                            ),
+                        ),
+                        allow_gaps=False,
+                    ),
+                    terminators=["TO", "FROM"],
+                ),
+            ),
+        ],
+        at=0,
     )
 
 
