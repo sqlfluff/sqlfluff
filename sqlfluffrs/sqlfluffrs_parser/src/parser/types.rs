@@ -2,6 +2,7 @@
 
 use hashbrown::HashSet;
 use serde_yaml_ng::{Mapping, Value};
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{GrammarId, PositionMarker};
 use std::borrow::Cow;
 
@@ -36,8 +37,13 @@ pub struct RawSegmentKwargs {
     /// arena-backed `RsHandle` can clone the handle under the arena lock and
     /// build the Python tuple only after dropping the guard.
     pub trim_chars: Option<std::sync::Arc<Vec<String>>>,
+    /// Prefixes `RawSegment.raw_trimmed` strips before `trim_chars`
+    /// (e.g. `--` on inline comments). Lexer-only, like Python.
+    pub trim_start: Option<std::sync::Arc<Vec<String>>>,
     pub quoted_value: Option<(String, String)>,
     pub escape_replacements: Option<std::sync::Arc<Vec<(String, String)>>>,
+    /// Fold applied by `RawSegment.raw_normalized`.
+    pub casefold: CaseFold,
 }
 
 /// AST Node - represents parsed SQL structure
@@ -47,7 +53,10 @@ pub enum Node {
     Raw {
         segment_class: Cow<'static, str>, // "KeywordSegment", "LiteralSegment"
         segment_type: Cow<'static, str>,  // "keyword", "literal", "whitespace"
-        raw: String,                      // Actual text
+        /// Class-level type (Python `.type`); `segment_type` is the instance
+        /// override (`get_type()`), e.g. class `literal` vs. `numeric_literal`.
+        class_type: Cow<'static, str>,
+        raw: String, // Actual text
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>, // ["keyword"], ["numeric_literal", "literal"]
         /// Full class type hierarchy (mirrors Python's ``class_types`` property).
@@ -76,6 +85,9 @@ pub enum Node {
     Meta {
         meta_type: MetaType,
         pos_marker: Option<PositionMarker>,
+        /// Template block identity (`Uuid::as_u128`) from the lexer token, so
+        /// reflow can group indents by block. `None` for parser-inserted metas.
+        block_uuid: Option<u128>,
     },
 
     /// Parse errors
@@ -111,6 +123,7 @@ impl Node {
         let class_types = Self::build_class_types(&segment_type, &instance_types, &[]);
         Node::Raw {
             segment_class,
+            class_type: segment_type.clone(),
             segment_type,
             raw,
             pos_marker,
@@ -125,9 +138,11 @@ impl Node {
     ///
     /// ``class_types`` is computed as
     /// ``instance_types ∪ {segment_type} ∪ raw_class_class_types``.
+    #[allow(clippy::too_many_arguments)]
     pub fn new_raw_with_class_types(
         segment_class: impl Into<Cow<'static, str>>,
         segment_type: impl Into<Cow<'static, str>>,
+        class_type: impl Into<Cow<'static, str>>,
         raw: String,
         pos_marker: Option<PositionMarker>,
         instance_types: Vec<String>,
@@ -141,6 +156,7 @@ impl Node {
         Node::Raw {
             segment_class,
             segment_type,
+            class_type: class_type.into(),
             raw,
             pos_marker,
             instance_types,
@@ -659,6 +675,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
@@ -788,6 +805,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let val = node.to_tuple(false, false, true);
         assert_eq!(
@@ -801,6 +819,7 @@ mod tests {
         let node = Node::Meta {
             meta_type: MetaType::Indent { is_implicit: false },
             pos_marker: None,
+            block_uuid: None,
         };
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("indent".to_string(), vec![]));
