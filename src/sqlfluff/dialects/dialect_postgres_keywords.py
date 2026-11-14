@@ -603,7 +603,7 @@ postgres_docs_keywords = [
     ("PERCENTILE_CONT", "not-keyword"),
     ("PERCENTILE_DISC", "not-keyword"),
     ("PERCENT_RANK", "not-keyword"),
-    ("PERIOD", "not-keyword"),
+    ("PERIOD", "non-reserved"),
     ("PERMISSION", "not-keyword"),
     ("PERMISSIVE", "non-reserved"),
     ("PERMUTE", "not-keyword"),
