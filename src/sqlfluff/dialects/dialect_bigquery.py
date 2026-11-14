@@ -2259,6 +2259,9 @@ class AccessStatementSegment(BaseSegment):
     type = "access_statement"
 
     # resource_type resource_name, e.g. `SCHEMA myProject.myDataset`.
+    # TableReferenceSegment (not ObjectReferenceSegment) so that dashed
+    # project IDs like my-project.mydataset.mytable are accepted, as they
+    # are in other table references.
     _resource = Sequence(
         OneOf(
             "SCHEMA",
@@ -2267,7 +2270,7 @@ class AccessStatementSegment(BaseSegment):
             "PROJECT",
             Sequence("EXTERNAL", "TABLE"),
         ),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
     )
 
     # Roles are quoted identifiers such as `roles/bigquery.dataViewer`;

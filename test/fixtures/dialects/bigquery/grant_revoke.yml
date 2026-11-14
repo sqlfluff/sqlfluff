@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a3f7b8dd5bfcda38a4a82bd068e26c1e791169f822756411dd201d1c4869c32
+_hash: d88cb75f14959c5d606721b6b6b1f5e425b24ee82b241dfc6e7b447bc70fa305
 file:
 - statement:
     access_statement:
@@ -12,7 +12,7 @@ file:
         quoted_identifier: '`roles/bigquery.dataViewer`'
     - keyword: 'ON'
     - keyword: SCHEMA
-    - object_reference:
+    - table_reference:
         quoted_identifier: '`myProject`'
         dot: .
         naked_identifier: myDataset
@@ -31,7 +31,7 @@ file:
         quoted_identifier: '`roles/bigquery.dataEditor`'
     - keyword: 'ON'
     - keyword: TABLE
-    - object_reference:
+    - table_reference:
         quoted_identifier: '`myProject.myDataset.myTable`'
     - keyword: TO
     - quoted_literal: '"serviceAccount:robot@example.iam.gserviceaccount.com"'
@@ -43,7 +43,7 @@ file:
         quoted_identifier: '`roles/bigquery.dataViewer`'
     - keyword: 'ON'
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
       - naked_identifier: myDataset
       - dot: .
       - naked_identifier: myView
@@ -58,7 +58,7 @@ file:
     - keyword: 'ON'
     - keyword: EXTERNAL
     - keyword: TABLE
-    - object_reference:
+    - table_reference:
       - naked_identifier: myDataset
       - dot: .
       - naked_identifier: myExternalTable
@@ -75,7 +75,7 @@ file:
         quoted_identifier: '`roles/run.invoker`'
     - keyword: 'ON'
     - keyword: PROJECT
-    - object_reference:
+    - table_reference:
         quoted_identifier: '`my-vertex-project`'
     - keyword: TO
     - quoted_literal: '"connection:my-bq-project.us.my-connection"'
@@ -89,7 +89,7 @@ file:
         quoted_identifier: '`roles/bigquery.admin`'
     - keyword: 'ON'
     - keyword: SCHEMA
-    - object_reference:
+    - table_reference:
         quoted_identifier: '`myProject`'
         dot: .
         naked_identifier: myDataset
@@ -105,8 +105,26 @@ file:
         quoted_identifier: '`roles/run.invoker`'
     - keyword: 'ON'
     - keyword: PROJECT
-    - object_reference:
+    - table_reference:
         quoted_identifier: '`my-vertex-project`'
     - keyword: FROM
     - quoted_literal: '"connection:my-bq-project.us.my-connection"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - object_reference:
+        quoted_identifier: '`roles/bigquery.dataViewer`'
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my
+      - dash: '-'
+      - naked_identifier: project
+      - dot: .
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: TO
+    - quoted_literal: '"user:raha@example-pet-store.com"'
 - statement_terminator: ;

@@ -27,3 +27,7 @@ FROM "group:example-team@example-pet-store.com",
 REVOKE `roles/run.invoker`
 ON PROJECT `my-vertex-project`
 FROM "connection:my-bq-project.us.my-connection";
+
+GRANT `roles/bigquery.dataViewer`
+ON TABLE my-project.mydataset.mytable
+TO "user:raha@example-pet-store.com";
