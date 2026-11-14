@@ -1,0 +1,53 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7b37d677b48f4aa3aa5f6d9d98f617fb3b1517ee15d0799540771905f5ec51ea
+file:
+  statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_refresh
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - statement:
+        scripting_block_statement:
+        - keyword: BEGIN
+        - scripting_body:
+            statement:
+              delete_statement:
+                keyword: DELETE
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: main
+                        - dot: .
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: employees
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      naked_identifier: first_name
+                    keyword: IS
+                    null_literal: 'NULL'
+            statement_terminator: ;
+        - keyword: END
+  statement_terminator: ;
