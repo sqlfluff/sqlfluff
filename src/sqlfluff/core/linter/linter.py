@@ -187,9 +187,11 @@ class Linter:
         self.templater: RawTemplater = cast(
             RawTemplater, self.config.get("templater_obj")
         )
-        # The templaters for the current operation in each thread, by thread
-        # id. See `_templater_session`.
-        self._templater_sessions: dict[int, _TemplaterSession] = {}
+        # The templaters for the current operation in each thread. They're
+        # kept by thread rather than thread id, as ids may be reused once a
+        # thread ends, even if a session it opened is still open (e.g. in a
+        # suspended generator). See `_templater_session`.
+        self._templater_sessions: dict[threading.Thread, _TemplaterSession] = {}
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -1103,13 +1105,13 @@ class Linter:
         lint) is reused. Each thread has its own sessions. The root templater
         (`self.templater`) is shared and never closed.
         """
-        thread_id = threading.get_ident()
-        session = self._templater_sessions.get(thread_id)
+        thread = threading.current_thread()
+        session = self._templater_sessions.get(thread)
         if session is not None:
             yield session
             return
         session = _TemplaterSession(self.config, self.templater)
-        self._templater_sessions[thread_id] = session
+        self._templater_sessions[thread] = session
         # Track failure explicitly, rather than using sys.exc_info(), which
         # would also report an exception which a caller is handling around
         # a successful operation.
@@ -1121,8 +1123,8 @@ class Linter:
             raise
         finally:
             # A generator may be closed from another thread, so remove the
-            # session by the id of the thread which opened it.
-            del self._templater_sessions[thread_id]
+            # session by the thread which opened it.
+            del self._templater_sessions[thread]
             try:
                 session.close()
             except BaseException:
@@ -1192,15 +1194,7 @@ class Linter:
         name = self._nested_core_value(fname, "templater")
         if name is None:
             return self.templater
-        templater_class = next(
-            (
-                templater_class
-                for templaters in self.config._plugin_manager.hook.get_templaters()
-                for templater_class in templaters
-                if templater_class.name == name
-            ),
-            None,
-        )
+        templater_class = self.config._templater_lookup().get(name)
         if (
             templater_class is None
             or not templater_class.templates_in_worker

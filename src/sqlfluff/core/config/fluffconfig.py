@@ -487,6 +487,18 @@ class FluffConfig:
 
         return cls(overrides=overrides, require_dialect=require_dialect)
 
+    def _templater_lookup(self) -> dict[str, type[RawTemplater]]:
+        """The available templater classes, by name.
+
+        If several have the same name, the last one registered is used.
+        """
+        return {
+            templater.name: templater
+            for templater in chain.from_iterable(
+                self._plugin_manager.hook.get_templaters()
+            )
+        }
+
     def get_templater_class(self) -> type[RawTemplater]:
         """Get the configured templater class.
 
@@ -497,12 +509,7 @@ class FluffConfig:
            full templater. Instantiated templaters don't pickle well, so aren't
            automatically passed around between threads/processes.
         """
-        templater_lookup: dict[str, type[RawTemplater]] = {
-            templater.name: templater
-            for templater in chain.from_iterable(
-                self._plugin_manager.hook.get_templaters()
-            )
-        }
+        templater_lookup = self._templater_lookup()
         # Fetch the config value.
         templater_name = self._configs["core"].get("templater", "<no value set>")
         assert isinstance(templater_name, str), (

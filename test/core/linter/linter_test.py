@@ -1924,10 +1924,38 @@ def test__linter__templater_sessions_per_thread():
             finish.set()
             thread.join(10)
             assert lntr.lint_string("select 1\n").tree
-            assert lntr._templater_sessions == {threading.get_ident(): session}
+            assert lntr._templater_sessions == {threading.current_thread(): session}
     finally:
         finish.set()
         thread.join(10)
+    assert not lntr._templater_sessions
+
+
+def test__linter__templater_session_not_reused_after_thread_ends():
+    """A session left open by a thread which ended isn't used by other threads.
+
+    Thread ids may be reused once a thread ends.
+    """
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/linter/mixed_templaters"))
+    parsers = []
+    sessions = []
+
+    def start_parsing():
+        parsed = lntr.parse_path("test/fixtures/linter/mixed_templaters")
+        next(parsed)
+        parsers.append(parsed)
+
+    def open_session():
+        with lntr._templater_session() as session:
+            sessions.append(session)
+
+    for target in (start_parsing, open_session):
+        thread = threading.Thread(target=target)
+        thread.start()
+        thread.join(10)
+    (left_open,) = lntr._templater_sessions.values()
+    assert sessions[0] is not left_open
+    parsers[0].close()
     assert not lntr._templater_sessions
 
 
