@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sys
 
 import pytest
 
@@ -548,6 +549,100 @@ def test_resolve_path_exact_files(tmp_path):
 
     assert len(matches) == 1
     assert "specific_macro.sql" in matches[0]
+
+
+@pytest.mark.parametrize("relative_config", [False, True])
+@pytest.mark.parametrize(
+    "pattern, expected",
+    [
+        ("macros", ["macros"]),
+        (
+            "macros/*.sql",
+            ["macros/macro1.sql", "macros/macro2.sql", "macros/macro3.sql"],
+        ),
+        ("macros/macro[12].sql", ["macros/macro1.sql", "macros/macro2.sql"]),
+    ],
+)
+def test_resolve_path_literal_config_directory(
+    tmp_path, monkeypatch, relative_config, pattern, expected
+):
+    """Config directory names are literal even when values contain glob patterns."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    monkeypatch.chdir(tmp_path)
+    project = tmp_path / "project[1]"
+    macros = project / "macros"
+    macros.mkdir(parents=True)
+    for filename in ("macro1.sql", "macro2.sql", "macro3.sql", "other.txt"):
+        (macros / filename).touch()
+    # This sibling would match if the directory prefix were treated as a glob.
+    sibling = tmp_path / "project1" / "macros"
+    sibling.mkdir(parents=True)
+    (sibling / "wrong.sql").touch()
+    config_dir = os.path.relpath(project) if relative_config else str(project)
+
+    assert sorted(_resolve_path(os.path.join(config_dir, ".sqlfluff"), pattern)) == [
+        os.path.normpath(os.path.join(config_dir, path)) for path in expected
+    ]
+
+
+def test_resolve_absolute_pattern_with_literal_config_directory(tmp_path):
+    """Absolute configured patterns remain independent of the config directory."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    macro = tmp_path / "macro.sql"
+    macro.touch()
+
+    assert _resolve_path(str(tmp_path / "project[1]" / ".sqlfluff"), str(macro)) == [
+        str(macro)
+    ]
+
+
+@pytest.mark.parametrize("matching_sibling", [False, True])
+def test__config__jinja_literal_project_directory(tmp_path, matching_sibling):
+    """Relative macro paths use the actual project, not a glob-matching sibling."""
+    project = tmp_path / "project[1]"
+    macros = project / "macros"
+    macros.mkdir(parents=True)
+    (macros / "answer.sql").write_text("{% macro answer() %}42{% endmacro %}")
+    config_path = project / ".sqlfluff"
+    config_path.write_text(
+        "[sqlfluff]\ndialect = ansi\n"
+        "[sqlfluff:templater:jinja]\nload_macros_from_path = macros\n"
+    )
+    if matching_sibling:
+        sibling = tmp_path / "project1" / "macros"
+        sibling.mkdir(parents=True)
+        (sibling / "answer.sql").write_text("{% macro answer() %}99{% endmacro %}")
+
+    config = FluffConfig.from_path(
+        str(project), extra_config_path=str(config_path), ignore_local_config=True
+    )
+    parsed = Linter(config=config).parse_string("SELECT {{ answer() }} AS result;")
+
+    assert not parsed.violations
+    assert parsed.tree.raw == "SELECT 42 AS result;"
+
+
+def test__config__empty_library_path(tmp_path, monkeypatch):
+    """An empty library path still resolves to the config file's directory."""
+    # Track the dynamic import so the helper does not leak into other tests.
+    monkeypatch.setitem(sys.modules, "config_path_helpers", None)
+    (tmp_path / "config_path_helpers.py").write_text("def answer():\n    return 42\n")
+    config_path = tmp_path / ".sqlfluff"
+    config_path.write_text(
+        "[sqlfluff]\ndialect = ansi\n[sqlfluff:templater:jinja]\nlibrary_path =\n"
+    )
+    config = FluffConfig.from_path(
+        str(tmp_path), extra_config_path=str(config_path), ignore_local_config=True
+    )
+
+    parsed = Linter(config=config).parse_string(
+        "SELECT {{ config_path_helpers.answer() }} AS result;"
+    )
+
+    assert not parsed.violations
+    assert parsed.tree.raw == "SELECT 42 AS result;"
 
 
 def test_resolve_path_no_matches(tmp_path):
