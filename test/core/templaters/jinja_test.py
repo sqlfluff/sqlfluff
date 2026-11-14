@@ -7,12 +7,16 @@ loops and placeholders.
 """
 
 import logging
+import re
+import traceback
 from collections import defaultdict
+from copy import deepcopy
 from pathlib import Path
 from typing import NamedTuple, Union
 
 import pytest
-from jinja2 import Environment, TemplateSyntaxError, Undefined, nodes
+import pytz
+from jinja2 import Environment, TemplateSyntaxError, Undefined, nodes, pass_context
 from jinja2.compiler import CodeGenerator
 from jinja2.defaults import DEFAULT_FILTERS, DEFAULT_POLICIES
 from jinja2.exceptions import SecurityError, UndefinedError
@@ -774,6 +778,475 @@ def test__templater_jinja_dbt_conversion_context_override(name, override, call):
     )
     assert str(outstr) == "SELECT 42"
     assert not violations
+
+
+@pytest.mark.parametrize(
+    "expression,expected",
+    [
+        ("modules.datetime.date(2024, 2, 29).isoformat()", "2024-02-29"),
+        (
+            "modules.datetime.datetime(2024, 1, 2, 3, 4, 5).isoformat()",
+            "2024-01-02T03:04:05",
+        ),
+        ("modules.datetime.time(3, 4, 5).isoformat()", "03:04:05"),
+        (
+            "(modules.datetime.date(2024, 1, 2) - modules.datetime.timedelta(days=1)).isoformat()",
+            "2024-01-01",
+        ),
+        (
+            "modules.pytz.timezone('US/Eastern').localize(modules.datetime.datetime(2002, 10, 27, 6)).isoformat()",
+            "2002-10-27T06:00:00-05:00",
+        ),
+        ("modules.re.sub('[0-9]+', 'x', 'abc123')", "abcx"),
+        ("modules.re.match('ABC', 'abc', modules.re.IGNORECASE).group()", "abc"),
+        ("modules.itertools.chain([1], [2, 3]) | join(', ')", "1, 2, 3"),
+        ("modules.itertools.repeat('x', 2)", "repeat('x', 2)"),
+        (
+            "modules.itertools.tee([1, 2]) | map('list') | list",
+            "[[1, 2], [1, 2]]",
+        ),
+        (
+            "modules.itertools.islice(modules.itertools.count(2), 3) | join(', ')",
+            "2, 3, 4",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_modules(expression, expected):
+    """Documented dbt modules render through the public templater."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    outstr, violations = JinjaTemplater().process(
+        in_str="SELECT '{{ " + expression + " }}'", fname="test.sql", config=config
+    )
+    assert str(outstr) == f"SELECT '{expected}'"
+    assert not violations
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test__templater_jinja_dbt_modules_enabled(enabled):
+    """The namespace follows the existing dbt builtin switch."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": enabled}},
+        }
+    )
+    _, context, _ = JinjaTemplater().construct_render_func(config=config)
+    assert ("modules" in context) is enabled
+
+
+def test__templater_jinja_dbt_modules_context_override():
+    """A user-supplied namespace takes precedence over dbt defaults."""
+    outstr, violations = JinjaTemplater(
+        override_context={"modules": {"custom": lambda: 42}}
+    ).process(
+        in_str="SELECT {{ modules.custom() }}",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
+def test__templater_jinja_dbt_modules_isolated():
+    """Template-side dictionary updates cannot leak into later renders."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    templater = JinjaTemplater()
+    _, first, _ = templater.construct_render_func(config=config)
+    _, second, _ = templater.construct_render_func(config=config)
+    first["modules"]["datetime"].clear()
+    first["modules"].clear()
+    assert set(second["modules"]) == {"datetime", "pytz", "re", "itertools"}
+    assert second["modules"]["datetime"]["date"](2024, 1, 2).isoformat() == "2024-01-02"
+
+
+@pytest.mark.parametrize("flag", ["unsafe_callable", "alters_data"])
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "callback()",
+        "modules.itertools.product(modules.itertools.starmap(callback, [()])) | list",
+        "modules.itertools.product(modules.itertools.accumulate([1, 2], callback)) | list",
+        "modules.itertools.product(modules.itertools.chain(modules.itertools.starmap(callback, [()]))) | list",
+        "modules.itertools.product(modules.itertools.tee(modules.itertools.starmap(callback, [()]))[0]) | list",
+        "modules.itertools.combinations(modules.itertools.starmap(callback, [()]), 1) | list",
+        "modules.itertools.permutations(modules.itertools.starmap(callback, [()]), 1) | list",
+        "modules.itertools.starmap(callback, [()]) | list",
+        "modules.itertools.accumulate([1, 2], callback) | list",
+        "modules.itertools.accumulate([1, 2], func=callback) | list",
+        "modules.re.sub('.', callback, 'x')",
+        "modules.re.subn(pattern='.', repl=callback, string='x')",
+        "modules.re.compile('.').sub(callback, 'x')",
+        "modules.re.compile('.').subn(repl=callback, string='x')",
+        "modules.re.Pattern.sub(modules.re.compile('.'), callback, 'x')",
+        "modules.re.Pattern.sub(modules.re.compile('.'), repl=callback, string='x')",
+        "modules.re.Pattern.subn(modules.re.compile('.'), callback, 'x')",
+        "modules.re.Pattern.subn(modules.re.compile('.'), repl=callback, string='x')",
+        "modules.itertools.starmap(callback, [()]) | first",
+    ],
+)
+def test__templater_jinja_dbt_modules_unsafe_callbacks(flag, expression):
+    """Native callbacks must respect the same sandbox as direct calls."""
+    calls = []
+
+    def callback(*args):
+        calls.append(args)
+        return "unsafe result"
+
+    setattr(callback, flag, True)
+    with pytest.raises(SQLTemplaterError, match="not safely callable"):
+        JinjaTemplater(override_context={"callback": callback}).process(
+            in_str="SELECT {{ " + expression + " }}",
+            fname="test.sql",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    assert not calls
+
+
+@pytest.mark.parametrize(
+    "expression,expected",
+    [
+        ("modules.itertools.starmap(callback, [(1, 2), (3, 4)]) | list", "[3, 7]"),
+        ("modules.itertools.accumulate([1, 2, 3], func=callback) | list", "[1, 3, 6]"),
+        ("modules.itertools.accumulate([1, 2, 3]) | list", "[1, 3, 6]"),
+        (
+            "modules.itertools.product(modules.itertools.starmap(callback, [(1, 2)])) | list",
+            "[(3,)]",
+        ),
+        (
+            "modules.itertools.tee(modules.itertools.accumulate([1, 2], func=callback))[0] | list",
+            "[1, 3]",
+        ),
+        (
+            "modules.itertools.islice(modules.itertools.accumulate([1, none]), 1) | list",
+            "[1]",
+        ),
+        ("modules.re.sub('.', callback, 'xy')", "zz"),
+        ("modules.re.subn('.', callback, 'xy')", "('zz', 2)"),
+        ("modules.re.compile('.').sub(repl=callback, string='xy')", "zz"),
+        ("modules.re.compile('.').subn(callback, 'xy')", "('zz', 2)"),
+        ("modules.re.Pattern.sub(modules.re.compile('.'), callback, 'xy')", "zz"),
+        (
+            "modules.re.Pattern.subn(modules.re.compile('.'), repl=callback, string='xy')",
+            "('zz', 2)",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_modules_context_callbacks(expression, expected):
+    """Safe callbacks keep Jinja context injection through native APIs."""
+
+    @pass_context
+    def callback(context, *args):
+        assert context["sentinel"] == "context available"
+        return sum(args) if isinstance(args[0], int) else "z"
+
+    outstr, violations = JinjaTemplater(
+        override_context={"callback": callback, "sentinel": "context available"}
+    ).process(
+        in_str="SELECT {{ " + expression + " }}",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT " + expected
+    assert not violations
+
+
+def test__templater_jinja_dbt_modules_macro_callbacks():
+    """Macro callbacks can return native values without ending their caller."""
+    outstr, violations = JinjaTemplater().process(
+        in_str=(
+            "{% macro add(a, b) %}{{ return(a + b) }}{% endmacro %}"
+            "SELECT {{ modules.itertools.starmap(add, [(1, 2)]) | list }}, "
+            "{{ modules.itertools.accumulate([1, 2, 3], add) | list }}"
+        ),
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT [3], [1, 3, 6]"
+    assert not violations
+
+
+@pytest.mark.parametrize(
+    "expression,expected",
+    [
+        ("modules.itertools.starmap(callback, []) | list", "[]"),
+        (
+            "modules.itertools.islice(modules.itertools.starmap(callback, [()]), 0) | list",
+            "[]",
+        ),
+        ("modules.itertools.accumulate([1], callback) | list", "[1]"),
+        ("modules.re.sub('.', callback, '')", ""),
+        ("modules.re.compile('.').sub(callback, '')", ""),
+        ("modules.re.Pattern.sub(modules.re.compile('.'), callback, '')", ""),
+        (
+            "modules.re.Pattern.subn(modules.re.compile('.'), callback, '')",
+            "('', 0)",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_modules_callbacks_lazy(expression, expected):
+    """Unused callbacks remain uncalled, including unsafe callbacks."""
+
+    def callback(*args):
+        pytest.fail("An unused callback was invoked")
+
+    callback.unsafe_callable = True
+    outstr, violations = JinjaTemplater(
+        override_context={"callback": callback}
+    ).process(
+        in_str="SELECT {{ " + expression + " }}",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "SELECT " + expected
+    assert not violations
+
+
+@pytest.mark.parametrize(
+    "error_type", [TypeError, ValueError, KeyboardInterrupt, SystemExit]
+)
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "modules.itertools.starmap(callback, [()]) | list",
+        "modules.itertools.accumulate([1, 2], callback) | list",
+        "modules.itertools.product(modules.itertools.starmap(callback, [()])) | list",
+        "modules.itertools.tee(modules.itertools.accumulate([1, 2], callback))[0] | list",
+        "modules.re.sub('.', callback, 'x')",
+        "modules.re.compile('.').sub(callback, 'x')",
+        "modules.re.Pattern.sub(modules.re.compile('.'), callback, 'x')",
+        "modules.re.Pattern.subn(modules.re.compile('.'), repl=callback, string='x')",
+    ],
+)
+def test__templater_jinja_dbt_modules_callback_errors(error_type, expression):
+    """Callback failures keep public templater errors and preserve interrupts."""
+
+    def callback(*args):
+        raise error_type("callback failed")
+
+    expected = (
+        SQLTemplaterError if error_type in (TypeError, ValueError) else error_type
+    )
+    with pytest.raises(expected) as caught:
+        JinjaTemplater(override_context={"callback": callback}).process(
+            in_str="SELECT {{ " + expression + " }}",
+            fname="test.sql",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    if expected is SQLTemplaterError:
+        assert caught.value.rule_code() == "TMP"
+    else:
+        assert str(caught.value) == "callback failed"
+
+
+@pytest.mark.parametrize(
+    "error_type", [OverflowError, IndexError, re.error, pytz.UnknownTimeZoneError]
+)
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "callback()",
+        "modules.itertools.product(modules.itertools.starmap(callback, [()])) | list",
+        "modules.itertools.product(modules.itertools.accumulate([1, 2], callback)) | list",
+        "modules.itertools.product(modules.itertools.chain(modules.itertools.starmap(callback, [()]))) | list",
+        "modules.itertools.product(modules.itertools.tee(modules.itertools.starmap(callback, [()]))[0]) | list",
+        "modules.itertools.combinations(modules.itertools.starmap(callback, [()]), 1) | list",
+        "modules.itertools.permutations(modules.itertools.starmap(callback, [()]), 1) | list",
+        "modules.itertools.starmap(callback, [()]) | list",
+        "modules.itertools.accumulate([1, 2], callback) | list",
+        "modules.re.sub('.', callback, 'x')",
+        "modules.re.subn('.', callback, 'x')",
+        "modules.re.compile('.').sub(callback, 'x')",
+        "modules.re.compile('.').subn(callback, 'x')",
+        "modules.re.Pattern.sub(modules.re.compile('.'), callback, 'x')",
+        "modules.re.Pattern.subn(modules.re.compile('.'), repl=callback, string='x')",
+    ],
+)
+def test__templater_jinja_dbt_modules_callback_error_origin(error_type, expression):
+    """A callback's exception is preserved through eager and lazy native calls."""
+
+    class CallbackError(error_type):
+        pass
+
+    error = CallbackError("callback failed")
+
+    def callback(*args):
+        raise error
+
+    with pytest.raises(CallbackError) as caught:
+        JinjaTemplater(override_context={"callback": callback}).process(
+            in_str="SELECT {{ " + expression + " }}",
+            fname="test.sql",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    assert caught.value is error
+
+
+@pytest.mark.parametrize("scope", ["for item in [1]", "block example"])
+@pytest.mark.parametrize(
+    "expression,expected",
+    [
+        ("modules.itertools.starmap(callback, [()]) | list", "['local']"),
+        ("modules.itertools.accumulate([1, 2], callback) | list", "[1, 'local']"),
+        ("modules.re.sub('.', callback, 'x')", "local"),
+        ("modules.re.compile('.').sub(callback, 'x')", "local"),
+        ("modules.re.Pattern.sub(modules.re.compile('.'), callback, 'x')", "local"),
+    ],
+)
+def test__templater_jinja_dbt_modules_scoped_callbacks(scope, expression, expected):
+    """Native callbacks see the same loop and block locals as direct calls."""
+
+    @pass_context
+    def callback(context, *args):
+        return context.get("marker", "missing")
+
+    template = (
+        "{% " + scope + " %}{% set marker = 'local' %}"
+        "{{ callback() }}|{{ " + expression + " }}"
+        "{% end" + scope.split()[0] + " %}"
+    )
+    outstr, violations = JinjaTemplater(
+        override_context={"callback": callback}
+    ).process(
+        in_str=template,
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    assert str(outstr) == "local|" + expected
+    assert not violations
+
+
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "modules.re.compile('[private-sentinel')",
+        "modules.re.compile('private-sentinel' + '(' * 2000)",
+        "modules.re.compile('private-sentinel{999999999999999999999}')",
+        "modules.re.compile(123)",
+        "modules.re.compile(bad_encoding, modules.re.UNICODE)",
+        r"modules.re.sub('(x)', '\\g<private_sentinel>', 'x')",
+        r"modules.re.subn('(x)', '\\g<private_sentinel>', 'x')",
+        r"modules.re.compile('(x)').sub('\\g<private_sentinel>', 'x')",
+        r"modules.re.compile('(x)').subn('\\g<private_sentinel>', 'x')",
+        r"modules.re.Pattern.sub(modules.re.compile('(x)'), '\\g<private_sentinel>', 'x')",
+        r"modules.re.Pattern.subn(modules.re.compile('(x)'), '\\g<private_sentinel>', 'x')",
+        "modules.re.Pattern.sub('private-sentinel', 'x', 'x')",
+        "modules.datetime.date.replace(modules.datetime.date(2024, 1, 1), year=0)",
+        "modules.datetime.timedelta(days=1000000000)",
+        "modules.datetime.date.fromisoformat('private-sentinel')",
+        "modules.datetime.datetime.strptime('private-sentinel', '%Y')",
+        "modules.datetime.datetime.fromtimestamp(10 ** 100)",
+        "modules.pytz.timezone('private-sentinel')",
+        "modules.pytz.timezone(none)",
+        "modules.pytz.timezone(123)",
+        "modules.pytz.FixedOffset('private-sentinel')",
+        "modules.pytz.utc.localize('private-sentinel')",
+        "modules.itertools.combinations([], -1) | list",
+        "modules.itertools.accumulate([1, none]) | list",
+        "modules.itertools.accumulate([none, 1]) | list",
+        "modules.itertools.chain(modules.itertools.accumulate([1, none])) | list",
+        "modules.itertools.tee(modules.itertools.accumulate([1, none]))[0] | list",
+        "modules.itertools.product(modules.itertools.accumulate([1, none])) | list",
+        "modules.itertools.islice(modules.itertools.accumulate([1, none]), 2) | list",
+        "modules.itertools.cycle(modules.itertools.accumulate([1, none])) | list",
+    ],
+)
+@pytest.mark.parametrize("source", ["inline", "config", "path"])
+def test__templater_jinja_dbt_modules_input_errors(expression, source, tmp_path):
+    """Module parsing failures use public errors without exposing input values."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    template = "SELECT {{ " + expression + " }}"
+    if source != "inline":
+        macro = (
+            "{% set value = " + expression + " %}"
+            "{% macro example() %}{{ value }}{% endmacro %}"
+        )
+        if source == "config":
+            config.set_value(("templater", "jinja", "macros", "example"), macro)
+        else:
+            (tmp_path / "example.sql").write_text(macro)
+            config.set_value(
+                ("templater", "jinja", "load_macros_from_path"), str(tmp_path)
+            )
+        template = "SELECT {{ example() }}"
+    with pytest.raises(SQLTemplaterError) as caught:
+        JinjaTemplater(override_context={"bad_encoding": b"\xff"}).process(
+            in_str=template,
+            fname="test.sql",
+            config=config,
+        )
+    assert caught.value.rule_code() == "TMP"
+    assert "Invalid input to a dbt module function" in caught.value.desc()
+    assert "private" not in "".join(traceback.format_exception(caught.value))
+
+
+@pytest.mark.parametrize("configured_macro", [False, True])
+def test__templater_jinja_dbt_modules_renderer_isolated(configured_macro):
+    """Each tracer render, including macro aliases, gets fresh module data."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    if configured_macro:
+        config.set_value(
+            ("templater", "jinja", "macros", "timezones"),
+            "{% set zones = modules.pytz.all_timezones %}"
+            "{% macro read_zones() %}{{ zones | length }}{% endmacro %}"
+            "{% macro clear_zones() %}{% do zones.clear() %}{% endmacro %}",
+        )
+        template = "{{ read_zones() }}{{ clear_zones() }}"
+    else:
+        template = (
+            "{{ modules.pytz.all_timezones | length }}"
+            "{% do modules.pytz.all_timezones.clear() %}"
+        )
+    templater = JinjaTemplater()
+    _, _, render = templater.construct_render_func(config=config)
+    expected = str(len(pytz.all_timezones))
+    assert render(template) == expected
+    assert render(template) == expected
+    outstr, violations = templater.process(
+        in_str=template, fname="test.sql", config=config
+    )
+    assert str(outstr) == expected
+    assert not violations
+
+
+@pytest.mark.parametrize(
+    "expression,name",
+    [
+        ("modules.pytz.all_timezones.clear()", "all_timezones"),
+        ("modules.pytz.common_timezones.clear()", "common_timezones"),
+        ("modules.pytz.all_timezones_set.clear()", "all_timezones_set"),
+        ("modules.pytz.common_timezones_set.clear()", "common_timezones_set"),
+        ("modules.pytz.country_timezones['NZ'].clear()", "country_timezones"),
+        ("modules.pytz.country_timezones('nz').clear()", "country_timezones"),
+        ("modules.pytz.country_names.data.clear()", "country_names"),
+    ],
+)
+def test__templater_jinja_dbt_modules_pytz_isolated(monkeypatch, expression, name):
+    """Mutations cannot affect another render or process-wide pytz data."""
+    # Isolate the global export too, so the failing regression cannot pollute tests.
+    original = getattr(pytz, name)
+    if name.startswith("country_"):
+        list(original)  # Exercise already-initialized lazy dictionaries as well.
+    monkeypatch.setattr(pytz, name, deepcopy(original))
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    templater = JinjaTemplater()
+    _, existing, _ = templater.construct_render_func(config=config)
+    templater.process(
+        in_str="{% do " + expression + " %}SELECT 1",
+        fname="test.sql",
+        config=config,
+    )
+    _, later, _ = templater.construct_render_func(config=config)
+    for namespace in (existing["modules"]["pytz"], later["modules"]["pytz"]):
+        value = namespace[name]
+        if name == "country_timezones":
+            assert value["nz"] == ["Pacific/Auckland", "Pacific/Chatham"]
+            assert value("NZ") == value["nz"]
+        elif name == "country_names":
+            assert value["nz"] == "New Zealand"
+        else:
+            assert "UTC" in value
+    value = getattr(pytz, name)
+    assert value["nz"] if name.startswith("country_") else "UTC" in value
 
 
 def test__templater_jinja_dbt_builtin_function():

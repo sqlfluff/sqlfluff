@@ -44,6 +44,7 @@ repos:
             types-chardet,
             types-colorama,
             types-pyyaml,
+            types-pytz,
             types-regex,
             types-tqdm,
             # Type stubs are obvious to import, but some dependencies also define their own

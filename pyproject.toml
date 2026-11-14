@@ -79,6 +79,8 @@ dependencies = [
     "Jinja2",
     # Used for .sqlfluffignore
     "pathspec",
+    # For dbt's modules.pytz Jinja namespace.
+    "pytz",
     # We require pyyaml >= 5.1 so that we can preserve the ordering of keys.
     "pyyaml>=5.1",
     # The new regex module to allow for more complex pattern matching,
