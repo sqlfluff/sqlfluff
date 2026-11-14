@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.common import (
     ColumnAliasInfo,
     ObjectReferenceLevel,
     extract_possible_references,
+    get_from_expression_element_alias,
     is_qualified,
     iter_raw_references,
     qualification,
@@ -26,7 +27,15 @@ from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
-_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+_DML_TYPES = ("update_statement", "delete_statement", "merge_statement")
+# DML statements are start types so that the queries inside them know about
+# the tables of the statement. RF03 doesn't check the DML statement itself.
+_START_TYPES = [
+    "select_statement",
+    "set_expression",
+    "with_compound_statement",
+    *_DML_TYPES,
+]
 
 
 class Rule_RF03(BaseRule):
@@ -118,9 +127,13 @@ class Rule_RF03(BaseRule):
     ) -> Iterator[AliasInfo]:
         """Iterate along a list of valid alias targets."""
         for selectable in query.selectables:
-            select_info = selectable.select_info
-            if select_info:
-                for alias in select_info.table_aliases:
+            aliases: list[AliasInfo] = []
+            if selectable.selectable.is_type(*_DML_TYPES):
+                aliases = _dml_table_aliases(selectable.selectable, query.dialect.name)
+            elif selectable.select_info:
+                aliases = selectable.select_info.table_aliases
+            if aliases:
+                for alias in aliases:
                     if subquery and alias.from_expression_element.path_to(
                         subquery.selectables[0].selectable
                     ):
@@ -149,12 +162,16 @@ class Rule_RF03(BaseRule):
         A correlated subquery may reference any enclosing query, not just its
         direct parent, so walk up the whole chain of ancestors. A CTE never
         sees the FROM clause of the query that uses it, so skip that query,
-        but it can see the queries enclosing its WITH statement.
+        but it can see the queries enclosing its WITH statement. Likewise, a
+        derived table in the FROM or USING clause of a DML statement can't see
+        the tables of that statement.
         """
         outer_aliases: list[AliasInfo] = []
         child = query
         while child.parent:
-            if child.cte_definition_segment is None:
+            if child.cte_definition_segment is None and not _is_dml_source(
+                child.parent, child
+            ):
                 outer_aliases += self._iter_available_targets(child.parent, child)
             child = child.parent
         return outer_aliases
@@ -163,6 +180,12 @@ class Rule_RF03(BaseRule):
         self, query: Query, visited: set, templater_name: str
     ) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
+        if query.selectables and query.selectables[0].selectable.is_type(*_DML_TYPES):
+            # Only check the queries inside a DML statement. They can see the
+            # tables of the statement, via _iter_available_targets().
+            for child in query.children:
+                yield from self._visit_queries(child, visited, templater_name)
+            return
         if query.selectables:
             select_info = query.selectables[0].select_info
             # How many table names are visible from here? If more than one then do
@@ -241,6 +264,85 @@ class Rule_RF03(BaseRule):
                     children.append(q)
         for child in children:
             yield from self._visit_queries(child, visited, templater_name)
+
+
+def _dml_table_aliases(statement: BaseSegment, dialect_name: str) -> list[AliasInfo]:
+    """Get the tables of an UPDATE, DELETE or MERGE statement.
+
+    Queries inside the statement (e.g. a correlated subquery in the WHERE
+    clause) can see these tables. Depending on the dialect, a table is either
+    a ``from_expression_element`` (e.g. in a FROM or USING clause), or a
+    ``table_reference``, ``table_expression`` or bracketed subquery (e.g. in
+    ``MERGE ... USING (SELECT ...) AS s``) directly in the statement, followed
+    by its ``alias_expression`` if it has one.
+    """
+    aliases: list[AliasInfo] = []
+    children = [
+        seg
+        for seg in statement.segments
+        if not (seg.is_meta or seg.is_whitespace or seg.is_type("comment"))
+    ]
+    for idx, seg in enumerate(children):
+        if not seg.is_type("table_reference", "table_expression", "bracketed"):
+            continue
+        ref: Optional[BaseSegment] = None
+        if seg.is_type("table_reference"):
+            ref = seg
+        elif seg.is_type("table_expression"):
+            ref = seg.get_child("table_reference")
+        following = children[idx + 1] if idx + 1 < len(children) else None
+        if following and following.is_type("alias_expression"):
+            alias_segment = following.get_child("identifier")
+            if alias_segment:
+                aliases.append(
+                    AliasInfo(
+                        alias_segment.raw_normalized(casefold=False),
+                        alias_segment,
+                        True,
+                        seg,
+                        following,
+                        ref,
+                    )
+                )
+                continue
+        parts = list(iter_raw_references(ref, dialect_name)) if ref else []
+        if parts:
+            aliases.append(
+                AliasInfo(parts[-1].part, parts[-1].segments[0], False, seg, None, ref)
+            )
+        elif ref:
+            # A table without a name part, e.g. an unaliased T-SQL table
+            # variable (`UPDATE @orders ...`). Keep it, like
+            # get_from_expression_element_alias() does: a subquery can still
+            # reference it by its bracketed name (e.g. `[@orders].id`).
+            aliases.append(AliasInfo("", None, False, seg, None, ref))
+    for element in statement.recursive_crawl(
+        "from_expression_element", no_recursive_seg_type="select_statement"
+    ):
+        aliases += get_from_expression_element_alias(element, dialect_name)
+    return aliases
+
+
+def _is_dml_source(parent: Query, child: Query) -> bool:
+    """Check whether a query is a table source of its parent DML statement.
+
+    For example ``(SELECT ...) AS s`` in ``UPDATE t ... FROM (SELECT ...) AS s``
+    or in ``MERGE INTO t USING (SELECT ...) AS s``. Unless it's a LATERAL or
+    APPLY join, such a derived table can't see the tables of the statement.
+    """
+    statement = parent.selectables[0].selectable if parent.selectables else None
+    if not statement or not child.selectables or not statement.is_type(*_DML_TYPES):
+        return False
+    segment = _parent_segment(child.selectables[0].selectable)
+    while segment and segment is not statement:
+        if segment.is_type("from_expression_element"):
+            return not _is_lateral_element(segment)
+        if segment.is_type("table_expression", "bracketed") and (
+            _parent_segment(segment) is statement
+        ):
+            return True
+        segment = _parent_segment(segment)
+    return False
 
 
 def _sees_outer_columns(selectable: BaseSegment) -> bool:
