@@ -6,7 +6,13 @@ import pickle
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLBaseError, SQLLexError, SQLLintError, SQLParseError
+from sqlfluff.core.errors import (
+    SQLBaseError,
+    SQLLexError,
+    SQLLintError,
+    SQLParseError,
+    _SQLRuleError,
+)
 from sqlfluff.core.parser import PositionMarker, RawSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix
 from sqlfluff.core.templaters import TemplatedFile
@@ -139,11 +145,12 @@ def test__parse_error_pickle(ignore):
     "ignore",
     [True, False],
 )
-def test__lint_error_pickle(ignore):
+@pytest.mark.parametrize("error_class", [SQLLintError, _SQLRuleError])
+def test__lint_error_pickle(ignore, error_class):
     """Test lint error pickling."""
     template = TemplatedFile.from_string("foobar")
     segment = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
-    err = SQLLintError("Foo", segment=segment, rule=Rule_T078)
+    err = error_class("Foo", segment=segment, rule=Rule_T078)
     # Set ignore to true if configured.
     # NOTE: This not copying was one of the reasons for this test.
     err.ignore = ignore

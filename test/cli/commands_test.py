@@ -2926,6 +2926,49 @@ def test__cli__command_lint_serialize_gitlab_parse_error():
     ]
 
 
+def test__cli__command_lint_templated_rule_exception(tmp_path, monkeypatch):
+    """A rule crash remains in JSON, fails lint, and does not stop other files."""
+    from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
+
+    original_eval = Rule_CP01._eval
+
+    def fail_on_template(self, context):
+        if not context.segment.pos_marker.is_literal():
+            raise RuntimeError("rule failed")
+        return original_eval(self, context)
+
+    monkeypatch.setattr(Rule_CP01, "_eval", fail_on_template)
+    monkeypatch.setattr(Rule_CP01, "_eval_rust", lambda self, context: None)
+    (tmp_path / "a.sql").write_text("{{ 'select' }} 1\n", encoding="utf8")
+    (tmp_path / "b.sql").write_text("select 2\n", encoding="utf8")
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                str(tmp_path),
+                "--ignore-local-config",
+                "--dialect",
+                "ansi",
+                "--rules",
+                "CP01",
+                "--format",
+                "json",
+                "--processes",
+                "1",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    records = json.loads(result.stdout)
+    assert len(records) == 2
+    assert records[0]["violations"][0]["description"].startswith(
+        "Unexpected exception: rule failed;"
+    )
+    assert records[0]["violations"][0]["code"] == "CP01"
+    assert records[1]["violations"] == []
+
+
 def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
