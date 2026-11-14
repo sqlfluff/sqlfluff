@@ -1351,3 +1351,14 @@ test_fail_ignore_url_comment_lines_jinja_comment_prefix:
     rules:
       layout.long_lines:
         ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_jinja_trimmed_newline:
+  fail_str: |
+    SELECT 1 {{ '' -}}
+    -- https://example.com/a/long/path
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true

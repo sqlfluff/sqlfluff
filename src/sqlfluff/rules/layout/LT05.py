@@ -47,6 +47,9 @@ class Rule_LT05(BaseRule):
             source_lines = context.segment.pos_marker.templated_file.source_str.split(
                 "\n"
             )
+            templated_lines = (
+                context.segment.pos_marker.templated_file.templated_str.split("\n")
+            )
             url_comment_lines = set()
             for seg in context.segment.raw_segments:
                 if not seg.is_type("inline_comment"):
@@ -55,6 +58,10 @@ class Rule_LT05(BaseRule):
                 if (
                     seg.pos_marker.is_literal()
                     and source_lines[seg.pos_marker.source_position()[0] - 1].strip()
+                    == seg.raw.strip()
+                    and templated_lines[
+                        seg.pos_marker.templated_position()[0] - 1
+                    ].strip()
                     == seg.raw.strip()
                     and re.fullmatch(
                         r"https?://\S+", seg.raw_trimmed().strip(), re.IGNORECASE
