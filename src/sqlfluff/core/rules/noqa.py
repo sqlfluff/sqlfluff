@@ -108,7 +108,7 @@ class IgnoreMask:
                                 line_no=line_no,
                             )
                     rules: Optional[tuple[str, ...]]
-                    if rule_part != "all":
+                    if rule_part.lower() != "all":
                         # Rules can be globs therefore we compare to the rule_set to
                         # expand the globs.
                         unexpanded_rules = tuple(
@@ -118,12 +118,11 @@ class IgnoreMask:
                         expanded_rules: set[str] = set()
                         for r in unexpanded_rules:
                             matched = False
-                            for expanded in (
-                                reference_map[x]
-                                for x in fnmatch.filter(reference_map.keys(), r)
-                            ):
-                                expanded_rules |= expanded
-                                matched = True
+                            r_lower = r.lower()
+                            for x, expanded in reference_map.items():
+                                if fnmatch.fnmatchcase(x.lower(), r_lower):
+                                    expanded_rules |= expanded
+                                    matched = True
 
                             if not matched:
                                 # We were unable to expand the glob.

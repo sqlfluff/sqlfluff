@@ -657,3 +657,39 @@ SELECT a+b FROM t
     result_lt01 = lntr_disable_noqa_except_lt01.lint_string(sql)
     violations_lt01 = result_lt01.get_violations()
     assert [v.rule_code() for v in violations_lt01] == ["CP01", "CP01"]
+
+
+def test_parse_noqa_case_insensitive_os_independent(monkeypatch):
+    """Rule, group, and 'all' matching in noqa is case-insensitive on all OSes."""
+    # Simulate POSIX os.path.normcase (no case folding).
+    monkeypatch.setattr("os.path.normcase", lambda p: p)
+
+    prs_all = IgnoreMask._parse_noqa(
+        "noqa: disable=PRS,ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    assert isinstance(prs_all, NoQaDirective)
+    assert prs_all.action == "disable"
+    assert prs_all.rules == tuple(sorted(dummy_rule_map["all"] | {"PRS"}))
+
+    bare_all = IgnoreMask._parse_noqa(
+        "noqa: disable=ALL", 0, 0, reference_map=dummy_rule_map
+    )
+    assert isinstance(bare_all, NoQaDirective)
+    assert bare_all.action == "disable"
+    assert bare_all.rules is None
+
+    layout = IgnoreMask._parse_noqa(
+        "noqa: LAYOUT", 0, 0, reference_map=dummy_rule_map
+    )
+    assert isinstance(layout, NoQaDirective)
+    assert layout.rules == tuple(sorted(dummy_rule_map["layout"]))
+
+    lower_rule = IgnoreMask._parse_noqa(
+        "noqa: lt01", 0, 0, reference_map=dummy_rule_map
+    )
+    assert isinstance(lower_rule, NoQaDirective)
+    assert lower_rule.rules == ("LT01",)
+
+    lntr = Linter(dialect="ansi", rules=["LT01"])
+    sql = "-- noqa: disable=PRS,ALL\nSELECT a   AS b FROM t\n-- noqa: enable=PRS,ALL\n"
+    assert lntr.lint_string(sql).get_violations() == []
