@@ -108,29 +108,32 @@ class IgnoreMask:
                                 line_no=line_no,
                             )
                     rules: Optional[tuple[str, ...]]
-                    if rule_part != "all":
+                    rule_part_clean = rule_part.strip()
+                    if rule_part_clean.lower() != "all":
                         # Rules can be globs therefore we compare to the rule_set to
                         # expand the globs.
                         unexpanded_rules = tuple(
-                            r.strip() for r in rule_part.split(",")
+                            r.strip() for r in rule_part_clean.split(",")
                         )
                         # We use a set to do natural deduplication.
                         expanded_rules: set[str] = set()
                         for r in unexpanded_rules:
                             matched = False
-                            for expanded in (
-                                reference_map[x]
-                                for x in fnmatch.filter(reference_map.keys(), r)
-                            ):
-                                expanded_rules |= expanded
-                                matched = True
+                            r_lower = r.lower()
+                            for k, expanded in reference_map.items():
+                                if fnmatch.fnmatchcase(k.lower(), r_lower):
+                                    expanded_rules |= expanded
+                                    matched = True
 
                             if not matched:
                                 # We were unable to expand the glob.
                                 # Therefore assume the user is referencing
                                 # a special error type (e.g. PRS, LXR, or TMP)
                                 # and add this to the list of rules to ignore.
-                                expanded_rules.add(r)
+                                r_upper = r.upper()
+                                expanded_rules.add(
+                                    r_upper if r_upper in {"PRS", "LXR", "TMP"} else r
+                                )
                         # Sort for consistency
                         rules = tuple(sorted(expanded_rules))
                     else:
