@@ -251,14 +251,15 @@ def _validate_encoding_config(
         return None
 
     value = core_section["encoding"]
-    if value == "autodetect":
+    # `encoding = none` loads as None, which open() takes as the locale default.
+    if value in (None, "autodetect"):
         return None
 
     try:
         # Unlike codecs.lookup, this also rejects non-text codecs like rot13,
         # which open() refuses too.
         "".encode(value)  # type: ignore[arg-type]
-    except (LookupError, TypeError):
+    except (LookupError, TypeError, UnicodeError):
         raise SQLFluffUserError(
             f"Config file {logging_reference!r} set an invalid value for "
             f"`encoding`: {value!r}. This value must be `autodetect` or the "

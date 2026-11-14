@@ -462,6 +462,7 @@ def test__validate_config_dict_rejects_bad_int_limits(config_dict, config_warnin
         {},
         {"core": {}},
         {"core": {"encoding": "autodetect"}},
+        {"core": {"encoding": None}},
         {"core": {"encoding": "utf-8"}},
         {"core": {"encoding": "UTF-8-SIG"}},
         {"core": {"encoding": "latin1"}},
@@ -474,7 +475,7 @@ def test__validate_encoding_config_valid(config_dict):
 
 @pytest.mark.parametrize(
     "encoding",
-    ["not-a-codec", "rot13", 1],
+    ["not-a-codec", "rot13", "undefined", 1],
 )
 def test__validate_config_dict_rejects_bad_encoding(encoding):
     """An unusable encoding raises a clean error instead of a LookupError.
