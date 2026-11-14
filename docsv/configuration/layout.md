@@ -99,18 +99,18 @@ align_scope = bracketed
 ```
 
 Of these configuration values, the `align_scope` is potentially
-the least obvious. The following example illustrates the impact it has.
+the least obvious. The following examples illustrates the impact it has.
+
+| align_within  | align_scope | Result                                                |
+| ------------- | ----------- | ----------------------------------------------------- |
+| select_clause | bracketed   | Aliases aligned within the respective `SELECT` clause |
 
 ```sql
--- With
---    align_scope = bracketed
---    align_within = select_clause
-
-WITH foo as (
+WITH foo AS (
    SELECT
       a,
       b,
-      c     AS first_column
+      c     AS first_column,
       d + e AS second_column
 )
 
@@ -118,44 +118,63 @@ SELECT
    a           AS first_column,
    (a + b) / 2 AS third_column
 FROM foo AS bar;
+```
 
--- With
---    align_scope = bracketed
---    align_within = statement
+| align_within | align_scope | Result                                                                                       |
+| ------------ | ----------- | -------------------------------------------------------------------------------------------- |
+| statement    | bracketed   | Aliases aligned within the statement (e.g., aliases in `SELECT`, `FROM`, and `JOIN` clauses) |
 
-WITH foo as (
+```sql
+WITH foo AS (
    SELECT
       a,
       b,
-      c     AS first_column
+      c     AS first_column,
       d + e AS second_column
 )
 
 SELECT
    a           AS first_column,
    (a + b) / 2 AS third_column
-FROM foo       AS bar            -- Now the FROM alias is also aligned.
+FROM foo       AS bar;           -- Now the FROM alias is also aligned.
+```
 
--- With
---    align_scope = file
---    align_within = select_clause
+| align_within  | align_scope | Result                                                                                 |
+| ------------- | ----------- | -------------------------------------------------------------------------------------- |
+| select_clause | file        | Aliases aligned across the `SELECT` clauses in the inner and outer queries in the file |
 
-WITH foo as (
+```sql
+WITH foo AS (
    SELECT
       a,
       b,
-      c        AS first_column   -- Now the aliases here are aligned
-      d + e    AS second_column  -- with the outer query.
+      c        AS first_column,  -- Now the aliases here are aligned
+      d + e    AS second_column
 )
 
 SELECT
-   a           AS first_column,
+   a           AS first_column,  -- with the outer query.
    (a + b) / 2 AS third_column
-FROM foo AS bar
+FROM foo AS bar;
+```
 
--- With
---    align_scope = file
---    align_within = statement
+| align_within | align_scope | Result                                                                                                    |
+| ------------ | ----------- | --------------------------------------------------------------------------------------------------------- |
+| statement    | file        | Aliases aligned across the statements in the file (e.g., aliases in `SELECT`, `FROM`, and `JOIN` clauses) |
+
+```sql
+WITH foo AS (
+   SELECT
+      a,
+      b,
+      c        AS first_column,
+      d + e    AS second_column -- Now the aliases here are aligned
+)
+
+SELECT
+   a           AS first_column, -- with the outer query aliases
+   (a + b) / 2 AS third_column
+FROM foo       AS bar;          -- and the FROM alias.
 ```
 
 ## Templating and alignment coordinate space
