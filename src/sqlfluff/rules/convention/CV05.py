@@ -5,7 +5,6 @@ from typing import Optional, Union
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp
 from sqlfluff.utils.reflow import ReflowSequence
 
 CorrectionListType = list[Union[WhitespaceSegment, KeywordSegment]]
@@ -76,15 +75,21 @@ class Rule_CV05(BaseRule):
         if context.segment.raw not in ("=", "!=", "<>"):
             return None
 
-        # We only care if it's followed by a NULL literal.
-        siblings = Segments(*context.parent_stack[-1].segments)
-        after_op_list = siblings.select(start_seg=context.segment)
-        next_code = after_op_list.first(sp.is_code())
-
-        if not next_code.all(sp.is_type("null_literal")):
+        # We only care if it's followed by a NULL literal. Walk forward from
+        # the operator's index rather than searching the siblings for it,
+        # which is quadratic in long expressions.
+        siblings = context.parent_stack[-1].segments
+        sub_seg = next(
+            (
+                siblings[idx]
+                for idx in range(context.segment_idx + 1, len(siblings))
+                if siblings[idx].is_code
+            ),
+            None,
+        )
+        if sub_seg is not None and not sub_seg.is_type("null_literal"):
             return None
 
-        sub_seg = next_code.get()
         assert sub_seg, "TypeGuard: Segment must exist"
         self.logger.debug(
             "Found NULL literal following equals/not equals @%s: %r",

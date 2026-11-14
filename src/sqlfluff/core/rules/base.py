@@ -400,9 +400,9 @@ class BaseRule(metaclass=RuleMetaclass):
     crawl_behaviour: BaseCrawler
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
-    # They run on two occasions:
-    # - On the first pass of the main phase
-    # - In a second linter pass after the main phase
+    # They run in the main phase like other rules, and in fix mode again in a
+    # post phase after it. The post phase is skipped when the final main loop
+    # returned no fixes.
     lint_phase = "main"
     # Groups attribute to be overwritten.
     groups: tuple[str, ...] = ()
@@ -490,15 +490,7 @@ class BaseRule(metaclass=RuleMetaclass):
     @staticmethod
     def _rust_rules_enabled(config: "FluffConfig") -> bool:
         """Whether Rust-native rule detection is enabled (core.use_rust_rules)."""
-        return config.get_section(["core", "use_rust_rules"]) in (
-            "auto",
-            "Auto",
-            "AUTO",
-            True,
-            "True",
-            "true",
-            1,
-        )
+        return config.rust_rules_enabled()
 
     def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Optionally evaluate the whole rule natively in Rust.
@@ -1035,8 +1027,8 @@ class RuleSet:
             valid_options = info_dict.get("validation")
             if (
                 valid_options
-                and config_option not in valid_options
                 and config_option is not None
+                and config_option not in valid_options
             ):
                 raise SQLFluffUserError(
                     (

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable
 from copy import copy, deepcopy
+from functools import cache
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -28,10 +29,29 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.types import ConfigMappingType, ConfigValueOrListType
 
 if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects import Dialect
     from sqlfluff.core.templaters.base import RawTemplater
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
+
+
+@cache
+def _shared_dialect(label: str) -> Dialect:
+    """Expand a dialect for all configs in this process to share.
+
+    Expanding a dialect is expensive and a config is created for every
+    file, so the result is shared rather than rebuilt each time, and kept
+    for the life of the process. Configs treat the dialect as read-only.
+    Anything which mutates a dialect obtained this way would affect every
+    config using it. Calls which raise (e.g. for an unknown dialect) are
+    not cached. Threads which build their first configs at the same time
+    may each expand the dialect; the results are equivalent.
+    """
+    # NB: We import here to avoid a circular reference.
+    from sqlfluff.core.dialects import dialect_selector
+
+    return dialect_selector(label)
 
 
 class FluffConfig:
@@ -161,11 +181,8 @@ class FluffConfig:
     def _initialise_dialect(
         self, dialect: Optional[str], require_dialect: bool = True
     ) -> None:
-        # NB: We import here to avoid a circular references.
-        from sqlfluff.core.dialects import dialect_selector
-
         if dialect is not None:
-            self._configs["core"]["dialect_obj"] = dialect_selector(dialect)
+            self._configs["core"]["dialect_obj"] = _shared_dialect(dialect)
         elif require_dialect:
             self.verify_dialect_specified()
 
@@ -605,6 +622,27 @@ class FluffConfig:
             section_dict[val] = value
             self._lazy_templater_obj = value
         return value
+
+    def rust_rules_enabled(self) -> bool:
+        """Check whether Rust-native rule detection is enabled.
+
+        The parser only builds the Rust arena tree when this is true, and the
+        rules only read the arena when it is true, so both use this method.
+
+        Returns:
+            bool: True if ``core.use_rust_rules`` is set to ``"auto"``,
+                ``"Auto"``, ``"AUTO"``, ``True``, ``"True"``, ``"true"`` or
+                ``1``, otherwise False.
+        """
+        return self.get_section(["core", "use_rust_rules"]) in (
+            "auto",
+            "Auto",
+            "AUTO",
+            True,
+            "True",
+            "true",
+            1,
+        )
 
     def get_section(self, section: str | Iterable[str]) -> Any:
         """Return a whole section of config as a dict.

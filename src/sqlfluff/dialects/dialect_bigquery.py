@@ -3045,8 +3045,10 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         Ref("SelectableGrammar"),
     )
 
@@ -3153,8 +3155,10 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DELETE",
         Ref.keyword("FROM", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         Ref("WhereClauseSegment", optional=True),
     )
 
@@ -3892,7 +3896,28 @@ class PipeOperatorClauseSegment(BaseSegment):
             Ref("SamplingExpressionSegment"),
             Ref("PivotOperatorSegment"),
             Ref("UnpivotOperatorSegment"),
+            "DISTINCT",
+            Ref("PipeWithClauseSegment"),
         ),
+    )
+
+
+class PipeWithClauseSegment(BaseSegment):
+    """A `WITH` pipe operator, defining CTEs for the rest of the query.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax#with_pipe_operator
+    """
+
+    type = "pipe_with_clause"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        Indent,
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            allow_trailing=True,
+        ),
+        Dedent,
     )
 
 

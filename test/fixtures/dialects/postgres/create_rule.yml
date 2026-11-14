@@ -1,0 +1,349 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7e3a3678db679ab8361c4418690984b09b2bef9ece4f96997ec9866cc8b53fba
+file:
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: protect_orders
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: DELETE
+    - keyword: TO
+    - table_reference:
+        naked_identifier: orders
+    - keyword: DO
+    - keyword: INSTEAD
+    - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: notify_orders
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: UPDATE
+    - keyword: TO
+    - table_reference:
+        naked_identifier: orders
+    - keyword: DO
+    - keyword: ALSO
+    - notify_statement:
+        keyword: NOTIFY
+        naked_identifier: orders_changed
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: log_order_insert
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: INSERT
+    - keyword: TO
+    - table_reference:
+        naked_identifier: orders
+    - keyword: DO
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: order_log
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: NEW
+              - dot: .
+              - naked_identifier: id
+          - comma: ','
+          - expression:
+              quoted_literal: "'inserted'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: archive_order
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: DELETE
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: sales
+      - dot: .
+      - naked_identifier: orders
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: OLD
+          - dot: .
+          - naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'closed'"
+    - keyword: DO
+    - keyword: ALSO
+    - bracketed:
+        start_bracket: (
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: order_log
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - naked_identifier: OLD
+                - dot: .
+                - naked_identifier: id
+            - comma: ','
+            - expression:
+                quoted_literal: "'archived'"
+            - end_bracket: )
+        statement_terminator: ;
+        update_statement:
+          keyword: UPDATE
+          table_reference:
+            naked_identifier: order_totals
+          set_clause_list:
+            keyword: SET
+            set_clause:
+              column_reference:
+                naked_identifier: n
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: n
+                binary_operator: '-'
+                numeric_literal: '1'
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: customer_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: OLD
+              - dot: .
+              - naked_identifier: customer_id
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: notify_order_insert
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: INSERT
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: sales
+      - dot: .
+      - naked_identifier: orders
+    - keyword: DO
+    - keyword: ALSO
+    - bracketed:
+      - start_bracket: (
+      - statement_terminator: ;
+      - notify_statement:
+          keyword: NOTIFY
+          naked_identifier: orders_changed
+      - statement_terminator: ;
+      - statement_terminator: ;
+      - notify_statement:
+          keyword: NOTIFY
+          naked_identifier: order_inserted
+          comma: ','
+          quoted_literal: "'new'"
+      - statement_terminator: ;
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: ignore_insert
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: INSERT
+    - keyword: TO
+    - table_reference:
+        naked_identifier: order_totals
+    - keyword: DO
+    - keyword: INSTEAD
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: select_on_update
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: UPDATE
+    - keyword: TO
+    - table_reference:
+        naked_identifier: order_totals
+    - keyword: DO
+    - keyword: ALSO
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: log_order_delete
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: DELETE
+    - keyword: TO
+    - table_reference:
+        naked_identifier: order_totals
+    - keyword: DO
+    - keyword: ALSO
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: note
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  quoted_literal: "'deleted'"
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: txt
+            end_bracket: )
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: order_log
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                - naked_identifier: OLD
+                - dot: .
+                - naked_identifier: customer_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: txt
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: note
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: soft_delete
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: DELETE
+    - keyword: TO
+    - table_reference:
+        naked_identifier: customers
+    - keyword: DO
+    - keyword: INSTEAD
+    - update_statement:
+      - keyword: UPDATE
+      - table_reference:
+          naked_identifier: customers
+      - set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: deleted
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'TRUE'
+      - where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: OLD
+            - dot: .
+            - naked_identifier: id
+      - keyword: RETURNING
+      - star: '*'
+- statement_terminator: ;
+- statement:
+    create_rule_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: RULE
+    - object_reference:
+        quoted_identifier: '"_RETURN"'
+    - keyword: AS
+    - keyword: 'ON'
+    - keyword: SELECT
+    - keyword: TO
+    - table_reference:
+        naked_identifier: order_view
+    - keyword: DO
+    - keyword: INSTEAD
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '2'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+- statement_terminator: ;

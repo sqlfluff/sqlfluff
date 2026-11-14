@@ -302,7 +302,8 @@ oracle_dialect.add(
         # The top-level BatchSegment references StatementSegment directly, so it is
         # shielded from ProcedureCallStatementSegment and cannot silently absorb DDL
         # unreserved keywords (e.g. NOCACHE, NOROWDEPENDENCIES) as phantom calls.
-        Ref("PlsqlStatementSegment"),
+        # Keep ELSIF (...) for the enclosing IF statement.
+        Ref("PlsqlStatementSegment", exclude=Ref.keyword("ELSIF")),
         Ref("DelimiterGrammar", optional=True),
     ),
     OneOrMoreStatementsGrammar=AnyNumberOf(
@@ -3917,19 +3918,26 @@ class InsertStatementSegment(BaseSegment):
 
     _insert_into_clause = Sequence(
         "INTO",
+        Indent,
         OneOf(
             Ref("TableReferenceSegment"),
             Bracketed(Ref("SelectStatementSegment")),
         ),
         Ref("AliasExpressionSegment", optional=True),
         Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+        Dedent,
     )
 
     _insert_set_or_values_clause = (
         Sequence(
             OneOf(
                 Ref("ValuesClauseSegment"),
-                Sequence("SET", Delimited(Ref("SetClauseSegment"))),
+                Sequence(
+                    "SET",
+                    Indent,
+                    Delimited(Ref("SetClauseSegment")),
+                    Dedent,
+                ),
             ),
             Ref("ReturningClauseSegment", optional=True),
             optional=True,
@@ -4983,6 +4991,7 @@ class ValuesClauseSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         OneOf("VALUE", "VALUES"),
+        Indent,
         OptionallyBracketed(
             Delimited(
                 "DEFAULT",
@@ -4990,4 +4999,5 @@ class ValuesClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
     )

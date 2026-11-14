@@ -7,6 +7,7 @@ import pytest
 
 import sqlfluff
 from sqlfluff.api import APIParsingError
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -370,6 +371,38 @@ def test__api__lint_string():
     assert result == lint_result
 
 
+def test__api__lint_templated_source_positions():
+    """LT05 diagnostics point to the source Jinja expression, not rendered SQL."""
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "rules": "LT05", "max_line_length": 20}
+    )
+    result = sqlfluff.lint("SELECT\n    {{ 'column_name' }} AS col\n", config=config)
+    assert len(result) == 1
+    violation = result[0]
+    assert violation["code"] == "LT05"
+    expected = {
+        "start_line_no": 2,
+        "start_line_pos": 5,
+        "start_file_pos": 11,
+        "end_line_no": 2,
+        "end_line_pos": 24,
+        "end_file_pos": 30,
+    }
+    assert {key: violation[key] for key in expected} == expected
+    assert violation["fixes"] == [
+        {
+            "type": "replace",
+            "edit": "\n        ",
+            "start_line_no": 2,
+            "start_line_pos": 24,
+            "start_file_pos": 30,
+            "end_line_no": 2,
+            "end_line_pos": 25,
+            "end_file_pos": 31,
+        }
+    ]
+
+
 def test__api__lint_string_specific():
     """Basic checking of lint functionality."""
     rules = ["CP02", "LT12"]
@@ -497,10 +530,11 @@ def test__api__parse_fail():
         assert len(err.violations) == 2
         # Check it prints nicely.
         assert (
-            str(err)
-            == """Found 2 issues while parsing string.
-Line 1, Position 15: Found unparsable section: '+++'
-Line 1, Position 41: Found unparsable section: 'blah'"""
+            str(err) == """Found 2 issues while parsing string.
+Line 1, Position 15: Found unparsable section: '+++'. Expected: Nothing here. """
+            """Found <CodeSegment: ([L:  1, P: 15]) '+'>
+Line 1, Position 41: Found unparsable section: 'blah'. Expected: Nothing here. """
+            """Found <WordSegment: ([L:  1, P: 41]) 'blah'>"""
         )
 
 

@@ -13,7 +13,7 @@ from sqlfluff.core.parser.lexer import LexerType
 
 def generate_use():
     """Generates the `use` statements."""
-    print("use once_cell::sync::Lazy;")
+    print("use std::sync::LazyLock;")
     print("use sqlfluffrs_types::{LexMatcher, LexMatcherConfig};")
     print("use sqlfluffrs_types::{Token, RegexModeGroup};")
     print("use sqlfluffrs_types::token::CaseFold;")
@@ -33,7 +33,7 @@ def generate_lexer(dialect: str):
     loaded_dialect = dialect_selector(dialect)
     print(
         f"pub static {dialect.upper()}_LEXERS:"
-        " Lazy<Vec<LexMatcher>> = Lazy::new(|| {"
+        " LazyLock<Vec<LexMatcher>> = LazyLock::new(|| {"
         " vec!["
     )
     for matcher in loaded_dialect.get_lexer_matchers():
@@ -119,8 +119,8 @@ def generate_bracket_pairs(dialect: str):
     loaded_dialect = dialect_selector(dialect)
     print(
         f"pub static {dialect.upper()}_BRACKET_PAIRS:"
-        " Lazy<BracketPairSet>"
-        " = Lazy::new(|| { BracketPairSet(vec!["
+        " LazyLock<BracketPairSet>"
+        " = LazyLock::new(|| { BracketPairSet(vec!["
     )
     for _bracket_type, start_ref, end_ref, persists in sorted(
         loaded_dialect.bracket_sets("bracket_pairs")
@@ -147,7 +147,7 @@ def generate_reserved_keyword_list(dialect: str):
     loaded_dialect = dialect_selector(dialect)
     print(
         f"pub static {dialect.upper()}_KEYWORDS:"
-        " Lazy<Vec<String>> = Lazy::new(|| {"
+        " LazyLock<Vec<String>> = LazyLock::new(|| {"
         " vec!["
     )
     for kw in sorted(loaded_dialect.sets("reserved_keywords")):

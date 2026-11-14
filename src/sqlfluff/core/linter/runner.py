@@ -440,6 +440,17 @@ class ParallelRunner(BaseRunner):
         # in the main thread.
         except Exception as e:
             return DelayedException(e, fname=fname)
+        # A worker's SIGTERM handler may raise this during pool.terminate(). If we
+        # kept the worker alive here, that call would wait for it forever.
+        except SystemExit:
+            raise
+        # Any other exception, such as a Rust panic, would end this worker without
+        # a result, and the main process would wait for it forever. It might not
+        # pickle, so we send a description of it instead.
+        except BaseException as e:
+            # NOTE: This is safe to call even if the exception can't be printed.
+            description = "".join(traceback.format_exception_only(type(e), e))
+            return DelayedException(RuntimeError(description.strip()), fname=fname)
 
     @staticmethod
     def _without_unused_tree(linted_file: LintedFile) -> LintedFile:

@@ -47,7 +47,7 @@ configuration values which you can use to set this:
 Each of these two configuration values accept a comma separated list of
 *references*. Each of those references can be:
 
-* a rule *code* e.g. `LN01`
+* a rule *code* e.g. `LT01`
 * a rule *name* e.g. `layout.indent`
 * a rule *alias*, which is often a deprecated *code* e.g. `L003`
 * a rule *group* e.g. `layout` or `capitalisation`
@@ -103,9 +103,9 @@ For example, to enable [RF02](../reference/rules/references#rf02):
 rules = RF02
 ```
 
-Rules can also be enabled/disabled by their grouping. Right now, the only
-rule grouping is `core`. This will enable (or disable) a select group
-of rules that have been deemed 'core rules'.
+Use rule groups to enable or disable multiple rules together. For example,
+`rules = layout` enables layout rules. The configuration below enables the
+rules in the `core` group.
 
 ```ini
 [sqlfluff]

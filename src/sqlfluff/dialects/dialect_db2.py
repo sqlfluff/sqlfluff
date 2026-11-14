@@ -152,6 +152,18 @@ db2_dialect.replace(
         Ref("SingleIdentifierGrammar"),
         Ref("DropBehaviorGrammar", optional=True),
     ),
+    ColumnGeneratedGrammar=Sequence(
+        "GENERATED",
+        OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
+        "AS",
+        OneOf(
+            Sequence(
+                "IDENTITY",
+                Bracketed(Ref("IdentityOptionsGrammar"), optional=True),
+            ),
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+    ),
 )
 
 
@@ -198,6 +210,39 @@ db2_dialect.patch_lexer_matchers(
 
 db2_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # Db2-specific trailing clauses for CREATE TABLE. These are only used by
+    # TableEndClauseSegment and don't need dedicated segment types.
+    CompressClauseGrammar=Sequence(
+        "COMPRESS",
+        OneOf(
+            Sequence(
+                "YES",
+                OneOf("ADAPTIVE", "STATIC", optional=True),
+            ),
+            "NO",
+        ),
+    ),
+    ValueCompressionClauseGrammar=Sequence("VALUE", "COMPRESSION"),
+    DataCaptureClauseGrammar=Sequence("DATA", "CAPTURE", OneOf("NONE", "CHANGES")),
+    NotLoggedInitiallyClauseGrammar=Sequence("NOT", "LOGGED", "INITIALLY"),
+    CcsidClauseGrammar=Sequence(
+        "CCSID",
+        OneOf("ASCII", "EBCDIC", "UNICODE", Ref("NumericLiteralSegment")),
+    ),
+    SecurityPolicyClauseGrammar=Sequence(
+        "SECURITY", "POLICY", Ref("ObjectReferenceSegment")
+    ),
+    TableOptionsClauseGrammar=Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+    ),
     # https://www.ibm.com/docs/en/db2/11.5?topic=expressions-datetime-operations-durations
     LabeledDurationGrammar=Sequence(
         OneOf(
@@ -292,6 +337,33 @@ db2_dialect.add(
             "VALUES",
             optional=True,
         ),
+    ),
+    # Options of a `GENERATED ... AS IDENTITY` column. Db2 allows identity
+    # values to be signed, hence the wider literal grammar.
+    IdentityValueGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("QualifiedNumericLiteralSegment"),
+    ),
+    IdentityOptionsGrammar=AnyNumberOf(
+        OneOf(
+            Sequence("START", "WITH", Ref("IdentityValueGrammar")),
+            Sequence("INCREMENT", "BY", Ref("IdentityValueGrammar")),
+            Sequence("MINVALUE", Ref("IdentityValueGrammar")),
+            Sequence("MAXVALUE", Ref("IdentityValueGrammar")),
+            Sequence("NO", "MINVALUE"),
+            "NOMINVALUE",
+            Sequence("NO", "MAXVALUE"),
+            "NOMAXVALUE",
+            "CYCLE",
+            Sequence("NO", "CYCLE"),
+            "NOCYCLE",
+            Sequence("CACHE", Ref("IdentityValueGrammar")),
+            Sequence("NO", "CACHE"),
+            "NOCACHE",
+            "ORDER",
+            Sequence("NO", "ORDER"),
+            "NOORDER",
+        )
     ),
 )
 
@@ -388,11 +460,7 @@ class DeclareGlobalTempTableSegment(BaseSegment):
             ),
         ),
         AnySetOf(
-            Sequence(
-                "ORGANIZE",
-                "BY",
-                OneOf("ROW", "COLUMN"),
-            ),
+            Ref("TableOrganizationClauseSegment"),
             OneOf(
                 Sequence(
                     "ON",
@@ -423,15 +491,30 @@ class DeclareGlobalTempTableSegment(BaseSegment):
                 "IN",
                 Ref("TablespaceReferenceSegment"),
             ),
-            Ref("DeclareDistributionClauseSegment"),
+            Ref("DistributionClauseSegment"),
         ),
     )
 
 
-class DeclareDistributionClauseSegment(BaseSegment):
-    """Distribution clause in declaring table creation.
+class TableOrganizationClauseSegment(BaseSegment):
+    """Db2 ``ORGANIZE BY`` clause for table creation.
 
-    https://www.ibm.com/docs/en/db2/11.5?topic=statements-declare-global-temporary-table#sdx-synid_frag-distribution-clause
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "table_organization_clause"
+    match_grammar = Sequence(
+        "ORGANIZE",
+        "BY",
+        OneOf("ROW", "COLUMN"),
+    )
+
+
+class DistributionClauseSegment(BaseSegment):
+    """Distribution clause for table creation.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-declare-global-temporary-table
     """
 
     type = "distribution_clause"
@@ -448,7 +531,58 @@ class DeclareDistributionClauseSegment(BaseSegment):
                 ),
             ),
             "RANDOM",
+            "REPLICATION",
         ),
+    )
+
+
+class TablespaceClauseSegment(BaseSegment):
+    """Db2 tablespace clause for table creation.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    type = "tablespace_clause"
+    match_grammar = Sequence(
+        "IN",
+        Ref("TablespaceReferenceSegment"),
+        Sequence(
+            "INDEX",
+            "IN",
+            Ref("TablespaceReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "LONG",
+            "IN",
+            Ref("TablespaceReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class WithRestrictOnDropClauseSegment(BaseSegment):
+    """Db2 ``WITH RESTRICT ON DROP`` clause for table creation."""
+
+    type = "with_restrict_on_drop_clause"
+    match_grammar = Sequence("WITH", "RESTRICT", "ON", "DROP")
+
+
+class TableEndClauseSegment(ansi.TableEndClauseSegment):
+    """Db2-specific trailing clauses for ``CREATE TABLE``."""
+
+    match_grammar = AnySetOf(
+        Ref("TableOrganizationClauseSegment"),
+        Ref("DistributionClauseSegment"),
+        Ref("TablespaceClauseSegment"),
+        Ref("WithRestrictOnDropClauseSegment"),
+        Ref("CompressClauseGrammar"),
+        Ref("ValueCompressionClauseGrammar"),
+        Ref("DataCaptureClauseGrammar"),
+        Ref("NotLoggedInitiallyClauseGrammar"),
+        Ref("CcsidClauseGrammar"),
+        Ref("SecurityPolicyClauseGrammar"),
+        Ref("TableOptionsClauseGrammar"),
     )
 
 
@@ -687,6 +821,108 @@ class CommentOnStatementSegment(BaseSegment):
 
     type = "comment_clause"
 
+    _version_identifier = OneOf(
+        Ref("QuotedIdentifierSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref("NakedIdentifierSegment"),
+        Sequence(
+            Ref("NumericLiteralSegment"),
+            AnyNumberOf(Ref("NumericLiteralSegment")),
+            allow_gaps=False,
+        ),
+    )
+
+    _routine_designator = OneOf(
+        Sequence(
+            OneOf("FUNCTION", "PROCEDURE"),
+            Ref("FunctionNameSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        ),
+        Sequence(
+            "SPECIFIC",
+            OneOf("FUNCTION", "PROCEDURE"),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+    _alias_designator = Sequence(
+        Ref.keyword("PUBLIC", optional=True),
+        OneOf("ALIAS", "SYNONYM"),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FOR",
+            OneOf("TABLE", "MODULE", "SEQUENCE"),
+            optional=True,
+        ),
+    )
+
+    _type_designator = OneOf(
+        Sequence("TYPE", "MAPPING", Ref("ObjectReferenceSegment")),
+        Sequence(
+            OneOf("DISTINCT", "DATA"),
+            "TYPE",
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence("TYPE", Ref("ObjectReferenceSegment")),
+    )
+
+    _security_designator = OneOf(
+        Sequence(
+            "SECURITY",
+            "LABEL",
+            "COMPONENT",
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            "SECURITY",
+            OneOf("LABEL", "POLICY"),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+    _service_class_designator = Sequence(
+        "SERVICE",
+        "CLASS",
+        Ref("ObjectReferenceSegment"),
+        Sequence("UNDER", Ref("ObjectReferenceSegment"), optional=True),
+    )
+
+    _server_option_designator = Sequence(
+        "SERVER",
+        "OPTION",
+        Ref("ObjectReferenceSegment"),
+        "FOR",
+        OneOf(
+            Sequence(
+                "SERVER",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "SERVER",
+                    "TYPE",
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "VERSION",
+                    _version_identifier,
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "WRAPPER",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "VERSION",
+                    _version_identifier,
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
     match_grammar = Sequence(
         "COMMENT",
         "ON",
@@ -694,25 +930,77 @@ class CommentOnStatementSegment(BaseSegment):
             Sequence(
                 OneOf(
                     Sequence("COLUMN", Ref("ColumnReferenceSegment")),
+                    Sequence("CONSTRAINT", Ref("ObjectReferenceSegment")),
                     Sequence("INDEX", Ref("IndexReferenceSegment")),
                     Sequence("SCHEMA", Ref("SchemaReferenceSegment")),
+                    _alias_designator,
+                    _routine_designator,
+                    _type_designator,
+                    _security_designator,
+                    _service_class_designator,
+                    _server_option_designator,
                     Sequence(
+                        "FUNCTION",
+                        "MAPPING",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "DATABASE",
+                        "PARTITION",
+                        "GROUP",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence("NODEGROUP", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "HISTOGRAM",
+                        "TEMPLATE",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "AUDIT",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence("MASK", Ref("ObjectReferenceSegment")),
+                    Sequence("MODULE", Ref("ObjectReferenceSegment")),
+                    Sequence("NICKNAME", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "PACKAGE",
+                        Ref("ObjectReferenceSegment"),
+                        Sequence(
+                            "VERSION",
+                            _version_identifier,
+                            optional=True,
+                        ),
+                    ),
+                    Sequence("PERMISSION", Ref("ObjectReferenceSegment")),
+                    Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                    Sequence("SERVER", Ref("ObjectReferenceSegment")),
+                    Sequence("STOGROUP", Ref("ObjectReferenceSegment")),
+                    Sequence("TABLE", Ref("ObjectReferenceSegment")),
+                    Sequence("TABLESPACE", Ref("ObjectReferenceSegment")),
+                    Sequence("THRESHOLD", Ref("ObjectReferenceSegment")),
+                    Sequence("TRIGGER", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "TRUSTED",
+                        "CONTEXT",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence("USAGE", "LIST", Ref("ObjectReferenceSegment")),
+                    Sequence("VARIABLE", Ref("ObjectReferenceSegment")),
+                    Sequence("VIEW", Ref("ObjectReferenceSegment")),
+                    Sequence(
+                        "WORK",
                         OneOf(
-                            "ALIAS",
-                            "FUNCTION",
-                            "PACKAGE",
-                            "PROCEDURE",
-                            "ROLE",
-                            "SEQUENCE",
-                            "TABLE",
-                            "TABLESPACE",
-                            "TRIGGER",
-                            "TYPE",
-                            "VARIABLE",
-                            "VIEW",
+                            Sequence("ACTION", "SET"),
+                            Sequence("CLASS", "SET"),
                         ),
                         Ref("ObjectReferenceSegment"),
                     ),
+                    Sequence("WORKLOAD", Ref("ObjectReferenceSegment")),
+                    Sequence("WRAPPER", Ref("ObjectReferenceSegment")),
+                    Sequence("XSROBJECT", Ref("ObjectReferenceSegment")),
+                    Sequence("SEQUENCE", Ref("ObjectReferenceSegment")),
                 ),
                 "IS",
                 Ref("QuotedLiteralSegment"),
@@ -830,6 +1118,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     type = "values_clause"
     match_grammar = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Bracketed(
                 Delimited(
@@ -841,6 +1130,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             "DEFAULT",
             Ref("ExpressionSegment"),
         ),
+        Dedent,
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
     )
@@ -886,4 +1176,96 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("RowMovementClauseSegment"),
             Ref("ViewCheckOptionClauseSegment"),
         ],
+    )
+
+
+class CreateSequenceOptionsSegment(ansi.CreateSequenceOptionsSegment):
+    """Options for a Db2 ``CREATE SEQUENCE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-sequence
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        # Db2 sequences can be restricted to a specific data type.
+        Sequence("AS", Ref("DatatypeSegment")),
+        Sequence(
+            "START",
+            Ref.keyword("WITH", optional=True),
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MINVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MAXVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence("NO", "MINVALUE"),
+        "NOMINVALUE",
+        Sequence("NO", "MAXVALUE"),
+        "NOMAXVALUE",
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "CACHE"),
+        "NOCACHE",
+        "CYCLE",
+        Sequence("NO", "CYCLE"),
+        "NOCYCLE",
+        "ORDER",
+        Sequence("NO", "ORDER"),
+        "NOORDER",
+    )
+
+
+class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
+    """Options for a Db2 ``ALTER SEQUENCE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-alter-sequence
+    """
+
+    type = "alter_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "RESTART",
+            Ref.keyword("WITH", optional=True),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("QualifiedNumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MINVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MAXVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence("NO", "MINVALUE"),
+        "NOMINVALUE",
+        Sequence("NO", "MAXVALUE"),
+        "NOMAXVALUE",
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "CACHE"),
+        "NOCACHE",
+        "CYCLE",
+        Sequence("NO", "CYCLE"),
+        "NOCYCLE",
+        "ORDER",
+        Sequence("NO", "ORDER"),
+        "NOORDER",
     )

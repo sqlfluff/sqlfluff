@@ -1,4 +1,4 @@
-use sqlfluffrs_types::{BracketPairSet, GrammarId, GrammarVariant, Token};
+use sqlfluffrs_types::{BracketPairSet, GrammarId, Token};
 
 use crate::parser::{ParseError, Parser};
 
@@ -157,6 +157,9 @@ impl Parser<'_> {
     ///
     /// Edge case: if the terminator is at the very start of the search range
     /// (`_start_idx == working_idx`), Python allows it without whitespace.
+    ///
+    /// A closing bracket also counts: a keyword glued to one (`(a)FROM t`) is
+    /// still a terminator, because no word-like token can absorb it.
     pub(crate) fn is_preceded_by_whitespace(
         &self,
         tokens: &[Token],
@@ -175,9 +178,21 @@ impl Parser<'_> {
                 continue;
             }
             // Found a concrete token before position i
+            let token_type: &str = &tok.token_type;
+            let token_raw = tok.raw();
             return tok.is_whitespace()
-                || tok.get_type() == "newline"
-                || tok.get_type() == "whitespace";
+                || token_type == "newline"
+                || token_type == "whitespace"
+                // A closing bracket is an unambiguous code boundary: a keyword
+                // may follow one directly (`(a)FROM t`) and should still
+                // terminate. Only a word-like token could absorb the keyword
+                // into the preceding token, so the whitespace requirement does
+                // not apply after a bracket. The Rust lexer leaves brackets as
+                // `raw` tokens (the Python parser re-types them), so match on
+                // the raw bracket rather than the segment type.
+                // PYTHON PARITY: `greedy_match()` in `match_algorithms.py`.
+                || (tok.is_code()
+                    && (token_raw == ")" || token_raw == "]" || token_raw == "}"));
         }
         // Went all the way back to start_idx — allow it (first element)
         true
@@ -240,24 +255,26 @@ impl Parser<'_> {
                     result
                 };
                 if matched {
-                    // If the matched terminator is a simple all-alphabetic token and the
-                    // token is not preceded by whitespace, reject it. This prevents
-                    // accidental matches of bare word tokens (e.g. identifiers) by
-                    // string-based terminators when the string matcher does not enforce
-                    // token-type constraints. Terminators implemented as TypedParser
-                    // (which match by token type rather than raw text) are exempt.
-                    let tok_is_alpha = tokens[i].is_code()
-                        && !tokens[i].raw().is_empty()
-                        && tokens[i].raw().chars().all(|c| c.is_ascii_alphabetic());
-                    if tok_is_alpha && !self.is_preceded_by_whitespace(tokens, i, start_idx) {
-                        let variant = tables.get_inst(term_id).variant;
-                        if variant != GrammarVariant::TypedParser {
-                            vdebug!(
+                    // Python checks the whole terminator hint, including symbolic
+                    // alternatives, rather than just the token that matched.
+                    let requires_whitespace = tables
+                        .get_simple_hint_for_grammar(term_id)
+                        .is_some_and(|hint| {
+                            let start = hint.raw_values_start as usize;
+                            let end = start + hint.raw_values_count as usize;
+                            hint.token_types_count == 0
+                                && tables.hint_string_indices[start..end].iter().all(|&idx| {
+                                    let raw = tables.strings[idx as usize];
+                                    !raw.is_empty() && raw.chars().all(char::is_alphabetic)
+                                })
+                        });
+                    if requires_whitespace && !self.is_preceded_by_whitespace(tokens, i, start_idx)
+                    {
+                        vdebug!(
                                 "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
                                 term_id, i
                             );
-                            continue;
-                        }
+                        continue;
                     }
                     vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match: terminator {:?} matched at {}",
@@ -355,10 +372,35 @@ impl Parser<'_> {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use sqlfluffrs_dialects::Dialect;
     use sqlfluffrs_lexer::{LexInput, Lexer};
 
     use crate::parser::Parser;
+
+    #[test]
+    fn test_greedy_match_terminator_hint_whitespace() {
+        for (dialect_name, grammar_name, expected) in [
+            ("ansi", "FromKeywordSegment", "FROM"),
+            ("bigquery", "SelectClauseTerminatorGrammar", "from"),
+            ("ansi", "FunctionNameIdentifierSegment", "from"),
+        ] {
+            let dialect = Dialect::from_str(dialect_name).expect("dialect");
+            let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+            let (tokens, _) = lexer.lex(LexInput::String("a:from FROM t".to_string()), false);
+            let terminator = dialect
+                .get_segment_grammar(grammar_name)
+                .expect("terminator grammar")
+                .grammar_id;
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let (term_idx, _) = parser
+                .greedy_match(1, &[terminator], tokens.len())
+                .expect("greedy_match");
+
+            assert_eq!(tokens[term_idx].raw(), expected, "{grammar_name}");
+        }
+    }
 
     /// Issue 8612: a `(` terminator must win over skipping the bracket pair.
     #[test]

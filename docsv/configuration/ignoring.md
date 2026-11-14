@@ -20,7 +20,7 @@ SeLeCt from tBl ;       -- noqa: PRS
 
 ::: tip NOTE
 It should be noted that ignoring ``TMP`` and ``PRS`` errors can lead to
-incorrect ``sqlfluff lint`` and ``sqfluff fix`` results as `SQLFluff` can
+incorrect ``sqlfluff lint`` and ``sqlfluff fix`` results as `SQLFluff` can
 misinterpret the SQL being analysed.
 :::
 

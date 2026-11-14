@@ -330,6 +330,24 @@ def test__cli__command_extra_config_fail():
     )
 
 
+def test__cli__command_invalid_ini_config(tmp_path, monkeypatch):
+    """A malformed INI config is reported cleanly, not as a traceback.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9067
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff\ndialect = ansi\n")
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=2,
+        args=[lint, ["in.sql"]],
+        assert_stdout_contains=(
+            "Error loading config: Failed to parse INI config file"
+        ),
+    )
+
+
 stdin_cli_input = (
     "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\nPOSITIONAL JOIN TABB AS B;\n"
 )
@@ -972,6 +990,46 @@ def test__cli__verbose_machine_output_stays_serialized():
     assert result.stderr
 
 
+@pytest.mark.parametrize(
+    "format", ["json", "yaml", "sarif", "gitlab", "github-annotation"]
+)
+def test__cli__lint_bench_keeps_machine_output_serialized(format):
+    """--bench must not append a timing table to a machine-readable payload.
+
+    The payload must still parse: an appended table would leave a valid document
+    followed by a second one, which every one of these formats would reject on
+    the consumer's side.
+    """
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                f"--format={format}",
+                "--bench",
+                "--disable-progress-bar",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" not in result.stdout
+    payload = (
+        yaml.safe_load(result.stdout) if format == "yaml" else json.loads(result.stdout)
+    )
+    assert payload, f"the {format} payload must carry the run's violations"
+
+
+def test__cli__lint_bench_keeps_human_output():
+    """--bench still reports timings when the output is meant for a person."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            ["--bench", "--disable-progress-bar", "test/fixtures/cli/passing_a.sql"],
+        ],
+    )
+    assert "==== overall timings ====" in result.stdout
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""
@@ -1371,6 +1429,35 @@ def test__cli__command_lint_warning():
         "L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace"
         in result.stdout.strip()
     )
+
+
+@pytest.mark.parametrize(
+    "invalid_config_line",
+    [
+        "large_file_skip_byte_limit = abc\n",
+        "large_file_skip_char_limit = abc\n",
+        "large_file_skip_byte_limit = \n",
+        "large_file_skip_char_limit = \n",
+        "large_file_skip_byte_limit = 1e999\n",
+        "large_file_skip_char_limit = 1e999\n",
+    ],
+)
+def test__cli__command_invalid_large_file_skip_limit(
+    tmp_path, monkeypatch, invalid_config_line
+):
+    """Invalid large-file skip limits are reported as user errors, not tracebacks.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n" + invalid_config_line
+    )
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(ret_code=2, args=[lint, ["in.sql"]])
+    assert "User Error:" in result.stderr
+    assert "must be an integer" in result.stderr
 
 
 def test__cli__command_lint_warning_name_rule():
@@ -2866,7 +2953,7 @@ def test__cli__command_lint_serialize_gitlab_parse_error():
     assert result == [
         {
             "check_name": "PRS",
-            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'",
+            "description": "PRS: Line 1, Position 1: Found unparsable section: 'SELECT'. Expected: <Delimited: [<Ref: 'SelectClauseElementSegment'>]> after <WordSegment: ([L:  1, ...",
             "severity": "major",
             "fingerprint": "9319cfff6469f2165074d8033911e5b7",
             "location": {

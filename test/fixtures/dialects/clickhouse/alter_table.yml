@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5cf24e08160edf79f76747395c309f3e1b3429ab77b31a36bdea76d476bc0c24
+_hash: d56aea98fd7d56e91d15cb18ef00e4525412263168c361e0812a1a488f5e4518
 file:
 - statement:
     alter_table_statement:
@@ -2159,6 +2159,113 @@ file:
       - naked_identifier: default
       - dot: .
       - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+        keyword: PROJECTION
+        naked_identifier: total_proj
+        projection_body:
+          bracketed:
+            start_bracket: (
+            select_clause:
+              keyword: select
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: sum
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: user_id
+                      end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+      - keyword: PROJECTION
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - naked_identifier: region_proj_5
+      - projection_body:
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  naked_identifier: region
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'JP'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
+    - keyword: ADD
+    - projection_definition:
+        keyword: PROJECTION
+        naked_identifier: region_proj_6
+        projection_body:
+          bracketed:
+          - start_bracket: (
+          - keyword: with
+          - expression:
+              quoted_literal: "'JP'"
+          - keyword: as
+          - naked_identifier: country
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: user_id
+          - where_clause:
+              keyword: where
+              expression:
+              - column_reference:
+                  naked_identifier: region
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: country
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example
     - keyword: MODIFY
     - projection_definition:
       - keyword: PROJECTION
@@ -2580,4 +2687,68 @@ file:
           comma: ','
           numeric_literal: '1'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: a
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: c
+    - data_type:
+        data_type_identifier: String
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: a
+    - data_type:
+        data_type_identifier: UInt8
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: b
+    - data_type:
+        data_type_identifier: UInt8
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: max_execution_time
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '10'
 - statement_terminator: ;

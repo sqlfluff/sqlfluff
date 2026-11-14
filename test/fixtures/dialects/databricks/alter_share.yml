@@ -1,0 +1,171 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d8c45b8c9aa7c2ab377744837ef7471899d94cef69dd25a990d74f7758eade87
+file:
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ADD
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ADD
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: sc
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: s2
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ADD
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: t
+    - keyword: COMMENT
+    - quoted_literal: "'c'"
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: p
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+        end_bracket: )
+    - keyword: AS
+    - object_reference:
+      - naked_identifier: ss
+      - dot: .
+      - naked_identifier: st
+    - keyword: WITH
+    - keyword: HISTORY
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: t
+    - keyword: WITHOUT
+    - keyword: HISTORY
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ADD
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: mv
+    - keyword: AS
+    - object_reference:
+        naked_identifier: smv
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ADD
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: v
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: ADD
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: m
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: sc
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: mv
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: v
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: s
+    - keyword: REMOVE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: m
+- statement_terminator: ;

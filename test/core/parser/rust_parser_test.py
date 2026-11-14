@@ -1,14 +1,19 @@
 """Tests for the RustParser error handling and iteration limits."""
 
+import json
+import pickle
+import subprocess
+import sys
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
-from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.errors import SQLFluffUserError, SQLParseError
 
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
-    from sqlfluffrs import RsParser
+    from sqlfluffrs import MISSING_REF_PREFIX, RsParseError, RsParser
 except ImportError:
     _HAS_RUST_PARSER = False
 
@@ -16,6 +21,41 @@ except ImportError:
 # ============================================================================
 # max_parse_depth edge-case tests (lines 94-97 of rust_parser.py)
 # ============================================================================
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sql,clean_tree",
+    [
+        ("select a:from FROM t;", False),
+        ("SELECT a FROM t;", True),
+        ("SELECT a FROM t |> WHERE a > 0;", True),
+        ("SELECT (a)FROM t;", True),
+    ],
+)
+def test__rust_parser__bigquery_recovery_lint_parity(sql, clean_tree):
+    """Recovery boundaries and lint findings agree with the Python parser."""
+    from sqlfluff.core import FluffConfig, Linter
+
+    results = []
+    for use_rust in (False, True):
+        config = FluffConfig(
+            overrides={"dialect": "bigquery", "use_rust_parser": use_rust}
+        )
+        linted = Linter(config=config).lint_string(sql)
+        assert linted.tree is not None
+        if clean_tree:
+            assert not list(linted.tree.recursive_crawl("unparsable"))
+        results.append(
+            (
+                linted.tree.stringify(),
+                [
+                    (v.rule_code(), v.line_no, v.line_pos, v.desc())
+                    for v in linted.get_violations()
+                ],
+            )
+        )
+    assert results[0] == results[1]
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -183,10 +223,12 @@ def test__iteration_limit__exceeded_raises_base_exception(capfd):
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__iteration_limit__exceeded_via_rust_parser_wrapper():
-    """RustParser.parse() propagates the panic when max_parser_iterations is exceeded.
+    """RustParser.parse() turns the panic into a SQLParseError.
 
     This exercises the full Python wrapper path: config → RsParser constructor
-    → parse_match_result_from_tokens → Rust panic → BaseException in Python.
+    → parse_match_result_from_tokens → Rust panic → SQLParseError. The error
+    must pickle, to cross from a worker process, so the panic can't be part of
+    its context.
     """
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
@@ -201,10 +243,83 @@ def test__iteration_limit__exceeded_via_rust_parser_wrapper():
 
     parser = RustParser(config=config)
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(SQLParseError) as exc_info:
         parser.parse(segments, fname="test.sql")
 
-    assert "maximum iteration limit" in str(exc_info.value)
+    err = exc_info.value
+    assert "maximum iteration limit" in err.desc()
+    assert err.segment is segments[0]
+    chained = err
+    while chained is not None:
+        assert isinstance(chained, Exception)
+        chained = chained.__cause__ or chained.__context__
+    assert pickle.loads(pickle.dumps(err)).desc() == err.desc()
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize("processes", [1, 2])
+def test__iteration_limit__exceeded_reports_parse_error_cli(tmp_path, processes):
+    """The panic is reported as a parse error in each file.
+
+    With several processes, a panic which escaped a worker used to leave the
+    main process waiting forever. That's why this uses a subprocess with a
+    timeout.
+    """
+    for name in ("a.sql", "b.sql"):
+        (tmp_path / name).write_text("select 1 as a\n")
+    config_path = tmp_path / "test.cfg"
+    config_path.write_text(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "use_rust_parser = true\n"
+        "rust_parser_max_iterations = 1\n"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sqlfluff",
+            "lint",
+            "--ignore-local-config",
+            "--config",
+            str(config_path),
+            "--format",
+            "json",
+            "--processes",
+            str(processes),
+            str(tmp_path / "a.sql"),
+            str(tmp_path / "b.sql"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+
+    assert result.returncode == 1
+    assert "Traceback" not in result.stderr
+    files = json.loads(result.stdout)
+    assert len(files) == 2
+    for linted_file in files:
+        (violation,) = linted_file["violations"]
+        assert violation["code"] == "PRS"
+        assert "maximum iteration limit" in violation["description"]
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__exception_is_not_a_parse_error():
+    """Only a Rust panic becomes a parse error. Other exceptions propagate."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    segments, _ = Lexer(config=config).lex("SELECT 1")
+    parser = RustParser(config=config)
+    parser._rs_parser = Mock()
+    parser._rs_parser.parse_match_result_from_tokens.side_effect = RuntimeError("Bug")
+
+    with pytest.raises(RuntimeError, match="Bug"):
+        parser.parse(segments, fname="test.sql")
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -367,6 +482,59 @@ def test__rust_parser__parse_error_from_exception():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__missing_ref_error_reraised_via_dialect_ref(monkeypatch):
+    """Test RustParser catches RsParseError with MISSING_REF_PREFIX and re-raises via dialect.ref()."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    monkeypatch.setattr(sys, "tracebacklimit", None, raising=False)
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+
+    # 1. Test dangling keyword ref raises the dialect keyword RuntimeError
+    mock_rs = Mock()
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentKeywordSegment"
+    )
+    parser._rs_parser = mock_rs
+
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to the 'NONEXISTENT' keyword which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 2. Test non-keyword segment ref raises the standard grammar ref RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'NonExistentSegment' which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 3. Test existing segment in Python dialect raises internal bug RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}FileSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'FileSegment' which is registered in the ansi dialect's Python library but missing from its Rust parser tables"
+        in str(exc_info.value)
+    )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__trailing_non_code_segments():
     """Test RustParser handles trailing non-code segments correctly.
 
@@ -413,7 +581,13 @@ def test__rust_parser__rs_node_class_types_match_python():
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
 
-    config = FluffConfig(overrides={"dialect": "snowflake", "use_rust_parser": True})
+    config = FluffConfig(
+        overrides={
+            "dialect": "snowflake",
+            "use_rust_parser": True,
+            "use_rust_rules": True,
+        }
+    )
     sql = (
         "alter file format if exists my_avro_format set "
         "type = AVRO compression = 'GZIP'"
@@ -486,7 +660,9 @@ def test__rust_parser__rs_handle_getters_return_expected_container_types():
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
 
-    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "use_rust_parser": True, "use_rust_rules": True}
+    )
     segments, _ = Lexer(config=config).lex("SELECT a FROM my_table\n")
     tree = RustParser(config=config).parse(segments, fname="t.sql")
 
@@ -563,7 +739,7 @@ def test__rust_parser__profiling_records_stage_timings():
         set_profiling,
     )
 
-    config = FluffConfig(overrides={"dialect": "ansi"})
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_rules": True})
     parser = RustParser(config=config)
     lexer = Lexer(config=config)
     segments, _ = lexer.lex("SELECT 1 FROM my_table")
@@ -1213,7 +1389,9 @@ def test__rust_parser__rs_tree_arena_navigation():
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
 
-    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "use_rust_parser": True, "use_rust_rules": True}
+    )
     sql = "SELECT a, b FROM my_table WHERE a > 1\n"
     segments, _ = Lexer(config=config).lex(sql)
     tree = RustParser(config=config).parse(segments, fname="t.sql")
@@ -1298,3 +1476,63 @@ def test__rust_parser__tsql_datatype_method_case_sensitive(method, is_datatype_m
     native_ids = method_ids(False)
     assert rust_ids == native_ids  # parity with native
     assert (method in rust_ids) is is_datatype_method
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__arena_class_types_match_python_tree():
+    """Arena leaves carry the same class types as the Python tree.
+
+    Doris closing brackets used to lose ``symbol`` in the arena.
+    """
+    from sqlfluff.core import FluffConfig, Linter
+
+    config = FluffConfig(
+        overrides={"dialect": "doris", "use_rust_parser": True, "use_rust_rules": True}
+    )
+    tree = Linter(config=config).parse_string("SELECT (1)\n").tree
+    segs, handles = tree.raw_segments, tree._rs_tree.root.raw_segments()
+    assert segs and len(handles) == len(segs)
+    for seg, handle in zip(segs, handles):
+        assert set(handle.class_types()) == set(seg.class_types), seg.raw
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__arena_skipped_by_default():
+    """With default config no arena is built or timed."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+    from sqlfluff.core.parser.rust_parser import (
+        get_parse_profile,
+        reset_parse_profile,
+        set_profiling,
+    )
+
+    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    segments, _ = Lexer(config=config).lex("SELECT 1 FROM my_table\n")
+    set_profiling(True)
+    reset_parse_profile()
+    try:
+        tree = RustParser(config=config).parse(segments, fname="t.sql")
+        profile = get_parse_profile()
+    finally:
+        set_profiling(False)
+
+    assert tree is not None
+    assert tree._rs_tree is None
+    assert "apply_as_tree" not in profile
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize("value", [True, "auto"])
+def test__rust_parser__arena_built_when_rust_rules_enabled(value):
+    """``use_rust_rules`` set to True or "auto" builds the arena."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "use_rust_parser": True, "use_rust_rules": value}
+    )
+    segments, _ = Lexer(config=config).lex("SELECT 1 FROM my_table\n")
+    tree = RustParser(config=config).parse(segments, fname="t.sql")
+    assert tree is not None
+    assert tree._rs_tree is not None

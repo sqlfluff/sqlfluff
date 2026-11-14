@@ -1,0 +1,3 @@
+CLOSE c1;
+
+CLOSE ALL;
