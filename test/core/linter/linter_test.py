@@ -421,7 +421,7 @@ def test__parallel_runner__iter_partials_deferred():
 
 
 def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
-    """iter_partials falls back to callables when templates_in_worker=False.
+    """iter_partials renders in the main process when templates_in_worker=False.
 
     Simulates the behaviour of a main-process-only templater such as dbt.
     """
@@ -1441,6 +1441,30 @@ def test__linter__release_templater_close_failure(
 
     assert templater.close_count == 1
     assert ("Failed to close templater session" in caplog.text) is operation_failed
+
+
+def test__linter__templater_session_close_failure_inside_handled_error(monkeypatch):
+    """A close failure is raised if the operation succeeded, despite a handler.
+
+    The caller may be handling some unrelated exception around an operation
+    which itself succeeds. That must not hide a failing cleanup.
+    """
+
+    class FailingTemplater(RawTemplater):
+        def close(self):
+            raise RuntimeError("close failed")
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    config._configs["core"]["templater_obj"] = None
+    monkeypatch.setattr(config, "get_templater", FailingTemplater)
+    linter = Linter(config=config)
+
+    with pytest.raises(RuntimeError, match="close failed"):
+        try:
+            raise ValueError("unrelated")
+        except ValueError:
+            with linter.templater_session():
+                linter.templater_for_config(config)
 
 
 @pytest.mark.parametrize("operation", ["render", "lint"])

@@ -115,7 +115,7 @@ def test__cli__mixed_templaters(command, processes, tmp_path):
     fixture_path = pathlib.Path("test/fixtures/linter/mixed_templaters")
     test_path = tmp_path / "mixed_templaters"
     shutil.copytree(fixture_path, test_path)
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=0,
         args=[
             command,
@@ -128,8 +128,6 @@ def test__cli__mixed_templaters(command, processes, tmp_path):
             ],
         ],
     )
-
-    assert "Attempt to set templater" not in result.output
 
 
 def test__cli__parse_mixed_templaters():

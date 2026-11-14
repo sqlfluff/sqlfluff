@@ -1044,13 +1044,19 @@ class Linter:
                 self._templater_session.borrow(self.config, root_templater)
         session = self._templater_session
         self._templater_session_depth += 1
+        # Track failure explicitly: sys.exc_info() would also report an
+        # exception which the caller is merely handling around a successful
+        # operation, and we'd then swallow a genuine close failure.
+        operation_failed = False
         try:
             yield session
+        except BaseException:
+            operation_failed = True
+            raise
         finally:
             self._templater_session_depth -= 1
             if self._templater_session_depth == 0:
                 self._templater_session = None
-                operation_failed = sys.exc_info()[0] is not None
                 try:
                     session.close()
                 except BaseException:
@@ -1122,11 +1128,14 @@ class Linter:
         templated_variants: list[TemplatedFile] = []
         templater_violations: list[SQLTemplaterError] = []
 
-        variants = templater.process_with_variants(
-            in_str=in_str, fname=fname, config=config, formatter=self.formatter
+        variants: Optional[Iterator[tuple[TemplatedFile, list[SQLTemplaterError]]]] = (
+            None
         )
         render_error: Optional[BaseException] = None
         try:
+            variants = templater.process_with_variants(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            )
             for variant, templater_errs in variants:
                 if variant:
                     templated_variants.append(variant)
