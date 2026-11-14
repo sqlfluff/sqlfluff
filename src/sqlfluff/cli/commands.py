@@ -42,6 +42,7 @@ from sqlfluff.core import (
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintingResult, ParsedString
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.plugin.host import get_plugin_manager
@@ -2045,7 +2046,24 @@ def render(
                     stdin_filename, require_dialect=False
                 )
         else:
-            raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
+            try:
+                raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
+            except SQLFluffSkipFile as skip_file_err:
+                # Mirror the skip handling used by `lint` and `parse`: report
+                # the reason as a warning rather than crashing with a traceback.
+                logging.getLogger("sqlfluff").warning(str(skip_file_err))
+                # The byte limit is checked against the file's own config (see
+                # `Linter.load_raw_file_and_config`), so resolve the same
+                # file-level config to decide whether the skip should fail.
+                # Inline config can't apply here: the file is never read.
+                skip_config = lnt.config.make_child_from_path(
+                    path, require_dialect=False
+                )
+                sys.exit(
+                    EXIT_FAIL
+                    if skip_config.get("large_file_skip_fail")
+                    else EXIT_SUCCESS
+                )
             fname = path
 
         # EXPERIMENTAL: let Rust drive the render (file reading + templater
@@ -2092,6 +2110,16 @@ def render(
             for v in rendered.templater_violations:
                 click.echo(formatter.format_violation(v))
             sys.exit(EXIT_FAIL)
+        elif not rendered.templated_variants:
+            # The input can be skipped without raising (e.g. when it is over
+            # `large_file_skip_char_limit`). The linter reports the reason as a
+            # warning and returns no variants, so follow the same exit code
+            # policy as `lint` rather than indexing an empty list. The skip is
+            # decided using the file's own config (including inline
+            # directives), so read `large_file_skip_fail` from there too.
+            sys.exit(
+                EXIT_FAIL if file_config.get("large_file_skip_fail") else EXIT_SUCCESS
+            )
         else:
             _num_variants = len(rendered.templated_variants)
             if _num_variants > 1:

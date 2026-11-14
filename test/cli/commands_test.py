@@ -3494,3 +3494,168 @@ def test__cli__command_fix_large_file_skip_fail(tmpdir):
         ret_code=1,
         args=[fix, ["--config", config_path, sql_path]],
     )
+
+
+def test__cli__command_render_large_file_skip(tmpdir):
+    """Test that `render` reports a byte-limit skip without a traceback.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write("[sqlfluff]\ndialect = ansi\nlarge_file_skip_byte_limit = 5\n")
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[render, ["--config", config_path, sql_path]],
+    )
+    # The skip should be reported rather than raising `SQLFluffSkipFile`.
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_large_file_skip_fail(tmpdir):
+    """Test that `render` returns exit code 1 when large_file_skip_fail is set.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low and
+    # enables large_file_skip_fail.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_byte_limit = 5\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["--config", config_path, sql_path]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip(tmpdir):
+    """Test that `render` reports a char-limit skip without an IndexError.
+
+    The templater skips the file (rendering no variants) instead of raising,
+    which used to crash on `rendered.templated_variants[0]`.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write("[sqlfluff]\ndialect = ansi\nlarge_file_skip_char_limit = 10\n")
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[render, ["--config", config_path, "-"]],
+        cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
+    )
+    # The skip should be reported rather than raising IndexError.
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail(tmpdir):
+    """Test that a char-limit skip exits 1 when large_file_skip_fail is set.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_char_limit = 10\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["--config", config_path, "-"]],
+        cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail_file_config(tmp_path, monkeypatch):
+    """A file-level `large_file_skip_fail` also fails char-limit skips.
+
+    The char-limit check uses the per-file config, so the exit-code check must
+    read `large_file_skip_fail` from that same config rather than the root one.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff]\nlarge_file_skip_char_limit = 10\nlarge_file_skip_fail = True\n"
+    )
+    (subdir / "query.sql").write_text("SELECT 1 FROM tbl_with_a_long_name\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["sub/query.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_byte_limit_skip_fail_file_config(tmp_path, monkeypatch):
+    """A file-level `large_file_skip_fail` also fails byte-limit skips.
+
+    The byte-limit check also uses the per-file config (nested `.sqlfluff`), so
+    the exit-code check must read `large_file_skip_fail` from that config too.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff]\nlarge_file_skip_byte_limit = 5\nlarge_file_skip_fail = True\n"
+    )
+    (subdir / "big.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["sub/big.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail_inline_config(tmp_path, monkeypatch):
+    """An inline `large_file_skip_fail` also fails char-limit skips.
+
+    Inline config directives are applied to the per-file config before
+    templating, so the exit-code check must read the per-file config.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    (tmp_path / "query.sql").write_text(
+        "-- sqlfluff:large_file_skip_char_limit:10\n"
+        "-- sqlfluff:large_file_skip_fail:True\n"
+        "SELECT 1 FROM tbl_with_a_long_name\n"
+    )
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["query.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
