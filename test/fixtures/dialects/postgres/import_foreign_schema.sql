@@ -6,3 +6,7 @@ IMPORT FOREIGN SCHEMA "TEST"
 
 IMPORT FOREIGN SCHEMA foreign_films LIMIT TO (actors, directors)
     FROM SERVER film_server INTO films;
+
+IMPORT FOREIGN SCHEMA foreign_films
+    FROM SERVER film_server INTO films
+    OPTIONS (import_default 'true', "import_collate" 'false');

@@ -3,3 +3,9 @@ CREATE USER MAPPING FOR bob SERVER foo OPTIONS (user 'bob', password 'secret');
 CREATE USER MAPPING IF NOT EXISTS FOR PUBLIC SERVER foo;
 
 CREATE USER MAPPING IF NOT EXISTS FOR CURRENT_USER SERVER foo OPTIONS (user 'bob', password 'secret', option 'value');
+
+-- pg_dump quotes the option names that PostgreSQL reserves
+CREATE USER MAPPING FOR bob SERVER foo OPTIONS (
+    password 'secret',
+    "user" 'bob'
+);

@@ -14,3 +14,5 @@ CREATE FOREIGN DATA WRAPPER qualified
 CREATE FOREIGN DATA WRAPPER with_options
     HANDLER postgres_fdw_handler
     OPTIONS (debug 'true', retries '3');
+
+CREATE FOREIGN DATA WRAPPER quoted_options OPTIONS ("debug" 'true');

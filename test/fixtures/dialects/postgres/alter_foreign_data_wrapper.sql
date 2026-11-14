@@ -13,3 +13,8 @@ ALTER FOREIGN DATA WRAPPER dummy OWNER TO some_role;
 ALTER FOREIGN DATA WRAPPER dummy OWNER TO CURRENT_USER;
 
 ALTER FOREIGN DATA WRAPPER dummy RENAME TO renamed;
+
+ALTER FOREIGN DATA WRAPPER dummy OPTIONS (ADD null 'NA', SET "debug" 'true', DROP select);
+
+-- An option can be called `add`, `set` or `drop`
+ALTER FOREIGN DATA WRAPPER dummy OPTIONS (set 'x', DROP drop);

@@ -608,26 +608,44 @@ postgres_dialect.add(
         "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
     ),
     ForeignDataWrapperGrammar=Sequence("FOREIGN", "DATA", "WRAPPER"),
-    OptionsListGrammar=Sequence(
-        Delimited(Ref("NakedIdentifierFullSegment"), Ref("QuotedLiteralSegment"))
+    # The options of the OPTIONS clause: `name 'value' [, ...]`. The name can be
+    # any word, even a reserved keyword like `null`, or a quoted identifier, which
+    # is how pg_dump writes the ones PostgreSQL reserves (`"user" 'bob'`).
+    # https://www.postgresql.org/docs/current/sql-createforeigntable.html
+    OptionsListGrammar=Delimited(
+        Sequence(
+            OneOf(Ref("NakedIdentifierFullSegment"), Ref("QuotedIdentifierSegment")),
+            Ref("QuotedLiteralSegment"),
+        )
     ),
-    OptionsGrammar=Sequence(
-        "OPTIONS", Bracketed(AnyNumberOf(Ref("OptionsListGrammar")))
-    ),
+    OptionsGrammar=Sequence("OPTIONS", Bracketed(Ref("OptionsListGrammar"))),
     # The OPTIONS clause of the ALTER statements for foreign objects, which can
-    # add, set or drop each option.
+    # add, set or drop each option. `DROP` takes only the name.
     # https://www.postgresql.org/docs/current/sql-alterforeigntable.html
     AlterOptionsGrammar=Sequence(
         "OPTIONS",
         Bracketed(
             Delimited(
-                Sequence(
-                    OneOf("ADD", "SET", "DROP", optional=True),
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("QuotedLiteralSegment", optional=True),
+                OneOf(
+                    Sequence(
+                        OneOf("ADD", "SET"),
+                        Ref("AlterOptionNameGrammar"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence("DROP", Ref("AlterOptionNameGrammar")),
+                    # No ADD, SET or DROP means ADD. This also lets an option be
+                    # called `add`, `set` or `drop`, as in PostgreSQL.
+                    Sequence(
+                        Ref("AlterOptionNameGrammar"), Ref("QuotedLiteralSegment")
+                    ),
                 )
             )
         ),
+    ),
+    AlterOptionNameGrammar=OneOf(
+        Ref("SingleIdentifierGrammar"),
+        # A reserved keyword, like `null` or `select`.
+        Ref("NakedIdentifierFullSegment"),
     ),
     # The HANDLER and VALIDATOR clauses of CREATE and ALTER FOREIGN DATA WRAPPER.
     # PostgreSQL accepts them in any order.
