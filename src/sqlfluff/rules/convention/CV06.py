@@ -1,6 +1,6 @@
 """Implementation of Rule CV06."""
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, RawSegment, SymbolSegment
@@ -62,6 +62,15 @@ class Rule_CV06(BaseRule):
     def _is_segment_semicolon(segment: BaseSegment) -> bool:
         """Check if a segment is a semicolon statement terminator."""
         return segment.is_type("statement_terminator") and segment.raw == ";"
+
+    @staticmethod
+    def _iter_top_level_segments(file_segment: BaseSegment) -> Iterator[BaseSegment]:
+        """Unpack batches without descending into procedures or nested statements."""
+        for segment in file_segment.segments:
+            if segment.is_type("batch"):
+                yield from segment.segments
+            else:
+                yield segment
 
     @staticmethod
     def _get_last_statement(file_segment: BaseSegment) -> Optional[BaseSegment]:
@@ -428,7 +437,9 @@ class Rule_CV06(BaseRule):
         ) and self._is_segment_semicolon(last_statement.raw_segments[-1])
 
         found_last_statement = False
-        for seg in statement_container.segments:
+        # Fixes can insert the terminator beside a batch, rather than inside it.
+        # Include those siblings when checking a subsequent fix pass.
+        for seg in self._iter_top_level_segments(parent_segment):
             if seg is last_statement:
                 found_last_statement = True
             elif found_last_statement:
@@ -516,6 +527,73 @@ class Rule_CV06(BaseRule):
             )
         return None  # pragma: no cover
 
+    def _missing_intermediate_terminator(
+        self,
+        statement: BaseSegment,
+        following: Sequence[BaseSegment],
+        file_segment: BaseSegment,
+    ) -> Optional[LintResult]:
+        """Terminate a statement before the next one, keeping inline comments."""
+        trailing: list[BaseSegment] = []
+        for raw_segment in reversed(statement.raw_segments):
+            if raw_segment.is_code:
+                anchor = raw_segment
+                break
+            trailing.append(raw_segment)
+        else:  # pragma: no cover
+            return None
+        if anchor.is_type("statement_terminator"):
+            return None
+
+        create_segments: list[BaseSegment] = [
+            SymbolSegment(raw=";", type="statement_terminator")
+        ]
+        fix_anchor: BaseSegment = anchor
+        if self.multiline_newline and any(statement.recursive_crawl("newline")):
+            # Only inspect this statement's tail and the gap before the next one.
+            # A trailing line comment must stay on its original line for noqa.
+            _, fix_anchor = self._handle_preceding_inline_comments(
+                [*reversed(trailing), *following], anchor
+            )
+            create_segments.insert(0, NewlineSegment())
+        return LintResult(
+            anchor=anchor,
+            fixes=[
+                LintFix.create_after(
+                    self._choose_anchor_segment(
+                        file_segment, "create_after", fix_anchor, filter_meta=True
+                    ),
+                    create_segments,
+                )
+            ],
+        )
+
+    def _ensure_intermediate_semicolons(
+        self, file_segment: BaseSegment
+    ) -> list[LintResult]:
+        """Require separators between top-level statements, independently of EOF."""
+        results = []
+        pending: Optional[BaseSegment] = None
+        following: list[BaseSegment] = []
+        for segment in self._iter_top_level_segments(file_segment):
+            if segment.is_type("statement"):
+                if pending is not None:
+                    result = self._missing_intermediate_terminator(
+                        pending, following, file_segment
+                    )
+                    if result:
+                        results.append(result)
+                pending = segment
+                following = []
+            elif segment.is_code:
+                # Existing terminators and Oracle / or T-SQL GO close a statement.
+                pending = None
+                following = []
+            elif pending is not None:
+                following.append(segment)
+        # The last statement is governed by require_final_semicolon, below.
+        return results
+
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
@@ -524,7 +602,7 @@ class Rule_CV06(BaseRule):
 
         # We should only be dealing with a root segment
         assert context.segment.is_type("file")
-        results = []
+        results = self._ensure_intermediate_semicolons(context.segment)
 
         # Process file segments and any batch segments (for T-SQL)
         # Collect all containers that should be processed

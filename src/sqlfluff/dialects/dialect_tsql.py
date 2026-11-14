@@ -7530,9 +7530,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     Overriding ANSI to allow for AUTHORIZATION clause
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql
 
-    Not yet implemented: proper schema_element parsing.
-    Once we have an AccessStatementSegment that works for TSQL, this definition should
-    be tweaked to include schema elements.
+    Schema elements are part of this atomic statement, not separate statements.
     """
 
     type = "create_schema_statement"
@@ -7544,6 +7542,14 @@ class CreateSchemaStatementSegment(BaseSegment):
             "AUTHORIZATION",
             Ref("RoleReferenceSegment"),
             optional=True,
+        ),
+        AnyNumberOf(
+            Ref("CreateTableGraphStatementSegment"),
+            Ref("CreateTableStatementSegment"),
+            Ref("CreateViewStatementSegment"),
+            Ref("GrantStatementSegment"),
+            Ref("RevokeStatementSegment"),
+            Ref("DenyStatementSegment"),
         ),
     )
 
