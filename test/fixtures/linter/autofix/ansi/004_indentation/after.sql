@@ -9,8 +9,7 @@ WITH audience_counts AS (
         list_emails.active != 'D'
     GROUP BY
         user_id,
-        list_id
-)
+        list_id)
 
 SELECT
     user_id,

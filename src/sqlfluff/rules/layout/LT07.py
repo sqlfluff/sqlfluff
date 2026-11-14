@@ -1,6 +1,6 @@
 """Implementation of Rule LT07."""
 
-from typing import Optional, cast
+from typing import cast
 
 from sqlfluff.core.parser import NewlineSegment, RawSegment
 from sqlfluff.core.parser.segments import TemplateSegment
@@ -44,7 +44,7 @@ class Rule_LT07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """WITH clause closing bracket should be aligned with WITH keyword.
 
         Look for a with clause and evaluate the position of closing brackets.
@@ -97,6 +97,7 @@ class Rule_LT07(BaseRule):
                 # Otherwise add to the ones to check.
                 cte_end_brackets.add(cast(RawSegment, cte_end_bracket[0]))
 
+        results = []
         raw_segments = context.segment.raw_segments
         for seg in cte_end_brackets:
             contains_non_whitespace = False
@@ -122,16 +123,18 @@ class Rule_LT07(BaseRule):
 
             if contains_non_whitespace:
                 # We have to move it to a newline
-                return LintResult(
-                    anchor=seg,
-                    fixes=[
-                        LintFix.create_before(
-                            seg,
-                            [
-                                NewlineSegment(),
-                            ],
-                        )
-                    ],
+                results.append(
+                    LintResult(
+                        anchor=seg,
+                        fixes=[
+                            LintFix.create_before(
+                                seg,
+                                [
+                                    NewlineSegment(),
+                                ],
+                            )
+                        ],
+                    )
                 )
 
-        return None
+        return results
