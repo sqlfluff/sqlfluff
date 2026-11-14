@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00d4a20c42c83c8267187bdb5c414959b40006aa87e339f9cf3c2c21cf4e8a6b
+_hash: 90d3fcd4b41ec8ceaaaafbb3cf998f2ca820787edbf0b946b4cb8e88dc5873ab
 file:
 - statement:
     select_statement:
@@ -101,4 +101,36 @@ file:
             raw_comparison_operator: '='
           parameterized_expression:
             dollar_literal: $app::item(id)
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          parameterized_expression:
+            dollar_literal: $::name
+      - comma: ','
+      - select_clause_element:
+          parameterized_expression:
+            dollar_literal: $::::name
+      - comma: ','
+      - select_clause_element:
+          parameterized_expression:
+            dollar_literal: $::ns::value(suffix)
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          parameterized_expression:
+            dollar_literal: $name$value
+      - comma: ','
+      - select_clause_element:
+          parameterized_expression:
+            dollar_literal: $$name
+      - comma: ','
+      - select_clause_element:
+          parameterized_expression:
+            dollar_literal: $::name$(suffix)
 - statement_terminator: ;
