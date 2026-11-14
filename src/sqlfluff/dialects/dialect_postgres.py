@@ -5632,6 +5632,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropTablespaceStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("CreateServerStatementSegment"),
+            Ref("AlterServerStatementSegment"),
+            Ref("DropServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
             Ref("ImportForeignSchemaStatementSegment"),
             Ref("CreateForeignTableStatementSegment"),
@@ -7777,6 +7779,58 @@ class CreateServerStatementSegment(BaseSegment):
         Ref("ForeignDataWrapperGrammar"),
         Ref("ObjectReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
+    )
+
+
+class AlterServerStatementSegment(BaseSegment):
+    """An `ALTER SERVER` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterserver.html
+    """
+
+    type = "alter_server_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        OneOf(
+            Sequence(
+                Indent,
+                # PostgreSQL also takes `VERSION NULL`, which clears the version.
+                Sequence("VERSION", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                Ref("AlterOptionsGrammar", optional=True),
+                Dedent,
+            ),
+            Sequence(Indent, Ref("AlterOptionsGrammar"), Dedent),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("ServerReferenceSegment")),
+        ),
+    )
+
+
+class DropServerStatementSegment(BaseSegment):
+    """A `DROP SERVER` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropserver.html
+    """
+
+    type = "drop_server_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SERVER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ServerReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 

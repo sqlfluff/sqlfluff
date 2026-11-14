@@ -1,0 +1,15 @@
+ALTER SERVER foo OPTIONS (host 'foo', dbname 'foodb');
+
+ALTER SERVER foo VERSION '8.4' OPTIONS (SET host 'baz');
+
+ALTER SERVER foo VERSION NULL;
+
+ALTER SERVER foo
+    VERSION '9.6'
+    OPTIONS (ADD port '5432', DROP dbname);
+
+ALTER SERVER foo OWNER TO server_owner;
+
+ALTER SERVER foo OWNER TO CURRENT_USER;
+
+ALTER SERVER foo RENAME TO "Foo2";
