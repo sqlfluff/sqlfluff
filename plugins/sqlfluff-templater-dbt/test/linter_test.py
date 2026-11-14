@@ -1,5 +1,6 @@
 """The Test file for the linter class."""
 
+import logging
 import os
 import os.path
 import shutil
@@ -11,6 +12,7 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.linter import runner
 from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.utils.testing.cli import invoke_assert_code
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
 @pytest.mark.parametrize(
@@ -141,3 +143,57 @@ def test__dbt_linter__parallel_partials_path(project_dir, dbt_fluff_config):
     # Also verify that the full parallel lint run completes without error.
     results = list(thd_runner.run(files, fix=False))
     assert len(results) == 2
+
+
+def test__linter__nested_dbt_templater_ignored(tmp_path, project_dir, profiles_dir):
+    """The dbt templater can't be selected in a nested config.
+
+    The file is rendered with the root templater, with a warning.
+    """
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = postgres\ntemplater = jinja\n", encoding="utf-8"
+    )
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = dbt\n\n[sqlfluff:templater:dbt]\n"
+        f"project_dir = {os.path.abspath(project_dir)}\n"
+        f"profiles_dir = {os.path.abspath(profiles_dir)}\n",
+        encoding="utf-8",
+    )
+    nested_file = nested / "query.sql"
+    nested_file.write_text("select {{ 1 }}\n", encoding="utf-8")
+    lntr = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(str(nested_file), lntr.config)
+
+    assert "Attempt to set templater to dbt failed" in caplog.text
+    assert rendered.templated_variants[0].templated_str == "select 1\n"
+
+
+def test__linter__root_dbt_templater_used_for_nested_config(
+    project_dir, dbt_fluff_config
+):
+    """A root dbt templater renders files whose nested config sets another one.
+
+    The nested templater is ignored, with a warning.
+    """
+    lntr = Linter(config=FluffConfig(configs=dbt_fluff_config))
+    file_config = FluffConfig(
+        configs={
+            **dbt_fluff_config,
+            "core": {"templater": "jinja", "dialect": "postgres"},
+        }
+    )
+    fname = os.path.join(project_dir, "models/depends_on_ephemeral/b.sql")
+    with open(fname) as f:
+        in_str = f.read()
+
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_string(in_str, fname, file_config, "utf-8")
+
+    assert "Attempt to set templater to jinja failed" in caplog.text
+    assert not rendered.templater_violations
+    # Only dbt can resolve the `ref()`.
+    assert "__dbt__cte__c" in rendered.templated_variants[0].templated_str

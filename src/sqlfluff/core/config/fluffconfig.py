@@ -786,6 +786,14 @@ class FluffConfig:
         validate_config_dict(config_dict, f"inline config in {fname}")
         config_val = list(iter_records_from_nested_dict(config_dict))[0]
 
+        if config_val[0] == ("core", "templater"):
+            config_logger.warning(
+                "Ignoring inline templater configuration in %r. Set templater in a "
+                "configuration file instead.",
+                fname,
+            )
+            return
+
         # Set the value
         self.set_value(config_key, config_value)
         # If the config is for dialect, initialise the dialect.
