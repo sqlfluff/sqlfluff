@@ -453,6 +453,10 @@ impl Parser<'_> {
                 let res = self.handle_preceded_by(grammar_id);
                 self.store_sync(stack, &frame, res)
             }
+            GrammarVariant::StandaloneLine => {
+                let res = self.handle_standalone_line(grammar_id);
+                self.store_sync(stack, &frame, res)
+            }
             GrammarVariant::Meta => {
                 let res = self.handle_meta(grammar_id);
                 let parent_frame = stack.last_mut().unwrap();
