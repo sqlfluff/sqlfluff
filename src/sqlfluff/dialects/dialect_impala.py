@@ -29,8 +29,15 @@ impala_dialect = hive_dialect.copy_as(
     docstring="The dialect for Apache `Impala <https://impala.apache.org/>`_.",
 )
 
-impala_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-impala_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+impala_dialect.declare_keyword_sets(
+    reserved=RESERVED_KEYWORDS,
+    reserved_mode="add",
+    unreserved=UNRESERVED_KEYWORDS,
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+    unspecified_parent_keywords="unreserved",
+)
 
 impala_dialect.replace(
     DivideSegment=OneOf(
@@ -173,11 +180,12 @@ class CreateTableStatementSegment(hive.CreateTableStatementSegment):
                 Sequence(
                     "CACHED",
                     "IN",
-                    Delimited(Ref("PoolNameReferenceSegment")),
+                    # CACHED IN 'pool_name': an HDFS cache pool, named by a string.
+                    Ref("QuotedLiteralSegment"),
                     Sequence(
                         "WITH",
                         "REPLICATION",
-                        "=",
+                        Ref("EqualsSegment"),
                         Ref("NumericLiteralSegment"),
                         optional=True,
                     ),
@@ -240,11 +248,12 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
                 Sequence(
                     "CACHED",
                     "IN",
-                    Delimited(Ref("PoolNameReferenceSegment")),
+                    # CACHED IN 'pool_name': an HDFS cache pool, named by a string.
+                    Ref("QuotedLiteralSegment"),
                     Sequence(
                         "WITH",
                         "REPLICATION",
-                        "=",
+                        Ref("EqualsSegment"),
                         Ref("NumericLiteralSegment"),
                         optional=True,
                     ),

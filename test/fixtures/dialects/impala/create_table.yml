@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31109752b72e9e04185357c787940f20b3a9e350e5d532c5b0cac132c1687c27
+_hash: 017c5f2070ff567316e0b426c9319780eeda8f2b570cb6125cfe7d0fee09f519
 file:
 - statement:
     create_table_statement:
@@ -73,4 +73,27 @@ file:
             primitive_type:
               keyword: INT
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cached_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: CACHED
+    - keyword: IN
+    - quoted_literal: "'pool1'"
+    - keyword: WITH
+    - keyword: REPLICATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3'
 - statement_terminator: ;

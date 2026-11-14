@@ -3,7 +3,7 @@
 Most parity coverage is data-driven (see ``cases_test.py`` and
 ``test/fixtures/parity/``). The tests here can't be expressed as a plain
 SQL-plus-config case because they instrument the Python side: codegen
-object-lifetime probes, subprocess hash-seed probes.
+object-lifetime probes, subprocess hash-seed probes, codegen constants.
 """
 
 import gc
@@ -12,6 +12,8 @@ import subprocess
 import sys
 import weakref
 from pathlib import Path
+
+import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -86,3 +88,115 @@ def test__parity__codegen_lexer_patterns_hash_seed_stable():
         )
         outputs.add(proc.stdout)
     assert len(outputs) == 1, "lexer matcher patterns vary with the hash seed"
+
+
+@pytest.mark.parametrize("dialect_name", ["ansi", "postgres", "tsql"])
+def test__parity__codegen_hint_table_matches_python(dialect_name):
+    """Every hint codegen computes says exactly what the grammar's simple() says.
+
+    This covers each grammar codegen asks for a hint, through
+    _add_simple_hint(): the position it stores in the instruction, and the
+    table entry at that position. Grammars codegen gives no hint without
+    asking, such as a segment class that forwards to its match_grammar, are
+    not covered.
+
+    simple() has three answers, and the Rust tables must keep them apart:
+    None (no hint, try a full match) is NO_SIMPLE_HINT; an empty hint (can
+    never match, e.g. Nothing) is an entry with no words and no types; any
+    other hint is an entry that decodes back to its words and types.
+    Rust prunes options and scans for terminators with these, so a hint that
+    decodes differently makes Rust try or skip different grammars from Python.
+    """
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    from sqlfluff.core.dialects import dialect_selector
+    from utils.build_parsers import DummyParseContext, TableBuilder
+
+    dialect = dialect_selector(dialect_name)
+    ctx = DummyParseContext(dialect=dialect, uuid=0)
+    builder = TableBuilder()
+    recorded = []
+    add_simple_hint = builder._add_simple_hint
+
+    def recording_add_simple_hint(grammar, parse_context):
+        hint_id = add_simple_hint(grammar, parse_context)
+        recorded.append((grammar, hint_id))
+        return hint_id
+
+    builder._add_simple_hint = recording_add_simple_hint
+    for _, element in sorted(dialect._library.items()):
+        builder.flatten_grammar(element, ctx)
+
+    def decode(start, count):
+        return frozenset(
+            builder.strings[builder.hint_string_indices[i]]
+            for i in range(start, start + count)
+        )
+
+    states = {"none": 0, "empty": 0, "words or types": 0}
+    for grammar, hint_id in recorded:
+        try:
+            expected = grammar.simple(ctx)
+        except (RuntimeError, AttributeError):
+            # The builder records these as no hint, the same as None: a raw
+            # segment class such as LiteralSegment has no match_grammar.
+            expected = None
+        if hint_id is None:
+            assert expected is None, grammar
+            states["none"] += 1
+            continue
+        assert 0 <= hint_id < len(builder.simple_hints), (grammar, hint_id)
+        data = builder.simple_hints[hint_id]
+        decoded = (
+            decode(data.raw_values_start, data.raw_values_count),
+            decode(data.token_types_start, data.token_types_count),
+        )
+        assert decoded == expected, grammar
+        states[
+            "empty" if decoded == (frozenset(), frozenset()) else "words or types"
+        ] += 1
+
+    # Every state actually occurs, so the test can't pass by checking nothing.
+    assert all(states.values()), states
+
+
+def test__parity__codegen_reserved_ids_match_rust():
+    """The reserved values codegen writes are the ones Rust reads."""
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    from utils.build_parsers import (
+        NO_REGEX,
+        NO_REPEAT_LIMIT,
+        NO_SIMPLE_HINT,
+        NO_STRING,
+        NONCODE_GRAMMAR_ID,
+    )
+
+    types = _REPO_ROOT / "sqlfluffrs" / "sqlfluffrs_types" / "src"
+    grammar_inst = (types / "grammar_inst.rs").read_text()
+    grammar_tables = (types / "grammar_tables.rs").read_text()
+
+    for rust_source, rust_declaration, python_value, value in (
+        (
+            grammar_inst,
+            "pub const NONCODE: GrammarId = GrammarId(u32::MAX - 1);",
+            NONCODE_GRAMMAR_ID,
+            2**32 - 2,
+        ),
+        (
+            grammar_tables,
+            "pub const NO_SIMPLE_HINT: u32 = u32::MAX;",
+            NO_SIMPLE_HINT,
+            2**32 - 1,
+        ),
+        (grammar_tables, "pub const NO_STRING: u32 = u32::MAX;", NO_STRING, 2**32 - 1),
+        (grammar_tables, "pub const NO_REGEX: u32 = u32::MAX;", NO_REGEX, 2**32 - 1),
+        (
+            grammar_tables,
+            "pub const NO_REPEAT_LIMIT: u32 = u32::MAX;",
+            NO_REPEAT_LIMIT,
+            2**32 - 1,
+        ),
+    ):
+        assert rust_declaration in rust_source, rust_declaration
+        assert python_value == value, rust_declaration

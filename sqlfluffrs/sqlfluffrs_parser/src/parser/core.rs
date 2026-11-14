@@ -16,7 +16,7 @@ use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
 use sqlfluffrs_types::Token;
 // NEW: Table-driven grammar support
-use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant};
+use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, NO_REGEX, NO_STRING};
 
 /// Read a string-id list from aux_data region starting at ``offset``.
 /// Layout is ``[count, string_id_0, string_id_1, ...]``.
@@ -39,7 +39,7 @@ fn read_string_ids_from_aux(
     tables.aux_data[start..end]
         .iter()
         .copied()
-        .filter(|id| *id != 0xFFFFFFFF)
+        .filter(|id| *id != NO_STRING)
         .collect()
 }
 
@@ -514,7 +514,7 @@ impl<'a> Parser<'a> {
                 tables.aux_data[inst_start..inst_end]
                     .iter()
                     .copied()
-                    .filter(|id| *id != 0xFFFFFFFF)
+                    .filter(|id| *id != NO_STRING)
                     .collect::<Vec<_>>()
             } else {
                 vec![token_type_id]
@@ -657,7 +657,7 @@ impl<'a> Parser<'a> {
                 tables.aux_data[inst_start..inst_end]
                     .iter()
                     .copied()
-                    .filter(|id| *id != 0xFFFFFFFF)
+                    .filter(|id| *id != NO_STRING)
                     .collect::<Vec<_>>()
             } else {
                 vec![token_type_id]
@@ -859,13 +859,13 @@ impl<'a> Parser<'a> {
         let token_type_id = tables.aux_data[aux_start + 2];
         let raw_class_id = tables.aux_data[aux_start + 3];
 
-        // Guard against sentinel value 0xFFFFFFFF in aux data entries which
-        // indicates "no value" in the tables. Skip sentinel entries and
-        // collect only valid templates. Also guard token_type_id.
+        // Guard against NO_STRING (`u32::MAX`) in aux data entries, which
+        // means "no value" in the tables. Skip sentinel entries and collect
+        // only valid templates. Also guard token_type_id.
         let template_ids: Vec<u32> = (0..templates_count)
             .filter_map(|i| {
                 let template_id = tables.aux_data[templates_start + i];
-                if template_id == 0xFFFFFFFF {
+                if template_id == NO_STRING {
                     None
                 } else {
                     Some(template_id)
@@ -873,7 +873,7 @@ impl<'a> Parser<'a> {
             })
             .collect();
 
-        let token_type = if token_type_id == 0xFFFFFFFF {
+        let token_type = if token_type_id == NO_STRING {
             // No token type specified; use empty string so matching will fail.
             ""
         } else {
@@ -887,7 +887,7 @@ impl<'a> Parser<'a> {
                 tables.aux_data[inst_start..inst_end]
                     .iter()
                     .copied()
-                    .filter(|id| *id != 0xFFFFFFFF)
+                    .filter(|id| *id != NO_STRING)
                     .collect::<Vec<_>>()
             } else {
                 vec![token_type_id]
@@ -898,7 +898,7 @@ impl<'a> Parser<'a> {
             (vec![token_type_id], vec![])
         };
 
-        let raw_class = if raw_class_id == 0xFFFFFFFF {
+        let raw_class = if raw_class_id == NO_STRING {
             "RawSegment"
         } else {
             tables.get_string(raw_class_id)
@@ -1088,20 +1088,20 @@ impl<'a> Parser<'a> {
         let token_type_raw = tables.aux_data[aux_start + 2];
         let raw_class_raw = tables.aux_data[aux_start + 3];
 
-        if regex_id_raw == 0xFFFFFFFF || (regex_id_raw as usize) >= tables.regex_patterns.len() {
+        if regex_id_raw == NO_REGEX || (regex_id_raw as usize) >= tables.regex_patterns.len() {
             return None;
         }
 
         let pattern = tables.regex_patterns[regex_id_raw as usize].to_string();
 
-        let anti_opt =
-            if anti_raw != 0xFFFFFFFF && (anti_raw as usize) < tables.regex_patterns.len() {
-                Some(tables.regex_patterns[anti_raw as usize].to_string())
-            } else {
-                None
-            };
+        let anti_opt = if anti_raw != NO_REGEX && (anti_raw as usize) < tables.regex_patterns.len()
+        {
+            Some(tables.regex_patterns[anti_raw as usize].to_string())
+        } else {
+            None
+        };
 
-        let token_type_opt = if token_type_raw != 0xFFFFFFFF {
+        let token_type_opt = if token_type_raw != NO_STRING {
             Some(tables.get_string(token_type_raw).to_string())
         } else {
             None
@@ -1139,7 +1139,7 @@ impl<'a> Parser<'a> {
         let token_type_id = if aux_start + 2 < tables.aux_data.len() {
             tables.aux_data[aux_start + 2]
         } else {
-            0xFFFFFFFF
+            NO_STRING
         };
         let (configured_instance_type_ids, raw_class_class_type_ids) = if aux_end >= aux_start + 5 {
             let inst_count = tables.aux_data[aux_start + 4] as usize;
@@ -1149,7 +1149,7 @@ impl<'a> Parser<'a> {
                 tables.aux_data[inst_start..inst_end]
                     .iter()
                     .copied()
-                    .filter(|id| *id != 0xFFFFFFFF)
+                    .filter(|id| *id != NO_STRING)
                     .collect::<Vec<_>>()
             } else {
                 token_type_opt

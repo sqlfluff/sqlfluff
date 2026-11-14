@@ -9,6 +9,33 @@ There are also some keywords that are(n't) supported as types and function, but 
 isn't support for that distinction at present.
 """
 
+from collections import Counter
+
+
+def _refuse_repeated_keywords(keyword_list: list[tuple[str, str]]) -> None:
+    """Refuse a keyword list that gives a keyword more than once.
+
+    A keyword listed twice in one list has two entries there, and only one can
+    be meant: it is a mistake in the list, which taking the last would hide.
+    A later list may still change a keyword's status; that is what
+    priority_keyword_merge() is for.
+    """
+    keywords = {keyword for keyword, _ in keyword_list}
+    # The set is shorter only if a keyword is repeated. Finding which is only
+    # needed then, on the way to the error.
+    if len(keywords) == len(keyword_list):
+        return
+    counts = Counter(keyword for keyword, _ in keyword_list)
+    repeated = []
+    for keyword in sorted(keyword for keyword, count in counts.items() if count > 1):
+        statuses = [status for listed, status in keyword_list if listed == keyword]
+        repeated.append(f"{keyword} ({', '.join(statuses)})")
+    raise ValueError(
+        "These keywords are listed more than once in one keyword list: "
+        f"{'; '.join(repeated)}. Keep one entry for each; to change a keyword's "
+        "status, give it in a later list passed to priority_keyword_merge()."
+    )
+
 
 def priority_keyword_merge(*args: list[tuple[str, str]]) -> list[tuple[str, str]]:
     """Merge keyword lists, giving priority to entries in later lists.
@@ -16,33 +43,26 @@ def priority_keyword_merge(*args: list[tuple[str, str]]) -> list[tuple[str, str]
     *args is a list of keyword lists, these lists should be of tuples in the form
     (keyword, type)
 
+    The lists given are left as they are; the result is a new list. A keyword
+    listed twice within one list is refused.
     """
-    keyword_lists = [*args]
-    base_list = []
-    if len(keyword_lists) == 1:
-        return keyword_lists[0]
-
-    while len(keyword_lists) > 1:
-        base_list, priority_list = keyword_lists[0], keyword_lists[1]
-        keyword_set = {x[0] for x in base_list}
-        for item in priority_list:
-            if item[0] in keyword_set:
-                for index, keyword in enumerate(base_list):
-                    if keyword[0] == item[0]:
-                        base_list.pop(index)
-                        break
-            base_list.append(item)
-
-        keyword_lists.pop(1)
-
-    return base_list
+    merged: dict[str, str] = {}
+    for keyword_list in args:
+        _refuse_repeated_keywords(keyword_list)
+        for keyword, keyword_type in keyword_list:
+            # A later entry replaces an earlier one and moves to the end.
+            merged.pop(keyword, None)
+            merged[keyword] = keyword_type
+    return list(merged.items())
 
 
 def get_keywords(keyword_list: list[tuple[str, str]], keyword_type: str) -> list[str]:
     """Get a list of keywords of the required type.
 
-    keyword_type should be one of "not-keyword", "reserved", "non-reserved"
+    keyword_type should be one of "not-keyword", "reserved", "non-reserved".
+    A keyword listed twice in keyword_list is refused.
     """
+    _refuse_repeated_keywords(keyword_list)
     keywords = [x[0] for x in keyword_list if x[1].startswith(keyword_type)]
 
     return keywords
@@ -749,7 +769,8 @@ postgres_docs_keywords = [
     ("SMALLSERIAL", "non-reserved-(cannot-be-function-or-type)"),
     ("SNAPSHOT", "non-reserved"),
     ("SOME", "reserved"),
-    ("SOURCE", "not-keyword"),
+    # Blank in PG13's table; non-reserved since PG17 (MERGE ... BY SOURCE).
+    ("SOURCE", "non-reserved"),
     ("SPACE", "not-keyword"),
     ("SPECIFIC", "not-keyword"),
     ("SPECIFICTYPE", "not-keyword"),
@@ -1005,6 +1026,8 @@ postgres_nondocs_keywords = [
     ("STOP", "non-reserved"),
     ("SUMMARY", "non-reserved"),
     ("SUPERUSER", "non-reserved"),
+    # Non-reserved since PG17 (MERGE ... BY TARGET); not in PG13's table.
+    ("TARGET", "non-reserved"),
     ("TIMETZ", "non-reserved"),
     ("TIMESTAMPTZ", "non-reserved"),
     ("TIMING", "non-reserved"),
