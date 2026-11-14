@@ -2247,6 +2247,51 @@ class GrantToSegment(BaseSegment):
     )
 
 
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement.
+
+    BigQuery's DCL grants IAM roles on a resource to a list of principals,
+    which is much narrower than the generic ANSI grammar this replaces.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+    """
+
+    type = "access_statement"
+
+    # resource_type resource_name, e.g. `SCHEMA myProject.myDataset`.
+    _resource = Sequence(
+        OneOf(
+            "SCHEMA",
+            "TABLE",
+            "VIEW",
+            "PROJECT",
+            Sequence("EXTERNAL", "TABLE"),
+        ),
+        Ref("ObjectReferenceSegment"),
+    )
+
+    # Roles are quoted identifiers such as `roles/bigquery.dataViewer`;
+    # principals are string literals such as "user:raha@example.com".
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "GRANT",
+            Delimited(Ref("ObjectReferenceSegment"), terminators=["ON"]),
+            "ON",
+            _resource,
+            "TO",
+            Delimited(Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "REVOKE",
+            Delimited(Ref("ObjectReferenceSegment"), terminators=["ON"]),
+            "ON",
+            _resource,
+            "FROM",
+            Delimited(Ref("QuotedLiteralSegment")),
+        ),
+    )
+
+
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
