@@ -1509,6 +1509,7 @@ class CreateSecretStatementSegment(BaseSegment):
                     Ref("ParameterNameSegment"),
                     OneOf(Ref("MapLiteralSegment"), Ref("ExpressionSegment")),
                 ),
+                allow_trailing=True,
             ),
         ),
     )

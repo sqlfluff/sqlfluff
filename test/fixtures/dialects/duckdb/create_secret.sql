@@ -32,3 +32,9 @@ CREATE SECRET connection_secret IN connection (
 );
 
 create secret "quoted name" (type 'http', provider 'config');
+
+CREATE SECRET trailing_comma_secret (
+    TYPE s3,
+    PROVIDER credential_chain,
+    REGION 'us-east-1',
+);
