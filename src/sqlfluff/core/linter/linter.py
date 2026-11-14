@@ -967,6 +967,10 @@ class Linter:
         overridden. Otherwise this returns None, and the value in the root
         config applies, so that values set when creating it (e.g. with
         ``FluffConfig(configs=...)``) are still used.
+
+        NOTE: As on main, the baseline is the current working directory, even
+        if the root config was loaded from another path (e.g. with
+        ``FluffConfig.from_path(...)``).
         """
         if self.config._overrides and key in self.config._overrides:
             return None
@@ -985,18 +989,25 @@ class Linter:
         file_templater: "RawTemplater" = config.get("templater_obj") or self.templater
         if type(file_templater) is type(self.templater):
             return self.templater
+        in_worker = (
+            self.templater.templates_in_worker and file_templater.templates_in_worker
+        )
         if (
-            self.templater.templates_in_worker
-            and file_templater.templates_in_worker
+            in_worker
             and self._nested_core_value(fname, "templater") == file_templater.name
         ):
             return file_templater
+        reason = (
+            ""
+            if in_worker
+            else "Templaters which cannot render in worker processes (e.g. dbt) "
+            "must be set in a .sqlfluff in the current working directory, and "
+            "cannot be set or replaced in a .sqlfluff file in a subdirectory of "
+            "it. "
+        )
         linter_logger.warning(
             f"Attempt to set templater to {file_templater.name} failed. "
-            f"Using {self.templater.name} templater. Templaters which cannot "
-            "render in worker processes (e.g. dbt) must be set in a .sqlfluff "
-            "in the current working directory, and cannot be set or replaced "
-            "in a .sqlfluff file in a subdirectory of it. See Nesting section "
+            f"Using {self.templater.name} templater. {reason}See Nesting section "
             "of the docs for more details."
         )
         return self.templater

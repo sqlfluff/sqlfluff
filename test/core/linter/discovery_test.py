@@ -91,6 +91,28 @@ def test__linter__path_from_paths__nested_exts_inherited(tmp_path):
     assert looked_up == [str(tmp_path), str(configured)]
 
 
+def test__linter__path_from_paths__nested_exts_trailing_slash(tmp_path):
+    """A walk root with a trailing slash still passes on its extensions."""
+    inherited = tmp_path / "inherited"
+    inherited.mkdir()
+    nested_file = inherited / "nested.bq"
+    nested_file.touch()
+    looked_up = []
+
+    def file_exts_for_path(path):
+        looked_up.append(path)
+        return [".bq"]
+
+    paths = paths_from_path(
+        str(tmp_path) + os.sep,
+        target_file_exts=[".sql"],
+        target_file_exts_for_path=file_exts_for_path,
+    )
+
+    assert paths == [str(nested_file)]
+    assert looked_up == [str(tmp_path) + os.sep]
+
+
 def test__linter__path_from_paths__exact_nested_ext(tmp_path):
     """Test exact file discovery with path-specific extensions."""
     nested = tmp_path / "nested"

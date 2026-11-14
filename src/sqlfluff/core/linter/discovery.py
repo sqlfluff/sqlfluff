@@ -209,7 +209,8 @@ def _iter_files_in_path(
         if target_file_exts_for_path:
             # Directories inherit their parent's extensions, unless they
             # contain config files which might change them.
-            parent_file_exts = dir_file_exts.get(os.path.dirname(dirname))
+            normalised_dirname = os.path.normpath(dirname)
+            parent_file_exts = dir_file_exts.get(os.path.dirname(normalised_dirname))
             if parent_file_exts is None or not config_filename_set.isdisjoint(
                 filenames
             ):
@@ -219,7 +220,7 @@ def _iter_files_in_path(
                 )
             else:
                 current_file_exts = parent_file_exts
-            dir_file_exts[dirname] = current_file_exts
+            dir_file_exts[normalised_dirname] = current_file_exts
         # Before adding new ignore specs, remove any which are no longer relevant
         # as indicated by us no longer being in a subdirectory of them.
         # NOTE: Slice so we can modify as we go.
