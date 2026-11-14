@@ -15,6 +15,7 @@ from typing import Callable, Optional, Protocol
 import pathspec
 
 from sqlfluff.core.config.file import load_config_file_as_dict
+from sqlfluff.core.config.loader import CONFIG_FILENAMES
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.file import iter_intermediate_paths
 
@@ -143,6 +144,7 @@ def _process_exact_path(
     working_path: str,
     lower_file_exts: tuple[str, ...],
     outer_ignore_specs: IgnoreSpecRecords,
+    target_file_exts_for_path: Optional[Callable[[str], Sequence[str]]] = None,
 ) -> list[str]:
     """Handle exact paths being passed to paths_from_path.
 
@@ -152,6 +154,10 @@ def _process_exact_path(
     then return nothing, but include a warning for the user.
     """
     # Does it have a relevant extension? If not, just return an empty list.
+    if target_file_exts_for_path:
+        lower_file_exts = tuple(
+            extension.lower() for extension in target_file_exts_for_path(path)
+        )
     if not _match_file_extension(path, lower_file_exts):
         return []
 
@@ -181,6 +187,7 @@ def _iter_files_in_path(
     ignore_files: bool,
     outer_ignore_specs: IgnoreSpecRecords,
     lower_file_exts: tuple[str, ...],
+    target_file_exts_for_path: Optional[Callable[[str], Sequence[str]]] = None,
 ) -> Iterator[str]:
     """Handle directory paths being passed to paths_from_path.
 
@@ -192,8 +199,28 @@ def _iter_files_in_path(
     """
     inner_ignore_specs: IgnoreSpecRecords = []
     ignore_filename_set = frozenset(ignore_file_loaders.keys())
+    config_filename_set = frozenset(CONFIG_FILENAMES)
+
+    # The file extensions for each directory walked so far.
+    dir_file_exts: dict[str, tuple[str, ...]] = {}
 
     for dirname, subdirs, filenames in os.walk(path, topdown=True):
+        current_file_exts = lower_file_exts
+        if target_file_exts_for_path:
+            # Directories inherit their parent's extensions, unless they
+            # contain config files which might change them.
+            normalised_dirname = os.path.normpath(dirname)
+            parent_file_exts = dir_file_exts.get(os.path.dirname(normalised_dirname))
+            if parent_file_exts is None or not config_filename_set.isdisjoint(
+                filenames
+            ):
+                current_file_exts = tuple(
+                    extension.lower()
+                    for extension in target_file_exts_for_path(dirname)
+                )
+            else:
+                current_file_exts = parent_file_exts
+            dir_file_exts[normalised_dirname] = current_file_exts
         # Before adding new ignore specs, remove any which are no longer relevant
         # as indicated by us no longer being in a subdirectory of them.
         # NOTE: Slice so we can modify as we go.
@@ -230,7 +257,7 @@ def _iter_files_in_path(
             absolute_path = os.path.abspath(relative_path)
 
             # Check file extension is relevant
-            if not _match_file_extension(filename, lower_file_exts):
+            if not _match_file_extension(filename, current_file_exts):
                 continue
             # Check not ignored by outer & inner ignore specs
             if _check_ignore_specs(absolute_path, outer_ignore_specs):
@@ -249,6 +276,7 @@ def paths_from_path(
     working_path: str = os.getcwd(),
     target_file_exts: Sequence[str] = (".sql",),
     check_non_existent_file: bool = False,
+    target_file_exts_for_path: Optional[Callable[[str], Sequence[str]]] = None,
 ) -> list[str]:
     """Return a set of sql file paths from a potentially more ambiguous path string.
 
@@ -294,11 +322,21 @@ def paths_from_path(
     # Handle being passed an exact file first.
     if os.path.isfile(path) or check_non_existent_file:
         return _process_exact_path(
-            path, working_path, lower_file_exts, outer_ignore_specs
+            path,
+            working_path,
+            lower_file_exts,
+            outer_ignore_specs,
+            target_file_exts_for_path,
         )
 
     # Otherwise, it's not an exact path and we're going to walk the path
     # progressively, processing ignore files as we go.
     return sorted(
-        _iter_files_in_path(path, ignore_files, outer_ignore_specs, lower_file_exts)
+        _iter_files_in_path(
+            path,
+            ignore_files,
+            outer_ignore_specs,
+            lower_file_exts,
+            target_file_exts_for_path,
+        )
     )

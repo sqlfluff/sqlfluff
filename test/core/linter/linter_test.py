@@ -1359,23 +1359,199 @@ def test_delayed_exception():
         de.reraise()
 
 
-def test__attempt_to_change_templater_warning():
-    """Test warning when changing templater in .sqlfluff file in subdirectory."""
-    initial_config = FluffConfig(
-        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+class MainProcessTemplater(RawTemplater):
+    """A templater which cannot render in worker processes (like dbt)."""
+
+    name = "main_process"
+    templates_in_worker = False
+
+
+def test__linter__uses_nested_worker_templater():
+    """A nested templater is used when root and nested render in workers."""
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root))
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(f"{root}/placeholder/placeholder.sql", lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == (
+        "SELECT value FROM my_table\n"
     )
-    lntr = Linter(config=initial_config)
-    updated_config = FluffConfig(
-        configs={"core": {"templater": "python", "dialect": "ansi"}}
+
+
+def test__linter__root_config_templater_used(tmp_path):
+    """A templater set when creating the root config applies to all files.
+
+    Files only use another templater if it's set by a nested config file.
+    """
+    tmp_path.joinpath("query.sql").write_text("SELECT {{ 1 }}\n", encoding="utf-8")
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"templater": "raw"}}, overrides={"dialect": "ansi"}
+        )
     )
     with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        lntr.render_string(
-            in_str="select * from table",
+        rendered = lntr.render_file(str(tmp_path / "query.sql"), lntr.config)
+    # The file's own config has the default templater, as on main.
+    assert "Attempt to set templater to jinja failed" in caplog.text
+    # Both templaters can render in workers, so the warning doesn't say that
+    # they can't.
+    assert "cannot render in worker processes" not in caplog.text
+    assert rendered.templated_variants[0].templated_str == "SELECT {{ 1 }}\n"
+
+
+def test__linter__root_config_file_exts_used(tmp_path):
+    """File extensions set when creating the root config apply to all paths."""
+    tmp_path.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    tmp_path.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}}, overrides={"dialect": "ansi"}
+        )
+    )
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(tmp_path / "a.txt")
+    ]
+
+
+def test__linter__discovery_ignores_bad_nested_config(tmp_path):
+    """Discovery reads only file extensions from nested config files.
+
+    A nested config which can't be used to lint (here with an unknown dialect)
+    doesn't stop discovery when there are no files to lint next to it.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+    tmp_path.joinpath("a.sql").write_text("SELECT 1\n", encoding="utf-8")
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = notadialect\n", encoding="utf-8"
+    )
+    nested.joinpath("readme.txt").write_text("Not SQL.\n", encoding="utf-8")
+    lntr = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(tmp_path / "a.sql")
+    ]
+
+
+@pytest.mark.parametrize("main_process_root", [False, True])
+def test__linter__ignores_nested_main_process_templater(main_process_root):
+    """Templaters which can't render in workers are only used from the root."""
+    root_config = FluffConfig(
+        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+    )
+    file_config = FluffConfig(
+        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+    )
+    lntr = Linter(config=root_config)
+    main_process_templater = MainProcessTemplater()
+    if main_process_root:
+        lntr.templater = main_process_templater
+    else:
+        file_config._configs["core"]["templater_obj"] = main_process_templater
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_string(
+            in_str="select {{ 1 }}",
             fname="test.sql",
-            config=updated_config,
+            config=file_config,
             encoding="utf-8",
         )
     assert "Attempt to set templater to " in caplog.text
+    assert "cannot render in worker processes" in caplog.text
+    expected = "select {{ 1 }}" if main_process_root else "select 1"
+    assert rendered.templated_variants[0].templated_str == expected
+
+
+def test__linter__templater_override_beats_nested_config():
+    """A templater override (e.g. ``--templater``) beats nested config."""
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root, overrides={"templater": "raw"}))
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(f"{root}/placeholder/placeholder.sql", lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == (
+        "SELECT {value} FROM my_table\n"
+    )
+
+
+@pytest.mark.parametrize("processes", [1, 2])
+@pytest.mark.parametrize("fix", [False, True])
+def test__linter__uses_templater_from_file_config(processes, fix):
+    """Lint files using different built-in templaters in one invocation."""
+    config = FluffConfig.from_path("test/fixtures/linter/mixed_templaters")
+    linter = Linter(config=config)
+
+    result = linter.lint_paths(
+        ("test/fixtures/linter/mixed_templaters",),
+        fix=fix,
+        processes=processes,
+    )
+
+    assert not result.get_violations()
+
+
+def test__linter__discovers_extensions_from_nested_config(tmp_path):
+    """Directory discovery uses file extensions from nested configuration."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\ntemplater = jinja\n", encoding="utf-8"
+    )
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = placeholder\nsql_file_exts = .bq\n\n"
+        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
+        encoding="utf-8",
+    )
+    nested_file = nested / "query.bq"
+    nested_file.write_text("SELECT :value\n", encoding="utf-8")
+    linter = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = linter.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested_file)
+    ]
+
+
+def test__linter__file_exts_override_beats_nested_config(tmp_path):
+    """Overridden file extensions apply to all paths."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .bq\n", encoding="utf-8"
+    )
+    nested.joinpath("query.bq").write_text("SELECT 1\n", encoding="utf-8")
+    nested_file = nested / "query.sql"
+    nested_file.write_text("SELECT 1\n", encoding="utf-8")
+    linter = Linter(
+        config=FluffConfig.from_path(
+            str(tmp_path), overrides={"dialect": "ansi", "sql_file_exts": ".sql"}
+        )
+    )
+
+    result = linter.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested_file)
+    ]
+
+
+def test__linter__parse_path_uses_nested_templaters():
+    """Path parsing uses the templaters from nested configuration."""
+    root = "test/fixtures/linter/mixed_templaters"
+    linter = Linter(config=FluffConfig.from_path(root))
+
+    parsed = list(linter.parse_path(root))
+
+    assert len(parsed) == 2
+    assert not [violation for result in parsed for violation in result.violations]
 
 
 def test_advanced_api_methods():

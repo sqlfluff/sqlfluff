@@ -200,6 +200,17 @@ def load_config_string(
     return nested_combine(configs or {}, raw_config)
 
 
+# The potential config filenames we would look for at each path.
+# NB: later in this list overwrites earlier
+CONFIG_FILENAMES = (
+    "setup.cfg",
+    "tox.ini",
+    "pep8.ini",
+    ".sqlfluff",
+    "pyproject.toml",
+)
+
+
 @cache
 def load_config_at_path(path: str) -> ConfigMappingType:
     """Load config files at a given path.
@@ -220,16 +231,6 @@ def load_config_at_path(path: str) -> ConfigMappingType:
     results, such that configuration can be reused between files without
     reloading the information from disk.
     """
-    # The potential filenames we would look for at this path.
-    # NB: later in this list overwrites earlier
-    filename_options = [
-        "setup.cfg",
-        "tox.ini",
-        "pep8.ini",
-        ".sqlfluff",
-        "pyproject.toml",
-    ]
-
     configs: ConfigMappingType = {}
 
     if os.path.isdir(path):
@@ -245,7 +246,7 @@ def load_config_at_path(path: str) -> ConfigMappingType:
     d = os.listdir(p)
     # iterate this way round to make sure things overwrite is the right direction.
     # NOTE: The `configs` variable is passed back in at each stage.
-    for fname in filename_options:
+    for fname in CONFIG_FILENAMES:
         # Ignore any entries which aren't files. In particular this guards
         # against a *directory* sharing the name of a config file (e.g. a
         # directory named `.sqlfluff`), which would otherwise be opened as a
