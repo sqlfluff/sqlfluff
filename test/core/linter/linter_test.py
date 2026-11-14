@@ -26,6 +26,8 @@ from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
+from sqlfluff.core.plugin import hookimpl
+from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -481,15 +483,16 @@ def test__parallel_runner__iter_partials_non_worker_path(monkeypatch):
 
 @pytest.mark.parametrize("templates_in_worker", [True, False])
 def test__parallel_runner__root_config_for_workers(templates_in_worker, monkeypatch):
-    """Workers get the root config, without its dialect, only if they render."""
+    """Workers get the root config, without its dialect.
+
+    It's sent even if the root templater doesn't render in workers, as nested
+    config may select one which does.
+    """
     config = FluffConfig(overrides={"dialect": "ansi"})
     lntr = Linter(config=config)
     monkeypatch.setattr(lntr.templater, "templates_in_worker", templates_in_worker)
     thd_runner = runner.MultiThreadRunner(lntr, config, processes=2)
     pickled = thd_runner._root_config_for_workers()
-    if not templates_in_worker:
-        assert pickled is None
-        return
     worker_config = pickle.loads(pickled)
     assert worker_config.get("dialect") == "ansi"
     assert worker_config.get("dialect_obj") is None
@@ -1614,6 +1617,253 @@ def test__linter__parse_path_uses_nested_templaters():
 
     assert len(parsed) == 2
     assert not [violation for result in parsed for violation in result.violations]
+
+
+class StatefulTemplater(RawTemplater):
+    """A templater which renders in the main process and shares state by key."""
+
+    name = "stateful"
+    templates_in_worker = False
+    # What every instance did, set by the `stateful_events` fixture.
+    events: list = []
+    fail_close = False
+
+    def __init__(self):
+        super().__init__()
+        self.closed = False
+
+    def session_key(self, config):
+        """Share instances by the key in the templater's config section."""
+        return (self.name, str(config.get("key", section=("templater", self.name))))
+
+    def sequence_files(self, fnames, config=None, formatter=None):
+        """Render files in reverse order."""
+        return list(reversed(fnames))
+
+    def process(self, *, in_str, fname, config=None, formatter=None):
+        """Record which instance rendered which file."""
+        self.events.append(("render", fname, self))
+        return super().process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
+
+    def close(self):
+        """Record closing, and fail if asked to."""
+        self.closed = True
+        self.events.append(("close", self))
+        if self.fail_close:
+            raise RuntimeError("close failed")
+
+
+class UnkeyedTemplater(StatefulTemplater):
+    """A main-process templater which doesn't say how its state is shared."""
+
+    name = "unkeyed"
+    session_key = RawTemplater.session_key
+
+
+class _StatefulTemplaterPlugin:
+    """Provides the test templaters above."""
+
+    @hookimpl
+    def get_templaters(self):
+        """Return the test templaters."""
+        return [StatefulTemplater, UnkeyedTemplater]
+
+
+@pytest.fixture
+def stateful_events(monkeypatch):
+    """Provide the test templaters, and record what they do."""
+    events = []
+    monkeypatch.setattr(StatefulTemplater, "events", events)
+    plugin_manager = get_plugin_manager()
+    plugin = plugin_manager.register(_StatefulTemplaterPlugin())
+    yield events
+    plugin_manager.unregister(name=plugin)
+
+
+def _stateful_file(tmp_path, key, index=0, templater="stateful"):
+    """A file whose directory's config selects a test templater with a key.
+
+    Without a key, the directory has no config.
+    """
+    directory = tmp_path / (key or "plain")
+    directory.mkdir(exist_ok=True)
+    if key:
+        directory.joinpath(".sqlfluff").write_text(
+            f"[sqlfluff]\ntemplater = {templater}\n\n"
+            f"[sqlfluff:templater:{templater}]\nkey = {key}\n",
+            encoding="utf-8",
+        )
+    path = directory / f"{index}.sql"
+    path.write_text("select 1\n", encoding="utf-8")
+    return str(path)
+
+
+def test__linter__uses_nested_stateful_templater(tmp_path, stateful_events):
+    """A main-process templater with a session key can be set in nested config.
+
+    The session creates and closes its own instance, not the root templater.
+    """
+    fname = _stateful_file(tmp_path, "a")
+    lntr = Linter(dialect="ansi")
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(fname, lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == "select 1\n"
+    (_, _, session_templater), close_event = stateful_events
+    assert isinstance(session_templater, StatefulTemplater)
+    assert session_templater is not lntr.templater
+    assert close_event == ("close", session_templater)
+
+
+def test__linter__stateful_root_templater_is_shared_not_closed(
+    tmp_path, stateful_events
+):
+    """A stateful root templater renders files with its key, and isn't closed."""
+    fname = _stateful_file(tmp_path, None)
+    lntr = Linter(
+        config=FluffConfig(
+            configs={
+                "core": {"templater": "stateful"},
+                "templater": {"stateful": {"key": "a"}},
+            },
+            overrides={"dialect": "ansi"},
+        )
+    )
+    list(runner.SequentialRunner(lntr, lntr.config).run([fname], fix=False))
+    assert stateful_events == [("render", fname, lntr.templater)]
+    assert not lntr.templater.closed
+
+
+def test__linter__ignores_nested_unkeyed_templater_once(tmp_path, stateful_events):
+    """A nested main-process templater without a session key isn't used.
+
+    The warning is logged once, when the file is rendered.
+    """
+    fname = _stateful_file(tmp_path, "a", templater="unkeyed")
+    lntr = Linter(dialect="ansi")
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        list(runner.SequentialRunner(lntr, lntr.config).run([fname], fix=False))
+    assert caplog.text.count("Attempt to set templater to unkeyed failed") == 1
+    assert "cannot render in worker processes" in caplog.text
+    assert not stateful_events
+
+
+def test__sequential_runner__groups_files_by_templater(tmp_path, stateful_events):
+    """Each templater sequences its own files, which keep its places in order.
+
+    Each templater is closed after its last file.
+    """
+    fnames = [
+        _stateful_file(tmp_path, key, index)
+        for index, key in enumerate(["x", None, "x", "y", None])
+    ]
+    lntr = Linter(dialect="ansi")
+    linted = list(runner.SequentialRunner(lntr, lntr.config).run(fnames, fix=False))
+
+    # The "x" files are reversed, in the places of the "x" files.
+    assert [linted_file.path for linted_file in linted] == [
+        fnames[2],
+        fnames[1],
+        fnames[0],
+        fnames[3],
+        fnames[4],
+    ]
+    x_templater = stateful_events[0][2]
+    y_templater = stateful_events[3][2]
+    assert stateful_events == [
+        ("render", fnames[2], x_templater),
+        ("render", fnames[0], x_templater),
+        ("close", x_templater),
+        ("render", fnames[3], y_templater),
+        ("close", y_templater),
+    ]
+
+
+def test__parallel_runner__iter_partials_by_templater(tmp_path, stateful_events):
+    """Files are rendered where their own templater can render them."""
+    fnames = [
+        _stateful_file(tmp_path, key, index)
+        for index, key in enumerate([None, "x", "x"])
+    ]
+    lntr = Linter(dialect="ansi")
+    thd_runner = runner.MultiThreadRunner(lntr, lntr.config, processes=2)
+
+    partials = list(thd_runner.iter_partials(fnames))
+
+    assert [fname for fname, _ in partials] == [fnames[0], fnames[2], fnames[1]]
+    assert isinstance(partials[0][1], DeferredRenderTask)
+    assert [partial().path for _, partial in partials[1:]] == fnames[:0:-1]
+    assert stateful_events[-1][0] == "close"
+
+
+def test__linter__templater_session_close_failure(
+    tmp_path, monkeypatch, caplog, stateful_events
+):
+    """A templater which fails to close fails the operation.
+
+    Every templater is closed. Further failures are logged.
+    """
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fnames = [_stateful_file(tmp_path, key) for key in ("a", "b")]
+    lntr = Linter(dialect="ansi")
+    with pytest.raises(RuntimeError, match="close failed"):
+        with lntr.templater_session():
+            for fname in fnames:
+                lntr.render_file(fname, lntr.config)
+    assert [event[0] for event in stateful_events] == [
+        "render",
+        "render",
+        "close",
+        "close",
+    ]
+    assert "Failed to close templater" in caplog.text
+
+
+def test__linter__templater_session_close_failure_inside_handled_error(
+    tmp_path, monkeypatch, stateful_events
+):
+    """A close failure is raised if the operation succeeded, despite a handler.
+
+    The caller may be handling an unrelated exception around an operation
+    which succeeds. That mustn't hide a failing close.
+    """
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fname = _stateful_file(tmp_path, "a")
+    lntr = Linter(dialect="ansi")
+    with pytest.raises(RuntimeError, match="close failed"):
+        try:
+            raise ValueError("unrelated")
+        except ValueError:
+            lntr.render_file(fname, lntr.config)
+
+
+def test__linter__templater_session_close_failure_after_error(
+    tmp_path, monkeypatch, caplog, stateful_events
+):
+    """A close failure doesn't hide the error which ended the operation."""
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fname = _stateful_file(tmp_path, "a")
+    lntr = Linter(dialect="ansi")
+    with pytest.raises(ValueError, match="render failed"):
+        with lntr.templater_session():
+            lntr.render_file(fname, lntr.config)
+            raise ValueError("render failed")
+    assert "Failed to close templater session" in caplog.text
+
+
+def test__linter__closing_parse_path_ends_templater_session():
+    """Closing a partly consumed path parser ends its templater session."""
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root))
+    parsed = lntr.parse_path(root)
+
+    assert next(parsed).tree
+    assert lntr._templater_session
+    parsed.close()
+
+    assert not lntr._templater_session
 
 
 def test_advanced_api_methods():

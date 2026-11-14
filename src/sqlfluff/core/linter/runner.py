@@ -20,17 +20,22 @@ import signal
 import sys
 import traceback
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Iterator
+from collections import Counter, defaultdict, deque
+from collections.abc import Generator, Iterable, Iterator
 from contextvars import ContextVar
 from multiprocessing.shared_memory import SharedMemory
 from types import TracebackType
-from typing import Any, Callable, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, Union, cast
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile, RenderedFile
 from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.plugin.host import is_main_process
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.formatter import FormatterInterface
+    from sqlfluff.core.templaters import RawTemplater
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -193,6 +198,15 @@ def _warm_worker_apply(
         return DelayedException(e, fname=fname)
 
 
+class PreparedFile(NamedTuple):
+    """A file with its effective config and the templater to render it."""
+
+    fname: str
+    # Only built in advance if needed to choose the templater.
+    config: Optional[FluffConfig]
+    templater: "RawTemplater"
+
+
 class _WorkerState(NamedTuple):
     """What each parallel worker receives once, when its pool starts."""
 
@@ -225,16 +239,103 @@ class BaseRunner(ABC):
 
     pass_formatter = True
 
+    def _iter_prepared(
+        self, fnames: list[str], formatter: Optional["FormatterInterface"]
+    ) -> Iterator[PreparedFile]:
+        """Iterate through files with the templater for each, in render order.
+
+        Files are grouped by templater, so each templater can sequence its
+        own files. Those then fill the places in discovery order which that
+        templater's files had. Each templater created for the operation is
+        released after its last file.
+        """
+        with self.linter.templater_session():
+            groups: dict[int, list[tuple[int, PreparedFile]]] = {}
+            # Whether files in each directory may need a templater other than
+            # the root one. Their configs are only built here if so.
+            may_select_by_dir: dict[str, bool] = {}
+            for index, fname in enumerate(fnames):
+                dirname = os.path.dirname(fname)
+                if dirname not in may_select_by_dir:
+                    may_select_by_dir[dirname] = (
+                        self.linter._may_select_nested_templater(fname)
+                    )
+                config: Optional[FluffConfig] = None
+                templater = self.linter.templater
+                if may_select_by_dir[dirname]:
+                    config = self.config.make_child_from_path(
+                        fname, require_dialect=False
+                    )
+                    # Any warning is logged when the file is rendered.
+                    templater = self.linter.templater_for_config(
+                        config, fname, warn=False
+                    )
+                groups.setdefault(id(templater), []).append(
+                    (index, PreparedFile(fname, config, templater))
+                )
+            ordered: dict[int, PreparedFile] = {}
+            for group in groups.values():
+                templater = group[0][1].templater
+                files_by_name: dict[str, deque[PreparedFile]] = defaultdict(deque)
+                for _, prepared in group:
+                    files_by_name[prepared.fname].append(prepared)
+                sequenced = templater.sequence_files(
+                    [prepared.fname for _, prepared in group],
+                    # The root templater is sequenced with the root config.
+                    # Other templaters are only chosen with a file's config.
+                    config=(
+                        self.config
+                        if templater is self.linter.templater
+                        else cast(FluffConfig, group[0][1].config)
+                    ),
+                    formatter=formatter,
+                )
+                for (index, _), fname in zip(group, sequenced):
+                    ordered[index] = files_by_name[fname].popleft()
+            remaining = Counter(id(prepared.templater) for prepared in ordered.values())
+            for index in sorted(ordered):
+                prepared = ordered[index]
+                yield prepared
+                remaining[id(prepared.templater)] -= 1
+                if not remaining[id(prepared.templater)]:
+                    self.linter.release_templater(prepared.templater)
+
+    def _render(self, prepared: PreparedFile) -> Optional[RenderedFile]:
+        """Render a file, or return None if it's skipped."""
+        try:
+            if prepared.config is None:
+                return self.linter.render_file(prepared.fname, self.config)
+            raw_file, encoding = self.linter.load_raw_file(
+                prepared.fname, prepared.config
+            )
+            return self.linter.render_string(
+                raw_file, prepared.fname, prepared.config, encoding
+            )
+        except SQLFluffSkipFile as s:
+            linter_logger.warning(str(s))
+            self.skipped_file_count += 1
+            return None
+
+    def _lint_partial(self, rendered: RenderedFile, fix: bool) -> PartialLintCallable:
+        """Make a callable which lints a rendered file."""
+        # Generate a fresh ruleset
+        rule_pack = self.linter.get_rulepack(config=rendered.config)
+        return functools.partial(
+            self.linter.lint_rendered,
+            rendered,
+            rule_pack,
+            fix,
+            # Formatters may or may not be passed. They don't pickle
+            # nicely so aren't appropriate in a multiprocessing world.
+            self.linter.formatter if self.pass_formatter else None,
+        )
+
     def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
-        for fname in self.linter.templater.sequence_files(
-            fnames, config=self.config, formatter=self.linter.formatter
-        ):
-            try:
-                yield fname, self.linter.render_file(fname, self.config)
-            except SQLFluffSkipFile as s:
-                linter_logger.warning(str(s))
-                self.skipped_file_count += 1
+        for prepared in self._iter_prepared(fnames, self.linter.formatter):
+            rendered = self._render(prepared)
+            if rendered is not None:
+                yield prepared.fname, rendered
 
     def iter_partials(
         self,
@@ -246,20 +347,7 @@ class BaseRunner(ABC):
         Generates filenames and objects which return LintedFiles.
         """
         for fname, rendered in self.iter_rendered(fnames):
-            # Generate a fresh ruleset
-            rule_pack = self.linter.get_rulepack(config=rendered.config)
-            yield (
-                fname,
-                functools.partial(
-                    self.linter.lint_rendered,
-                    rendered,
-                    rule_pack,
-                    fix,
-                    # Formatters may or may not be passed. They don't pickle
-                    # nicely so aren't appropriate in a multiprocessing world.
-                    self.linter.formatter if self.pass_formatter else None,
-                ),
-            )
+            yield fname, self._lint_partial(rendered, fix)
 
     @abstractmethod
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
@@ -335,26 +423,29 @@ class ParallelRunner(BaseRunner):
         self,
         fnames: list[str],
         fix: bool = False,
-    ) -> Iterator[tuple[str, Union[PartialLintCallable, DeferredRenderTask]]]:
+    ) -> Generator[
+        tuple[str, Union[PartialLintCallable, DeferredRenderTask]], None, None
+    ]:
         """Iterate through partials or deferred tasks for parallel linting.
 
-        When the active templater supports worker-side rendering
+        For files whose templater supports worker-side rendering
         (``templates_in_worker = True``), we emit a lightweight
         ``DeferredRenderTask`` containing only the filename. The worker
         process calls ``render_file`` itself, with the root config it got
         when the pool started, keeping the full ``RenderedFile`` off the IPC
         boundary.
 
-        For templaters that require main-process state (e.g. dbt), we fall
-        back to the base-class behaviour and template in the main process.
+        For templaters that require main-process state (e.g. dbt), we
+        template in the main process and emit a callable which lints the
+        rendered file.
         """
-        if self.linter.templater.templates_in_worker:
-            for fname in self.linter.templater.sequence_files(
-                fnames, config=self.config, formatter=None
-            ):
-                yield fname, DeferredRenderTask(fname, fix)
-        else:
-            yield from super().iter_partials(fnames, fix=fix)
+        for prepared in self._iter_prepared(fnames, None):
+            if prepared.templater.templates_in_worker:
+                yield prepared.fname, DeferredRenderTask(prepared.fname, fix)
+                continue
+            rendered = self._render(prepared)
+            if rendered is not None:
+                yield prepared.fname, self._lint_partial(rendered, fix)
 
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
@@ -369,6 +460,7 @@ class ParallelRunner(BaseRunner):
         # processes may still be alive when Python's resource_tracker runs at
         # shutdown, causing "leaked semaphore objects" warnings from the named
         # POSIX semaphores used by the pool's internal SimpleQueue locks.
+        partials = self.iter_partials(fnames, fix=fix)
         pool = self._create_pool(
             self.processes,
             # Send each worker the root config once, rather than with every file.
@@ -380,7 +472,7 @@ class ParallelRunner(BaseRunner):
             for lint_result in self._map(
                 pool,
                 self._apply,
-                self.iter_partials(fnames, fix=fix),
+                partials,
             ):
                 handled = self._handle_result(lint_result, fix)
                 if handled is not None:
@@ -395,14 +487,15 @@ class ParallelRunner(BaseRunner):
                 pool.terminate()
             finally:
                 pool.join()
+                # Close the templater session now, even if we stopped early.
+                partials.close()
 
     def _root_config_for_workers(self) -> Optional[bytes]:
         """The pickled root config to send each worker, so it can render files.
 
-        Templaters which render in the main process (e.g. dbt) don't need it.
+        Nested configuration may select a templater which renders in workers
+        even if the root templater doesn't, so it's always sent.
         """
-        if not self.linter.templater.templates_in_worker:
-            return None
         config = self.config.copy()
         # Workers build each file's config, with its own dialect, from the
         # file's path, so they never use the root config's expanded dialect.
