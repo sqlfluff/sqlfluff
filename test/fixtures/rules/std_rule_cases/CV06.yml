@@ -751,6 +751,216 @@ test_pass_tsql_batch_already_has_semicolon:
       convention.terminator:
         require_final_semicolon: true
 
+test_fail_tsql_function_nested_statements:
+  # https://github.com/sqlfluff/sqlfluff/issues/2588
+  fail_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int
+        IF 1 = 1 SET @result = 1
+        ELSE
+            BEGIN
+                SET @result = 0
+            END
+
+        RETURN @result
+    END;
+  fix_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int;
+        IF 1 = 1 SET @result = 1;
+        ELSE
+            BEGIN
+                SET @result = 0;
+            END
+
+        RETURN @result;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_function_nested_statements_already_terminated:
+  pass_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int;
+        IF 1 = 1 SET @result = 1;
+        ELSE
+            BEGIN
+                SET @result = 0;
+            END
+
+        RETURN @result;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_procedure_consecutive_statements:
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT
+      SET @value = 1
+      RETURN
+    END;
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT;
+      SET @value = 1;
+      RETURN;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_nested_and_outer_missing_terminators:
+  # Keep the inner and enclosing fixes separate to avoid adding END;;.
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      SELECT 1
+      SELECT 2
+    END
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      SELECT 1;
+      SELECT 2;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_nested_partially_terminated:
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT;
+      IF 1 = 1 SET @value = 1;
+      ELSE BEGIN SET @value = 0 END
+      RETURN
+    END;
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT;
+      IF 1 = 1 SET @value = 1;
+      ELSE BEGIN SET @value = 0; END
+      RETURN;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_nested_default_disabled:
+  pass_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT
+      SET @value = 1
+      RETURN
+    END;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_nested_inline_comment:
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT -- keep the comment
+      SET @value = 1
+    END;
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      DECLARE @value INT; -- keep the comment
+      SET @value = 1;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_nested_multiline_newline:
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      SELECT id
+      FROM t
+      SELECT 2
+    END;
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      SELECT id
+      FROM t
+    ;
+      SELECT 2;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_tsql_nested_while_body:
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      WHILE 1 = 1 SET @value = 1
+      RETURN
+    END;
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      WHILE 1 = 1 SET @value = 1;
+      RETURN;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_nested_if_subquery_condition:
+  fail_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      IF EXISTS (SELECT 1) SET @value = 1
+      RETURN @value
+    END;
+  fix_str: |
+    CREATE PROCEDURE dbo.p AS BEGIN
+      IF EXISTS (SELECT 1) SET @value = 1;
+      RETURN @value;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
 # BigQuery specific tests for multi_statement_segment handling (procedures)
 test_pass_bigquery_procedure_with_semicolon:
   pass_str: |
