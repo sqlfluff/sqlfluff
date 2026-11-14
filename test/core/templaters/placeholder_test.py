@@ -488,3 +488,125 @@ def test__templater_styles():
     t = PlaceholderTemplater(override_context=dict(param_style="pperccent"))
     with pytest.raises(ValueError, match=r"Unknown param_style"):
         t.process(in_str="SELECT 2+2", fname="test")
+
+
+@pytest.mark.parametrize(
+    "param_style,instr,values,expected",
+    [
+        (
+            "colon, pyformat, percent",
+            "SELECT :name, %(name)s, %s, :missing",
+            {"name": "'john'", "1": "42"},
+            "SELECT 'john', 'john', 42, missing",
+        ),
+        (
+            ["colon", "pyformat"],
+            "SELECT %(value)s, :value",
+            {"value": "42"},
+            "SELECT 42, 42",
+        ),
+        (
+            "pyformat, colon_optional_quotes, question_mark, percent",
+            "SELECT %(name)s, :\"column\", :'name', :count, ?, %s",
+            {"name": "john", "column": "full_name", "count": "3", "1": "7", "2": "8"},
+            "SELECT john, \"full_name\", 'john', 3, 7, 8",
+        ),
+        (
+            "colon_optional_quotes, pyformat",
+            'SELECT :"column", %(name)s',
+            {"column": "full_name", "name": "john"},
+            'SELECT "full_name", john',
+        ),
+        (
+            "colon, question_mark, percent",
+            "SELECT ?, :name, %s, ?",
+            {"name": "named", "1": "first", "2": "second", "3": "third"},
+            "SELECT first, named, second, third",
+        ),
+        (
+            "dollar_surround, dollar",
+            "SELECT $name$, $name, ${name}",
+            {"name": "value"},
+            "SELECT value, value, value",
+        ),
+        (
+            "dollar, dollar_surround",
+            "SELECT $name$",
+            {"name": "value"},
+            "SELECT value$",
+        ),
+        (
+            "colon, colon, numeric_colon",
+            "SELECT :1, :name",
+            {"1": "42", "name": "value"},
+            "SELECT 42, value",
+        ),
+        (
+            "colon, pyformat, question_mark",
+            "SELECT :name, %(value)s, ?",
+            {"name": "%(value)s", "value": ":name", "1": "?"},
+            "SELECT %(value)s, :name, ?",
+        ),
+        (
+            "colon, percent",
+            "SELECT 1",
+            {},
+            "SELECT 1",
+        ),
+    ],
+)
+def test__templater_multiple_param_styles(param_style, instr, values, expected):
+    """Replace mixed styles in source order without revisiting replacements."""
+    t = PlaceholderTemplater(override_context={**values, "param_style": param_style})
+    outstr, violations = t.process(in_str=instr, fname="test")
+    assert str(outstr) == expected
+    assert not violations
+    assert "".join(raw_slice.raw for raw_slice in outstr.raw_sliced) == instr
+    source_pos = templated_pos = 0
+    for file_slice in outstr.sliced_file:
+        assert file_slice.source_slice.start == source_pos
+        assert file_slice.templated_slice.start == templated_pos
+        source_pos = file_slice.source_slice.stop
+        templated_pos = file_slice.templated_slice.stop
+        if file_slice.slice_type == "literal":
+            assert (
+                instr[file_slice.source_slice] == expected[file_slice.templated_slice]
+            )
+    assert source_pos == len(instr)
+    assert templated_pos == len(expected)
+
+
+@pytest.mark.parametrize(
+    "param_style,error",
+    [
+        ("colon, unknown", 'Unknown param_style "unknown"'),
+        ("", "At least one param_style must be provided"),
+        (" , ", "At least one param_style must be provided"),
+        ([], "At least one param_style must be provided"),
+    ],
+)
+def test__templater_multiple_param_styles_invalid(param_style, error):
+    """Reject unknown or empty style lists before replacing parameters."""
+    t = PlaceholderTemplater(override_context={"param_style": param_style})
+    with pytest.raises(ValueError, match=error):
+        t.process(in_str="SELECT :name", fname="test")
+
+
+def test__templater_multiple_param_styles_config():
+    """Read a comma-separated style list from an INI configuration."""
+    config = FluffConfig.from_string(
+        """
+[sqlfluff]
+dialect = ansi
+templater = placeholder
+[sqlfluff:templater:placeholder]
+param_style = colon, pyformat, percent
+name = 'john'
+1 = 42
+"""
+    )
+    outstr, violations = PlaceholderTemplater().process(
+        in_str="SELECT :name, %(name)s, %s", fname="test", config=config
+    )
+    assert str(outstr) == "SELECT 'john', 'john', 42"
+    assert not violations

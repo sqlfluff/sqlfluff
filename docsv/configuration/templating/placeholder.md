@@ -88,6 +88,25 @@ param_style = question_mark
 1 = 'john'
 ```
 
+To process multiple styles, set `param_style` to a comma-separated list:
+
+```ini
+[sqlfluff:templater:placeholder]
+param_style = colon, pyformat, percent
+my_name = 'john'
+1 = 42
+```
+
+This replaces both `:my_name` and `%(my_name)s` with `'john'`, and the first
+`%s` with `42`. Positional parameters share one counter across all selected
+styles, in the order they appear in the SQL. Named parameters do not advance
+that counter. Replacements are not processed again.
+
+If multiple styles match at the same position, the first listed style wins.
+List more specific styles first, for example `dollar_surround, dollar` to
+match `$my_name$` before `$my_name`. A TOML configuration can also use a list
+of strings, such as `param_style = ["colon", "pyformat"]`.
+
 In case you need a parameter style different from the ones above, you can pass
 a custom regex.
 

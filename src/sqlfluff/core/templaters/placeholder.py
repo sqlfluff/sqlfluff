@@ -9,6 +9,7 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import offset_slice
+from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     RawTemplater,
@@ -25,7 +26,8 @@ KNOWN_STYLES = {
     "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)", regex.UNICODE),
     # e.g. SELECT :"column" FROM :table WHERE bla = :'name'
     "colon_optional_quotes": regex.compile(
-        r"(?<![:\w\x5c]):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)\1", regex.UNICODE
+        r"(?<![:\w\x5c]):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)(?P=quotation)",
+        regex.UNICODE,
     ),
     # e.g. WHERE bla = table:name - use with caution as more prone to false positives
     "colon_nospaces": regex.compile(r"(?<!:):(?P<param_name>\w+)", regex.UNICODE),
@@ -109,14 +111,24 @@ class PlaceholderTemplater(RawTemplater):
                 live_context["param_regex"]
             )
         elif "param_style" in live_context:
-            param_style = live_context["param_style"]
-            if param_style not in KNOWN_STYLES:
-                raise ValueError(
-                    'Unknown param_style "{}", available are: {}'.format(
-                        param_style, list(KNOWN_STYLES.keys())
+            param_styles = split_comma_separated_string(live_context["param_style"])
+            if not param_styles:
+                raise ValueError("At least one param_style must be provided")
+            for param_style in param_styles:
+                if param_style not in KNOWN_STYLES:
+                    raise ValueError(
+                        'Unknown param_style "{}", available are: {}'.format(
+                            param_style, list(KNOWN_STYLES.keys())
+                        )
                     )
-                )
-            live_context["__bind_param_regex"] = KNOWN_STYLES[param_style]
+            # Keep each style in a separate alternative so positional parameters
+            # and repeated named groups work in a single pass over the source.
+            live_context["__bind_param_regex"] = regex.compile(
+                "|".join(
+                    f"(?:{KNOWN_STYLES[style].pattern})" for style in param_styles
+                ),
+                regex.UNICODE,
+            )
         else:
             raise ValueError(
                 "No param_regex nor param_style was provided to the placeholder "
@@ -176,8 +188,8 @@ class PlaceholderTemplater(RawTemplater):
                 replacement = str(context[param_name])
             else:
                 replacement = param_name
-            if "quotation" in found_param.groupdict():
-                quotation = found_param["quotation"]
+            quotation = found_param.groupdict().get("quotation")
+            if quotation:
                 replacement = quotation + replacement + quotation
             # add the literal to the slices
             template_slices.append(
