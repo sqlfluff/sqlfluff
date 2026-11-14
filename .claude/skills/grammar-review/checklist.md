@@ -26,10 +26,12 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
      element, so `AnySetOf(OneOf("A", "B"), "C")` deliberately allows only one of A or B;
    - it sits inside `Sequence`, `Bracketed` or `OptionallyBracketed`, whose args are a sequence.
 2. **No pointless wrappers.**
-   - Single-element `Sequence`/`OneOf`: remove. Exception: keep it at the top level of a segment's `match_grammar`,
+   - Single-element `Sequence`/`OneOf` with no kwargs: remove. With only `optional=True`, move it onto the element
+     (`OneOf("A", optional=True)` → `Ref.keyword("A", optional=True)`). Other kwargs (`exclude`, `terminators`,
+     `parse_mode`) change matching, so keep the wrapper. Exception: keep it at the top level of a segment's `match_grammar`,
      which must be a grammar object, not a bare string (`match_grammar = Sequence("NULL")`).
    - A `Sequence` with no kwargs inside a `Sequence`: flatten.
-   - `Ref.keyword("KW")` → `"KW"`. Exception: inside `.copy(insert=[...])` lists a bare
+   - `Ref.keyword("KW")` with no kwargs → `"KW"`. Exception: inside `.copy(insert=[...])` lists a bare
      string isn't resolved and fails at parse time (`'str' object has no attribute 'simple'`), so keep `Ref.keyword` there.
    - `Sequence(x, optional=True)` → `x` with `optional=True`.
 3. **`optional=True` on a direct child of `OneOf`/`AnySetOf`/`AnyNumberOf`/`Delimited` does

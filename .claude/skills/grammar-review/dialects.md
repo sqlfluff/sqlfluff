@@ -52,8 +52,9 @@ unless the client has to run on the host, and then bind to `127.0.0.1` only.
 **Statement runner.** `./sql_run.py ENGINE FIXTURE [SETUP...]` (from this folder) covers db2, postgres,
 sqlite and duckdb. It gives each statement a fresh schema and a PASS/SYNTAX/SEMANTIC/UNKNOWN verdict.
 `./sql_run.py selftest` checks it without Docker. To add an engine, add one entry to its `ENGINES` table.
-It splits on `;`, so compound `BEGIN … END` bodies (procedures, functions, PL/SQL blocks; sqlite triggers
-are fine) get cut at inner semicolons: run those through the engine's own command below instead.
+It splits on `;` outside quotes, comments and `$$` bodies, so postgres/duckdb dollar-quoted functions and sqlite
+triggers stay whole. Unquoted compound `BEGIN … END` blocks (PL/SQL, T-SQL, Db2 compound SQL) get cut at inner
+semicolons: run those through the engine's own command below instead.
 
 **The table commands are whole-file checks.** They run the fixture as one batch against one
 mutable database, so an early statement can change what later ones see. Treat them as best-effort, not
