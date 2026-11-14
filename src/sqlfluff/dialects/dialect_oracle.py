@@ -121,10 +121,10 @@ oracle_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "alternative_quote",
-            r"(?is)n?q'(?:\[.*?\]|\{.*?\}|\(.*?\)|<.*?>|"
-            r"(?P<delimiter>[^\s\[\{(<]).*?(?P=delimiter))'",
+            r"(?s)[nN]?[qQ]'(?:\[.*?\]|\{.*?\}|\(.*?\)|<.*?>|"
+            r"(?P<delimiter>[^ \t\r\n\[\{(<]).*?(?P=delimiter))'",
             CodeSegment,
-            segment_kwargs={"quoted_value": (r"(?is)n?q'.(.*).'", 1)},
+            segment_kwargs={"quoted_value": (r"(?s)[nN]?[qQ]'.(.*).'", 1)},
         ),
         RegexLexer(
             "prompt_command",

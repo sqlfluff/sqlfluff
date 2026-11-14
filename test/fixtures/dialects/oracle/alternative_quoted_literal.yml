@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5bcef90450d2e0d568e79214055f7f8fe9df9385f1a44435de0f14da3c5d1ff
+_hash: 7a2a555b232680f5888866871b779daccd171790de8711866a2e73a5f9a962f3
 file:
   batch:
   - statement:
@@ -106,6 +106,40 @@ file:
           keyword: SELECT
           select_clause_element:
             quoted_literal: "q'界it's界'"
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "q'aone A' two a'"
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "Q'Aone a' two A'"
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "nQ' it's '"
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "Nq' text '"
         from_clause:
           keyword: FROM
           from_expression:
