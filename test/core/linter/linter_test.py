@@ -1393,6 +1393,9 @@ def test__linter__root_config_templater_used(tmp_path):
         rendered = lntr.render_file(str(tmp_path / "query.sql"), lntr.config)
     # The file's own config has the default templater, as on main.
     assert "Attempt to set templater to jinja failed" in caplog.text
+    # Both templaters can render in workers, so the warning doesn't say that
+    # they can't.
+    assert "cannot render in worker processes" not in caplog.text
     assert rendered.templated_variants[0].templated_str == "SELECT {{ 1 }}\n"
 
 
@@ -1461,6 +1464,7 @@ def test__linter__ignores_nested_main_process_templater(main_process_root):
             encoding="utf-8",
         )
     assert "Attempt to set templater to " in caplog.text
+    assert "cannot render in worker processes" in caplog.text
     expected = "select {{ 1 }}" if main_process_root else "select 1"
     assert rendered.templated_variants[0].templated_str == expected
 
