@@ -1206,3 +1206,148 @@ test_fail_no_fix_list_wrapping_fill_jinja:
       max_line_length: 45
     indentation:
       list_wrapping: fill
+
+test_pass_ignore_url_comment_lines_url:
+  pass_str: '-- https://example.com/a/long/path
+
+    SELECT 1'
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_indented:
+  pass_str: "    --  http://example.com/a/long/path  \nSELECT 1"
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_no_gap:
+  pass_str: --https://example.com/a/long/path
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_pass_ignore_url_comment_lines_mysql:
+  pass_str: '# https://example.com/a/long/path
+
+    SELECT 1'
+  configs:
+    core:
+      max_line_length: 25
+      dialect: mysql
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_default:
+  fail_str: -- https://example.com/a/long/path
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines: {}
+
+test_fail_ignore_url_comment_lines_prose:
+  fail_str: -- See https://example.com/a/long/path
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_trailing_prose:
+  fail_str: -- https://example.com/a/long/path documentation
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_multiple_urls:
+  fail_str: -- https://example.com/one https://example.com/two
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_trailing_comment:
+  fail_str: SELECT 1 -- https://example.com/a/long/path
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_block_comment:
+  fail_str: /* https://example.com/a/long/path */
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_sql:
+  fail_str: SELECT some_long_column FROM tbl
+  fix_str: "SELECT some_long_column\nFROM tbl"
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_other_line:
+  fail_str: '-- https://example.com/a/long/path
+
+    -- Some long prose comment still reports'
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+        ignore_comment_clauses: true
+
+test_fail_ignore_url_comment_lines_block_prefix:
+  fail_str: '/* block
+
+    */ -- https://example.com/a/long/path'
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_jinja_prefix:
+  fail_str: '{{ ''SELECT 1'' }} -- https://example.com/a/long/path'
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
+
+test_fail_ignore_url_comment_lines_jinja_comment_prefix:
+  fail_str: '{# source comment #} -- https://example.com/a/long/path'
+  configs:
+    core:
+      max_line_length: 25
+    rules:
+      layout.long_lines:
+        ignore_url_comment_lines: true
