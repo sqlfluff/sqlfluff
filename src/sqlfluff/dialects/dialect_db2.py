@@ -152,6 +152,18 @@ db2_dialect.replace(
         Ref("SingleIdentifierGrammar"),
         Ref("DropBehaviorGrammar", optional=True),
     ),
+    ColumnGeneratedGrammar=Sequence(
+        "GENERATED",
+        OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
+        "AS",
+        OneOf(
+            Sequence(
+                "IDENTITY",
+                Bracketed(Ref("IdentityOptionsGrammar"), optional=True),
+            ),
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+    ),
 )
 
 
@@ -325,6 +337,33 @@ db2_dialect.add(
             "VALUES",
             optional=True,
         ),
+    ),
+    # Options of a `GENERATED ... AS IDENTITY` column. Db2 allows identity
+    # values to be signed, hence the wider literal grammar.
+    IdentityValueGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("QualifiedNumericLiteralSegment"),
+    ),
+    IdentityOptionsGrammar=AnyNumberOf(
+        OneOf(
+            Sequence("START", "WITH", Ref("IdentityValueGrammar")),
+            Sequence("INCREMENT", "BY", Ref("IdentityValueGrammar")),
+            Sequence("MINVALUE", Ref("IdentityValueGrammar")),
+            Sequence("MAXVALUE", Ref("IdentityValueGrammar")),
+            Sequence("NO", "MINVALUE"),
+            "NOMINVALUE",
+            Sequence("NO", "MAXVALUE"),
+            "NOMAXVALUE",
+            "CYCLE",
+            Sequence("NO", "CYCLE"),
+            "NOCYCLE",
+            Sequence("CACHE", Ref("IdentityValueGrammar")),
+            Sequence("NO", "CACHE"),
+            "NOCACHE",
+            "ORDER",
+            Sequence("NO", "ORDER"),
+            "NOORDER",
+        )
     ),
 )
 
