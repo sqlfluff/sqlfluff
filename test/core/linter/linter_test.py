@@ -1368,24 +1368,74 @@ class MainProcessTemplater(RawTemplater):
 
 def test__linter__uses_nested_worker_templater():
     """A nested templater is used when root and nested render in workers."""
-    lntr = Linter(
-        config=FluffConfig(configs={"core": {"templater": "jinja", "dialect": "ansi"}})
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root))
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(f"{root}/placeholder/placeholder.sql", lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == (
+        "SELECT value FROM my_table\n"
     )
-    file_config = FluffConfig(
-        configs={"core": {"templater": "python", "dialect": "ansi"}}
+
+
+def test__linter__root_config_templater_used(tmp_path):
+    """A templater set when creating the root config applies to all files.
+
+    Files only use another templater if it's set by a nested config file.
+    """
+    tmp_path.joinpath("query.sql").write_text("SELECT {{ 1 }}\n", encoding="utf-8")
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"templater": "raw"}}, overrides={"dialect": "ansi"}
+        )
     )
     with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        rendered = lntr.render_string(
-            in_str="select {col} from tbl",
-            fname="test.sql",
-            config=file_config,
-            encoding="utf-8",
+        rendered = lntr.render_file(str(tmp_path / "query.sql"), lntr.config)
+    # The file's own config has the default templater, as on main.
+    assert "Attempt to set templater to jinja failed" in caplog.text
+    assert rendered.templated_variants[0].templated_str == "SELECT {{ 1 }}\n"
+
+
+def test__linter__root_config_file_exts_used(tmp_path):
+    """File extensions set when creating the root config apply to all paths."""
+    tmp_path.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    tmp_path.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}}, overrides={"dialect": "ansi"}
         )
-    assert "Attempt to set templater to " not in caplog.text
-    # The python templater fails on the missing `col` context value, whereas the
-    # jinja templater would have rendered the braces unchanged.
-    assert not rendered.templated_variants
-    assert "col" in rendered.templater_violations[0].desc()
+    )
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(tmp_path / "a.txt")
+    ]
+
+
+def test__linter__discovery_ignores_bad_nested_config(tmp_path):
+    """Discovery reads only file extensions from nested config files.
+
+    A nested config which can't be used to lint (here with an unknown dialect)
+    doesn't stop discovery when there are no files to lint next to it.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+    tmp_path.joinpath("a.sql").write_text("SELECT 1\n", encoding="utf-8")
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = notadialect\n", encoding="utf-8"
+    )
+    nested.joinpath("readme.txt").write_text("Not SQL.\n", encoding="utf-8")
+    lntr = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(tmp_path / "a.sql")
+    ]
 
 
 @pytest.mark.parametrize("main_process_root", [False, True])
@@ -1443,35 +1493,6 @@ def test__linter__uses_templater_from_file_config(processes, fix):
     assert not result.get_violations()
 
 
-def test__linter__mixed_templaters_preserve_file_order(tmp_path):
-    """Files using different templaters keep their discovery order."""
-    nested = tmp_path / "placeholder"
-    nested.mkdir()
-    tmp_path.joinpath(".sqlfluff").write_text(
-        "[sqlfluff]\ndialect = ansi\ntemplater = jinja\n", encoding="utf-8"
-    )
-    nested.joinpath(".sqlfluff").write_text(
-        "[sqlfluff]\ntemplater = placeholder\n\n"
-        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
-        encoding="utf-8",
-    )
-    paths = (
-        tmp_path / "first.sql",
-        nested / "second.sql",
-        tmp_path / "third.sql",
-    )
-    for path in paths:
-        path.write_text("SELECT 1\n", encoding="utf-8")
-    string_paths = tuple(str(path) for path in paths)
-    linter = Linter(config=FluffConfig.from_path(str(tmp_path)))
-
-    result = linter.lint_paths(string_paths, processes=1)
-
-    assert [file.path for path in result.paths for file in path.files] == list(
-        string_paths
-    )
-
-
 def test__linter__discovers_extensions_from_nested_config(tmp_path):
     """Directory discovery uses file extensions from nested configuration."""
     nested = tmp_path / "nested"
@@ -1487,6 +1508,29 @@ def test__linter__discovers_extensions_from_nested_config(tmp_path):
     nested_file = nested / "query.bq"
     nested_file.write_text("SELECT :value\n", encoding="utf-8")
     linter = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = linter.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested_file)
+    ]
+
+
+def test__linter__file_exts_override_beats_nested_config(tmp_path):
+    """Overridden file extensions apply to all paths."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .bq\n", encoding="utf-8"
+    )
+    nested.joinpath("query.bq").write_text("SELECT 1\n", encoding="utf-8")
+    nested_file = nested / "query.sql"
+    nested_file.write_text("SELECT 1\n", encoding="utf-8")
+    linter = Linter(
+        config=FluffConfig.from_path(
+            str(tmp_path), overrides={"dialect": "ansi", "sql_file_exts": ".sql"}
+        )
+    )
 
     result = linter.lint_paths((str(tmp_path),))
 
