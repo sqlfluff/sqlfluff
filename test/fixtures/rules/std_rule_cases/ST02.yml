@@ -452,3 +452,35 @@ test_pass_differently_cased_clickhouse_indexed_columns_no_else:
   configs:
     core:
       dialect: clickhouse
+
+test_pass_case_statement_with_returns_oracle:
+  pass_str: |
+    FUNCTION thing() RETURN VARCHAR2
+    IS
+    BEGIN
+        CASE thing
+            WHEN 'green' THEN
+                CASE
+                    WHEN x = 'Y' THEN RETURN 'N1';
+                    ELSE RETURN 'GREEN';
+                END CASE;
+            ELSE RETURN 'NONE';
+        END CASE;
+    END thing;
+  configs:
+    core:
+      dialect: oracle
+test_pass_searched_case_statement_with_return_else_oracle:
+  pass_str: |
+    FUNCTION thing() RETURN VARCHAR2
+    IS
+    BEGIN
+        CASE
+            WHEN x IS NOT NULL THEN 'value'
+            ELSE RETURN 'NONE';
+        END CASE;
+    END thing;
+  configs:
+    core:
+      dialect: oracle
+
