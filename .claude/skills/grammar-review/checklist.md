@@ -26,9 +26,10 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
      element, so `AnySetOf(OneOf("A", "B"), "C")` deliberately allows only one of A or B;
    - it sits inside `Sequence`, `Bracketed` or `OptionallyBracketed`, whose args are a sequence.
 2. **No pointless wrappers.**
-   - Single-element `Sequence`/`OneOf`: remove.
+   - Single-element `Sequence`/`OneOf`: remove. Exception: keep it at the top level of a segment's `match_grammar`,
+     which must be a grammar object, not a bare string (`match_grammar = Sequence("NULL")`).
    - A `Sequence` with no kwargs inside a `Sequence`: flatten.
-   - `Ref.keyword("KW")` → `"KW"`. Exception: inside `.copy(insert=[...])`/`.copy(replace=...)` lists a bare
+   - `Ref.keyword("KW")` → `"KW"`. Exception: inside `.copy(insert=[...])` lists a bare
      string isn't resolved and fails at parse time (`'str' object has no attribute 'simple'`), so keep `Ref.keyword` there.
    - `Sequence(x, optional=True)` → `x` with `optional=True`.
 3. **`optional=True` on a direct child of `OneOf`/`AnySetOf`/`AnyNumberOf`/`Delimited` does
@@ -104,9 +105,10 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
 ## Tests and fixtures
 
 29. **Blocking:** `.yml` files must be regenerated, never hand-edited. A parent/ANSI change → regenerate every inheriting dialect.
-30. **Required:** a fixture for every new branch and every modified grammar, and it must use the new keyword.
-    Keep the old case, and test repeated forms.
-31. **Required:** test with SQL/YAML fixtures, not Python tests in `test/dialects/*_test.py`.
+30. **Required:** a fixture for every new branch and every modified grammar. If the change adds a keyword, the
+    fixture must use it. Keep the old case, and test repeated forms where the syntax allows repeats.
+31. **Required:** test with SQL/YAML fixtures. Python tests in `test/dialects/*_test.py` only for what a fixture
+    can't express.
 32. **Required:** put the fixture in the most specific dialect and the right `<statement>.sql`. Extend that file rather than duplicating it.
 33. **Nit:** files end with a trailing newline.
 
@@ -116,7 +118,7 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
 35. **Suggestion:** one dialect and one statement per PR. Gaps outside the PR's scope that turn up in review go to
     a follow-up PR, not a blocker. A dialect fix shouldn't pull in core parser changes; if it needs them, they
     get their own PR.
-36. **Required:** a new dialect also needs entries in `pyproject.toml` keywords, the README, `.github/labeler.yml` and `core/dialects/__init__.py`.
+36. **Required:** a new dialect also needs entries in `pyproject.toml` keywords, the README, `.github/labeler.yml` and `src/sqlfluff/core/dialects/__init__.py`.
 37. **Question:** for AI-assisted PRs, has the author reviewed the code and answered cubic's comments?
 38. **Nit:** if CI lint fails, run pre-commit (`tox -e pre-commit -- run --all`). If the branch is stale or CI fails
     for unrelated reasons, merge or rebase on `main`. Avoid force-pushing once review has started. Title format:

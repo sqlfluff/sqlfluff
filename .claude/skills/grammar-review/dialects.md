@@ -45,13 +45,19 @@ postgres `sql-keywords-appendix.html`, mysql `keywords.html`, tsql
 
 ## Runnable databases
 
-The container name is always `sqlfluff-review-<dialect>`. Run `docker ps -a --filter name=sqlfluff-review-` first
-and reuse anything already there. Passwords are throwaway values. Publish no ports
+The container name is always `sqlfluff-review-<dialect>`. Run `docker ps -a --filter name=sqlfluff-review-` first.
+Reuse a container only after checking its image matches the row below; otherwise start a fresh one. Passwords are throwaway values. Publish no ports
 unless the client has to run on the host, and then bind to `127.0.0.1` only.
 
-**Statement runner.** `sql_run.py ENGINE FIXTURE [SETUP...]` (in this folder) covers db2, postgres,
+**Statement runner.** `./sql_run.py ENGINE FIXTURE [SETUP...]` (from this folder) covers db2, postgres,
 sqlite and duckdb. It gives each statement a fresh schema and a PASS/SYNTAX/SEMANTIC/UNKNOWN verdict.
-`sql_run.py selftest` checks it without Docker. To add an engine, add one entry to its `ENGINES` table.
+`./sql_run.py selftest` checks it without Docker. To add an engine, add one entry to its `ENGINES` table.
+It splits on `;`, so compound `BEGIN … END` bodies (procedures, functions, PL/SQL blocks; sqlite triggers
+are fine) get cut at inner semicolons: run those through the engine's own command below instead.
+
+**The table commands are whole-file checks.** They run the fixture as one batch against one
+mutable database, so an early statement can change what later ones see. Treat them as best-effort, not
+per-statement verdicts.
 
 **Syntax error vs. semantic error.** The fixture SQL refers to tables that don't exist.
 An error like "relation does not exist", "invalid object name" or "unknown table"
@@ -62,7 +68,7 @@ the grammar.
 
 | Dialect | Start | Run file `$F` | Syntax-error signature | Status |
 |---|---|---|---|---|
-| sqlite | none (host `sqlite3`, currently 3.45) | `(cd <scratchpad> && sqlite3 :memory: < "$(realpath $F)")`. Fixtures `ATTACH` files, so don't run it in the repo | `syntax error` only. sqlite prefixes *every* error with "Parse error", even "table already exists" | run ✓ (host binary; may lag upstream) |
+| sqlite | none (host `sqlite3`, currently 3.45) | `(cd <scratchpad> && sqlite3 -safe :memory: < "$(realpath $F)")`. Always `-safe`: fixture dot-commands (`.shell`) would otherwise run on your machine. It also blocks `ATTACH` | `syntax error` or `incomplete input`. sqlite prefixes *every* error with "Parse error", even "table already exists" | run ✓ (host binary; may lag upstream) |
 | duckdb | none | `docker run --rm -i duckdb/duckdb:latest < $F` | `Parser Error:`. `Catalog Error` = parsed OK | image ✓ run ✓ |
 | clickhouse | none: **parse-only**, no server | `docker run --rm -i --entrypoint clickhouse-format clickhouse/clickhouse-server:latest --multiquery < $F` | `Syntax error` | image ✓ |
 | postgres | `docker run -d --name sqlfluff-review-postgres -e POSTGRES_PASSWORD=review postgres:17` | `docker exec -i sqlfluff-review-postgres psql -U postgres < $F` | `syntax error at or near` (42601) | image ✓ |

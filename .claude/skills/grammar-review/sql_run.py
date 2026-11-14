@@ -15,7 +15,10 @@ statements, so the marker must print in the same stream as errors. Ephemeral eng
 their errors and markers would race across stdout and stderr.
 Output (TSV): n  verdict  first-error-per-variant  statement
   verdict: PASS | SYNTAX (invalid SQL) | SEMANTIC (parsed, failed to execute)
-           | UNKNOWN (no marker, or the setup failed mid-batch, e.g. after a fixture COMMIT)
+           | UNKNOWN (couldn't judge: no marker, setup failed mid-batch e.g. after a fixture
+             COMMIT, client failed without a recognisable error, or sqlite -safe blocked it)
+sqlite runs on the host with -safe, so fixture dot-commands (.shell, .system) and
+ATTACH/writefile can't touch the machine; statements it blocks come back UNKNOWN.
 """
 
 import os
@@ -49,15 +52,28 @@ ENGINES = {
         syntax=r"^SQL(0104|0007)N",
     ),
     "postgres": dict(
-        cmd=lambda c: ["docker", "exec", "-i", c, "psql", "-X", "-q", "-U", "postgres"],
+        # -o /dev/null: query results can't look like errors; \warn and ERRORs use stderr.
+        cmd=lambda c: [
+            "docker",
+            "exec",
+            "-i",
+            c,
+            "psql",
+            "-X",
+            "-q",
+            "-o",
+            "/dev/null",
+            "-U",
+            "postgres",
+        ],
         begin="BEGIN;",
         mark="\\warn {}",
         error=r"ERROR:",
         syntax=r"syntax error",
     ),
-    "sqlite": dict(  # host binary
-        cmd=lambda c: ["sqlite3", ":memory:"],
-        error=r"[Ee]rror",
+    "sqlite": dict(  # host binary; -safe blocks .shell/.system, ATTACH and writefile()
+        cmd=lambda c: ["sqlite3", "-safe", ":memory:"],
+        error=r"[Ee]rror|in safe mode",
         syntax=r"syntax error|incomplete input",
     ),
     "duckdb": dict(
@@ -77,7 +93,7 @@ def split(sql: str) -> list[str]:
         if (
             piece == ";"
             and sqlite3.complete_statement(buf)
-            and len(re.findall(r"\$\w*\$", buf)) % 2 == 0
+            and len(re.findall(r"\$\w*\$", re.sub(r"'(?:[^']|'')*'", "", buf))) % 2 == 0
         ):
             stmts.append(buf.strip()[:-1].strip())
             buf = ""
@@ -95,18 +111,23 @@ def run(engine: str, setup: str, stmts: list[str], cwd: str) -> dict[int, str]:
     if "mark" not in e:  # ephemeral: one fresh process per statement, errors on stderr
         errs = {}
         for i, s in enumerate(stmts):
-            err = subprocess.run(
+            r = subprocess.run(
                 cmd,
                 input=f"{setup}\n{s};\n",
                 cwd=cwd,
                 text=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
-            ).stderr
-            if hit := next(
-                (ln for ln in err.splitlines() if re.search(e["error"], ln)), None
-            ):
+            )
+            lines = r.stderr.splitlines()
+            hit = next((ln for ln in lines if re.search(e["error"], ln)), None)
+            if hit and "in safe mode" in hit:
+                errs[i] = f"?? blocked by sqlite -safe: {hit.strip()}"
+            elif hit:
                 errs[i] = hit.strip()
+            elif r.returncode:  # e.g. docker itself failed: never report that as PASS
+                why = next((ln for ln in lines if "rror" in ln), (lines or [""])[-1])
+                errs[i] = f"?? client exited {r.returncode}: {why.strip()}"
         return errs
     script = []
     for i, s in enumerate(stmts):
@@ -158,12 +179,13 @@ def main(engine: str, fixture: str, setups: list[str]) -> list[tuple]:
     rows = []
     for i, s in enumerate(stmts):
         codes = [r.get(i) for r in results]
+        judged = [c for c in codes if c and not c.startswith("??")]
         if None in codes:
             verdict = "PASS"
-        elif all(c.startswith("??") for c in codes):
-            verdict = "UNKNOWN"
-        elif any(re.search(ENGINES[engine]["syntax"], c) for c in codes):
-            verdict = "SYNTAX"
+        elif any(re.search(ENGINES[engine]["syntax"], c) for c in judged):
+            verdict = "SYNTAX"  # a syntax error doesn't depend on the setup state
+        elif len(judged) < len(codes):
+            verdict = "UNKNOWN"  # some variant couldn't be judged and might have passed
         else:
             verdict = "SEMANTIC"
         shown = " | ".join((c or "ok")[:90] for c in codes)
@@ -179,9 +201,11 @@ def selftest() -> None:
         open(fx, "w").write(
             "-- comment only;\nSELECT 'x;y' FROM t;\nINSERT INTO t VALUES (1);\n"
             "SELECT * FROM nope;\nSELEC 1;\nCREATE TABLE t (b INT);\n"
-            "CREATE TRIGGER tr AFTER INSERT ON t BEGIN SELECT 1; END;\nCOMMIT;\nSELECT 2"
+            "CREATE TRIGGER tr AFTER INSERT ON t BEGIN SELECT 1; END;\nCOMMIT;\nSELECT 2;\n"
+            f".shell touch {os.path.join(d, 'pwned')}\nSELECT 3"
         )
         got = [r[1] for r in main("sqlite", fx, [st])]
+        assert not os.path.exists(os.path.join(d, "pwned")), "sqlite ran a host command"
     # COMMIT fails with no open transaction; real errors only, nothing leaks between statements.
     assert got == [
         "PASS",
@@ -192,11 +216,13 @@ def selftest() -> None:
         "PASS",
         "SEMANTIC",
         "PASS",
+        "UNKNOWN",
     ], got
     assert split("CREATE FUNCTION f() AS $$ SELECT 1; $$;\nSELECT 1") == [
         "CREATE FUNCTION f() AS $$ SELECT 1; $$",
         "SELECT 1",
     ]
+    assert split("SELECT '$x$';\nSELECT 1") == ["SELECT '$x$'", "SELECT 1"]
     print("selftest ok")
 
 

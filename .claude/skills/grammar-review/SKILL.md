@@ -20,19 +20,20 @@ Supporting files (read them when you reach the step):
 
 ```bash
 gh pr view N -R sqlfluff/sqlfluff --json title,body,files,headRefName   # PR
-gh pr diff N -R sqlfluff/sqlfluff                                       # or: git diff main...HEAD
+gh pr diff N -R sqlfluff/sqlfluff   # branch: git diff main...BRANCH; no input: git diff main (includes uncommitted)
 ```
 
 List each of these: dialect(s) touched, segments added or changed (class name +
 `type`), `.replace()`/`.add()` calls, keyword-set edits, fixture `.sql`/`.yml`
 pairs. Note the dialect's parent chain (`grep copy_as src/sqlfluff/dialects/dialect_<d>.py`).
-A change to ansi or postgres reaches every child dialect.
+A change to ansi or postgres reaches every child dialect that inherits the affected segment; children that
+override it don't get the change.
 
 To run anything, put the PR in its own worktree. Don't touch the user's checkout
 and **don't use `git stash`**:
 
 ```bash
-git fetch upstream pull/N/head && git worktree add <scratchpad>/pr-N FETCH_HEAD
+git fetch https://github.com/sqlfluff/sqlfluff.git pull/N/head && git worktree add <scratchpad>/pr-N FETCH_HEAD
 ```
 
 ## 2. Mechanical checks (run them, don't eyeball)
@@ -66,7 +67,7 @@ For each new or changed segment:
    - **Over-acceptance**: `Ref("ExpressionSegment")` where the docs require a literal or identifier,
      `Delimited` where only one item is allowed, `Anything()`, `optional=True` on required parts.
    - **Ordering**: docs say options can come in any order, but the grammar is a fixed `Sequence`.
-     Usually wants `AnyNumberOf(OneOf(...))`.
+     Usually wants `AnySetOf(...)` (checklist item 5).
    - **Missing alternatives** the PR claims to support. Missing clauses the PR doesn't
      claim are only a Suggestion or Question. Partial support is fine if it's honest.
    - **Keyword placement**: check every new keyword against the vendor reserved list.
@@ -140,8 +141,10 @@ Docs: <links used>   DB: <"<image> available on request" / results if it was run
 - one line each: fixtures regen clean, tests pass, N/N statements accepted by <db>
 ```
 
-If the user asks to post: a single `gh pr review N --comment` with inline
-suggestions only where the fix is certain. Never approve or request changes on
+If the user asks to post: one review via `gh api repos/sqlfluff/sqlfluff/pulls/N/reviews --input review.json`,
+where the JSON has `"event": "COMMENT"`, the summary as `body`, and inline suggestions (only where the fix
+is certain) in `comments` (each `path`, `line`, `side: "RIGHT"`, `body`). `gh pr review --comment` can't post
+inline comments. Never approve or request changes on
 their behalf unless told to.
 
 When a review turns up a new recurring request, or fixes a wrong command in dialects.md,
