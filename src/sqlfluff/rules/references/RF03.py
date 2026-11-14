@@ -26,7 +26,13 @@ from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
-_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+_DML_TYPES = ("delete_statement", "merge_statement", "update_statement")
+_START_TYPES = [
+    "select_statement",
+    "set_expression",
+    "with_compound_statement",
+    *_DML_TYPES,
+]
 
 
 class Rule_RF03(BaseRule):
@@ -121,10 +127,33 @@ class Rule_RF03(BaseRule):
             select_info = selectable.select_info
             if select_info:
                 for alias in select_info.table_aliases:
-                    if subquery and alias.from_expression_element.path_to(
-                        subquery.selectables[0].selectable
+                    is_dml_target = alias.from_expression_element.is_type(*_DML_TYPES)
+                    if (
+                        subquery
+                        and not is_dml_target
+                        and alias.from_expression_element.path_to(
+                            subquery.selectables[0].selectable
+                        )
                     ):
                         # Skip the subquery alias itself
+                        continue
+                    if (
+                        subquery
+                        and is_dml_target
+                        and not alias.ref_str
+                        and not alias.object_reference
+                    ):
+                        for table_ref in alias.from_expression_element.get_children(
+                            "table_reference"
+                        ):
+                            yield AliasInfo(
+                                ref_str=table_ref.raw,
+                                segment=table_ref,
+                                aliased=False,
+                                from_expression_element=alias.from_expression_element,
+                                alias_expression=None,
+                                object_reference=table_ref,
+                            )
                         continue
                     # Tables without an alias name (e.g. unaliased T-SQL table
                     # variables) can't be targets for added qualifiers, but a
@@ -167,7 +196,11 @@ class Rule_RF03(BaseRule):
             select_info = query.selectables[0].select_info
             # How many table names are visible from here? If more than one then do
             # nothing.
-            if select_info and len(select_info.table_aliases) == 1:
+            if (
+                select_info
+                and len(select_info.table_aliases) == 1
+                and not query.selectables[0].selectable.is_type(*_DML_TYPES)
+            ):
                 fixable = True
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
