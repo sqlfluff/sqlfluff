@@ -13,7 +13,7 @@ from sqlfluff.core.errors import SQLFluffUserError, SQLParseError
 
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
-    from sqlfluffrs import RsParser
+    from sqlfluffrs import MISSING_REF_PREFIX, RsParseError, RsParser
 except ImportError:
     _HAS_RUST_PARSER = False
 
@@ -479,6 +479,59 @@ def test__rust_parser__parse_error_from_exception():
     assert error.segment is not None
     assert error.line_no > 0
     assert error.line_pos > 0
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__missing_ref_error_reraised_via_dialect_ref(monkeypatch):
+    """Test RustParser catches RsParseError with MISSING_REF_PREFIX and re-raises via dialect.ref()."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    monkeypatch.setattr(sys, "tracebacklimit", None, raising=False)
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+
+    # 1. Test dangling keyword ref raises the dialect keyword RuntimeError
+    mock_rs = Mock()
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentKeywordSegment"
+    )
+    parser._rs_parser = mock_rs
+
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to the 'NONEXISTENT' keyword which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 2. Test non-keyword segment ref raises the standard grammar ref RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'NonExistentSegment' which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 3. Test existing segment in Python dialect raises internal bug RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}FileSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'FileSegment' which is registered in the ansi dialect's Python library but missing from its Rust parser tables"
+        in str(exc_info.value)
+    )
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
