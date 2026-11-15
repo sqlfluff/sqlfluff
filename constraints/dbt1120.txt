@@ -1,0 +1,3 @@
+dbt-core~=1.12.0
+# dbt-postgres releases independently of dbt-core.
+dbt-postgres~=1.11.0
