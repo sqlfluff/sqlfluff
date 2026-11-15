@@ -95,6 +95,37 @@ test_fail_postgres_ordinary_identifier_unquoted:
     core:
       dialect: postgres
 
+test_pass_postgres_keyword_type_names_remain_quoted:
+  # Unquoted, these are the SQL syntax for built-in types, which can be
+  # different types: `"char"` is a one-byte type, but `char` is `character(1)`.
+  pass_str: |
+    CREATE TABLE events (flag "char", bits "bit", flags "char"[]);
+
+    SELECT flag::"char", CAST(bits AS "bit") FROM events;
+
+    CREATE FUNCTION first_flag(flags "char"[]) RETURNS "char"
+    LANGUAGE sql AS $$ SELECT flags[1] $$;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_qualified_keyword_type_name_unquoted:
+  # After a schema, the type name is an ordinary name.
+  fail_str: CREATE TABLE events (flag pg_catalog."char")
+  fix_str: CREATE TABLE events (flag pg_catalog.char)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_keyword_column_name_unquoted:
+  # Outside a data type, `char` is an ordinary column name, and `text` isn't a
+  # keyword, so the quotes can go.
+  fail_str: SELECT "char", "text"::"text" FROM events
+  fix_str: SELECT char, text::text FROM events
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_reference_tsql:
   # Tests the TSQL bracket quotes.
   # TSQL casefolds UPPERCASE.
