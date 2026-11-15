@@ -86,7 +86,8 @@ class Rule_LT07(BaseRule):
                     elem.is_type("newline")
                     or (
                         elem.is_type("placeholder")
-                        and cast(TemplateSegment, elem).source_str == "\n"
+                        and cast(TemplateSegment, elem).block_type == "literal"
+                        and "\n" in cast(TemplateSegment, elem).source_str
                     )
                     for elem in cte_bracketed[0].raw_segments
                 )

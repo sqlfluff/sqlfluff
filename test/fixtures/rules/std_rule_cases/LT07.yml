@@ -39,6 +39,49 @@ test_fix_with_clause_closing_aligned_whitespace_consumption_d:
         {%- if False -%}{%- endif -%}
     ) select * from cte
 
+test_move_parenthesis_after_consumed_indented_newline:
+  fail_str: |-
+    WITH c AS (
+        {#- note #}SELECT 1)
+
+    SELECT * FROM c
+  fix_str: |-
+    WITH c AS (
+        {#- note #}SELECT 1
+    )
+
+    SELECT * FROM c
+
+test_move_parenthesis_after_consumed_indented_newline_at_closing_bracket:
+  fail_str: |
+    WITH c AS (
+        SELECT 1
+        {#- note #})
+
+    SELECT * FROM c
+  fix_str: |
+    WITH c AS (
+        SELECT 1
+        {#- note #}
+    )
+
+    SELECT * FROM c
+
+test_pass_with_clause_consumed_spaces_only:
+  pass_str: |
+    WITH c AS (    {#- note #}SELECT 1)
+
+    SELECT * FROM c
+
+test_pass_with_clause_multiline_comment_only:
+  # Newlines inside a template tag do not introduce a SQL line break.
+  pass_str: |
+    WITH c AS ({#
+        note
+    #}SELECT 1)
+
+    SELECT * FROM c
+
 test_pass_with_clause_closing_oneline:
   # with statement oneline
   pass_str: with cte as (select 1) select * from cte

@@ -5,6 +5,26 @@ import pytest
 from sqlfluff.core import FluffConfig, Linter
 
 
+@pytest.mark.parametrize("rules", ["LT02", "LT07", "LT02,LT07"])
+def test_cte_consumed_newline_rule_ownership(rules):
+    """LT07 handles source newlines consumed by Jinja whitespace control."""
+    sql = "WITH c AS (\n    {#- note #}SELECT 1)\n\nSELECT * FROM c"
+    linter = Linter(
+        config=FluffConfig(
+            overrides={"dialect": "ansi", "templater": "jinja", "rules": rules}
+        )
+    )
+    linted = linter.lint_string(sql, fix=True)
+    assert [violation.rule_code() for violation in linted.get_violations()] == (
+        ["LT07"] if "LT07" in rules else []
+    )
+    expected_sql = sql.replace("SELECT 1)", "SELECT 1\n)") if "LT07" in rules else sql
+    fixed_sql, _ = linted.fix_string()
+    assert fixed_sql == expected_sql
+    assert not linter.lint_string(fixed_sql).get_violations()
+    assert linter.lint_string(fixed_sql, fix=True).fix_string()[0] == fixed_sql
+
+
 @pytest.mark.parametrize("dialect", ["ansi", "bigquery", "postgres", "duckdb"])
 @pytest.mark.parametrize("exclude_lt07", [True, False])
 @pytest.mark.parametrize("indent", [2, 4])
