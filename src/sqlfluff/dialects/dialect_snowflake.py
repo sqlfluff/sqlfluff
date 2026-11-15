@@ -2219,6 +2219,14 @@ class StatementSegment(ansi.StatementSegment):
         remove=[
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
+            # Snowflake has no CREATE/DROP CAST or triggers. The inherited
+            # grammars also reference keywords (CONSTRUCTOR, REFERENCING, ...)
+            # that this dialect never registers, so reaching them raised an
+            # internal RuntimeError instead of parsing.
+            Ref("CreateCastStatementSegment"),
+            Ref("DropCastStatementSegment"),
+            Ref("CreateTriggerStatementSegment"),
+            Ref("DropTriggerStatementSegment"),
         ],
     )
 
@@ -11468,6 +11476,31 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             Ref.keyword("ONLY", optional=True),
             Dedent,
         ),
+    )
+
+
+class FetchClauseSegment(ansi.FetchClauseSegment):
+    """A `FETCH` clause.
+
+    Snowflake supports `FETCH ... ONLY` but not `WITH TIES` (whose `TIES`
+    keyword this dialect doesn't register).
+
+    https://docs.snowflake.com/en/sql-reference/constructs/limit
+    """
+
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            optional=True,
+        ),
+        OneOf("ROW", "ROWS"),
+        "ONLY",
     )
 
 
