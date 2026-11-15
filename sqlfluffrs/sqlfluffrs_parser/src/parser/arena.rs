@@ -27,6 +27,7 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 use hashbrown::{HashMap, HashSet};
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::PositionMarker;
 
 use super::types::{MetaType, Node, RawSegmentKwargs};
@@ -51,6 +52,8 @@ enum ArenaKind {
     Raw {
         segment_class: Cow<'static, str>,
         segment_type: Cow<'static, str>,
+        /// Class-level type (Python `.type`); see `Node::Raw::class_type`.
+        class_type: Cow<'static, str>,
         raw: String,
         /// `Arc`-wrapped so `instance_types_arc`'s PyO3 caller
         /// (`PyHandle::instance_types`) can clone the handle under the arena
@@ -67,6 +70,8 @@ enum ArenaKind {
     },
     Meta {
         meta_type: MetaType,
+        /// Template block identity; see `Node::Meta::block_uuid`.
+        block_uuid: Option<u128>,
     },
     Unparsable {
         expected: String,
@@ -160,16 +165,17 @@ impl Arena {
             Node::Raw {
                 segment_class,
                 segment_type,
+                class_type,
                 raw,
                 pos_marker,
                 instance_types,
                 class_types,
                 segment_kwargs,
-                ..
             } => self.alloc(
                 ArenaKind::Raw {
                     segment_class: segment_class.clone(),
                     segment_type: segment_type.clone(),
+                    class_type: class_type.clone(),
                     raw: raw.clone(),
                     instance_types: Arc::new(instance_types.clone()),
                     class_types: class_types.clone(),
@@ -228,10 +234,11 @@ impl Arena {
             Node::Meta {
                 meta_type,
                 pos_marker,
-                ..
+                block_uuid,
             } => self.alloc(
                 ArenaKind::Meta {
                     meta_type: meta_type.clone(),
+                    block_uuid: *block_uuid,
                 },
                 pos_marker.clone(),
                 parent,
@@ -323,9 +330,18 @@ impl Arena {
             ArenaKind::Segment { segment_type, .. } => {
                 segment_type.as_deref().unwrap_or_default().to_string()
             }
-            ArenaKind::Meta { meta_type } => meta_type_str(meta_type).to_string(),
+            ArenaKind::Meta { meta_type, .. } => meta_type_str(meta_type).to_string(),
             ArenaKind::Unparsable { .. } => "unparsable".to_string(),
             ArenaKind::Empty => "empty".to_string(),
+        }
+    }
+
+    /// Class-level type (Python `.type`). Only raws can carry an instance
+    /// override, so every other node's class type is its `get_type`.
+    pub fn class_type(&self, id: NodeId) -> String {
+        match &self.node(id).kind {
+            ArenaKind::Raw { class_type, .. } => class_type.to_string(),
+            _ => self.get_type(id),
         }
     }
 
@@ -345,6 +361,7 @@ impl Arena {
             // in the grammar tables and must be encoded here.
             ArenaKind::Meta {
                 meta_type: MetaType::Dedent { .. },
+                ..
             } => &["dedent", "indent", "meta", "raw", "base"],
             ArenaKind::Meta { .. } => &["meta", "raw", "base"],
             ArenaKind::Unparsable { .. } => &["unparsable", "base"],
@@ -432,6 +449,7 @@ impl Arena {
         match &self.node(id).kind {
             ArenaKind::Meta {
                 meta_type: MetaType::Indent { is_implicit } | MetaType::Dedent { is_implicit },
+                ..
             } => Some(*is_implicit),
             _ => None,
         }
@@ -443,6 +461,47 @@ impl Arena {
     pub fn trim_chars_arc(&self, id: NodeId) -> Option<Arc<Vec<String>>> {
         match &self.node(id).kind {
             ArenaKind::Raw { kwargs, .. } => kwargs.trim_chars.clone(),
+            _ => None,
+        }
+    }
+
+    /// Prefixes `raw_trimmed` strips before `trim_chars` (e.g. `--`), as a
+    /// cheap `Arc` clone like `trim_chars_arc`.
+    pub fn trim_start_arc(&self, id: NodeId) -> Option<Arc<Vec<String>>> {
+        match &self.node(id).kind {
+            ArenaKind::Raw { kwargs, .. } => kwargs.trim_start.clone(),
+            _ => None,
+        }
+    }
+
+    /// The fold `raw_normalized` applies (`"upper"`/`"lower"`), if any.
+    pub fn casefold(&self, id: NodeId) -> Option<&'static str> {
+        match &self.node(id).kind {
+            ArenaKind::Raw { kwargs, .. } => match kwargs.casefold {
+                CaseFold::Upper => Some("upper"),
+                CaseFold::Lower => Some("lower"),
+                CaseFold::None => None,
+            },
+            _ => None,
+        }
+    }
+
+    /// `block_type` of a template placeholder meta (e.g. `"block_start"`).
+    pub fn block_type(&self, id: NodeId) -> Option<String> {
+        match &self.node(id).kind {
+            ArenaKind::Meta {
+                meta_type: MetaType::Template { block_type, .. },
+                ..
+            } => Some(block_type.clone()),
+            _ => None,
+        }
+    }
+
+    /// Template block identity (`Uuid::as_u128`) of a meta; `None` for
+    /// parser-inserted metas and non-metas.
+    pub fn block_uuid(&self, id: NodeId) -> Option<u128> {
+        match &self.node(id).kind {
+            ArenaKind::Meta { block_uuid, .. } => *block_uuid,
             _ => None,
         }
     }
@@ -890,5 +949,117 @@ mod tests {
         assert_eq!(arena.get_children(root, &indent).len(), 1);
         // A non-meta query still works alongside metas.
         assert!(arena.get_child(root, &["keyword".to_string()]).is_some());
+    }
+
+    /// literal "1" (class `literal`), comment "-- x" (trim_start), identifier
+    /// "a" (upper fold), a `block_start` placeholder (uuid 42), an indent.
+    fn metadata_arena() -> (Arena, Vec<NodeId>) {
+        let leaf = |class: &str, ty: &str, class_type: &str, text: &str, kw| {
+            Node::new_raw_with_class_types(
+                class.to_string(),
+                ty.to_string(),
+                class_type.to_string(),
+                text.to_string(),
+                None,
+                vec![ty.to_string()],
+                &[],
+                kw,
+            )
+        };
+        let tree = Node::Segment {
+            segment_class: "FileSegment".into(),
+            segment_type: Some("file".into()),
+            pos_marker: None,
+            class_types: vec!["file".to_string()],
+            children: vec![
+                leaf(
+                    "LiteralSegment",
+                    "numeric_literal",
+                    "literal",
+                    "1",
+                    Default::default(),
+                ),
+                leaf(
+                    "CommentSegment",
+                    "inline_comment",
+                    "comment",
+                    "-- x",
+                    RawSegmentKwargs {
+                        trim_start: Some(Arc::new(vec!["--".to_string()])),
+                        ..Default::default()
+                    },
+                ),
+                leaf(
+                    "IdentifierSegment",
+                    "naked_identifier",
+                    "identifier",
+                    "a",
+                    RawSegmentKwargs {
+                        casefold: CaseFold::Upper,
+                        ..Default::default()
+                    },
+                ),
+                Node::Meta {
+                    meta_type: MetaType::Template {
+                        source_str: "{% if x %}".to_string(),
+                        block_type: "block_start".to_string(),
+                    },
+                    pos_marker: None,
+                    block_uuid: Some(42),
+                },
+                Node::Meta {
+                    meta_type: MetaType::Indent { is_implicit: false },
+                    pos_marker: None,
+                    block_uuid: None,
+                },
+            ],
+        };
+        let arena = Arena::from_node(&tree);
+        let ids = arena.children(arena.root()).to_vec();
+        (arena, ids)
+    }
+
+    #[test]
+    fn class_type_accessor() {
+        let (arena, ids) = metadata_arena();
+        assert_eq!(arena.class_type(ids[0]), "literal");
+        assert_eq!(arena.get_type(ids[0]), "numeric_literal");
+        // Non-raws have no instance override.
+        assert_eq!(arena.class_type(arena.root()), "file");
+        assert_eq!(arena.class_type(ids[3]), "placeholder");
+    }
+
+    #[test]
+    fn trim_start_accessor() {
+        let (arena, ids) = metadata_arena();
+        assert_eq!(
+            arena.trim_start_arc(ids[1]).as_deref(),
+            Some(&vec!["--".to_string()])
+        );
+        assert_eq!(arena.trim_start_arc(ids[0]), None);
+    }
+
+    #[test]
+    fn casefold_accessor() {
+        let (arena, ids) = metadata_arena();
+        assert_eq!(arena.casefold(ids[2]), Some("upper"));
+        assert_eq!(arena.casefold(ids[0]), None);
+        assert_eq!(arena.casefold(ids[3]), None);
+    }
+
+    #[test]
+    fn block_type_accessor() {
+        let (arena, ids) = metadata_arena();
+        assert_eq!(arena.block_type(ids[3]).as_deref(), Some("block_start"));
+        assert_eq!(arena.block_type(ids[4]), None);
+        assert_eq!(arena.block_type(ids[0]), None);
+    }
+
+    #[test]
+    fn block_uuid_accessor() {
+        let (arena, ids) = metadata_arena();
+        assert_eq!(arena.block_uuid(ids[3]), Some(42));
+        assert_eq!(arena.block_uuid(ids[4]), None);
+        assert_eq!(arena.block_uuid(ids[0]), None);
     }
 }
