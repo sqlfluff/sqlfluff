@@ -1634,3 +1634,60 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+
+test_fail_postgres_quoted_table_qualified_8956:
+  fail_str: SELECT "c" FROM "t";
+  fix_str: SELECT "t"."c" FROM "t";
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_mysql_backtick_quoted_keyword_table_qualified_8956:
+  fail_str: SELECT `select` FROM `order`;
+  fix_str: SELECT `order`.`select` FROM `order`;
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_mysql_backtick_quoted_table_preserves_quoting_8956:
+  fail_str: SELECT `c` FROM `t`;
+  fix_str: SELECT `t`.`c` FROM `t`;
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_mysql_backtick_quoted_table_consistent_mixed_8956:
+  fail_str: SELECT `weird name`.`col`, `select` FROM `order`;
+  fix_str: SELECT `weird name`.`col`, `order`.`select` FROM `order`;
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_tsql_bracket_quoted_table_qualified_8956:
+  fail_str: SELECT [c] FROM [t];
+  fix_str: SELECT [t].[c] FROM [t];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_snowflake_double_quoted_table_qualified_8956:
+  fail_str: SELECT "c" FROM "t";
+  fix_str: SELECT "t"."c" FROM "t";
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      references.consistent:
+        single_table_references: qualified
