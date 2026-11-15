@@ -301,6 +301,18 @@ def test__cli__command_invalid_ini_config(tmp_path, monkeypatch):
     )
 
 
+def test__cli__command_unknown_encoding(tmp_path, monkeypatch):
+    """An unknown ``--encoding`` is reported cleanly, not as a traceback."""
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=2,
+        args=[lint, ["in.sql", "--dialect", "ansi", "--encoding", "not-a-codec"]],
+        assert_stdout_contains=("set an invalid value for `encoding`: 'not-a-codec'"),
+    )
+
+
 stdin_cli_input = (
     "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\nPOSITIONAL JOIN TABB AS B;\n"
 )

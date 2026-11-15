@@ -156,7 +156,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "dollar_literal",
-            r"\$[a-zA-Z0-9_]+",
+            r"\$(?:::)*[a-zA-Z0-9_$]+(?:::[a-zA-Z0-9_$]*)*(?:\([^)]*\))?",
             LiteralSegment,
             segment_kwargs={"type": "dollar_literal"},
         ),
@@ -1028,6 +1028,7 @@ class PragmaStatementSegment(BaseSegment):
         "PASSIVE",
         "RESTART",
         "RESET",
+        Ref("ObjectReferenceSegment"),
     )
 
     match_grammar = Sequence(
@@ -1035,7 +1036,6 @@ class PragmaStatementSegment(BaseSegment):
         Ref("PragmaReferenceSegment"),
         OneOf(
             Bracketed(_pragma_value),
-            Bracketed(Ref("ObjectReferenceSegment")),
             optional=True,
         ),
         Sequence(

@@ -11473,6 +11473,8 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Delimited(
             Sequence(
                 OneOf(
+                    # Can `ORDER BY ALL` to sort by every column in the SELECT list
+                    "ALL",
                     Ref("BooleanLiteralGrammar"),
                     Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
