@@ -724,6 +724,16 @@ postgres_dialect.add(
             ),
         ),
     ),
+    # An operator with its argument types, like `public.=== (box, box)`. A
+    # prefix operator has no left argument: `- (NONE, integer)`.
+    OperatorSignatureGrammar=Sequence(
+        Ref("OperatorNameSegment"),
+        Bracketed(
+            OneOf("NONE", Ref("DatatypeSegment")),
+            Ref("CommaSegment"),
+            Ref("DatatypeSegment"),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -3533,16 +3543,7 @@ class AlterExtensionStatementSegment(BaseSegment):
                     Sequence(
                         "OPERATOR",
                         OneOf(
-                            Sequence(
-                                Ref("ObjectReferenceSegment"),
-                                Bracketed(
-                                    Delimited(
-                                        Ref("DatatypeSegment"),
-                                        Ref("CommaSegment"),
-                                        Ref("DatatypeSegment"),
-                                    ),
-                                ),
-                            ),
+                            Ref("OperatorSignatureGrammar"),
                             Sequence(
                                 OneOf("CLASS", "FAMILY"),
                                 Ref("ObjectReferenceSegment"),
@@ -5167,6 +5168,18 @@ class CommentOnStatementSegment(BaseSegment):
                     Ref("IndexReferenceSegment"),
                 ),
                 Sequence(
+                    "OPERATOR",
+                    OneOf(
+                        Ref("OperatorSignatureGrammar"),
+                        Sequence(
+                            OneOf("CLASS", "FAMILY"),
+                            Ref("ObjectReferenceSegment"),
+                            "USING",
+                            Ref("IndexAccessMethodSegment"),
+                        ),
+                    ),
+                ),
+                Sequence(
                     "SCHEMA",
                     Ref("SchemaReferenceSegment"),
                 ),
@@ -5816,6 +5829,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MetaCommandQueryBufferStatement"),
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
+            Ref("AlterOperatorStatementSegment"),
+            Ref("DropOperatorStatementSegment"),
             Ref("CreateAccessMethodStatementSegment"),
             Ref("DropAccessMethodStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
@@ -8384,6 +8399,74 @@ class CreateOperatorStatementSegment(BaseSegment):
                 Ref.keyword("MERGES", optional=True),
             )
         ),
+    )
+
+
+class AlterOperatorStatementSegment(BaseSegment):
+    """An `ALTER OPERATOR` statement.
+
+    https://www.postgresql.org/docs/current/sql-alteroperator.html
+    """
+
+    type = "alter_operator_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "OPERATOR",
+        Ref("OperatorSignatureGrammar"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                "SET",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf("RESTRICT", "JOIN"),
+                            Ref("EqualsSegment"),
+                            OneOf("NONE", Ref("FunctionNameSegment")),
+                        ),
+                        Sequence(
+                            OneOf("COMMUTATOR", "NEGATOR"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("OperatorNameSegment"),
+                                Ref("QualifiedOperatorSegment"),
+                            ),
+                        ),
+                        "HASHES",
+                        "MERGES",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DropOperatorStatementSegment(BaseSegment):
+    """A `DROP OPERATOR` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropoperator.html
+    """
+
+    type = "drop_operator_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "OPERATOR",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("OperatorSignatureGrammar")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
