@@ -626,7 +626,9 @@ def test__rust_parser__rs_handle_metadata_matches_python():
     """Arena leaves carry Python's ``.type``, casefold, trim_start and block info."""
     from sqlfluff.core import FluffConfig, Linter
 
-    config = FluffConfig(overrides={"dialect": "ansi", "use_rust_parser": True})
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "use_rust_parser": True, "use_rust_rules": True}
+    )
     tree = (
         Linter(config=config)
         .parse_string("{% if true %}SELECT 1, a -- note\n{% endif %}\n")
