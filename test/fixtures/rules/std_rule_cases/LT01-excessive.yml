@@ -38,6 +38,33 @@ test_basic_template:
     core:
       ignore_templated_areas: false
 
+test_templated_whitespace_after_literal_space:
+  # A templated space directly after an identical literal space. The extra
+  # space is templated, so there's nothing to report.
+  pass_str: "select {{ ' 1' }}\n"
+
+test_templated_whitespace_after_literal_space_not_ignored:
+  # With templated areas linted, the duplicate space is reported but not
+  # fixed, because the fix would edit the template.
+  fail_str: "select {{ ' 1' }}\n"
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_templated_whitespace_after_literal_space_rest_of_file_linted:
+  # A templated space after a literal space doesn't stop LT01 checking
+  # the rest of the file.
+  fail_str: "select a  from t where x = {{ ' 1' }}\n"
+  fix_str: "select a from t where x = {{ ' 1' }}\n"
+
+test_templated_whitespace_at_eof_no_newline:
+  # A templated space after a literal space at the end of the file, with no
+  # trailing newline.
+  fail_str: "select 1 {{ ' ' }}"
+  configs:
+    core:
+      ignore_templated_areas: false
+
 test_basic_fix:
   fail_str: SELECT     1
   fix_str: SELECT 1

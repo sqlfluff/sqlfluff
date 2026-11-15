@@ -13,7 +13,7 @@ from sqlfluff.core.errors import SQLFluffUserError, SQLParseError
 
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
-    from sqlfluffrs import RsParser
+    from sqlfluffrs import MISSING_REF_PREFIX, RsParseError, RsParser
 except ImportError:
     _HAS_RUST_PARSER = False
 
@@ -482,34 +482,55 @@ def test__rust_parser__parse_error_from_exception():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
-def test__rust_parser__missing_ref_raises_like_python():
-    """Test a missing grammar ref from Rust raises the dialect's own error.
-
-    Rust reports a dangling ref as an RsParseError starting with
-    MISSING_REF_PREFIX, and RustParser re-raises it through the dialect's
-    ref(), so both engines give the same RuntimeError. No shipped dialect
-    has a dangling ref (the keyword audit fails on one), so the Rust parser
-    is replaced with one that reports a ref the dialect doesn't have.
-    """
+def test__rust_parser__missing_ref_error_reraised_via_dialect_ref(monkeypatch):
+    """Test RustParser catches RsParseError with MISSING_REF_PREFIX and re-raises via dialect.ref()."""
     from sqlfluff.core import FluffConfig
     from sqlfluff.core.parser import Lexer
-    from sqlfluffrs import MISSING_REF_PREFIX, RsParseError
+
+    monkeypatch.setattr(sys, "tracebacklimit", None, raising=False)
 
     config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
     parser = RustParser(config=config)
-    segments, _ = Lexer(config=config).lex("SELECT 1")
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
 
-    class MissingRefParser:
-        def parse_match_result_from_tokens(self, tokens):
-            raise RsParseError(MISSING_REF_PREFIX + "NoSuchSegment")
-
-    parser._rs_parser = MissingRefParser()
+    # 1. Test dangling keyword ref raises the dialect keyword RuntimeError
+    mock_rs = Mock()
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentKeywordSegment"
+    )
+    parser._rs_parser = mock_rs
 
     with pytest.raises(RuntimeError) as exc_info:
         parser.parse(segments, fname="test.sql")
 
-    assert str(exc_info.value).startswith(
-        "Grammar refers to 'NoSuchSegment' which was not found in the ansi dialect."
+    assert (
+        "Grammar refers to the 'NONEXISTENT' keyword which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 2. Test non-keyword segment ref raises the standard grammar ref RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'NonExistentSegment' which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 3. Test existing segment in Python dialect raises internal bug RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}FileSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'FileSegment' which is registered in the ansi dialect's Python library but missing from its Rust parser tables"
+        in str(exc_info.value)
     )
 
 
@@ -598,6 +619,39 @@ def test__rust_parser__rs_node_class_types_match_python():
             assert set(leaf.class_types() or []) == set(raw_seg.class_types)
             assert "keyword" in (leaf.class_types() or [])
     assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_handle_metadata_matches_python():
+    """Arena leaves carry Python's ``.type``, casefold, trim_start and block info."""
+    from sqlfluff.core import FluffConfig, Linter
+
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "use_rust_parser": True, "use_rust_rules": True}
+    )
+    tree = (
+        Linter(config=config)
+        .parse_string("{% if true %}SELECT 1, a -- note\n{% endif %}\n")
+        .tree
+    )
+    raws, leaves = tree.raw_segments, tree._rs_tree.root.raw_segments()
+    assert len(leaves) == len(raws)
+
+    fold_names = {None: None, str.upper: "upper", str.lower: "lower"}
+    for leaf, seg in zip(leaves, raws):
+        assert leaf.class_type() == seg.type, seg
+        assert leaf.casefold() == fold_names[getattr(seg, "casefold", None)], seg
+        assert leaf.trim_start() == getattr(seg, "trim_start", None), seg
+        assert leaf.block_type() == getattr(seg, "block_type", None), seg
+        uuid = getattr(seg, "block_uuid", None)
+        assert leaf.block_uuid() == (uuid.int if uuid else None), seg
+
+    # The SQL exercises every field with a non-default value.
+    assert any(leaf.class_type() != leaf.type for leaf in leaves)
+    assert any(leaf.casefold() == "upper" for leaf in leaves)
+    assert any(leaf.trim_start() for leaf in leaves)
+    assert any(leaf.block_type() for leaf in leaves)
+    assert any(leaf.block_uuid() for leaf in leaves)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")

@@ -7891,6 +7891,17 @@ class CreateUserSegment(BaseSegment):
                 ),
             ),
             Ref("CommentEqualsClauseSegment"),
+            # Object and session parameters, e.g. `ABORT_DETACHED_QUERY = FALSE`.
+            # The set of parameters is open-ended, so any name is accepted, as in
+            # `ALTER USER ... SET`. Spaces, commas or newlines may separate them.
+            # This must stay a single assignment, listed last: a run of them
+            # would outmatch, and so replace, the specific properties above.
+            Sequence(
+                Ref("CommaSegment", optional=True),
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment"),
+                OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+            ),
         ),
         Dedent,
     )
@@ -11481,6 +11492,8 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Delimited(
             Sequence(
                 OneOf(
+                    # Can `ORDER BY ALL` to sort by every column in the SELECT list
+                    "ALL",
                     Ref("BooleanLiteralGrammar"),
                     Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`

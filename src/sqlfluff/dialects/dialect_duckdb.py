@@ -96,6 +96,7 @@ duckdb_dialect.declare_keyword_sets(
         "PARTITION_BY",
         "PERCENT",
         "PER_THREAD_OUTPUT",
+        "PERSISTENT",
         "POSITIONAL",
         "PRAGMA",
         "PREFIX",
@@ -108,6 +109,7 @@ duckdb_dialect.declare_keyword_sets(
         "ROW_GROUP_SIZE",
         "ROW_GROUP_SIZE_BYTES",
         "SAMPLE",
+        "SECRET",
         "SEMI",
         "SEP",
         "SHREDDING",
@@ -1328,6 +1330,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("PragmaStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("ImportStatementSegment"),
+            Ref("CreateSecretStatementSegment"),
+            Ref("DropSecretStatementSegment"),
         ]
     )
 
@@ -1480,6 +1484,50 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class CreateSecretStatementSegment(BaseSegment):
+    """A `CREATE SECRET` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/create_secret
+    """
+
+    type = "create_secret_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("PERSISTENT", "TEMPORARY", optional=True),
+        "SECRET",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar", optional=True),
+        Sequence("IN", Ref("SingleIdentifierGrammar"), optional=True),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    OneOf(Ref("MapLiteralSegment"), Ref("ExpressionSegment")),
+                ),
+                allow_trailing=True,
+            ),
+        ),
+    )
+
+
+class DropSecretStatementSegment(BaseSegment):
+    """A `DROP SECRET` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/create_secret
+    """
+
+    type = "drop_secret_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("PERSISTENT", "TEMPORARY", optional=True),
+        "SECRET",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Sequence("FROM", Ref("SingleIdentifierGrammar"), optional=True),
     )
 
 
