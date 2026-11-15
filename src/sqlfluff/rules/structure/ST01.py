@@ -62,8 +62,34 @@ class Rule_ST01(BaseRule):
         if else_clause and else_clause.children(
             lambda child: child.raw_upper == "NULL"
         ):
-            # Found ELSE with NULL. Delete the whole else clause as well as
-            # indents/whitespaces/meta preceding the ELSE. :TRICKY: Note
+            # Check if there are comments inside the else clause.
+            comments = [s for s in else_clause[0].segments if s.is_comment]
+            if comments:
+                # If comments exist within the else clause, preserve them
+                # rather than silently deleting them.
+                all_segs = list(else_clause[0].segments)
+                first_idx = all_segs.index(comments[0])
+                last_idx = all_segs.index(comments[-1])
+                replacement = list(all_segs[first_idx : last_idx + 1])
+
+                # If the trailing comment is an inline comment and no newline
+                # follows the else clause, preserve the terminating newline from
+                # inside the clause so subsequent code (e.g. 'end') is not commented out.
+                if comments[-1].is_type("inline_comment"):
+                    after_else = children.select(start_seg=else_clause[0])
+                    if not any(s.is_type("newline") for s in after_else):
+                        for seg in all_segs[last_idx + 1 :]:
+                            if seg.is_type("newline"):
+                                replacement.append(seg)
+                                break
+
+                return LintResult(
+                    anchor=context.segment,
+                    fixes=[LintFix.replace(else_clause[0], replacement)],
+                )
+
+            # Found ELSE with NULL without comments. Delete the whole else clause
+            # as well as indents/whitespaces/meta preceding the ELSE. :TRICKY: Note
             # the use of reversed() to make select() effectively search in
             # reverse.
             before_else = children.reversed().select(
