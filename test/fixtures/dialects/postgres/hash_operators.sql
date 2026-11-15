@@ -12,6 +12,9 @@ SELECT 5#3;
 -- It's also the point where two geometric objects intersect.
 SELECT lseg '[(0,0),(2,2)]' # lseg '[(0,2),(2,0)]';
 
+-- `##` is the point on the second object closest to the first.
+SELECT point '(1,2)' ## lseg '[(0,0),(2,0)]';
+
 SELECT 5 OPERATOR(pg_catalog.#) 3;
 
 -- The JSON operators that start with `#` are still one operator each.

@@ -171,6 +171,9 @@ postgres_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         StringLexer("full_text_search_operator", "!!", SymbolSegment),
+        # `#` and `##` are operators in PostgreSQL, not comments as in ANSI. After
+        # the JSON operators, so that `#>`, `#>>` and `#-` lex as one.
+        RegexLexer("hash", r"##?", CodeSegment),
     ],
     before="like_operator",
 )
@@ -366,13 +369,6 @@ postgres_dialect.patch_lexer_matchers(
     ]
 )
 
-# `#` is an operator in PostgreSQL, not a comment as in ANSI. It goes last, after
-# `word`, so that a dialect which starts a name with `#`, like the temporary
-# tables of Redshift (`#temp_table`), lexes the name first.
-postgres_dialect.set_lexer_matchers(
-    postgres_dialect.get_lexer_matchers() + [StringLexer("hash", "#", CodeSegment)]
-)
-
 postgres_dialect.sets("reserved_keywords").clear()
 postgres_dialect.sets("reserved_keywords").update(
     get_keywords(postgres_keywords, "reserved")
@@ -480,8 +476,8 @@ postgres_dialect.add(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
     # `#` is the bitwise XOR of integers and bit strings, and the point where two
-    # geometric objects intersect.
-    HashOperatorSegment=StringParser("#", SymbolSegment, type="binary_operator"),
+    # geometric objects intersect. `##` is the closest point of one to the other.
+    HashOperatorSegment=TypedParser("hash", SymbolSegment, type="binary_operator"),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # The arguments of FETCH and MOVE: [ direction ] [ FROM | IN ] cursor_name
     # Two alternatives, so that a cursor named like a direction keyword

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d7a762e55ff7b83b95c7f2ce2eb8d72fda3ccc8c96ad3448a8687c123483549
+_hash: eb95f7f5df2c5cf04fe026ce844a72b4e1774e99004e8194df712f15c5a625b6
 file:
 - statement:
     select_statement:
@@ -88,6 +88,20 @@ file:
           - data_type:
               keyword: lseg
           - quoted_literal: "'[(0,2),(2,0)]'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              keyword: point
+          - quoted_literal: "'(1,2)'"
+          - binary_operator: '##'
+          - data_type:
+              keyword: lseg
+          - quoted_literal: "'[(0,0),(2,0)]'"
 - statement_terminator: ;
 - statement:
     select_statement:

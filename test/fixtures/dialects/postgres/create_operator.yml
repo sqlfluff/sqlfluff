@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02407cf770f32281a2f3cd475aced05b87c8bea74b0851cca664195433dc776f
+_hash: d20f5774a5d8f7a7260ffbc517797f9aa10a16f80c0e1fb952529f85718b7b25
 file:
 - statement:
     create_operator_statement:
@@ -262,10 +262,9 @@ file:
     - keyword: CREATE
     - keyword: OPERATOR
     - operator_name:
-      - naked_identifier: public
-      - dot: .
-      - operator: '#'
-      - operator: '#'
+        naked_identifier: public
+        dot: .
+        operator: '##'
     - bracketed:
       - start_bracket: (
       - keyword: LEFTARG
