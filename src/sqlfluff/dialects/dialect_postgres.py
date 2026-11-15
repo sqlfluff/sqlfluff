@@ -584,6 +584,8 @@ postgres_dialect.add(
         #     { unreserved_keyword | type_func_name_keyword | IDENT }
         # We'll just match any normal code/keyword string here to keep it simple.
         Ref("PropertiesNakedIdentifierSegment"),
+        # A qualified name, like `pg_catalog.snowball`, as pg_dump writes it.
+        Ref("ObjectReferenceSegment"),
     ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
     ExtendedTableReferenceGrammar=OneOf(
@@ -723,6 +725,11 @@ postgres_dialect.add(
                 ),
             ),
         ),
+    ),
+    # `RENAME TO` and `SET SCHEMA` of a text search dictionary, parser or template.
+    TextSearchObjectRenameOrSetSchemaGrammar=OneOf(
+        Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+        Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
     ),
     # An operator with its argument types, like `public.=== (box, box)`. A
     # prefix operator has no left argument: `- (NONE, integer)`.
@@ -5798,6 +5805,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTextSearchConfigurationStatementSegment"),
             Ref("AlterTextSearchConfigurationStatementSegment"),
             Ref("DropTextSearchConfigurationStatementSegment"),
+            Ref("CreateTextSearchObjectStatementSegment"),
+            Ref("AlterTextSearchObjectStatementSegment"),
+            Ref("DropTextSearchObjectStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
             Ref("ClusterStatementSegment"),
@@ -7588,6 +7598,88 @@ class DropTextSearchConfigurationStatementSegment(BaseSegment):
         "CONFIGURATION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateTextSearchObjectStatementSegment(BaseSegment):
+    """A `CREATE TEXT SEARCH DICTIONARY`, `PARSER` or `TEMPLATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtsdictionary.html
+    https://www.postgresql.org/docs/current/sql-createtsparser.html
+    https://www.postgresql.org/docs/current/sql-createtstemplate.html
+    """
+
+    type = "create_text_search_object_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TEXT",
+        "SEARCH",
+        OneOf("DICTIONARY", "PARSER", "TEMPLATE"),
+        Ref("ObjectReferenceSegment"),
+        Ref("DefinitionParametersSegment"),
+    )
+
+
+class AlterTextSearchObjectStatementSegment(BaseSegment):
+    """An `ALTER TEXT SEARCH DICTIONARY`, `PARSER` or `TEMPLATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-altertsdictionary.html
+    https://www.postgresql.org/docs/current/sql-altertsparser.html
+    https://www.postgresql.org/docs/current/sql-altertstemplate.html
+    """
+
+    type = "alter_text_search_object_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TEXT",
+        "SEARCH",
+        OneOf(
+            Sequence(
+                "DICTIONARY",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    # The options of the dictionary's template.
+                    Ref("DefinitionParametersSegment"),
+                    Sequence(
+                        "OWNER",
+                        "TO",
+                        OneOf(
+                            "CURRENT_ROLE",
+                            "CURRENT_USER",
+                            "SESSION_USER",
+                            # must come last; CURRENT_USER isn't reserved:
+                            Ref("RoleReferenceSegment"),
+                        ),
+                    ),
+                    Ref("TextSearchObjectRenameOrSetSchemaGrammar"),
+                ),
+            ),
+            Sequence(
+                OneOf("PARSER", "TEMPLATE"),
+                Ref("ObjectReferenceSegment"),
+                Ref("TextSearchObjectRenameOrSetSchemaGrammar"),
+            ),
+        ),
+    )
+
+
+class DropTextSearchObjectStatementSegment(BaseSegment):
+    """A `DROP TEXT SEARCH DICTIONARY`, `PARSER` or `TEMPLATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-droptsdictionary.html
+    https://www.postgresql.org/docs/current/sql-droptsparser.html
+    https://www.postgresql.org/docs/current/sql-droptstemplate.html
+    """
+
+    type = "drop_text_search_object_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TEXT",
+        "SEARCH",
+        OneOf("DICTIONARY", "PARSER", "TEMPLATE"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
