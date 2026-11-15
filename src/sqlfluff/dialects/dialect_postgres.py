@@ -5802,6 +5802,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LockTableStatementSegment"),
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
+            Ref("AlterCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
             Ref("CreateTablespaceStatementSegment"),
             Ref("AlterTablespaceStatementSegment"),
@@ -7704,6 +7705,36 @@ class CreateCollationStatementSegment(BaseSegment):
                 "FROM",
                 Ref("ObjectReferenceSegment"),
             ),
+        ),
+    )
+
+
+class AlterCollationStatementSegment(BaseSegment):
+    """An `ALTER COLLATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-altercollation.html
+    """
+
+    type = "alter_collation_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "COLLATION",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("REFRESH", "VERSION"),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
         ),
     )
 
