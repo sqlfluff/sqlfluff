@@ -222,9 +222,11 @@ jobs:
           path: dist
 
   rs-build-linux-exotic:
-    # Exotic architectures - only build on main branch, tags, or manual dispatch
-    # Skip on PRs to save CI time since tests only need x86_64
-    if: github.event_name != 'pull_request'
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -269,6 +271,11 @@ jobs:
           path: dist
 
   rs-build-musllinux:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -321,6 +328,11 @@ jobs:
           path: dist
 
   rs-build-windows:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -368,6 +380,11 @@ jobs:
           path: dist
 
   rs-build-macos:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -414,6 +431,11 @@ jobs:
           path: dist
 
   rs-build-sdist:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
