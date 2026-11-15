@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f52dd1c096aa3e0f7b74954f3d575e44eacc2075f1a3728116512962a3a0428e
+_hash: 634182673165eb8c8c31679658aa403dd36773fcb329223646041e57da570448
 file:
 - statement:
     alter_text_search_object_statement:
@@ -88,6 +88,30 @@ file:
     - keyword: OWNER
     - keyword: TO
     - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_text_search_object_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+        naked_identifier: my_english
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_text_search_object_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+        naked_identifier: my_english
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
 - statement_terminator: ;
 - statement:
     alter_text_search_object_statement:
