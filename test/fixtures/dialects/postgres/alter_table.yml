@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 17e9e3d50f09e76cc6a45f8ea96bbdaaf4aaaa4cc2996ae4a2dcd5d639ccf250
+_hash: 9463478e2e9f319c5feaa0eeb147aec0040c572bf0117ec0fe4e2011e31513df
 file:
 - statement:
     alter_table_statement:
@@ -2264,4 +2264,78 @@ file:
       - keyword: SET
       - keyword: COMPRESSION
       - parameter: LZ4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: PLAIN
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: EXTERNAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: MAIN
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: DEFAULT
 - statement_terminator: ;

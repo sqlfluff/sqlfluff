@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9428d483d86b5236294c9dc852712e1e87baa60f128006e903be5a0c98e261d
+_hash: 193b27cd8dc038b109bd88dd833ca930f0e223ff21fa628bfa72f118cd5ba762
 file:
 - statement:
     alter_materialized_view_statement:
@@ -186,6 +186,22 @@ file:
       - keyword: SET
       - keyword: STORAGE
       - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_name
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
