@@ -119,7 +119,15 @@ def load_toml_file_config(filepath: str) -> ConfigMappingType:
         raise SQLFluffUserError(
             _format_toml_parse_error(filepath, raw_toml, err)
         ) from None
-    config_dict = _validate_structure(toml_dict.get("tool", {}).get("sqlfluff", {}))
+    raw_config = toml_dict
+    for key, section in (("tool", "tool"), ("sqlfluff", "tool.sqlfluff")):
+        raw_config = raw_config.get(key, {})
+        if not isinstance(raw_config, dict):
+            raise SQLFluffUserError(
+                f"Config file {filepath} set an invalid `{section}` value: "
+                f"{raw_config!r}. Expected a TOML table."
+            )
+    config_dict = _validate_structure(raw_config)
 
     # NOTE: For the "rules" section of the sqlfluff config,
     # rule names are often qualified with a dot ".". In the
