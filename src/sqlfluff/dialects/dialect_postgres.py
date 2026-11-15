@@ -366,6 +366,13 @@ postgres_dialect.patch_lexer_matchers(
     ]
 )
 
+# `#` is an operator in PostgreSQL, not a comment as in ANSI. It goes last, after
+# `word`, so that a dialect which starts a name with `#`, like the temporary
+# tables of Redshift (`#temp_table`), lexes the name first.
+postgres_dialect.set_lexer_matchers(
+    postgres_dialect.get_lexer_matchers() + [StringLexer("hash", "#", CodeSegment)]
+)
+
 postgres_dialect.sets("reserved_keywords").clear()
 postgres_dialect.sets("reserved_keywords").update(
     get_keywords(postgres_keywords, "reserved")
@@ -472,6 +479,9 @@ postgres_dialect.add(
     PgTrgmOperatorSegment=TypedParser(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
+    # `#` is the bitwise XOR of integers and bit strings, and the point where two
+    # geometric objects intersect.
+    HashOperatorSegment=StringParser("#", SymbolSegment, type="binary_operator"),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # The arguments of FETCH and MOVE: [ direction ] [ FROM | IN ] cursor_name
     # Two alternatives, so that a cursor named like a direction keyword
@@ -728,6 +738,9 @@ postgres_dialect.add(
 
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(insert=[Ref("HashOperatorSegment")]),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
     BaseExpressionElementGrammar=OneOf(
         ansi_dialect.get_grammar("BaseExpressionElementGrammar"),

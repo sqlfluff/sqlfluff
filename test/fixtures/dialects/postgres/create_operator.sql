@@ -42,3 +42,9 @@ CREATE OPERATOR public.@@ (
     RIGHTARG = timestamp with time zone,
     FUNCTION = age_of
 );
+
+CREATE OPERATOR public.## (
+    LEFTARG = point,
+    RIGHTARG = lseg,
+    FUNCTION = close_ps
+);
