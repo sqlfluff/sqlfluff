@@ -4542,12 +4542,8 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     # ( column_name [, ... ] [, last_column_name WITHOUT OVERLAPS ] )
     # https://www.postgresql.org/docs/18/sql-createtable.html
     _temporal_column_list = Bracketed(
-        Delimited(
-            Sequence(
-                Ref("ColumnReferenceSegment"),
-                Sequence("WITHOUT", "OVERLAPS", optional=True),
-            )
-        )
+        Delimited(Ref("ColumnReferenceSegment")),
+        Sequence("WITHOUT", "OVERLAPS", optional=True),
     )
 
     match_grammar = Sequence(
