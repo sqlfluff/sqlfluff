@@ -3780,3 +3780,32 @@ def test__cli__command_render_char_limit_skip_fail_inline_config(tmp_path, monke
         args=[render, ["query.sql"]],
     )
     assert "Skipping to avoid parser lock" in result.output
+
+
+@pytest.mark.parametrize("config", ["tool = 1", "tool.sqlfluff = []"])
+def test__cli__non_table_toml_container_user_error(tmp_path, config):
+    """Non-table TOML containers report a concise error from explicit config."""
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(config + "\n", encoding="utf-8")
+    sql_file = tmp_path / "query.sql"
+    sql_file.write_text("SELECT 1;", encoding="utf-8")
+    try:
+        result = invoke_assert_code(
+            ret_code=2,
+            args=[
+                lint,
+                [
+                    "--ignore-local-config",
+                    "--config",
+                    str(config_file),
+                    "--dialect",
+                    "ansi",
+                    str(sql_file),
+                ],
+            ],
+        )
+    finally:
+        clear_config_caches()
+    assert "Traceback" not in result.output
+    assert "Expected a TOML table" in result.output
+    assert str(config_file) in result.output
