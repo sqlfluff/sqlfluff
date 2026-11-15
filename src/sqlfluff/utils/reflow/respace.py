@@ -254,9 +254,12 @@ def determine_constraints(
         # The exception is `any`, which leaves the spacing within a segment as
         # it is, so it holds for the segments nested inside it too, like the
         # groups of a `MATCH_RECOGNIZE` pattern. The other constraints only
-        # space a segment's own children.
+        # space a segment's own children. The configs run from the outermost
+        # parent inwards, so search them in reverse for the nearest `any`.
         if (within_constraint or "").partition(":")[0] != "any":
-            for stack_hash, constraint in prev_block.stack_spacing_configs.items():
+            for stack_hash, constraint in reversed(
+                prev_block.stack_spacing_configs.items()
+            ):
                 if constraint.partition(":")[0] == "any" and stack_hash in common:
                     within_constraint = constraint
                     break

@@ -516,6 +516,20 @@ test_trino_match_pattern_outer_brackets:
     core:
       dialect: trino
 
+test_trino_match_pattern_nearest_any:
+  # Within a group, the nearest `any` applies, which is the pattern's, so the
+  # line break stays although the clause around it is `any:inline`.
+  pass_str: |
+    select * from orders match_recognize (order by orderdate pattern (a (b
+        c+) d) define b as totalprice < prev(totalprice));
+  configs:
+    core:
+      dialect: trino
+    layout:
+      type:
+        match_recognize_clause:
+          spacing_within: any:inline
+
 test_hive_set_statement:
   # This should use ColonDelimiter so it shouldn't have spacing around it.
   pass_str: |
