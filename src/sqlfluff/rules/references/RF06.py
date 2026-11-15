@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
-from sqlfluff.core.parser import CodeSegment, IdentifierSegment
+from sqlfluff.core.parser import CodeSegment, IdentifierSegment, PyLexer
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -295,6 +295,11 @@ class Rule_RF06(BaseRule):
             regex.IGNORECASE,
         ):
             return None
+        # Unquoted, a name like `1e5` or `0x1F` in MySQL matches the pattern above,
+        # but the lexer reads it as a number, so the reference would become a
+        # literal: `SELECT 1e5` selects 100000, not the column.
+        if self._lexes_as_number(identifier_contents, context):
+            return None
         # Unquoted, a bare function name (e.g. "user" in PostgreSQL) is parsed as a
         # call to that function rather than as a reference to the identifier.
         if identifier_contents.upper() in {
@@ -324,6 +329,19 @@ class Rule_RF06(BaseRule):
                 )
             ],
             description=f"Unnecessary quoted identifier {context.segment.raw}.",
+        )
+
+    @staticmethod
+    def _lexes_as_number(raw: str, context: RuleContext) -> bool:
+        """Whether the dialect's lexer reads the start of the raw string as a number."""
+        lexer_matchers = context.dialect.get_lexer_matchers()
+        elements = PyLexer.lex_match(raw, lexer_matchers).elements
+        # Build the first segment, as its type can come from the lexer's settings.
+        return any(
+            element.matcher.construct_segment(
+                element.raw, context.segment.get_start_point_marker()
+            ).is_type("numeric_literal")
+            for element in elements[:1]
         )
 
     @staticmethod
