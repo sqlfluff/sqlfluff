@@ -142,6 +142,19 @@ bigquery_dialect.patch_lexer_matchers(
 )
 
 bigquery_dialect.add(
+    # resource_type resource_name in GRANT/REVOKE, e.g. `SCHEMA myProject.myDataset`.
+    # TableReferenceSegment (not ObjectReferenceSegment) so that dashed project IDs
+    # like my-project.mydataset.mytable are accepted, as they are elsewhere.
+    AccessResourceGrammar=Sequence(
+        OneOf(
+            "SCHEMA",
+            "TABLE",
+            "VIEW",
+            "PROJECT",
+            Sequence("EXTERNAL", "TABLE"),
+        ),
+        Ref("TableReferenceSegment"),
+    ),
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         LiteralSegment,
@@ -2247,51 +2260,38 @@ class GrantToSegment(BaseSegment):
     )
 
 
-class AccessStatementSegment(BaseSegment):
-    """A `GRANT` or `REVOKE` statement.
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement.
 
     BigQuery's DCL grants IAM roles on a resource to a list of principals,
-    which is much narrower than the generic ANSI grammar this replaces.
+    which is much narrower than the generic ANSI grammar.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
     """
 
-    type = "access_statement"
-
-    # resource_type resource_name, e.g. `SCHEMA myProject.myDataset`.
-    # TableReferenceSegment (not ObjectReferenceSegment) so that dashed
-    # project IDs like my-project.mydataset.mytable are accepted, as they
-    # are in other table references.
-    _resource = Sequence(
-        OneOf(
-            "SCHEMA",
-            "TABLE",
-            "VIEW",
-            "PROJECT",
-            Sequence("EXTERNAL", "TABLE"),
-        ),
-        Ref("TableReferenceSegment"),
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        Delimited(Ref("RoleReferenceSegment"), terminators=["ON"]),
+        "ON",
+        Ref("AccessResourceGrammar"),
+        "TO",
+        Delimited(Ref("QuotedLiteralSegment")),
     )
 
-    # Roles are quoted identifiers such as `roles/bigquery.dataViewer`;
-    # principals are string literals such as "user:raha@example.com".
-    match_grammar: Matchable = OneOf(
-        Sequence(
-            "GRANT",
-            Delimited(Ref("ObjectReferenceSegment"), terminators=["ON"]),
-            "ON",
-            _resource,
-            "TO",
-            Delimited(Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "REVOKE",
-            Delimited(Ref("ObjectReferenceSegment"), terminators=["ON"]),
-            "ON",
-            _resource,
-            "FROM",
-            Delimited(Ref("QuotedLiteralSegment")),
-        ),
+
+class RevokeStatementSegment(ansi.RevokeStatementSegment):
+    """A `REVOKE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+    """
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        Delimited(Ref("RoleReferenceSegment"), terminators=["ON"]),
+        "ON",
+        Ref("AccessResourceGrammar"),
+        "FROM",
+        Delimited(Ref("QuotedLiteralSegment")),
     )
 
 

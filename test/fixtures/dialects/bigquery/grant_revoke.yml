@@ -3,128 +3,136 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d88cb75f14959c5d606721b6b6b1f5e425b24ee82b241dfc6e7b447bc70fa305
+_hash: c6a9b43b821eed6eefdb7150405de41bb358a98b9488c2a43cce457769c12f88
 file:
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.dataViewer`'
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - table_reference:
-        quoted_identifier: '`myProject`'
-        dot: .
-        naked_identifier: myDataset
-    - keyword: TO
-    - quoted_literal: '"user:raha@example-pet-store.com"'
-    - comma: ','
-    - quoted_literal: '"user:sasha@example-pet-store.com"'
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.dataViewer`'
+      - keyword: 'ON'
+      - keyword: SCHEMA
+      - table_reference:
+          quoted_identifier: '`myProject`'
+          dot: .
+          naked_identifier: myDataset
+      - keyword: TO
+      - quoted_literal: '"user:raha@example-pet-store.com"'
+      - comma: ','
+      - quoted_literal: '"user:sasha@example-pet-store.com"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.dataViewer`'
-    - comma: ','
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.dataEditor`'
-    - keyword: 'ON'
-    - keyword: TABLE
-    - table_reference:
-        quoted_identifier: '`myProject.myDataset.myTable`'
-    - keyword: TO
-    - quoted_literal: '"serviceAccount:robot@example.iam.gserviceaccount.com"'
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.dataViewer`'
+      - comma: ','
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.dataEditor`'
+      - keyword: 'ON'
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '`myProject.myDataset.myTable`'
+      - keyword: TO
+      - quoted_literal: '"serviceAccount:robot@example.iam.gserviceaccount.com"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.dataViewer`'
-    - keyword: 'ON'
-    - keyword: VIEW
-    - table_reference:
-      - naked_identifier: myDataset
-      - dot: .
-      - naked_identifier: myView
-    - keyword: TO
-    - quoted_literal: '"specialGroup:allAuthenticatedUsers"'
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.dataViewer`'
+      - keyword: 'ON'
+      - keyword: VIEW
+      - table_reference:
+        - naked_identifier: myDataset
+        - dot: .
+        - naked_identifier: myView
+      - keyword: TO
+      - quoted_literal: '"specialGroup:allAuthenticatedUsers"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.dataViewer`'
-    - keyword: 'ON'
-    - keyword: EXTERNAL
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: myDataset
-      - dot: .
-      - naked_identifier: myExternalTable
-    - keyword: TO
-    - quoted_literal: '"domain:example.com"'
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.dataViewer`'
+      - keyword: 'ON'
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: myDataset
+        - dot: .
+        - naked_identifier: myExternalTable
+      - keyword: TO
+      - quoted_literal: '"domain:example.com"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        quoted_identifier: '`roles/aiplatform.user`'
-    - comma: ','
-    - object_reference:
-        quoted_identifier: '`roles/run.invoker`'
-    - keyword: 'ON'
-    - keyword: PROJECT
-    - table_reference:
-        quoted_identifier: '`my-vertex-project`'
-    - keyword: TO
-    - quoted_literal: '"connection:my-bq-project.us.my-connection"'
-    - comma: ','
-    - quoted_literal: '"connection:another-bq-project.eu.other-connection"'
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+          quoted_identifier: '`roles/aiplatform.user`'
+      - comma: ','
+      - role_reference:
+          quoted_identifier: '`roles/run.invoker`'
+      - keyword: 'ON'
+      - keyword: PROJECT
+      - table_reference:
+          quoted_identifier: '`my-vertex-project`'
+      - keyword: TO
+      - quoted_literal: '"connection:my-bq-project.us.my-connection"'
+      - comma: ','
+      - quoted_literal: '"connection:another-bq-project.eu.other-connection"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.admin`'
-    - keyword: 'ON'
-    - keyword: SCHEMA
-    - table_reference:
-        quoted_identifier: '`myProject`'
-        dot: .
-        naked_identifier: myDataset
-    - keyword: FROM
-    - quoted_literal: '"group:example-team@example-pet-store.com"'
-    - comma: ','
-    - quoted_literal: '"serviceAccount:user@test-project.iam.gserviceaccount.com"'
+      revoke_statement:
+      - keyword: REVOKE
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.admin`'
+      - keyword: 'ON'
+      - keyword: SCHEMA
+      - table_reference:
+          quoted_identifier: '`myProject`'
+          dot: .
+          naked_identifier: myDataset
+      - keyword: FROM
+      - quoted_literal: '"group:example-team@example-pet-store.com"'
+      - comma: ','
+      - quoted_literal: '"serviceAccount:user@test-project.iam.gserviceaccount.com"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: REVOKE
-    - object_reference:
-        quoted_identifier: '`roles/run.invoker`'
-    - keyword: 'ON'
-    - keyword: PROJECT
-    - table_reference:
-        quoted_identifier: '`my-vertex-project`'
-    - keyword: FROM
-    - quoted_literal: '"connection:my-bq-project.us.my-connection"'
+      revoke_statement:
+      - keyword: REVOKE
+      - role_reference:
+          quoted_identifier: '`roles/run.invoker`'
+      - keyword: 'ON'
+      - keyword: PROJECT
+      - table_reference:
+          quoted_identifier: '`my-vertex-project`'
+      - keyword: FROM
+      - quoted_literal: '"connection:my-bq-project.us.my-connection"'
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
-    - object_reference:
-        quoted_identifier: '`roles/bigquery.dataViewer`'
-    - keyword: 'ON'
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: my
-      - dash: '-'
-      - naked_identifier: project
-      - dot: .
-      - naked_identifier: mydataset
-      - dot: .
-      - naked_identifier: mytable
-    - keyword: TO
-    - quoted_literal: '"user:raha@example-pet-store.com"'
+      grant_statement:
+      - keyword: GRANT
+      - role_reference:
+          quoted_identifier: '`roles/bigquery.dataViewer`'
+      - keyword: 'ON'
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: my
+        - dash: '-'
+        - naked_identifier: project
+        - dot: .
+        - naked_identifier: mydataset
+        - dot: .
+        - naked_identifier: mytable
+      - keyword: TO
+      - quoted_literal: '"user:raha@example-pet-store.com"'
 - statement_terminator: ;
