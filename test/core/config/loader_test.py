@@ -654,3 +654,20 @@ def test__config__format_toml_parse_error_line_only_location() -> None:
     assert "Invalid value" in message
     assert "line 7" in message
     assert "column" not in message
+
+
+@pytest.mark.parametrize("value", ["1", "true", '"ansi"', "[1, 2]"])
+@pytest.mark.parametrize("section", ["tool", "tool.sqlfluff"])
+def test__config__load_toml_non_table_containers(tmp_path, section, value):
+    """Wrong TOML container types give a user error, not an AttributeError."""
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text(f"{section} = {value}\n", encoding="utf-8")
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), "pyproject.toml")
+    finally:
+        clear_config_caches()
+    message = str(exc_info.value)
+    assert str(pyproject_path) in message
+    assert f"`{section}`" in message
+    assert "table" in message
