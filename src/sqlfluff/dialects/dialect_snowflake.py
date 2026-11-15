@@ -1688,6 +1688,19 @@ class DatabaseRoleReferenceSegment(ansi.ObjectReferenceSegment):
     )
 
 
+class ApplicationRoleReferenceSegment(ansi.ObjectReferenceSegment):
+    """Application role reference ([application_name.]rolename).
+
+    See https://docs.snowflake.com/en/sql-reference/sql/grant-application-role
+    """
+
+    type = "application_role_reference"
+    match_grammar: Matchable = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class ExternalVolumeReferenceSegment(ansi.ObjectReferenceSegment):
     """External Volume reference."""
 
@@ -4573,7 +4586,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                 "SCHEMA",
                 Ref("SchemaReferenceSegment"),
             ),
-            Sequence("APPLICATION", "ROLE", Ref("RoleReferenceSegment")),
+            Sequence("APPLICATION", "ROLE", Ref("ApplicationRoleReferenceSegment")),
             # In the case where a role is granted non-explicitly,
             # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
             # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
