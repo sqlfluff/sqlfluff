@@ -660,6 +660,13 @@ postgres_dialect.add(
     SessionInformationUserFunctionsGrammar=OneOf(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
     ),
+    # The user of CREATE, ALTER and DROP USER MAPPING. The keywords come first,
+    # so that `USER` and `CURRENT_USER` parse as keywords rather than as role names.
+    UserMappingUserGrammar=OneOf(
+        "PUBLIC",
+        Ref("SessionInformationUserFunctionsGrammar"),
+        Ref("SingleIdentifierGrammar"),
+    ),
     ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
@@ -5789,6 +5796,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
             Ref("ImportForeignSchemaStatementSegment"),
+            Ref("AlterUserMappingStatementSegment"),
+            Ref("DropUserMappingStatementSegment"),
             Ref("CreateForeignTableStatementSegment"),
             Ref("DropAggregateStatementSegment"),
             Ref("CreateAggregateStatementSegment"),
@@ -8050,14 +8059,50 @@ class CreateUserMappingStatementSegment(BaseSegment):
         Ref("CreateUserMappingGrammar"),
         Ref("IfNotExistsGrammar", optional=True),
         "FOR",
-        OneOf(
-            "PUBLIC",
-            Ref("SingleIdentifierGrammar"),
-            Ref("SessionInformationUserFunctionsGrammar"),
-        ),
+        Ref("UserMappingUserGrammar"),
         "SERVER",
         Ref("ServerReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
+    )
+
+
+class AlterUserMappingStatementSegment(BaseSegment):
+    """An `ALTER USER MAPPING` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterusermapping.html
+    """
+
+    type = "alter_user_mapping_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "USER",
+        "MAPPING",
+        "FOR",
+        Ref("UserMappingUserGrammar"),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        Indent,
+        Ref("AlterOptionsGrammar"),
+        Dedent,
+    )
+
+
+class DropUserMappingStatementSegment(BaseSegment):
+    """A `DROP USER MAPPING` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropusermapping.html
+    """
+
+    type = "drop_user_mapping_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "USER",
+        "MAPPING",
+        Ref("IfExistsGrammar", optional=True),
+        "FOR",
+        Ref("UserMappingUserGrammar"),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
     )
 
 
