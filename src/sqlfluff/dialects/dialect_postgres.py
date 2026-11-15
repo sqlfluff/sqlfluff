@@ -1120,34 +1120,38 @@ postgres_dialect.replace(
 )
 
 
+class OperatorNameSegment(BaseSegment):
+    """The name of an operator, like `===`, or `app.===` with its schema.
+
+    The lexer only knows some operators, so it splits one it doesn't know, like
+    `===`, into several tokens. The name is that run of tokens, with no gaps
+    between them, so that layout rules keep it in one piece.
+
+    https://www.postgresql.org/docs/current/sql-createoperator.html
+    """
+
+    type = "operator_name"
+    match_grammar = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), optional=True),
+        AnyNumberOf(
+            RegexParser(r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, type="operator"),
+            min_times=1,
+            allow_gaps=False,
+        ),
+    )
+
+
 class QualifiedOperatorSegment(BaseSegment):
-    """A qualified operator using OPERATOR(schema.operator) syntax.
+    """An operator in `OPERATOR()` syntax, like `OPERATOR(pg_catalog.+)`.
+
+    The schema is optional, as in PostgreSQL: `OPERATOR(+)` is valid too.
 
     https://www.postgresql.org/docs/current/sql-createoperator.html
     """
 
     type = "qualified_operator"
 
-    match_grammar = Sequence(
-        "OPERATOR",
-        Bracketed(
-            Sequence(
-                Ref("NakedIdentifierSegment"),  # schema name
-                Ref("DotSegment"),
-                # Match one or more operator symbols
-                # to support multi-character operators
-                # Similar to CreateOperatorStatementSegment
-                AnyNumberOf(
-                    RegexParser(
-                        r"[!<>=~@#%^&|`?+\-*/]+",
-                        SymbolSegment,
-                        type="operator",
-                    ),
-                    min_times=1,
-                ),
-            ),
-        ),
-    )
+    match_grammar = Sequence("OPERATOR", Bracketed(Ref("OperatorNameSegment")))
 
 
 class OverlapSegment(CompositeComparisonOperatorSegment):
@@ -8340,34 +8344,22 @@ class CreateOperatorStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "OPERATOR",
-        AnyNumberOf(
-            RegexParser(r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"),
-        ),
+        Ref("OperatorNameSegment"),
         Bracketed(
             Delimited(
                 Sequence(
                     OneOf("LEFTARG", "RIGHTARG"),
                     Ref("EqualsSegment"),
-                    Ref("ObjectReferenceSegment"),
+                    Ref("DatatypeSegment"),
                     optional=True,
                 ),
                 Sequence(
-                    "COMMUTATOR",
+                    OneOf("COMMUTATOR", "NEGATOR"),
                     Ref("EqualsSegment"),
-                    AnyNumberOf(
-                        RegexParser(
-                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"
-                        ),
-                    ),
-                    optional=True,
-                ),
-                Sequence(
-                    "NEGATOR",
-                    Ref("EqualsSegment"),
-                    AnyNumberOf(
-                        RegexParser(
-                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "negator"
-                        ),
+                    OneOf(
+                        Ref("OperatorNameSegment"),
+                        # pg_dump writes `OPERATOR(schema.name)`.
+                        Ref("QualifiedOperatorSegment"),
                     ),
                     optional=True,
                 ),

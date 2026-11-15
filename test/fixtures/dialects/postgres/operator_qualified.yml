@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d167b7dec7a81b3c77bd82b7a72b67629550d70f755d8e90b8b0541bbc1cbf3
+_hash: 9b1ca4de16a39b0638d3d54d10ba74b3aefdd6ee875314fb1b3fdb0d3205d671
 file:
 - statement:
     select_statement:
@@ -29,9 +29,10 @@ file:
             keyword: OPERATOR
             bracketed:
               start_bracket: (
-              naked_identifier: public
-              dot: .
-              operator: '='
+              operator_name:
+                naked_identifier: public
+                dot: .
+                operator: '='
               end_bracket: )
           quoted_literal: "'value1'"
 - statement_terminator: ;
@@ -58,12 +59,13 @@ file:
           qualified_operator:
             keyword: OPERATOR
             bracketed:
-            - start_bracket: (
-            - naked_identifier: pg_catalog
-            - dot: .
-            - operator: <
-            - operator: '>'
-            - end_bracket: )
+              start_bracket: (
+              operator_name:
+              - naked_identifier: pg_catalog
+              - dot: .
+              - operator: <
+              - operator: '>'
+              end_bracket: )
           quoted_literal: "'value2'"
 - statement_terminator: ;
 - statement:
@@ -90,9 +92,10 @@ file:
             keyword: OPERATOR
             bracketed:
               start_bracket: (
-              naked_identifier: myschema
-              dot: .
-              operator: '>'
+              operator_name:
+                naked_identifier: myschema
+                dot: .
+                operator: '>'
               end_bracket: )
           numeric_literal: '100'
 - statement_terminator: ;
@@ -120,9 +123,10 @@ file:
             keyword: OPERATOR
             bracketed:
               start_bracket: (
-              naked_identifier: myschema
-              dot: .
-              operator: <
+              operator_name:
+                naked_identifier: myschema
+                dot: .
+                operator: <
               end_bracket: )
           numeric_literal: '100'
 - statement_terminator: ;
@@ -149,12 +153,13 @@ file:
           qualified_operator:
             keyword: OPERATOR
             bracketed:
-            - start_bracket: (
-            - naked_identifier: public
-            - dot: .
-            - operator: '>'
-            - operator: '='
-            - end_bracket: )
+              start_bracket: (
+              operator_name:
+              - naked_identifier: public
+              - dot: .
+              - operator: '>'
+              - operator: '='
+              end_bracket: )
           numeric_literal: '50'
 - statement_terminator: ;
 - statement:
@@ -180,12 +185,13 @@ file:
           qualified_operator:
             keyword: OPERATOR
             bracketed:
-            - start_bracket: (
-            - naked_identifier: public
-            - dot: .
-            - operator: <
-            - operator: '='
-            - end_bracket: )
+              start_bracket: (
+              operator_name:
+              - naked_identifier: public
+              - dot: .
+              - operator: <
+              - operator: '='
+              end_bracket: )
           numeric_literal: '50'
 - statement_terminator: ;
 - statement:
@@ -200,9 +206,10 @@ file:
               keyword: OPERATOR
               bracketed:
                 start_bracket: (
-                naked_identifier: public
-                dot: .
-                operator: +
+                operator_name:
+                  naked_identifier: public
+                  dot: .
+                  operator: +
                 end_bracket: )
           - column_reference:
               naked_identifier: col2
@@ -230,9 +237,10 @@ file:
               keyword: OPERATOR
               bracketed:
                 start_bracket: (
-                naked_identifier: public
-                dot: .
-                operator: '-'
+                operator_name:
+                  naked_identifier: public
+                  dot: .
+                  operator: '-'
                 end_bracket: )
           - column_reference:
               naked_identifier: col2
@@ -260,9 +268,10 @@ file:
               keyword: OPERATOR
               bracketed:
                 start_bracket: (
-                naked_identifier: public
-                dot: .
-                operator: '*'
+                operator_name:
+                  naked_identifier: public
+                  dot: .
+                  operator: '*'
                 end_bracket: )
           - column_reference:
               naked_identifier: col2
@@ -290,9 +299,10 @@ file:
               keyword: OPERATOR
               bracketed:
                 start_bracket: (
-                naked_identifier: public
-                dot: .
-                operator: /
+                operator_name:
+                  naked_identifier: public
+                  dot: .
+                  operator: /
                 end_bracket: )
           - column_reference:
               naked_identifier: col2
@@ -319,12 +329,13 @@ file:
           - qualified_operator:
               keyword: OPERATOR
               bracketed:
-              - start_bracket: (
-              - naked_identifier: public
-              - dot: .
-              - operator: '|'
-              - operator: '|'
-              - end_bracket: )
+                start_bracket: (
+                operator_name:
+                - naked_identifier: public
+                - dot: .
+                - operator: '|'
+                - operator: '|'
+                end_bracket: )
           - column_reference:
               naked_identifier: str2
           alias_expression:
@@ -383,9 +394,10 @@ file:
             keyword: OPERATOR
             bracketed:
               start_bracket: (
-              naked_identifier: public
-              dot: .
-              operator: '>'
+              operator_name:
+                naked_identifier: public
+                dot: .
+                operator: '>'
               end_bracket: )
           numeric_literal: '5'
 - statement_terminator: ;
@@ -437,9 +449,10 @@ file:
                   keyword: OPERATOR
                   bracketed:
                     start_bracket: (
-                    naked_identifier: public
-                    dot: .
-                    operator: '='
+                    operator_name:
+                      naked_identifier: public
+                      dot: .
+                      operator: '='
                     end_bracket: )
               - column_reference:
                 - naked_identifier: t2
@@ -463,9 +476,10 @@ file:
                     keyword: OPERATOR
                     bracketed:
                       start_bracket: (
-                      naked_identifier: public
-                      dot: .
-                      operator: '>'
+                      operator_name:
+                        naked_identifier: public
+                        dot: .
+                        operator: '>'
                       end_bracket: )
                   numeric_literal: '100'
               - keyword: THEN
@@ -479,12 +493,13 @@ file:
                   qualified_operator:
                     keyword: OPERATOR
                     bracketed:
-                    - start_bracket: (
-                    - naked_identifier: public
-                    - dot: .
-                    - operator: <
-                    - operator: '='
-                    - end_bracket: )
+                      start_bracket: (
+                      operator_name:
+                      - naked_identifier: public
+                      - dot: .
+                      - operator: <
+                      - operator: '='
+                      end_bracket: )
                   numeric_literal: '100'
               - keyword: THEN
               - expression:
@@ -526,9 +541,10 @@ file:
             keyword: OPERATOR
             bracketed:
               start_bracket: (
-              naked_identifier: schema1
-              dot: .
-              operator: '='
+              operator_name:
+                naked_identifier: schema1
+                dot: .
+                operator: '='
               end_bracket: )
         - column_reference:
             naked_identifier: val1
@@ -538,12 +554,77 @@ file:
         - qualified_operator:
             keyword: OPERATOR
             bracketed:
-            - start_bracket: (
-            - naked_identifier: schema2
-            - dot: .
-            - operator: <
-            - operator: '>'
-            - end_bracket: )
+              start_bracket: (
+              operator_name:
+              - naked_identifier: schema2
+              - dot: .
+              - operator: <
+              - operator: '>'
+              end_bracket: )
         - column_reference:
             naked_identifier: val2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              operator_name:
+              - naked_identifier: myschema
+              - dot: .
+              - operator: '='
+              - operator: '='
+              - operator: '='
+              end_bracket: )
+        - column_reference:
+            naked_identifier: col2
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: col2
+        - qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              operator_name:
+              - quoted_identifier: '"My Schema"'
+              - dot: .
+              - operator: '='
+              - operator: '='
+              - operator: '='
+              end_bracket: )
+        - column_reference:
+            naked_identifier: col3
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: col3
+        - qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              operator_name:
+              - operator: <
+              - operator: <
+              - operator: <
+              end_bracket: )
+        - column_reference:
+            naked_identifier: col4
 - statement_terminator: ;
