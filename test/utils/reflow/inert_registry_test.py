@@ -1,11 +1,17 @@
 """Tests for the inert indent registry used by the reflow machinery."""
 
 import gc
+from typing import cast
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import BaseSegment, Indent
 from sqlfluff.utils.reflow.depthmap import DepthMap
-from sqlfluff.utils.reflow.elements import _inert_indent_uuids, _mark_inert_indents
+from sqlfluff.utils.reflow.elements import (
+    ReflowPoint,
+    _inert_indent_uuids,
+    _mark_inert_indents,
+)
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 def _marked_indents(root: BaseSegment) -> list:
@@ -75,3 +81,50 @@ def test_inert_indent_registry_prunes_dead_buckets_eagerly():
         assert uuid not in _inert_indent_uuids._refs, (
             f"bucket for uuid {uuid} was not pruned once its tree was freed"
         )
+
+
+def test_get_indent_segment_vals_skips_marked_indents():
+    """`ReflowPoint.get_indent_segment_vals` skips marked inert indents.
+
+    The wiggle-room paths in `reindent.py` sum indent values point by
+    point, so a marked (inert) indent must contribute nothing there
+    either -- exactly as in `_generate_indent_stats`.
+    """
+    config = FluffConfig(overrides={"dialect": "snowflake"})
+    linter = Linter(config=config)
+    root = linter.parse_string(
+        "SELECT *\nFROM (\n    VALUES\n        ('v1', 'v2')\n) AS x (c1, c2);"
+    ).tree
+    seq = ReflowSequence.from_root(root, config=config)
+
+    marked = {
+        seg.uuid
+        for seg in root.raw_segments
+        if seg.is_type("indent") and _inert_indent_uuids.is_marked(seg.uuid)
+    }
+    assert marked, "expected the bracketed VALUES indents to be marked"
+
+    points_with_marked = 0
+    for elem in seq.elements:
+        if not isinstance(elem, ReflowPoint):
+            continue
+        indent_segs = [cast(Indent, s) for s in elem.segments if s.is_type("indent")]
+        marked_here = {s.uuid for s in indent_segs} & marked
+        if not marked_here:
+            continue
+        points_with_marked += 1
+        # Marked indents contribute nothing; every unmarked indent in
+        # the same point (e.g. the enclosing bracket's own Dedent) still
+        # contributes its value, with and without block indents.
+        expected = [s.indent_val for s in indent_segs if s.uuid not in marked_here]
+        assert elem.get_indent_segment_vals() == expected
+        expected_no_block = [
+            s.indent_val
+            for s in indent_segs
+            if s.uuid not in marked_here and not s.block_uuid
+        ]
+        assert (
+            elem.get_indent_segment_vals(exclude_block_indents=True)
+            == expected_no_block
+        )
+    assert points_with_marked, "no reflow point carried a marked indent"
