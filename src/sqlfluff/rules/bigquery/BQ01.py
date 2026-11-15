@@ -56,8 +56,10 @@ class Rule_BQ01(BaseRule):
             return None
 
         if context.dialect.name not in self._target_dialects:
-            # The crawler only finds ``with_expression`` in the bigquery
-            # dialect, so this branch is defensive only.
-            return None  # pragma: no cover
+            # ``with_expression`` is only defined in the bigquery dialect, so
+            # the crawler cannot reach this rule elsewhere today. Keep the
+            # guard (and test/rules/std_BQ01_test.py) so a future dialect that
+            # grows the segment does not get flagged by accident.
+            return None
 
         return LintResult(anchor=context.segment)

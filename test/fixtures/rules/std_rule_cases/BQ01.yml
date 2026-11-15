@@ -42,8 +42,10 @@ test_pass_cte_is_not_a_with_expression:
         forbid_with_expressions: true
 
 test_pass_other_dialect:
+  # A CTE is the closest thing postgres has to a WITH expression: if the
+  # crawler or the dialect guard were widened by mistake, this would be caught.
   pass_str: |
-    SELECT 1 AS x;
+    WITH t AS (SELECT 1 AS x) SELECT * FROM t;
   configs:
     core:
       dialect: postgres
