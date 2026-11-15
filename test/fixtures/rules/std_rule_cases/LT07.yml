@@ -1,5 +1,22 @@
 rule: LT07
 
+test_pass_consumed_closing_newline_with_indentation:
+  pass_str: |
+    WITH c AS (
+        SELECT 1{# note -#}
+        )
+
+    SELECT * FROM c
+
+test_pass_consumed_closing_newline_with_blank_line:
+  pass_str: |
+    WITH c AS (
+        SELECT 1{% if true %}{% endif -%}
+
+        )
+
+    SELECT * FROM c
+
 test_pass_with_clause_closing_aligned:
   # with statement indentation
   pass_str: |

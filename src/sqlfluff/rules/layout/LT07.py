@@ -102,6 +102,7 @@ class Rule_LT07(BaseRule):
         raw_segments = context.segment.raw_segments
         for seg in cte_end_brackets:
             contains_non_whitespace = False
+            seen_template = False
             idx = context.segment.raw_segment_index(seg)
             self.logger.debug("End bracket %s has idx %s", seg, idx)
             # Search backward through the raw segments from just before
@@ -115,8 +116,16 @@ class Rule_LT07(BaseRule):
                 # ...or a consumed newline in a placeholder.
                 elif elem.is_type("placeholder"):
                     placeholder = cast(TemplateSegment, elem)
-                    if placeholder.source_str == "\n":
+                    if placeholder.source_str == "\n" or (
+                        not seen_template
+                        and placeholder.block_type == "literal"
+                        and "\n" in placeholder.source_str
+                    ):
                         break
+                    # A newline before a template tag does not separate the
+                    # bracket from that tag on its source line.
+                    if placeholder.block_type != "literal":
+                        seen_template = True
                 elif not elem.is_type("indent", "whitespace"):
                     self.logger.debug("Found non-whitespace: %s", elem)
                     contains_non_whitespace = True
