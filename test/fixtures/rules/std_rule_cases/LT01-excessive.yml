@@ -466,6 +466,70 @@ test_snowflake_match_pattern:
     core:
       dialect: snowflake
 
+test_snowflake_match_pattern_groups:
+  # Nor is the spacing within its groups, exclusions and PERMUTE, so a
+  # quantifier stays on its symbol.
+  pass_str: |
+    select * from stock_price_history
+      match_recognize (
+        order by price_date
+        pattern (s1 s2*? ( {- s3 -} s4 )+ (a+ b*)+ permute(c+, d?){1,2})
+        define
+          s1 as price > 0
+      );
+  configs:
+    core:
+      dialect: snowflake
+
+test_trino_match_pattern_groups:
+  pass_str: |
+    select * from orders
+      match_recognize (
+        order by orderdate
+        pattern (a {- b+ c+ -} d+ (e?? f{3, 5}?)* permute(g+, h))
+        define
+          b as totalprice < prev(totalprice)
+      );
+  configs:
+    core:
+      dialect: trino
+
+test_trino_match_pattern_outer_brackets:
+  # The brackets around the pattern are spaced as usual.
+  fail_str: |
+    select * from orders
+      match_recognize (
+        order by orderdate
+        pattern ( (a+ b+) c )
+        define
+          b as totalprice < prev(totalprice)
+      );
+  fix_str: |
+    select * from orders
+      match_recognize (
+        order by orderdate
+        pattern ((a+ b+) c)
+        define
+          b as totalprice < prev(totalprice)
+      );
+  configs:
+    core:
+      dialect: trino
+
+test_trino_match_pattern_nearest_any:
+  # Within a group, the nearest `any` applies, which is the pattern's, so the
+  # line break stays although the clause around it is `any:inline`.
+  pass_str: |
+    select * from orders match_recognize (order by orderdate pattern (a (b
+        c+) d) define b as totalprice < prev(totalprice));
+  configs:
+    core:
+      dialect: trino
+    layout:
+      type:
+        match_recognize_clause:
+          spacing_within: any:inline
+
 test_hive_set_statement:
   # This should use ColonDelimiter so it shouldn't have spacing around it.
   pass_str: |
