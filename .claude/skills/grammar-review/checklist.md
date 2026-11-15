@@ -82,7 +82,7 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
 19. **Suggestion:** syntax valid in many dialects goes in ANSI once, instead of an override in each dialect.
     ANSI may be a little looser than individual dialects.
 19a. A new *selectable* node type (anything added to `SelectableGrammar`/`NonSetSelectableGrammar`): run
-    AM04/AM07/ST03/RF01 on a CTE + set-expression sample. `utils/analysis/query.py` hard-codes
+    AM04/AM07/ST03/RF01 on a CTE + set-expression sample. `src/sqlfluff/utils/analysis/query.py` hard-codes
     `select_statement`/`values_clause`. **Blocking** if a rule throws, Required if a rule silently misses.
 
 ## Naming, types, rules

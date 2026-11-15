@@ -74,7 +74,7 @@ ENGINES = {
     "sqlite": dict(  # host binary; -safe blocks .shell/.system, ATTACH and writefile()
         cmd=lambda c: ["sqlite3", "-safe", ":memory:"],
         error=r"[Ee]rror|in safe mode",
-        syntax=r"syntax error|incomplete input",
+        syntax=r"syntax error|incomplete input|unrecognized token",  # last = unterminated quote
     ),
     "duckdb": dict(
         cmd=lambda c: ["docker", "run", "--rm", "-i", "duckdb/duckdb:latest"],
@@ -113,7 +113,7 @@ def run(engine: str, setup: str, stmts: list[str], cwd: str) -> dict[int, str]:
         for i, s in enumerate(stmts):
             r = subprocess.run(
                 cmd,
-                input=f"{setup}\n{s};\n",
+                input=f"{setup}\n{s}\n;\n",
                 cwd=cwd,
                 text=True,
                 stdout=subprocess.DEVNULL,
@@ -135,7 +135,7 @@ def run(engine: str, setup: str, stmts: list[str], cwd: str) -> dict[int, str]:
             e["begin"],
             setup,
             e["mark"].format(f"@@S {i}"),
-            s + ";",
+            s + "\n;",  # own line: a trailing -- comment must not eat it
             e["mark"].format("@@E"),
             "ROLLBACK;",
         ]
@@ -181,7 +181,11 @@ def parse_batch(out: str, n: int, error: str) -> dict[int, str]:
 
 def main(engine: str, fixture: str, setups: list[str]) -> list[tuple]:
     """Run every fixture statement under each setup variant; return TSV rows."""
-    texts = [open(p).read() for p in setups] or [""]
+    # Re-terminate every setup statement on its own line, so a setup missing its final ";"
+    # (or ending in a -- comment) can't merge into the first fixture statement.
+    texts = ["".join(f"{s}\n;\n" for s in split(open(p).read())) for p in setups] or [
+        ""
+    ]
     stmts = split(open(fixture).read())
     with tempfile.TemporaryDirectory() as cwd:  # sqlite fixtures ATTACH files
         for path, text in zip(setups, texts):
@@ -236,6 +240,14 @@ def selftest() -> None:
         "SELECT 1",
     ]
     assert split("SELECT '$x$';\nSELECT 1") == ["SELECT '$x$'", "SELECT 1"]
+    with (
+        tempfile.TemporaryDirectory() as d
+    ):  # setup with no final ";", ending in a comment
+        fx, st = os.path.join(d, "f.sql"), os.path.join(d, "s.sql")
+        open(st, "w").write("CREATE TABLE t (a INT)\n-- trailing comment")
+        open(fx, "w").write("SELECT a FROM t;\nSELECT 'unterminated;")
+        got = [r[1] for r in main("sqlite", fx, [st])]
+    assert got == ["PASS", "SYNTAX"], got
     # Batched engines: a statement whose end marker never arrives is UNKNOWN, not PASS.
     got = parse_batch("@@S 0\n@@E\n@@S 1\nERROR: boom\n@@E\n@@S 2\n", 4, r"ERROR:")
     assert got == {

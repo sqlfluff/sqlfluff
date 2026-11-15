@@ -69,7 +69,7 @@ the grammar.
 
 | Dialect | Start | Run file `$F` | Syntax-error signature | Status |
 |---|---|---|---|---|
-| sqlite | none (host `sqlite3`, currently 3.45) | `(cd <scratchpad> && sqlite3 -safe :memory: < "$(realpath $F)")`. Always `-safe`: fixture dot-commands (`.shell`) would otherwise run on your machine. It also blocks `ATTACH` | `syntax error` or `incomplete input`. sqlite prefixes *every* error with "Parse error", even "table already exists" | run ✓ (host binary; may lag upstream) |
+| sqlite | none (host `sqlite3`, currently 3.45) | `F="$(realpath "$F")"; (cd <scratchpad> && sqlite3 -safe :memory: < "$F")`. Always `-safe`: fixture dot-commands (`.shell`) would otherwise run on your machine. It also blocks `ATTACH` | `syntax error` or `incomplete input`. sqlite prefixes *every* error with "Parse error", even "table already exists" | run ✓ (host binary; may lag upstream) |
 | duckdb | none | `docker run --rm -i duckdb/duckdb:latest < $F` | `Parser Error:`. `Catalog Error` = parsed OK | image ✓ run ✓ |
 | clickhouse | none: **parse-only**, no server | `docker run --rm -i --entrypoint clickhouse-format clickhouse/clickhouse-server:latest --multiquery < $F` | `Syntax error` | image ✓ |
 | postgres | `docker run -d --name sqlfluff-review-postgres -e POSTGRES_PASSWORD=review postgres:17` | `docker exec -i sqlfluff-review-postgres psql -U postgres < $F` | `syntax error at or near` (42601) | image ✓ |
