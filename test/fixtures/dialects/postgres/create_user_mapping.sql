@@ -9,3 +9,5 @@ CREATE USER MAPPING FOR bob SERVER foo OPTIONS (
     password 'secret',
     "user" 'bob'
 );
+
+CREATE USER MAPPING FOR USER SERVER foo;

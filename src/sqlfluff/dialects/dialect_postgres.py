@@ -660,8 +660,8 @@ postgres_dialect.add(
     SessionInformationUserFunctionsGrammar=OneOf(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
     ),
-    # The user of ALTER and DROP USER MAPPING. The keywords come first, so that
-    # `USER` and `CURRENT_USER` parse as keywords rather than as role names.
+    # The user of CREATE, ALTER and DROP USER MAPPING. The keywords come first,
+    # so that `USER` and `CURRENT_USER` parse as keywords rather than as role names.
     UserMappingUserGrammar=OneOf(
         "PUBLIC",
         Ref("SessionInformationUserFunctionsGrammar"),
@@ -8059,11 +8059,7 @@ class CreateUserMappingStatementSegment(BaseSegment):
         Ref("CreateUserMappingGrammar"),
         Ref("IfNotExistsGrammar", optional=True),
         "FOR",
-        OneOf(
-            "PUBLIC",
-            Ref("SingleIdentifierGrammar"),
-            Ref("SessionInformationUserFunctionsGrammar"),
-        ),
+        Ref("UserMappingUserGrammar"),
         "SERVER",
         Ref("ServerReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
