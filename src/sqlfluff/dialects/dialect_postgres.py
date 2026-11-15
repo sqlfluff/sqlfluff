@@ -378,7 +378,7 @@ postgres_dialect.insert_lexer_matchers(
         # https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-NUMERIC
         RegexLexer(
             "non_decimal_integer_literal",
-            r"0(?:[xX](?:_?[\da-fA-F])+|[oO](?:_?[0-7])+|[bB](?:_?[01])+)(?![\w$])",
+            r"0(?:[xX](?:_?[0-9a-fA-F])+|[oO](?:_?[0-7])+|[bB](?:_?[01])+)(?![\w$])",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
