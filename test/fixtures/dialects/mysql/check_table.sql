@@ -23,3 +23,7 @@ CHECK TABLE some_table CHANGED;
 CHECK TABLE some_table1, some_table2 CHANGED;
 
 CHECK TABLE some_table FAST QUICK;
+
+CHECK TABLE some_table;
+
+CHECK TABLE some_table1, some_table2;
