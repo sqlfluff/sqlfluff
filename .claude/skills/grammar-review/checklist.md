@@ -38,9 +38,9 @@ Required for grammar the PR adds or edits. In untouched code nearby, it's a **Su
    nothing.** Make the outer grammar optional.
 4. **Merge branches with the same structure:** `OneOf(Sequence("A", x), Sequence("B", x))` →
    `Sequence(OneOf("A", "B"), x)`.
-5. **Options that can come in any order → `AnySetOf`, not a `Sequence` of optionals** (that fails valid orders).
-   `AnyNumberOf(max_times_per_element=1)` is `AnySetOf`, so use the name. A plain `AnyNumberOf` accepting
-   repeats isn't a finding on its own.
+5. **Options that appear at most once each, in any order → `AnySetOf`, not a `Sequence` of optionals** (that
+   fails valid orders). `AnyNumberOf(max_times_per_element=1)` is `AnySetOf`, so use the name. If options may
+   repeat, use `AnyNumberOf`: `AnySetOf` would reject valid repeats. Accepting repeats isn't a finding on its own.
 6. **`OneOf(X, Bracketed(X))` → `OptionallyBracketed(X)`.** Note that
    `Bracketed(X, optional=True)` means (X) or nothing.
 7. **A helper used by one statement → a private `_name` grammar in the class.** If it has

@@ -39,15 +39,19 @@ git fetch https://github.com/sqlfluff/sqlfluff.git pull/N/head && git worktree a
 
 ## 2. Mechanical checks (don't eyeball)
 
-Start from CI. It regenerates fixtures and runs the dialect tests on every push:
-`gh pr checks N -R sqlfluff/sqlfluff`. A red fixture or dialect-test job is **Blocking**; quote the job.
 Reading fixtures runs nothing, so always do this one:
 `grep -ln "unparsable" test/fixtures/dialects/<dialect>/<changed>.yml`.
 
-**Running tox executes the PR's own code** (`tox.ini`, `conftest.py`, tests, package hooks). Only run it
+**For a PR, start from CI.** It regenerates fixtures and runs the dialect tests on every push:
+`gh pr checks N -R sqlfluff/sqlfluff`. A red fixture or dialect-test job is **Blocking**; quote the job.
+Running tox executes the PR's own code (`tox.ini`, `conftest.py`, tests, package hooks), so only run it
 when CI doesn't settle a question, and check first: `gh pr diff N -R sqlfluff/sqlfluff --name-only`. If
 anything outside `src/sqlfluff/dialects/` and `test/fixtures/dialects/` changed, ask the user before running.
-Then, from the PR worktree:
+
+**For a branch or the local diff** there's no CI run: run tox directly. If the branch isn't the user's own,
+apply the same check with `git diff --name-only main...BRANCH`.
+
+Then, from the PR worktree or the checkout under review:
 
 ```bash
 tox -e generate-fixture-yml -- -d <dialect>     # then: git status --porcelain test/fixtures
