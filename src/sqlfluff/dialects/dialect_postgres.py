@@ -2712,6 +2712,67 @@ class AlterRoleStatementSegment(BaseSegment):
     )
 
 
+class AlterGroupStatementSegment(BaseSegment):
+    """An `ALTER GROUP` statement.
+
+    https://www.postgresql.org/docs/current/sql-altergroup.html
+    """
+
+    # As in Redshift, which has its own version.
+    type = "alter_group"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GROUP",
+        OneOf(
+            "CURRENT_ROLE",
+            "CURRENT_USER",
+            "SESSION_USER",
+            # must come last; CURRENT_USER isn't reserved:
+            Ref("RoleReferenceSegment"),
+        ),
+        OneOf(
+            Sequence(
+                OneOf("ADD", "DROP"),
+                "USER",
+                Delimited(Ref("RoleReferenceSegment")),
+            ),
+            Sequence("RENAME", "TO", Ref("RoleReferenceSegment")),
+        ),
+    )
+
+
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
+    """A `DROP ROLE` or `DROP GROUP` statement.
+
+    `DROP GROUP` is an alias for `DROP ROLE`.
+
+    https://www.postgresql.org/docs/current/sql-droprole.html
+    https://www.postgresql.org/docs/current/sql-dropgroup.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("ROLE", "GROUP"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SingleIdentifierGrammar")),
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement, an alias for `DROP ROLE`.
+
+    https://www.postgresql.org/docs/current/sql-dropuser.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
@@ -5791,6 +5852,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterIndexStatementSegment"),
             Ref("ReindexStatementSegment"),
             Ref("AlterRoleStatementSegment"),
+            Ref("AlterGroupStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
             Ref("AlterExtensionStatementSegment"),
