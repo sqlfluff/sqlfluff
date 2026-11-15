@@ -916,8 +916,10 @@ class Linter:
         unexpanded_rules = tuple(r.strip() for r in disable_noqa_except.split(","))
         noqa_set = set()
         for r in unexpanded_rules:
-            for x in fnmatch.filter(output_map.keys(), r):
-                noqa_set |= output_map.get(x, set())
+            r_lower = r.lower()
+            for k, v in output_map.items():
+                if fnmatch.fnmatchcase(k.lower(), r_lower):
+                    noqa_set |= v
         # Return a new map with only the excluded rules
         return {k: v.intersection(noqa_set) for k, v in output_map.items()}
 
