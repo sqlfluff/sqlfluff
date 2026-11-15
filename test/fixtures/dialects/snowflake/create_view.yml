@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a00e29ff215e1dee12b3058111cc96acd8302dc601273378aec2084cd963b21
+_hash: f58ea740f74b2b41e60620828472f536c8062b294bcb3fe16d15953cdd282c0a
 file:
 - statement:
     create_view_statement:
@@ -757,6 +757,77 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'TRUE'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_with_data_metric_schedule
+    - keyword: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'60 MINUTE'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_with_comment_and_data_metric_schedule
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'some comment'"
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'view comment'"
+    - keyword: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: TRIGGER_ON_CHANGES
     - keyword: AS
     - select_statement:
         select_clause:
