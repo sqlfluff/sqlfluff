@@ -475,9 +475,13 @@ jobs:
           path: dist
 
   # Test with coverage tracking on most recent python (py314).
+  #
+  # The pure-python and rust-backed legs are separate jobs so that the
+  # pure-python ones can start immediately rather than waiting on the wheel
+  # build, which they don't use. Both keep the same display name so the
+  # required status checks on main are unchanged.
   python-version-tests:
     name: Python Tests
-    needs: rs-build-linux-x86_64
     strategy:
       matrix:
         python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
@@ -488,7 +492,6 @@ jobs:
           # Override coverage to be true for most recent python version.
           - python-version: "3.14"
             coverage: true
-        with-rust: [ "-rust", "" ]
     permissions:
       contents: read
       pull-requests: write
@@ -497,7 +500,29 @@ jobs:
     with:
       python-version: ${{ matrix.python-version }}
       coverage: ${{ matrix.coverage }}
-      with-rust: ${{ matrix.with-rust }}
+      with-rust: ""
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  python-version-tests-rust:
+    name: Python Tests (rust)
+    needs: rs-build-linux-x86_64
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        include:
+          - coverage: false
+          - python-version: "3.14"
+            coverage: true
+    permissions:
+      contents: read
+      pull-requests: write
+
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      coverage: ${{ matrix.coverage }}
+      with-rust: "-rust"
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -545,12 +570,10 @@ jobs:
       python-version: ${{ matrix.python-version }}
 
   dialect-tests:
-    name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
-    needs: rs-build-linux-x86_64
+    name: Dialect ${{ matrix.marks }}
     strategy:
       matrix:
         marks: [ "parse_suite", "fix_suite", "rules_suite" ]
-        with-rust: [ "-rust", "" ]
         include:
           # This runs the bulk of the dialect _parsing_ tests.
           #
@@ -584,7 +607,35 @@ jobs:
       python-version: "3.14"
       marks: ${{ matrix.marks }}
       coverage: ${{ matrix.coverage }}
-      with-rust: ${{ matrix.with-rust }}
+      with-rust: ""
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # Same suites against the rust-backed parser. Split from dialect-tests only
+  # so that the pure-python legs above don't wait on the wheel build.
+  dialect-tests-rust:
+    name: Dialect ${{ matrix.marks }}-rust
+    needs: rs-build-linux-x86_64
+    strategy:
+      matrix:
+        marks: [ "parse_suite", "fix_suite", "rules_suite" ]
+        include:
+          - marks: "parse_suite"
+            coverage: true
+          - marks: "fix_suite"
+            coverage: false
+          - marks: "rules_suite"
+            coverage: true
+    permissions:
+      contents: read
+      pull-requests: write
+
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.14"
+      marks: ${{ matrix.marks }}
+      coverage: ${{ matrix.coverage }}
+      with-rust: "-rust"
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -884,7 +935,7 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
+    needs: [python-version-tests, python-version-tests-rust, dbt-tests, python-windows-tests, dialect-tests, dialect-tests-rust]
     steps:
 
       - name: Checkout code
