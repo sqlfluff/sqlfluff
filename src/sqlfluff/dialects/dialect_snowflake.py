@@ -804,33 +804,23 @@ snowflake_dialect.add(
         Ref("PatternQuantifierGrammar", optional=True),
         allow_gaps=False,
     ),
+    # One or more `|`-delimited alternatives, each a concatenation of one or
+    # more operators, like `A B+ | C`.
+    PatternAlternativesGrammar=Delimited(
+        AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+        delimiter=Ref("BitwiseOrSegment"),
+    ),
     PatternOperatorGrammar=OneOf(
         Ref("PatternSymbolGrammar"),
         Sequence(
             OneOf(
                 Bracketed(
-                    OneOf(
-                        AnyNumberOf(
-                            Ref("PatternOperatorGrammar"),
-                        ),
-                        Delimited(
-                            Ref("PatternOperatorGrammar"),
-                            delimiter=Ref("BitwiseOrSegment"),
-                        ),
-                    ),
+                    Ref("PatternAlternativesGrammar"),
                     bracket_type="exclude",
                     bracket_pairs_set="bracket_pairs",
                 ),
                 Bracketed(
-                    OneOf(
-                        AnyNumberOf(
-                            Ref("PatternOperatorGrammar"),
-                        ),
-                        Delimited(
-                            Ref("PatternOperatorGrammar"),
-                            delimiter=Ref("BitwiseOrSegment"),
-                        ),
-                    ),
+                    Ref("PatternAlternativesGrammar"),
                 ),
                 Sequence(
                     "PERMUTE",
@@ -2364,15 +2354,7 @@ class PatternSegment(BaseSegment):
     match_grammar = Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
         Ref("CaretSegment", optional=True),
-        OneOf(
-            AnyNumberOf(
-                Ref("PatternOperatorGrammar"),
-            ),
-            Delimited(
-                Ref("PatternOperatorGrammar"),
-                delimiter=Ref("BitwiseOrSegment"),
-            ),
-        ),
+        Ref("PatternAlternativesGrammar"),
         Ref("DollarSegment", optional=True),
     )
 
