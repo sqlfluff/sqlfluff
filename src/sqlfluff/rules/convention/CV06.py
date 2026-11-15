@@ -401,8 +401,8 @@ class Rule_CV06(BaseRule):
     ) -> Optional[LintResult]:
         # Get the last statement in the file (may be nested in a batch)
         last_statement = self._get_last_statement(parent_segment)
-        if not last_statement:
-            return None  # File does not contain any statements
+        if not last_statement or last_statement.get_child("sqlcmd_command_segment"):
+            return None  # No final SQL statement requiring a terminator.
 
         # Find the container segment that directly contains the last statement
         # (This could be the file itself or a batch segment in T-SQL)
@@ -583,7 +583,10 @@ class Rule_CV06(BaseRule):
                     )
                     if result:
                         results.append(result)
-                pending = segment
+                # SQLCMD commands are line-oriented client instructions.
+                pending = (
+                    None if segment.get_child("sqlcmd_command_segment") else segment
+                )
                 following = []
             elif segment.is_code:
                 # Existing terminators and Oracle / or T-SQL GO close a statement.

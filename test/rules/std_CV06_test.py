@@ -8,6 +8,86 @@ import pytest
 from sqlfluff.core import FluffConfig, Linter
 
 
+@pytest.mark.parametrize("command", [":r script.sql", ":setvar variable value"])
+@pytest.mark.parametrize("require_final_semicolon", [False, True])
+@pytest.mark.parametrize(
+    "sql_template,expected_template",
+    [
+        ("{command}\nSELECT 1;\n", "{command}\nSELECT 1;\n"),
+        ("SELECT 1\n{command}\n", "SELECT 1;\n{command}\n"),
+        (
+            '{command}\n:setvar quoted "value with spaces"\nSELECT 1;\n',
+            '{command}\n:setvar quoted "value with spaces"\nSELECT 1;\n',
+        ),
+        (
+            "SELECT 1\n{command}\nSELECT 2;\n",
+            "SELECT 1;\n{command}\nSELECT 2;\n",
+        ),
+        (
+            "-- before\n{command}\n/* gap */\nSELECT 1 -- inline\n{command}\n"
+            "SELECT 2; -- end\n",
+            "-- before\n{command}\n/* gap */\nSELECT 1; -- inline\n{command}\n"
+            "SELECT 2; -- end\n",
+        ),
+        (
+            "{command}\nGO\nSELECT 1;\nGO\n{command}\n",
+            "{command}\nGO\nSELECT 1;\nGO\n{command}\n",
+        ),
+        ("{command};\nSELECT 1;\n", "{command};\nSELECT 1;\n"),
+        ("{command}\n", "{command}\n"),
+        (
+            "{command}\nSELECT 1\n",
+            "{command}\nSELECT 1{final_terminator}\n",
+        ),
+        (
+            "SELECT 1\n{command}\nSELECT 2\nSELECT 3;\n",
+            "SELECT 1;\n{command}\nSELECT 2;\nSELECT 3;\n",
+        ),
+    ],
+    ids=[
+        "before-sql",
+        "after-sql",
+        "consecutive-commands",
+        "between-sql",
+        "comments",
+        "go",
+        "explicit-semicolon",
+        "command-only",
+        "missing-final-sql-semicolon",
+        "adjacent-sql",
+    ],
+)
+def test__rules__CV06_sqlcmd_terminator_ownership(
+    command: str,
+    require_final_semicolon: bool,
+    sql_template: str,
+    expected_template: str,
+) -> None:
+    """SQLCMD commands stay intact while SQL statements retain their terminators."""
+    linter = Linter(
+        config=FluffConfig(
+            configs={
+                "rules": {
+                    "convention.terminator": {
+                        "require_final_semicolon": require_final_semicolon
+                    }
+                }
+            },
+            overrides={"dialect": "tsql", "rules": "CV06", "templater": "raw"},
+        )
+    )
+    sql = sql_template.format(command=command)
+    expected = expected_template.format(
+        command=command, final_terminator=";" if require_final_semicolon else ""
+    )
+    assert not linter.parse_string(sql).violations
+    fixed = linter.lint_string(sql, fix=True).fix_string()[0]
+    assert fixed == expected
+    assert not linter.parse_string(fixed).violations
+    assert not linter.lint_string(fixed).violations
+    assert linter.lint_string(fixed, fix=True).fix_string()[0] == fixed
+
+
 @pytest.mark.parametrize("multiline_newline", [False, True])
 @pytest.mark.parametrize("require_final_semicolon", [False, True])
 @pytest.mark.parametrize("comment", ["", " -- trailing comment"])
