@@ -10347,6 +10347,8 @@ class AlterUserStatementSegment(BaseSegment):
                 "POLICY",
             ),
             Sequence("SET", Ref("WorkloadIdentityPropertyGrammar")),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
             # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
             # we will just use that.
