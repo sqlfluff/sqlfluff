@@ -233,8 +233,8 @@ redshift_dialect.patch_lexer_matchers(
             r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
             WordSegment,
         ),
-        # So `#` is an operator only when no name follows it.
-        RegexLexer("hash", r"##?(?![0-9a-zA-Z_])", CodeSegment),
+        # So `#` is an operator only when no name follows it. `##` always is.
+        RegexLexer("hash", r"##|#(?![0-9a-zA-Z_])", CodeSegment),
     ]
 )
 
