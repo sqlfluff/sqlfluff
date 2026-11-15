@@ -70,7 +70,11 @@ class Rule_ST01(BaseRule):
                 all_segs = list(else_clause[0].segments)
                 first_idx = all_segs.index(comments[0])
                 last_idx = all_segs.index(comments[-1])
-                replacement = list(all_segs[first_idx : last_idx + 1])
+                replacement = [
+                    s
+                    for s in all_segs[first_idx : last_idx + 1]
+                    if s.raw_upper != "NULL"
+                ]
 
                 # If the trailing comment is an inline comment and no newline
                 # follows the else clause, preserve the terminating newline from
