@@ -22,4 +22,3 @@ CREATE TABLE combined_test (
 
 -- STORAGE and COMPRESSION are non-reserved, so they still work as column names.
 CREATE TABLE kw_names (storage text, compression int);
-
