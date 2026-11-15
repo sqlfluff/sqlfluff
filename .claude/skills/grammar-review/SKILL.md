@@ -48,8 +48,9 @@ Running tox executes the PR's own code (`tox.ini`, `conftest.py`, tests, package
 when CI doesn't settle a question, and check first: `gh pr diff N -R sqlfluff/sqlfluff --name-only`. If
 anything outside `src/sqlfluff/dialects/` and `test/fixtures/dialects/` changed, ask the user before running.
 
-**For a branch or the local diff** there's no CI run: run tox directly. If the branch isn't the user's own,
-apply the same check with `git diff --name-only main...BRANCH`.
+**For a branch or the local diff** there's no CI run. For a branch that isn't the user's own, run the same
+check first, `git diff --name-only "main...$BRANCH"`, and ask before running tox if it touches anything outside
+those paths. The local diff is the user's own work, so run tox directly.
 
 Then, from the PR worktree or the checkout under review:
 
