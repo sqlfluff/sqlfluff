@@ -152,6 +152,18 @@ db2_dialect.replace(
         Ref("SingleIdentifierGrammar"),
         Ref("DropBehaviorGrammar", optional=True),
     ),
+    ColumnGeneratedGrammar=Sequence(
+        "GENERATED",
+        OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
+        "AS",
+        OneOf(
+            Sequence(
+                "IDENTITY",
+                Bracketed(Ref("IdentityOptionsGrammar"), optional=True),
+            ),
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+    ),
 )
 
 
@@ -198,6 +210,39 @@ db2_dialect.patch_lexer_matchers(
 
 db2_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # Db2-specific trailing clauses for CREATE TABLE. These are only used by
+    # TableEndClauseSegment and don't need dedicated segment types.
+    CompressClauseGrammar=Sequence(
+        "COMPRESS",
+        OneOf(
+            Sequence(
+                "YES",
+                OneOf("ADAPTIVE", "STATIC", optional=True),
+            ),
+            "NO",
+        ),
+    ),
+    ValueCompressionClauseGrammar=Sequence("VALUE", "COMPRESSION"),
+    DataCaptureClauseGrammar=Sequence("DATA", "CAPTURE", OneOf("NONE", "CHANGES")),
+    NotLoggedInitiallyClauseGrammar=Sequence("NOT", "LOGGED", "INITIALLY"),
+    CcsidClauseGrammar=Sequence(
+        "CCSID",
+        OneOf("ASCII", "EBCDIC", "UNICODE", Ref("NumericLiteralSegment")),
+    ),
+    SecurityPolicyClauseGrammar=Sequence(
+        "SECURITY", "POLICY", Ref("ObjectReferenceSegment")
+    ),
+    TableOptionsClauseGrammar=Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+    ),
     # https://www.ibm.com/docs/en/db2/11.5?topic=expressions-datetime-operations-durations
     LabeledDurationGrammar=Sequence(
         OneOf(
@@ -292,6 +337,33 @@ db2_dialect.add(
             "VALUES",
             optional=True,
         ),
+    ),
+    # Options of a `GENERATED ... AS IDENTITY` column. Db2 allows identity
+    # values to be signed, hence the wider literal grammar.
+    IdentityValueGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        Ref("QualifiedNumericLiteralSegment"),
+    ),
+    IdentityOptionsGrammar=AnyNumberOf(
+        OneOf(
+            Sequence("START", "WITH", Ref("IdentityValueGrammar")),
+            Sequence("INCREMENT", "BY", Ref("IdentityValueGrammar")),
+            Sequence("MINVALUE", Ref("IdentityValueGrammar")),
+            Sequence("MAXVALUE", Ref("IdentityValueGrammar")),
+            Sequence("NO", "MINVALUE"),
+            "NOMINVALUE",
+            Sequence("NO", "MAXVALUE"),
+            "NOMAXVALUE",
+            "CYCLE",
+            Sequence("NO", "CYCLE"),
+            "NOCYCLE",
+            Sequence("CACHE", Ref("IdentityValueGrammar")),
+            Sequence("NO", "CACHE"),
+            "NOCACHE",
+            "ORDER",
+            Sequence("NO", "ORDER"),
+            "NOORDER",
+        )
     ),
 )
 
@@ -504,6 +576,13 @@ class TableEndClauseSegment(ansi.TableEndClauseSegment):
         Ref("DistributionClauseSegment"),
         Ref("TablespaceClauseSegment"),
         Ref("WithRestrictOnDropClauseSegment"),
+        Ref("CompressClauseGrammar"),
+        Ref("ValueCompressionClauseGrammar"),
+        Ref("DataCaptureClauseGrammar"),
+        Ref("NotLoggedInitiallyClauseGrammar"),
+        Ref("CcsidClauseGrammar"),
+        Ref("SecurityPolicyClauseGrammar"),
+        Ref("TableOptionsClauseGrammar"),
     )
 
 
@@ -1097,4 +1176,96 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("RowMovementClauseSegment"),
             Ref("ViewCheckOptionClauseSegment"),
         ],
+    )
+
+
+class CreateSequenceOptionsSegment(ansi.CreateSequenceOptionsSegment):
+    """Options for a Db2 ``CREATE SEQUENCE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-sequence
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        # Db2 sequences can be restricted to a specific data type.
+        Sequence("AS", Ref("DatatypeSegment")),
+        Sequence(
+            "START",
+            Ref.keyword("WITH", optional=True),
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MINVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MAXVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence("NO", "MINVALUE"),
+        "NOMINVALUE",
+        Sequence("NO", "MAXVALUE"),
+        "NOMAXVALUE",
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "CACHE"),
+        "NOCACHE",
+        "CYCLE",
+        Sequence("NO", "CYCLE"),
+        "NOCYCLE",
+        "ORDER",
+        Sequence("NO", "ORDER"),
+        "NOORDER",
+    )
+
+
+class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
+    """Options for a Db2 ``ALTER SEQUENCE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-alter-sequence
+    """
+
+    type = "alter_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "RESTART",
+            Ref.keyword("WITH", optional=True),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("QualifiedNumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MINVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence(
+            "MAXVALUE",
+            OneOf(Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")),
+        ),
+        Sequence("NO", "MINVALUE"),
+        "NOMINVALUE",
+        Sequence("NO", "MAXVALUE"),
+        "NOMAXVALUE",
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "CACHE"),
+        "NOCACHE",
+        "CYCLE",
+        Sequence("NO", "CYCLE"),
+        "NOCYCLE",
+        "ORDER",
+        Sequence("NO", "ORDER"),
+        "NOORDER",
     )

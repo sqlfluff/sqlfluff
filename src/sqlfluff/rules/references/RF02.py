@@ -102,6 +102,7 @@ class Rule_RF02(Rule_AL04):
             ignore_words_list = self._init_ignore_words_list()
 
         sql_variables = self._find_sql_variables(rule_context)
+        using_col_names = {using_col.raw_normalized() for using_col in using_cols}
         row_reference_aliases = (
             {alias.segment.raw_normalized() for alias in table_aliases if alias.segment}
             if rule_context.dialect.name in self._dialects_with_row_references
@@ -139,7 +140,7 @@ class Rule_RF02(Rule_AL04):
                 # in a different select clause element.
                 and r.raw not in col_alias_names
                 # Allow columns defined in a USING expression.
-                and r.raw not in [using_col.raw for using_col in using_cols]
+                and r.raw_normalized() not in using_col_names
                 # Allow columns defined as standalone aliases
                 # (e.g. value table functions from bigquery)
                 and r.raw not in [a.raw for a in standalone_aliases]

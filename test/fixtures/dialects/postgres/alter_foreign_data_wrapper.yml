@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f2bb0545a09f3695cf7804d24d12486e448dc1acbb721fc355692338a1dbf71c
+_hash: 9e06f4e85279ddc1434b8fccc9b4b75d525bdd5d4072ab6ab8d159c8c5d894d8
 file:
 - statement:
     alter_foreign_data_wrapper_statement:
@@ -102,4 +102,43 @@ file:
     - keyword: RENAME
     - keyword: TO
     - naked_identifier: renamed
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - keyword: ADD
+      - naked_identifier_all: 'null'
+      - quoted_literal: "'NA'"
+      - comma: ','
+      - keyword: SET
+      - quoted_identifier: '"debug"'
+      - quoted_literal: "'true'"
+      - comma: ','
+      - keyword: DROP
+      - naked_identifier_all: select
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_foreign_data_wrapper_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: dummy
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: set
+      - quoted_literal: "'x'"
+      - comma: ','
+      - keyword: DROP
+      - naked_identifier: drop
+      - end_bracket: )
 - statement_terminator: ;

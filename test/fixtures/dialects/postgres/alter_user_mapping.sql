@@ -1,0 +1,16 @@
+ALTER USER MAPPING FOR bob SERVER foo OPTIONS (SET password 'public');
+
+ALTER USER MAPPING FOR PUBLIC SERVER foo
+    OPTIONS (ADD user 'guest', DROP password);
+
+ALTER USER MAPPING FOR CURRENT_USER SERVER foo
+    OPTIONS (SET user 'me', ADD sslcert '/certs/me.crt', DROP sslkey);
+
+ALTER USER MAPPING FOR USER SERVER foo OPTIONS (ADD password 'secret');
+
+ALTER USER MAPPING FOR CURRENT_ROLE SERVER foo
+    OPTIONS (ADD password_required 'false');
+
+ALTER USER MAPPING FOR SESSION_USER SERVER foo OPTIONS (SET "user" 'session');
+
+ALTER USER MAPPING FOR "Bob" SERVER foo OPTIONS (DROP user);
