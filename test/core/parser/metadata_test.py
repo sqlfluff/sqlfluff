@@ -108,6 +108,50 @@ def test_match_metadata_reads_both_backend_shapes(cls, expected, span):
     assert match_bounds(match) == (2, 5)
 
 
+@pytest.mark.parametrize("offset", [0, 2])
+@pytest.mark.parametrize(
+    "gap,separate_groups",
+    [
+        (" ", False),
+        ("\n    ", False),
+        (" /* boundary */ ", False),
+        (" || (bar)", True),
+    ],
+)
+def test_chain_metadata_groups_respect_raw_code_gaps(offset, gap, separate_groups):
+    """Raw operators split chain indentation groups; whitespace and comments do not."""
+    config = FluffConfig(overrides={"dialect": "bigquery", "use_rust_parser": False})
+    sql = "\n" * offset + "(foo).LOWER()" + gap + ".UPPER()"
+    tokens, errors = Lexer(config=config).lex(sql)
+    assert not errors
+    first, second = [
+        index - offset for index, raw in enumerate(tokens) if raw.raw == "."
+    ]
+    stop = len(tokens) - offset
+    call_class = config.get("dialect_obj").get_segment("ChainedFunctionCallSegment")
+    # Match metadata can leave intervening raw tokens outside its child matches.
+    match = MatchResult(
+        slice(0, stop),
+        matched_class=ParentSegment,
+        child_matches=(
+            MatchResult(slice(0, first), matched_class=ChildSegment),
+            MatchResult(slice(first, first + 4), matched_class=call_class),
+            MatchResult(slice(second, stop), matched_class=call_class),
+        ),
+    )
+    expected = ((first, "Indent"), (stop, "Dedent"))
+    if separate_groups:
+        expected = (
+            (first, "Indent"),
+            (first + 4, "Dedent"),
+            (second, "Indent"),
+            (stop, "Dedent"),
+        )
+    assert Parser(config=config).RootSegment.get_meta_exclusions(
+        match, tokens, config, offset=offset
+    ) == {("ParentSegment", 0, stop): expected}
+
+
 @pytest.mark.parametrize("backend", ["python", "native", "legacy"])
 @pytest.mark.parametrize(
     "style,sql",

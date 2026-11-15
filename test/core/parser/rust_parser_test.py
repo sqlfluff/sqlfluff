@@ -13,7 +13,7 @@ from sqlfluff.core.errors import SQLFluffUserError, SQLParseError
 
 try:
     from sqlfluff.core.parser.rust_parser import _HAS_RUST_PARSER, RustParser
-    from sqlfluffrs import RsParser
+    from sqlfluffrs import MISSING_REF_PREFIX, RsParseError, RsParser
 except ImportError:
     _HAS_RUST_PARSER = False
 
@@ -21,6 +21,41 @@ except ImportError:
 # ============================================================================
 # max_parse_depth edge-case tests (lines 94-97 of rust_parser.py)
 # ============================================================================
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "sql,clean_tree",
+    [
+        ("select a:from FROM t;", False),
+        ("SELECT a FROM t;", True),
+        ("SELECT a FROM t |> WHERE a > 0;", True),
+        ("SELECT (a)FROM t;", True),
+    ],
+)
+def test__rust_parser__bigquery_recovery_lint_parity(sql, clean_tree):
+    """Recovery boundaries and lint findings agree with the Python parser."""
+    from sqlfluff.core import FluffConfig, Linter
+
+    results = []
+    for use_rust in (False, True):
+        config = FluffConfig(
+            overrides={"dialect": "bigquery", "use_rust_parser": use_rust}
+        )
+        linted = Linter(config=config).lint_string(sql)
+        assert linted.tree is not None
+        if clean_tree:
+            assert not list(linted.tree.recursive_crawl("unparsable"))
+        results.append(
+            (
+                linted.tree.stringify(),
+                [
+                    (v.rule_code(), v.line_no, v.line_pos, v.desc())
+                    for v in linted.get_violations()
+                ],
+            )
+        )
+    assert results[0] == results[1]
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
@@ -447,6 +482,59 @@ def test__rust_parser__parse_error_from_exception():
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__missing_ref_error_reraised_via_dialect_ref(monkeypatch):
+    """Test RustParser catches RsParseError with MISSING_REF_PREFIX and re-raises via dialect.ref()."""
+    from sqlfluff.core import FluffConfig
+    from sqlfluff.core.parser import Lexer
+
+    monkeypatch.setattr(sys, "tracebacklimit", None, raising=False)
+
+    config = FluffConfig.from_string("[sqlfluff]\ndialect = ansi")
+    parser = RustParser(config=config)
+    lexer = Lexer(config=config)
+    segments, _ = lexer.lex("SELECT 1")
+
+    # 1. Test dangling keyword ref raises the dialect keyword RuntimeError
+    mock_rs = Mock()
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentKeywordSegment"
+    )
+    parser._rs_parser = mock_rs
+
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to the 'NONEXISTENT' keyword which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 2. Test non-keyword segment ref raises the standard grammar ref RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}NonExistentSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'NonExistentSegment' which was not found in the ansi dialect"
+        in str(exc_info.value)
+    )
+
+    # 3. Test existing segment in Python dialect raises internal bug RuntimeError
+    mock_rs.parse_match_result_from_tokens.side_effect = RsParseError(
+        f"{MISSING_REF_PREFIX}FileSegment"
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        parser.parse(segments, fname="test.sql")
+
+    assert (
+        "Grammar refers to 'FileSegment' which is registered in the ansi dialect's Python library but missing from its Rust parser tables"
+        in str(exc_info.value)
+    )
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__rust_parser__trailing_non_code_segments():
     """Test RustParser handles trailing non-code segments correctly.
 
@@ -531,6 +619,39 @@ def test__rust_parser__rs_node_class_types_match_python():
             assert set(leaf.class_types() or []) == set(raw_seg.class_types)
             assert "keyword" in (leaf.class_types() or [])
     assert checked_gzip, "expected a quoted 'GZIP' compression value in the parse"
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+def test__rust_parser__rs_handle_metadata_matches_python():
+    """Arena leaves carry Python's ``.type``, casefold, trim_start and block info."""
+    from sqlfluff.core import FluffConfig, Linter
+
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "use_rust_parser": True, "use_rust_rules": True}
+    )
+    tree = (
+        Linter(config=config)
+        .parse_string("{% if true %}SELECT 1, a -- note\n{% endif %}\n")
+        .tree
+    )
+    raws, leaves = tree.raw_segments, tree._rs_tree.root.raw_segments()
+    assert len(leaves) == len(raws)
+
+    fold_names = {None: None, str.upper: "upper", str.lower: "lower"}
+    for leaf, seg in zip(leaves, raws):
+        assert leaf.class_type() == seg.type, seg
+        assert leaf.casefold() == fold_names[getattr(seg, "casefold", None)], seg
+        assert leaf.trim_start() == getattr(seg, "trim_start", None), seg
+        assert leaf.block_type() == getattr(seg, "block_type", None), seg
+        uuid = getattr(seg, "block_uuid", None)
+        assert leaf.block_uuid() == (uuid.int if uuid else None), seg
+
+    # The SQL exercises every field with a non-default value.
+    assert any(leaf.class_type() != leaf.type for leaf in leaves)
+    assert any(leaf.casefold() == "upper" for leaf in leaves)
+    assert any(leaf.trim_start() for leaf in leaves)
+    assert any(leaf.block_type() for leaf in leaves)
+    assert any(leaf.block_uuid() for leaf in leaves)
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")

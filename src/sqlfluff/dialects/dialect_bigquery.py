@@ -56,7 +56,7 @@ from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_unreserved_keywords,
 )
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
 
 ansi_dialect = load_raw_dialect("ansi")

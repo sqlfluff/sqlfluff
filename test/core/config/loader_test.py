@@ -8,7 +8,7 @@ from unittest.mock import call, patch
 
 import pytest
 
-from sqlfluff.core import FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.config import (
     clear_config_caches,
     load_config_at_path,
@@ -258,6 +258,26 @@ def test__config__load_placeholder_cfg():
             }
         },
     }
+
+
+def test__config__placeholder_regex_preserves_literal_quotes():
+    """A quoted custom regex only replaces the quoted positional parameters."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = placeholder\n"
+        "[sqlfluff:templater:placeholder]\n"
+        "param_regex = '__[a-z]+__'\n"
+        "1 = 10\n"
+        "2 = 200\n"
+    )
+
+    parsed = Linter(config=config).parse_string(
+        "SELECT '__first__', __untouched__, '__second__';"
+    )
+    assert not parsed.violations
+    assert parsed.tree is not None
+    assert parsed.tree.raw == "SELECT 10, __untouched__, 200;"
 
 
 @patch("os.path.exists")

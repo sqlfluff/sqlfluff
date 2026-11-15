@@ -8,7 +8,7 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.metadata import MatchResultLike, MetaSegmentExclusions
 from sqlfluff.core.parser.segments.base import BaseSegment, UnparsableSegment
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
 
 

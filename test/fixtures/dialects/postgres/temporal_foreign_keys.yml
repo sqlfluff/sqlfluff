@@ -1,0 +1,264 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4b7ea24327b48870adc9e2f6ba7ff193f2a2858e0e8c9af223098cdc0f486c67
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_id
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: tstzrange
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: rooms
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: appointments
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: site_id
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: doctor_id
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: daterange
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: appointments_period_fk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: site_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: doctor_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: availability
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: site_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: doctor_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: bookings_room_fk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: public
+          - dot: .
+          - naked_identifier: rooms
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: 'NO'
+        - keyword: ACTION
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: DEFERRED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: rooms
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: period_references
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: period
+          data_type:
+            keyword: integer
+          column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: periods
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: period
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: daterange
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: period
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: periods
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: period
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              naked_identifier: valid_at
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              quoted_identifier: '"valid time"'
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            quoted_identifier: '"Room Availability"'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - keyword: PERIOD
+          - column_reference:
+              quoted_identifier: '"valid time"'
+          - end_bracket: )
+- statement_terminator: ;

@@ -3033,8 +3033,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Bracketed(
-            Delimited(Ref("ProcedureParameterGrammar")),
-            optional=True,
+            Delimited(Ref("ProcedureParameterGrammar"), optional=True),
         ),
         AnyNumberOf(
             Sequence("LANGUAGE", "SQL"),
