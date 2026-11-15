@@ -411,6 +411,9 @@ duckdb_dialect.insert_lexer_matchers(
 
 duckdb_dialect.patch_lexer_matchers(
     [
+        # So `#` is an operator only when no column index follows it. `##` always
+        # is.
+        RegexLexer("hash", r"##|#(?![0-9])", CodeSegment),
         # In DuckDB, a double single/double quote resolves as a single/double quote in
         # the string.
         RegexLexer(

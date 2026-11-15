@@ -171,6 +171,9 @@ postgres_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         StringLexer("full_text_search_operator", "!!", SymbolSegment),
+        # `#` and `##` are operators in PostgreSQL, not comments as in ANSI. After
+        # the JSON operators, so that `#>`, `#>>` and `#-` lex as one.
+        RegexLexer("hash", r"##?", CodeSegment),
     ],
     before="like_operator",
 )
@@ -472,6 +475,9 @@ postgres_dialect.add(
     PgTrgmOperatorSegment=TypedParser(
         "pg_trgm_operator", SymbolSegment, type="binary_operator"
     ),
+    # `#` is the bitwise XOR of integers and bit strings, and the point where two
+    # geometric objects intersect. `##` is the closest point of one to the other.
+    HashOperatorSegment=TypedParser("hash", SymbolSegment, type="binary_operator"),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # The arguments of FETCH and MOVE: [ direction ] [ FROM | IN ] cursor_name
     # Two alternatives, so that a cursor named like a direction keyword
@@ -745,6 +751,9 @@ postgres_dialect.add(
 
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(insert=[Ref("HashOperatorSegment")]),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
     BaseExpressionElementGrammar=OneOf(
         ansi_dialect.get_grammar("BaseExpressionElementGrammar"),

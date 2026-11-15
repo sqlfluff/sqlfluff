@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a4923711a33a79f13f565ea409c4b5487c55178255c3ab5a897feb6961a384b7
+_hash: d20f5774a5d8f7a7260ffbc517797f9aa10a16f80c0e1fb952529f85718b7b25
 file:
 - statement:
     create_operator_statement:
@@ -255,5 +255,34 @@ file:
           raw_comparison_operator: '='
       - function_name:
           function_name_identifier: age_of
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_operator_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - operator_name:
+        naked_identifier: public
+        dot: .
+        operator: '##'
+    - bracketed:
+      - start_bracket: (
+      - keyword: LEFTARG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - data_type:
+          keyword: point
+      - comma: ','
+      - keyword: RIGHTARG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - data_type:
+          keyword: lseg
+      - comma: ','
+      - keyword: FUNCTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: close_ps
       - end_bracket: )
 - statement_terminator: ;

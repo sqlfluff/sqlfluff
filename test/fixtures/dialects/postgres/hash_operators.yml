@@ -1,0 +1,155 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eb95f7f5df2c5cf04fe026ce844a72b4e1774e99004e8194df712f15c5a625b6
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '5'
+          - binary_operator: '#'
+          - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "B'10101'"
+          - binary_operator: '#'
+          - quoted_literal: "B'01110'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: flags
+            binary_operator: '#'
+            numeric_literal: '4'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: toggled
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: settings
+      where_clause:
+        keyword: WHERE
+        expression:
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: flags
+            - binary_operator: '#'
+            - column_reference:
+                naked_identifier: mask
+            end_bracket: )
+        - binary_operator:
+            ampersand: '&'
+        - numeric_literal: '1'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '5'
+          - binary_operator: '#'
+          - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              keyword: lseg
+          - quoted_literal: "'[(0,0),(2,2)]'"
+          - binary_operator: '#'
+          - data_type:
+              keyword: lseg
+          - quoted_literal: "'[(0,2),(2,0)]'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              keyword: point
+          - quoted_literal: "'(1,2)'"
+          - binary_operator: '##'
+          - data_type:
+              keyword: lseg
+          - quoted_literal: "'[(0,0),(2,0)]'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '5'
+          - qualified_operator:
+              keyword: OPERATOR
+              bracketed:
+                start_bracket: (
+                operator_name:
+                  naked_identifier: pg_catalog
+                  dot: .
+                  operator: '#'
+                end_bracket: )
+          - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: data
+            binary_operator: '#>'
+            quoted_literal: "'{a,b}'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: data
+            binary_operator: '#>>'
+            quoted_literal: "'{a,b}'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: data
+            binary_operator: '#-'
+            quoted_literal: "'{a}'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: documents
+- statement_terminator: ;
