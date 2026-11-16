@@ -7982,6 +7982,8 @@ class DropConversionStatementSegment(BaseSegment):
         "DROP",
         "CONVERSION",
         Ref("IfExistsGrammar", optional=True),
+        # The synopsis shows one name, but PostgreSQL also accepts a list:
+        # `DROP CONVERSION c1, c2`.
         Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
