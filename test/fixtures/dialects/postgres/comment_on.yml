@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d029c408fde823cbf4d1689d07b63c5267e0cb721de571677e03a87f0811ed26
+_hash: 67197423e476aadda55cd7be9144412fbe20df9f0ea9d834b02e1dc8562f562a
 file:
 - statement:
     comment_clause:
@@ -250,6 +250,16 @@ file:
         naked_identifier: plpython
     - keyword: IS
     - quoted_literal: "'Python support for stored procedures'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '346344'
+    - keyword: IS
+    - quoted_literal: "'Planning document'"
 - statement_terminator: ;
 - statement:
     comment_clause:

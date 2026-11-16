@@ -22,7 +22,7 @@ comment on function function1 is 'comment';
 comment on function function2() is 'comment';
 COMMENT ON INDEX my_index IS 'Enforces uniqueness on employee ID';
 COMMENT ON LANGUAGE plpython IS 'Python support for stored procedures';
---COMMENT ON LARGE OBJECT 346344 IS 'Planning document';
+COMMENT ON LARGE OBJECT 346344 IS 'Planning document';
 COMMENT ON MATERIALIZED VIEW my_matview IS 'Summary of order history';
 COMMENT ON OPERATOR ^ (text, text) IS 'Performs intersection of two texts';
 COMMENT ON OPERATOR - (NONE, integer) IS 'Unary minus';
