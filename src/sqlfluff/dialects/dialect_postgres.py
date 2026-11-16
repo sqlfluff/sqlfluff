@@ -5245,6 +5245,11 @@ class CommentOnStatementSegment(BaseSegment):
                     Ref("IndexReferenceSegment"),
                 ),
                 Sequence(
+                    "LARGE",
+                    "OBJECT",
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
                     "OPERATOR",
                     OneOf(
                         Ref("OperatorSignatureGrammar"),
@@ -5888,6 +5893,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateConversionStatementSegment"),
             Ref("AlterConversionStatementSegment"),
             Ref("DropConversionStatementSegment"),
+            Ref("AlterLargeObjectStatementSegment"),
             Ref("CreateTablespaceStatementSegment"),
             Ref("AlterTablespaceStatementSegment"),
             Ref("DropTablespaceStatementSegment"),
@@ -6668,9 +6674,11 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
-        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
-        Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
+        # The synopsis puts COLLATE and DEFAULT before the constraints, but
+        # PostgreSQL takes them in any order, and pg_dump writes `NOT NULL DEFAULT 1`.
         AnyNumberOf(
+            Sequence("COLLATE", Ref("CollationReferenceSegment")),
+            Sequence("DEFAULT", Ref("ExpressionSegment")),
             Sequence(
                 Sequence(
                     "CONSTRAINT",
@@ -7986,6 +7994,30 @@ class DropConversionStatementSegment(BaseSegment):
         # `DROP CONVERSION c1, c2`.
         Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class AlterLargeObjectStatementSegment(BaseSegment):
+    """An `ALTER LARGE OBJECT` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterlargeobject.html
+    """
+
+    type = "alter_large_object_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "LARGE",
+        "OBJECT",
+        Ref("NumericLiteralSegment"),
+        "OWNER",
+        "TO",
+        OneOf(
+            "CURRENT_ROLE",
+            "CURRENT_USER",
+            "SESSION_USER",
+            # must come last; CURRENT_USER isn't reserved:
+            Ref("RoleReferenceSegment"),
+        ),
     )
 
 
