@@ -4995,12 +4995,16 @@ class AlterNetworkPolicyStatementSegment(BaseSegment):
                     Sequence(
                         "ALLOWED_IP_LIST",
                         Ref("EqualsSegment"),
-                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
                     ),
                     Sequence(
                         "BLOCKED_IP_LIST",
                         Ref("EqualsSegment"),
-                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
                     ),
                     Ref("CommentEqualsClauseSegment"),
                 ),
@@ -7246,21 +7250,13 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "ALLOWED_IP_LIST",
                 Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                ),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
             ),
             # For network policy
             Sequence(
                 "BLOCKED_IP_LIST",
                 Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                ),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
             ),
             Sequence(
                 "ALLOWED_NETWORK_RULE_LIST",
