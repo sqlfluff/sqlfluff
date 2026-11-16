@@ -1,6 +1,7 @@
 """Helpers for generating patches to fix files."""
 
 import logging
+from collections import Counter
 from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Optional
@@ -295,11 +296,16 @@ def generate_source_patches(
     linter_logger.debug("### Beginning Patch Iteration.")
     filtered_source_patches = []
     dedupe_buffer: set[tuple[tuple[int, int], str]] = set()
+    patches = list(_iter_templated_patches(tree, templated_file=templated_file))
+    # A loop renders the same source more than once. A patch to that source
+    # changes every rendering, so if it changes code, and not just whitespace,
+    # it's only safe if each rendering asked for it.
+    patch_counts = Counter(patch.dedupe_tuple() for patch in patches)
+    literal_renderings = _literal_renderings(templated_file)
+    has_loops = any(count > 1 for count in literal_renderings.values())
     # We use enumerate so that we get an index for each patch. This is entirely
     # so when debugging logs we can find a given patch again!
-    for idx, patch in enumerate(
-        _iter_templated_patches(tree, templated_file=templated_file)
-    ):
+    for idx, patch in enumerate(patches):
         linter_logger.debug("  %s Yielded patch: %s", idx, patch)
         _log_hints(patch, templated_file)
 
@@ -308,6 +314,23 @@ def generate_source_patches(
         if dedupe_tuple in dedupe_buffer:
             linter_logger.info(
                 "      - Skipping. Source space Duplicate: %s",
+                dedupe_tuple,
+            )
+            continue
+
+        renderings = (
+            _count_renderings(patch.source_slice, literal_renderings)
+            if has_loops
+            else 1
+        )
+        if patch_counts[dedupe_tuple] < renderings and not _is_whitespace_patch(
+            patch, templated_file
+        ):
+            linter_logger.info(
+                "      - Skipping. Patch changes code in source rendered %s "
+                "times, but only %s renderings were fixed: %s",
+                renderings,
+                patch_counts[dedupe_tuple],
                 dedupe_tuple,
             )
             continue
@@ -361,6 +384,43 @@ def generate_source_patches(
 
     # Sort the patches before building up the file.
     return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
+
+
+def _literal_renderings(templated_file: TemplatedFile) -> Counter[tuple[int, int]]:
+    """Count how many times each literal of the source is rendered.
+
+    Each iteration of a loop adds the literals of its body to the sliced file
+    again, with the same source slice, so these are rendered more than once.
+    """
+    return Counter(
+        (slc.source_slice.start, slc.source_slice.stop)
+        for slc in templated_file.sliced_file
+        if slc.slice_type == "literal"
+    )
+
+
+def _count_renderings(
+    source_slice: slice, literal_renderings: Counter[tuple[int, int]]
+) -> int:
+    """How many times the literal source around a patch is rendered.
+
+    If the patch sits at the boundary of two literals, use the one rendered
+    the fewest times.
+    """
+    return min(
+        (
+            count
+            for (start, stop), count in literal_renderings.items()
+            if start <= source_slice.start and source_slice.stop <= stop
+        ),
+        default=1,
+    )
+
+
+def _is_whitespace_patch(patch: FixPatch, templated_file: TemplatedFile) -> bool:
+    """Whether a patch only replaces whitespace with whitespace."""
+    source = templated_file.source_str[patch.source_slice]
+    return not source.strip() and not patch.fixed_raw.strip()
 
 
 def _patches_conflict(first: FixPatch, second: FixPatch) -> bool:
