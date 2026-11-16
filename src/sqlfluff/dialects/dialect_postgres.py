@@ -4017,7 +4017,7 @@ class AlterPolicyStatementSegment(BaseSegment):
             AnySetOf(
                 Sequence(
                     "TO",
-                    Delimited(OneOf("PUBLIC", Ref("RoleSpecificationGrammar"))),
+                    Delimited("PUBLIC", Ref("RoleSpecificationGrammar")),
                 ),
                 Sequence("USING", Bracketed(Ref("ExpressionSegment"))),
                 Sequence(
@@ -6526,7 +6526,7 @@ class CreatePolicyStatementSegment(BaseSegment):
         ),
         Sequence(
             "TO",
-            Delimited(OneOf("PUBLIC", Ref("RoleSpecificationGrammar"))),
+            Delimited("PUBLIC", Ref("RoleSpecificationGrammar")),
             optional=True,
         ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
