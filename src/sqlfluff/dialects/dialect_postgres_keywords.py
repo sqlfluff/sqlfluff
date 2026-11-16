@@ -937,7 +937,6 @@ postgres_nondocs_keywords = [
     ("BREADTH", "non-reserved"),
     ("BUFFERS", "non-reserved"),
     ("BUFFER_USAGE_LIMIT", "non-reserved"),
-    ("BUILTIN", "non-reserved"),
     ("BUILTIN_LOCALE", "non-reserved"),
     ("BYPASSRLS", "non-reserved"),
     ("COLLATION_VERSION", "non-reserved"),
@@ -954,14 +953,12 @@ postgres_nondocs_keywords = [
     ("EXECUTION", "not-keyword"),
     ("EXTENDED", "non-reserved"),
     ("FILE", "non-reserved"),
-    ("FILE_COPY", "non-reserved"),
     ("FORCE_NOT_NULL", "non-reserved"),
     ("FORCE_NULL", "non-reserved"),
     ("FORCE_QUOTE", "non-reserved"),
     ("FORMAT", "non-reserved"),
     ("GENERIC_PLAN", "non-reserved"),
     ("HASH", "non-reserved"),
-    ("ICU", "non-reserved"),
     ("ICU_LOCALE", "non-reserved"),
     ("ICU_RULES", "non-reserved"),
     ("IGNORE", "non-reserved"),
@@ -971,7 +968,6 @@ postgres_nondocs_keywords = [
     ("KEYS", "non-reserved"),
     ("LC_COLLATE", "non-reserved"),
     ("LC_CTYPE", "non-reserved"),
-    ("LIBC", "non-reserved"),
     ("LIST", "non-reserved"),
     ("LOGIN", "non-reserved"),
     ("LOCALE", "non-reserved"),
@@ -1019,7 +1015,6 @@ postgres_nondocs_keywords = [
     ("UNSAFE", "non-reserved"),
     ("USAGE", "non-reserved"),
     ("WAL", "non-reserved"),
-    ("WAL_LOG", "non-reserved"),
 ]
 
 postgres_postgis_datatype_keywords = [
