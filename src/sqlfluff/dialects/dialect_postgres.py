@@ -4207,7 +4207,7 @@ class DropViewStatementSegment(ansi.DropViewStatementSegment):
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
-    As specified in https://www.postgresql.org/docs/14/sql-createdatabase.html
+    As specified in https://www.postgresql.org/docs/current/sql-createdatabase.html
     """
 
     match_grammar = Sequence(
@@ -4229,7 +4229,65 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "ENCODING",
                 Ref("EqualsSegment", optional=True),
-                OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("NumericLiteralSegment"),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "STRATEGY",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedLiteralSegment"),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "LOCALE_PROVIDER",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedLiteralSegment"),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "ICU_LOCALE",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "ICU_RULES",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "BUILTIN_LOCALE",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "COLLATION_VERSION",
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    "DEFAULT",
+                ),
             ),
             OneOf(
                 # LOCALE This is a shortcut for setting LC_COLLATE and LC_CTYPE at once.
@@ -4237,18 +4295,30 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                 Sequence(
                     "LOCALE",
                     Ref("EqualsSegment", optional=True),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("SingleIdentifierGrammar"),
+                        "DEFAULT",
+                    ),
                 ),
                 AnyNumberOf(
                     Sequence(
                         "LC_COLLATE",
                         Ref("EqualsSegment", optional=True),
-                        Ref("QuotedLiteralSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                            "DEFAULT",
+                        ),
                     ),
                     Sequence(
                         "LC_CTYPE",
                         Ref("EqualsSegment", optional=True),
-                        Ref("QuotedLiteralSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                            "DEFAULT",
+                        ),
                     ),
                 ),
             ),
@@ -4272,6 +4342,11 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                 "IS_TEMPLATE",
                 Ref("EqualsSegment", optional=True),
                 Ref("OptionBooleanGrammar"),
+            ),
+            Sequence(
+                "OID",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
             ),
         ),
     )
