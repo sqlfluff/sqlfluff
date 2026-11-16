@@ -7,7 +7,12 @@ from typing import Any, NamedTuple, Optional
 
 import pytest
 import yaml
-from yaml import CDumper, CLoader
+
+try:
+    from yaml import CDumper, CLoader
+except ImportError:
+    from yaml import Dumper as CDumper
+    from yaml import Loader as CLoader
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig

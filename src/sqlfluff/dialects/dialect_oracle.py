@@ -3,6 +3,8 @@
 This inherits from the ansi dialect.
 """
 
+from collections.abc import Sequence as SequenceType
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -38,10 +40,12 @@ from sqlfluff.core.parser import (
     TypedParser,
     WordSegment,
 )
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1516,6 +1520,45 @@ class SlashBufferExecutorSegment(BaseSegment):
 
     type = "slash_buffer_executor"
     match_grammar = Ref("SlashSegment")
+
+    @classmethod
+    def match(
+        cls,
+        segments: SequenceType["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult:
+        """Match only a standalone `/` functioning as a SQL*Plus batch delimiter."""
+        assert cls.match_grammar, f"{cls.__name__} has no match grammar."
+        with parse_context.deeper_match(name=cls.__name__) as ctx:
+            match = cls.match_grammar.match(segments, idx, ctx)
+
+        if not match:
+            return match
+
+        # A SQL*Plus batch delimiter `/` must appear on a line by itself.
+        # Check preceding segments on the same line (must be start of file or newline).
+        prev_idx = idx - 1
+        while prev_idx >= 0 and segments[prev_idx].is_type("whitespace"):
+            prev_idx -= 1
+        if prev_idx >= 0 and not segments[prev_idx].is_type("newline"):
+            return MatchResult.empty_at(idx)
+
+        # Check succeeding segments on the same line (must be end of file, newline, or comment).
+        next_idx = (
+            match.matched_slice.stop
+            if hasattr(match, "matched_slice") and match.matched_slice
+            else idx + 1
+        )
+        while next_idx < len(segments) and segments[next_idx].is_type("whitespace"):
+            next_idx += 1
+        if next_idx < len(segments) and not (
+            segments[next_idx].is_type("newline")
+            or segments[next_idx].is_type("comment")
+        ):
+            return MatchResult.empty_at(idx)
+
+        return match.wrap(cls)
 
 
 class SqlplusSetStatementSegment(BaseSegment):

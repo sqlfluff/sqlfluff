@@ -161,3 +161,36 @@ def test_inmemory_subclauses_rejected(sql: str) -> None:
 def test_index_physical_attrs_rejected(sql: str) -> None:
     """Duplicate or mutually-exclusive index physical attributes must produce a parse violation."""
     assert _violations(sql) != [], f"Expected violations but got none for:\n{sql}"
+
+
+# Issue #8373 - Bare division in CREATE VIEW
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "CREATE VIEW myview AS select 1 / 100 as z from dual;",
+            id="create_view_bare_div",
+        ),
+        pytest.param(
+            "CREATE VIEW myview AS select * from dual where sample_time > sysdate - 1/24;",
+            id="create_view_where_bare_div",
+        ),
+        pytest.param(
+            "CREATE VIEW myview AS select nvl(bytes, 0) / 1024 / 1024 as size_mb from dual;",
+            id="create_view_chained_bare_div",
+        ),
+        pytest.param(
+            "create or replace view example as\nselect smthng\nfrom smwhr\n/\ncomment on table example is 'abc'\n/\n",
+            id="create_view_slash_batch_delimiter",
+        ),
+        pytest.param(
+            "CREATE VIEW myview AS select 1 / 100 as z from dual\n/\n",
+            id="create_view_div_with_slash_batch_delimiter",
+        ),
+    ],
+)
+def test_create_view_division_and_slash_delimiter(sql: str) -> None:
+    """Bare division inside CREATE VIEW statements must not be misparsed as slash batch delimiters."""
+    assert _violations(sql) == [], (
+        f"Expected clean parse but got violations for:\n{sql}"
+    )
