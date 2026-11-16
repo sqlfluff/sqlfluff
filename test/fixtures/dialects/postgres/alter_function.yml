@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 247e8f9d49cc8fe68a1cce166b8d6d9ca8860ba3c7464397afc6b161b802a372
+_hash: 3f354fd7a3ed945e9d532ca4c2e89d7226681c3314867a1ee4427b7c28fa594c
 file:
 - statement:
     alter_function_statement:
@@ -13,7 +13,8 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: auser
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -33,7 +34,8 @@ file:
         - end_bracket: )
     - keyword: OWNER
     - keyword: TO
-    - parameter: auser
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -43,7 +45,8 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: auser
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -53,7 +56,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_ROLE
+    - keyword: CURRENT_ROLE
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -63,7 +66,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -73,19 +76,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: SESSION_USER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        naked_identifier: public
-        dot: .
-        function_name_identifier: fn
-    - keyword: OWNER
-    - keyword: TO
-    - parameter: auser
+    - keyword: SESSION_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -97,7 +88,8 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_USER
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -109,7 +101,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_ROLE
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -121,7 +113,19 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: SESSION_USER
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: public
+        dot: .
+        function_name_identifier: fn
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:

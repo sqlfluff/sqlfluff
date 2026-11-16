@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e8fbde9dce3c00fb4a404566400bafea58a9ccecbcad47ec586934c037fc935
+_hash: c7b979cfe81e5b4c06f38cb7be34874462d4adac02a157ce0b1f9410752d20a0
 file:
 - statement:
     alter_procedure_statement:
@@ -42,7 +42,8 @@ file:
         - end_bracket: )
     - keyword: OWNER
     - keyword: TO
-    - parameter: joe
+    - role_reference:
+        naked_identifier: joe
 - statement_terminator: ;
 - statement:
     alter_procedure_statement:
@@ -61,7 +62,7 @@ file:
         - end_bracket: )
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_procedure_statement:

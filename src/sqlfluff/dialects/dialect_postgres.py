@@ -671,6 +671,17 @@ postgres_dialect.add(
     SessionInformationUserFunctionsGrammar=OneOf(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
     ),
+    # A role, as in `OWNER TO`. The keywords come first, so that `CURRENT_USER`,
+    # which this dialect doesn't reserve, parses as a keyword, not a role name.
+    # Unlike SessionInformationUserFunctionsGrammar, there's no `USER`, which
+    # isn't a role specification.
+    # https://www.postgresql.org/docs/current/sql-alterrole.html
+    RoleSpecificationGrammar=OneOf(
+        "CURRENT_ROLE",
+        "CURRENT_USER",
+        "SESSION_USER",
+        Ref("RoleReferenceSegment"),
+    ),
     # The user of CREATE, ALTER and DROP USER MAPPING. The keywords come first,
     # so that `USER` and `CURRENT_USER` parse as keywords rather than as role names.
     UserMappingUserGrammar=OneOf(
@@ -1620,12 +1631,7 @@ class AlterAggregateStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 "SET",
@@ -1771,12 +1777,7 @@ class AlterFunctionStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 Ref.keyword("NO", optional=True),
@@ -1908,12 +1909,7 @@ class AlterProcedureStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 Ref.keyword("NO", optional=True),
@@ -2049,13 +2045,7 @@ class AlterRoutineStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
             Sequence(
@@ -2647,12 +2637,7 @@ class AlterRoleStatementSegment(BaseSegment):
         OneOf(
             # role_specification
             Sequence(
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
                 Ref.keyword("WITH", optional=True),
                 AnySetOf(
                     OneOf("SUPERUSER", "NOSUPERUSER"),
@@ -2678,13 +2663,7 @@ class AlterRoleStatementSegment(BaseSegment):
             ),
             # role_specification | all
             Sequence(
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    "ALL",
-                    Ref("RoleReferenceSegment"),
-                ),
+                OneOf("ALL", Ref("RoleSpecificationGrammar")),
                 Sequence(
                     "IN",
                     "DATABASE",
@@ -2733,13 +2712,7 @@ class AlterGroupStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "GROUP",
-        OneOf(
-            "CURRENT_ROLE",
-            "CURRENT_USER",
-            "SESSION_USER",
-            # must come last; CURRENT_USER isn't reserved:
-            Ref("RoleReferenceSegment"),
-        ),
+        Ref("RoleSpecificationGrammar"),
         OneOf(
             Sequence(
                 OneOf("ADD", "DROP"),
@@ -3446,12 +3419,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "OWNER",
             "TO",
-            OneOf(
-                Ref("ParameterNameSegment"),
-                "CURRENT_ROLE",
-                "CURRENT_USER",
-                "SESSION_USER",
-            ),
+            Ref("RoleSpecificationGrammar"),
         ),
         Sequence(
             "REPLICA",
@@ -3676,13 +3644,7 @@ class AlterForeignDataWrapperStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
         ),
@@ -3809,13 +3771,7 @@ class AlterPublicationStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
         ),
     )
@@ -3989,12 +3945,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
         Sequence(
             "OWNER",
             "TO",
-            OneOf(
-                Ref("ObjectReferenceSegment"),
-                "CURRENT_ROLE",
-                "CURRENT_USER",
-                "SESSION_USER",
-            ),
+            Ref("RoleSpecificationGrammar"),
         ),
     )
 
@@ -4066,15 +4017,7 @@ class AlterPolicyStatementSegment(BaseSegment):
             AnySetOf(
                 Sequence(
                     "TO",
-                    Delimited(
-                        OneOf(
-                            Ref("RoleReferenceSegment"),
-                            "PUBLIC",
-                            "CURRENT_ROLE",
-                            "CURRENT_USER",
-                            "SESSION_USER",
-                        )
-                    ),
+                    Delimited(OneOf("PUBLIC", Ref("RoleSpecificationGrammar"))),
                 ),
                 Sequence("USING", Bracketed(Ref("ExpressionSegment"))),
                 Sequence(
@@ -4149,12 +4092,7 @@ class AlterViewStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 "RENAME",
@@ -4307,12 +4245,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
             Sequence(
@@ -5137,13 +5070,7 @@ class DropOwnedStatementSegment(BaseSegment):
         "OWNED",
         "BY",
         Delimited(
-            OneOf(
-                "CURRENT_ROLE",
-                "CURRENT_USER",
-                "SESSION_USER",
-                # must come last; CURRENT_USER isn't reserved:
-                Ref("RoleReferenceSegment"),
-            ),
+            Ref("RoleSpecificationGrammar"),
         ),
         Ref("DropBehaviorGrammar", optional=True),
     )
@@ -5163,22 +5090,10 @@ class ReassignOwnedStatementSegment(BaseSegment):
         "OWNED",
         "BY",
         Delimited(
-            OneOf(
-                "CURRENT_ROLE",
-                "CURRENT_USER",
-                "SESSION_USER",
-                # must come last; CURRENT_USER isn't reserved:
-                Ref("RoleReferenceSegment"),
-            ),
+            Ref("RoleSpecificationGrammar"),
         ),
         "TO",
-        OneOf(
-            "CURRENT_ROLE",
-            "CURRENT_USER",
-            "SESSION_USER",
-            # must come last; CURRENT_USER isn't reserved:
-            Ref("RoleReferenceSegment"),
-        ),
+        Ref("RoleSpecificationGrammar"),
     )
 
 
@@ -5632,7 +5547,7 @@ class AlterSequenceStatementSegment(ansi.AlterSequenceStatementSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(Ref("ParameterNameSegment"), "CURRENT_USER", "SESSION_USER"),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("RENAME", "TO", Ref("SequenceReferenceSegment")),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
@@ -5713,12 +5628,7 @@ class AlterStatisticsStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 "RENAME",
@@ -6104,13 +6014,7 @@ class AlterEventTriggerStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),
         ),
@@ -6232,13 +6136,7 @@ class AlterLanguageStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
         ),
     )
@@ -6628,15 +6526,7 @@ class CreatePolicyStatementSegment(BaseSegment):
         ),
         Sequence(
             "TO",
-            Delimited(
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    "PUBLIC",
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                )
-            ),
+            Delimited(OneOf("PUBLIC", Ref("RoleSpecificationGrammar"))),
             optional=True,
         ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
@@ -6748,12 +6638,7 @@ class AlterDomainStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 "RENAME",
@@ -7647,12 +7532,7 @@ class AlterTextSearchConfigurationStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 "SET",
@@ -7723,13 +7603,7 @@ class AlterTextSearchObjectStatementSegment(BaseSegment):
                     Sequence(
                         "OWNER",
                         "TO",
-                        OneOf(
-                            "CURRENT_ROLE",
-                            "CURRENT_USER",
-                            "SESSION_USER",
-                            # must come last; CURRENT_USER isn't reserved:
-                            Ref("RoleReferenceSegment"),
-                        ),
+                        Ref("RoleSpecificationGrammar"),
                     ),
                     Ref("TextSearchObjectRenameOrSetSchemaGrammar"),
                 ),
@@ -7778,12 +7652,7 @@ class AlterTypeStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    "CURRENT_ROLE",
-                    Ref("ObjectReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(
                 "RENAME",
@@ -7897,13 +7766,7 @@ class AlterCollationStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
         ),
@@ -7940,13 +7803,7 @@ class AlterLargeObjectStatementSegment(BaseSegment):
         Ref("NumericLiteralSegment"),
         "OWNER",
         "TO",
-        OneOf(
-            "CURRENT_ROLE",
-            "CURRENT_USER",
-            "SESSION_USER",
-            # must come last; CURRENT_USER isn't reserved:
-            Ref("RoleReferenceSegment"),
-        ),
+        Ref("RoleSpecificationGrammar"),
     )
 
 
@@ -7963,12 +7820,7 @@ class CreateTablespaceStatementSegment(BaseSegment):
         Ref("TablespaceReferenceSegment"),
         Sequence(
             "OWNER",
-            OneOf(
-                "CURRENT_ROLE",
-                "CURRENT_USER",
-                "SESSION_USER",
-                Ref("RoleReferenceSegment"),
-            ),
+            Ref("RoleSpecificationGrammar"),
             optional=True,
         ),
         "LOCATION",
@@ -7993,12 +7845,7 @@ class AlterTablespaceStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence(OneOf("SET", "RESET"), Ref("RelationOptionsSegment")),
         ),
@@ -8229,13 +8076,7 @@ class AlterServerStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("RENAME", "TO", Ref("ServerReferenceSegment")),
         ),
@@ -8644,13 +8485,7 @@ class AlterOperatorStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
+                Ref("RoleSpecificationGrammar"),
             ),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
             Sequence(
