@@ -26,3 +26,14 @@ ALTER TABLE reservations
 
 ALTER TABLE prices
     ADD UNIQUE (product_id, valid_at WITHOUT OVERLAPS);
+
+CREATE TABLE bookings (
+    room_id int,
+    during tstzrange,
+    x int,
+    PRIMARY KEY (room_id, during WITHOUT OVERLAPS) INCLUDE (x)
+);
+
+ALTER TABLE bookings
+    ADD CONSTRAINT bookings_uq UNIQUE (room_id, during WITHOUT OVERLAPS)
+        INCLUDE (x) WITH (fillfactor = 70) USING INDEX TABLESPACE pg_default;
