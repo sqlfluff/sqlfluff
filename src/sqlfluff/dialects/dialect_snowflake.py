@@ -9227,6 +9227,12 @@ class CopyIntoTableStatementSegment(BaseSegment):
             # We explode the CopyOptionsSegments because the AnySetOf may appear in any
             # order for these other elements as well.
             *CopyOptionsSegment._copy_options_matchables,
+            # Only valid when loading into a table.
+            Sequence(
+                "LOAD_MODE",
+                Ref("EqualsSegment"),
+                OneOf("FULL_INGEST", "ADD_FILES_COPY"),
+            ),
         ),
         Sequence(
             "VALIDATION_MODE",
