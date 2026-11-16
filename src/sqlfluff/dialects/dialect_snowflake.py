@@ -1415,6 +1415,9 @@ snowflake_dialect.replace(
                 "GEOMETRY",
                 # UUID data type
                 "UUID",
+                # IP address data type
+                # https://docs.snowflake.com/en/sql-reference/data-types-ipaddress
+                "IPADDRESS",
                 # Vector data types
                 "VECTOR",
                 # Scriptiong data types
