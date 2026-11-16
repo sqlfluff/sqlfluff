@@ -5,6 +5,7 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 import regex
@@ -12,6 +13,7 @@ from tqdm import tqdm
 
 from sqlfluff.core.config import (
     FluffConfig,
+    load_config_at_path,
     load_config_up_to_path,
     progress_bar_configuration,
 )
@@ -964,10 +966,11 @@ class Linter:
     def _nested_core_value(self, path: str, key: str) -> Any:
         """Return a core config value set by nested config files for a path.
 
-        A value set by config files for a path only applies when it differs
-        from the value set for the current working directory, and isn't
-        overridden. Otherwise this returns None, and the value in the root
-        config applies, so that values set when creating it (e.g. with
+        A value set by config files for a path applies when it differs from
+        the value set for the current working directory, or when a config file
+        below the current working directory sets it, and it isn't overridden.
+        Otherwise this returns None, and the value in the root config applies,
+        so that values set when creating it (e.g. with
         ``FluffConfig(configs=...)``) are still used.
 
         NOTE: As on main, the baseline is the current working directory, even
@@ -977,9 +980,23 @@ class Linter:
         if self.config._overrides and key in self.config._overrides:
             return None
         value = self._loaded_core_config(path).get(key)
-        if value == self._loaded_core_config(os.getcwd()).get(key):
+        if value != self._loaded_core_config(os.getcwd()).get(key):
+            return value
+        # The value is the same as for the current working directory, so only
+        # use it if a nested config file sets it explicitly. Otherwise a value
+        # set when creating the root config would be ignored.
+        if self.config._ignore_local_config:
             return None
-        return value
+        cwd = Path.cwd().resolve()
+        target = Path(path).resolve()
+        for config_dir in (target, *target.parents):
+            if config_dir == cwd or config_dir in cwd.parents:
+                break
+            if config_dir.is_dir():
+                core_config = load_config_at_path(str(config_dir)).get("core", {})
+                if isinstance(core_config, dict) and key in core_config:
+                    return value
+        return None
 
     def _templater_for_config(self, config: FluffConfig, fname: str) -> "RawTemplater":
         """Return the templater to render a file with the given config.
@@ -1189,6 +1206,8 @@ class Linter:
 
     def _file_extensions_for_path(self, path: str) -> list[str]:
         """Return the file extensions to discover at a path."""
+        # NOTE: An empty value falls back to the root config, as splitting it
+        # would give an empty extension, which matches every file.
         extensions: str = self._nested_core_value(path, "sql_file_exts") or (
             self.config.get("sql_file_exts", default=".sql")
         )

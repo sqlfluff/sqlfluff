@@ -210,7 +210,9 @@ def _iter_files_in_path(
             # Directories inherit their parent's extensions, unless they
             # contain config files which might change them.
             normalised_dirname = os.path.normpath(dirname)
-            parent_file_exts = dir_file_exts.get(os.path.dirname(normalised_dirname))
+            parent_file_exts = dir_file_exts.get(
+                os.path.normpath(os.path.dirname(normalised_dirname))
+            )
             if parent_file_exts is None or not config_filename_set.isdisjoint(
                 filenames
             ):

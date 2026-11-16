@@ -1416,6 +1416,68 @@ def test__linter__root_config_file_exts_used(tmp_path):
     ]
 
 
+def test__linter__nested_config_file_exts_beat_root_config(tmp_path, monkeypatch):
+    """Nested config files set file extensions even if the root config differs.
+
+    This applies even when the nested value is the same as the value in the
+    working directory's config file, which the root config replaces here.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8"
+    )
+    tmp_path.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    tmp_path.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8"
+    )
+    nested.joinpath("c.txt").write_text("SELECT 1\n", encoding="utf-8")
+    nested.joinpath("d.sql").write_text("SELECT 1\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}}, overrides={"dialect": "ansi"}
+        )
+    )
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert sorted(file.path for path in result.paths for file in path.files) == [
+        str(tmp_path / "a.txt"),
+        str(nested / "d.sql"),
+    ]
+
+
+def test__linter__ignored_nested_config_file_exts(tmp_path, monkeypatch):
+    """Nested config files don't set file extensions when local config is ignored."""
+    extra_config = tmp_path / "extra.cfg"
+    extra_config.write_text("[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8")
+    project = tmp_path / "project"
+    nested = project / "nested"
+    nested.mkdir(parents=True)
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8"
+    )
+    nested.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    nested.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    monkeypatch.chdir(project)
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}},
+            extra_config_path=str(extra_config),
+            ignore_local_config=True,
+            overrides={"dialect": "ansi"},
+        )
+    )
+
+    result = lntr.lint_paths((str(project),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested / "a.txt")
+    ]
+
+
 def test__linter__discovery_ignores_bad_nested_config(tmp_path):
     """Discovery reads only file extensions from nested config files.
 

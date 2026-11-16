@@ -113,6 +113,31 @@ def test__linter__path_from_paths__nested_exts_trailing_slash(tmp_path):
     assert looked_up == [str(tmp_path) + os.sep]
 
 
+def test__linter__path_from_paths__nested_exts_relative_root(tmp_path, monkeypatch):
+    """A relative ``.`` walk root passes on its extensions to child directories."""
+    inherited = tmp_path / "inherited"
+    inherited.mkdir()
+    inherited.joinpath("nested.bq").touch()
+    monkeypatch.chdir(tmp_path)
+    looked_up = []
+
+    def file_exts_for_path(path):
+        looked_up.append(path)
+        return [".bq"]
+
+    paths = paths_from_path(
+        ".",
+        working_path=str(tmp_path),
+        target_file_exts=[".sql"],
+        target_file_exts_for_path=file_exts_for_path,
+    )
+
+    assert [os.path.normpath(path) for path in paths] == [
+        os.path.join("inherited", "nested.bq")
+    ]
+    assert looked_up == ["."]
+
+
 def test__linter__path_from_paths__exact_nested_ext(tmp_path):
     """Test exact file discovery with path-specific extensions."""
     nested = tmp_path / "nested"
