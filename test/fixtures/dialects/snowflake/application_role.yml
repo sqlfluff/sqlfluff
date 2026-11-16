@@ -1,0 +1,242 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1e60fd759e4e51b04bf7c1d01959574a681417fd3f65cfde4e17ecceb0ae883d
+file:
+- statement:
+    create_application_role_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        naked_identifier: app_role
+- statement_terminator: ;
+- statement:
+    create_application_role_statement:
+    - keyword: CREATE
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - application_role_reference:
+        naked_identifier: app_role
+- statement_terminator: ;
+- statement:
+    create_application_role_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        naked_identifier: app_role
+- statement_terminator: ;
+- statement:
+    create_application_role_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - application_role_reference:
+        naked_identifier: app_role
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'app role comment'"
+- statement_terminator: ;
+- statement:
+    create_application_role_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        naked_identifier: app_role
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'app role comment'"
+- statement_terminator: ;
+- statement:
+    create_application_role_statement:
+    - keyword: DEFINE
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        naked_identifier: app_role
+- statement_terminator: ;
+- statement:
+    create_application_role_statement:
+    - keyword: DEFINE
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        naked_identifier: app_role
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'app role comment'"
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+    - keyword: RENAME
+    - keyword: TO
+    - application_role_reference:
+        quoted_identifier: '"prod_app_role"'
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+    - keyword: RENAME
+    - keyword: TO
+    - application_role_reference:
+        quoted_identifier: '"prod_app_role"'
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+      - naked_identifier: app
+      - dot: .
+      - naked_identifier: role_name
+    - keyword: RENAME
+    - keyword: TO
+    - application_role_reference:
+      - naked_identifier: app
+      - dot: .
+      - naked_identifier: new_role_name
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+- statement_terminator: ;
+- statement:
+    alter_application_role_statement:
+    - keyword: ALTER
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    drop_application_role_statement:
+    - keyword: DROP
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        naked_identifier: app_role
+- statement_terminator: ;
+- statement:
+    drop_application_role_statement:
+    - keyword: DROP
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - application_role_reference:
+        naked_identifier: app_role
+- statement_terminator: ;
+- statement:
+    drop_application_role_statement:
+    - keyword: DROP
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+- statement_terminator: ;
+- statement:
+    drop_application_role_statement:
+    - keyword: DROP
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - application_role_reference:
+        quoted_identifier: '"test_app_role"'
+- statement_terminator: ;
+- statement:
+    drop_application_role_statement:
+    - keyword: DROP
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - application_role_reference:
+      - naked_identifier: app
+      - dot: .
+      - naked_identifier: role_name
+- statement_terminator: ;
+- statement:
+    drop_application_role_statement:
+    - keyword: DROP
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - application_role_reference:
+      - naked_identifier: app
+      - dot: .
+      - naked_identifier: role_name
+- statement_terminator: ;
