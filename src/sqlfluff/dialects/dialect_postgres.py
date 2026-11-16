@@ -174,6 +174,9 @@ postgres_dialect.insert_lexer_matchers(
         # `#` and `##` are operators in PostgreSQL, not comments as in ANSI. After
         # the JSON operators, so that `#>`, `#>>` and `#-` lex as one.
         RegexLexer("hash", r"##?", CodeSegment),
+        # `^@` is the starts-with operator. Before the ANSI `^`, which would
+        # otherwise split it into `^` and `@`.
+        StringLexer("starts_with_operator", "^@", SymbolSegment),
     ],
     before="like_operator",
 )
@@ -478,6 +481,11 @@ postgres_dialect.add(
     # `#` is the bitwise XOR of integers and bit strings, and the point where two
     # geometric objects intersect. `##` is the closest point of one to the other.
     HashOperatorSegment=TypedParser("hash", SymbolSegment, type="binary_operator"),
+    # `text ^@ text` is true if the first string starts with the second.
+    # https://www.postgresql.org/docs/current/functions-string.html
+    StartsWithOperatorSegment=TypedParser(
+        "starts_with_operator", SymbolSegment, type="comparison_operator"
+    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # The arguments of FETCH and MOVE: [ direction ] [ FROM | IN ] cursor_name
     # Two alternatives, so that a cursor named like a direction keyword
@@ -786,6 +794,7 @@ postgres_dialect.replace(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
+        Ref("StartsWithOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
         Ref("OverlapSegment"),
