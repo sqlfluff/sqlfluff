@@ -8050,8 +8050,25 @@ class LockTableStatementSegment(BaseSegment):
     )
 
 
+class ClusterOptionSegment(BaseSegment):
+    """A parenthesised option in a `CLUSTER` statement.
+
+    https://www.postgresql.org/docs/current/sql-cluster.html
+    """
+
+    type = "cluster_option"
+    match_grammar = Sequence(
+        "VERBOSE",
+        Ref("BooleanLiteralGrammar", optional=True),
+    )
+
+
 class ClusterStatementSegment(BaseSegment):
     """A `CLUSTER` statement.
+
+    PostgreSQL accepts either the legacy bare `VERBOSE` keyword or a
+    parenthesised option list. Both are kept so that older maintenance
+    scripts keep parsing.
 
     https://www.postgresql.org/docs/current/sql-cluster.html
     """
@@ -8059,6 +8076,10 @@ class ClusterStatementSegment(BaseSegment):
     type = "cluster_statement"
     match_grammar = Sequence(
         "CLUSTER",
+        Sequence(
+            Bracketed(Delimited(Ref("ClusterOptionSegment"))),
+            optional=True,
+        ),
         Ref.keyword("VERBOSE", optional=True),
         OneOf(
             Sequence(

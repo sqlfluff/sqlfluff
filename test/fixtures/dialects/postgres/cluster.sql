@@ -5,3 +5,7 @@ CLUSTER;
 CLUSTER VERBOSE;
 CLUSTER index_name ON table_name;
 CLUSTER public.temp_table USING idx_temp_table_ra;
+CLUSTER (VERBOSE) employees USING employees_ind;
+CLUSTER (VERBOSE FALSE) employees;
+CLUSTER (VERBOSE TRUE) index_name ON table_name;
+CLUSTER (VERBOSE);
