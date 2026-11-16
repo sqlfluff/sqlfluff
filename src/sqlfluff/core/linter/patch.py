@@ -402,16 +402,22 @@ def _literal_renderings(templated_file: TemplatedFile) -> Counter[tuple[int, int
 def _count_renderings(
     source_slice: slice, literal_renderings: Counter[tuple[int, int]]
 ) -> int:
-    """How many times the literal source around a patch is rendered.
+    """How many times the literal source a patch touches is rendered.
 
-    If the patch sits at the boundary of two literals, use the one rendered
-    the fewest times.
+    A patch can touch more than one literal, so take the most renderings of
+    any of them: if any of that source is in a loop body, every iteration has
+    to ask for the patch. A zero-length patch touches the literals that it's
+    inside or at the edge of.
     """
-    return min(
+    return max(
         (
             count
             for (start, stop), count in literal_renderings.items()
-            if start <= source_slice.start and source_slice.stop <= stop
+            if (
+                start <= source_slice.start <= stop
+                if source_slice.start == source_slice.stop
+                else start < source_slice.stop and source_slice.start < stop
+            )
         ),
         default=1,
     )
