@@ -5885,6 +5885,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCollationStatementSegment"),
             Ref("AlterCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
+            Ref("CreateConversionStatementSegment"),
+            Ref("AlterConversionStatementSegment"),
+            Ref("DropConversionStatementSegment"),
             Ref("CreateTablespaceStatementSegment"),
             Ref("AlterTablespaceStatementSegment"),
             Ref("DropTablespaceStatementSegment"),
@@ -7914,6 +7917,78 @@ class DropCollationStatementSegment(BaseSegment):
         "COLLATION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateConversionStatementSegment(BaseSegment):
+    """A `CREATE CONVERSION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createconversion.html
+    """
+
+    type = "create_conversion_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref.keyword("DEFAULT", optional=True),
+        "CONVERSION",
+        Ref("ObjectReferenceSegment"),
+        "FOR",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+        "TO",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+        "FROM",
+        Ref("FunctionNameSegment"),
+    )
+
+
+class AlterConversionStatementSegment(BaseSegment):
+    """An `ALTER CONVERSION` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterconversion.html
+    """
+
+    type = "alter_conversion_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "CONVERSION",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+        ),
+    )
+
+
+class DropConversionStatementSegment(BaseSegment):
+    """A `DROP CONVERSION` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropconversion.html
+    """
+
+    type = "drop_conversion_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CONVERSION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 

@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6f0f63c9363e6f09d813eb64b66e6839712c68bdffd4d8f4a4d75e5cf2c17f67
+file:
+- statement:
+    drop_conversion_statement:
+    - keyword: DROP
+    - keyword: CONVERSION
+    - object_reference:
+        naked_identifier: myconv
+- statement_terminator: ;
+- statement:
+    drop_conversion_statement:
+    - keyword: DROP
+    - keyword: CONVERSION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: myconv
+- statement_terminator: ;
+- statement:
+    drop_conversion_statement:
+    - keyword: DROP
+    - keyword: CONVERSION
+    - object_reference:
+        naked_identifier: myconv
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_conversion_statement:
+    - keyword: DROP
+    - keyword: CONVERSION
+    - object_reference:
+        naked_identifier: myconv
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_conversion_statement:
+    - keyword: DROP
+    - keyword: CONVERSION
+    - object_reference:
+        naked_identifier: conv1
+    - comma: ','
+    - object_reference:
+        naked_identifier: conv2
+- statement_terminator: ;
+- statement:
+    drop_conversion_statement:
+    - keyword: DROP
+    - keyword: CONVERSION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: conv1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: conv2
+    - keyword: CASCADE
+- statement_terminator: ;
