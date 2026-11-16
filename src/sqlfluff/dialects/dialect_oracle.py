@@ -1810,10 +1810,11 @@ class FetchClauseSegment(ansi.FetchClauseSegment):
 # line-leading slash is more likely a division whose right operand is on the
 # following line, and treating that as a delimiter truncates the statement.
 #
-# Reference for future updates (both list the same top-level statement names
-# this set mirrors, so new entries can be checked against them):
-#   SQL statements: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SQL-Statements.html
-#   SQL*Plus commands: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/SQL-Plus-commands.html
+# Reference for future updates: this set is the union of the top-level names in
+# Oracle's two index pages below, not a mirror of a single list. When adding a
+# starter, check both indexes:
+#   SQL statements: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlqr/SQL-Statements.html
+#   SQL*Plus commands: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlqr/SQL-Plus-Commands.html
 ORACLE_STATEMENT_STARTERS = frozenset(
     {
         "ACCEPT",

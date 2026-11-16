@@ -19,7 +19,10 @@ fn oracle_slash_comment_is_division_but_bare_slash_is_a_delimiter() {
     let tree =
         parse_oracle("CREATE VIEW v AS\nSELECT 1\n/ -- division\n2 AS ratio\nFROM dual\n/\n");
     assert!(tree.contains("binary_operator"), "{tree}");
-    assert!(tree.contains("slash_buffer_executor"), "{tree}");
+    // Exactly one batch terminator: the bare slash on the last line. If the
+    // slash before `-- division` were read as a delimiter too, the batch would
+    // be cut mid-expression and this count would be two.
+    assert_eq!(tree.matches("slash_buffer_executor").count(), 1, "{tree}");
 }
 
 #[test]
