@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9463478e2e9f319c5feaa0eeb147aec0040c572bf0117ec0fe4e2011e31513df
+_hash: 4ebb381df137d3e2b4f20a8833acacbafc522a3496716a5a3e746238a1819880
 file:
 - statement:
     alter_table_statement:
@@ -1269,7 +1269,8 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: to
-      - parameter: postgres
+      - role_reference:
+          naked_identifier: postgres
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1357,7 +1358,8 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - parameter: '"ID"'
+      - role_reference:
+          quoted_identifier: '"ID"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1370,7 +1372,8 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - parameter: ID
+      - role_reference:
+          naked_identifier: ID
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1386,7 +1389,7 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - parameter: CURRENT_ROLE
+      - keyword: CURRENT_ROLE
 - statement_terminator: ;
 - statement:
     alter_table_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 193b27cd8dc038b109bd88dd833ca930f0e223ff21fa628bfa72f118cd5ba762
+_hash: 45f8c683b48fe1a496c4f48c878c3d316c6395c32777dee925658586bed3ef1d
 file:
 - statement:
     alter_materialized_view_statement:
@@ -351,7 +351,7 @@ file:
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - object_reference:
+      - role_reference:
           naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
@@ -364,7 +364,7 @@ file:
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - object_reference:
+      - role_reference:
           quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
