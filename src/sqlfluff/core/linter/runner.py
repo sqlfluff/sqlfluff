@@ -733,6 +733,14 @@ class WarmWorkerRunner(MultiProcessRunner):
         # Cast is safe: _use_warm_workers() in get_runner verified attrs.
         templater: Any = self.linter.templater
 
+        if self._nested_templater_set(fnames):
+            # Warm workers render every file with the root templater's state
+            # and file order. A templater set by nested config files may need
+            # to render in the main process, or share state by its own
+            # `session_key`, so use the general parallel runner instead.
+            yield from super().run(fnames, fix)
+            return
+
         t_start = time.perf_counter()
 
         # Step 1: Ensure templater config is compiled (fast, needed for
@@ -881,6 +889,18 @@ class WarmWorkerRunner(MultiProcessRunner):
                 f"main: {len(file_list)} files completed in "
                 f"{time.perf_counter() - t_dispatch:.3f}s"
             )
+
+    def _nested_templater_set(self, fnames: list[str]) -> bool:
+        """Whether nested config files set another templater for any file.
+
+        If the root templater can't be replaced (e.g. dbt), the general runner
+        is still correct: it renders those files with the root templater.
+        """
+        root_name = self.linter.templater.name
+        return any(
+            self.linter._nested_core_value(fname, "templater") not in (None, root_name)
+            for fname in fnames
+        )
 
     def _dispatch_and_collect(
         self,

@@ -1716,6 +1716,35 @@ def test__linter__uses_nested_stateful_templater(tmp_path, stateful_events):
     assert close_event == ("close", session_templater)
 
 
+@pytest.mark.parametrize("nested", [True, False])
+def test__warm_worker_runner__nested_templater_uses_general_runner(
+    nested, tmp_path, stateful_events, monkeypatch
+):
+    """Warm workers don't render files whose nested config sets a templater.
+
+    The jinja root templater uses warm workers, but a nested main-process
+    templater must render in the main process, so the general parallel runner
+    is used instead.
+    """
+    fnames = [_stateful_file(tmp_path, None)]
+    if nested:
+        fnames.append(_stateful_file(tmp_path, "a"))
+    lntr = Linter(dialect="ansi")
+    warm_runner, _ = runner.get_runner(lntr, lntr.config, processes=2)
+    assert isinstance(warm_runner, runner.WarmWorkerRunner)
+    general_runs = []
+
+    def general_run(self, fnames, fix):
+        general_runs.append(fnames)
+        yield from ()
+
+    monkeypatch.setattr(runner.MultiProcessRunner, "run", general_run)
+    assert warm_runner._nested_templater_set(fnames) is nested
+    if nested:
+        assert list(warm_runner.run(fnames, fix=False)) == []
+        assert general_runs == [fnames]
+
+
 def test__linter__stateful_root_templater_is_shared_not_closed(
     tmp_path, stateful_events
 ):
