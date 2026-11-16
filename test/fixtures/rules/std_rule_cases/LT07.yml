@@ -1,5 +1,20 @@
 rule: LT07
 
+test_fix_cte_tag_after_exact_consumed_newline:
+  fail_str: |
+    WITH c AS (
+        SELECT 1
+    {#- note #})
+
+    SELECT * FROM c
+  fix_str: |
+    WITH c AS (
+        SELECT 1
+    {#- note #}
+    )
+
+    SELECT * FROM c
+
 test_pass_consumed_closing_newline_with_indentation:
   pass_str: |
     WITH c AS (

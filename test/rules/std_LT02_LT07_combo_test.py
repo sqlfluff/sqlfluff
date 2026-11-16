@@ -6,6 +6,40 @@ from sqlfluff.core import FluffConfig, Linter
 
 
 @pytest.mark.parametrize("rules", ["LT07", "LT02,LT07"])
+@pytest.mark.parametrize("whitespace", ["\n", "\n    "])
+@pytest.mark.parametrize(
+    "tag",
+    [
+        "{#- note #}",
+        "{{- '' }}",
+        "{%- if true %}{% endif %}",
+        "{#- note #}{{ '' }}",
+        "{#- note -#}",
+    ],
+)
+def test_cte_template_after_consumed_newline(rules, whitespace, tag):
+    """A consumed newline before a tag does not separate its closing bracket."""
+    sql = f"WITH c AS (\n    SELECT 1{whitespace}{tag})\n\nSELECT * FROM c"
+    expected_whitespace = "\n    " if "LT02" in rules else whitespace
+    expected_sql = (
+        f"WITH c AS (\n    SELECT 1{expected_whitespace}{tag}\n)\n\nSELECT * FROM c"
+    )
+    linter = Linter(
+        config=FluffConfig(
+            overrides={"dialect": "ansi", "templater": "jinja", "rules": rules}
+        )
+    )
+    assert linter.lint_string(sql).get_violations(rules="LT07")
+    fixed_sql, _ = linter.lint_string(sql, fix=True).fix_string()
+    assert fixed_sql == expected_sql
+    assert not linter.parse_string(fixed_sql).violations
+    assert not linter.lint_string(fixed_sql).get_violations()
+    second_sql, changed_again = linter.lint_string(fixed_sql, fix=True).fix_string()
+    assert second_sql == fixed_sql
+    assert not changed_again
+
+
+@pytest.mark.parametrize("rules", ["LT07", "LT02,LT07"])
 @pytest.mark.parametrize(
     "whitespace,aligned_whitespace",
     [("\n", "\n"), ("\n    ", "\n"), ("\n\n    ", "\n\n")],

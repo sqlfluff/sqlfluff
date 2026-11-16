@@ -116,10 +116,12 @@ class Rule_LT07(BaseRule):
                 # ...or a consumed newline in a placeholder.
                 elif elem.is_type("placeholder"):
                     placeholder = cast(TemplateSegment, elem)
-                    if placeholder.source_str == "\n" or (
-                        not seen_template
-                        and placeholder.block_type == "literal"
-                        and "\n" in placeholder.source_str
+                    if not seen_template and (
+                        placeholder.source_str == "\n"
+                        or (
+                            placeholder.block_type == "literal"
+                            and "\n" in placeholder.source_str
+                        )
                     ):
                         break
                     # A newline before a template tag does not separate the
