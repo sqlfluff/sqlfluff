@@ -36,12 +36,10 @@ class RF01Query(Query):
     parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
 
 
-def _normalize_ref_part(
-    part: ObjectReferencePart, dialect: Optional[Dialect] = None
+def _casefold_segment(
+    seg: BaseSegment, norm: str, dialect: Optional[Dialect] = None
 ) -> str:
-    """Normalize a reference part, taking dialect casefolding into account."""
-    seg = part.segments[0]
-    norm = seg.normalize(part.part)
+    """Casefold a normalized identifier according to its segment and dialect rules."""
     casefold = getattr(seg, "casefold", None)
     if casefold:
         return casefold(norm)
@@ -57,9 +55,18 @@ def _normalize_ref_part(
             d_casefold = getattr(target_seg, "casefold", None)
             if d_casefold:
                 return d_casefold(norm)
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
     return norm
+
+
+def _normalize_ref_part(
+    part: ObjectReferencePart, dialect: Optional[Dialect] = None
+) -> str:
+    """Normalize a reference part, taking dialect casefolding into account."""
+    seg = part.segments[0]
+    norm = seg.normalize(part.part)
+    return _casefold_segment(seg, norm, dialect)
 
 
 class Rule_RF01(BaseRule):
@@ -141,30 +148,9 @@ class Rule_RF01(BaseRule):
         if alias_info.aliased:
             if alias_info.segment:
                 norm = alias_info.segment.raw_normalized()
-                is_quoted = alias_info.segment.is_type(
-                    "quoted_identifier", "backquoted_identifier", "bracketed_identifier"
-                )
-                target_ref = (
-                    "QuotedIdentifierSegment" if is_quoted else "NakedIdentifierSegment"
-                )
-                try:
-                    target_seg = dialect.ref(target_ref)
-                    d_casefold = getattr(target_seg, "casefold", None)
-                    if d_casefold:
-                        norm = d_casefold(norm)
-                except Exception:
-                    pass
-                result.append((norm,))
-            else:
-                norm = alias_info.ref_str
-                try:
-                    target_seg = dialect.ref("NakedIdentifierSegment")
-                    d_casefold = getattr(target_seg, "casefold", None)
-                    if d_casefold:
-                        norm = d_casefold(norm)
-                except Exception:
-                    pass
-                result.append((norm,))
+                result.append((_casefold_segment(alias_info.segment, norm, dialect),))
+            else:  # pragma: no cover
+                result.append((alias_info.ref_str,))
         if alias_info.object_reference:
             result += self._table_ref_as_tuple(
                 cast(ObjectReferenceSegment, alias_info.object_reference), dialect
@@ -339,20 +325,7 @@ class Rule_RF01(BaseRule):
             targets += self._alias_info_as_tuples(alias, query.dialect)
         for standalone_alias in query.standalone_aliases:
             norm = standalone_alias.raw_normalized()
-            is_quoted = standalone_alias.is_type(
-                "quoted_identifier", "backquoted_identifier", "bracketed_identifier"
-            )
-            target_ref = (
-                "QuotedIdentifierSegment" if is_quoted else "NakedIdentifierSegment"
-            )
-            try:
-                target_seg = query.dialect.ref(target_ref)
-                d_casefold = getattr(target_seg, "casefold", None)
-                if d_casefold:
-                    norm = d_casefold(norm)
-            except Exception:
-                pass
-            targets.append((norm,))
+            targets.append((_casefold_segment(standalone_alias, norm, query.dialect),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
         supports_struct_access = query.dialect.name in (
             "athena",
@@ -471,7 +444,7 @@ class Rule_RF01(BaseRule):
                 d_casefold = getattr(target_seg, "casefold", None)
                 if d_casefold:
                     return [tuple(d_casefold(p) for p in t) for t in targets]
-            except Exception:
+            except Exception:  # pragma: no cover
                 pass
         return targets
 
