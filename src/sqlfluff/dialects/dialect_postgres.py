@@ -407,26 +407,6 @@ postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 # they stay usable as ordinary identifiers.
 postgres_dialect.sets("unreserved_keywords").update(["MAINTAIN", "PARAMETER"])
 
-# PostgreSQL 15+ CREATE DATABASE options: STRATEGY (15), LOCALE_PROVIDER (15),
-# ICU_LOCALE (15), ICU_RULES (16), BUILTIN_LOCALE (17), COLLATION_VERSION (15),
-# and OID.
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "BUILTIN",
-        "BUILTIN_LOCALE",
-        "COLLATION_VERSION",
-        "FILE_COPY",
-        "ICU",
-        "ICU_LOCALE",
-        "ICU_RULES",
-        "LIBC",
-        "LOCALE_PROVIDER",
-        "OID",
-        "STRATEGY",
-        "WAL_LOG",
-    ]
-)
-
 # Add datetime units
 postgres_dialect.sets("datetime_units").update(
     [
