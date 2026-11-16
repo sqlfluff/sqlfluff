@@ -4729,6 +4729,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     As specified in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
+    # ( column_name [, ... ] [, last_column_name WITHOUT OVERLAPS ] )
+    # https://www.postgresql.org/docs/18/sql-createtable.html
+    _temporal_column_list = Bracketed(
+        Delimited(Ref("ColumnReferenceSegment")),
+        Sequence("WITHOUT", "OVERLAPS", optional=True),
+    )
+
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
@@ -4747,13 +4754,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                     "DISTINCT",
                     optional=True,
                 ),
-                Ref("BracketedColumnReferenceListGrammar"),
+                _temporal_column_list,
                 Ref("IndexParametersSegment", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
+                _temporal_column_list,
                 Ref("IndexParametersSegment", optional=True),
             ),
             Sequence(

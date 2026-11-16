@@ -1,0 +1,263 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c799032cd393e417ff9390922923c52335352e7d5c6d8f063f4bfb6c674fc556
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: reservations
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: during
+          data_type:
+            keyword: tstzrange
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: during
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: prices
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: product_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: daterange
+      - comma: ','
+      - column_definition:
+          naked_identifier: price
+          data_type:
+            keyword: numeric
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: prices_unique
+        - keyword: UNIQUE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: product_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: valid_at
+          data_type:
+            keyword: daterange
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - keyword: NULLS
+        - keyword: NOT
+        - keyword: DISTINCT
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: a
+          - comma: ','
+          - column_reference:
+              naked_identifier: b
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: DEFERRED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: reservations
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: reservations_pk
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: during
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: prices
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+          keyword: UNIQUE
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: product_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_at
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: room_id
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: during
+          data_type:
+            keyword: tstzrange
+      - comma: ','
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            keyword: int
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: during
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+        - index_parameters:
+            keyword: INCLUDE
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: x
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bookings
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: bookings_uq
+        - keyword: UNIQUE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: room_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: during
+          - keyword: WITHOUT
+          - keyword: OVERLAPS
+          - end_bracket: )
+        - index_parameters:
+          - keyword: INCLUDE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: x
+              end_bracket: )
+          - keyword: WITH
+          - definition_parameters:
+              bracketed:
+                start_bracket: (
+                definition_parameter:
+                  properties_naked_identifier: fillfactor
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '70'
+                end_bracket: )
+          - keyword: USING
+          - keyword: INDEX
+          - keyword: TABLESPACE
+          - tablespace_reference:
+              naked_identifier: pg_default
+- statement_terminator: ;
