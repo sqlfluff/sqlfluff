@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 318d87f410ce9387b4d155db97194f6119c4ba28a78c22c1b0c4903141b6740b
+_hash: 1e7b9514f5fe879798e2759e18b7403223fd207969a7f18248be97e072771924
 file:
 - statement:
     cluster_statement:
@@ -66,6 +66,36 @@ file:
         start_bracket: (
         cluster_option:
           keyword: VERBOSE
+        end_bracket: )
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        cluster_option:
+        - keyword: VERBOSE
+        - keyword: 'OFF'
+        end_bracket: )
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        cluster_option:
+          keyword: VERBOSE
+          numeric_literal: '1'
         end_bracket: )
     - table_reference:
         naked_identifier: employees

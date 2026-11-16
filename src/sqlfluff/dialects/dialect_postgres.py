@@ -8059,7 +8059,7 @@ class ClusterOptionSegment(BaseSegment):
     type = "cluster_option"
     match_grammar = Sequence(
         "VERBOSE",
-        Ref("BooleanLiteralGrammar", optional=True),
+        Ref("OptionBooleanGrammar", optional=True),
     )
 
 
