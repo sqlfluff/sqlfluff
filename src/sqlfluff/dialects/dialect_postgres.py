@@ -7908,17 +7908,7 @@ class AlterConversionStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
-            Sequence(
-                "OWNER",
-                "TO",
-                OneOf(
-                    "CURRENT_ROLE",
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    # must come last; CURRENT_USER isn't reserved:
-                    Ref("RoleReferenceSegment"),
-                ),
-            ),
+            Sequence("OWNER", "TO", Ref("RoleSpecificationGrammar")),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
         ),
     )
