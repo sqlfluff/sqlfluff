@@ -1,0 +1,40 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8120a972cb10085105ad702f42b25d280df5326d53a35a25c3fdea7b150c92a5
+file:
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: "'admin'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'developer'"
+- statement_terminator: ;
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: "'webapp'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+        naked_identifier: app_read
+    - comma: ','
+    - role_reference:
+      - quoted_identifier: "'app_write'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;
