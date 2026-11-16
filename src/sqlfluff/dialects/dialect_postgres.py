@@ -8059,7 +8059,15 @@ class ClusterStatementSegment(BaseSegment):
     type = "cluster_statement"
     match_grammar = Sequence(
         "CLUSTER",
-        Ref.keyword("VERBOSE", optional=True),
+        OneOf(
+            "VERBOSE",
+            Bracketed(
+                Delimited(
+                    Sequence("VERBOSE", Ref("OptionBooleanGrammar", optional=True)),
+                ),
+            ),
+            optional=True,
+        ),
         OneOf(
             Sequence(
                 Ref("TableReferenceSegment"),

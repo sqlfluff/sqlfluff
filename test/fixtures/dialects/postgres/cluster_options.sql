@@ -1,0 +1,8 @@
+CLUSTER (VERBOSE) accounts;
+CLUSTER (VERBOSE TRUE) public.accounts USING accounts_idx;
+CLUSTER (VERBOSE FALSE) accounts;
+CLUSTER (VERBOSE ON) accounts;
+CLUSTER (VERBOSE OFF) accounts;
+CLUSTER (VERBOSE 1) accounts;
+CLUSTER (VERBOSE 0) accounts;
+CLUSTER (VERBOSE);

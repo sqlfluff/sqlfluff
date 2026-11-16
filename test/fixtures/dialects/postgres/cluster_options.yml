@@ -1,0 +1,96 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0e644ac002ec4f8224eeae8952451077fe51bd5177260228659325d4baa400c5
+file:
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        keyword: VERBOSE
+        end_bracket: )
+      table_reference:
+        naked_identifier: accounts
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        keyword: VERBOSE
+        boolean_literal: 'TRUE'
+        end_bracket: )
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: accounts
+    - keyword: USING
+    - index_reference:
+        naked_identifier: accounts_idx
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        keyword: VERBOSE
+        boolean_literal: 'FALSE'
+        end_bracket: )
+      table_reference:
+        naked_identifier: accounts
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - keyword: 'ON'
+      - end_bracket: )
+      table_reference:
+        naked_identifier: accounts
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - keyword: 'OFF'
+      - end_bracket: )
+      table_reference:
+        naked_identifier: accounts
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        keyword: VERBOSE
+        numeric_literal: '1'
+        end_bracket: )
+      table_reference:
+        naked_identifier: accounts
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        keyword: VERBOSE
+        numeric_literal: '0'
+        end_bracket: )
+      table_reference:
+        naked_identifier: accounts
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        keyword: VERBOSE
+        end_bracket: )
+- statement_terminator: ;
