@@ -2113,146 +2113,159 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar.copy(
-        # NOTE: The Scripting Block segment must be tried before
-        # we get to the transaction statement (from the ansi dialect)
-        # because they both start with BEGIN.
-        insert=[
-            Ref("ScriptingBlockStatementSegment"),
-        ],
-        before=Ref("TransactionStatementSegment"),
-    ).copy(
-        insert=[
-            Ref("AccessStatementSegment"),
-            Ref("CreateStatementSegment"),
-            Ref("DefineStatementSegment"),
-            Ref("CreateDbtProjectStatementSegment"),
-            Ref("ExecuteDbtProjectStatementSegment"),
-            Ref("CreateMcpServerStatementSegment"),
-            Ref("CreateDcmProjectStatementSegment"),
-            Ref("CreateTaskSegment"),
-            Ref("CreateAlertSegment"),
-            Ref("AlterAlertSegment"),
-            Ref("CreateUserSegment"),
-            Ref("CreateCloneStatementSegment"),
-            Ref("CreateProcedureStatementSegment"),
-            Ref("CallWithAnonymousProcedureSegment"),
-            Ref("AlterProcedureStatementSegment"),
-            Ref("ScriptingLetStatementSegment"),
-            Ref("ScriptingDeclareStatementSegment"),
-            Ref("ReturnStatementSegment"),
-            Ref("ShowStatementSegment"),
-            Ref("AlterAccountStatementSegment"),
-            Ref("AlterUserStatementSegment"),
-            Ref("AlterSessionStatementSegment"),
-            Ref("AlterTaskStatementSegment"),
-            Ref("SetAssignmentStatementSegment"),
-            Ref("CallStoredProcedureSegment"),
-            Ref("MergeStatementSegment"),
-            Ref("CopyIntoTableStatementSegment"),
-            Ref("CopyIntoLocationStatementSegment"),
-            Ref("CopyFilesIntoLocationStatementSegment"),
-            Ref("FormatTypeOptions"),
-            Ref("AlterWarehouseStatementSegment"),
-            Ref("AlterShareStatementSegment"),
-            Ref("CreateExternalTableSegment"),
-            Ref("AlterExternalTableStatementSegment"),
-            Ref("CreateSchemaStatementSegment"),
-            Ref("AlterSchemaStatementSegment"),
-            Ref("CreateFunctionStatementSegment"),
-            Ref("CreateDataMetricFunctionStatementSegment"),
-            Ref("AttachDataMetricFunctionStatementSegment"),
-            Ref("AlterFunctionStatementSegment"),
-            Ref("CreateExternalFunctionStatementSegment"),
-            Ref("CreateStageSegment"),
-            Ref("DefineStageSegment"),
-            Ref("DefinePipeSegment"),
-            Ref("AlterStageSegment"),
-            Ref("CreateStreamStatementSegment"),
-            Ref("CreateStreamlitStatementSegment"),
-            Ref("CreateCortexSearchServiceStatementSegment"),
-            Ref("AlterStreamStatementSegment"),
-            Ref("AlterStreamlitStatementSegment"),
-            Ref("AlterCortexSearchServiceStatementSegment"),
-            Ref("UnsetStatementSegment"),
-            Ref("UndropStatementSegment"),
-            Ref("CommentStatementSegment"),
-            Ref("CallStatementSegment"),
-            Ref("AlterViewStatementSegment"),
-            Ref("AlterMaterializedViewStatementSegment"),
-            Ref("DropProcedureStatementSegment"),
-            Ref("DropExternalTableStatementSegment"),
-            Ref("DropMaterializedViewStatementSegment"),
-            Ref("DropObjectStatementSegment"),
-            Ref("CreateFileFormatSegment"),
-            Ref("AlterFileFormatSegment"),
-            Ref("AlterPipeSegment"),
-            Ref("ListStatementSegment"),
-            Ref("GetStatementSegment"),
-            Ref("PutStatementSegment"),
-            Ref("RemoveStatementSegment"),
-            Ref("CreateDatabaseStatementSegment"),
-            Ref("CreateDatabaseRoleStatementSegment"),
-            Ref("AlterRoleStatementSegment"),
-            Ref("AlterStorageIntegrationSegment"),
-            Ref("ExecuteImmediateClauseSegment"),
-            Ref("ExecuteTaskClauseSegment"),
-            Ref("CreateResourceMonitorStatementSegment"),
-            Ref("AlterResourceMonitorStatementSegment"),
-            Ref("CreateSequenceStatementSegment"),
-            Ref("AlterSequenceStatementSegment"),
-            Ref("AlterDatabaseSegment"),
-            Ref("AlterMaskingPolicySegment"),
-            Ref("AlterNetworkPolicyStatementSegment"),
-            Ref("CreateExternalVolumeStatementSegment"),
-            Ref("DropExternalVolumeStatementSegment"),
-            Ref("AlterExternalVolumeStatementSegment"),
-            Ref("CreateGitRepositoryStatementSegment"),
-            Ref("AlterGitRepositoryStatementSegment"),
-            Ref("ForInLoopSegment"),
-            Ref("ScriptingWhileLoopSegment"),
-            Ref("ScriptingLoopSegment"),
-            Ref("ScriptingRepeatLoopSegment"),
-            Ref("ScriptingBreakStatementSegment"),
-            Ref("ScriptingCaseStatementSegment"),
-            Ref("CreateEventTableStatementSegment"),
-            Ref("CreatePasswordPolicyStatementSegment"),
-            Ref("AlterPasswordPolicyStatementSegment"),
-            Ref("DropPasswordPolicyStatementSegment"),
-            Ref("CreateRowAccessPolicyStatementSegment"),
-            Ref("AlterRowAccessPolicyStatmentSegment"),
-            Ref("CreateAggregationPolicyStatementSegment"),
-            Ref("AlterAggregationPolicyStatementSegment"),
-            Ref("CreateProjectionPolicyStatementSegment"),
-            Ref("AlterProjectionPolicyStatementSegment"),
-            Ref("CreateStorageLifecyclePolicyStatementSegment"),
-            Ref("AlterStorageLifecyclePolicyStatementSegment"),
-            Ref("CreateSessionPolicyStatementSegment"),
-            Ref("AlterSessionPolicyStatementSegment"),
-            Ref("AlterTagStatementSegment"),
-            Ref("ExceptionBlockStatementSegment"),
-            Ref("AlterDynamicTableStatementSegment"),
-            Ref("DropDynamicTableSegment"),
-            Ref("DropIcebergTableStatementSegment"),
-            Ref("CreateAuthenticationPolicySegment"),
-            Ref("DropResourceMonitorStatementSegment"),
-            Ref("CreateSecretStatementSegment"),
-            Ref("AlterSecretStatementSegment"),
-            Ref("ScriptingIfStatementSegment"),
-            Ref("ScriptingRaiseStatementSegment"),
-        ],
-        remove=[
-            Ref("CreateIndexStatementSegment"),
-            Ref("DropIndexStatementSegment"),
-            # Snowflake has no CREATE/DROP CAST or triggers. The inherited
-            # grammars also reference keywords (CONSTRUCTOR, REFERENCING, ...)
-            # that this dialect never registers, so reaching them raised an
-            # internal RuntimeError instead of parsing.
-            Ref("CreateCastStatementSegment"),
-            Ref("DropCastStatementSegment"),
-            Ref("CreateTriggerStatementSegment"),
-            Ref("DropTriggerStatementSegment"),
-        ],
+    match_grammar = (
+        ansi.StatementSegment.match_grammar.copy(
+            # NOTE: The Scripting Block segment must be tried before
+            # we get to the transaction statement (from the ansi dialect)
+            # because they both start with BEGIN.
+            insert=[
+                Ref("ScriptingBlockStatementSegment"),
+            ],
+            before=Ref("TransactionStatementSegment"),
+        )
+        .copy(
+            insert=[
+                Ref("DropDatabaseRoleStatementSegment"),
+                Ref("DropApplicationRoleStatementSegment"),
+            ],
+            before=Ref("DropDatabaseStatementSegment"),
+        )
+        .copy(
+            insert=[
+                Ref("AccessStatementSegment"),
+                Ref("CreateStatementSegment"),
+                Ref("DefineStatementSegment"),
+                Ref("CreateDbtProjectStatementSegment"),
+                Ref("ExecuteDbtProjectStatementSegment"),
+                Ref("CreateMcpServerStatementSegment"),
+                Ref("CreateDcmProjectStatementSegment"),
+                Ref("CreateTaskSegment"),
+                Ref("CreateAlertSegment"),
+                Ref("AlterAlertSegment"),
+                Ref("CreateUserSegment"),
+                Ref("CreateCloneStatementSegment"),
+                Ref("CreateProcedureStatementSegment"),
+                Ref("CallWithAnonymousProcedureSegment"),
+                Ref("AlterProcedureStatementSegment"),
+                Ref("ScriptingLetStatementSegment"),
+                Ref("ScriptingDeclareStatementSegment"),
+                Ref("ReturnStatementSegment"),
+                Ref("ShowStatementSegment"),
+                Ref("AlterAccountStatementSegment"),
+                Ref("AlterUserStatementSegment"),
+                Ref("AlterSessionStatementSegment"),
+                Ref("AlterTaskStatementSegment"),
+                Ref("SetAssignmentStatementSegment"),
+                Ref("CallStoredProcedureSegment"),
+                Ref("MergeStatementSegment"),
+                Ref("CopyIntoTableStatementSegment"),
+                Ref("CopyIntoLocationStatementSegment"),
+                Ref("CopyFilesIntoLocationStatementSegment"),
+                Ref("FormatTypeOptions"),
+                Ref("AlterWarehouseStatementSegment"),
+                Ref("AlterShareStatementSegment"),
+                Ref("CreateExternalTableSegment"),
+                Ref("AlterExternalTableStatementSegment"),
+                Ref("CreateSchemaStatementSegment"),
+                Ref("AlterSchemaStatementSegment"),
+                Ref("CreateFunctionStatementSegment"),
+                Ref("CreateDataMetricFunctionStatementSegment"),
+                Ref("AttachDataMetricFunctionStatementSegment"),
+                Ref("AlterFunctionStatementSegment"),
+                Ref("CreateExternalFunctionStatementSegment"),
+                Ref("CreateStageSegment"),
+                Ref("DefineStageSegment"),
+                Ref("DefinePipeSegment"),
+                Ref("AlterStageSegment"),
+                Ref("CreateStreamStatementSegment"),
+                Ref("CreateStreamlitStatementSegment"),
+                Ref("CreateCortexSearchServiceStatementSegment"),
+                Ref("AlterStreamStatementSegment"),
+                Ref("AlterStreamlitStatementSegment"),
+                Ref("AlterCortexSearchServiceStatementSegment"),
+                Ref("UnsetStatementSegment"),
+                Ref("UndropStatementSegment"),
+                Ref("CommentStatementSegment"),
+                Ref("CallStatementSegment"),
+                Ref("AlterViewStatementSegment"),
+                Ref("AlterMaterializedViewStatementSegment"),
+                Ref("DropProcedureStatementSegment"),
+                Ref("DropExternalTableStatementSegment"),
+                Ref("DropMaterializedViewStatementSegment"),
+                Ref("DropObjectStatementSegment"),
+                Ref("CreateFileFormatSegment"),
+                Ref("AlterFileFormatSegment"),
+                Ref("AlterPipeSegment"),
+                Ref("ListStatementSegment"),
+                Ref("GetStatementSegment"),
+                Ref("PutStatementSegment"),
+                Ref("RemoveStatementSegment"),
+                Ref("CreateDatabaseStatementSegment"),
+                Ref("CreateDatabaseRoleStatementSegment"),
+                Ref("CreateApplicationRoleStatementSegment"),
+                Ref("AlterRoleStatementSegment"),
+                Ref("AlterDatabaseRoleStatementSegment"),
+                Ref("AlterApplicationRoleStatementSegment"),
+                Ref("AlterStorageIntegrationSegment"),
+                Ref("ExecuteImmediateClauseSegment"),
+                Ref("ExecuteTaskClauseSegment"),
+                Ref("CreateResourceMonitorStatementSegment"),
+                Ref("AlterResourceMonitorStatementSegment"),
+                Ref("CreateSequenceStatementSegment"),
+                Ref("AlterSequenceStatementSegment"),
+                Ref("AlterDatabaseSegment"),
+                Ref("AlterMaskingPolicySegment"),
+                Ref("AlterNetworkPolicyStatementSegment"),
+                Ref("CreateExternalVolumeStatementSegment"),
+                Ref("DropExternalVolumeStatementSegment"),
+                Ref("AlterExternalVolumeStatementSegment"),
+                Ref("CreateGitRepositoryStatementSegment"),
+                Ref("AlterGitRepositoryStatementSegment"),
+                Ref("ForInLoopSegment"),
+                Ref("ScriptingWhileLoopSegment"),
+                Ref("ScriptingLoopSegment"),
+                Ref("ScriptingRepeatLoopSegment"),
+                Ref("ScriptingBreakStatementSegment"),
+                Ref("ScriptingCaseStatementSegment"),
+                Ref("CreateEventTableStatementSegment"),
+                Ref("CreatePasswordPolicyStatementSegment"),
+                Ref("AlterPasswordPolicyStatementSegment"),
+                Ref("DropPasswordPolicyStatementSegment"),
+                Ref("CreateRowAccessPolicyStatementSegment"),
+                Ref("AlterRowAccessPolicyStatmentSegment"),
+                Ref("CreateAggregationPolicyStatementSegment"),
+                Ref("AlterAggregationPolicyStatementSegment"),
+                Ref("CreateProjectionPolicyStatementSegment"),
+                Ref("AlterProjectionPolicyStatementSegment"),
+                Ref("CreateStorageLifecyclePolicyStatementSegment"),
+                Ref("AlterStorageLifecyclePolicyStatementSegment"),
+                Ref("CreateSessionPolicyStatementSegment"),
+                Ref("AlterSessionPolicyStatementSegment"),
+                Ref("AlterTagStatementSegment"),
+                Ref("ExceptionBlockStatementSegment"),
+                Ref("AlterDynamicTableStatementSegment"),
+                Ref("DropDynamicTableSegment"),
+                Ref("DropIcebergTableStatementSegment"),
+                Ref("CreateAuthenticationPolicySegment"),
+                Ref("DropResourceMonitorStatementSegment"),
+                Ref("CreateSecretStatementSegment"),
+                Ref("AlterSecretStatementSegment"),
+                Ref("ScriptingIfStatementSegment"),
+                Ref("ScriptingRaiseStatementSegment"),
+            ],
+            remove=[
+                Ref("CreateIndexStatementSegment"),
+                Ref("DropIndexStatementSegment"),
+                # Snowflake has no CREATE/DROP CAST or triggers. The inherited
+                # grammars also reference keywords (CONSTRUCTOR, REFERENCING, ...)
+                # that this dialect never registers, so reaching them raised an
+                # internal RuntimeError instead of parsing.
+                Ref("CreateCastStatementSegment"),
+                Ref("DropCastStatementSegment"),
+                Ref("CreateTriggerStatementSegment"),
+                Ref("DropTriggerStatementSegment"),
+            ],
+        )
     )
 
 
@@ -6146,6 +6159,110 @@ class AlterRoleStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class AlterDatabaseRoleStatementSegment(BaseSegment):
+    """An `ALTER DATABASE ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-database-role
+    """
+
+    type = "alter_database_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseRoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("TagEqualsSegment"),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Sequence("COMMENT"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("DatabaseRoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class AlterApplicationRoleStatementSegment(BaseSegment):
+    """An `ALTER APPLICATION ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-application-role
+    """
+
+    type = "alter_application_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "APPLICATION",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ApplicationRoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("CommentEqualsClauseSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                Sequence("COMMENT"),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ApplicationRoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class DropDatabaseRoleStatementSegment(BaseSegment):
+    """A `DROP DATABASE ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-database-role
+    """
+
+    type = "drop_database_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DATABASE",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseRoleReferenceSegment"),
+    )
+
+
+class DropApplicationRoleStatementSegment(BaseSegment):
+    """A `DROP APPLICATION ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-application-role
+    """
+
+    type = "drop_application_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "APPLICATION",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ApplicationRoleReferenceSegment"),
     )
 
 
@@ -10439,6 +10556,32 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
             Sequence("DEFINE", "DATABASE", "ROLE"),
         ),
         Ref("DatabaseRoleReferenceSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
+            optional=True,
+        ),
+    )
+
+
+class CreateApplicationRoleStatementSegment(BaseSegment):
+    """A `CREATE APPLICATION ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-application-role
+    """
+
+    type = "create_application_role_statement"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "APPLICATION",
+                "ROLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "APPLICATION", "ROLE"),
+        ),
+        Ref("ApplicationRoleReferenceSegment"),
         Ref(
             "CommentEqualsClauseSegment",
             optional=True,

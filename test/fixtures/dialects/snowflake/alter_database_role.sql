@@ -1,0 +1,14 @@
+ALTER DATABASE ROLE IF EXISTS "test_db_role" RENAME TO "prod_db_role";
+ALTER DATABASE ROLE "test_db_role" RENAME TO "prod_db_role";
+ALTER DATABASE ROLE db1.dr1 RENAME TO db1.dr2;
+ALTER DATABASE ROLE IF EXISTS "test_db_role" SET COMMENT = 'test_comment';
+ALTER DATABASE ROLE IF EXISTS "test_db_role" UNSET COMMENT;
+ALTER DATABASE ROLE "test_db_role" SET COMMENT = 'test_comment';
+ALTER DATABASE ROLE "test_db_role" UNSET COMMENT;
+ALTER DATABASE ROLE dbname.rolename SET COMMENT = 'test_comment';
+ALTER DATABASE ROLE IF EXISTS "test_db_role" SET TAG TAG1 = 'value1';
+ALTER DATABASE ROLE IF EXISTS "test_db_role" SET TAG TAG1 = 'value1', TAG2 = 'value2';
+ALTER DATABASE ROLE db.role_name SET TAG cost_center = 'finance', env = 'prod';
+ALTER DATABASE ROLE IF EXISTS "test_db_role" UNSET TAG TAG1;
+ALTER DATABASE ROLE IF EXISTS "test_db_role" UNSET TAG TAG1, TAG2, TAG3;
+ALTER DATABASE ROLE db.role_name UNSET TAG cost_center, env;
