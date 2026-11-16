@@ -6665,9 +6665,11 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
-        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
-        Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
+        # The synopsis puts COLLATE and DEFAULT before the constraints, but
+        # PostgreSQL takes them in any order, and pg_dump writes `NOT NULL DEFAULT 1`.
         AnyNumberOf(
+            Sequence("COLLATE", Ref("CollationReferenceSegment")),
+            Sequence("DEFAULT", Ref("ExpressionSegment")),
             Sequence(
                 Sequence(
                     "CONSTRAINT",
