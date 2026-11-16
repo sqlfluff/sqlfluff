@@ -17,9 +17,9 @@ on:
   # Don't use pull_request_target here. See:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
   pull_request:
-  push:
-    branches:
-      - main
+  # No `push` trigger: commits reach main through the merge queue, which has
+  # already run this workflow on the exact tree being merged. The nightly
+  # schedule still covers main itself.
   merge_group:
     # Merge Queue checks requested. This feature is still in beta
     # from Github and so may need updating later.
@@ -223,10 +223,10 @@ jobs:
 
   rs-build-linux-exotic:
     # Release-style wheel builds. These artifacts aren't consumed by any test
-    # job (the release workflow builds its own), so only run them on pushes to
-    # main, the nightly schedule and manual dispatch - not on PRs or in the
-    # merge queue, where they only consume runner slots.
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # job (the release workflow builds its own), so only run them on the
+    # nightly schedule and manual dispatch - not on PRs or in the merge
+    # queue, where they only consume runner slots.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -272,10 +272,10 @@ jobs:
 
   rs-build-musllinux:
     # Release-style wheel builds. These artifacts aren't consumed by any test
-    # job (the release workflow builds its own), so only run them on pushes to
-    # main, the nightly schedule and manual dispatch - not on PRs or in the
-    # merge queue, where they only consume runner slots.
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # job (the release workflow builds its own), so only run them on the
+    # nightly schedule and manual dispatch - not on PRs or in the merge
+    # queue, where they only consume runner slots.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -329,10 +329,10 @@ jobs:
 
   rs-build-windows:
     # Release-style wheel builds. These artifacts aren't consumed by any test
-    # job (the release workflow builds its own), so only run them on pushes to
-    # main, the nightly schedule and manual dispatch - not on PRs or in the
-    # merge queue, where they only consume runner slots.
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # job (the release workflow builds its own), so only run them on the
+    # nightly schedule and manual dispatch - not on PRs or in the merge
+    # queue, where they only consume runner slots.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -381,10 +381,10 @@ jobs:
 
   rs-build-macos:
     # Release-style wheel builds. These artifacts aren't consumed by any test
-    # job (the release workflow builds its own), so only run them on pushes to
-    # main, the nightly schedule and manual dispatch - not on PRs or in the
-    # merge queue, where they only consume runner slots.
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # job (the release workflow builds its own), so only run them on the
+    # nightly schedule and manual dispatch - not on PRs or in the merge
+    # queue, where they only consume runner slots.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -432,10 +432,10 @@ jobs:
 
   rs-build-sdist:
     # Release-style wheel builds. These artifacts aren't consumed by any test
-    # job (the release workflow builds its own), so only run them on pushes to
-    # main, the nightly schedule and manual dispatch - not on PRs or in the
-    # merge queue, where they only consume runner slots.
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # job (the release workflow builds its own), so only run them on the
+    # nightly schedule and manual dispatch - not on PRs or in the merge
+    # queue, where they only consume runner slots.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
