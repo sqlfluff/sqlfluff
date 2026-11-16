@@ -481,4 +481,3 @@ class Rule_RF01(BaseRule):
             "sparksql",
             "trino",
         )
-
