@@ -1809,6 +1809,11 @@ class FetchClauseSegment(ansi.FetchClauseSegment):
 # delimiter's line when what follows starts a new statement: otherwise a
 # line-leading slash is more likely a division whose right operand is on the
 # following line, and treating that as a delimiter truncates the statement.
+#
+# Reference for future updates (both list the same top-level statement names
+# this set mirrors, so new entries can be checked against them):
+#   SQL statements: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SQL-Statements.html
+#   SQL*Plus commands: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/SQL-Plus-commands.html
 ORACLE_STATEMENT_STARTERS = frozenset(
     {
         "ACCEPT",

@@ -23,7 +23,12 @@ fn oracle_slash_comment_is_division_but_bare_slash_is_a_delimiter() {
 }
 
 #[test]
-fn oracle_slash_comment_at_end_of_file_is_a_delimiter() {
+fn oracle_slash_comment_at_end_of_input_is_still_a_delimiter() {
+    // Unlike `oracle_slash_comment_is_division_but_bare_slash_is_a_delimiter`,
+    // there is no following line that could continue the expression: this
+    // isolates the end-of-input case, where the lookahead for a statement
+    // starter must still let the slash with its trailing comment be a
+    // delimiter.
     let tree = parse_oracle("CREATE VIEW v AS SELECT 1 FROM dual\n/ -- end\n");
     assert!(tree.contains("slash_buffer_executor"), "{tree}");
 }
