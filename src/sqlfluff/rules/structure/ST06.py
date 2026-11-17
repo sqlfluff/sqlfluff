@@ -129,6 +129,39 @@ class Rule_ST06(BaseRule):
                 return False
         return False  # pragma: no cover
 
+    @staticmethod
+    def _is_row_comparison(select: BaseSegment) -> bool:
+        """Check if the SELECT is part of a positional row-value comparison."""
+        while parent_info := select.get_parent():
+            parent, _ = parent_info
+            if parent.is_type("bracketed", "with_compound_statement"):
+                select = parent
+                continue
+            if parent.is_type("expression"):
+                for child in parent.segments:
+                    if child is select:
+                        continue
+                    if child.is_type("bracketed"):
+                        if any(
+                            sub.is_type("comma") or sub.raw == ","
+                            for sub in child.segments
+                        ):
+                            return True
+                    elif child.is_type("function"):
+                        fname = child.get_child("function_name")
+                        if fname and fname.raw_upper == "ROW":
+                            contents = child.get_child("function_contents")
+                            bracketed = (
+                                contents.get_child("bracketed") if contents else None
+                            )
+                            if bracketed and any(
+                                sub.is_type("comma") or sub.raw == ","
+                                for sub in bracketed.segments
+                            ):
+                                return True
+            break
+        return False
+
     def _has_comments(
         self, context: RuleContext, moved_targets: set[BaseSegment]
     ) -> bool:
@@ -321,6 +354,10 @@ class Rule_ST06(BaseRule):
 
         # Explicit output names bind directly to this query's target positions.
         if self._has_direct_column_list(context.parent_stack[-1]):
+            return None
+
+        # Row-value comparisons bind output columns by position.
+        if self._is_row_comparison(context.parent_stack[-1]):
             return None
 
         select_clause_segment = context.segment
