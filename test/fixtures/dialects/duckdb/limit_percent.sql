@@ -1,0 +1,13 @@
+SELECT * FROM addresses LIMIT 10%;
+
+SELECT * FROM addresses LIMIT 10 %;
+
+SELECT * FROM addresses LIMIT 10 PERCENT;
+
+SELECT * FROM addresses LIMIT 12.5% OFFSET 5;
+
+SELECT * FROM addresses ORDER BY city LIMIT 10 PERCENT OFFSET 5;
+
+SELECT * FROM addresses LIMIT 5 OFFSET 5;
+
+SELECT * FROM addresses LIMIT 5;
