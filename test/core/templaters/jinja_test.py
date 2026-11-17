@@ -7,6 +7,7 @@ loops and placeholders.
 """
 
 import logging
+import random
 import re
 import traceback
 from collections import defaultdict
@@ -834,6 +835,75 @@ def test__templater_jinja_dbt_modules_enabled(enabled):
     assert ("modules" in context) is enabled
 
 
+@pytest.mark.parametrize("source", ["config", "path"])
+@pytest.mark.parametrize("enabled", [False, True])
+def test__templater_jinja_macro_initialization_stable(source, enabled, tmp_path):
+    """Trace and final SQL reuse initialized values, including random values."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": enabled}},
+        }
+    )
+    macro = (
+        "{% set v = ['1', '1000'] | random %}"
+        "{% macro captured() %}{{ v }}{% endmacro %}"
+    )
+    if source == "config":
+        config.set_value(("templater", "jinja", "macros", "capture"), macro)
+    else:
+        (tmp_path / "capture.sql").write_text(macro)
+        config.set_value(("templater", "jinja", "load_macros_from_path"), str(tmp_path))
+    templater = JinjaTemplater()
+    random_state = random.getstate()
+    try:
+        for _ in range(2):
+            random.seed(1)
+            outstr, violations = templater.process(
+                in_str="SELECT {{ captured() }}\n", fname="test.sql", config=config
+            )
+            assert str(outstr) == "SELECT 1\n"
+            assert not violations
+    finally:
+        random.setstate(random_state)
+
+
+@pytest.mark.parametrize("source", ["config", "path"])
+@pytest.mark.parametrize("enabled", [False, True])
+def test__templater_jinja_macro_initialization_per_construction(
+    source, enabled, tmp_path
+):
+    """New constructions initialize macros; internal renders do not reload them."""
+    calls = []
+
+    def next_value():
+        calls.append(len(calls) + 1)
+        return str(len(calls))
+
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": enabled}},
+        }
+    )
+    macro = "{% set v = next_value() %}{% macro captured() %}{{ v }}{% endmacro %}"
+    if source == "config":
+        config.set_value(("templater", "jinja", "macros", "capture"), macro)
+    else:
+        (tmp_path / "capture.sql").write_text(macro)
+        config.set_value(("templater", "jinja", "load_macros_from_path"), str(tmp_path))
+    templater = JinjaTemplater(override_context={"next_value": next_value})
+    # Keep the existing two-pass binding for cross-macro references. Each
+    # process() constructs a new renderer, rather than caching initialized values.
+    for expected in ("SELECT 2\n", "SELECT 4\n"):
+        outstr, violations = templater.process(
+            in_str="SELECT {{ captured() }}\n", fname="test.sql", config=config
+        )
+        assert str(outstr) == expected
+        assert not violations
+    assert calls == [1, 2, 3, 4]
+
+
 def test__templater_jinja_dbt_modules_context_override():
     """A user-supplied namespace takes precedence over dbt defaults."""
     outstr, violations = JinjaTemplater(
@@ -848,7 +918,7 @@ def test__templater_jinja_dbt_modules_context_override():
 
 
 def test__templater_jinja_dbt_modules_isolated():
-    """Template-side dictionary updates cannot leak into later renders."""
+    """Template-side dictionary updates cannot leak into other constructions."""
     config = FluffConfig(overrides={"dialect": "ansi"})
     templater = JinjaTemplater()
     _, first, _ = templater.construct_render_func(config=config)
@@ -1179,30 +1249,41 @@ def test__templater_jinja_dbt_modules_input_errors(expression, source, tmp_path)
     assert "private" not in "".join(traceback.format_exception(caught.value))
 
 
-@pytest.mark.parametrize("configured_macro", [False, True])
-def test__templater_jinja_dbt_modules_renderer_isolated(configured_macro):
-    """Each tracer render, including macro aliases, gets fresh module data."""
+@pytest.mark.parametrize("source", ["direct", "config", "path"])
+def test__templater_jinja_dbt_modules_renderer_lifecycle(source, tmp_path):
+    """A renderer shares module aliases; other constructions remain independent."""
     config = FluffConfig(overrides={"dialect": "ansi"})
-    if configured_macro:
-        config.set_value(
-            ("templater", "jinja", "macros", "timezones"),
+    if source != "direct":
+        macro = (
             "{% set zones = modules.pytz.all_timezones %}"
             "{% macro read_zones() %}{{ zones | length }}{% endmacro %}"
-            "{% macro clear_zones() %}{% do zones.clear() %}{% endmacro %}",
+            "{% macro clear_zones() %}{% do zones.clear() %}{% endmacro %}"
         )
+        if source == "config":
+            config.set_value(("templater", "jinja", "macros", "timezones"), macro)
+        else:
+            (tmp_path / "timezones.sql").write_text(macro)
+            config.set_value(
+                ("templater", "jinja", "load_macros_from_path"), str(tmp_path)
+            )
         template = "{{ read_zones() }}{{ clear_zones() }}"
+        read_template = "{{ read_zones() }}"
     else:
         template = (
             "{{ modules.pytz.all_timezones | length }}"
             "{% do modules.pytz.all_timezones.clear() %}"
         )
+        read_template = "{{ modules.pytz.all_timezones | length }}"
     templater = JinjaTemplater()
     _, _, render = templater.construct_render_func(config=config)
+    _, _, independent_render = templater.construct_render_func(config=config)
     expected = str(len(pytz.all_timezones))
     assert render(template) == expected
-    assert render(template) == expected
+    assert render(template) == "0"
+    assert independent_render(template) == expected
+    assert independent_render(template) == "0"
     outstr, violations = templater.process(
-        in_str=template, fname="test.sql", config=config
+        in_str=read_template, fname="test.sql", config=config
     )
     assert str(outstr) == expected
     assert not violations

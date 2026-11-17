@@ -49,7 +49,6 @@ from sqlfluff.core.templaters.base import (
 from sqlfluff.core.templaters.builtins.dbt import (
     DBT_BUILTINS,
     DbtMacroWrapper,
-    DbtModules,
     DbtSandboxedEnvironment,
     get_dbt_modules,
 )
@@ -733,7 +732,7 @@ class JinjaTemplater(PythonTemplater):
     def _load_macros(
         self, config: FluffConfig, env: Environment, live_context: dict[str, Any]
     ) -> None:
-        """Bind configured macros to this render's context, including aliases."""
+        """Initialize configured macros for one renderer construction."""
         # References to variables are fixed when macros are compiled. In
         # order to handle macros that refer to other macros from another
         # file, we have to make two passes:
@@ -762,6 +761,11 @@ class JinjaTemplater(PythonTemplater):
     ) -> tuple[Environment, dict[str, Any], Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
 
+        Configured macros and builtin module data belong to this construction.
+        Tracing and final rendering reuse initialized values and module aliases.
+        Mutable macro state is shared between those internal renders; it is not
+        reset on each call to the returned render function.
+
         Args:
             fname (Optional[str]): The name of the file.
             config (Optional[dict]): The configuration settings.
@@ -787,14 +791,8 @@ class JinjaTemplater(PythonTemplater):
 
             https://www.programiz.com/python-programming/closure
             """
-            render_context = live_context
-            if config and isinstance(live_context.get("modules"), DbtModules):
-                # Tracing renders repeatedly. Rebind macros too: they can retain
-                # aliases to nested module data from their compilation context.
-                render_context = live_context | {"modules": get_dbt_modules()}
-                self._load_macros(config, env, render_context)
             try:
-                template = env.from_string(in_str, globals=render_context)
+                template = env.from_string(in_str, globals=live_context)
             except TemplateSyntaxError as err:  # pragma: no cover
                 # NOTE: If the template fails to parse, then this clause
                 # will be triggered. However in normal that should never

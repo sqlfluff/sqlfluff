@@ -252,7 +252,22 @@ SELECT {{ columns | join(', ') }} FROM my_table
 The `modules` namespace provides dbt's supported `datetime`, `pytz`, `re`, and
 `itertools` exports with `apply_dbt_builtins = True`. It does not expose arbitrary
 Python imports. Configured context values can override the namespace, and each
-render receives its own namespace dictionaries.
+renderer construction receives its own builtin namespace dictionaries and copies
+of mutable `pytz` exports.
+
+Configured and path macros are initialized when SQLFluff constructs a renderer.
+Their initialized values and module aliases are reused by its internal tracing
+and final renders. Macro binding uses two passes to support cross-macro
+references, so top-level initialization can run twice per construction; it is
+not repeated for every internal render. SQLFluff may construct another renderer
+to explore unreached template branches.
+
+Mutable macro values and iterators are shared between the internal renders of
+one construction. Mutating or consuming captured state while rendering can
+therefore change the output between tracing and final rendering and prevent
+reliable template slicing. Prefer macros that do not change their captured state.
+A new renderer has independent builtin namespace data, but it does not reset
+mutable state held by user-provided libraries or context objects.
 
 ```jinja
 SELECT '{{ modules.datetime.date(2024, 1, 2).isoformat() }}' AS report_date
