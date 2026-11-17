@@ -966,7 +966,7 @@ class LambdaExpressionSegment(BaseSegment):
         Sequence(
             "LAMBDA",
             OneOf(
-                Ref("ParameterNameSegment"),
+                Delimited(Ref("ParameterNameSegment")),
                 Bracketed(Delimited(Ref("ParameterNameSegment"))),
             ),
             Ref("ColonSegment"),
