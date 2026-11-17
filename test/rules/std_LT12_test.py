@@ -60,4 +60,6 @@ def test_rules_LT12_empty_file_default_rules_fix_is_stable():
     linter = Linter(
         config=FluffConfig(overrides={"dialect": "ansi", "templater": "raw"})
     )
-    assert linter.lint_string("", fix=True).fix_string()[0] == ""
+    first = linter.lint_string("", fix=True).fix_string()[0]
+    second = linter.lint_string(first, fix=True).fix_string()[0]
+    assert first == second == ""
