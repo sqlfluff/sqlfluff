@@ -2170,6 +2170,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
             Ref("CreateStreamlitStatementSegment"),
+            Ref("CreateNotebookStatementSegment"),
             Ref("CreateCortexSearchServiceStatementSegment"),
             Ref("AlterStreamStatementSegment"),
             Ref("AlterStreamlitStatementSegment"),
@@ -9846,6 +9847,46 @@ class CreateStreamStatementSegment(BaseSegment):
             ),
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class CreateNotebookStatementSegment(BaseSegment):
+    """A Snowflake `CREATE NOTEBOOK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-notebook
+    """
+
+    type = "create_notebook_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "NOTEBOOK",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence("FROM", Ref("QuotedLiteralSegment")),
+            Sequence("MAIN_FILE", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                "QUERY_WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence("RUNTIME_NAME", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence("COMPUTE_POOL", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+            ),
+            optional=True,
+        ),
     )
 
 
