@@ -528,6 +528,13 @@ sparksql_dialect.add(
         type="semi_structured_element",
     ),
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    # Colon prefix for named parameter markers (`:param`). Distinct from
+    # ColonSegment so the global `spacing_before = touch` on type "colon"
+    # doesn't collapse the space before the marker (e.g. in
+    # `WHERE id = :param`), which then makes the marker unparsable.
+    ParameterizedExpressionColonSegment=StringParser(
+        ":", SymbolSegment, type="parameterized_expression_colon"
+    ),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
@@ -1779,7 +1786,7 @@ class ParameterizedSegment(BaseSegment):
 
     type = "parameterized_expression"
     match_grammar = Sequence(
-        Ref("ColonSegment"),
+        Ref("ParameterizedExpressionColonSegment"),
         OneOf(
             Ref("NakedIdentifierSegment"),
             Ref("BackQuotedIdentifierSegment"),

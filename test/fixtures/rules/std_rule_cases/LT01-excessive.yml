@@ -568,3 +568,37 @@ test_clickhouse_system_path:
   configs:
     core:
       dialect: clickhouse
+
+test_pass_sparksql_named_parameter_marker:
+  # The colon of a named parameter marker belongs to the name it introduces,
+  # so no whitespace is expected within the marker itself.
+  pass_str: |
+    SELECT CAST(:start_date AS DATE) FROM t WHERE id = :id;
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_sparksql_named_parameter_marker:
+  fail_str: |
+    SELECT f( :a );
+  fix_str: |
+    SELECT f(:a);
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_sparksql_named_parameter_marker_space_before:
+  fail_str: |
+    SELECT * FROM t WHERE a =  :a;
+  fix_str: |
+    SELECT * FROM t WHERE a = :a;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_databricks_named_parameter_marker:
+  pass_str: |
+    SELECT f(:a) FROM t;
+  configs:
+    core:
+      dialect: databricks
