@@ -33,3 +33,31 @@ def test_rules_LT12_LT13_empty_file_fix_is_stable():
     first = linter.lint_string("", fix=True).fix_string()[0]
     second = linter.lint_string(first, fix=True).fix_string()[0]
     assert first == second == ""
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "SELECT 1\n{% if false %}x{% endif %}",
+        "SELECT 1\n{{ '' }}",
+        "SELECT 1{% if false %}x{% endif %}",
+    ],
+)
+def test_rules_LT12_trailing_empty_template_still_needs_newline(source):
+    """A trailing block that renders to nothing doesn't make the file empty."""
+    linter = Linter(
+        config=FluffConfig(
+            overrides={"dialect": "ansi", "rules": "LT12", "templater": "jinja"}
+        )
+    )
+    result = linter.lint_string(source, fix=True)
+    assert [v.rule_code() for v in result.get_violations()] == ["LT12"]
+    assert result.fix_string()[0].endswith("\n")
+
+
+def test_rules_LT12_empty_file_default_rules_fix_is_stable():
+    """With every rule enabled, `fix` leaves an empty file empty."""
+    linter = Linter(
+        config=FluffConfig(overrides={"dialect": "ansi", "templater": "raw"})
+    )
+    assert linter.lint_string("", fix=True).fix_string()[0] == ""
