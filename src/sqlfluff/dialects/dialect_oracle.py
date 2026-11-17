@@ -1805,16 +1805,13 @@ class FetchClauseSegment(ansi.FetchClauseSegment):
     )
 
 
-# Keywords which can begin a statement. A comment is only accepted on the
-# delimiter's line when what follows starts a new statement: otherwise a
-# line-leading slash is more likely a division whose right operand is on the
-# following line, and treating that as a delimiter truncates the statement.
+# A slash followed by a comment is a delimiter when the next token is a
+# likely statement starter or there is no next token. Otherwise the slash may
+# be a division operator with its right operand on the next line.
 #
-# Reference for future updates: this set is the union of the top-level names in
-# Oracle's two index pages below, not a mirror of a single list. When adding a
-# starter, check both indexes:
+# These Oracle 19c references help check candidate keywords for this heuristic:
 #   SQL statements: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlqr/SQL-Statements.html
-#   SQL*Plus commands: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlqr/SQL-Plus-Commands.html
+#   SQL*Plus commands: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/SQL-Plus-command-summary.html
 ORACLE_STATEMENT_STARTERS = frozenset(
     {
         "ACCEPT",

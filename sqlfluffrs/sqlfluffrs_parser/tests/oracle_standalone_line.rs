@@ -19,11 +19,8 @@ fn oracle_slash_comment_is_division_but_bare_slash_is_a_delimiter() {
     let tree =
         parse_oracle("CREATE VIEW v AS\nSELECT 1\n/ -- division\n2 AS ratio\nFROM dual\n/\n");
     assert!(tree.contains("binary_operator"), "{tree}");
-    // The slash before `-- division` belongs to a line comment, so the view
-    // body stays a single batch. Reading it as a delimiter would leave
-    // `2 AS ratio FROM dual` as an unparsable fragment, which fails the parse
-    // before this assertion; the one terminator counted here is the bare
-    // trailing slash.
+    // The slash followed by `-- division` is a division operator. Only the
+    // bare trailing slash should be a delimiter.
     assert_eq!(tree.matches("slash_buffer_executor").count(), 1, "{tree}");
 }
 
@@ -44,14 +41,4 @@ fn oracle_slash_comment_between_statements_reaches_the_next_statement() {
         "CREATE VIEW v AS SELECT 1 FROM dual\n/ -- end\nCREATE VIEW w AS SELECT 2 FROM dual\n",
     );
     assert_eq!(tree.matches("create_view_statement").count(), 2, "{tree}");
-}
-
-#[test]
-fn oracle_slash_comment_before_a_non_statement_is_not_a_delimiter() {
-    // `2` continues the expression, so the slash is a division and the batch
-    // must not be cut at the comment.
-    let tree =
-        parse_oracle("CREATE VIEW v AS\nSELECT 1\n/ -- continues\n2 AS ratio\nFROM dual\n/\n");
-    assert!(tree.contains("binary_operator"), "{tree}");
-    assert!(tree.contains("slash_buffer_executor"), "{tree}");
 }
