@@ -538,7 +538,15 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             OptionallyBracketed(
                 OneOf(
                     Ref("NumericLiteralSegment"),
-                    Ref("ExpressionSegment"),
+                    Ref(
+                        "ExpressionSegment",
+                        # Don't let `12.5 % OFFSET 5` parse as a modulo expression.
+                        exclude=Sequence(
+                            Ref("NumericLiteralSegment"),
+                            Ref("ModuloSegment"),
+                            "OFFSET",
+                        ),
+                    ),
                     "ALL",
                 )
             ),

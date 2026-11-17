@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c64eb6cc05e98d7d515c64c715e3796e15e4377fdb1641cd30bd4c94fd376e9
+_hash: e8ae61f44face3a48b82a83f877b4dc1456183a74339d0c96b88fbc38ba9febd
 file:
 - statement:
     select_statement:
@@ -81,13 +81,11 @@ file:
               table_reference:
                 naked_identifier: addresses
       limit_clause:
-        keyword: LIMIT
-        expression:
-        - numeric_literal: '12.5'
-        - binary_operator: '%'
-        - data_type:
-            data_type_identifier: OFFSET
-        - numeric_literal: '5'
+      - keyword: LIMIT
+      - numeric_literal: '12.5'
+      - binary_operator: '%'
+      - keyword: OFFSET
+      - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -155,4 +153,28 @@ file:
       limit_clause:
         keyword: LIMIT
         numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+      limit_clause:
+      - keyword: LIMIT
+      - expression:
+        - numeric_literal: '10'
+        - binary_operator: '%'
+        - numeric_literal: '3'
+      - keyword: OFFSET
+      - numeric_literal: '5'
 - statement_terminator: ;
