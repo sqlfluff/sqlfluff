@@ -530,8 +530,8 @@ sparksql_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     # Colon prefix for named parameter markers (`:param`). Distinct from
     # ColonSegment so the global `spacing_before = touch` on type "colon"
-    # doesn't collapse the space before the marker (e.g. in
-    # `WHERE id = :param`), which then makes the marker unparsable.
+    # doesn't reach it: the colon belongs to the name it introduces rather
+    # than to the token in front of it (e.g. `WHERE id = :param`).
     ParameterizedExpressionColonSegment=StringParser(
         ":", SymbolSegment, type="parameterized_expression_colon"
     ),
