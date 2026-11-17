@@ -2192,6 +2192,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterViewStatementSegment"),
             Ref("CreateViewStatementSegment"),
             Ref("RenameTableStatementSegment"),
+            Ref("RenameUserStatementSegment"),
             Ref("ResetMasterStatementSegment"),
             Ref("ResetPersistStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
@@ -3872,6 +3873,26 @@ class RenameTableStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
                 "TO",
                 Ref("TableReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class RenameUserStatementSegment(BaseSegment):
+    """A `RENAME USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/rename-user.html
+    """
+
+    type = "rename_user_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "USER",
+        Delimited(
+            Sequence(
+                Ref("RoleReferenceSegment"),
+                "TO",
+                Ref("RoleReferenceSegment"),
             ),
         ),
     )
