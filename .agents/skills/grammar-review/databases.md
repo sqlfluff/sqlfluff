@@ -28,7 +28,7 @@ licence or EULA the image accepts.
 
 | Dialect | Image or tool | Notes | Syntax error | Parsed (semantic error) |
 |---|---|---|---|---|
-| sqlite | host `sqlite3` | Always run with `-safe` from a temp dir: otherwise fixture dot-commands (`.shell`) run on your machine. `-safe` also blocks `ATTACH` | `syntax error`, `incomplete input`, `unrecognized token` | `no such table`, `no such column`; other errors are inconclusive. Every error starts with "Parse error" |
+| sqlite | host `sqlite3` | Always run with `-safe` from a temp dir: otherwise fixture dot-commands (`.shell`) run on your machine. `-safe` also blocks `ATTACH` | `syntax error`, `incomplete input`, `unrecognized token` | `no such table`, `no such column`; other errors are inconclusive. Error prefixes vary by version |
 | duckdb | `duckdb/duckdb` | One-shot, no server | `Parser Error` | `Catalog Error` |
 | clickhouse | `clickhouse-format` in `clickhouse/clickhouse-server` | Parse-only, no server needed | `Syntax error` | — |
 | postgres | `postgres:17` | | `syntax error at or near` (42601), `unterminated …` | `does not exist` |
