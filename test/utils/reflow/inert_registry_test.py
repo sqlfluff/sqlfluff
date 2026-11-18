@@ -22,6 +22,25 @@ def _marked_indents(root: BaseSegment) -> list:
     return [seg for seg in segments if _inert_indent_uuids.is_marked(seg.uuid)]
 
 
+def test_insert_values_indents_are_not_marked():
+    """The #8635 indents stay live for an unbracketed INSERT ... VALUES.
+
+    The inert marking applies only when the values clause is enclosed
+    in brackets. For a plain INSERT the Indent/Dedent pair must keep
+    its impulse, so that the value rows still sit one level deeper
+    than the table name, and nothing may be marked here.
+    """
+    config = FluffConfig(overrides={"dialect": "snowflake"})
+    linter = Linter(config=config)
+    root = linter.parse_string(
+        "INSERT INTO tbl\nVALUES\n    (1, 'something'),\n    (2, 'something');"
+    ).tree
+
+    assert _marked_indents(root) == [], (
+        "no VALUES indent may be inert for an unbracketed INSERT"
+    )
+
+
 def test_inert_indent_marking_survives_tree_copies():
     """A copy of a parse tree shares the uuid of its source.
 
