@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06bfb9db6ca7cd298e2472f1357cac0b174cf3ec0f4e6b34739c10f5d5331aa1
+_hash: d02d06d8aeec176fcb32cde8b5f89c0e6de2495eab47c8e31da22e975f5e8fef
 file:
 - statement:
     create_table_statement:
@@ -2379,4 +2379,58 @@ file:
           keyword: SELECT
           select_clause_element:
             numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: example_no_order
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: region
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: total_proj
+          projection_body:
+            bracketed:
+              start_bracket: (
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: count
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: user_id
+                        end_bracket: )
+              end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: user_id
 - statement_terminator: ;

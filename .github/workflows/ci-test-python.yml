@@ -63,7 +63,7 @@ jobs:
     - name: Download built wheels
       # Reuse the Linux x86_64 abi3 wheel across all supported CPython versions.
       if: ${{ inputs.with-rust == '-rust' }}
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         path: ./dist
         name: wheels-linux-x86_64
@@ -80,7 +80,7 @@ jobs:
     # Run test process (with or without coverage).
     # Arguments after the "--" are passed through to pytest:
     #   --cov=...       The library to include in coverage reporting.
-    #   -n 2            Runs with two parallel processes.
+    #   -n 4            Runs with four parallel processes (ubuntu-latest has 4 vCPUs).
     #   test            The path to detect tests within.
     #   -m ...          The pytest marks to filter tests.
     #   --durations=16  Displays the 16 slowest runs to help with performance debugging.
@@ -88,11 +88,11 @@ jobs:
       # NOTE: We have a separate job for coverage reporting because
       # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- --cov=sqlfluff -n 4 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
 
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- -n 4 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
 
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
@@ -105,7 +105,7 @@ jobs:
         for file in .coverage.*; do mv "$file" "$file.$COVSUFFIX"; done;
 
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       if: ${{ inputs.coverage }}
       with:
         name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}${{ inputs.with-rust }}

@@ -6,7 +6,7 @@ use std::{
 use hashbrown::HashSet;
 use pyo3::{
     prelude::*,
-    types::{PyDict, PyFrozenSet, PyList, PyString, PyTuple, PyType},
+    types::{PyDict, PyFrozenSet, PyList, PyString, PyTuple},
 };
 use uuid::Uuid;
 
@@ -550,26 +550,6 @@ impl PyToken {
             raw,
             source_fixes.map(|sf| sf.into_iter().map(Into::into).collect()),
         ))
-    }
-
-    #[classmethod]
-    pub fn position_segments<'py>(
-        _cls: &Bound<'py, PyType>,
-        py: Python<'py>,
-        segments: Vec<PySqlFluffToken>,
-        parent_pos: PySqlFluffPositionMarker,
-    ) -> Result<Bound<'py, PyTuple>, PyErr> {
-        let tokens = Token::position_segments(
-            &segments
-                .into_iter()
-                .map(|s| s.into())
-                .collect::<Vec<Token>>(),
-            parent_pos.into(),
-        );
-        PyTuple::new(
-            py,
-            tokens.into_iter().map(Into::into).collect::<Vec<PyToken>>(),
-        )
     }
 
     #[staticmethod]

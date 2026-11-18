@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bebdee2c21f0ebc90554c1e7285d3b307f129afd8eff309fb0c9118b4b1d3452
+file:
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: SAVEPOINT
+      object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: TO
+    - keyword: SAVEPOINT
+    - object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: SAVEPOINT
+      object_reference:
+        naked_identifier: sp2
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: TO
+    - object_reference:
+        naked_identifier: sp2
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: WORK
+    - keyword: TO
+    - keyword: SAVEPOINT
+    - object_reference:
+        naked_identifier: sp2
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: TRANSACTION
+    - keyword: TO
+    - object_reference:
+        naked_identifier: sp2
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: RELEASE
+    - keyword: SAVEPOINT
+    - object_reference:
+        naked_identifier: sp2
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: SAVEPOINT
+      object_reference:
+        naked_identifier: sp3
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: RELEASE
+      object_reference:
+        naked_identifier: sp3
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: COMMIT
+- statement_terminator: ;

@@ -652,6 +652,130 @@ def test__templater_jinja_dynamic_variable_no_violations():
     assert len(vs) == 0
 
 
+@pytest.mark.parametrize(
+    "instr,expected",
+    [
+        (
+            '{% set columns = fromjson(\'["a", "b"]\') %}'
+            "SELECT {{ columns | join(', ') }} FROM my_table",
+            "SELECT a, b FROM my_table",
+        ),
+        (
+            "SELECT {{ fromjson('invalid', default=[1]) | join(', ') }}",
+            "SELECT 1",
+        ),
+        (
+            "SELECT '{{ tojson({'b': 2, 'a': 1}, sort_keys=True) }}'",
+            'SELECT \'{"a": 1, "b": 2}\'',
+        ),
+        (
+            "SELECT {{ fromjson(tojson([1, 2])) | join(', ') }}",
+            "SELECT 1, 2",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_json(instr, expected):
+    """JSON helpers render SQL through the Jinja templater."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    outstr, violations = JinjaTemplater().process(
+        in_str=instr, fname="test.sql", config=config
+    )
+    assert str(outstr) == expected
+    assert not violations
+
+
+@pytest.mark.parametrize(
+    "instr,expected",
+    [
+        (
+            "{% set columns = fromyaml('- a\\n- b') %}"
+            "SELECT {{ columns | join(', ') }} FROM my_table",
+            "SELECT a, b FROM my_table",
+        ),
+        (
+            "SELECT {{ fromyaml('[invalid', default=[1]) | join(', ') }}",
+            "SELECT 1",
+        ),
+        (
+            "SELECT '{{ toyaml({'b': 2, 'a': 1}, sort_keys=True) | trim }}'",
+            "SELECT 'a: 1\nb: 2'",
+        ),
+        (
+            "SELECT {{ fromyaml(toyaml([1, 2])) | join(', ') }}",
+            "SELECT 1, 2",
+        ),
+    ],
+)
+def test__templater_jinja_dbt_yaml(instr, expected):
+    """YAML helpers render SQL through the Jinja templater."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    outstr, violations = JinjaTemplater().process(
+        in_str=instr, fname="test.sql", config=config
+    )
+    assert str(outstr) == expected
+    assert not violations
+
+
+@pytest.mark.parametrize("apply_dbt_builtins", [True, False])
+def test__templater_jinja_dbt_conversion_enabled(apply_dbt_builtins):
+    """Conversion helpers respect the existing builtin configuration switch."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": apply_dbt_builtins}},
+        }
+    )
+    _, context, _ = JinjaTemplater().construct_render_func(config=config)
+    assert ("fromjson" in context) is apply_dbt_builtins
+    assert ("tojson" in context) is apply_dbt_builtins
+    assert ("fromyaml" in context) is apply_dbt_builtins
+    assert ("toyaml" in context) is apply_dbt_builtins
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson", "fromyaml", "toyaml"])
+def test__templater_jinja_dbt_conversion_override(name):
+    """Configured macros take precedence over conversion builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {
+                "jinja": {
+                    "apply_dbt_builtins": True,
+                    "macros": {
+                        "custom_json": f"{{% macro {name}(value) %}}42{{% endmacro %}}"
+                    },
+                }
+            },
+        }
+    )
+    outstr, violations = JinjaTemplater().process(
+        in_str=f"SELECT {{{{ {name}('input') }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
+@pytest.mark.parametrize("name", ["fromjson", "tojson", "fromyaml", "toyaml"])
+@pytest.mark.parametrize(
+    "override,call",
+    [(42, ""), (lambda value: 42, "('input')")],
+    ids=["value", "callable"],
+)
+def test__templater_jinja_dbt_conversion_context_override(name, override, call):
+    """Context values and callables take precedence over conversion builtins."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"jinja": {"apply_dbt_builtins": True}},
+        }
+    )
+    outstr, violations = JinjaTemplater(override_context={name: override}).process(
+        in_str=f"SELECT {{{{ {name}{call} }}}}", fname="test.sql", config=config
+    )
+    assert str(outstr) == "SELECT 42"
+    assert not violations
+
+
 def test__templater_jinja_dbt_builtin_function():
     """Test that dbt's `function()` builtin mock is available in Jinja templater."""
     config = FluffConfig.from_string(
@@ -2537,3 +2661,33 @@ def test__templater_jinja_custom_block_delimiters_variants():
     variant_outputs = {str(v[0]) for v in variants}
     assert "SELECT 1" in variant_outputs
     assert "SELECT 2" in variant_outputs
+
+
+@pytest.mark.parametrize("macro_source", ["config", "path"])
+def test__templater_jinja_library_available_in_macro(tmp_path, macro_source):
+    """Libraries must be available when macros are compiled, not only rendered."""
+    library_path = tmp_path / "libs"
+    library_path.mkdir()
+    (library_path / "helper.py").write_text(
+        "def answer():\n    return 42\n", encoding="utf-8"
+    )
+    macro = "{% macro answer_macro() %}{{ helper.answer() }}{% endmacro %}"
+    jinja_config = {"library_path": str(library_path)}
+    if macro_source == "path":
+        macro_path = tmp_path / "macros.sql"
+        macro_path.write_text(macro, encoding="utf-8")
+        jinja_config["load_macros_from_path"] = str(macro_path)
+    else:
+        jinja_config["macros"] = {"answer_macro": macro}
+    config = FluffConfig(
+        configs={"templater": {"jinja": jinja_config}},
+        overrides={"dialect": "ansi"},
+    )
+
+    templated, violations = JinjaTemplater().process(
+        in_str="SELECT {{ answer_macro() }} AS result;\n",
+        fname="test.sql",
+        config=config,
+    )
+    assert not violations
+    assert str(templated) == "SELECT 42 AS result;\n"

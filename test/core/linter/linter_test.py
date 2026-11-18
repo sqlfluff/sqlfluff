@@ -4,6 +4,7 @@ import contextvars
 import logging
 import os
 import pickle
+import threading
 from unittest.mock import patch
 
 import pytest
@@ -14,6 +15,7 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -163,6 +165,46 @@ def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
         assert not raises
     except (ValueError, TypeError):
         assert raises
+
+
+@pytest.mark.parametrize(
+    "byte_lim",
+    ["Not a Valid value", "20,000", "None", [1], float("inf"), 1e999, ""],
+)
+def test__linter__large_file_skip_byte_limit__invalid_raises_user_error(byte_lim):
+    """Invalid large_file_skip_byte_limit values raise a user error.
+
+    Previously these escaped as a raw ValueError/TypeError/OverflowError traceback.
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    config = FluffConfig(
+        overrides={"large_file_skip_byte_limit": byte_lim, "dialect": "ansi"}
+    )
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        Linter.load_raw_file_and_config(
+            "test/fixtures/linter/indentation_errors.sql", config
+        )
+    assert "large_file_skip_byte_limit" in str(excinfo.value)
+    assert "integer" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "char_lim",
+    ["Not a Valid value", [1], float("inf"), 1e999, ""],
+)
+def test__linter__large_file_skip_char_limit__invalid_raises_user_error(char_lim):
+    """Invalid large_file_skip_char_limit values raise a user error.
+
+    Previously these escaped as a raw TypeError/OverflowError traceback.
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    config = FluffConfig(
+        overrides={"large_file_skip_char_limit": char_lim, "dialect": "ansi"}
+    )
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        Linter(config).render_string("SELECT 1;", "test.sql", config, "utf8")
+    assert "large_file_skip_char_limit" in str(excinfo.value)
+    assert "integer" in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
@@ -512,6 +554,93 @@ def test__parallel_runner__apply_skip_file():
     result = _apply_in_worker(("test/fixtures/linter/passing.sql", task), config)
     assert isinstance(result, runner.DelayedException)
     assert isinstance(result.ee, SQLFluffSkipFile)
+
+
+def test__parallel_runner__apply_unpicklable_base_exception():
+    """A BaseException which can't be pickled still reaches the main process.
+
+    If _apply lets one escape then the worker dies and the main process waits
+    for it forever.
+    """
+
+    class UnpicklableAbort(BaseException):
+        pass
+
+    def _task():
+        raise UnpicklableAbort("Out of budget")
+
+    result = _apply_in_worker(("a.sql", _task))
+    assert isinstance(result, runner.DelayedException)
+    unpickled = pickle.loads(pickle.dumps(result))
+    assert unpickled.fname == "a.sql"
+    assert isinstance(unpickled.ee, RuntimeError)
+    assert "UnpicklableAbort: Out of budget" in str(unpickled.ee)
+
+
+def test__parallel_runner__apply_unprintable_base_exception():
+    """A BaseException which can't be printed is still reported."""
+
+    class UnprintableAbort(BaseException):
+        def __str__(self):
+            raise SystemExit("Can't print this")
+
+    def _task():
+        raise UnprintableAbort()
+
+    result = _apply_in_worker(("a.sql", _task))
+    assert result.fname == "a.sql"
+    assert isinstance(result.ee, RuntimeError)
+    assert "UnprintableAbort" in str(result.ee)
+
+
+def test__parallel_runner__apply_leaves_system_exit():
+    """SystemExit ends the worker, as pool.terminate() may rely on that."""
+
+    def _task():
+        raise SystemExit("Stop")
+
+    with pytest.raises(SystemExit):
+        _apply_in_worker(("a.sql", _task))
+
+
+def test__parallel_runner__worker_base_exception_skips_file(monkeypatch):
+    """A BaseException in a worker is reported for its file, and the run goes on.
+
+    If it escaped the worker, the run would wait forever, so run it in a thread
+    which we can stop waiting for.
+    """
+
+    class Abort(BaseException):
+        pass
+
+    failing = "test/fixtures/linter/passing.sql"
+    other = "test/fixtures/linter/comma_errors.sql"
+    lint_rendered = Linter.lint_rendered
+
+    def _lint_rendered(rendered, *args, **kwargs):
+        if rendered.fname == failing:
+            raise Abort("Out of budget")
+        return lint_rendered(rendered, *args, **kwargs)
+
+    monkeypatch.setattr(Linter, "lint_rendered", staticmethod(_lint_rendered))
+    results = []
+
+    def _run():
+        results.extend(
+            runner.MultiThreadRunner(
+                Linter(), FluffConfig(overrides={"dialect": "ansi"}), processes=2
+            ).run([failing, other], fix=False)
+        )
+
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        thread = threading.Thread(target=_run, daemon=True)
+        thread.start()
+        thread.join(timeout=30)
+
+    assert not thread.is_alive(), "The run didn't end."
+    assert f"Unable to lint {failing} due to an internal error" in caplog.text
+    assert "Abort: Out of budget" in caplog.text
+    assert [linted_file.path for linted_file in results] == [other]
 
 
 def test__parallel_runner__apply_unpickles_root_config_once():

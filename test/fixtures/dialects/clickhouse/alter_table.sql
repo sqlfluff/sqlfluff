@@ -174,6 +174,12 @@ ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_3 (with (1 
 
 ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_4 (with 1 = 0 as f1, cast('JP' as String) as country select region, user_id where region = country order by user_id);
 
+ALTER TABLE default.example ADD PROJECTION total_proj (select sum(user_id));
+
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_5 (select region, user_id where region = 'JP');
+
+ALTER TABLE default.example ADD PROJECTION region_proj_6 (with 'JP' as country select region, user_id where region = country);
+
 ALTER TABLE default.example MODIFY PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096
 );
@@ -217,3 +223,8 @@ ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION TRUE;
 ALTER TABLE default.example CLEAR PROJECTION user_proj IN PARTITION tuple(toYYYYMM(toDate('2019-01-25')));
 
 ALTER TABLE default.example2 CLEAR PROJECTION IF EXISTS user_proj IN PARTITION ('JP', 1);
+
+-- Multiple comma-separated actions (#8707)
+ALTER TABLE example ADD COLUMN a UInt8, ADD COLUMN b UInt8;
+ALTER TABLE example DROP COLUMN a, ADD COLUMN b UInt8, MODIFY COLUMN c String;
+ALTER TABLE example ADD COLUMN a UInt8, ADD COLUMN b UInt8 SETTINGS max_execution_time = 10;

@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import logging
-from bisect import bisect_left
+from bisect import bisect_left, bisect_right
 from collections.abc import Iterable, Iterator
 from typing import (
     Any,
@@ -12,7 +12,7 @@ from typing import (
 )
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import zero_slice
 
@@ -54,19 +54,31 @@ def large_file_check(func: Callable[..., T]) -> Callable[..., T]:
     ) -> T:
         if config:
             limit = config.get("large_file_skip_char_limit")
+            if limit is not None:
+                # Make sure the limit becomes an integer. A value which can't be
+                # converted is a problem with the user's config, so report it as
+                # a user error rather than letting a raw exception escape.
+                try:
+                    limit = int(limit)
+                except (ValueError, TypeError, OverflowError):
+                    raise SQLFluffUserError(
+                        "Config value 'large_file_skip_char_limit' must be an "
+                        f"integer, but was {limit!r}."
+                    ) from None
             if limit:
                 templater_logger.warning(
                     "The config value large_file_skip_char_limit was found set. "
                     "This feature will be removed in a future release, please "
                     "use the more efficient 'large_file_skip_byte_limit' instead."
                 )
-            if limit and len(in_str) > limit:
-                raise SQLFluffSkipFile(
-                    f"Length of file {fname!r} is over {limit} characters. "
-                    "Skipping to avoid parser lock. Users can increase this limit "
-                    "in their config by setting the 'large_file_skip_char_limit' "
-                    "value, or disable by setting it to zero."
-                )
+                if len(in_str) > limit:
+                    raise SQLFluffSkipFile(
+                        f"Length of file {fname!r} is over {limit} characters. "
+                        "Skipping to avoid parser lock. Users can increase this "
+                        "limit in their config by setting the "
+                        "'large_file_skip_char_limit' value, or disable by "
+                        "setting it to zero."
+                    )
         return func(
             self, in_str=in_str, fname=fname, config=config, formatter=formatter
         )
@@ -192,8 +204,14 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
-        # Consistency check raw string and slices.
+        # Consistency check raw string and slices. The same pass builds the
+        # indices used to bisect raw slices by source position. The check
+        # guarantees `_raw_slice_starts` is sorted, which bisect relies on.
+        # `_raw_non_literal_counts[i]` counts non-literal slices before index i.
         pos = 0
+        non_literal = 0
+        self._raw_slice_starts: list[int] = []
+        self._raw_non_literal_counts: list[int] = [0]
         rfs: RawFileSlice
         for rfs in self.raw_sliced:
             assert rfs.source_idx == pos, (
@@ -201,6 +219,9 @@ class TemplatedFile:
                 f": {pos} != {rfs.source_idx}"
             )
             pos += len(rfs.raw)
+            self._raw_slice_starts.append(rfs.source_idx)
+            non_literal += rfs.slice_type != "literal"
+            self._raw_non_literal_counts.append(non_literal)
         assert pos == len(self.source_str), (
             "TemplatedFile. Consistency fail on total source length"
             f": {pos} != {len(self.source_str)}"
@@ -317,24 +338,12 @@ class TemplatedFile:
         last_raw_slice = self.raw_sliced[-1]
         if source_slice.start >= last_raw_slice.source_idx + len(last_raw_slice.raw):
             return []
-        # First find the start index
-        raw_slice_idx = 0
-        # Move the raw pointer forward to the start of this patch
-        while (
-            raw_slice_idx + 1 < len(self.raw_sliced)
-            and self.raw_sliced[raw_slice_idx + 1].source_idx <= source_slice.start
-        ):
-            raw_slice_idx += 1
-        # Find slice index of the end of this patch.
-        slice_span = 1
-        while (
-            raw_slice_idx + slice_span < len(self.raw_sliced)
-            and self.raw_sliced[raw_slice_idx + slice_span].source_idx
-            < source_slice.stop
-        ):
-            slice_span += 1
-        # Return the raw slices:
-        return self.raw_sliced[raw_slice_idx : raw_slice_idx + slice_span]
+        # The last slice starting at or before the start (or the first slice),
+        # through to the last slice starting before the stop.
+        starts = self._raw_slice_starts
+        first_idx = max(bisect_right(starts, source_slice.start) - 1, 0)
+        stop_idx = bisect_left(starts, source_slice.stop, lo=first_idx + 1)
+        return self.raw_sliced[first_idx:stop_idx]
 
     def templated_slice_to_source_slice(
         self,
@@ -460,20 +469,15 @@ class TemplatedFile:
         # Zero length slice. It's a literal, because it's definitely not templated.
         if source_slice.start == source_slice.stop:
             return True
-        is_literal = True
-        for raw_slice in self.raw_sliced:
-            # Reset if we find a literal and we're up to the start
-            # otherwise set false.
-            if raw_slice.source_idx <= source_slice.start:
-                is_literal = raw_slice.slice_type == "literal"
-            elif raw_slice.source_idx >= source_slice.stop:
-                # We've gone past the end. Break and Return.
-                break
-            else:
-                # We're in the middle. Check type
-                if raw_slice.slice_type != "literal":
-                    is_literal = False
-        return is_literal
+        # The slice containing the start decides, unless any slice starting
+        # inside the range is not a literal.
+        starts = self._raw_slice_starts
+        start_idx = bisect_right(starts, source_slice.start) - 1
+        if start_idx >= 0 and self.raw_sliced[start_idx].slice_type != "literal":
+            return False
+        stop_idx = bisect_left(starts, source_slice.stop, lo=start_idx + 1)
+        counts = self._raw_non_literal_counts
+        return counts[stop_idx] == counts[start_idx + 1]
 
     def source_only_slices(self) -> list[RawFileSlice]:
         """Return a list a slices which reference the parts only in the source.
@@ -518,6 +522,59 @@ class RawTemplater:
     # templater that requires main-process state (e.g. dbt's manifest).
     templates_in_worker: bool = True
 
+    # --- Warm Worker Protocol (duck-typed) ---
+    #
+    # When ``supports_warm_workers = True``, the ``WarmWorkerRunner``
+    # creates a persistent process pool where workers pre-import heavy
+    # modules and cache templater state across lint_paths() calls. This
+    # achieves 3-5x speedup vs the baseline pipelined approach.
+    #
+    # IPC uses shared memory (multiprocessing.shared_memory): init data
+    # is pickled once and written to a SharedMemory block. Workers
+    # attach by name and read on their first task, avoiding redundant
+    # per-task data transfer. The shared memory block persists on the
+    # templater (``_warm_shm``) for reuse across lint_paths() calls
+    # and is replaced when init data changes.
+    #
+    # Templaters that opt in provide these hooks. Only the two checked by
+    # the runner's ``_use_warm_workers()`` (``get_worker_init_data`` and
+    # ``get_worker_config_bytes``) are required; the rest are optional and
+    # are detected with ``hasattr``, falling back to the defaults below.
+    # (Jinja, for example, opts in without overriding any of them.)
+    #
+    #   prepare_warm_worker_state(config, phase: str) -> None
+    #       Called in the main process. phase="config" before pool
+    #       creation, phase="manifest" after (overlapped with worker
+    #       imports).
+    #
+    #   get_warm_worker_init_modules() -> list[str]
+    #       Module names to pre-import in workers during pool init.
+    #
+    #   get_warm_worker_setup_func() -> tuple[str, str]
+    #       (module_name, function_name) for a module-level function
+    #       that performs templater-specific worker setup (e.g.,
+    #       register dbt adapter). Called with config_bytes as arg.
+    #
+    #   get_worker_config_bytes() -> bytes
+    #       Pickled configuration sent to the pool initializer.
+    #
+    #   get_worker_init_data(root_config: FluffConfig) -> dict
+    #       Picklable dict written to shared memory once (must include
+    #       "root_config" key). Workers read it on first task via
+    #       SharedMemory; subsequent tasks reuse cached state.
+    #
+    #   init_from_worker_data(data: dict, config: FluffConfig) -> None
+    #       Configure the templater in a worker process from init data.
+    #
+    # The runner stores persistent state on these instance attributes:
+    supports_warm_workers: bool = False
+    _warm_pool: Any = None
+    _warm_pool_processes: int = 0
+    _warm_pool_manifest_id: Any = None
+    _warm_pool_config: Any = None
+    _warm_shm: Any = None
+    _warm_shm_size: int = 0
+
     def __init__(
         self,
         override_context: Optional[dict[str, Any]] = None,
@@ -530,6 +587,77 @@ class RawTemplater:
         """
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
+
+    def _shutdown_warm_workers(self) -> None:
+        """Shut down the persistent warm worker pool and shared memory.
+
+        The pool and shared memory are created by ``WarmWorkerRunner`` but
+        stored here, because the templater outlives the runner (runners are
+        recreated per ``lint_paths`` call, the templater persists on the
+        Linter). Both the runner's error path and ``__del__`` call this, so
+        the teardown logic only needs fixing in one place.
+
+        ``pool.terminate()`` is what joins the workers, and it does so without
+        a bound, so a worker stuck in a C extension (pickle, Jinja) can still
+        delay shutdown; the standard pool API offers no join timeout to cap
+        that. The following ``pool.join()`` only reaps the pool's helper
+        threads. ``getattr`` is used throughout so that duck-typed templaters
+        which don't inherit from this class can be passed in.
+        """
+        pool = getattr(self, "_warm_pool", None)
+        if pool is not None:
+            try:
+                pool.terminate()
+                pool.join()
+            except Exception:
+                pass
+            self._warm_pool = None
+        shm = getattr(self, "_warm_shm", None)
+        if shm is not None:
+            try:
+                shm.close()
+                shm.unlink()
+            except Exception:
+                pass
+            self._warm_shm = None
+
+    def __del__(self) -> None:  # pragma: no cover
+        """Shut down the persistent warm worker pool and shared memory on cleanup.
+
+        The pool and shared memory are created by WarmWorkerRunner but stored
+        on the templater because the templater outlives the runner (runners
+        are recreated per lint_paths call, while the templater persists on the
+        Linter). Cleanup lives here as the last owner of these references.
+        """
+        self._shutdown_warm_workers()
+
+    # --- Default warm worker protocol implementations ---
+    # Subclasses that set supports_warm_workers = True get these for free.
+    # Override for templaters with heavy init (e.g. dbt overrides all of these).
+
+    def get_warm_worker_init_modules(self) -> list[str]:
+        """Return module names to pre-import in warm workers.
+
+        Default returns an empty list (no heavy imports needed).
+        Override for templaters with expensive imports (e.g. dbt).
+        """
+        return []
+
+    def get_worker_config_bytes(self) -> bytes:
+        """Return pickled config for the pool initializer.
+
+        Default returns empty bytes (no setup function needed).
+        Override for templaters that need worker-side adapter registration.
+        """
+        return b""
+
+    def get_worker_init_data(self, root_config: "FluffConfig") -> dict[str, Any]:
+        """Return picklable data for initializing workers.
+
+        Default sends just the root config so workers can create a Linter.
+        Override for templaters that need to send additional state (e.g. manifest).
+        """
+        return {"root_config": root_config}
 
     def sequence_files(
         self,

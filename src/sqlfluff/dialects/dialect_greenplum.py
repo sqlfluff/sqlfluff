@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
+from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_greenplum_keywords import greenplum_keywords
@@ -56,10 +57,14 @@ class StatementSegment(postgres.StatementSegment):
         insert=[
             Ref("FetchClauseSegment"),
             Ref("DeclareStatement"),
-            Ref("CloseStatementSegment"),
             Ref("AnalizeSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
+        ],
+        # Greenplum has its own DECLARE and FETCH segments above.
+        remove=[
+            Ref("DeclareStatementSegment"),
+            Ref("FetchStatementSegment"),
         ],
     )
 
@@ -80,7 +85,10 @@ class SelectClauseSegment(postgres.SelectClauseSegment):
         Dedent,
         terminators=[
             "INTO",
-            "FROM",
+            Ref(
+                "FromKeywordSegment",
+                exclude=is_distinct_from_lookbehind,
+            ),
             "WHERE",
             Sequence("ORDER", "BY"),
             "LIMIT",

@@ -11,7 +11,10 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.respace import process_spacing
+from sqlfluff.utils.reflow.respace import (
+    _find_alignment_siblings,
+    process_spacing,
+)
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
@@ -34,6 +37,29 @@ def test_reflow__process_spacing_duplicate_whitespace_fix_anchors():
     assert sum(anchor is w2 for anchor in anchors) == 1
     assert sum(anchor is w3 for anchor in anchors) == 1
     assert all(anchor is not w1 for anchor in anchors)
+
+
+def test_reflow__process_spacing_equal_whitespace_kept_by_identity():
+    """Pruning a duplicate whitespace must keep the retained one.
+
+    Distinct whitespace segments compare equal when they share a raw and a
+    position, as a literal space and an adjacent templated space can. Only
+    the duplicate is removed, and the returned ``last_whitespace`` remains in
+    the buffer.
+    """
+    # Two distinct segments sharing a position marker compare equal.
+    tree = Linter(dialect="ansi").parse_string("select 1\n").tree
+    pos = next(seg for seg in tree.raw_segments if seg.is_type("whitespace")).pos_marker
+    w1 = WhitespaceSegment(" ", pos_marker=pos)
+    w2 = WhitespaceSegment(" ", pos_marker=pos)
+    assert w1 == w2 and w1 is not w2
+    buffer, last_whitespace, results = process_spacing([w1, w2])
+
+    assert last_whitespace is w1
+    assert len(buffer) == 1 and buffer[0] is w1
+    # w1 == w2, so check the anchor by identity.
+    anchors = [fix.anchor for r in results for fix in r.fixes]
+    assert len(anchors) == 1 and anchors[0] is w2
 
 
 def parse_ansi_string(sql, config):
@@ -233,3 +259,50 @@ def test_reflow__point_respace_point(
     assert {
         (fix.edit_type, fix.anchor.raw) for fix in fixes_from_results(results)
     } == fixes_out
+
+
+@pytest.mark.parametrize(
+    "raw_sql",
+    [
+        "SELECT a AS x, b AS y, (SELECT c AS z FROM t2) AS w FROM t1\n",
+        "CREATE TABLE t (a INT, b VARCHAR(10), c DECIMAL(18, 5))\n",
+        "SELECT\n    a AS x,\n    (b + c) AS y,\n    COALESCE(d, (e)) AS z\nFROM t\n",
+        "SELECT ((a + (b)) * (c)) AS x, ((d)) AS y FROM t\n",
+    ],
+)
+@pytest.mark.parametrize(
+    "segment_type,align_within",
+    [
+        ("alias_expression", "select_clause"),
+        ("alias_expression", "statement"),
+        ("data_type", "statement"),
+        ("data_type", "bracketed"),
+        # The parent can itself be a candidate, and candidates can be nested.
+        ("bracketed", "bracketed"),
+        ("bracketed", "select_clause"),
+    ],
+)
+@pytest.mark.parametrize("align_scope", [None, "bracketed", "file"])
+def test_reflow__find_alignment_siblings_matches_path_to(
+    raw_sql, segment_type, align_within, align_scope, default_config
+):
+    """The single walk must agree with a `path_to()` check per candidate.
+
+    `_find_alignment_siblings` replaced a `path_to()` call for every candidate,
+    which made alignment quadratic in the number of candidates. The siblings
+    found, and their order, must stay the same.
+    """
+    root = parse_ansi_string(raw_sql, default_config)
+    # Not every combination of segment type and alignment scope has a match,
+    # which is fine: the assertions below then hold trivially.
+    for parent in root.recursive_crawl(align_within):
+        expected = [
+            sibling
+            for sibling in parent.recursive_crawl(segment_type)
+            if not align_scope
+            or not any(
+                step.segment.is_type(align_scope) for step in parent.path_to(sibling)
+            )
+        ]
+        actual = _find_alignment_siblings(parent, segment_type, align_scope)
+        assert [id(s) for s in actual] == [id(s) for s in expected]

@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.common import (
     ColumnAliasInfo,
     ObjectReferenceLevel,
     extract_possible_references,
+    get_from_expression_element_alias,
     is_qualified,
     iter_raw_references,
     qualification,
@@ -26,7 +27,15 @@ from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
-_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
+_DML_TYPES = ("update_statement", "delete_statement", "merge_statement")
+# DML statements are start types so that the queries inside them know about
+# the tables of the statement. RF03 doesn't check the DML statement itself.
+_START_TYPES = [
+    "select_statement",
+    "set_expression",
+    "with_compound_statement",
+    *_DML_TYPES,
+]
 
 
 class Rule_RF03(BaseRule):
@@ -109,17 +118,22 @@ class Rule_RF03(BaseRule):
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: set = set()
+        templater_name = context.config.get("templater")
         # Recursively visit and check each query in the tree.
-        return list(self._visit_queries(query, visited))
+        return list(self._visit_queries(query, visited, templater_name))
 
     def _iter_available_targets(
         self, query: Query, subquery: Optional[Query] = None
     ) -> Iterator[AliasInfo]:
         """Iterate along a list of valid alias targets."""
         for selectable in query.selectables:
-            select_info = selectable.select_info
-            if select_info:
-                for alias in select_info.table_aliases:
+            aliases: list[AliasInfo] = []
+            if selectable.selectable.is_type(*_DML_TYPES):
+                aliases = _dml_table_aliases(selectable.selectable, query.dialect.name)
+            elif selectable.select_info:
+                aliases = selectable.select_info.table_aliases
+            if aliases:
+                for alias in aliases:
                     if subquery and alias.from_expression_element.path_to(
                         subquery.selectables[0].selectable
                     ):
@@ -148,18 +162,30 @@ class Rule_RF03(BaseRule):
         A correlated subquery may reference any enclosing query, not just its
         direct parent, so walk up the whole chain of ancestors. A CTE never
         sees the FROM clause of the query that uses it, so skip that query,
-        but it can see the queries enclosing its WITH statement.
+        but it can see the queries enclosing its WITH statement. Likewise, a
+        derived table in the FROM or USING clause of a DML statement can't see
+        the tables of that statement.
         """
         outer_aliases: list[AliasInfo] = []
         child = query
         while child.parent:
-            if child.cte_definition_segment is None:
+            if child.cte_definition_segment is None and not _is_dml_source(
+                child.parent, child
+            ):
                 outer_aliases += self._iter_available_targets(child.parent, child)
             child = child.parent
         return outer_aliases
 
-    def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
+    def _visit_queries(
+        self, query: Query, visited: set, templater_name: str
+    ) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
+        if query.selectables and query.selectables[0].selectable.is_type(*_DML_TYPES):
+            # Only check the queries inside a DML statement. They can see the
+            # tables of the statement, via _iter_available_targets().
+            for child in query.children:
+                yield from self._visit_queries(child, visited, templater_name)
+            return
         if query.selectables:
             select_info = query.selectables[0].select_info
             # How many table names are visible from here? If more than one then do
@@ -218,6 +244,7 @@ class Rule_RF03(BaseRule):
                     self._fix_inconsistent_to,
                     fixable,
                     query.dialect.name,
+                    templater_name,
                 )
         children = list(query.children)
         # 'query.children' includes CTEs and "main" queries, but not queries in
@@ -236,7 +263,86 @@ class Rule_RF03(BaseRule):
                     visited.update(s.selectable for s in q.selectables)
                     children.append(q)
         for child in children:
-            yield from self._visit_queries(child, visited)
+            yield from self._visit_queries(child, visited, templater_name)
+
+
+def _dml_table_aliases(statement: BaseSegment, dialect_name: str) -> list[AliasInfo]:
+    """Get the tables of an UPDATE, DELETE or MERGE statement.
+
+    Queries inside the statement (e.g. a correlated subquery in the WHERE
+    clause) can see these tables. Depending on the dialect, a table is either
+    a ``from_expression_element`` (e.g. in a FROM or USING clause), or a
+    ``table_reference``, ``table_expression`` or bracketed subquery (e.g. in
+    ``MERGE ... USING (SELECT ...) AS s``) directly in the statement, followed
+    by its ``alias_expression`` if it has one.
+    """
+    aliases: list[AliasInfo] = []
+    children = [
+        seg
+        for seg in statement.segments
+        if not (seg.is_meta or seg.is_whitespace or seg.is_type("comment"))
+    ]
+    for idx, seg in enumerate(children):
+        if not seg.is_type("table_reference", "table_expression", "bracketed"):
+            continue
+        ref: Optional[BaseSegment] = None
+        if seg.is_type("table_reference"):
+            ref = seg
+        elif seg.is_type("table_expression"):
+            ref = seg.get_child("table_reference")
+        following = children[idx + 1] if idx + 1 < len(children) else None
+        if following and following.is_type("alias_expression"):
+            alias_segment = following.get_child("identifier")
+            if alias_segment:
+                aliases.append(
+                    AliasInfo(
+                        alias_segment.raw_normalized(casefold=False),
+                        alias_segment,
+                        True,
+                        seg,
+                        following,
+                        ref,
+                    )
+                )
+                continue
+        parts = list(iter_raw_references(ref, dialect_name)) if ref else []
+        if parts:
+            aliases.append(
+                AliasInfo(parts[-1].part, parts[-1].segments[0], False, seg, None, ref)
+            )
+        elif ref:
+            # A table without a name part, e.g. an unaliased T-SQL table
+            # variable (`UPDATE @orders ...`). Keep it, like
+            # get_from_expression_element_alias() does: a subquery can still
+            # reference it by its bracketed name (e.g. `[@orders].id`).
+            aliases.append(AliasInfo("", None, False, seg, None, ref))
+    for element in statement.recursive_crawl(
+        "from_expression_element", no_recursive_seg_type="select_statement"
+    ):
+        aliases += get_from_expression_element_alias(element, dialect_name)
+    return aliases
+
+
+def _is_dml_source(parent: Query, child: Query) -> bool:
+    """Check whether a query is a table source of its parent DML statement.
+
+    For example ``(SELECT ...) AS s`` in ``UPDATE t ... FROM (SELECT ...) AS s``
+    or in ``MERGE INTO t USING (SELECT ...) AS s``. Unless it's a LATERAL or
+    APPLY join, such a derived table can't see the tables of the statement.
+    """
+    statement = parent.selectables[0].selectable if parent.selectables else None
+    if not statement or not child.selectables or not statement.is_type(*_DML_TYPES):
+        return False
+    segment = _parent_segment(child.selectables[0].selectable)
+    while segment and segment is not statement:
+        if segment.is_type("from_expression_element"):
+            return not _is_lateral_element(segment)
+        if segment.is_type("table_expression", "bracketed") and (
+            _parent_segment(segment) is statement
+        ):
+            return True
+        segment = _parent_segment(segment)
+    return False
 
 
 def _sees_outer_columns(selectable: BaseSegment) -> bool:
@@ -371,6 +477,7 @@ def _check_references(
     fix_inconsistent_to: Optional[str],
     fixable: bool,
     dialect_name: str,
+    templater_name: str,
 ) -> Iterator[LintResult]:
     """Iterate through references and check consistency."""
     # A buffer to keep any violations.
@@ -381,10 +488,19 @@ def _check_references(
     seen_ref_types: set[str] = set()
     for ref in references:
         this_ref_type: str = qualification(ref, dialect_name)
-        # Skip unqualified templated references (e.g., placeholder parameters like
-        # :colname that get rendered as bare identifiers by the templater). These
-        # are not real column references and should not be qualified or flagged.
-        if this_ref_type == "unqualified" and ref.is_templated:
+        # Skip unqualified references rendered by the `placeholder` templater
+        # (e.g. bind parameters like `:colname` that get rendered as bare
+        # identifiers). These are not real column references and should not
+        # be qualified or flagged. This must NOT be widened to templated
+        # references in general: a Jinja/dbt `{{ my_col }}` renders to a
+        # genuine column identifier that the user intends to reference, and
+        # skipping it here would silently hide real qualification
+        # inconsistencies.
+        if (
+            this_ref_type == "unqualified"
+            and ref.is_templated
+            and templater_name == "placeholder"
+        ):
             continue
         # Skip whole-row references: a bare reference matching the single table's
         # own alias/name (e.g. ``tbl ->> 'k'`` in postgres, or ``SELECT tbl FROM
@@ -421,9 +537,9 @@ def _check_references(
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
             # recurse with a different single_table_references value.
-            # This re-check iterates the same references list, so the templated
-            # unqualified-reference skip above still applies and intentionally
-            # keeps those placeholders out of every consistency pass.
+            # This re-check iterates the same references list, so the
+            # placeholder-templater skip above still applies and intentionally
+            # keeps those bind parameters out of every consistency pass.
             yield from _check_references(
                 table_aliases,
                 standalone_aliases,
@@ -435,6 +551,7 @@ def _check_references(
                 fix_inconsistent_to=None,
                 fixable=fixable,
                 dialect_name=dialect_name,
+                templater_name=templater_name,
             )
 
         yield lint_res
@@ -507,6 +624,17 @@ def _validate_one_reference(
     if single_table_references == this_ref_type:
         return None
 
+    # A single templated expression can render to more than one column. For
+    # example a Jinja/dbt `{{ cols }}` (or `dbt_utils.star()`) rendering to
+    # `customer_id, region` is lexed as several column references that all map
+    # back to the *same* template slice. We can still flag such references for
+    # consistency, but we must not attach a fix: inserting or deleting a
+    # qualifier around that shared slice would only touch the first rendered
+    # column (producing e.g. `orders.{{ cols }}` -> `orders.customer_id,
+    # region`, which leaves `region` unqualified) and silently corrupt the SQL.
+    # Leave the rewrite to the user when the reference is templated.
+    ref_is_templated = ref.is_templated
+
     # If not, it's the wrong type and we should handle it.
     if single_table_references == "unqualified":
         # If unqualified and not fixable, there is no error.
@@ -515,14 +643,18 @@ def _validate_one_reference(
         # If this is qualified we must have a "table", "."" at least
         return LintResult(
             anchor=ref,
-            fixes=[LintFix.delete(el) for el in ref.segments[:2]],
+            fixes=(
+                []
+                if ref_is_templated
+                else [LintFix.delete(el) for el in ref.segments[:2]]
+            ),
             description="{} reference {!r} found in single table select.".format(
                 this_ref_type.capitalize(), ref.raw
             ),
         )
 
     fixes = None
-    if fixable:
+    if fixable and not ref_is_templated:
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,

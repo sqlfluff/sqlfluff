@@ -521,6 +521,10 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
+    # $PARTITION.<partition_function>(), parsed as a function name prefix.
+    PartitionFunctionPrefixSegment=RegexParser(
+        r"\$PARTITION", CodeSegment, type="partition_function_prefix"
+    ),
     DatatypeMethodNameIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
             r"^(" + r"|".join(sorted(dialect.sets("datatype_methods"))) + r")$",
@@ -902,7 +906,12 @@ class StatementSegment(ansi.StatementSegment):
             # https://learn.microsoft.com/en-us/sql/t-sql/statements/statements
             # Ref("CreateDatabaseStatementSegment") -> Override
             Ref("AlterDatabaseStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
             Ref("RestoreDatabaseStatementSegment"),
+            Ref("BackupStatementSegment"),
+            Ref("CheckpointStatementSegment"),
+            Ref("ExecuteAsStatementSegment"),
+            Ref("RevertStatementSegment"),
             # Ref("DropDatabaseStatementSegment"),
             # Ref("CreateTableStatementSegment"),
             Ref("CreateTableGraphStatementSegment"),
@@ -919,6 +928,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropProcedureStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
             Ref("DisableTriggerStatementSegment"),
+            Ref("EnableTriggerStatementSegment"),
             Ref("CreatePartitionFunctionSegment"),
             Ref("AlterPartitionSchemeSegment"),
             Ref("CreateMasterKeySegment"),
@@ -1236,13 +1246,13 @@ class RestoreDatabaseStatementSegment(BaseSegment):
     https://learn.microsoft.com/en-us/sql/t-sql/statements/restore-statements-transact-sql
     """
 
-    # Backup device grammar (specific to RESTORE statements)
+    # Backup device grammar (shared with BACKUP statements)
     _backup_device = OneOf(
         Sequence(
             OneOf("DISK", "TAPE", "URL"),
             Ref("EqualsSegment"),
             OneOf(
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegmentOptWithN"),
                 Ref("ParameterNameSegment"),
             ),
         ),
@@ -1252,7 +1262,7 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         ),
     )
 
-    # Files or filegroups grammar (specific to RESTORE statements)
+    # Files or filegroups grammar (shared with BACKUP statements)
     _files_or_filegroups = OneOf(
         Sequence(
             "FILE",
@@ -1275,7 +1285,7 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         "READ_WRITE_FILEGROUPS",
     )
 
-    # General WITH options grammar (specific to RESTORE statements)
+    # General WITH options grammar (shared with BACKUP statements)
     _general_WITH_options = OneOf(
         # Recovery options
         "RECOVERY",
@@ -1298,7 +1308,17 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         "REPLACE",
         "RESTART",
         "RESTRICTED_USER",
-        "CREDENTIAL",
+        Sequence(
+            "CREDENTIAL",
+            Sequence(
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                    Ref("ParameterNameSegment"),
+                ),
+                optional=True,
+            ),
+        ),
         # Backup set options
         Sequence(
             "FILE",
@@ -1408,6 +1428,166 @@ class RestoreDatabaseStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             Delimited(_general_WITH_options),
+            optional=True,
+        ),
+    )
+
+
+class BackupStatementSegment(BaseSegment):
+    """A `BACKUP DATABASE` or `BACKUP LOG` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/backup-transact-sql
+    """
+
+    _string_or_parameter = OneOf(
+        Ref("QuotedLiteralSegmentOptWithN"),
+        Ref("ParameterNameSegment"),
+    )
+
+    # Options only BACKUP takes. The ones it shares with RESTORE (CHECKSUM,
+    # STATS, NORECOVERY, MEDIANAME and so on) come from that statement.
+    _backup_WITH_options = OneOf(
+        "DIFFERENTIAL",
+        "COPY_ONLY",
+        Sequence(
+            "COMPRESSION",
+            Bracketed(
+                Sequence(
+                    "ALGORITHM",
+                    Ref("EqualsSegment"),
+                    Ref("NakedIdentifierSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        "NO_COMPRESSION",
+        "INIT",
+        "NOINIT",
+        "SKIP",
+        "NOSKIP",
+        "FORMAT",
+        "NOFORMAT",
+        "FILE_SNAPSHOT",
+        Sequence(
+            OneOf("NAME", "DESCRIPTION", "MEDIADESCRIPTION", "EXPIREDATE"),
+            Ref("EqualsSegment"),
+            _string_or_parameter,
+        ),
+        Sequence(
+            "RETAINDAYS",
+            Ref("EqualsSegment"),
+            OneOf(Ref("NumericLiteralSegment"), Ref("ParameterNameSegment")),
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "ALGORITHM",
+                        Ref("EqualsSegment"),
+                        Ref("NakedIdentifierSegment"),
+                    ),
+                    Sequence(
+                        "SERVER",
+                        OneOf("CERTIFICATE", Sequence("ASYMMETRIC", "KEY")),
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                )
+            ),
+        ),
+    )
+
+    type = "backup_statement"
+    match_grammar: Matchable = Sequence(
+        "BACKUP",
+        OneOf("DATABASE", "LOG"),
+        OneOf(
+            Ref("DatabaseReferenceSegment"),
+            Ref("ParameterNameSegment"),
+        ),
+        Sequence(
+            Delimited(RestoreDatabaseStatementSegment._files_or_filegroups),
+            optional=True,
+        ),
+        "TO",
+        Delimited(RestoreDatabaseStatementSegment._backup_device),
+        AnyNumberOf(
+            Sequence(
+                "MIRROR",
+                "TO",
+                Delimited(RestoreDatabaseStatementSegment._backup_device),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Delimited(
+                OneOf(
+                    _backup_WITH_options,
+                    RestoreDatabaseStatementSegment._general_WITH_options,
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CheckpointStatementSegment(BaseSegment):
+    """A `CHECKPOINT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/checkpoint-transact-sql
+    """
+
+    type = "checkpoint_statement"
+    match_grammar: Matchable = Sequence(
+        "CHECKPOINT",
+        Ref("NumericLiteralSegment", optional=True),
+    )
+
+
+class ExecuteAsStatementSegment(BaseSegment):
+    """An `EXECUTE AS` statement, which switches the session's context.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/execute-as-transact-sql
+    """
+
+    type = "execute_as_statement"
+    match_grammar: Matchable = Sequence(
+        OneOf("EXEC", "EXECUTE"),
+        "AS",
+        OneOf(
+            Sequence(
+                OneOf("LOGIN", "USER"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegmentOptWithN"),
+                Sequence(
+                    "WITH",
+                    OneOf(
+                        Sequence("NO", "REVERT"),
+                        Sequence("COOKIE", "INTO", Ref("ParameterNameSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            "CALLER",
+        ),
+    )
+
+
+class RevertStatementSegment(BaseSegment):
+    """A `REVERT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/revert-transact-sql
+    """
+
+    type = "revert_statement"
+    match_grammar: Matchable = Sequence(
+        "REVERT",
+        Sequence(
+            "WITH",
+            "COOKIE",
+            Ref("EqualsSegment"),
+            Ref("ParameterNameSegment"),
             optional=True,
         ),
     )
@@ -1711,7 +1891,10 @@ class FunctionNameSegment(BaseSegment):
         # Project name, schema identifier, etc.
         AnyNumberOf(
             Sequence(
-                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Ref("PartitionFunctionPrefixSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                ),
                 Ref("DotSegment"),
             ),
             terminators=[Ref("BracketedSegment")],
@@ -2230,15 +2413,20 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref("TopPercentGrammar", optional=True),
+        Ref.keyword("INTO", optional=True),
+        Indent,
         OneOf(
-            Sequence(
-                Ref.keyword("INTO", optional=True),
-                Ref("TableReferenceSegment"),
-            ),
+            Ref("TableReferenceSegment"),
             Ref("OpenQuerySegment"),
         ),
         Ref("PostTableExpressionGrammar", optional=True),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Sequence(
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+            optional=True,
+        ),
         Ref("OutputClauseSegment", optional=True),
         OneOf(
             Ref("SelectableGrammar"),
@@ -2258,7 +2446,9 @@ class BulkInsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "BULK",
         "INSERT",
+        Indent,
         Ref("TableReferenceSegment"),
+        Dedent,
         "FROM",
         Ref("QuotedLiteralSegment"),
         Ref("BulkInsertStatementWithSegment", optional=True),
@@ -4008,11 +4198,29 @@ class CreateSequenceOptionsSegment(BaseSegment):
             "AS",
             Ref("DatatypeSegment"),
         ),
-        Sequence("START", "WITH", Ref("NumericLiteralSegment")),
-        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
-        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence(
+            "START",
+            "WITH",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MINVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
         Sequence("NO", "MINVALUE"),
-        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence(
+            "MAXVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
         Sequence("NO", "MAXVALUE"),
         Sequence(
             Sequence("NO", optional=True),
@@ -4020,7 +4228,56 @@ class CreateSequenceOptionsSegment(BaseSegment):
         ),
         Sequence(
             "CACHE",
+            Ref("NumericLiteralSegment", optional=True),
+        ),
+        Sequence(
+            "NO",
+            "CACHE",
+        ),
+    )
+
+
+class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
+    """Options for Alter Sequence statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-sequence-transact-sql
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "RESTART",
+            Sequence(
+                "WITH",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "INCREMENT",
+            "BY",
+            Ref("SignedSegmentGrammar", optional=True),
             Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MINVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence("NO", "MINVALUE"),
+        Sequence(
+            "MAXVALUE",
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence("NO", "MAXVALUE"),
+        Sequence(
+            Sequence("NO", optional=True),
+            "CYCLE",
+        ),
+        Sequence(
+            "CACHE",
+            Ref("NumericLiteralSegment", optional=True),
         ),
         Sequence(
             "NO",
@@ -4910,6 +5167,8 @@ class WithinGroupFunctionNameSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-disc-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/approx-percentile-cont-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/approx-percentile-disc-transact-sql
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
@@ -4920,6 +5179,8 @@ class WithinGroupFunctionNameSegment(BaseSegment):
         "STRING_AGG",
         "PERCENTILE_CONT",
         "PERCENTILE_DISC",
+        "APPROX_PERCENTILE_CONT",
+        "APPROX_PERCENTILE_DISC",
     )
 
 
@@ -6122,7 +6383,12 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("DISTRIBUTED", optional=True),
             Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
-            Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
+            Sequence(
+                "WITH",
+                "MARK",
+                Ref("QuotedLiteralSegmentOptWithN", optional=True),
+                optional=True,
+            ),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
@@ -6402,6 +6668,7 @@ class DeleteStatementSegment(BaseSegment):
             Sequence(
                 Ref("TopPercentGrammar", optional=True),
                 Ref.keyword("FROM", optional=True),
+                Indent,
                 OneOf(
                     Sequence(
                         Sequence(
@@ -6427,6 +6694,7 @@ class DeleteStatementSegment(BaseSegment):
                     ),
                     Ref("OpenRowSetSegment"),
                 ),
+                Dedent,
                 Ref("OutputClauseSegment", optional=True),
                 Ref("FromClauseSegment", optional=True),
                 OneOf(
@@ -6438,9 +6706,13 @@ class DeleteStatementSegment(BaseSegment):
             # Azure Synapse Analytics-specific
             Sequence(
                 "FROM",
+                Indent,
                 Ref("TableReferenceSegment"),
+                Dedent,
                 "JOIN",
+                Indent,
                 Ref("TableReferenceSegment"),
+                Dedent,
                 Ref("JoinOnConditionSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
@@ -7071,6 +7343,7 @@ class ForClauseSegment(BaseSegment):
             "BROWSE",
             Sequence(
                 "JSON",
+                Indent,
                 Delimited(
                     OneOf(
                         "AUTO",
@@ -7087,9 +7360,11 @@ class ForClauseSegment(BaseSegment):
                     Ref.keyword("INCLUDE_NULL_VALUES", optional=True),
                     Ref.keyword("WITHOUT_ARRAY_WRAPPER", optional=True),
                 ),
+                Dedent,
             ),
             Sequence(
                 "XML",
+                Indent,
                 OneOf(
                     Delimited(
                         Sequence(
@@ -7135,6 +7410,7 @@ class ForClauseSegment(BaseSegment):
                         ),
                     ),
                 ),
+                Dedent,
             ),
         ),
     )
@@ -7152,6 +7428,7 @@ class CursorForClauseSegment(BaseSegment):
         OneOf(
             Sequence(
                 "JSON",
+                Indent,
                 Delimited(
                     OneOf(
                         "AUTO",
@@ -7168,9 +7445,11 @@ class CursorForClauseSegment(BaseSegment):
                     Ref.keyword("INCLUDE_NULL_VALUES", optional=True),
                     Ref.keyword("WITHOUT_ARRAY_WRAPPER", optional=True),
                 ),
+                Dedent,
             ),
             Sequence(
                 "XML",
+                Indent,
                 OneOf(
                     Delimited(
                         Sequence(
@@ -7216,6 +7495,7 @@ class CursorForClauseSegment(BaseSegment):
                         ),
                     ),
                 ),
+                Dedent,
             ),
         ),
     )
@@ -7443,6 +7723,31 @@ class CreateSchemaStatementSegment(BaseSegment):
             Ref("RoleReferenceSegment"),
             optional=True,
         ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-schema-transact-sql
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        "TRANSFER",
+        Sequence(
+            OneOf(
+                "OBJECT",
+                "TYPE",
+                Sequence("XML", "SCHEMA", "COLLECTION"),
+            ),
+            Ref("CastOperatorSegment"),
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
     )
 
 
@@ -7834,6 +8139,29 @@ class DisableTriggerStatementSegment(BaseSegment):
     )
 
 
+class EnableTriggerStatementSegment(BaseSegment):
+    """Enable Trigger Statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/enable-trigger-transact-sql
+    """
+
+    type = "enable_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "ENABLE",
+        "TRIGGER",
+        OneOf(
+            Delimited(Ref("TriggerReferenceSegment")),
+            "ALL",
+        ),
+        Sequence(
+            "ON",
+            OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
+            optional=True,
+        ),
+    )
+
+
 class LabelStatementSegment(BaseSegment):
     """Label Statement, for a GOTO statement.
 
@@ -7954,7 +8282,6 @@ class PermissionsSegment(BaseSegment):
                 Sequence("ALTER", "SERVER", "STATE"),
                 Sequence("ALTER", "SETTINGS"),
                 Sequence("ALTER", "TRACE"),
-                Sequence("APPLY", "MASKING", "POLICY"),
                 "AUTHENTICATE",
                 Sequence("AUTHENTICATE", "SERVER"),
                 Sequence("BACKUP", "DATABASE"),
@@ -8239,8 +8566,16 @@ class FetchCursorStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref.keyword("FROM", optional=True),
+        Indent,
         Ref("CursorNameGrammar"),
-        Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+        Dedent,
+        Sequence(
+            "INTO",
+            Indent,
+            Delimited(Ref("ParameterNameSegment")),
+            Dedent,
+            optional=True,
+        ),
     )
 
 

@@ -1,4 +1,4 @@
-"""Execution-level regressions for CV06 semicolon placement."""
+"""Regressions for CV06 semicolon diagnostics and placement."""
 
 import sqlite3
 from contextlib import closing
@@ -6,6 +6,66 @@ from contextlib import closing
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+
+
+@pytest.mark.parametrize("dialect", ["ansi", "oracle"])
+@pytest.mark.parametrize(
+    "sql,multiline_newline,description,fixed",
+    [
+        (
+            "SELECT a FROM foo ;\n",
+            False,
+            "Semi-colon should be immediately after the statement.",
+            "SELECT a FROM foo;\n",
+        ),
+        (
+            "SELECT a\nFROM foo\n;\n",
+            False,
+            "Semi-colon should be immediately after the statement.",
+            "SELECT a\nFROM foo;\n",
+        ),
+        (
+            "SELECT a\nFROM foo;\n",
+            True,
+            "Semi-colon should be on a new line after a multi-line statement.",
+            "SELECT a\nFROM foo\n;\n",
+        ),
+        (
+            "SELECT a\nFROM foo\n",
+            False,
+            "Statements must end with a semi-colon.",
+            "SELECT a\nFROM foo;\n",
+        ),
+        ("SELECT a FROM foo;\n", True, None, "SELECT a FROM foo;\n"),
+        ("SELECT a\nFROM foo\n;\n", True, None, "SELECT a\nFROM foo\n;\n"),
+    ],
+    ids=["space", "newline", "own-line", "missing", "single-line", "correct"],
+)
+def test__rules__CV06_description(
+    sql: str,
+    multiline_newline: bool,
+    description: str | None,
+    fixed: str,
+    dialect: str,
+) -> None:
+    """Distinguish misplaced terminators from missing ones without changing fixes."""
+    config = FluffConfig(
+        configs={
+            "rules": {
+                "convention.terminator": {
+                    "multiline_newline": multiline_newline,
+                    "require_final_semicolon": True,
+                }
+            }
+        },
+        overrides={"dialect": dialect, "rules": "CV06", "templater": "raw"},
+    )
+    linter = Linter(config=config)
+    violations = linter.lint_string(sql).violations
+    expected = [("CV06", description)] if description else []
+    assert [(v.rule_code(), v.description) for v in violations] == expected
+    assert linter.lint_string(sql, fix=True).fix_string()[0] == fixed
+    assert not linter.lint_string(fixed).violations
 
 
 @pytest.mark.parametrize("dialect", ["ansi", "sqlite"])

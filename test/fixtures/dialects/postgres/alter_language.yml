@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dc8db6cd35eec6dca3a236e13c97ccfbc28849e1f86ee4420c83ea2503fc91dc
+file:
+- statement:
+    alter_language_statement:
+    - keyword: ALTER
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: plsample_renamed
+- statement_terminator: ;
+- statement:
+    alter_language_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURAL
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample2
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: lang_owner
+- statement_terminator: ;
+- statement:
+    alter_language_statement:
+    - keyword: ALTER
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample2
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_language_statement:
+    - keyword: ALTER
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plsample2
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_language_statement:
+    - keyword: ALTER
+    - keyword: LANGUAGE
+    - object_reference:
+        quoted_identifier: '"PlSample"'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;

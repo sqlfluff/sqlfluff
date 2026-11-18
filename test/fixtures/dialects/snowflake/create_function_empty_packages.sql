@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION f(x STRING)
+  RETURNS STRING
+  LANGUAGE PYTHON
+  RUNTIME_VERSION = '3.11'
+  PACKAGES = ()
+  HANDLER = 'f'
+  AS $$
+def f(x):
+    return x
+$$;

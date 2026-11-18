@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 01eaa6582c39b0897ddb45572625c1a2b37594c3fda2754e14e473fe716ca09a
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: APPROX_PERCENTILE_CONT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0.5'
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: DurationMs
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: MedianMs
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: APPROX_PERCENTILE_DISC
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0.95'
+                  end_bracket: )
+              within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  aggregate_order_by:
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: DurationMs
+                    - keyword: DESC
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: P95Ms
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Runs
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: ServiceName
+    statement_terminator: ;

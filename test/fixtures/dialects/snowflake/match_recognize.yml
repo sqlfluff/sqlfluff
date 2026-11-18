@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1eed933b10d2613ceb4aa51f99e01832131bb17dfd04015e15ccc1dd9e07393
+_hash: 9f999a3c34c69eba0e6fb0124cbaae1d9f09f23b3d63c032f85ef5dce8aae3de
 file:
 - statement:
     select_statement:
@@ -1503,4 +1503,234 @@ file:
       - comma: ','
       - column_reference:
           naked_identifier: match_number
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: stock_price_history
+          match_recognize_clause:
+            keyword: match_recognize
+            bracketed:
+            - start_bracket: (
+            - partitionby_clause:
+              - keyword: partition
+              - keyword: by
+              - expression:
+                  column_reference:
+                    naked_identifier: company
+            - orderby_clause:
+              - keyword: order
+              - keyword: by
+              - column_reference:
+                  naked_identifier: price_date
+            - keyword: measures
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: match_number
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: match_number
+            - keyword: one
+            - keyword: row
+            - keyword: per
+            - keyword: match
+            - keyword: pattern
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                - caret: ^
+                - naked_identifier: S1
+                - naked_identifier: S2
+                - star: '*'
+                - question_mark: '?'
+                - bracketed:
+                    start_bracket: (
+                    bracketed:
+                      start_exclude_bracket: '{-'
+                      naked_identifier: S3
+                      end_exclude_bracket: -}
+                    naked_identifier: S4
+                    end_bracket: )
+                - sign_indicator: +
+                - binary_operator:
+                    pipe: '|'
+                - keyword: PERMUTE
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: S1
+                  - comma: ','
+                  - naked_identifier: S2
+                  - end_bracket: )
+                - start_curly_bracket: '{'
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_curly_bracket: '}'
+                - dollar: $
+                end_bracket: )
+            - keyword: define
+            - naked_identifier: S1
+            - keyword: as
+            - expression:
+                column_reference:
+                  naked_identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+            - comma: ','
+            - naked_identifier: S2
+            - keyword: as
+            - expression:
+                column_reference:
+                  naked_identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
+            - comma: ','
+            - naked_identifier: S3
+            - keyword: as
+            - expression:
+                column_reference:
+                  naked_identifier: price
+                comparison_operator:
+                  raw_comparison_operator: <
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
+            - comma: ','
+            - naked_identifier: S4
+            - keyword: as
+            - expression:
+                column_reference:
+                  naked_identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '='
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: company
+      - comma: ','
+      - column_reference:
+          naked_identifier: match_number
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: stock_price_history
+          match_recognize_clause:
+            keyword: match_recognize
+            bracketed:
+            - start_bracket: (
+            - partitionby_clause:
+              - keyword: partition
+              - keyword: by
+              - expression:
+                  column_reference:
+                    naked_identifier: company
+            - orderby_clause:
+              - keyword: order
+              - keyword: by
+              - column_reference:
+                  naked_identifier: price_date
+            - keyword: all
+            - keyword: rows
+            - keyword: per
+            - keyword: match
+            - keyword: pattern
+            - bracketed:
+                start_bracket: (
+                pattern_expression:
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: A
+                  - naked_identifier: B
+                  - binary_operator:
+                      pipe: '|'
+                  - naked_identifier: C
+                  - end_bracket: )
+                - bracketed:
+                  - start_exclude_bracket: '{-'
+                  - naked_identifier: D
+                  - naked_identifier: E
+                  - binary_operator:
+                      pipe: '|'
+                  - naked_identifier: F
+                  - end_exclude_bracket: -}
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: G
+                  - binary_operator:
+                      pipe: '|'
+                  - naked_identifier: H
+                  - naked_identifier: I
+                  - end_bracket: )
+                - star: '*'
+                - naked_identifier: J
+                end_bracket: )
+            - keyword: define
+            - naked_identifier: A
+            - keyword: as
+            - expression:
+                column_reference:
+                  naked_identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+            - end_bracket: )
 - statement_terminator: ;

@@ -148,3 +148,33 @@ test_pass_duckdb_array_literal_not_touched:
   configs:
     core:
       dialect: duckdb
+
+# Snowflake VECTOR is a parameterised datatype, so its parameters touch the
+# keyword like other parameterised types such as NUMBER(10, 2).
+test_pass_snowflake_vector_type_touching_bracket:
+  pass_str: |
+    select
+        x::vector(float, 768) as v,
+        cast(y as vector(int, 3)) as w;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_vector_type_spaced_bracket:
+  fail_str: |
+    select x::vector (float,  768) as v;
+  fix_str: |
+    select x::vector(float, 768) as v;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_vector_type_newline_before_bracket:
+  fail_str: |
+    create table t (v vector
+    (float, 3));
+  fix_str: |
+    create table t (v vector(float, 3));
+  configs:
+    core:
+      dialect: snowflake

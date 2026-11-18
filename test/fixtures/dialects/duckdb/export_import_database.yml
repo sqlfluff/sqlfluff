@@ -1,0 +1,98 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bf4a19afe9172f0fdeb728892416175452b8185f880f7292e93bac158ead49af
+file:
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - quoted_literal: "'target_directory'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - quoted_literal: "'target_directory'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'|'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - quoted_literal: "'target_directory'"
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: parquet
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - quoted_literal: "'target_directory'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: COMPRESSION
+      - naked_identifier: zstd
+      - comma: ','
+      - keyword: ROW_GROUP_SIZE
+      - numeric_literal: '100_000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - quoted_literal: "'target_directory'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: CODEC
+      - quoted_literal: "'snappy'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: DATABASE
+    - quoted_literal: "'source_directory'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db1
+    - keyword: TO
+    - quoted_literal: "'target_directory'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATABASE
+    - database_reference:
+        quoted_identifier: '"my db"'
+    - keyword: TO
+    - quoted_literal: "'target_directory'"
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: parquet
+        end_bracket: )
+- statement_terminator: ;

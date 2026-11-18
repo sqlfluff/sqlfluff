@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eb10728b5e83cbb78477af9cc805ae7b596e4ee1d793cf9e4a9cef13b868d1ee
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - keyword: FROM
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db1
+    - keyword: TO
+    - database_reference:
+        naked_identifier: db2
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - keyword: FROM
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db1
+    - keyword: TO
+    - database_reference:
+        naked_identifier: db2
+    - bracketed:
+        start_bracket: (
+        keyword: SCHEMA
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - keyword: FROM
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db1
+    - keyword: TO
+    - database_reference:
+        naked_identifier: db2
+    - bracketed:
+        start_bracket: (
+        keyword: DATA
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - keyword: FROM
+    - keyword: DATABASE
+    - database_reference:
+        quoted_identifier: '"source db"'
+    - keyword: TO
+    - database_reference:
+        naked_identifier: db2
+- statement_terminator: ;

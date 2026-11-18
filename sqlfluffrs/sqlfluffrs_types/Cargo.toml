@@ -12,7 +12,6 @@ log.workspace = true
 serde.workspace = true
 uuid.workspace = true
 fancy-regex.workspace = true
-once_cell.workspace = true
 
 [features]
 unicode = []

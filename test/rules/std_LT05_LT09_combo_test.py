@@ -35,16 +35,52 @@ def test__rules__std_LT05_LT09_long_line_fix():
 
 
 def test__rules__std_LT05_LT09_long_line_fix2():
-    """Verify clash between LT05 & LT09 does not add multiple newlines (see #1424)."""
+    """Verify LT09 does not rejoin an overlong single select target."""
     sql = (
         "SELECT\n    100000000000000000000000000000000000000000000000000000000000000000"
         "0000000000000000000000000000000000\n"
     )
     result = sqlfluff.fix(sql)
     assert result == (
-        "SELECT 10000000000000000000000000000000000000000000000000000000000000000000000"
-        "00000000000000000000000000000\n"
+        "SELECT\n    100000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000\n"
     )
+
+
+def test__rules__std_LT05_LT09_long_single_target_converges():
+    """Verify LT09 does not undo LT05 for a long single select target."""
+    sql = "SELECT a_really_long_column_name_that_goes_past_the_limit_okay AS alias_padding_x;\n"
+    expected = (
+        "SELECT\n"
+        "    a_really_long_column_name_that_goes_past_the_limit_okay AS alias_padding_x;\n"
+    )
+    config = FluffConfig(overrides={"dialect": "postgres", "rules": "LT05,LT09"})
+
+    result = sqlfluff.fix(sql, config=config)
+    assert result == expected
+    assert sqlfluff.fix(result, config=config) == expected
+
+
+def test__rules__std_LT05_LT09_target_with_terminator_exceeds_max_line_length():
+    """Verify LT09 accounts for trailing statement terminator when projecting line length."""
+    # SELECT (7 chars) + 73 chars = 80 chars. Semicolon ; makes it 81 chars (> 80).
+    col = "x" * 73
+    sql = f"SELECT\n    {col};\n"
+    config = FluffConfig(overrides={"dialect": "postgres", "rules": "LT05,LT09"})
+    result = sqlfluff.fix(sql, config=config)
+    assert result == sql
+    assert sqlfluff.fix(result, config=config) == sql
+
+
+def test__rules__std_LT05_LT09_distinct_modifier_exceeds_max_line_length():
+    """Verify LT09 accounts for clause modifier when projecting line length."""
+    # SELECT (7) + DISTINCT (9) + 65 chars = 81 chars (> 80).
+    col = "x" * 65
+    sql = f"SELECT\n    DISTINCT\n    {col};\n"
+    config = FluffConfig(overrides={"dialect": "postgres", "rules": "LT05,LT09"})
+    result = sqlfluff.fix(sql, config=config)
+    assert result == sql
+    assert sqlfluff.fix(result, config=config) == sql
 
 
 @pytest.mark.parametrize(

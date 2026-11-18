@@ -1,0 +1,156 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0b85154788fe518f1df148f5f8774d6875a8000cfc06d0a38e1e252a5a2af1b3
+file:
+- statement:
+    create_text_search_object_statement:
+    - keyword: CREATE
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+        naked_identifier: my_english
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+          - properties_naked_identifier: TEMPLATE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: snowball
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: LANGUAGE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: english
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: STOPWORDS
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: english
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_text_search_object_statement:
+    - keyword: CREATE
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: simple_dict
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+            properties_naked_identifier: TEMPLATE
+            comparison_operator:
+              raw_comparison_operator: '='
+            object_reference:
+            - naked_identifier: pg_catalog
+            - dot: .
+            - naked_identifier: simple
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: stopwords
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'english'"
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: accept
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'false'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_text_search_object_statement:
+    - keyword: CREATE
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: PARSER
+    - object_reference:
+        naked_identifier: my_parser
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+          - properties_naked_identifier: START
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: prsd_start
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: GETTOKEN
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: prsd_nexttoken
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: END
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: prsd_end
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: LEXTYPES
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: prsd_lextype
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: HEADLINE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: prsd_headline
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_text_search_object_statement:
+    - keyword: CREATE
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: TEMPLATE
+    - object_reference:
+        naked_identifier: my_template
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+          - properties_naked_identifier: INIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: dsimple_init
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: LEXIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: dsimple_lexize
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_text_search_object_statement:
+    - keyword: CREATE
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: TEMPLATE
+    - object_reference:
+        naked_identifier: lexize_only
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+          - properties_naked_identifier: LEXIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: dsimple_lexize
+          end_bracket: )
+- statement_terminator: ;

@@ -30,7 +30,7 @@ error message:
 
 ```
 ==== parsing violations ====
-L:   1 | P:  10 |  PRS | Line 1, Position 10: Found unparsable section: '2 3'
+L:   1 | P:  10 |  PRS | Line 1, Position 10: Found unparsable section: '2 3'. Expected: Nothing here.
 ```
 
 Furthermore if we look at the full parsing output we can see an unparsable

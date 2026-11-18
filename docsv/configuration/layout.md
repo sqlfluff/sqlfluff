@@ -99,18 +99,18 @@ align_scope = bracketed
 ```
 
 Of these configuration values, the `align_scope` is potentially
-the least obvious. The following example illustrates the impact it has.
+the least obvious. The following examples illustrate the impact it has.
+
+| align_within  | align_scope | Result                                                |
+| ------------- | ----------- | ----------------------------------------------------- |
+| select_clause | bracketed   | Aliases aligned within the respective `SELECT` clause |
 
 ```sql
--- With
---    align_scope = bracketed
---    align_within = select_clause
-
-WITH foo as (
+WITH foo AS (
    SELECT
       a,
       b,
-      c     AS first_column
+      c     AS first_column,
       d + e AS second_column
 )
 
@@ -118,44 +118,63 @@ SELECT
    a           AS first_column,
    (a + b) / 2 AS third_column
 FROM foo AS bar;
+```
 
--- With
---    align_scope = bracketed
---    align_within = statement
+| align_within | align_scope | Result                                                                                       |
+| ------------ | ----------- | -------------------------------------------------------------------------------------------- |
+| statement    | bracketed   | Aliases aligned within the statement (e.g., aliases in `SELECT`, `FROM`, and `JOIN` clauses) |
 
-WITH foo as (
+```sql
+WITH foo AS (
    SELECT
       a,
       b,
-      c     AS first_column
+      c     AS first_column,
       d + e AS second_column
 )
 
 SELECT
    a           AS first_column,
    (a + b) / 2 AS third_column
-FROM foo       AS bar            -- Now the FROM alias is also aligned.
+FROM foo       AS bar;           -- Now the FROM alias is also aligned.
+```
 
--- With
---    align_scope = file
---    align_within = select_clause
+| align_within  | align_scope | Result                                                                                 |
+| ------------- | ----------- | -------------------------------------------------------------------------------------- |
+| select_clause | file        | Aliases aligned across the `SELECT` clauses in the inner and outer queries in the file |
 
-WITH foo as (
+```sql
+WITH foo AS (
    SELECT
       a,
       b,
-      c        AS first_column   -- Now the aliases here are aligned
-      d + e    AS second_column  -- with the outer query.
+      c        AS first_column,  -- Now the aliases here are aligned
+      d + e    AS second_column
 )
 
 SELECT
-   a           AS first_column,
+   a           AS first_column,  -- with the outer query.
    (a + b) / 2 AS third_column
-FROM foo AS bar
+FROM foo AS bar;
+```
 
--- With
---    align_scope = file
---    align_within = statement
+| align_within | align_scope | Result                                                                  |
+| ------------ | ----------- | ----------------------------------------------------------------------- |
+| statement    | file        | Aliases aligned across the inner and outer queries within the statement |
+
+```sql
+WITH foo AS (
+   SELECT
+      a,
+      b,
+      c        AS first_column,
+      d + e    AS second_column -- Now the aliases here are aligned
+)
+
+SELECT
+   a           AS first_column, -- with the outer query aliases
+   (a + b) / 2 AS third_column
+FROM foo       AS bar;          -- and the FROM alias.
 ```
 
 ## Templating and alignment coordinate space
@@ -706,6 +725,44 @@ FROM my_table
 JOIN another_table
 ON condition1
 AND condition2
+```
+
+There is also an `indented_using_on_newline` config (defaulted to
+`False`) which can be set to `True` to indent the `USING` or `ON`
+clause one level deeper than a joined table on its own line when `indented_using_on` is also enabled.
+For example, with `indented_using_on_newline` set to `True` and
+`implicit_indents` set to `allow`:
+
+```sql
+SELECT
+   a,
+   b
+FROM my_table
+JOIN
+   another_table
+      ON condition1
+         AND condition2
+JOIN
+   yet_another_table
+      USING (id_field)
+```
+
+A join written on a single line (e.g. `JOIN another_table ON condition1`)
+is unaffected. However, when `indented_using_on_newline` is set to `True`
+and the `ON` or `USING` clause is on its own line, the joined table is
+expected to be on its own line too, so the following:
+
+```sql
+JOIN another_table
+   ON condition1
+```
+
+would become:
+
+```sql
+JOIN
+   another_table
+      ON condition1
 ```
 
 There is also a similar `indented_ctes` config (defaulted to

@@ -149,11 +149,11 @@ def _tree_capture(tree):
 def _base_config(dialect):
     """A fully-expanded FluffConfig for a dialect, cached across the suite.
 
-    Constructing a FluffConfig expands the dialect grammar (the expensive part,
-    ~3.5ms); ``.copy()`` shares that expanded ``dialect_obj`` and only re-copies
-    the small ``_configs`` dict (~0.15ms). The dialect-corpus sweep alone builds
-    one config per fixture (thousands), so caching the base and copying it saves
-    the bulk of that work.
+    Configs share each expanded dialect, so constructing a FluffConfig costs
+    ~0.4ms, against ~0.1ms for ``.copy()``, which only re-copies the small
+    ``_configs`` dict. The dialect-corpus sweep alone builds one config per
+    fixture (thousands), so caching the base and copying it still saves most
+    of that work.
     """
     from sqlfluff.core import FluffConfig
 

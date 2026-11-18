@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6d526c29d4522f77fa40a565f5a30b8832640079b9dcb7a8427d635aa0612e5
+_hash: 349d5020c59f8ed124c2d8e3635dc323077421855fcba7638444e59927b2dd88
 file:
 - statement:
     select_statement:
@@ -411,4 +411,142 @@ file:
                       naked_identifier: city
                   end_bracket: )
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - keyword: DISTINCT
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: ROLLUP
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: b
+            end_bracket: )
+      - comma: ','
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: ROLLUP
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: c
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - keyword: ALL
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: CUBE
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: b
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - keyword: DISTINCT
+      - column_reference:
+          naked_identifier: a
 - statement_terminator: ;

@@ -1,0 +1,127 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d91e8e457050d1394c81ccd550fe7f44af27f03a3372dea5e18ac23389b3e03f
+file:
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: database_list
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: show_tables
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: enable_progress_bar
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      bracketed:
+        start_bracket: (
+        expression:
+          quoted_literal: "'tbl'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: storage_info
+      bracketed:
+        start_bracket: (
+        expression:
+          quoted_literal: "'tbl'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: table_info
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'tbl'"
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: memory_limit
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'100MB'"
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: threads
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: pragma
+      pragma_reference:
+        naked_identifier: force_compression
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'dict_fsst'"
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: create_fts_index
+      bracketed:
+      - start_bracket: (
+      - expression:
+          quoted_literal: "'documents'"
+      - comma: ','
+      - expression:
+          quoted_literal: "'id'"
+      - comma: ','
+      - expression:
+          quoted_literal: "'body'"
+      - comma: ','
+      - parameter: stemmer
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'porter'"
+      - comma: ','
+      - parameter: stopwords
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'english'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: drop_fts_index
+      bracketed:
+        start_bracket: (
+        expression:
+          quoted_literal: "'documents'"
+        end_bracket: )
+- statement_terminator: ;

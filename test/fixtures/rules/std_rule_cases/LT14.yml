@@ -342,6 +342,37 @@ test_fail_alone_window_function:
           keyword_line_position: alone
           keyword_line_position_exclusions: None
 
+test_fail_alone_window_function_tsql:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (
+    PARTITION BY c
+    ORDER BY
+    d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: alone
+        orderby_clause:
+          keyword_line_position: alone
+          keyword_line_position_exclusions: None
+
 test_pass_leading_qualify:
   pass_str: |
     SELECT

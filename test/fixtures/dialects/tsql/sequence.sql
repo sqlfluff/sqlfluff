@@ -12,3 +12,13 @@ CREATE SEQUENCE Test.DecSeq
     CYCLE
     CACHE 3
 ;
+
+CREATE SEQUENCE dbo.Countdown
+    AS int
+    START WITH -1
+    INCREMENT BY -1
+    MINVALUE -1000
+    MAXVALUE -1
+    NO CYCLE
+    CACHE
+;

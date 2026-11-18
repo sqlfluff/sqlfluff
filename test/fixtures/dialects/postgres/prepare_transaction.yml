@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0d9bdab08ce114601d2de5be4c0a0ba1ed3ed68d4c29948f723f2fe86e66a3b3
+file:
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '3'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: PREPARE
+    - keyword: TRANSACTION
+    - quoted_literal: "'foobar'"
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: COMMIT
+    - keyword: PREPARED
+    - quoted_literal: "'foobar'"
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '4'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: PREPARE
+    - keyword: TRANSACTION
+    - quoted_literal: "'foobar2'"
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: PREPARED
+    - quoted_literal: "'foobar2'"
+- statement_terminator: ;

@@ -1,0 +1,6 @@
+CHECKPOINT;
+checkpoint;
+
+SELECT 1;
+CHECKPOINT;
+SELECT 2;

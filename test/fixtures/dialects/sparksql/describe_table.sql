@@ -15,3 +15,12 @@ DESCRIBE TABLE customer salesdb.customer.name;
 DESCRIBE TABLE customer customer.name;
 
 DESCRIBE TABLE customer name;
+
+-- `history` and `detail` are not reserved, so a table may be named either.
+DESCRIBE history.tbl;
+
+DESCRIBE detail.tbl;
+
+DESCRIBE history;
+
+DESCRIBE detail;
