@@ -870,7 +870,9 @@ class Linter:
         linted_file = LintedFile(
             parsed.fname,
             # Deduplicate violations
-            LintedFile.deduplicate_in_source_space(violations),
+            LintedFile.deduplicate_in_source_space(
+                violations, merged_source_patches, parsed.config.get("max_line_length")
+            ),
             FileTimings(time_dict, rule_timings),
             tree,
             ignore_mask=ignore_mask,

@@ -1159,6 +1159,22 @@ def test__cli__quiet_preserves_unfixable_exit_code(command, tmp_path):
     assert "All Finished" not in result.stdout
 
 
+def test__cli__fix_keeps_overlong_unrendered_macro(tmp_path):
+    """Fix the SELECT and report the macro which still exceeds the limit."""
+    test_file = tmp_path / "overlong_macro.sql"
+    macro = "{% macro m() %}" + "b" * 70 + "{% endmacro %}"
+    test_file.write_text(
+        macro + "SELECT a{% if false %}, " + "c" * 65 + "{% endif %} FROM t\n",
+        encoding="utf8",
+    )
+    args = ["--disable-progress-bar", "--dialect=ansi", "--rules=LT05", str(test_file)]
+    result = invoke_assert_code(ret_code=1, args=[fix, args])
+    assert "1 unfixable linting violations found" in result.stdout
+    assert test_file.read_text(encoding="utf8").splitlines()[0] == macro
+    result = invoke_assert_code(ret_code=1, args=[lint, args])
+    assert "Line is too long (99 > 80)." in result.stdout
+
+
 @pytest.mark.parametrize(
     ("command", "extra_args", "cli_input", "expected"),
     [

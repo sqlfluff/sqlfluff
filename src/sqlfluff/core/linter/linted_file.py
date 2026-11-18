@@ -95,9 +95,12 @@ class LintedFile(NamedTuple):
                 raise v
         return vs
 
-    @staticmethod
+    @classmethod
     def deduplicate_in_source_space(
+        cls,
         violations: list[SQLBaseError],
+        source_patches: list[FixPatch] | None = None,
+        max_line_length: int = 0,
     ) -> list[SQLBaseError]:
         """Removes duplicates in the source space.
 
@@ -114,21 +117,39 @@ class LintedFile(NamedTuple):
         # when one variant (or loop pass) does not render a block, so it can't
         # fix the line, but another one renders the block. The two can give a
         # different position and length. The other violation either carries
-        # the fix or keeps the line reported.
+        # the fix or keeps the line reported. If it only fixes part of the
+        # line, keep the unfixable violation for the rest of the line.
         reported = {
             (v.rule_code(), v.line_no)
             for v in violations
             if not (isinstance(v, SQLLintError) and v.defer_to_fix)
         }
+        unfixable = {
+            (v.rule_code(), v.line_no)
+            for v in violations
+            if isinstance(v, SQLLintError) and not v.defer_to_fix and not v.fixable
+        }
+        line_fits: dict[int, bool] = {}
         new_violations = []
         dedupe_buffer = set()
         for v in violations:
             signature = v.source_signature()
-            if signature in dedupe_buffer or (
+            rule_and_line = (v.rule_code(), v.line_no)
+            duplicate = False
+            if (
                 isinstance(v, SQLLintError)
                 and v.defer_to_fix
-                and (v.rule_code(), v.line_no) in reported
+                and rule_and_line in reported
             ):
+                if source_patches is None or rule_and_line in unfixable:
+                    duplicate = True
+                else:
+                    if v.line_no not in line_fits:
+                        line_fits[v.line_no] = cls._fixed_source_line_fits(
+                            v, source_patches, max_line_length
+                        )
+                    duplicate = line_fits[v.line_no]
+            if signature in dedupe_buffer or duplicate:
                 linter_logger.debug("Removing duplicate source violation: %r", v)
             else:
                 new_violations.append(v)
@@ -136,6 +157,43 @@ class LintedFile(NamedTuple):
         # Sort on return so that if any are out of order, they're now ordered
         # appropriately. This happens most often when linting multiple variants.
         return sorted(new_violations, key=lambda v: (v.line_no, v.line_pos))
+
+    @staticmethod
+    def _fixed_source_line_fits(
+        violation: SQLLintError, source_patches: list[FixPatch], max_line_length: int
+    ) -> bool:
+        """Check the source fragments produced by fixes on the original line."""
+        pos = violation.segment.pos_marker
+        assert pos
+        source = pos.templated_file.source_str
+        offset = pos.source_slice.start
+        start = source.rfind("\n", 0, offset) + 1
+        stop = source.find("\n", offset)
+        if stop == -1:
+            stop = len(source)
+
+        parts: list[str] = []
+        cursor = start
+        for patch in source_patches:
+            patch_start, patch_stop = patch.source_slice.start, patch.source_slice.stop
+            if patch_start < start and (
+                patch_stop < start
+                or (patch_stop == start and patch.fixed_raw.endswith("\n"))
+            ):
+                continue
+            if patch_start > stop or (
+                patch_start == stop
+                and patch.fixed_raw.startswith("\n")
+                and patch_start != patch_stop
+            ):
+                break
+            if patch_start < cursor or patch_stop > stop:
+                # Keep the report if patches overlap or cross the source line.
+                return False
+            parts.extend((source[cursor:patch_start], patch.fixed_raw))
+            cursor = patch_stop
+        parts.append(source[cursor:stop])
+        return all(len(line) <= max_line_length for line in "".join(parts).split("\n"))
 
     def get_violations(
         self,
