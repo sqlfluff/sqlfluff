@@ -11,7 +11,7 @@ search within it, using the docs version the dialect targets.
 | clickhouse | <https://clickhouse.com/docs/sql-reference> |
 | databricks | <https://docs.databricks.com/en/sql/language-manual/index.html> |
 | db2 | <https://www.ibm.com/docs/en/db2/11.5> (search "SQL statements") |
-| doris | <https://doris.apache.org/docs/sql-manual/> |
+| doris | <https://doris.apache.org/docs/dev/sql-manual/sql-statements/> |
 | duckdb | <https://duckdb.org/docs/sql/introduction> |
 | exasol | <https://docs.exasol.com/db/latest/> (search "SQL reference") |
 | flink | <https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/overview/> |

@@ -33,7 +33,8 @@ Files in this skill's folder:
 - Consult CI at the reviewed commit first. Run focused local checks only to answer what CI leaves open.
   With no CI run (local changes, an unpushed branch), run them yourself and record
   `Verified by CI: none (local)`. Keep them focused: the changed fixtures and the tests for the
-  touched dialect, not the whole suite.
+  touched dialect, not the whole suite. Dialect tests are `test/dialects/dialects_test.py -k <dialect>`,
+  plus `test/dialects/<dialect>_test.py` where one exists (most dialects have none).
 - Running tox executes the reviewed code (`tox.ini`, `conftest.py`, tests). For code the user didn't
   write, check the changed paths first. If anything outside `src/sqlfluff/dialects/` and
   `test/fixtures/dialects/` changed, ask before running.
@@ -45,15 +46,16 @@ Files in this skill's folder:
   not just that it parsed.
 
 Project-specific traps:
-- If `sqlfluffrs` is installed, `use_rust_parser = auto` parses with Rust tables compiled at build
-  time, i.e. the *old* grammar. Use a tox env without it. To check, run
-  `cd /tmp && <review env python> -c 'import sqlfluffrs'`: `ModuleNotFoundError` means it isn't
-  installed.
-  (Inside the repo root it always imports, as an empty namespace package.) Never ask authors to
+- If `sqlfluffrs` is installed, `use_rust_parser = auto` parses with Rust tables compiled when it
+  was built, which may predate the reviewed grammar. Use a tox env without it unless it was built
+  from the reviewed sources. To check, run `cd /tmp && <review env python> -c 'import sqlfluffrs'`:
+  `ModuleNotFoundError` means it isn't installed. (Without an installed extension, the repo root's
+  `sqlfluffrs/` folder still imports as an empty namespace package.) Never ask authors to
   regenerate Rust tables: they're gitignored and CI builds them.
 - `test/generate_parse_fixture_yml.py -d` takes one dialect; a repeated `-d` keeps only the last.
-  `-f` is an anchored glob (`'name*'`): a bare name matches nothing yet still succeeds, so check the
-  `Found N file(s)` line. A new top-level statement needs only its own fixture regenerated.
+  `-f` is an anchored glob on the full file name: `select_statement.sql` or `'select*'` match, but
+  `select_statement` (no `.sql`) matches nothing yet still succeeds, so check the `Found N file(s)`
+  line. A new top-level statement needs only its own fixture regenerated.
 
 ## 3. Compare against vendor docs
 
