@@ -2050,6 +2050,48 @@ class SetRoleStatementSegment(BaseSegment):
     )
 
 
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
+    """A `CREATE ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/create-role.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
+    """A `DROP ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/drop-role.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/drop-user.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
