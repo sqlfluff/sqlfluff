@@ -271,3 +271,11 @@ test_pass_postgres_collation_words_as_columns:
     rules:
       references.keywords:
         unquoted_identifiers_policy: all
+
+test_pass_postgres_collation_words_as_column_definitions:
+  # `icu` and `libc` are values for the locale provider, not PostgreSQL
+  # keywords, so they're fine as column names under the default policy too.
+  pass_str: CREATE TABLE t (icu text, libc text)
+  configs:
+    core:
+      dialect: postgres
