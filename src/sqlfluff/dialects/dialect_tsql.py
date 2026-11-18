@@ -937,6 +937,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSecurityPolicySegment"),
             Ref("AlterSecurityPolicySegment"),
             Ref("DropSecurityPolicySegment"),
+            Ref("AddSensitivityClassificationStatementSegment"),
+            Ref("DropSensitivityClassificationStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
@@ -10131,6 +10133,58 @@ class DropSecurityPolicySegment(BaseSegment):
         "POLICY",
         Sequence("IF", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class AddSensitivityClassificationStatementSegment(BaseSegment):
+    """An `ADD SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/add-sensitivity-classification-transact-sql
+
+    type = "add_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "TO",
+        Delimited(Ref("ColumnReferenceSegment")),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        "LABEL",
+                        "LABEL_ID",
+                        "INFORMATION_TYPE",
+                        "INFORMATION_TYPE_ID",
+                    ),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "RANK",
+                    Ref("EqualsSegment"),
+                    OneOf("NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropSensitivityClassificationStatementSegment(BaseSegment):
+    """A `DROP SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-sensitivity-classification-transact-sql
+
+    type = "drop_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "FROM",
+        Delimited(Ref("ColumnReferenceSegment")),
     )
 
 
