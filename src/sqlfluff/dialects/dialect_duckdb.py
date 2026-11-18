@@ -1885,6 +1885,28 @@ class SetStatementSegment(postgres.SetStatementSegment):
     )
 
 
+class ResetStatementSegment(postgres.ResetStatementSegment):
+    """A `RESET` Statement.
+
+    DuckDB has no `RESET ALL` or `RESET ROLE`, and takes a variable name.
+    DuckDB documentation: https://duckdb.org/docs/stable/sql/statements/set
+    """
+
+    match_grammar = Sequence(
+        "RESET",
+        OneOf(
+            Sequence(
+                "VARIABLE",
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                OneOf("SESSION", "LOCAL", "GLOBAL", optional=True),
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
 
