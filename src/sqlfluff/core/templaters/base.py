@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import logging
-from bisect import bisect_left
+from bisect import bisect_left, bisect_right
 from collections.abc import Iterable, Iterator
 from typing import (
     Any,
@@ -204,8 +204,14 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
-        # Consistency check raw string and slices.
+        # Consistency check raw string and slices. The same pass builds the
+        # indices used to bisect raw slices by source position. The check
+        # guarantees `_raw_slice_starts` is sorted, which bisect relies on.
+        # `_raw_non_literal_counts[i]` counts non-literal slices before index i.
         pos = 0
+        non_literal = 0
+        self._raw_slice_starts: list[int] = []
+        self._raw_non_literal_counts: list[int] = [0]
         rfs: RawFileSlice
         for rfs in self.raw_sliced:
             assert rfs.source_idx == pos, (
@@ -213,6 +219,9 @@ class TemplatedFile:
                 f": {pos} != {rfs.source_idx}"
             )
             pos += len(rfs.raw)
+            self._raw_slice_starts.append(rfs.source_idx)
+            non_literal += rfs.slice_type != "literal"
+            self._raw_non_literal_counts.append(non_literal)
         assert pos == len(self.source_str), (
             "TemplatedFile. Consistency fail on total source length"
             f": {pos} != {len(self.source_str)}"
@@ -329,24 +338,12 @@ class TemplatedFile:
         last_raw_slice = self.raw_sliced[-1]
         if source_slice.start >= last_raw_slice.source_idx + len(last_raw_slice.raw):
             return []
-        # First find the start index
-        raw_slice_idx = 0
-        # Move the raw pointer forward to the start of this patch
-        while (
-            raw_slice_idx + 1 < len(self.raw_sliced)
-            and self.raw_sliced[raw_slice_idx + 1].source_idx <= source_slice.start
-        ):
-            raw_slice_idx += 1
-        # Find slice index of the end of this patch.
-        slice_span = 1
-        while (
-            raw_slice_idx + slice_span < len(self.raw_sliced)
-            and self.raw_sliced[raw_slice_idx + slice_span].source_idx
-            < source_slice.stop
-        ):
-            slice_span += 1
-        # Return the raw slices:
-        return self.raw_sliced[raw_slice_idx : raw_slice_idx + slice_span]
+        # The last slice starting at or before the start (or the first slice),
+        # through to the last slice starting before the stop.
+        starts = self._raw_slice_starts
+        first_idx = max(bisect_right(starts, source_slice.start) - 1, 0)
+        stop_idx = bisect_left(starts, source_slice.stop, lo=first_idx + 1)
+        return self.raw_sliced[first_idx:stop_idx]
 
     def templated_slice_to_source_slice(
         self,
@@ -472,20 +469,15 @@ class TemplatedFile:
         # Zero length slice. It's a literal, because it's definitely not templated.
         if source_slice.start == source_slice.stop:
             return True
-        is_literal = True
-        for raw_slice in self.raw_sliced:
-            # Reset if we find a literal and we're up to the start
-            # otherwise set false.
-            if raw_slice.source_idx <= source_slice.start:
-                is_literal = raw_slice.slice_type == "literal"
-            elif raw_slice.source_idx >= source_slice.stop:
-                # We've gone past the end. Break and Return.
-                break
-            else:
-                # We're in the middle. Check type
-                if raw_slice.slice_type != "literal":
-                    is_literal = False
-        return is_literal
+        # The slice containing the start decides, unless any slice starting
+        # inside the range is not a literal.
+        starts = self._raw_slice_starts
+        start_idx = bisect_right(starts, source_slice.start) - 1
+        if start_idx >= 0 and self.raw_sliced[start_idx].slice_type != "literal":
+            return False
+        stop_idx = bisect_left(starts, source_slice.stop, lo=start_idx + 1)
+        counts = self._raw_non_literal_counts
+        return counts[stop_idx] == counts[start_idx + 1]
 
     def source_only_slices(self) -> list[RawFileSlice]:
         """Return a list a slices which reference the parts only in the source.

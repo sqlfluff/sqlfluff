@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ab69fdfaf7a2669b62e188941317fb7f7d67caea7c4cf122dbe07fd4001e936
+_hash: 1ed2a8ec5ece9738383b8ef319defdf90bd1c1fa51fcf53f86131fefa96868e7
 file:
-  statement:
+- statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -14,4 +14,29 @@ file:
     - keyword: EXISTS
     - role_reference:
         quoted_identifier: "'example-role'"
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: "'admin'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'developer'"
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: "'app_read'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - comma: ','
+    - role_reference:
+        naked_identifier: app_write
+- statement_terminator: ;

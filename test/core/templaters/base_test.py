@@ -377,3 +377,58 @@ def test__templated_file_templated_slice_to_source_slice(
 def test__templated_file_source_only_slices(file, expected_result):
     """Test TemplatedFile.source_only_slices."""
     assert file.source_only_slices() == expected_result
+
+
+# Zero-length raw slices share a source index with their neighbour, so
+# these tests pin which of the duplicates a lookup selects.
+ZERO_LENGTH_RAW_FILE = TemplatedFile(
+    source_str="aa{{ b }}cc",
+    fname="test",
+    templated_str="aa{{ b }}cc",
+    sliced_file=[TemplatedFileSlice("literal", slice(0, 11), slice(0, 11))],
+    raw_sliced=[
+        RawFileSlice("aa", "literal", 0),
+        RawFileSlice("", "block_start", 2),
+        RawFileSlice("{{ b }}", "templated", 2),
+        RawFileSlice("cc", "literal", 9),
+        RawFileSlice("", "templated", 11),
+    ],
+)
+
+
+@pytest.mark.parametrize(
+    "source_slice,expected",
+    [
+        (slice(0, 2), True),
+        (slice(0, 3), False),
+        (slice(2, 4), False),
+        (slice(9, 11), True),
+        (slice(11, 12), False),
+        (slice(5, 5), True),
+        (slice(10, 9), True),
+    ],
+)
+def test__templated_file_is_source_slice_literal_zero_length(source_slice, expected):
+    """Test TemplatedFile.is_source_slice_literal around zero-length slices."""
+    assert ZERO_LENGTH_RAW_FILE.is_source_slice_literal(source_slice) is expected
+
+
+@pytest.mark.parametrize(
+    "source_slice,expected_indices",
+    [
+        (slice(0, 2), [0]),
+        (slice(0, 3), [0, 1, 2]),
+        (slice(3, 10), [2, 3]),
+        (slice(10, 11), [3]),
+        (slice(11, 12), []),
+        (slice(-1, 0), [0]),
+    ],
+)
+def test__templated_file_raw_slices_spanning_source_slice(
+    source_slice, expected_indices
+):
+    """Test TemplatedFile.raw_slices_spanning_source_slice around zero-length slices."""
+    raw = ZERO_LENGTH_RAW_FILE.raw_sliced
+    assert ZERO_LENGTH_RAW_FILE.raw_slices_spanning_source_slice(source_slice) == [
+        raw[i] for i in expected_indices
+    ]

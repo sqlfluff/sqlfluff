@@ -5167,6 +5167,8 @@ class WithinGroupFunctionNameSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-disc-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/approx-percentile-cont-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/approx-percentile-disc-transact-sql
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
@@ -5177,6 +5179,8 @@ class WithinGroupFunctionNameSegment(BaseSegment):
         "STRING_AGG",
         "PERCENTILE_CONT",
         "PERCENTILE_DISC",
+        "APPROX_PERCENTILE_CONT",
+        "APPROX_PERCENTILE_DISC",
     )
 
 

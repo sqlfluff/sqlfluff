@@ -1482,6 +1482,12 @@ class OperatorClassReferenceSegment(ansi.ObjectReferenceSegment):
     type = "operator_class_reference"
 
 
+class OperatorFamilyReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an operator family."""
+
+    type = "operator_family_reference"
+
+
 class DefinitionParameterSegment(BaseSegment):
     """A single definition parameter.
 
@@ -5923,6 +5929,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateOperatorStatementSegment"),
             Ref("AlterOperatorStatementSegment"),
             Ref("DropOperatorStatementSegment"),
+            Ref("CreateOperatorFamilyStatementSegment"),
+            Ref("AlterOperatorFamilyStatementSegment"),
+            Ref("DropOperatorFamilyStatementSegment"),
             Ref("CreateAccessMethodStatementSegment"),
             Ref("DropAccessMethodStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
@@ -8710,6 +8719,127 @@ class DropOperatorStatementSegment(BaseSegment):
         "OPERATOR",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("OperatorSignatureGrammar")),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateOperatorFamilyStatementSegment(BaseSegment):
+    """A `CREATE OPERATOR FAMILY` statement.
+
+    https://www.postgresql.org/docs/current/sql-createopfamily.html
+    """
+
+    type = "create_operator_family_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "OPERATOR",
+        "FAMILY",
+        Ref("OperatorFamilyReferenceSegment"),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+    )
+
+
+class OperatorFamilyAddMemberSegment(BaseSegment):
+    """An `ADD` member clause of `ALTER OPERATOR FAMILY`.
+
+    https://www.postgresql.org/docs/current/sql-alteropfamily.html
+    """
+
+    type = "operator_family_add_member"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "OPERATOR",
+            Ref("NumericLiteralSegment"),
+            OneOf(
+                Ref("OperatorNameSegment"),
+                Ref("QualifiedOperatorSegment"),
+            ),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+            OneOf(
+                Sequence("FOR", "SEARCH"),
+                Sequence(
+                    "FOR",
+                    "ORDER",
+                    "BY",
+                    Ref("OperatorFamilyReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "FUNCTION",
+            Ref("NumericLiteralSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+            Ref("FunctionNameSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        ),
+    )
+
+
+class OperatorFamilyDropMemberSegment(BaseSegment):
+    """A `DROP` member clause of `ALTER OPERATOR FAMILY`.
+
+    https://www.postgresql.org/docs/current/sql-alteropfamily.html
+    """
+
+    type = "operator_family_drop_member"
+    match_grammar: Matchable = Sequence(
+        OneOf("OPERATOR", "FUNCTION"),
+        Ref("NumericLiteralSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment"))),
+    )
+
+
+class AlterOperatorFamilyStatementSegment(BaseSegment):
+    """An `ALTER OPERATOR FAMILY` statement.
+
+    https://www.postgresql.org/docs/current/sql-alteropfamily.html
+    """
+
+    type = "alter_operator_family_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "OPERATOR",
+        "FAMILY",
+        Ref("OperatorFamilyReferenceSegment"),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        OneOf(
+            Sequence(
+                "ADD",
+                Delimited(Ref("OperatorFamilyAddMemberSegment")),
+            ),
+            Sequence(
+                "DROP",
+                Delimited(Ref("OperatorFamilyDropMemberSegment")),
+            ),
+            Sequence("RENAME", "TO", Ref("OperatorFamilyReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleSpecificationGrammar"),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+        ),
+    )
+
+
+class DropOperatorFamilyStatementSegment(BaseSegment):
+    """A `DROP OPERATOR FAMILY` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropopfamily.html
+    """
+
+    type = "drop_operator_family_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "OPERATOR",
+        "FAMILY",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("OperatorFamilyReferenceSegment")),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
