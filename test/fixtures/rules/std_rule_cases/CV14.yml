@@ -1,0 +1,242 @@
+rule: CV14
+
+# CV14 is disabled by default (opinionated convention). The cases below
+# exercise the rule's logic, so they enable it explicitly. Applied to every test
+# case that does not define its own `configs`.
+configs:
+  rules:
+    convention.window_frame:
+      force_enable: true
+
+test_pass_rows_frame:
+  pass_str: |
+    SELECT
+        SUM(b) OVER (
+            PARTITION BY a
+            ORDER BY c
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS running_total
+    FROM foo
+
+test_pass_range_frame:
+  pass_str: |
+    SELECT
+        SUM(b) OVER (ORDER BY c RANGE UNBOUNDED PRECEDING) AS running_total
+    FROM foo
+
+test_pass_groups_frame:
+  pass_str: |
+    SELECT
+        SUM(b) OVER (ORDER BY c GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS s
+    FROM foo
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.window_frame:
+        force_enable: true
+
+test_pass_no_order_by:
+  # Without an ORDER BY the frame is the whole partition in every dialect.
+  pass_str: |
+    SELECT
+        SUM(b) OVER (PARTITION BY a) AS total,
+        COUNT(*) OVER () AS row_count
+    FROM foo
+
+test_pass_row_number:
+  # Ranking functions do not use a frame.
+  pass_str: |
+    SELECT
+        ROW_NUMBER() OVER (PARTITION BY a ORDER BY c) AS rn,
+        RANK() OVER (ORDER BY c) AS r,
+        DENSE_RANK() OVER (ORDER BY c) AS dr,
+        PERCENT_RANK() OVER (ORDER BY c) AS pr,
+        CUME_DIST() OVER (ORDER BY c) AS cd,
+        NTILE(4) OVER (ORDER BY c) AS nt
+    FROM foo
+
+test_pass_lag_lead:
+  # Offset functions do not use a frame.
+  pass_str: |
+    SELECT
+        LAG(b) OVER (PARTITION BY a ORDER BY c) AS previous_b,
+        LEAD(b, 2) OVER (PARTITION BY a ORDER BY c) AS next_b
+    FROM foo
+
+test_pass_function_name_case:
+  pass_str: |
+    SELECT row_number() OVER (ORDER BY c) AS rn FROM foo
+
+test_pass_qualified_function_name:
+  pass_str: |
+    SELECT pg_catalog.row_number() OVER (ORDER BY c) AS rn FROM foo
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.window_frame:
+        force_enable: true
+
+test_pass_named_window_with_frame:
+  pass_str: |
+    SELECT
+        SUM(b) OVER w AS running_total
+    FROM foo
+    WINDOW w AS (
+        PARTITION BY a
+        ORDER BY c
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    )
+
+test_pass_named_window_only_used_by_ranking_functions:
+  pass_str: |
+    SELECT
+        ROW_NUMBER() OVER w AS rn,
+        RANK() OVER w AS r
+    FROM foo
+    WINDOW w AS (PARTITION BY a ORDER BY c)
+
+test_pass_named_window_unused:
+  # Nothing is known to depend on the frame of an unused window.
+  pass_str: |
+    SELECT a FROM foo
+    WINDOW w AS (PARTITION BY a ORDER BY c)
+
+test_pass_named_window_reference_without_order_by:
+  # `OVER (w)` only repeats the named window, which is checked where defined.
+  pass_str: |
+    SELECT
+        SUM(b) OVER (w) AS running_total
+    FROM foo
+    WINDOW w AS (
+        PARTITION BY a
+        ORDER BY c
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    )
+
+test_pass_disabled_by_default:
+  # Without `force_enable`, CV14 never flags (it is off by default). This is the
+  # anti-pattern from test_fail_aggregate_without_frame.
+  pass_str: |
+    SELECT
+        SUM(b) OVER (PARTITION BY a ORDER BY c) AS running_total
+    FROM foo
+  configs:
+    rules:
+      convention.window_frame:
+        force_enable: false
+
+test_fail_aggregate_without_frame:
+  fail_str: |
+    SELECT
+        SUM(b) OVER (PARTITION BY a ORDER BY c) AS running_total
+    FROM foo
+
+test_fail_without_partition_by:
+  fail_str: |
+    SELECT
+        AVG(b) OVER (ORDER BY c DESC) AS running_average
+    FROM foo
+
+test_fail_value_function:
+  # LAST_VALUE is the classic case where the default frame surprises people.
+  fail_str: |
+    SELECT
+        LAST_VALUE(b) OVER (PARTITION BY a ORDER BY c) AS last_b
+    FROM foo
+
+test_fail_first_value_function:
+  fail_str: |
+    SELECT
+        FIRST_VALUE(b) OVER (PARTITION BY a ORDER BY c) AS first_b
+    FROM foo
+
+test_fail_in_cte:
+  fail_str: |
+    WITH totals AS (
+        SELECT SUM(b) OVER (ORDER BY c) AS running_total FROM foo
+    )
+    SELECT * FROM totals
+
+test_fail_nested_in_expression:
+  fail_str: |
+    SELECT
+        COALESCE(SUM(b) OVER (ORDER BY c), 0) AS running_total
+    FROM foo
+
+test_fail_extends_named_window:
+  # `OVER (w ORDER BY ...)` defines its own frame, which is implicit here.
+  fail_str: |
+    SELECT
+        SUM(b) OVER (w ORDER BY c) AS running_total
+    FROM foo
+    WINDOW w AS (PARTITION BY a)
+
+test_fail_named_window:
+  fail_str: |
+    SELECT
+        SUM(b) OVER w AS running_total
+    FROM foo
+    WINDOW w AS (PARTITION BY a ORDER BY c)
+
+test_fail_named_window_quoted_name:
+  fail_str: |
+    SELECT
+        SUM(b) OVER "W" AS running_total
+    FROM foo
+    WINDOW "W" AS (PARTITION BY a ORDER BY c)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.window_frame:
+        force_enable: true
+
+test_fail_named_window_shared_by_ranking_and_aggregate:
+  # One frame sensitive use is enough to need an explicit frame.
+  fail_str: |
+    SELECT
+        ROW_NUMBER() OVER w AS rn,
+        SUM(b) OVER w AS running_total
+    FROM foo
+    WINDOW w AS (PARTITION BY a ORDER BY c)
+
+test_fail_named_window_in_subquery:
+  fail_str: |
+    SELECT *
+    FROM (
+        SELECT SUM(b) OVER w AS running_total
+        FROM foo
+        WINDOW w AS (ORDER BY c)
+    ) AS sub
+
+test_fail_bigquery:
+  fail_str: |
+    SELECT SUM(b) OVER (PARTITION BY a ORDER BY c) AS running_total FROM foo
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.window_frame:
+        force_enable: true
+
+test_fail_snowflake:
+  fail_str: |
+    SELECT SUM(b) OVER (PARTITION BY a ORDER BY c) AS running_total FROM foo
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.window_frame:
+        force_enable: true
+
+test_fail_tsql:
+  fail_str: |
+    SELECT SUM(b) OVER (PARTITION BY a ORDER BY c) AS running_total FROM foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.window_frame:
+        force_enable: true
