@@ -13,7 +13,7 @@ bad SQL fails to parse. See root `AGENTS.md`, "Grammar is Permissive, Not a
 Validator".
 
 **Reviewing a dialect PR?** Use the `grammar-review` skill:
-`.claude/skills/grammar-review/checklist.md`.
+`.agents/skills/grammar-review/checklist.md`.
 
 ## Dialect Architecture
 

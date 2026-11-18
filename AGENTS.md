@@ -167,8 +167,8 @@ the permissive parse actively corrupts a neighbouring *valid* construct.
 Applies to human and AI reviewers alike:
 
 - **Dialect/grammar PRs: use the `grammar-review` skill** in
-  `.claude/skills/grammar-review/`. Work through `checklist.md`; `dialects.md`
-  lists vendor docs per dialect.
+  `.agents/skills/grammar-review/` (linked from `.claude/skills/` for Claude
+  Code). Work through `checklist.md`; `dialects.md` lists vendor docs per dialect.
 - **CI runs the full matrix.** Don't ask a PR to run `utils/rustify.py build`,
   the Rust/Python parity suite, `cargo test`, `tox -e py312-rust`, or to
   regenerate dialect sources — every grammar change is regenerated and
