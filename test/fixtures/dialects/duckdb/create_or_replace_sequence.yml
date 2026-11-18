@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d85648a53561dc7aa51d862fc985a504103e3cff5bb07d3d45f928eb6dd8f255
+file:
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMP
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+    - create_sequence_options_segment:
+        keyword: START
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - sequence_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: serial
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '2'
+    - create_sequence_options_segment:
+        keyword: MINVALUE
+        numeric_literal: '1'
+    - create_sequence_options_segment:
+        keyword: MAXVALUE
+        numeric_literal: '9'
+    - create_sequence_options_segment:
+        keyword: CYCLE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - numeric_literal: '1'
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: serial
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: serial
+- statement_terminator: ;

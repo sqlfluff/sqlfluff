@@ -1597,6 +1597,32 @@ class DropFunctionStatementSegment(postgres.DropFunctionStatementSegment):
     )
 
 
+class CreateSequenceStatementSegment(postgres.CreateSequenceStatementSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    DuckDB takes `OR REPLACE`, and rejects it together with `IF NOT EXISTS`.
+    https://duckdb.org/docs/stable/sql/statements/create_sequence
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                Ref("OrReplaceGrammar"),
+                Ref("TemporaryGrammar", optional=True),
+                "SEQUENCE",
+            ),
+            Sequence(
+                Ref("TemporaryGrammar", optional=True),
+                "SEQUENCE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+        ),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
 class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
     """A `CREATE TYPE` statement.
 
