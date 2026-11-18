@@ -3178,6 +3178,108 @@ test_pass_issue_9055_insert_values_unaffected:
   configs:
     core:
       dialect: snowflake
+
+test_pass_issue_9055_merge_using_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # A MERGE ... USING (VALUES ...) table constructor is a bracketed
+  # context too: the value rows align with the VALUES keyword.
+  pass_str: |
+    MERGE INTO tgt AS t
+    USING (
+        VALUES
+        ('v1', 'v2'),
+        ('v3', 'v4')
+    ) AS s (c1, c2)
+        ON t.c1 = s.c1
+    WHEN MATCHED THEN
+        UPDATE SET c2 = s.c2;
+  configs:
+    core:
+      dialect: postgres
+
+test_fix_issue_9055_merge_using_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # Misaligned value rows in a MERGE USING (VALUES ...) constructor are
+  # fixed to align with the VALUES keyword, not one level deeper.
+  fail_str: |
+    MERGE INTO tgt AS t
+    USING (
+    VALUES
+    ('v1', 'v2')
+    ) AS s (c1, c2)
+        ON t.c1 = s.c1
+    WHEN MATCHED THEN
+        UPDATE SET c2 = s.c2;
+  fix_str: |
+    MERGE INTO tgt AS t
+    USING (
+        VALUES
+        ('v1', 'v2')
+    ) AS s (c1, c2)
+        ON t.c1 = s.c1
+    WHEN MATCHED THEN
+        UPDATE SET c2 = s.c2;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_issue_9055_union_values_branches:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # Two bracketed VALUES constructors combined by UNION ALL: both
+  # branches keep their rows aligned with the VALUES keyword.
+  pass_str: |
+    SELECT * FROM (
+        VALUES
+        ('v1')
+    )
+    UNION ALL
+    SELECT * FROM (
+        VALUES
+        ('v2')
+    );
+
+test_pass_issue_9055_nested_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # A bracketed VALUES constructor nested inside another subquery: the
+  # outer subquery still indents normally; only the indents of the
+  # bracketed clauses themselves are inert.
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT *
+        FROM (
+            VALUES
+            ('v1', 'v2')
+        ) AS inner_t (c1, c2)
+    ) AS outer_t;
+
+test_pass_issue_9055_insert_from_values_subquery:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # A bracketed VALUES constructor feeding an INSERT through a
+  # subquery keeps its rows aligned with the VALUES keyword; the
+  # INSERT clause itself is unaffected.
+  pass_str: |
+    INSERT INTO tgt (c1, c2)
+    SELECT *
+    FROM (
+        VALUES
+        ('v1', 'v2')
+    ) AS s (c1, c2);
+
+test_pass_issue_9055_postgres_values:
+  # https://github.com/sqlfluff/sqlfluff/issues/9055
+  # The inert indents belong to the shared ValuesClauseSegment grammar,
+  # so the same behaviour holds on every dialect (postgres here).
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        (1, 'one'),
+        (2, 'two')
+    ) AS t (num, txt);
+  configs:
+    core:
+      dialect: postgres
     indentation:
       implicit_indents: allow
 
