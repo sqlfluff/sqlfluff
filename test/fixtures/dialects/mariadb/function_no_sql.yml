@@ -3,8 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cf6b2f6629057890ce653e7f421bdab2d9b541afed3344da33927c25e3f2d4e
+_hash: 516016eb419821cfd2be872fa8a0d199970e4c50ff6cc3c13881eec3c2679f89
 file:
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: '~'
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -26,19 +29,21 @@ file:
       - keyword: 'NO'
       - keyword: SQL
     - function_definition:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  expression:
-                  - numeric_literal: '1'
-                  - binary_operator: +
-                  - numeric_literal: '2'
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: END
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+            statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    expression:
+                    - numeric_literal: '1'
+                    - binary_operator: +
+                    - numeric_literal: '2'
+            statement_terminator: ;
+        - keyword: END
 - statement_terminator: '~'
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;

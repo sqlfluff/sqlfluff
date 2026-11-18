@@ -1,0 +1,146 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 63ecff587d3d1b104c7d55428f184610d6b0799f7516803bae62495f16d1b17a
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter_direction: IN
+        - parameter: a
+        - data_type:
+            data_type_identifier: INT
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '5'
+        - comma: ','
+        - parameter: b
+        - data_type:
+            data_type_identifier: INT
+        - keyword: DEFAULT
+        - expression:
+            column_reference:
+              naked_identifier: a
+            binary_operator: +
+            numeric_literal: '1'
+        - end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: a
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: b
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          keyword: DEFAULT
+          expression:
+            numeric_literal: '10'
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: '*'
+              numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f2
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        - keyword: CHARACTER
+        - keyword: SET
+        - character_set: utf8mb4
+        - keyword: DEFAULT
+        - expression:
+            quoted_literal: "'x'"
+        - comma: ','
+        - parameter: b
+        - data_type:
+            data_type_identifier: INT
+        - keyword: DEFAULT
+        - expression:
+            null_literal: 'NULL'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            end_bracket: )
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: CONCAT
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: a
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: COALESCE
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                naked_identifier: b
+                          - comma: ','
+                          - expression:
+                              numeric_literal: '0'
+                          - end_bracket: )
+                  - end_bracket: )
+- statement_terminator: ;

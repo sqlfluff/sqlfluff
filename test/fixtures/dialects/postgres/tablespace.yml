@@ -1,0 +1,140 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 73bee2a19fc746c48308ffb2e86ed18601400471af48fa578f036050fd55dfa0
+file:
+- statement:
+    create_tablespace_statement:
+    - keyword: CREATE
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: dbspace
+    - keyword: LOCATION
+    - quoted_literal: "'/data/dbs'"
+- statement_terminator: ;
+- statement:
+    create_tablespace_statement:
+    - keyword: CREATE
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: indexspace
+    - keyword: OWNER
+    - role_reference:
+        naked_identifier: genevieve
+    - keyword: LOCATION
+    - quoted_literal: "'/data/indexes'"
+- statement_terminator: ;
+- statement:
+    create_tablespace_statement:
+    - keyword: CREATE
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: fastspace
+    - keyword: OWNER
+    - keyword: CURRENT_USER
+    - keyword: LOCATION
+    - quoted_literal: "'/ssd1/postgresql/data'"
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: random_page_cost
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1.1'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: effective_io_concurrency
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '200'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_tablespace_statement:
+    - keyword: ALTER
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: index_space
+    - keyword: RENAME
+    - keyword: TO
+    - tablespace_reference:
+        naked_identifier: fast_raid
+- statement_terminator: ;
+- statement:
+    alter_tablespace_statement:
+    - keyword: ALTER
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: index_space
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: mary
+- statement_terminator: ;
+- statement:
+    alter_tablespace_statement:
+    - keyword: ALTER
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: index_space
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_tablespace_statement:
+    - keyword: ALTER
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: index_space
+    - keyword: SET
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: seq_page_cost
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1.0'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: random_page_cost
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1.5'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_tablespace_statement:
+    - keyword: ALTER
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: index_space
+    - keyword: RESET
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: random_page_cost
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_tablespace_statement:
+    - keyword: DROP
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: mystuff
+- statement_terminator: ;
+- statement:
+    drop_tablespace_statement:
+    - keyword: DROP
+    - keyword: TABLESPACE
+    - keyword: IF
+    - keyword: EXISTS
+    - tablespace_reference:
+        naked_identifier: mystuff
+- statement_terminator: ;

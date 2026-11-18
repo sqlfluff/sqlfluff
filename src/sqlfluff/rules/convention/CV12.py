@@ -354,11 +354,10 @@ class Rule_CV12(BaseRule):
         bin_op_indices = [
             i for i, e in enumerate(expr_segments) if e.is_type("binary_operator")
         ]
-        split_segments = [None, *[expr_segments[i] for i in bin_op_indices], None]
-        start_segments_iter = iter(split_segments)
-        stop_segments_iter = iter(split_segments)
-        _ = next(stop_segments_iter)
+        # Slice between the operators by index. Finding each operator again
+        # (e.g. with `select_children()`) is quadratic in long expressions.
+        bounds = [-1, *bin_op_indices, len(expr_segments)]
         return [
-            expr.select_children(start_seg, stop_seg)
-            for start_seg, stop_seg in zip(start_segments_iter, stop_segments_iter)
+            list(expr_segments[start + 1 : stop])
+            for start, stop in zip(bounds, bounds[1:])
         ]

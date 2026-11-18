@@ -111,6 +111,23 @@ def test__linter__raises_malformed_noqa():
                 "noqa:capitalisation",
             ),
         ),
+        # Test case-insensitivity (#9005)
+        (
+            "noqa: disable=ALL",
+            NoQaDirective(0, 0, None, "disable", "noqa: disable=ALL"),
+        ),
+        (
+            "noqa: enable=ALL",
+            NoQaDirective(0, 0, None, "enable", "noqa: enable=ALL"),
+        ),
+        (
+            "noqa:lt01",
+            NoQaDirective(0, 0, ("LT01",), None, "noqa:lt01"),
+        ),
+        (
+            "noqa: disable=prs",
+            NoQaDirective(0, 0, ("PRS",), "disable", "noqa: disable=prs"),
+        ),
     ],
 )
 def test_parse_noqa(input, expected):
@@ -129,6 +146,89 @@ def test_parse_noqa_no_dups():
         comment="noqa:L0*5,L01*", line_no=0, line_pos=0, reference_map=dummy_rule_map
     )
     assert len(result.rules) == len(set(result.rules))
+
+
+def test_parse_noqa_os_independent(monkeypatch):
+    """Test that noqa directive parsing behaves identically on POSIX and Windows (#9005)."""
+    test_inputs = [
+        "noqa: disable=PRS,ALL",
+        "noqa: disable=prs,all",
+        "noqa: disable=LAYOUT",
+        "noqa: disable=layout",
+        "noqa: lt01",
+        "noqa: LT01",
+        "noqa: disable=PRS",
+        "noqa: disable=prs",
+    ]
+    for inp in test_inputs:
+        # Simulate POSIX where os.path.normcase is a no-op
+        monkeypatch.setattr("os.path.normcase", lambda x: x)
+        posix_res = IgnoreMask._parse_noqa(
+            comment=inp, line_no=0, line_pos=0, reference_map=dummy_rule_map
+        )
+
+        # Simulate Windows where os.path.normcase lowercases
+        monkeypatch.setattr("os.path.normcase", lambda x: x.lower())
+        windows_res = IgnoreMask._parse_noqa(
+            comment=inp, line_no=0, line_pos=0, reference_map=dummy_rule_map
+        )
+
+        assert posix_res == windows_res
+
+    # Check specific semantics for PRS,ALL
+    res = IgnoreMask._parse_noqa(
+        comment="noqa: disable=PRS,ALL",
+        line_no=0,
+        line_pos=0,
+        reference_map=dummy_rule_map,
+    )
+    assert res.action == "disable"
+    assert "PRS" in res.rules
+    assert set(dummy_rule_map["all"]).issubset(set(res.rules))
+
+    # Check specific semantics for LAYOUT and layout (#9005)
+    for c in ("noqa: disable=LAYOUT", "noqa: disable=layout"):
+        res_layout = IgnoreMask._parse_noqa(
+            comment=c,
+            line_no=0,
+            line_pos=0,
+            reference_map=dummy_rule_map,
+        )
+        assert res_layout.action == "disable"
+        assert set(dummy_rule_map["layout"]).issubset(set(res_layout.rules))
+
+    # Check specific semantics for lt01 and LT01
+    for c in ("noqa: lt01", "noqa: LT01"):
+        res_lt = IgnoreMask._parse_noqa(
+            comment=c,
+            line_no=0,
+            line_pos=0,
+            reference_map=dummy_rule_map,
+        )
+        assert res_lt.rules == ("LT01",)
+
+    # Check specific semantics for prs
+    res_prs = IgnoreMask._parse_noqa(
+        comment="noqa: disable=prs",
+        line_no=0,
+        line_pos=0,
+        reference_map=dummy_rule_map,
+    )
+    assert res_prs.action == "disable"
+    assert res_prs.rules == ("PRS",)
+
+
+def test_noqa_disable_prs_all_os_independent(monkeypatch):
+    """End-to-end test that -- noqa: disable=PRS,ALL works across OSes (#9005)."""
+    sql = """-- noqa: disable=PRS,ALL
+SELECT a   AS b FROM t
+-- noqa: enable=PRS,ALL
+"""
+    for normcase_fn in (lambda x: x, lambda x: x.lower()):
+        monkeypatch.setattr("os.path.normcase", normcase_fn)
+        lntr = Linter(dialect="ansi", rules=["LT01"])
+        result = lntr.lint_string_wrapped(sql)
+        assert result.get_violations() == []
 
 
 def test_from_source_with_dialect_no_inline_comment_matcher():
@@ -617,3 +717,43 @@ def test_linter_disable_noqa_except():
         result_disable_noqa_except_core.get_violations()
     )
     assert len(violations_disable_noqa_except_core) == 0
+
+
+def test_linter_disable_noqa_except_line_range():
+    """Test line-range noqa directives with disable_noqa_except (#8834)."""
+    lntr_disable_noqa_except_cp01 = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa_except": "CP01",
+                "rules": "LT01, CP01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    lntr_disable_noqa_except_lt01 = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa_except": "LT01",
+                "rules": "LT01, CP01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    # This query raises CP01 and LT01 violations on line 3.
+    # It contains a range directive disabling LT01.
+    sql = """select 1 -- noqa: disable=LT01
+;
+SELECT a+b FROM t
+"""
+
+    # When disable_noqa_except is CP01, the range directive for LT01 is not
+    # allowed and should have no effect (both CP01 and LT01 violations remain).
+    result_cp01 = lntr_disable_noqa_except_cp01.lint_string(sql)
+    violations_cp01 = result_cp01.get_violations()
+    assert [v.rule_code() for v in violations_cp01] == ["CP01", "LT01", "LT01", "CP01"]
+
+    # When disable_noqa_except is LT01, the range directive for LT01 is
+    # allowed, so LT01 violations are suppressed while CP01 violations remain.
+    result_lt01 = lntr_disable_noqa_except_lt01.lint_string(sql)
+    violations_lt01 = result_lt01.get_violations()
+    assert [v.rule_code() for v in violations_lt01] == ["CP01", "CP01"]

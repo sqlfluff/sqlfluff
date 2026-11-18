@@ -70,6 +70,15 @@ impl PyPositionMarker {
         self.0.templated_position()
     }
 
+    #[pyo3(signature = (tab_space_size=4))]
+    pub fn working_visual_column(&self, tab_space_size: usize) -> usize {
+        self.0.working_visual_column(tab_space_size)
+    }
+
+    pub fn working_loc_after(&self, raw: &str) -> (usize, usize) {
+        self.0.working_loc_after(raw)
+    }
+
     pub fn is_literal(&self) -> bool {
         self.0.is_literal()
     }

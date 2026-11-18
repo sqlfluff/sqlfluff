@@ -173,27 +173,34 @@ class Rule_CV06(BaseRule):
         return False
 
     def _get_segment_move_context(
-        self, target_segment: RawSegment, parent_segment: BaseSegment
+        self, target_segment: RawSegment, parent_segment: BaseSegment, target_idx: int
     ) -> SegmentMoveContext:
         # Locate the segment to be moved (i.e. context.segment) and search back
-        # over the raw stack to find the end of the preceding statement.
-        reversed_raw_stack = Segments(*parent_segment.raw_segments).reversed()
-        before_code = reversed_raw_stack.select(
-            loop_while=sp.not_(sp.is_code()), start_seg=target_segment
-        )
+        # over the raw segments before it to find the end of the preceding
+        # statement. The target is a direct child of the parent, so we walk
+        # back through its earlier siblings rather than searching every raw
+        # segment of the parent for each terminator.
+        before_code_buff: list[BaseSegment] = []
+        first_code: Optional[BaseSegment] = None
+        for sibling_idx in range(target_idx - 1, -1, -1):
+            for raw_seg in reversed(parent_segment.segments[sibling_idx].raw_segments):
+                if raw_seg.is_code:
+                    first_code = raw_seg
+                    break
+                before_code_buff.append(raw_seg)
+            if first_code is not None:
+                break
+        before_code = Segments(*before_code_buff)
         before_segment = before_code.select(sp.not_(sp.is_meta()))
-        # We're selecting from the raw stack, so we know that before_code is
+        # We're selecting from the raw segments, so we know that before_code is
         # made of RawSegment elements.
         anchor_segment = (
             cast(RawSegment, before_code[-1]) if before_code else target_segment
         )
-        first_code = reversed_raw_stack.select(
-            sp.is_code(), start_seg=target_segment
-        ).first()
         self.logger.debug("Semicolon: first_code: %s", first_code)
         is_one_line = (
-            self._is_one_line_statement(parent_segment, first_code[0])
-            if first_code
+            self._is_one_line_statement(parent_segment, first_code)
+            if first_code is not None
             else False
         )
 
@@ -206,9 +213,11 @@ class Rule_CV06(BaseRule):
         )
 
     def _handle_semicolon(
-        self, target_segment: RawSegment, parent_segment: BaseSegment
+        self, target_segment: RawSegment, parent_segment: BaseSegment, target_idx: int
     ) -> Optional[LintResult]:
-        info = self._get_segment_move_context(target_segment, parent_segment)
+        info = self._get_segment_move_context(
+            target_segment, parent_segment, target_idx
+        )
         semicolon_newline = self.multiline_newline if not info.is_one_line else False
         self.logger.debug("Semicolon Newline: %s", semicolon_newline)
 
@@ -230,6 +239,20 @@ class Rule_CV06(BaseRule):
         if not info.before_segment:
             return None
 
+        whitespace_deletions = info.whitespace_deletions
+        if info.before_segment[len(whitespace_deletions) :].first().any(
+            sp.is_type("inline_comment")
+        ) and Segments(*parent_segment.raw_segments).select(
+            sp.is_code(),
+            loop_while=sp.not_(sp.is_type("newline")),
+            start_seg=target_segment,
+        ):
+            # Keep the newline ending the comment so following code stays executable.
+            comment_newline = whitespace_deletions.last(sp.is_type("newline"))
+            whitespace_deletions = whitespace_deletions.select(
+                lambda seg: seg not in comment_newline
+            )
+
         # If preceding segments are found then delete the old
         # semi-colon and its preceding whitespace and then insert
         # the semi-colon in the correct location.
@@ -237,7 +260,7 @@ class Rule_CV06(BaseRule):
             target_segment,
             parent_segment,
             info.anchor_segment,
-            info.whitespace_deletions,
+            whitespace_deletions,
             [
                 SymbolSegment(raw=";", type="statement_terminator"),
             ],
@@ -245,6 +268,7 @@ class Rule_CV06(BaseRule):
         return LintResult(
             anchor=info.anchor_segment,
             fixes=fixes,
+            description="Semi-colon should be immediately after the statement.",
         )
 
     def _handle_semicolon_newline(
@@ -274,6 +298,31 @@ class Rule_CV06(BaseRule):
         anchor_segment = self._handle_trailing_inline_comments(
             parent_segment, anchor_segment
         )
+        whitespace_deletions = info.whitespace_deletions
+        preceding_comment = info.before_segment.select(
+            sp.not_(sp.is_whitespace())
+        ).first()
+        if (
+            preceding_comment
+            and preceding_comment[0].is_comment
+            and not preceding_comment[0].is_type("block_comment")
+            and preceding_comment[0] is not anchor_segment
+            and Segments(*parent_segment.raw_segments).select(
+                sp.not_(sp.or_(sp.is_whitespace(), sp.is_meta())),
+                loop_while=sp.not_(sp.is_type("newline")),
+                start_seg=target_segment,
+            )
+        ):
+            # Moving the semicolon before a detached line comment must not
+            # join that comment to the code/comment following the old semicolon.
+            # The deletion list is reversed: keep the newline nearest the comment.
+            comment_newline = next(
+                (s for s in reversed(whitespace_deletions) if s.is_type("newline")),
+                None,
+            )
+            whitespace_deletions = whitespace_deletions.select(
+                lambda segment: segment is not comment_newline
+            )
         fixes = []
         if anchor_segment is target_segment:
             fixes.append(
@@ -291,7 +340,7 @@ class Rule_CV06(BaseRule):
                     target_segment,
                     parent_segment,
                     anchor_segment,
-                    info.whitespace_deletions,
+                    whitespace_deletions,
                     [
                         NewlineSegment(),
                         SymbolSegment(raw=";", type="statement_terminator"),
@@ -301,6 +350,9 @@ class Rule_CV06(BaseRule):
         return LintResult(
             anchor=anchor_segment,
             fixes=fixes,
+            description=(
+                "Semi-colon should be on a new line after a multi-line statement."
+            ),
         )
 
     def _create_semicolon_and_delete_whitespace(
@@ -496,7 +548,7 @@ class Rule_CV06(BaseRule):
                     self.logger.debug("Handling semi-colon: %s", seg)
 
                     if self._is_segment_semicolon(seg):
-                        res = self._handle_semicolon(seg, container)
+                        res = self._handle_semicolon(seg, container, idx)
                 # Otherwise handle the end of the container separately.
                 # Only check for final semicolon at the file level, not batch level
                 elif (

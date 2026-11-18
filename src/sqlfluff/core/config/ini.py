@@ -4,7 +4,9 @@ This includes `.sqlfluff` and `tox.ini` files.
 """
 
 import configparser
+from typing import Optional
 
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
 from sqlfluff.core.types import ConfigMappingType, ConfigValueType
 
@@ -32,7 +34,9 @@ def coerce_value(val: str) -> ConfigValueType:
     return v
 
 
-def load_ini_string(cfg_content: str) -> ConfigMappingType:
+def load_ini_string(
+    cfg_content: str, filepath: Optional[str] = None
+) -> ConfigMappingType:
     """Read an ini-style config string.
 
     This would include loading a `.sqlfluff` file.
@@ -46,6 +50,15 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
     - Unlike most cfg file readers, SQLFluff is case-sensitive in how
       it reads config files. This is to ensure we support the case
       sensitivity of jinja.
+
+    Args:
+        cfg_content: The raw string content of the ini-style config.
+        filepath: The path (or reference) of the file ``cfg_content`` came
+            from. Only used to give a useful error message. Defaults to
+            ``None``.
+
+    Raises:
+        SQLFluffUserError: If ``cfg_content`` isn't valid ini-style syntax.
     """
     # If the string is empty, no need to parse it.
     if not cfg_content:
@@ -58,8 +71,14 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
     # the optionxform attribute.
     config.optionxform = lambda option: option  # type: ignore
 
-    # Read the content.
-    config.read_string(cfg_content)
+    # Read the content. A malformed config file is a user error (like an
+    # invalid `pyproject.toml`), not a crash, so convert any `configparser`
+    # exception into a `SQLFluffUserError` rather than letting it escape.
+    try:
+        config.read_string(cfg_content, source=filepath or "<string>")
+    except configparser.Error as err:
+        location = f" config file {filepath}" if filepath else " config"
+        raise SQLFluffUserError(f"Failed to parse INI{location}: {err}") from None
 
     # Build up a buffer of config values.
     config_buffer: list[NestedDictRecord[ConfigValueType]] = []

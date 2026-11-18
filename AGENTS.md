@@ -25,7 +25,7 @@ SQLFluff is a dialect-flexible SQL linter and auto-fixer supporting 25+ SQL dial
 │   ├── fixtures/              # Test data (SQL files, YAML expected outputs)
 │   ├── dialects/              # Dialect parsing tests
 │   └── rules/                 # Rule testing infrastructure
-├── docs/                      # Sphinx documentation (see docs/AGENTS.md)
+├── docsv/                     # VitePress documentation (see docsv/README.md)
 ├── plugins/                   # Pluggable extensions (dbt templater, examples)
 ├── utils/                     # Build and development utilities
 └── examples/                  # API usage examples
@@ -130,6 +130,60 @@ The codebase enforces strict architectural boundaries (via `importlinter` in `py
 
 See `src/sqlfluff/dialects/AGENTS.md` for detailed dialect development guide.
 
+### Grammar is Permissive, Not a Validator
+
+SQLFluff's parser is a **loose, allowable grammar** — not a SQL validator. It is
+deliberately more permissive than any real engine, and parsing SQL that a given
+database would reject is **not** a bug.
+
+So, when adding or reviewing dialect grammar:
+
+- ❌ Don't add (or ask contributors to add) "negative tests" asserting that
+  invalid SQL fails to parse — no `unparsable` fixtures, no
+  `pytest.raises(SQLParseError)` for "this should be rejected".
+- ✅ Only add positive fixtures: valid SQL that must parse, plus its expected
+  `.yml` tree.
+- ❌ Don't tighten a grammar purely to reject something. Rejection is the
+  engine's job; over-tightening breaks dialect variants, vendor extensions and
+  templated SQL.
+- ✅ Keep clause ordering, optionality and combinations loose unless a *valid*
+  statement would otherwise mis-parse.
+- ❌ **"`<engine>`-invalid SQL such as `...` parses successfully"** is not a
+  finding on its own. Neither is "this accepts X despite the docs/docstring
+  saying only Y". Both describe intended behaviour.
+- ✅ **Parse time is not execution time.** A statement the server accepts
+  syntactically and then rejects at runtime (semantic errors, privilege
+  errors, "unknown column", MySQL error 1396, …) must still parse cleanly.
+
+A finding here is only real if it names **valid SQL that fails to parse**, or
+valid SQL that parses into the wrong tree. "Invalid SQL is accepted" is working
+as designed.
+
+Rare exception: a regression test asserting `unparsable` is acceptable only when
+the permissive parse actively corrupts a neighbouring *valid* construct.
+
+### Review Scope
+
+Applies to human and AI reviewers alike:
+
+- **CI runs the full matrix.** Don't ask a PR to run `utils/rustify.py build`,
+  the Rust/Python parity suite, `cargo test`, `tox -e py312-rust`, or to
+  regenerate dialect sources — every grammar change is regenerated and
+  parity-tested in CI on every push. "Please run X to confirm" is noise.
+- **Pre-existing bugs are out of scope.** A PR that touches a shared grammar
+  segment does not inherit responsibility for long-standing defects in it.
+  Flagging a bug the PR neither introduced nor worsened belongs in an issue,
+  not in that PR's review.
+- **Performance observations are welcome, but measurement decides.** Flagging a
+  possible extra allocation or copy is useful — raise it. Just raise it as a
+  question, not a defect: in a perf PR the benchmarks in that PR outrank
+  reasoning from the diff, and a maintainer answering with a measurement
+  settles it. Before flagging, check whether the cost is actually on a hot
+  path — a pointer-sized `.clone()`, an allocation on an exceptional/error
+  path, or code compiled out unless a debug feature is enabled usually isn't.
+  Anything that breaks a build or changes behaviour under a feature flag is a
+  real finding regardless of cost.
+
 ### Adding Linting Rules
 1. Create rule class in appropriate category under `src/sqlfluff/rules/`
 2. Define metadata: `code`, `name`, `description`, `groups`
@@ -145,12 +199,12 @@ See `src/sqlfluff/dialects/AGENTS.md` for detailed dialect development guide.
 5. Check that changes don't break other dialects: `tox -e generate-fixture-yml`
 
 ### Documentation Updates
-1. Edit source files in `docs/source/`
-2. Build locally: `cd docs && make html`
-3. View: `open docs/build/html/index.html`
+1. Edit Markdown source files in `docsv/`
+2. Build locally: `cd docsv && pnpm run docs:build`
+3. Preview: `cd docsv && pnpm run docs:preview`
 4. Verify links and formatting
 
-See `docs/AGENTS.md` for documentation-specific guidelines.
+See `docsv/README.md` for documentation-specific guidance.
 
 ## Component-Specific Instructions
 
@@ -159,7 +213,7 @@ For detailed instructions on specific components, refer to:
 - **Dialect development**: `src/sqlfluff/dialects/AGENTS.md`
 - **Rust components**: `sqlfluffrs/AGENTS.md`
 - **Testing**: `test/AGENTS.md`
-- **Documentation**: `docs/AGENTS.md`
+- **Documentation**: `docsv/README.md`
 
 ## Common Pitfalls
 

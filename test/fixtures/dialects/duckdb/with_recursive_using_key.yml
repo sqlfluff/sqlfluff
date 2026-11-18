@@ -1,0 +1,486 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 09f9c0978929e9a007ff8442587f0d6be31310164922c9a9f9c81628dfd039b8
+file:
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - naked_identifier: tbl
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: a
+            - comma: ','
+            - naked_identifier: b
+            end_bracket: )
+      - keyword: USING
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '1'
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '3'
+          - set_operator:
+              keyword: UNION
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                    binary_operator: +
+                    numeric_literal: '1'
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: b
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: tbl
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '3'
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - naked_identifier: tbl
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: a
+            - comma: ','
+            - naked_identifier: b
+            - comma: ','
+            - naked_identifier: c
+            end_bracket: )
+      - keyword: USING
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: a
+        - comma: ','
+        - column_reference:
+            naked_identifier: b
+        - end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '1'
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '1'
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '0'
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - select_clause_element:
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                    binary_operator: +
+                    numeric_literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: tbl
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: c
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '3'
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - naked_identifier: tbl
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: a
+            - comma: ','
+            - naked_identifier: b
+            end_bracket: )
+      - keyword: USING
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          comma: ','
+          function:
+            function_name:
+              function_name_identifier: max
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '1'
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '5'
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              - comma: ','
+              - select_clause_element:
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                    binary_operator: '-'
+                    numeric_literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: tbl
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '1'
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - naked_identifier: tbl
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: a
+            - comma: ','
+            - naked_identifier: b
+            end_bracket: )
+      - keyword: USING
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: a
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+            values_clause:
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
+            - comma: ','
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '4'
+              - end_bracket: )
+            set_operator:
+              keyword: UNION
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              - comma: ','
+              - select_clause_element:
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                    binary_operator: '-'
+                    numeric_literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: tbl
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '3'
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - naked_identifier: comp
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: id
+            - comma: ','
+            - naked_identifier: c
+            end_bracket: )
+      - keyword: USING
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: i
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: i
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      function:
+                        function_name:
+                          function_name_identifier: range
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '3'
+                            end_bracket: )
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: r
+                      bracketed:
+                        start_bracket: (
+                        identifier_list:
+                          naked_identifier: i
+                        end_bracket: )
+            set_operator:
+              keyword: UNION
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                    - naked_identifier: r
+                    - dot: .
+                    - naked_identifier: id
+                - comma: ','
+                - select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: least
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                            - naked_identifier: r
+                            - dot: .
+                            - naked_identifier: c
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '0'
+                        - end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: recurring
+                        - dot: .
+                        - naked_identifier: comp
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: r
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                    - naked_identifier: r
+                    - dot: .
+                    - naked_identifier: c
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '0'
+              end_bracket: )
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: comp
+- statement_terminator: ;

@@ -80,8 +80,7 @@ impl FixtureTest {
         let dialect = Dialect::from_str(self.dialect.as_str()).expect("Invalid dialect");
 
         let input = LexInput::String(sql_content.clone());
-        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
-            .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
+        let lexer = Lexer::for_dialect(dialect);
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {

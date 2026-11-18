@@ -1,0 +1,412 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b67b7188e18b706f22e3aac189e4171e2f5f4ed1860284f6559dbdc31a447b8f
+file:
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c1
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: v
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c2
+    - keyword: CURSOR
+    - keyword: WITH
+    - keyword: HOLD
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c3
+    - keyword: CURSOR
+    - keyword: WITHOUT
+    - keyword: HOLD
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c4
+    - keyword: BINARY
+    - keyword: INSENSITIVE
+    - keyword: 'NO'
+    - keyword: SCROLL
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c5
+    - keyword: ASENSITIVE
+    - keyword: SCROLL
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c6
+    - keyword: SCROLL
+    - keyword: BINARY
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c7
+    - keyword: CURSOR
+    - keyword: FOR
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'a'"
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '2'
+        - comma: ','
+        - expression:
+            quoted_literal: "'b'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c8
+    - keyword: CURSOR
+    - keyword: FOR
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: x
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: id
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: x
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c9
+    - keyword: CURSOR
+    - keyword: FOR
+    - set_expression:
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: id
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t
+      - set_operator:
+        - keyword: UNION
+        - keyword: ALL
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c10
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: id
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c11
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: t
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c12
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          bracketed:
+            start_bracket: (
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'a'"
+              - end_bracket: )
+            end_bracket: )
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c13
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          with_compound_statement:
+            keyword: WITH
+            common_table_expression:
+              naked_identifier: x
+              keyword: AS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: id
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: t
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: x
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+        naked_identifier: c14
+    - keyword: CURSOR
+    - keyword: FOR
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: id
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: t
+              end_bracket: )
+          - set_operator:
+              keyword: UNION
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '2'
+              end_bracket: )
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;

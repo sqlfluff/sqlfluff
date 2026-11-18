@@ -7,8 +7,6 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser, RefState,
 };
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
 
 /// Sentinel prefix for an unresolvable Ref's [`ParseError`] message. The
 /// Python side (`rust_parser.py`) recognises this prefix and re-raises
@@ -158,9 +156,9 @@ impl Parser<'_> {
 
         // Combine the Ref's local terminators with the parent terminators so
         // the referenced child parsing respects both sets (parity with Arc path)
-        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let child_terminators = Self::combine_terminators(
-            &local_terminators,
+        let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
+        let child_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
@@ -323,6 +321,7 @@ impl Parser<'_> {
                     // borrow the grammar-table class name straight into the node.
                     class_name: Cow::Borrowed(segment_class_name.unwrap_or_default()),
                     segment_type: Some(segment_type),
+                    class_type: None,
                     segment_kwargs: SegmentKwargs {
                         class_types,
                         ..Default::default()

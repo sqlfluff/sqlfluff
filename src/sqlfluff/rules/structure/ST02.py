@@ -3,6 +3,7 @@
 from typing import Optional
 
 from sqlfluff.core.parser import (
+    BracketedSegment,
     KeywordSegment,
     SymbolSegment,
     WhitespaceSegment,
@@ -131,6 +132,17 @@ class Rule_ST02(BaseRule):
                 WhitespaceSegment(),
             ]
             edits = not_edits + edits
+            # Keep NOT local to the CASE when other expression operands follow.
+            if sum(s.is_code for s in context.parent_stack[-1].segments) > 1:
+                start = SymbolSegment("(", type="start_bracket")
+                end = SymbolSegment(")", type="end_bracket")
+                edits = [
+                    BracketedSegment(
+                        segments=(start, *edits, end),
+                        start_bracket=(start,),
+                        end_bracket=(end,),
+                    )
+                ]
 
         fixes = [
             LintFix.replace(

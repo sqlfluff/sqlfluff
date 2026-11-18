@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c499d45172bf0769b8659afc6d01fb934fc3a8a5df3a480df32f1a3586ffa4f0
+file:
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '3'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '4'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '5'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          quoted_literal: "'$$'"
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: '"$$"'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            quoted_identifier: '`$$`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        quoted_identifier: '`$$`'
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '6'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '7'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '8'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '9'
+- statement_terminator: $$
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: $$
+    client_command_ignored: text the client ignores
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '10'
+- statement_terminator: $$
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: //
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '11'
+- statement_terminator: //
+- delimiter_statement:
+    keyword: delimiter
+    delimiter_argument: ;;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '12'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '13'
+- statement_terminator: ;;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: "'$$'"
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '14'
+- statement_terminator: $$
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: '"//"'
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '15'
+- statement_terminator: //
+- delimiter_statement:
+    client_short_command: \d
+    delimiter_argument: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '17'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '18'
+- statement_terminator: $$
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '19'
+- statement_terminator: \g
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '20'
+- statement_terminator: \G
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '21'
+- statement_terminator: \g
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '22'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '23'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '30'
+- statement_terminator: ;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: //
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '31'
+- statement_terminator: //
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '32'
+- statement_terminator: \g
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- statement_terminator: //
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '33'
+- statement_terminator: ;

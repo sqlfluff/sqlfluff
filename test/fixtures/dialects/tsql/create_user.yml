@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dec9cf9f72ec3b863a3155b45a150641d1f0dd342a7aece9c66dd6824d3d9c6b
+_hash: 9e25487d5ea27c64a4300e8accc0ab2a1f8e33ee1d8cf9efb459be844de5113f
 file:
   batch:
   - statement:
@@ -171,4 +171,19 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - numeric_literal: '0x241C11948AEEB749B0D22646DB1A19F2'
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          quoted_identifier: '[AppIdentity]'
+      - keyword: FROM
+      - keyword: EXTERNAL
+      - keyword: PROVIDER
+      - keyword: WITH
+      - keyword: OBJECT_ID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'00000000-0000-0000-0000-000000000000'"
   - statement_terminator: ;

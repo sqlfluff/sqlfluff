@@ -1,0 +1,210 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fe2cbaaf26d99da00e03d6f4549138b8bf2dee5213174c0e873c12115b4e91f9
+file:
+  statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - function_definition:
+        compound_statement:
+        - keyword: BEGIN
+        - statement_list:
+          - statement:
+              declare_statement:
+                keyword: DECLARE
+                variable: a
+                data_type:
+                  data_type_identifier: INT
+          - statement_terminator: ;
+          - statement:
+              case_statement:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '0'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '1'
+                    statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: <
+                    numeric_literal: '0'
+                - keyword: THEN
+                - statement_list:
+                  - statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        expression:
+                          numeric_literal:
+                            sign_indicator: '-'
+                            numeric_literal: '1'
+                  - statement_terminator: ;
+                  - statement:
+                      while_statement:
+                      - keyword: WHILE
+                      - expression:
+                          column_reference:
+                            naked_identifier: a
+                          comparison_operator:
+                            raw_comparison_operator: <
+                          numeric_literal: '0'
+                      - keyword: DO
+                      - statement_list:
+                          statement:
+                            set_statement:
+                              keyword: SET
+                              variable: a
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              expression:
+                                column_reference:
+                                  naked_identifier: a
+                                binary_operator: +
+                                numeric_literal: '1'
+                          statement_terminator: ;
+                      - keyword: END
+                      - keyword: WHILE
+                  - statement_terminator: ;
+                  - statement:
+                      compound_statement:
+                      - keyword: BEGIN
+                      - statement_list:
+                          statement:
+                            set_statement:
+                              keyword: SET
+                              variable: a
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              numeric_literal: '2'
+                          statement_terminator: ;
+                      - keyword: END
+                  - statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - column_reference:
+                      naked_identifier: i
+                  - keyword: IS
+                  - null_literal: 'NULL'
+                  - binary_operator: OR
+                  - column_reference:
+                      naked_identifier: a
+                  - keyword: IS
+                  - null_literal: 'NULL'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '3'
+                    statement_terminator: ;
+              - else_clause:
+                  keyword: ELSE
+                  statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '0'
+                    statement_terminator: ;
+              - keyword: END
+              - keyword: CASE
+          - statement_terminator: ;
+          - statement:
+              case_statement:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '1'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '1'
+                    statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '2'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '2'
+                    statement_terminator: ;
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: i
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '3'
+                - keyword: THEN
+                - statement_list:
+                    statement:
+                      set_statement:
+                        keyword: SET
+                        variable: a
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '3'
+                    statement_terminator: ;
+              - keyword: END
+              - keyword: CASE
+          - statement_terminator: ;
+        - keyword: END

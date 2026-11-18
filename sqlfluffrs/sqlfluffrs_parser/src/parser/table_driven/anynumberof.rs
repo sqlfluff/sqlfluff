@@ -2,9 +2,6 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     AnyNumberOfState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
-#[cfg(feature = "verbose-debug")]
-use crate::vdebug;
-use sqlfluffrs_types::GrammarId;
 use std::sync::Arc;
 
 impl Parser<'_> {
@@ -82,8 +79,8 @@ impl Parser<'_> {
         }
 
         // Get all element children (excludes exclude grammar via element_children)
-        let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
-        let pruned_children = self.prune_options(&element_ids);
+        let element_ids = self.grammar_ctx.element_children(grammar_id);
+        let pruned_children = self.prune_options(element_ids);
         #[cfg(feature = "verbose-debug")]
         {
             // Debug element names for easier tracing
@@ -103,17 +100,17 @@ impl Parser<'_> {
             return Ok(stack.complete_frame_empty(&frame));
         }
 
-        // Initialize option counter for max_times_per_element tracking
+        // Option counter for max_times_per_element tracking; filled lazily by
+        // increment_element_count (entry().or_insert(0)), so start empty.
         #[cfg(feature = "verbose-debug")]
         let pruned_children_count = pruned_children.len();
         let first_element = pruned_children[0];
-        let option_counter: hashbrown::HashMap<u64, usize> =
-            pruned_children.iter().map(|id| (id.0 as u64, 0)).collect();
+        let option_counter: hashbrown::HashMap<u64, usize> = hashbrown::HashMap::new();
 
         // Combine terminators (read parent terminators from frame directly)
-        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = Parser::combine_terminators(
-            &local_terminators,
+        let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
+        let all_terminators = self.combine_terminators(
+            local_terminators,
             &frame.table_terminators,
             reset_terminators,
         );
@@ -171,7 +168,7 @@ impl Parser<'_> {
         frame.state = FrameState::WaitingForChild { child_index: 0 };
 
         // Store context with max_times config and pruned element list
-        frame.context = FrameContext::AnyNumberOf(AnyNumberOfState {
+        frame.context = FrameContext::AnyNumberOf(Box::new(AnyNumberOfState {
             grammar_id,
             pruned_children,
             count: 0,
@@ -183,7 +180,7 @@ impl Parser<'_> {
             matched: Arc::new(MatchResult::empty_at(start_pos)),
             longest_match: (Arc::new(MatchResult::empty_at(start_pos)), None),
             tried_elements: 0,
-        });
+        }));
 
         // Move terminators into frame (no clone)
         frame.table_terminators = all_terminators;
@@ -193,7 +190,7 @@ impl Parser<'_> {
         self.pos = start_pos;
         if let Some(mr) = self.try_terminal_inline(first_element, Some(max_idx))? {
             let end_pos = self.pos;
-            let arc = Arc::new(mr);
+            let arc = stack.share_result(mr);
             return self.handle_anynumberof_waiting_for_child(frame, &arc, &end_pos, stack);
         }
 
@@ -285,19 +282,27 @@ impl Parser<'_> {
                 );
             }
 
-            // Update longest_match if this child is better
-            if !child_match.is_empty() && child_end_pos <= ctx.max_idx {
-                ctx.update_longest_match(
+            // Update longest_match if this child is better. Like Python's
+            // longest_match, a new best followed by a terminator ends the
+            // search: later (possibly longer) candidates aren't tried.
+            let mut terminated = false;
+            if !child_match.is_empty()
+                && child_end_pos <= ctx.max_idx
+                && ctx.update_longest_match(
                     Arc::clone(&child_match),
                     child_end_pos,
                     current_candidate,
-                );
+                )
+                && !frame.table_terminators.is_empty()
+            {
+                self.pos = self.skip_start_index_forward_to_code(child_end_pos, ctx.max_idx);
+                terminated = self.is_terminated(&frame.table_terminators);
             }
 
             ctx.tried_elements += 1;
 
             // Try next element candidate if there are more
-            if ctx.has_more_candidates() {
+            if !terminated && ctx.has_more_candidates() {
                 let next_element_idx = ctx.tried_elements;
                 let next_candidate = ctx.pruned_children[next_element_idx];
                 let working_idx = ctx.working_idx;
@@ -316,7 +321,7 @@ impl Parser<'_> {
                 self.pos = working_idx;
                 if let Some(mr) = self.try_terminal_inline(next_candidate, Some(max_idx))? {
                     child_end_pos = self.pos;
-                    child_match = Arc::new(mr);
+                    child_match = stack.share_result(mr);
                     continue;
                 }
 
@@ -476,8 +481,8 @@ impl Parser<'_> {
         self.pos = ctx.working_idx;
 
         // Re-prune at new position
-        let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
-        let repruned_children = self.prune_options(&element_ids);
+        let element_ids = self.grammar_ctx.element_children(grammar_id);
+        let repruned_children = self.prune_options(element_ids.clone());
 
         vdebug!(
             "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
@@ -517,18 +522,18 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::AnyNumberOf(AnyNumberOfState {
+        let FrameContext::AnyNumberOf(boxed) = &frame.context else {
+            return Err(ParseError::new(
+                "Expected AnyNumberOf context in combining".to_string(),
+            ));
+        };
+        let AnyNumberOfState {
             grammar_id,
             count,
             matched_idx,
             matched,
             ..
-        }) = &frame.context
-        else {
-            return Err(ParseError::new(
-                "Expected AnyNumberOf context in combining".to_string(),
-            ));
-        };
+        } = &**boxed;
 
         let inst = self.grammar_ctx.inst(*grammar_id);
 

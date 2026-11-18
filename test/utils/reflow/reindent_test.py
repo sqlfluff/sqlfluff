@@ -1042,3 +1042,32 @@ def test_reflow__indent_compensation_skipped_at_level_zero(default_config):
 
     result = seq.reindent()
     assert result is not None
+
+
+@pytest.mark.parametrize("dialect", ["ansi", "redshift", "snowflake"])
+@pytest.mark.parametrize("count", [1, 2, 3])
+def test_reflow_empty_inline_loop_comma(dialect, count):
+    """A suppressed inline comma must not grow blank lines on each fix (#5371)."""
+    sql = (
+        "select\n"
+        f"{{% for i in range({count}) %}}\n"
+        '        0 as col{{ i }}{{ "," if not loop.last }}\n'
+        "{% endfor %}\n"
+    )
+    linter = Linter(config=FluffConfig(overrides={"dialect": dialect, "rules": "LT02"}))
+    parsed = linter.parse_string(sql)
+    assert not parsed.violations
+    assert parsed.tree
+    expected_tokens = [
+        segment.raw for segment in parsed.tree.raw_segments if segment.is_code
+    ]
+    # Independent of template spelling, the rendered query has one target per iteration.
+    assert expected_tokens == ["select"] + [
+        token
+        for i in range(count)
+        for token in (["0", "as", f"col{i}"] + ([","] if i < count - 1 else []))
+    ]
+    for _ in range(2):
+        fixed = linter.lint_string(sql, fix=True)
+        assert not fixed.violations
+        assert fixed.fix_string()[0] == sql

@@ -1,0 +1,157 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 272d36c2b5547cad0569f2b6174317da57c076505601775a80c91153e05a9e86
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            array_expression:
+            - keyword: ARRAY
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: numbers
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_expression:
+            - keyword: ARRAY
+            - start_square_bracket: '['
+            - quoted_literal: "'a'"
+            - comma: ','
+            - quoted_literal: "'b'"
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: strings
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_expression:
+            - keyword: ARRAY
+            - start_square_bracket: '['
+            - expression:
+                array_expression:
+                - keyword: ARRAY
+                - start_square_bracket: '['
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_square_bracket: ']'
+            - comma: ','
+            - expression:
+                array_expression:
+                  keyword: ARRAY
+                  start_square_bracket: '['
+                  numeric_literal: '3'
+                  end_square_bracket: ']'
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: nested
+      - comma: ','
+      - select_clause_element:
+          expression:
+            map_expression:
+            - keyword: MAP
+            - start_square_bracket: '['
+            - quoted_literal: "'a'"
+            - comma: ','
+            - numeric_literal: '1'
+            - comma: ','
+            - quoted_literal: "'b'"
+            - comma: ','
+            - numeric_literal: '2'
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: lookup
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_expression:
+            - keyword: ARRAY
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: first_number
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+          join_clause:
+          - keyword: CROSS
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: UNNEST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        array_expression:
+                        - keyword: ARRAY
+                        - start_square_bracket: '['
+                        - quoted_literal: "'a'"
+                        - comma: ','
+                        - quoted_literal: "'b'"
+                        - end_square_bracket: ']'
+                      end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: t
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                    naked_identifier: letter
+                  end_bracket: )
+- statement_terminator: ;

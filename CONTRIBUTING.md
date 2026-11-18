@@ -15,7 +15,7 @@ for new users is really important. If you are a new user, you are in precisely
 the best position to do this. Familiarise yourself with the tool (as per step
 2 above) and familiarise yourself with the current documentation (live version
 at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
-in the [docs](./docs/) folder of the repo). Pull requests are always welcome
+in the [docsv](./docsv/) folder of the repo). Pull requests are always welcome
 with documentation improvements. Keep in mind that there are linting checks in
 place for good formatting so keep an eye on the tests whenever submitting a PR.
 We also have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) for
@@ -340,9 +340,9 @@ with these sort of issues during code review.
 
 ### Documentation Website
 
-Documentation is built using Sphinx with some pages being built based on the
-source code. See the [Documentation Website README.md](./docs/README.md) file
-for more information on how to build and test this.
+Documentation is built using VitePress, with reference pages generated from the
+source code. See the [documentation README](./docsv/README.md) for build and
+test instructions.
 
 ### Building Package
 

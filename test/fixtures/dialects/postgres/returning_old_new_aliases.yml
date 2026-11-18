@@ -1,0 +1,239 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3a9470d6dc7c6e54d69a5ee46db516a4370ccb1056c72b340b3a735811221edb
+file:
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: products
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: price
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: price
+            binary_operator: '*'
+            numeric_literal: '1.10'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: price
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          numeric_literal: '99.99'
+    - keyword: RETURNING
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: OLD
+      - keyword: AS
+      - naked_identifier: o
+      - comma: ','
+      - keyword: NEW
+      - keyword: AS
+      - naked_identifier: n
+      - end_bracket: )
+    - expression:
+        column_reference:
+          naked_identifier: name
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: o
+        - dot: .
+        - naked_identifier: price
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: old_price
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: n
+        - dot: .
+        - naked_identifier: price
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: new_price
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: products
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: product_no
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          naked_identifier: price
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Cheese'"
+        - comma: ','
+        - expression:
+            numeric_literal: '9.99'
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: product_no
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: price
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: excluded
+          - dot: .
+          - naked_identifier: price
+    - keyword: RETURNING
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: NEW
+      - keyword: AS
+      - naked_identifier: n
+      - end_bracket: )
+    - expression:
+        wildcard_identifier:
+          naked_identifier: n
+          dot: .
+          star: '*'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: products
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: price
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '0'
+    - keyword: RETURNING
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: OLD
+      - keyword: AS
+      - naked_identifier: removed
+      - end_bracket: )
+    - expression:
+        column_reference:
+        - naked_identifier: removed
+        - dot: .
+        - naked_identifier: product_no
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: products
+    - alias_expression:
+        naked_identifier: p
+    - keyword: USING
+    - table_reference:
+        naked_identifier: new_prices
+    - alias_expression:
+        naked_identifier: np
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: product_no
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: np
+          - dot: .
+          - naked_identifier: product_no
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  naked_identifier: price
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: np
+                - dot: .
+                - naked_identifier: price
+    - keyword: RETURNING
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: NEW
+      - keyword: AS
+      - naked_identifier: n
+      - comma: ','
+      - keyword: OLD
+      - keyword: AS
+      - naked_identifier: o
+      - end_bracket: )
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: merge_action
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: o
+        - dot: .
+        - naked_identifier: price
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: n
+        - dot: .
+        - naked_identifier: price
+- statement_terminator: ;

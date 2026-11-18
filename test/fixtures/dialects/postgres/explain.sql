@@ -50,3 +50,21 @@ explain (format text) select 1;
 explain (format json) select 1;
 
 explain (format yaml) select 1;
+
+explain (
+    analyze on,
+    verbose off,
+    costs 1,
+    buffers 0,
+    generic_plan,
+    memory true,
+    serialize
+) select 1;
+
+explain (serialize none, generic_plan off) select 1;
+
+explain (analyze, serialize text) select 1;
+
+explain (analyze, serialize binary, memory) select 1;
+
+select memory, serialize, generic_plan from explain_tbl;

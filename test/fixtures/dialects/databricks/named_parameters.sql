@@ -67,3 +67,4 @@ SELECT
     :param_value
 FROM table1
 WHERE json_data:id > :min_id;
+SELECT :`my param` FROM t WHERE x = :`other param`;

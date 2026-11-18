@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from sqlfluff.core.parser import NewlineSegment
+from sqlfluff.core.parser import NewlineSegment, RawSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -95,9 +95,7 @@ class Rule_LT15(BaseRule):
     # Statement terminators are sought as well as newlines: a minimum between
     # statements has to be enforceable when the statements share a line, where
     # there is no newline to crawl at all.
-    crawl_behaviour = SegmentSeekerCrawler(
-        types={"newline", "statement_terminator"}, provide_raw_stack=True
-    )
+    crawl_behaviour = SegmentSeekerCrawler(types={"newline", "statement_terminator"})
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
@@ -135,10 +133,11 @@ class Rule_LT15(BaseRule):
         # templated one, where this check suppresses the violation outright for
         # both. Sharing it silently widened a long-standing rule, so the shared
         # helper stays with the minimum and this stays as it shipped.
-        if len(context.raw_stack) < maximum_empty_lines:  # pragma: no cover
+        raw_segments, idx = self._raw_segments_and_index(context)
+        if idx < maximum_empty_lines:  # pragma: no cover
             return None
 
-        for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]:
+        for raw_seg in raw_segments[max(idx - maximum_empty_lines - 1, 0) : idx]:
             if raw_seg.is_templated or not raw_seg.is_type("newline"):
                 return None
 
@@ -148,6 +147,26 @@ class Rule_LT15(BaseRule):
                 fixes=[LintFix.delete(context.segment)],
             )
         ]
+
+    @staticmethod
+    def _raw_segments_and_index(
+        context: RuleContext,
+    ) -> Tuple[List[RawSegment], int]:
+        """The file's raw segments, and the index of the current segment in them.
+
+        The raw segments before that index are what the crawler would provide as
+        ``context.raw_stack``. Building that stack costs time in proportion to
+        the file for every segment crawled, so we index into the file instead.
+        """
+        root = context.parent_stack[0]
+        raw_segments = root.raw_segments
+        idx = root.raw_segment_index(context.segment)
+        # That finds the first *equal* segment, which can be an earlier copy
+        # sharing its uuid (a fix can insert one segment more than once), so
+        # step forward to this exact segment.
+        while raw_segments[idx] is not context.segment:
+            idx += 1
+        return raw_segments, idx
 
     def _resolve_scope(self, context: RuleContext) -> _Scope:
         """Which of the three scopes this position sits in.
@@ -173,10 +192,12 @@ class Rule_LT15(BaseRule):
             return _Scope.BETWEEN_STATEMENTS
 
         # File level: a gap out here separates batches in the dialects that have
-        # them, and statements everywhere else.
-        if any(
-            seg.is_type("batch")
-            for seg in (*context.siblings_pre, *context.siblings_post)
+        # them, and statements everywhere else. The current segment is never a
+        # batch itself, so checking the parent's (cached) child types is the same
+        # as checking each sibling, without a scan of the file for every newline.
+        if (
+            context.parent_stack
+            and "batch" in context.parent_stack[-1].direct_descendant_type_set
         ):
             return _Scope.BETWEEN_BATCHES
         return _Scope.BETWEEN_STATEMENTS
@@ -226,7 +247,9 @@ class Rule_LT15(BaseRule):
         # itself opens with a comment marker; only `/* */` bodies span more
         # than one segment, so `--`/`#` inline comments never trigger this.
         in_open_block_comment_body = False
-        for raw_seg in reversed(context.raw_stack):
+        raw_segments, idx = self._raw_segments_and_index(context)
+        for raw_idx in range(idx - 1, -1, -1):
+            raw_seg = raw_segments[raw_idx]
             if raw_seg.is_type("comment", "inline_comment", "block_comment"):
                 if not in_comment:
                     # Bank the run that ended at this comment block. Further

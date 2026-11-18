@@ -16,10 +16,10 @@ class Rule_CV02(BaseRule):
 
     .. code-block:: sql
 
-        SELECT ifnull(foo, 0) AS bar,
+        SELECT ifnull(foo, 0) AS bar
         FROM baz;
 
-        SELECT nvl(foo, 0) AS bar,
+        SELECT nvl(foo, 0) AS bar
         FROM baz;
 
     **Best practice**
@@ -33,7 +33,7 @@ class Rule_CV02(BaseRule):
 
     .. code-block:: sql
 
-        SELECT coalesce(foo, 0) AS bar,
+        SELECT coalesce(foo, 0) AS bar
         FROM baz;
 
     """

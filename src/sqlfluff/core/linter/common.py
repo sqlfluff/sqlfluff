@@ -44,11 +44,11 @@ class DeferredRenderTask(NamedTuple):
 
     Instead of templating in the main process and shipping the full
     RenderedFile (~200 KB) across the IPC boundary, we ship only the
-    filename and root config and let the worker call render_file itself.
+    filename and let the worker call render_file itself. Each worker
+    gets the root config once, when the pool starts.
     """
 
     fname: str
-    root_config: FluffConfig
     fix: bool
 
 

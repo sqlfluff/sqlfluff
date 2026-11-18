@@ -13,10 +13,7 @@ use sqlfluffrs_python::token::{PyCaseFold, PyToken};
 /// A Python module implemented in Rust.
 #[pymodule(name = "sqlfluffrs", module = "sqlfluffrs")]
 fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    let env = env_logger::Env::default().filter_or("RUST_LOG", "warn");
-    env_logger::Builder::from_env(env)
-        .try_init()
-        .unwrap_or_else(|_| log::warn!("env_logger already initialized!"));
+    sqlfluffrs_types::init_logging();
     m.add_class::<PyCaseFold>()?;
     m.add_class::<PyToken>()?;
     m.add_class::<PyTemplatedFile>()?;
@@ -36,6 +33,15 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     sqlfluffrs_rules::python::register(m)?;
     // Add custom exception
     m.add("RsParseError", m.py().get_type::<RsParseError>())?;
+    // Rust-driven orchestration entrypoints (discover → render → lex → parse).
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_parse_paths,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::engine_entry::engine_render_string,
+        m
+    )?)?;
     // Sentinel prefix for missing-ref errors, shared with rust_parser.py so
     // the two sides of the pyo3 boundary can't drift on the literal.
     m.add("MISSING_REF_PREFIX", MISSING_REF_PREFIX)?;

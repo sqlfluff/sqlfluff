@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ae8e2248b599e2e435c42700cc3f2c71103f61c4a45b7b32c62518b4a514d28
+_hash: 67e6c6f2fe3907324669367521e572bb711f757600c6a3f579d4548a9f3d8ac5
 file:
 - statement:
     set_statement:
@@ -12,7 +12,8 @@ file:
     - naked_identifier: my_var
     - comparison_operator:
         raw_comparison_operator: '='
-    - numeric_literal: '30'
+    - expression:
+        numeric_literal: '30'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -20,7 +21,8 @@ file:
     - keyword: VARIABLE
     - naked_identifier: other_var
     - keyword: TO
-    - quoted_literal: "'hello'"
+    - expression:
+        quoted_literal: "'hello'"
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -80,4 +82,136 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'desc'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: total
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+      - numeric_literal: '1'
+      - binary_operator: +
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: greeting
+    - keyword: TO
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: upper
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'hello'"
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: answer
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '42'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: files
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: list
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: file
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    bracketed:
+                      start_bracket: (
+                      table_expression:
+                        values_clause:
+                        - keyword: VALUES
+                        - bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'a.csv'"
+                            end_bracket: )
+                        - comma: ','
+                        - bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'b.csv'"
+                            end_bracket: )
+                      end_bracket: )
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: input_files
+                      bracketed:
+                        start_bracket: (
+                        identifier_list:
+                          naked_identifier: file
+                        end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: filenames
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        array_literal:
+        - start_square_bracket: '['
+        - quoted_literal: "'a.csv'"
+        - comma: ','
+        - quoted_literal: "'b.csv'"
+        - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: start_date
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - expression:
+        datetime_literal:
+          datetime_type_identifier:
+            keyword: DATE
+          quoted_literal: "'2026-01-01'"
 - statement_terminator: ;

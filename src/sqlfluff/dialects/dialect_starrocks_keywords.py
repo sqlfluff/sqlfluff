@@ -734,3 +734,11 @@ ARRAY
 MAP
 STRUCT
 """
+
+# StarRocks index types.
+starrocks_unreserved_keywords += """
+BITMAP
+GIN
+NGRAMBF
+VECTOR
+"""

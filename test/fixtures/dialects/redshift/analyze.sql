@@ -1,0 +1,7 @@
+ANALYZE;
+
+ANALYZE t1;
+
+ANALYZE VERBOSE t1;
+
+ANALYZE t1 (a, b);

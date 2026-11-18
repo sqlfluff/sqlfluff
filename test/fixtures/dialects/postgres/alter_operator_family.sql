@@ -1,0 +1,23 @@
+ALTER OPERATOR FAMILY alt_fam2 USING btree RENAME TO alt_fam3;
+
+ALTER OPERATOR FAMILY alt_fam3 USING btree OWNER TO joe;
+
+ALTER OPERATOR FAMILY alt_fam3 USING btree OWNER TO CURRENT_ROLE;
+
+ALTER OPERATOR FAMILY alt_fam3 USING btree OWNER TO CURRENT_USER;
+
+ALTER OPERATOR FAMILY alt_fam3 USING btree OWNER TO SESSION_USER;
+
+ALTER OPERATOR FAMILY alt_fam3 USING btree SET SCHEMA test_schema;
+
+ALTER OPERATOR FAMILY public.custom_fam USING hash OWNER TO joe;
+
+ALTER OPERATOR FAMILY integer_ops USING btree ADD
+  OPERATOR 6 < (time, time),
+  OPERATOR 7 <= (time, time),
+  OPERATOR 8 = (time, time),
+  FUNCTION 1 btint42cmp (int4, int2);
+
+ALTER OPERATOR FAMILY integer_ops USING btree DROP
+  OPERATOR 6 (time, time),
+  FUNCTION 1 (int4, int2);

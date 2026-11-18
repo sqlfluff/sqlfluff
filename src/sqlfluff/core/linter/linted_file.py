@@ -74,6 +74,9 @@ class LintedFile(NamedTuple):
     templated_file: Optional[TemplatedFile]
     encoding: str
     source_patches: Optional[list[FixPatch]] = None
+    # The (all, raw) segment counts of the tree, set by parallel workers when
+    # they leave out a tree which the main process won't otherwise need.
+    segment_counts: Optional[tuple[int, int]] = None
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True

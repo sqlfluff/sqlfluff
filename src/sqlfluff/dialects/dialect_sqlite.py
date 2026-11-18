@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    ComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -30,6 +31,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
     WhitespaceSegment,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import is_distinct_from_lookbehind
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -99,6 +101,7 @@ sqlite_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r'""', '"')],
             },
         ),
+        RegexLexer("equals", r"==?", CodeSegment),
         RegexLexer(
             "back_quote",
             r"`([^`]|``)*`",
@@ -107,6 +110,14 @@ sqlite_dialect.patch_lexer_matchers(
                 "quoted_value": (r"`((?:[^`]|``)*)`", 1),
                 "escape_replacements": [(r"``", "`")],
             },
+        ),
+        # SQLite numeric literals can contain single underscores ('_') since version 3.46.0
+        # as thousands separators or for grouping in decimal and hex literals.
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+(?:_\d+)*\.\d+(?:_\d+)*|\d+(?:_\d+)*\.(?![\.\w])|\.\d+(?:_\d+)*|\d+(?:_\d+)*)"
+            r"(\.?[eE][+-]?\d+(?:_\d+)*)?((?<=\.)|(?=\b))",
+            LiteralSegment,
         ),
     ]
 )
@@ -121,7 +132,7 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hexadecimal_literal",
-            r"0x[\da-fA-F]+",
+            r"0[xX][\da-fA-F]+(?:_[\da-fA-F]+)*(?![.\w])",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -145,12 +156,24 @@ sqlite_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "dollar_literal",
-            r"\$[a-zA-Z0-9_]+",
+            r"\$(?:::)*[a-zA-Z0-9_$]+(?:::[a-zA-Z0-9_$]*)*(?:\([^)]*\))?",
             LiteralSegment,
             segment_kwargs={"type": "dollar_literal"},
         ),
     ],
     before="question",
+)
+
+sqlite_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "square_quote",
+            r"\[[^\]]*\]",
+            CodeSegment,
+            segment_kwargs={"quoted_value": (r"\[([^\]]*)\]", 1)},
+        ),
+    ],
+    before="start_square_bracket",
 )
 
 sqlite_dialect.insert_lexer_matchers(
@@ -169,6 +192,12 @@ sqlite_dialect.add(
         # match ANSI's naked identifier casefold, sqlite is case-insensitive.
         casefold=str.upper,
     ),
+    BracketedIdentifierSegment=TypedParser(
+        "square_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        casefold=str.upper,
+    ),
     ColumnPathOperatorSegment=StringParser(
         "->", SymbolSegment, type="column_path_operator"
     ),
@@ -176,6 +205,7 @@ sqlite_dialect.add(
         "->>", SymbolSegment, type="column_path_operator"
     ),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         LiteralSegment,
@@ -261,10 +291,17 @@ sqlite_dialect.replace(
     FetchClauseSegment=Nothing(),
     TrimParametersGrammar=Nothing(),
     LikeGrammar=Sequence("LIKE"),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
     OverlapsClauseSegment=Nothing(),
     MLTableExpressionSegment=Nothing(),
     MergeIntoLiteralGrammar=Nothing(),
     SamplingExpressionSegment=Nothing(),
+    PostTableExpressionGrammar=Ref("IndexedByClauseSegment"),
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(insert=[Ref("EqualsSegment_a")]),
+    IsNullGrammar=Ref.keyword("ISNULL"),
+    NotNullGrammar=OneOf("NOTNULL", Sequence("NOT", "NULL")),
     BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
         insert=[
             Ref("ColumnPathOperatorSegment"),
@@ -360,19 +397,6 @@ sqlite_dialect.replace(
             ),
         ),
         Ref("IndexColumnDefinitionSegment"),
-        # Raise Function contents
-        OneOf(
-            "IGNORE",
-            Sequence(
-                OneOf(
-                    "ABORT",
-                    "FAIL",
-                    "ROLLBACK",
-                ),
-                Ref("CommaSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-        ),
     ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
@@ -434,6 +458,7 @@ sqlite_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
+        Ref("BracketedIdentifierSegment"),
         terminators=[Ref("DotSegment")],
     ),
     # match ANSI's naked identifier casefold, sqlite is case-insensitive.
@@ -443,7 +468,7 @@ sqlite_dialect.replace(
     SingleQuotedIdentifierSegment=TypedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
-    ColumnConstraintDefaultGrammar=Ref("ExpressionSegment"),
+    ColumnConstraintDefaultGrammar=Ref("ColumnDefaultExpressionSegment"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE", "GROUPS"),
 )
 
@@ -523,27 +548,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
-    """A reference to column, field or alias.
-
-    Also allows `column->path` and `column->>path` for JSON values.
-    https://www.sqlite.org/json1.html#jptr
-    """
-
-    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                OneOf(
-                    ansi.ColumnReferenceSegment.match_grammar.copy(),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    Ref("LiteralGrammar"),
-                ),
-            ),
-        ]
-    )
-
-
 class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to a table.
 
@@ -614,6 +618,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     type = "values_clause"
     match_grammar: Matchable = Sequence(
         "VALUES",
+        Indent,
         Delimited(
             Sequence(
                 Bracketed(
@@ -625,6 +630,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -642,6 +648,52 @@ class IndexColumnDefinitionSegment(BaseSegment):
             Ref("ExpressionSegment"),  # Expression for simple functions
         ),
         OneOf("ASC", "DESC", optional=True),
+    )
+
+
+class RaiseFunctionNameSegment(BaseSegment):
+    """RAISE function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "RAISE", WordSegment, type="function_name_identifier"
+    )
+
+
+class RaiseFunctionContentsSegment(BaseSegment):
+    """RAISE function contents.
+
+    https://www.sqlite.org/lang_createtrigger.html#raise
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        OneOf(
+            "IGNORE",
+            Sequence(
+                OneOf("ABORT", "FAIL", "ROLLBACK"),
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function, with RAISE support."""
+
+    match_grammar = ansi.FunctionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("RaiseFunctionNameSegment"),
+                Ref("RaiseFunctionContentsSegment"),
+            ),
+        ],
+        at=0,
     )
 
 
@@ -690,7 +742,7 @@ class UpsertClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         "CONFLICT",
-        Ref("ConflictTargetSegment", optional=True),
+        Ref("ConflictTargetSegment"),
         "DO",
         OneOf(
             "NOTHING",
@@ -716,6 +768,14 @@ class UpsertClauseSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class TargetlessUpsertClauseSegment(UpsertClauseSegment):
+    """An UPSERT clause without a target, allowed only as the final clause."""
+
+    match_grammar = UpsertClauseSegment.match_grammar.copy(
+        remove=[Ref("ConflictTargetSegment")],
     )
 
 
@@ -746,16 +806,20 @@ class InsertStatementSegment(BaseSegment):
             "REPLACE",
         ),
         "INTO",
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         OneOf(
             Sequence(
                 Ref("ValuesClauseSegment"),
-                Ref("UpsertClauseSegment", optional=True),
+                AnyNumberOf(Ref("UpsertClauseSegment")),
+                Ref("TargetlessUpsertClauseSegment", optional=True),
             ),
             Sequence(
                 OptionallyBracketed(Ref("SelectableGrammar")),
-                Ref("UpsertClauseSegment", optional=True),
+                AnyNumberOf(Ref("UpsertClauseSegment")),
+                Ref("TargetlessUpsertClauseSegment", optional=True),
             ),
             Ref("DefaultValuesGrammar"),
         ),
@@ -779,6 +843,23 @@ class ConflictClauseSegment(BaseSegment):
             "FAIL",
             "IGNORE",
             "REPLACE",
+        ),
+    )
+
+
+class ColumnDefaultExpressionSegment(ansi.ExpressionSegment):
+    """The value after DEFAULT, without postfix operators like NOT NULL or COLLATE.
+
+    https://www.sqlite.org/lang_createtable.html#the_default_clause
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("Tail_Recurse_Expression_A_Grammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("BinaryOperatorGrammar"),
+                Ref("Tail_Recurse_Expression_A_Grammar"),
+            )
         ),
     )
 
@@ -876,16 +957,36 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
 
 
 class TransactionStatementSegment(ansi.TransactionStatementSegment):
-    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
+    """A `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT` or `RELEASE` statement.
 
     As per https://www.sqlite.org/lang_transaction.html
+    and https://www.sqlite.org/lang_savepoint.html
     """
 
     type = "transaction_statement"
-    match_grammar: Matchable = Sequence(
-        OneOf("BEGIN", "COMMIT", "ROLLBACK", "END"),
-        OneOf("TRANSACTION", optional=True),
-        Sequence("TO", "SAVEPOINT", Ref("ObjectReferenceSegment"), optional=True),
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "BEGIN",
+            OneOf("DEFERRED", "IMMEDIATE", "EXCLUSIVE", optional=True),
+            Ref.keyword("TRANSACTION", optional=True),
+        ),
+        Sequence(OneOf("COMMIT", "END"), Ref.keyword("TRANSACTION", optional=True)),
+        Sequence(
+            "ROLLBACK",
+            Ref.keyword("TRANSACTION", optional=True),
+            Sequence(
+                "TO",
+                Ref.keyword("SAVEPOINT", optional=True),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence("SAVEPOINT", Ref("ObjectReferenceSegment")),
+        Sequence(
+            "RELEASE",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 
@@ -927,6 +1028,7 @@ class PragmaStatementSegment(BaseSegment):
         "PASSIVE",
         "RESTART",
         "RESET",
+        Ref("ObjectReferenceSegment"),
     )
 
     match_grammar = Sequence(
@@ -934,7 +1036,6 @@ class PragmaStatementSegment(BaseSegment):
         Ref("PragmaReferenceSegment"),
         OneOf(
             Bracketed(_pragma_value),
-            Bracketed(Ref("ObjectReferenceSegment")),
             optional=True,
         ),
         Sequence(
@@ -1035,6 +1136,19 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
+class IndexedByClauseSegment(BaseSegment):
+    """An `INDEXED BY` or `NOT INDEXED` clause after a table name.
+
+    https://www.sqlite.org/lang_indexedby.html
+    """
+
+    type = "indexed_by_clause"
+    match_grammar: Matchable = OneOf(
+        Sequence("INDEXED", "BY", Ref("IndexReferenceSegment")),
+        Sequence("NOT", "INDEXED"),
+    )
+
+
 class DeleteStatementSegment(ansi.DeleteStatementSegment):
     """A `DELETE` statement.
 
@@ -1075,6 +1189,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
         Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Ref("IndexedByClauseSegment", optional=True),
         Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
@@ -1175,6 +1290,11 @@ class CreateVirtualTableStatementSegment(BaseSegment):
                             Ref("NumericLiteralSegment"),
                             Ref("ObjectReferenceSegment"),
                         ),
+                    ),
+                    # FTS5 column declarations may include the UNINDEXED option.
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "UNINDEXED",
                     ),
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),

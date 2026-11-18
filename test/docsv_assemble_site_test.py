@@ -399,6 +399,65 @@ def test_versions_page_groups_releases_by_major(assemble_site):
     assert [entry["key"] for entry in groups[0][1]] == ["4.1.0"]
 
 
+def test_versions_page_shows_release_date_before_version(assemble_site):
+    """Historical releases use a concise date without a misleading badge."""
+    entry = {
+        "key": "2.0.0",
+        "path": "/en/2.0.0/",
+        "kind": "release",
+        "builder": "sphinx",
+        "published_at": "2023-03-14T09:45:27Z",
+    }
+
+    item = assemble_site.render_version_item(entry, stable_key=None)
+
+    assert '<time class="meta date" datetime="2023-03-14">2023-03-14</time>' in item
+    assert item.index("2023-03-14</time>") < item.index('href="/en/2.0.0/"')
+    assert "09:45:27" not in item
+    assert "archived" not in item
+
+
+def test_versions_page_accepts_date_only_release_metadata(assemble_site):
+    """Existing manual releases may already use YYYY-MM-DD metadata."""
+    item = assemble_site.render_version_item(
+        {
+            "key": "3.4.1",
+            "path": "/en/3.4.1/",
+            "published_at": "2025-06-13",
+        },
+        stable_key=None,
+    )
+
+    assert 'datetime="2025-06-13"' in item
+
+
+def test_versions_page_ignores_invalid_release_date(assemble_site, capsys):
+    """A bad manifest date should not prevent the archive page from rendering."""
+    page = assemble_site.build_versions_page(
+        "en",
+        {
+            "versions": [
+                {
+                    "key": "3.4.1",
+                    "path": "/en/3.4.1/",
+                    "published_at": "2026-13-14",
+                },
+                {
+                    "key": "3.4.0",
+                    "path": "/en/3.4.0/",
+                    "published_at": "2025-06-13",
+                },
+            ]
+        },
+    )
+
+    assert '<a class="version" href="/en/3.4.1/">3.4.1</a>' in page
+    assert '<a class="version" href="/en/3.4.0/">3.4.0</a>' in page
+    assert 'datetime="2026-13-14"' not in page
+    assert 'datetime="2025-06-13"' in page
+    assert "ignoring invalid published_at for 3.4.1" in capsys.readouterr().out
+
+
 def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
     """The assets have fixed filenames, so a long cache would freeze the picker."""
     headers = assemble_site.build_global_headers("en")
@@ -407,6 +466,140 @@ def test_headers_do_not_cache_shared_assets_immutably(assemble_site):
 
     assert "must-revalidate" in shared
     assert "immutable" not in shared
+
+
+def test_beta_headers_keep_archived_sphinx_pages_out_of_search(
+    assemble_site, monkeypatch
+):
+    """Mirrored pages have no VitePress robots meta tag of their own."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+
+    headers = assemble_site.build_global_headers("en")
+
+    assert "/en/*\n    X-Robots-Tag: noindex, nofollow" in headers
+
+
+def test_production_indexing_keeps_only_stable_search_facing(
+    assemble_site, monkeypatch
+):
+    """Archives and development stay accessible without competing in search."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_INDEXING_MODE", "production")
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+    manifest = {
+        "default": "stable",
+        "versions": [
+            {"key": "latest"},
+            {"key": "stable"},
+            {"key": "4.3.0"},
+        ],
+    }
+
+    headers = assemble_site.build_global_headers("en", manifest)
+    redirects = assemble_site.build_redirects("en", manifest)
+    archive = assemble_site.build_versions_page("en", manifest)
+
+    assert "/en/latest/*\n    X-Robots-Tag: noindex, follow" in headers
+    assert "/en/4.3.0/*\n    X-Robots-Tag: noindex, follow" in headers
+    assert "/en/*\n    X-Robots-Tag: noindex" not in headers
+    assert "/en/stable/*\n    X-Robots-Tag: noindex" not in headers
+    assert "/ /en/stable/ 302" in redirects
+    assert (
+        "https://docs.beta.sqlfluff.com/* https://docs.sqlfluff.com/:splat 301!"
+        in redirects
+    )
+    assert (
+        'rel="canonical" href="https://docs.sqlfluff.com/en/versions.html"' in archive
+    )
+    assert 'name="robots" content="noindex' not in archive
+
+
+def test_stable_html_gets_a_single_canonical_without_beta_noindex(
+    assemble_site, tmp_path
+):
+    """The current assembler can make an older tagged build indexable."""
+    page = tmp_path / "development" / "architecture.html"
+    page.parent.mkdir()
+    page.write_text(
+        '<html><head><meta name="robots" content="noindex,nofollow"></head></html>',
+        encoding="utf-8",
+    )
+    genindex = tmp_path / "genindex.html"
+    genindex.write_text("<html><head></head></html>", encoding="utf-8")
+
+    assemble_site.prepare_stable_html_for_indexing(tmp_path, "en")
+    assemble_site.prepare_stable_html_for_indexing(tmp_path, "en")
+
+    html = page.read_text(encoding="utf-8")
+    assert "noindex" not in html
+    assert html.count('rel="canonical"') == 1
+    assert (
+        'href="https://docs.sqlfluff.com/en/stable/development/architecture.html"'
+        in html
+    )
+    assert (
+        'href="https://docs.sqlfluff.com/en/stable/genindex.html"'
+        in genindex.read_text(encoding="utf-8")
+    )
+
+
+def test_latest_publish_prepares_existing_stable_tree_for_indexing(
+    assemble_site, monkeypatch, tmp_path
+):
+    """Activation does not depend on rebuilding the stable release first."""
+    site = tmp_path / "site"
+    stable = _dist(tmp_path, "stable")
+    (stable / "index.html").write_text(
+        '<html><head><meta name="robots" content="noindex,nofollow"></head></html>',
+        encoding="utf-8",
+    )
+    assemble_site.assemble_site(
+        dist=stable,
+        output_dir=site,
+        language="en",
+        channel="stable",
+        title="Stable",
+        kind="channel",
+        stable_release="4.3.0",
+        shared_dir=tmp_path / "absent",
+    )
+
+    monkeypatch.setenv("SQLFLUFF_DOCS_INDEXING_MODE", "production")
+    assemble_site.assemble_site(
+        dist=_dist(tmp_path, "latest"),
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+    html = (site / "en" / "stable" / "index.html").read_text(encoding="utf-8")
+    assert "noindex" not in html
+    assert 'rel="canonical" href="https://docs.sqlfluff.com/en/stable/"' in html
+    assert (site / "sitemap.xml").is_file()
+    assert (site / "robots.txt").read_text(encoding="utf-8") == (
+        "Sitemap: https://docs.sqlfluff.com/sitemap.xml\n"
+    )
+
+
+def test_production_sitemap_lists_only_stable_pages(assemble_site, tmp_path):
+    """Only canonical pages belong in the submitted sitemap."""
+    stable = tmp_path / "en" / "stable"
+    (stable / "guide").mkdir(parents=True)
+    (stable / "index.html").write_text("home", encoding="utf-8")
+    (stable / "guide" / "index.html").write_text("guide", encoding="utf-8")
+    (stable / "genindex.html").write_text("index", encoding="utf-8")
+    (stable / "404.html").write_text("not found", encoding="utf-8")
+
+    sitemap = assemble_site.build_sitemap(tmp_path, "en")
+
+    assert "https://docs.sqlfluff.com/en/stable/</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/stable/guide/</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/stable/genindex.html</loc>" in sitemap
+    assert "https://docs.sqlfluff.com/en/stable/gen</loc>" not in sitemap
+    assert "https://docs.sqlfluff.com/en/versions.html</loc>" in sitemap
+    assert "404.html" not in sitemap
 
 
 def test_the_404_page_is_published_at_the_site_root(assemble_site, tmp_path):
@@ -518,6 +711,63 @@ def test_the_404_page_comes_from_the_default_channel(assemble_site, tmp_path):
     )
 
     assert (site / "404.html").read_text(encoding="utf-8") == "<html>latest 404</html>"
+
+
+def test_stable_becomes_the_default_even_in_beta_mode(
+    assemble_site, monkeypatch, tmp_path
+):
+    """A main publish keeps the landing page on stable once it exists."""
+    monkeypatch.setenv("SQLFLUFF_DOCS_INDEXING_MODE", "beta")
+    monkeypatch.setenv("SQLFLUFF_DOCS_NOINDEX", "1")
+    site = tmp_path / "site"
+    latest = _dist(tmp_path, "latest")
+    stable = _dist(tmp_path, "stable")
+    (latest / "404.html").write_text("latest 404", encoding="utf-8")
+    (stable / "404.html").write_text("stable 404", encoding="utf-8")
+
+    assemble_site.assemble_site(
+        dist=latest,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+    assert assemble_site.load_manifest(site / "en" / "versions.json")["default"] == (
+        "latest"
+    )
+
+    assemble_site.assemble_site(
+        dist=stable,
+        output_dir=site,
+        language="en",
+        channel="stable",
+        title="Stable",
+        kind="channel",
+        stable_release="4.3.0",
+        shared_dir=tmp_path / "absent",
+    )
+    assemble_site.assemble_site(
+        dist=latest,
+        output_dir=site,
+        language="en",
+        channel="latest",
+        title="Development",
+        kind="channel",
+        shared_dir=tmp_path / "absent",
+    )
+
+    assert assemble_site.load_manifest(site / "en" / "versions.json")["default"] == (
+        "stable"
+    )
+    redirects = (site / "_redirects").read_text(encoding="utf-8")
+    assert "/ /en/stable/ 302" in redirects
+    assert "/en/ /en/stable/ 302" in redirects
+    assert (site / "404.html").read_text(encoding="utf-8") == "stable 404"
+    assert "/en/*\n    X-Robots-Tag: noindex, nofollow" in (
+        site / "_headers"
+    ).read_text(encoding="utf-8")
 
 
 def test_the_404_page_tracks_the_default_channel_when_it_is_rebuilt(

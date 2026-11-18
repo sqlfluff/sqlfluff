@@ -14,12 +14,14 @@ def generate_use():
             f"use crate::dialect::{dialect.label.lower()}::matcher::{{"
             f"{dialect.label.upper()}_KEYWORDS, "
             f"{dialect.label.upper()}_LEXERS, "
-            f"{dialect.label.upper()}_BRACKET_PAIRS}};"
+            f"{dialect.label.upper()}_BRACKET_PAIRS, "
+            f"{dialect.label.upper()}_CLIENT_COMMANDS}};"
         )
     print()
     print("use sqlfluffrs_types::RootGrammar;")
     print("use sqlfluffrs_types::LexMatcher;")
     print("use sqlfluffrs_types::BracketPairSet;")
+    print("use sqlfluffrs_types::ClientCommandRules;")
     print("use std::str::FromStr;")
 
 
@@ -43,6 +45,13 @@ def generate_dialect_enum():
     dialect_bracket_pairs = ",\n            ".join(
         [
             f"Dialect::{d.label.capitalize()} => &{d.label.upper()}_BRACKET_PAIRS"
+            for d in dialect_readout()
+        ]
+    )
+    dialect_client_commands = ",\n            ".join(
+        [
+            f"Dialect::{d.label.capitalize()} => "
+            f"{d.label.upper()}_CLIENT_COMMANDS.as_ref()"
             for d in dialect_readout()
         ]
     )
@@ -99,6 +108,14 @@ impl Dialect {{
     pub fn get_bracket_pairs(&self) -> &'static BracketPairSet {{
         match self {{
             {dialect_bracket_pairs},
+        }}
+    }}
+
+    /// The rules of the command-line client that runs the dialect's scripts,
+    /// for dialects whose scripts are split into statements by one.
+    pub fn get_client_commands(&self) -> Option<&'static ClientCommandRules> {{
+        match self {{
+            {dialect_client_commands},
         }}
     }}
 

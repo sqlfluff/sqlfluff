@@ -38,7 +38,11 @@ def test__parser__parse_error():
     assert len(parsed.violations) == 1
     violation = parsed.violations[0]
     assert isinstance(violation, SQLParseError)
-    assert violation.desc() == "Line 1, Position 1: Found unparsable section: 'SELECT'"
+    assert violation.desc() == (
+        "Line 1, Position 1: Found unparsable section: 'SELECT'. Expected: "
+        "<Delimited: [<Ref: 'SelectClauseElementSegment'>]> after "
+        "<WordSegment: ([L:  1, ..."
+    )
 
     # Check that the expected labels work for logging.
     # TODO: This is more specific that in previous iterations, but we could

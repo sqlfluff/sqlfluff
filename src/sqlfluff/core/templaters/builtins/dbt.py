@@ -1,6 +1,11 @@
 """Defines the jinja builtins for dbt."""
 
+import json
 from typing import Any, Callable, Union
+
+import yaml
+from jinja2.runtime import Context, Macro
+from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.templaters.builtins.common import FunctionWrapper
 
@@ -66,6 +71,52 @@ def _builtin_return(value: Any) -> None:
     raise MacroReturn(value)
 
 
+def _builtin_fromjson(string: str, default: Any = None) -> Any:
+    """Deserialize JSON, returning the default for ValueError as dbt does."""
+    try:
+        return json.loads(string)
+    except ValueError:
+        return default
+
+
+def _builtin_tojson(value: Any, default: Any = None, sort_keys: bool = False) -> Any:
+    """Serialize JSON, returning the default for ValueError as dbt does."""
+    try:
+        return json.dumps(value, sort_keys=sort_keys)
+    except ValueError:
+        return default
+
+
+def _builtin_fromyaml(value: str, default: Any = None) -> Any:
+    """Deserialize YAML safely, returning the default on dbt's handled errors."""
+    try:
+        return yaml.safe_load(value)
+    except (AttributeError, ValueError, yaml.YAMLError):
+        return default
+
+
+def _builtin_toyaml(value: Any, default: Any = None, sort_keys: bool = False) -> Any:
+    """Serialize YAML safely with dbt's fallback and key-order behavior."""
+    try:
+        return yaml.safe_dump(value, sort_keys=sort_keys)
+    except (ValueError, yaml.YAMLError):
+        return default
+
+
+class DbtSandboxedEnvironment(SandboxedEnvironment):
+    """Handle dbt returns at every macro call, including same-file calls."""
+
+    def call(self, context: Context, obj: Any, /, *args: Any, **kwargs: Any) -> Any:
+        """Catch a return only at the macro boundary that owns it."""
+        try:
+            return super().call(context, obj, *args, **kwargs)
+        except MacroReturn as exc:
+            if isinstance(obj, Macro):
+                return exc.value
+            # The return() builtin must unwind until its enclosing macro call.
+            raise
+
+
 class DbtMacroWrapper:
     """Class that wraps macros to catch MacroReturn exceptions during execution."""
 
@@ -119,4 +170,8 @@ DBT_BUILTINS = {
         ),
     ),
     "return": FunctionWrapper("return", _builtin_return),
+    "fromjson": FunctionWrapper("fromjson", _builtin_fromjson),
+    "tojson": FunctionWrapper("tojson", _builtin_tojson),
+    "fromyaml": FunctionWrapper("fromyaml", _builtin_fromyaml),
+    "toyaml": FunctionWrapper("toyaml", _builtin_toyaml),
 }

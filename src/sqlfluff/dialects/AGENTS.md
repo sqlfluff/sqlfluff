@@ -6,6 +6,12 @@ This file provides guidance for developing and extending SQL dialect support in 
 
 SQLFluff supports 25+ SQL dialects through an inheritance-based system. Each dialect extends the ANSI base dialect and overrides specific grammar segments to match the target SQL variant's syntax.
 
+**Grammars are deliberately permissive.** The goal is a loose, allowable grammar
+that parses valid SQL — not a validator that rejects invalid SQL. Don't tighten a
+grammar just to reject something, and don't add "negative tests" asserting that
+bad SQL fails to parse. See root `AGENTS.md`, "Grammar is Permissive, Not a
+Validator".
+
 ## Dialect Architecture
 
 ### Inheritance Hierarchy

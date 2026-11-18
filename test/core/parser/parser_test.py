@@ -3,6 +3,7 @@
 import pytest
 
 from sqlfluff.core.parser import (
+    ClientTextSegment,
     KeywordSegment,
     MultiStringParser,
     RawSegment,
@@ -134,6 +135,24 @@ def test__parser__multistringparser__simple():
     parser = MultiStringParser(["foo", "bar"], KeywordSegment)
     ctx = ParseContext(dialect=None, max_parse_depth=0)
     assert parser.simple(ctx) == (frozenset(["FOO", "BAR"]), frozenset())
+
+
+def test__parser__text_parsers_skip_client_text(generate_test_segments):
+    """Text a command-line client reads itself is matched by type only."""
+    ctx = ParseContext(dialect=None, max_parse_depth=0)
+    word = generate_test_segments(["go"])[0]
+    delimiter = ClientTextSegment(
+        "go", word.pos_marker, instance_types=("client_delimiter",)
+    )
+
+    for parser in (
+        StringParser("go", ExampleSegment),
+        MultiStringParser(["go", "on"], ExampleSegment),
+        RegexParser(r"go", ExampleSegment),
+    ):
+        assert parser.match([word], 0, ctx)
+        assert not parser.match([delimiter], 0, ctx)
+    assert TypedParser("client_delimiter", ExampleSegment).match([delimiter], 0, ctx)
 
 
 @pytest.mark.parametrize(

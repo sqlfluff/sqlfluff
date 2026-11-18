@@ -41,6 +41,16 @@ KNOWN_STYLES = {
     "dollar": regex.compile(
         r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
     ),
+    # Databricks notebook widget and dashboard parameters:
+    #   ${name}, ${dotted.name} and $name for widgets,
+    #   {{ name }} for dashboard parameters.
+    # The braced widget form may be empty (`${}`).
+    "databricks": regex.compile(
+        r"(?<![:\w\x5c])(?:\$\{(?P<param_name>[A-Za-z_][A-Za-z0-9_.]*)?\}"
+        r"|\{\{\s*(?P<param_name>[A-Za-z_][A-Za-z0-9_.]*)\s*\}\}"
+        r"|\$(?P<param_name>[A-Za-z_][A-Za-z0-9_]*))",
+        regex.UNICODE,
+    ),
     # e.g. WHERE bla = $name$ (DbUp compatible)
     "dollar_surround": regex.compile(
         r"(?<![:\w\x5c])\$(?P<param_name>[-\w]+)\$", regex.UNICODE
@@ -89,17 +99,17 @@ class PlaceholderTemplater(RawTemplater):
     ) -> dict[str, Any]:
         """Get the templating context from the config."""
         live_context = super().get_context(fname, config)
+        # None allows a nested config to clear an inherited style or regex.
+        param_regex = live_context.get("param_regex")
+        param_style = live_context.get("param_style")
 
-        if "param_regex" in live_context and "param_style" in live_context:
+        if param_regex is not None and param_style is not None:
             raise ValueError(
                 "Either param_style or param_regex must be provided, not both"
             )
-        if "param_regex" in live_context:
-            live_context["__bind_param_regex"] = regex.compile(
-                live_context["param_regex"]
-            )
-        elif "param_style" in live_context:
-            param_style = live_context["param_style"]
+        if param_regex is not None:
+            live_context["__bind_param_regex"] = regex.compile(param_regex)
+        elif param_style is not None:
             if param_style not in KNOWN_STYLES:
                 raise ValueError(
                     'Unknown param_style "{}", available are: {}'.format(
@@ -154,11 +164,13 @@ class PlaceholderTemplater(RawTemplater):
         param_counter = 1
         for found_param in regex.finditer(in_str):
             span = found_param.span()
-            if "param_name" not in found_param.groupdict():
+            # A style may have no named group at all (e.g. `question_mark`),
+            # or match one without a name (e.g. an empty Databricks widget
+            # `${}`). Both fall back to a 1-based index.
+            param_name = found_param.groupdict().get("param_name")
+            if param_name is None:
                 param_name = str(param_counter)
                 param_counter += 1
-            else:
-                param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
             if param_name in context:
                 replacement = str(context[param_name])

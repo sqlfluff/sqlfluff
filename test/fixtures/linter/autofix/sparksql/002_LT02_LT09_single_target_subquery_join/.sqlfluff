@@ -1,0 +1,2 @@
+[sqlfluff:indentation]
+implicit_indents = require

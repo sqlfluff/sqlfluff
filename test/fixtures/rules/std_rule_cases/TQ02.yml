@@ -149,6 +149,53 @@ test_fail_multiple_statements_last_missing_semicolon:
     core:
       dialect: tsql
 
+test_fail_multiple_procedures_in_one_file:
+  # Each body is wrapped once. The fix used to re-fire on the loose BEGIN it
+  # inserted until the loop limit, then revert, leaving both bodies unwrapped.
+  fail_str: |
+    CREATE PROCEDURE dbo.ProcA
+    AS
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2;
+    GO
+
+    CREATE PROCEDURE dbo.ProcB
+    AS
+    SELECT ID FROM Table3;
+    SELECT ID FROM Table4;
+    GO
+  fix_str: |
+    CREATE PROCEDURE dbo.ProcA
+    AS
+    BEGIN
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2;
+    END
+    GO
+
+    CREATE PROCEDURE dbo.ProcB
+    AS
+    BEGIN
+    SELECT ID FROM Table3;
+    SELECT ID FROM Table4;
+    END
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_templated_body_not_fixed:
+  # The fix replaces the whole body, which is discarded when any of it is
+  # templated (as with ST05). The violation is still reported.
+  fail_str: |
+    CREATE PROCEDURE dbo.ProcA
+    AS
+    SELECT ID FROM {{ "dbo" }}.Table1;
+    SELECT ID FROM Table2;
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_external_name:
   pass_str: |
     CREATE PROCEDURE dbo.ExternalProc

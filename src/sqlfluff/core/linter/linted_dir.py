@@ -75,6 +75,13 @@ class LintedDir:
             key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
         )
 
+        if file.tree:
+            segments = file.tree.count_segments(raw_only=False)
+            raw_segments = file.tree.count_segments(raw_only=True)
+        else:
+            # Parallel workers may send the counts in place of the tree.
+            segments, raw_segments = file.segment_counts or (0, 0)
+
         record: LintingRecord = {
             "filepath": file.path,
             "violations": violation_records,
@@ -86,13 +93,9 @@ class LintedDir:
                     len(file.templated_file.templated_str) if file.templated_file else 0
                 ),
                 # These are all the segments in the tree
-                "segments": (
-                    file.tree.count_segments(raw_only=False) if file.tree else 0
-                ),
+                "segments": segments,
                 # These are just the "leaf" nodes of the tree
-                "raw_segments": (
-                    file.tree.count_segments(raw_only=True) if file.tree else 0
-                ),
+                "raw_segments": raw_segments,
             },
             "timings": {},
         }

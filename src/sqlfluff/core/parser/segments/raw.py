@@ -186,8 +186,10 @@ class RawSegment(BaseSegment):
 
     def is_type(self, *seg_type: str) -> bool:
         """Extend the parent class method with the surrogate types."""
-        if set(self.instance_types).intersection(seg_type):
-            return True
+        # NOTE: This is one of the most called functions in sqlfluff.
+        for instance_type in self.instance_types:
+            if instance_type in seg_type:
+                return True
         return self.class_is_type(*seg_type)
 
     def get_raw_segments(self) -> list["RawSegment"]:

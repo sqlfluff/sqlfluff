@@ -2,7 +2,7 @@
 
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import AbstractSet, Any, Optional, Union
 
 from sqlfluff.core.config import FluffConfig
@@ -83,7 +83,12 @@ class ReflowConfig:
     skip_implicit_indents_in: frozenset[str] = frozenset()
     implicit_indents: str = "forbid"
     trailing_comments: str = "before"
+    list_wrapping: str = "one_per_line"
     ignore_comment_lines: bool = False
+    # Cache for `get_parent_block_config()`.
+    _parent_block_configs: dict[tuple[str, ...], BlockConfig] = field(
+        default_factory=dict, init=False, repr=False, compare=False
+    )
 
     @classmethod
     def from_dict(cls, config_dict: ConfigDictType, **kwargs: Any) -> "ReflowConfig":
@@ -129,6 +134,7 @@ class ReflowConfig:
             ),
             implicit_indents=config.get("implicit_indents", ["indentation"]),
             trailing_comments=config.get("trailing_comments", ["indentation"]),
+            list_wrapping=config.get("list_wrapping", ["indentation"]),
             ignore_comment_lines=config.get("ignore_comment_lines", ["indentation"]),
         )
 
@@ -188,3 +194,23 @@ class ReflowConfig:
         for seg_type in configured_types:
             block_config.incorporate(config=self._config_dict[seg_type])
         return block_config
+
+    def get_parent_block_config(self, class_types: frozenset[str]) -> BlockConfig:
+        """Get the block config for a parent segment's class types.
+
+        The same as `get_block_config()` without depth info. Building a
+        `ReflowBlock` needs this for every parent of the block, and the answer
+        only depends on the class types, so it's cached. Callers share the
+        result, so they must not modify it.
+        """
+        # NOTE: The key is a tuple rather than the set itself. If more than one
+        # of the types is configured, the result can depend on the set's
+        # iteration order (see `get_block_config()`), and equal sets can
+        # iterate in different orders.
+        key = tuple(class_types)
+        try:
+            return self._parent_block_configs[key]
+        except KeyError:
+            block_config = self.get_block_config(class_types)
+            self._parent_block_configs[key] = block_config
+            return block_config

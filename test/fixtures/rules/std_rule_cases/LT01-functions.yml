@@ -37,3 +37,16 @@ test_pass_select_hint:
   configs:
     core:
       dialect: sparksql
+
+test_pass_bigquery_with_expression:
+  pass_str: SELECT WITH(a AS 1, a + 1) AS x
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_with_expression_space:
+  fail_str: SELECT WITH (a AS 1, a + 1) AS x
+  fix_str: SELECT WITH(a AS 1, a + 1) AS x
+  configs:
+    core:
+      dialect: bigquery

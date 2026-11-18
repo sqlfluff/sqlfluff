@@ -1,11 +1,15 @@
 """Implementation of Rule CV09."""
 
-from typing import Optional
+from typing import Any, Optional
 
 import regex
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.crawlers import (
+    BaseCrawler,
+    RootOnlyCrawler,
+    SegmentSeekerCrawler,
+)
 
 
 class Rule_CV09(BaseRule):
@@ -50,12 +54,23 @@ class Rule_CV09(BaseRule):
     aliases = ("L062",)
     groups = ("all", "convention")
     # It's a broad selector, but only trigger on raw segments.
-    crawl_behaviour = SegmentSeekerCrawler({"raw"})
+    crawl_behaviour: BaseCrawler = SegmentSeekerCrawler({"raw"})
     config_keywords = [
         "blocked_words",
         "blocked_regex",
         "match_source",
     ]
+
+    def __init__(self, code: str, description: str, **kwargs: Any) -> None:
+        super().__init__(code, description, **kwargs)
+        # Nothing blocked means nothing to flag, so skip the crawl. Subclasses
+        # may flag segments whatever is blocked, so they keep it.
+        if (
+            type(self) is Rule_CV09
+            and not self.blocked_words
+            and not self.blocked_regex
+        ):
+            self.crawl_behaviour = RootOnlyCrawler()
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints

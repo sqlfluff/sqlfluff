@@ -2,12 +2,14 @@ use std::sync::Arc;
 
 use log::debug;
 
+use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::{
     marker::PositionMarker,
     matcher::{BracketPairEntry, BracketPairSet, LexMatcher, LexMatcherConfig, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
     token::{python_repr, Token},
+    ClientCommandRules,
 };
 
 use hashbrown::{HashMap, HashSet};
@@ -20,6 +22,9 @@ use std::{
 use uuid::Uuid;
 
 use itertools::multipeek;
+
+mod client_script;
+use client_script::ClientScriptLexer;
 
 pub struct BlockTracker {
     stack: Vec<Uuid>,
@@ -251,6 +256,9 @@ pub struct Lexer {
     last_resort_lexer: LexMatcher,
     matchers: Vec<LexMatcher>,
     bracket_pairs: BracketPairSet,
+    /// Set for a dialect whose scripts run through a command-line client,
+    /// which is then lexed with the client's state (see `client_script`).
+    client_commands: Option<&'static ClientCommandRules>,
 }
 
 impl Lexer {
@@ -270,7 +278,17 @@ impl Lexer {
             last_resort_lexer,
             matchers,
             bracket_pairs: BracketPairSet(DEFAULT_BRACKET_PAIRS.to_vec()),
+            client_commands: None,
         }
+    }
+
+    /// The lexer for a dialect: its matchers, its bracket pairs, and its
+    /// client command rules if it has any.
+    #[must_use]
+    pub fn for_dialect(dialect: Dialect) -> Self {
+        Self::new(None, dialect.get_lexers().clone())
+            .with_bracket_pairs(dialect.get_bracket_pairs().clone())
+            .with_client_commands(dialect.get_client_commands())
     }
 
     /// Override the bracket-pairs set used for `matching_bracket_idx`
@@ -281,7 +299,21 @@ impl Lexer {
         self
     }
 
+    /// Lex with a command-line client's state, for scripts the client runs.
+    #[must_use]
+    pub fn with_client_commands(
+        mut self,
+        client_commands: Option<&'static ClientCommandRules>,
+    ) -> Self {
+        self.client_commands = client_commands;
+        self
+    }
+
     pub fn lex_string<'a>(&'a self, mut input: &'a str) -> Vec<LexedElement<'a>> {
+        if let Some(rules) = self.client_commands {
+            return ClientScriptLexer::new(self, rules, input).lex();
+        }
+
         let mut element_buffer = Vec::with_capacity(input.len());
 
         while !input.is_empty() {
@@ -938,10 +970,7 @@ pub mod python {
                 panic!("Lexer does not support setting both `config` and `dialect`.")
             }
             let dialect = cfg_dialect.unwrap_or_else(|| in_dialect.expect("Dialect not defined"));
-            Self(
-                Lexer::new(None, dialect.get_lexers().to_vec())
-                    .with_bracket_pairs(dialect.get_bracket_pairs().clone()),
-            )
+            Self(Lexer::for_dialect(dialect))
         }
 
         #[pyo3(signature = (input, template_blocks_indent = true))]

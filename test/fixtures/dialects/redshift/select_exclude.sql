@@ -16,6 +16,10 @@ SELECT col1, col2, col3 EXCLUDE (col2) FROM table1;
 
 SELECT a.col1, b.* EXCLUDE (col2, col3) FROM table1 AS a, table2 AS b;
 
+SELECT a.col1, b.* EXCLUDE (b.col2, b.col3) FROM table1 AS a, table2 AS b;
+
+SELECT a.col1, b.* EXCLUDE b.col2 FROM table1 AS a, table2 AS b;
+
 SELECT EXCLUDE FROM table1;
 
 SELECT EXCLUDE, col1 FROM table1;

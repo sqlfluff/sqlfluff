@@ -95,13 +95,13 @@ class Rule_LT03(BaseRule):
         return False
 
     def _check_trail_lead_shortcut(
-        self, segment: BaseSegment, parent: BaseSegment, line_position: str
+        self, idx: int, parent: BaseSegment, line_position: str
     ) -> bool:
         """Check to see whether we should pass the rule and shortcut.
 
         Args:
-            segment: The target segment.
-            parent: The parent segment (must contain `segment`).
+            idx: The index of the target segment within `parent`.
+            parent: The parent segment (must contain the target segment).
             line_position: The `line_position` config for the segment.
         """
         base_position = line_position.split(":")[0]
@@ -112,7 +112,6 @@ class Rule_LT03(BaseRule):
 
         # `leading`/`trailing` are mirror images, so resolve the sides relative
         # to the desired position and share the logic.
-        idx = parent.segments.index(segment)
         has_newline_before = self._seek_newline(parent.segments, idx, dir=-1)
         has_newline_after = self._seek_newline(parent.segments, idx, dir=1)
         if base_position == "leading":
@@ -150,7 +149,7 @@ class Rule_LT03(BaseRule):
                     "line_position", ["layout", "type", operator_type]
                 )
                 if self._check_trail_lead_shortcut(
-                    context.segment, context.parent_stack[-1], positioning
+                    context.segment_idx, context.parent_stack[-1], positioning
                 ):
                     return [LintResult()]
                 break

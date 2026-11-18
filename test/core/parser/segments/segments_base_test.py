@@ -1,6 +1,7 @@
 """Test the BaseSegment class."""
 
 import pickle
+from itertools import product
 
 import pytest
 
@@ -280,6 +281,158 @@ def test__parser__base_segments_base_compare(DummySegment, DummyAuxSegment):
     assert ds1 != dsa2
 
 
+def test__parser__base_segments_raw_segment_index(DummySegment):
+    """Test raw_segment_index() gives the same answers as list.index()."""
+    template = TemplatedFile.from_string("foobar")
+    foo = RawSegment("foo", PositionMarker(slice(0, 3), slice(0, 3), template))
+    bar = RawSegment("bar", PositionMarker(slice(3, 6), slice(3, 6), template))
+    # Two zero length segments at the same position are equal.
+    empty1 = RawSegment("", PositionMarker(slice(3, 3), slice(3, 3), template))
+    empty2 = RawSegment("", PositionMarker(slice(3, 3), slice(3, 3), template))
+    # A copy shares the uuid of the original, so they are equal too.
+    seg = DummySegment([foo, empty1, empty2, bar, foo.copy()])
+    for probe in (
+        foo,
+        bar,
+        # Equal to an earlier segment in the list, which is found first.
+        empty2,
+        seg.raw_segments[4],
+        # Equal segments which aren't in the list: a copy, a new segment at
+        # the same position, and a segment with the same uuid but no position.
+        bar.copy(),
+        RawSegment("bar", PositionMarker(slice(3, 6), slice(3, 6), template)),
+        RawSegment("bar", uuid=bar.uuid),
+    ):
+        assert seg.raw_segment_index(probe) == seg.raw_segments.index(probe)
+    # Segments which aren't equal to any of them raise, like list.index().
+    for probe in (
+        RawSegment("bar", PositionMarker(slice(0, 3), slice(0, 3), template)),
+        RawSegment("bar"),
+    ):
+        with pytest.raises(ValueError):
+            seg.raw_segment_index(probe)
+
+
+def test__parser__base_segments_select_children(DummySegment):
+    """Test the .select_children() method."""
+    template = TemplatedFile.from_string("abcde")
+    a, b, c, d, e = (
+        RawSegment(raw, PositionMarker(slice(i, i + 1), slice(i, i + 1), template))
+        for i, raw in enumerate("abcde")
+    )
+    seg = DummySegment([a, b, c, d, e])
+    # Between the start and stop segments, excluding both.
+    assert seg.select_children(start_seg=a, stop_seg=e) == [b, c, d]
+    # Only the segments which pass select_if.
+    assert seg.select_children(select_if=lambda s: s.raw != "c") == [a, b, d, e]
+    # Stops at the first segment which fails loop_while.
+    assert seg.select_children(start_seg=a, loop_while=lambda s: s.raw != "d") == [
+        b,
+        c,
+    ]
+
+
+def _reference_recursive_crawl(
+    segment,
+    *seg_type,
+    recurse_into=True,
+    no_recursive_seg_type=None,
+    allow_self=True,
+):
+    """The plain recursive crawl, which starts a crawl of every child.
+
+    .recursive_crawl() may skip the children which neither match nor contain a
+    match, but must not change which segments it yields, or their order.
+    """
+    if isinstance(no_recursive_seg_type, str):
+        no_recursive_seg_type = [no_recursive_seg_type]
+
+    if allow_self and segment.is_type(*seg_type):
+        match = True
+        yield segment
+    else:
+        match = False
+
+    if not segment.descendant_type_set.intersection(seg_type):
+        return None
+
+    if recurse_into or not match:
+        for seg in segment.segments:
+            if not no_recursive_seg_type or not seg.is_type(*no_recursive_seg_type):
+                yield from _reference_recursive_crawl(
+                    seg,
+                    *seg_type,
+                    recurse_into=recurse_into,
+                    no_recursive_seg_type=no_recursive_seg_type,
+                )
+
+
+# What to look for: only leaves, segments which can nest, several types at once,
+# every raw segment, and types which most of the trees don't contain.
+_RECURSIVE_CRAWL_TYPES = [
+    ("numeric_literal",),
+    ("expression",),
+    ("select_statement", "bracketed"),
+    ("raw",),
+    ("unparsable",),
+    ("case_expression",),
+]
+# Every combination of the options which change where a crawl goes.
+_RECURSIVE_CRAWL_OPTIONS = [
+    {
+        "recurse_into": recurse_into,
+        "no_recursive_seg_type": no_recursive_seg_type,
+        "allow_self": allow_self,
+    }
+    for recurse_into, no_recursive_seg_type, allow_self in product(
+        [True, False],
+        [None, "bracketed", ["expression", "select_statement"]],
+        [True, False],
+    )
+]
+
+
+@pytest.mark.parametrize(
+    "raw_sql_in",
+    [
+        # Flat.
+        "SELECT a, b FROM t WHERE c = 1",
+        # Nested expressions and subqueries.
+        "SELECT (a + (b * c)) AS x FROM (SELECT d FROM (SELECT 1 AS d) AS i) AS s",
+        # A CTE, a set expression and more than one statement.
+        "WITH c AS (SELECT 1 AS a) SELECT a FROM c UNION ALL SELECT 2; SELECT 3",
+        # A case expression and functions, with a join.
+        (
+            "SELECT CASE WHEN a = 1 THEN f(b, g(c)) ELSE 0 END "
+            "FROM t1 JOIN t2 ON t1.id = t2.id"
+        ),
+        # Sections that don't parse: one inside an expression, one at the top level.
+        "SELECT 1 FROM t WHERE x = (3 4 5) AND y = 6; asd 3 qwe 4",
+    ],
+)
+def test__parser__base_segments_recursive_crawl(raw_sql_in):
+    """Test .recursive_crawl() finds the same segments as a crawl of every child.
+
+    Crawls start at every segment of the tree, so each one is crawled from above
+    and from within. Segments are compared by id, as segments with the same
+    content are equal.
+    """
+    tree = Linter(dialect="ansi").parse_string(raw_sql_in).tree
+    mismatches = []
+    for start in tree.recursive_crawl_all():
+        for seg_type, options in product(
+            _RECURSIVE_CRAWL_TYPES, _RECURSIVE_CRAWL_OPTIONS
+        ):
+            crawled = [id(seg) for seg in start.recursive_crawl(*seg_type, **options)]
+            expected = [
+                id(seg)
+                for seg in _reference_recursive_crawl(start, *seg_type, **options)
+            ]
+            if crawled != expected:
+                mismatches.append((start.type, seg_type, options))
+    assert not mismatches
+
+
 def test__parser__base_segments_pickle_safe(raw_segments):
     """Test pickling and unpickling of BaseSegment."""
     test_seg = BaseSegment([BaseSegment(raw_segments)])
@@ -489,6 +642,7 @@ def test__parser__base_segments_cached_property_names_autodetected():
         "direct_descendant_type_set",
         "raw_upper",
         "raw_segments",
+        "_raw_segment_indices",
         "raw_segments_with_ancestors",
         "source_fixes",
         "first_non_whitespace_segment_raw_upper",

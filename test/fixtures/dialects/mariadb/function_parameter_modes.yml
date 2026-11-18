@@ -1,0 +1,134 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0dbbb5409264c78bef787212ec919610203ea19c20aec8f2bb3b235f2028f6ae
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: IN
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: +
+              numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: OUT
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: COALESCE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: a
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '0'
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f3
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter_direction: INOUT
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: '*'
+              numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f4
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter_direction: IN
+        - parameter: a
+        - data_type:
+            data_type_identifier: INT
+        - comma: ','
+        - parameter_direction: OUT
+        - parameter: b
+        - data_type:
+            data_type_identifier: INT
+        - comma: ','
+        - parameter: c
+        - data_type:
+            data_type_identifier: INT
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+            - column_reference:
+                naked_identifier: a
+            - binary_operator: +
+            - column_reference:
+                naked_identifier: c
+- statement_terminator: ;

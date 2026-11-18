@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb28dd616a3bee1317e04620dc8d8eac7f595a200a57daddeee661f825e05351
+_hash: 7cdc216e8148786301a148a6df15d61ec1a3eab53d0937c366b3d98e49bb575f
 file:
   batch:
   - statement:
@@ -90,4 +90,31 @@ file:
       transaction_statement:
         keyword: COMMIT
         parameter: '@variable'
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRANSACTION
+      - naked_identifier: CandidateDelete
+      - keyword: WITH
+      - keyword: MARK
+      - quoted_literal: "N'Deleting a Job Candidate'"
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: COMMIT
+      - keyword: TRANSACTION
+      - naked_identifier: CandidateDelete
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRAN
+      - naked_identifier: marked
+      - keyword: WITH
+      - keyword: MARK
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+        keyword: COMMIT
   - statement_terminator: ;

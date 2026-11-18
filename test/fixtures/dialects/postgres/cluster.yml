@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0d16521927fc3186064bbef4aa28fc13853179831ee346d6cbc2186d1bb483a7
+_hash: 1e7b9514f5fe879798e2759e18b7403223fd207969a7f18248be97e072771924
 file:
 - statement:
     cluster_statement:
@@ -58,4 +58,84 @@ file:
     - keyword: USING
     - index_reference:
         naked_identifier: idx_temp_table_ra
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        cluster_option:
+          keyword: VERBOSE
+        end_bracket: )
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        cluster_option:
+        - keyword: VERBOSE
+        - keyword: 'OFF'
+        end_bracket: )
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        cluster_option:
+          keyword: VERBOSE
+          numeric_literal: '1'
+        end_bracket: )
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        cluster_option:
+          keyword: VERBOSE
+          boolean_literal: 'FALSE'
+        end_bracket: )
+      table_reference:
+        naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - bracketed:
+        start_bracket: (
+        cluster_option:
+          keyword: VERBOSE
+          boolean_literal: 'TRUE'
+        end_bracket: )
+    - index_reference:
+        naked_identifier: index_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      bracketed:
+        start_bracket: (
+        cluster_option:
+          keyword: VERBOSE
+        end_bracket: )
 - statement_terminator: ;

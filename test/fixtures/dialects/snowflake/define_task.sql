@@ -3,3 +3,23 @@ DEFINE TASK DCM_PROJECT_DEV.ANALYTICS.TSK_INGEST_DAILY_ORDERS
   schedule = 'USING CRON 0 4 * * * UTC'
 AS
     INSERT INTO mytable(ts) VALUES(1);
+
+DEFINE TASK my_db.public.my_task
+    WAREHOUSE = 'MY_WH'
+    SCHEDULE = 'USING CRON 0 5 * * * UTC'
+    STARTED
+AS
+    SELECT 1;
+
+DEFINE TASK "suspended task"
+    USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE = 'XSMALL'
+    SUSPENDED
+AS
+    SELECT 1;
+
+DEFINE TASK child_task
+    AFTER parent_task
+    WHEN SYSTEM$STREAM_HAS_DATA('my_stream')
+    STARTED
+AS
+    CALL my_proc();

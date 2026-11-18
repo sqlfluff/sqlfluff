@@ -8,7 +8,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -294,7 +296,7 @@ class RangePartitionDefinitionSegment(BaseSegment):
             Sequence(
                 Bracketed(
                     Bracketed(Delimited(Ref("LiteralGrammar"))),
-                    ",",
+                    Ref("CommaSegment"),
                     Bracketed(Delimited(Ref("LiteralGrammar"))),
                 )
             ),
@@ -468,6 +470,7 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         # Optional PARTITION clause
         Sequence(
@@ -484,9 +487,20 @@ class InsertStatementSegment(BaseSegment):
         ),
         # Optional column list
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         # VALUES or SELECT
         OneOf(
             Ref("ValuesClauseSegment"),
             Ref("SelectableGrammar"),
         ),
+    )
+
+
+class StatementSegment(mysql.StatementSegment):
+    """Overriding StatementSegment to remove unsupported MySQL statements."""
+
+    match_grammar = mysql.StatementSegment.match_grammar.copy(
+        remove=[
+            Ref("FlushStatementSegment"),
+        ],
     )

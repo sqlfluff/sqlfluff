@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7754ff4e3a7fbc34a35af1df6c1417baac7d74ca5e946b8d99cd7d6dff991a4b
+_hash: b0a51d24e80d266cdff9c526cfc8c09074479197c9df8c7b9232eb05c9912f92
 file:
 - statement:
     create_server_statement:
@@ -68,6 +68,27 @@ file:
       - comma: ','
       - naked_identifier_all: dbname
       - quoted_literal: "'foodb'"
+      - comma: ','
+      - naked_identifier_all: port
+      - quoted_literal: "'5432'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: postgres_fdw
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: '"host"'
+      - quoted_literal: "'foo'"
       - comma: ','
       - naked_identifier_all: port
       - quoted_literal: "'5432'"

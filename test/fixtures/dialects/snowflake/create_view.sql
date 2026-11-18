@@ -115,3 +115,15 @@ CREATE OR ALTER VIEW view_with_change_tracking
 CHANGE_TRACKING = TRUE
 AS SELECT col1
 FROM src_table;
+
+CREATE OR REPLACE VIEW view_with_data_metric_schedule
+    DATA_METRIC_SCHEDULE = '60 MINUTE'
+AS SELECT col1, col2 FROM src_table;
+
+CREATE OR REPLACE VIEW view_with_comment_and_data_metric_schedule
+(
+    col1 COMMENT 'some comment'
+)
+    COMMENT = 'view comment'
+    DATA_METRIC_SCHEDULE = TRIGGER_ON_CHANGES
+AS SELECT col1 FROM src_table;

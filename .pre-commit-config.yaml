@@ -17,7 +17,8 @@ repos:
             plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/macro_in_macro.sql|
             plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/(dbt_utils_0.8.0/)?last_day.sql|
             test/fixtures/linter/indentation_errors.sql|
-            test/fixtures/templater/jinja_d_roundtrip/test.sql
+            test/fixtures/templater/jinja_d_roundtrip/test.sql|
+            test/fixtures/linter/autofix/ansi/036_long_order_by_semicolon_without_final_newline/(before|after).sql
           )$
       - id: trailing-whitespace
         exclude: |
@@ -62,12 +63,6 @@ repos:
         # ensure we don't get conflicting  results from the pre-commit hook and from the
         # CI job.
         args: []
-  - repo: https://github.com/pycqa/doc8
-    rev: v2.0.0
-    hooks:
-      - id: doc8
-        args: [--file-encoding, utf8]
-        files: docs/source/.*\.rst$
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.38.0
     hooks:

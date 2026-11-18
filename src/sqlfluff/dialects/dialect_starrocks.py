@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     ImplicitIndent,
+    Indent,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -161,7 +162,6 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                         OneOf(
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
-                            Ref("IndexDefinitionSegment"),
                         ),
                     )
                 ),
@@ -270,7 +270,7 @@ class PartitionSegment(BaseSegment):
                                     Sequence(
                                         Bracketed(
                                             Bracketed(Delimited(Ref("LiteralGrammar"))),
-                                            ",",
+                                            Ref("CommaSegment"),
                                             Bracketed(Delimited(Ref("LiteralGrammar"))),
                                         )
                                     ),
@@ -379,16 +379,26 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-class IndexDefinitionSegment(BaseSegment):
-    """Bitmap index definition specific to StarRocks."""
+class IndexTypeGrammar(BaseSegment):
+    """StarRocks index type and optional properties.
 
-    type = "index_definition"
+    https://docs.starrocks.io/docs/sql-reference/sql-statements/table_bucket_part_index/CREATE_INDEX/
+    """
+
+    type = "index_type"
     match_grammar = Sequence(
-        "INDEX",
-        Ref("IndexReferenceSegment"),
-        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-        Sequence("USING", "BITMAP", optional=True),
-        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        "USING",
+        OneOf("BITMAP", "GIN", "NGRAMBF", "VECTOR"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -584,6 +594,7 @@ class InsertOverwriteStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INSERT",
         "OVERWRITE",
+        Indent,
         Ref("TableReferenceSegment"),
         Sequence(
             "PARTITION",
@@ -604,6 +615,7 @@ class InsertOverwriteStatementSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
             optional=True,
         ),
+        Dedent,
         Ref("SelectableGrammar"),
     )
 
@@ -618,7 +630,10 @@ class StatementSegment(mysql.StatementSegment):
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
             Ref("ResumeRoutineLoadStatementSegment"),
-        ]
+        ],
+        remove=[
+            Ref("FlushStatementSegment"),
+        ],
     ).copy(
         insert=[
             Ref("InsertOverwriteStatementSegment"),

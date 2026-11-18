@@ -1,0 +1,78 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 16ae6751c5a2f5ce87485bcafdef0bb7662bbe0d9d6ed519d2604226e97c542a
+file:
+- statement:
+    kill_statement:
+      keyword: KILL
+      expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: kill
+    - keyword: connection
+    - expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - expression:
+        variable: '@thread_id'
+- statement_terminator: ;
+- statement:
+    kill_statement:
+      keyword: KILL
+      expression:
+        function:
+          function_name:
+            function_name_identifier: CONNECTION_ID
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: CONNECTION_ID
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    kill_statement:
+      keyword: KILL
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+          end_bracket: )
+- statement_terminator: ;

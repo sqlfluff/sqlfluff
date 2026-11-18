@@ -3,33 +3,32 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ee6c612bc68b46b0637885e6c2d45996d0657a723d4c8aaf116166d7483357b
+_hash: bfc214a483f35a507c6e74e2f5e33de5fb260b1b50e13d8fe38c429eb9dda42c
 file:
-- statement:
+  statement:
     loop_statement:
-      naked_identifier: iteration
-      colon: ':'
-      keyword: loop
-      statement:
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    iterate_statement:
-      keyword: iterate
-      naked_identifier: iteration
-- statement_terminator: ;
-- statement:
-    transaction_statement:
-      keyword: leave
-      naked_identifier: iteration
-- statement_terminator: ;
-- statement:
-    loop_statement:
+    - naked_identifier: iteration
+    - colon: ':'
+    - keyword: loop
+    - statement_list:
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '1'
+      - statement_terminator: ;
+      - statement:
+          iterate_statement:
+            keyword: iterate
+            naked_identifier: iteration
+      - statement_terminator: ;
+      - statement:
+          leave_statement:
+            keyword: leave
+            naked_identifier: iteration
+      - statement_terminator: ;
     - keyword: end
     - keyword: loop
     - naked_identifier: iteration
-- statement_terminator: ;
+  statement_terminator: ;

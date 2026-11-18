@@ -30,7 +30,7 @@ error message:
 
 ```
 ==== parsing violations ====
-L:   1 | P:  10 |  PRS | Line 1, Position 10: Found unparsable section: '2 3'
+L:   1 | P:  10 |  PRS | Line 1, Position 10: Found unparsable section: '2 3'. Expected: Nothing here.
 ```
 
 Furthermore if we look at the full parsing output we can see an unparsable
@@ -48,7 +48,7 @@ section in the parse tree:
 [L:  1, P:  8]      |                    numeric_literal:                          '1'
 [L:  1, P:  9]      |                [META] dedent:
 [L:  1, P:  9]      |                whitespace:                                   ' '
-[L:  1, P: 10]      |                unparsable:                                   !! Expected: 'Nothing here.'
+[L:  1, P: 10]      |                unparsable:                                   !! Expected: "Nothing here. Found <LiteralSegment: ([L:  1, P: 10]) '2'>"
 [L:  1, P: 10]      |                    numeric_literal:                          '2'
 [L:  1, P: 11]      |                    whitespace:                               ' '
 [L:  1, P: 12]      |                    numeric_literal:                          '3'

@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: abbb1bc5532a72922cf993fd468555b60e12faee23729436e04b82ad28bcfe5f
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: DEFINE
+    - keyword: PROCEDURE
+    - function_name:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: public
+      - dot: .
+      - function_name_identifier: my_proc
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN 'Success';\nEND;\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: DEFINE
+    - keyword: SECURE
+    - keyword: PROCEDURE
+    - function_name:
+        quoted_identifier: '"my_proc"'
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: input_value
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: CALLER
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN input_value;\nEND;\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: DEFINE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: js_proc
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: value
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: $$ return VALUE; $$
+- statement_terminator: ;

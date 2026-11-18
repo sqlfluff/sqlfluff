@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0f9bc7eedc10121a38b3e84db2465be9909f778370dcfd2932905e4f24dd854b
+file:
+- statement:
+    create_git_repository_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: snowflake_extensions
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: git_api_integration
+    - keyword: GIT_CREDENTIALS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: git_secret
+    - keyword: ORIGIN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://github.com/my-account/snowflake-extensions.git'"
+- statement_terminator: ;
+- statement:
+    create_git_repository_statement:
+    - keyword: CREATE
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_repo
+    - keyword: ORIGIN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://github.com/my-account/my-repo.git'"
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: git_api_integration
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'public repository, no credentials'"
+- statement_terminator: ;
+- statement:
+    create_git_repository_statement:
+    - keyword: CREATE
+    - keyword: GIT
+    - keyword: REPOSITORY
+    - object_reference:
+        naked_identifier: my_repo
+    - keyword: ORIGIN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://github.com/my-account/my-repo.git'"
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: git_api_integration
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: cost_center
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'data_eng'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'dev'"
+        - end_bracket: )
+- statement_terminator: ;

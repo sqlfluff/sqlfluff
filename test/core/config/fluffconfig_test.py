@@ -7,6 +7,7 @@ import pytest
 
 import sqlfluff
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     JinjaTemplater,
@@ -241,6 +242,35 @@ def test__config_missing_dialect():
     assert "must configure a dialect" in str(e.value)
 
 
+def test__config__dialect_obj_shared():
+    """Configs with the same dialect share one expanded dialect object."""
+    ansi_a = FluffConfig(overrides={"dialect": "ansi"})
+    ansi_b = FluffConfig(overrides={"dialect": "ansi"})
+    postgres = FluffConfig(overrides={"dialect": "postgres"})
+    assert ansi_a.get("dialect_obj") is ansi_b.get("dialect_obj")
+    assert ansi_a.get("dialect_obj") is not postgres.get("dialect_obj")
+    assert ansi_a.get("dialect_obj").name == "ansi"
+    assert postgres.get("dialect_obj").name == "postgres"
+    # An inline dialect change switches to the other shared object.
+    ansi_a.process_inline_config("-- sqlfluff:dialect:postgres", "test.sql")
+    assert ansi_a.get("dialect_obj") is postgres.get("dialect_obj")
+    # Copies share it too.
+    assert ansi_b.copy().get("dialect_obj") is ansi_b.get("dialect_obj")
+    # The public `dialect_selector` still returns a fresh dialect each call.
+    assert dialect_selector("ansi") is not ansi_b.get("dialect_obj")
+
+
+@pytest.mark.parametrize(
+    "dialect,expected_error",
+    [("not_a_dialect", KeyError), ("spark3", SQLFluffUserError)],
+)
+def test__config__dialect_errors_not_cached(dialect, expected_error):
+    """Failures are not cached, so unknown and legacy dialects raise every time."""
+    for _ in range(2):
+        with pytest.raises(expected_error):
+            FluffConfig(overrides={"dialect": dialect})
+
+
 def test__config__validate_configs_indirect():
     """Test _validate_configs method of FluffConfig indirectly."""
     # Instantiate config object.
@@ -272,6 +302,40 @@ def test__config__invalid_prefer_quoted_keyword_style():
     assert "square_brackets" in str(exc_info.value)
     assert "double_quotes" in str(exc_info.value)
     assert "backticks" in str(exc_info.value)
+
+
+def test__config__unset_max_alias_length():
+    """An unset AL06 length config should not raise an error.
+
+    The option validates against `range(1000)`, which does not contain `None`.
+    """
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "rules": {"aliasing.length": {"max_alias_length": None}},
+        }
+    )
+
+    rule_pack = Linter(config=config).get_rulepack()
+
+    (al06,) = [rule for rule in rule_pack.rules if rule.code == "AL06"]
+    assert al06.max_alias_length is None
+
+
+def test__config__invalid_max_alias_length():
+    """Out of range AL06 length config should raise a user-facing error."""
+    config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "rules": {"aliasing.length": {"max_alias_length": 1000}},
+        }
+    )
+
+    with pytest.raises(SQLFluffUserError) as exc_info:
+        Linter(config=config).get_rulepack()
+
+    assert "max_alias_length" in str(exc_info.value)
+    assert "Invalid option '1000'" in str(exc_info.value)
 
 
 @pytest.mark.parametrize(

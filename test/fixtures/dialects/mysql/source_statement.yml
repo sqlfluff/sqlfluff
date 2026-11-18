@@ -1,0 +1,127 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 12822ac20dead26d23636832052162484b7f3920a4a17a025836cefb465626b0
+file:
+- source_statement:
+    keyword: SOURCE
+    source_file_name: setup.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: schema/tables.sql
+- statement_terminator: ;
+- source_statement:
+    keyword: source
+    source_file_name: lowercase/path.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: path/with spaces/file.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: C:\db\x.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: \\server\share\x.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: a$b.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: a--b.sql
+- source_statement:
+    keyword: SOURCE
+    source_file_name: a#b.sql
+- source_statement:
+    client_short_command: \.
+    source_file_name: schema/tables.sql
+- source_statement:
+    client_short_command: \.
+    source_file_name: C:\games\x.sql
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+- statement_terminator: ;
+- source_statement:
+    keyword: SOURCE
+    source_file_name: same_line.sql
+- statement_terminator: ;
+- source_statement:
+    keyword: SOURCE
+    source_file_name: first.sql
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '2'
+- statement_terminator: ;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: $$
+- source_statement:
+    keyword: SOURCE
+    source_file_name: a.sql
+- statement_terminator: $$
+- source_statement:
+    keyword: SOURCE
+    source_file_name: b.sql;
+- source_statement:
+    keyword: SOURCE
+    source_file_name: C:\db\x.sql;
+- delimiter_statement:
+    keyword: DELIMITER
+    delimiter_argument: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: source
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: source
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: source
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;

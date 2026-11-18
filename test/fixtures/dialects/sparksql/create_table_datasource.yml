@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: faeb3432718ee96919d12c15b2f2c0681a6bab4f46c46c62859fbd3fb03076ad
+_hash: e49cc48bea39b8bb256a831740615e7012120c5380237ba33d1b55b76d649645
 file:
 - statement:
     create_table_statement:
@@ -491,4 +491,54 @@ file:
           column_reference:
             naked_identifier: col1
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: consolidationboard
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          object_reference:
+            naked_identifier: elastic
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student_tmp
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: '"header"'
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: '"true"'
+        end_bracket: )
 - statement_terminator: ;

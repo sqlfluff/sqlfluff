@@ -1,0 +1,182 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 530a6af0a6790d02bd9d5da294fcb213142b79e947504b75b030be97ed889f3e
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+              temporal_query:
+              - keyword: AS
+              - keyword: OF
+              - keyword: TIMESTAMP
+              - expression:
+                - bare_function: SYSTIMESTAMP
+                - binary_operator: '-'
+                - keyword: INTERVAL
+                - date_constructor_literal: "'1'"
+                - keyword: HOUR
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+              temporal_query:
+              - keyword: AS
+              - keyword: OF
+              - keyword: SCN
+              - expression:
+                  numeric_literal: '1000'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+              temporal_query:
+              - keyword: AS
+              - keyword: OF
+              - keyword: TIMESTAMP
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: TO_TIMESTAMP
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'2020-01-01 00:00:00'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'YYYY-MM-DD HH24:MI:SS'"
+                      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+              temporal_query:
+              - keyword: AS
+              - keyword: OF
+              - keyword: TIMESTAMP
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - bare_function: SYSTIMESTAMP
+                    - binary_operator: '-'
+                    - keyword: INTERVAL
+                    - date_constructor_literal: "'1'"
+                    - keyword: HOUR
+                    end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+              temporal_query:
+              - keyword: AS
+              - keyword: OF
+              - keyword: SCN
+              - expression:
+                  numeric_literal: '1000'
+              alias_expression:
+                naked_identifier: e
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+              temporal_query:
+              - keyword: AS
+              - keyword: OF
+              - keyword: TIMESTAMP
+              - expression:
+                  bare_function: SYSTIMESTAMP
+              alias_expression:
+                naked_identifier: e
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: u
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: u
+                  - dot: .
+                  - naked_identifier: id
+  - statement_terminator: ;

@@ -1,0 +1,301 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: df13fd2ff19e50b15f7e4d53973161bb27e2a02ebcacf77979e6588a7c2539b1
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f0
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+      - keyword: CONTAINS
+      - keyword: SQL
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+      - keyword: 'NO'
+      - keyword: SQL
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f3
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+      - keyword: READS
+      - keyword: SQL
+      - keyword: DATA
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f4
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+      - keyword: SQL
+      - keyword: SECURITY
+      - keyword: DEFINER
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f5
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'comment only'"
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: f6
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - characteristic_statement:
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: '"double quoted"'
+    - function_definition:
+        statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p0
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p1
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - characteristic_statement:
+      - keyword: MODIFIES
+      - keyword: SQL
+      - keyword: DATA
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p2
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - characteristic_statement:
+      - keyword: LANGUAGE
+      - keyword: SQL
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p3
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - characteristic_statement:
+      - keyword: SQL
+      - keyword: SECURITY
+      - keyword: INVOKER
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p4
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - characteristic_statement:
+      - keyword: NOT
+      - keyword: DETERMINISTIC
+    - function_definition:
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+- statement_terminator: ;

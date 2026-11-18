@@ -1,5 +1,7 @@
 """Tests for the depthmap object."""
 
+import pytest
+
 from sqlfluff.core import Linter
 from sqlfluff.utils.reflow.depthmap import DepthMap, StackPosition
 
@@ -49,9 +51,20 @@ def test_reflow_depthmap_from_parent(default_config):
     assert len(select_keyword_di.common_with(numeric_one_di)) == 4
 
 
-def test_reflow_depthmap_from_raws_and_root(default_config):
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT 1",
+        "SELECT a, b + 1 AS c\nFROM (\n    SELECT a, b\n    FROM foo\n) AS sub\n",
+        "WITH cte AS (SELECT 1 AS x)\nSELECT CASE WHEN x = 1 THEN 'a' END\nFROM cte;\n"
+        "SELECT 2;\n",
+        "SELECT {{ 'a' }} FROM tbl\n{% if true %}WHERE 1 = 1{% endif %}\n",
+        # A file with no code in it.
+        "/* comment */\n",
+    ],
+)
+def test_reflow_depthmap_from_raws_and_root(default_config, sql):
     """Test that the indirect route is equivalent to the direct route."""
-    sql = "SELECT 1"
     root = parse_ansi_string(sql, default_config)
 
     # Direct route
@@ -63,6 +76,11 @@ def test_reflow_depthmap_from_raws_and_root(default_config):
     # The depth info dict depends on the sequence so we only need
     # to check those are equal.
     assert dm_direct.depth_info == dm_indirect.depth_info
+    # Including the order of the stack positions.
+    for uuid, depth_info in dm_indirect.depth_info.items():
+        assert list(dm_direct.depth_info[uuid].stack_positions.items()) == list(
+            depth_info.stack_positions.items()
+        )
 
 
 def test_reflow_depthmap_order_by(default_config):

@@ -1,0 +1,92 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e6bce98c026a1a0fd9d90b86f9943273016b144ed24227d1d5791edd932fce97
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TO_JSON
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: STRUCT
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_identifier:
+                        - naked_identifier: e
+                        - dot: .
+                        - naked_identifier: m
+                        - dot: .
+                        - star: '*'
+                        comma: ','
+                        expression:
+                          column_reference:
+                          - naked_identifier: c
+                          - dot: .
+                          - naked_identifier: x
+                        end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: STRUCT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  wildcard_identifier:
+                    naked_identifier: a
+                    dot: .
+                    star: '*'
+              - comma: ','
+              - expression:
+                  wildcard_identifier:
+                    naked_identifier: b
+                    dot: .
+                    star: '*'
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - index_column_definition:
+                  naked_identifier: AS
+              - expression:
+                  column_reference:
+                    naked_identifier: c
+              - end_bracket: )
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: b
+- statement_terminator: ;

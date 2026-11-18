@@ -236,3 +236,20 @@ def test_mariadb_sequence_value_for_requires_sequence(sql: str) -> None:
     parsing_errors = [v for v in parsed.violations if v.rule_code() == "PRS"]
 
     assert parsing_errors
+
+
+@pytest.mark.parametrize("source", ["VALUES (1, 2)", "SELECT 1, 2 WHERE true"])
+@pytest.mark.parametrize(
+    "clauses",
+    [
+        "ON CONFLICT DO NOTHING ON CONFLICT (a) DO NOTHING",
+        "ON CONFLICT DO UPDATE SET b = excluded.b ON CONFLICT (a) DO NOTHING",
+        "ON CONFLICT (a) DO NOTHING ON CONFLICT DO NOTHING ON CONFLICT (b) DO NOTHING",
+    ],
+)
+def test_sqlite_targetless_upsert_must_be_last(source: str, clauses: str) -> None:
+    """Only the last ON CONFLICT clause may omit its conflict target."""
+    parsed = Linter(dialect="sqlite").parse_string(
+        f"INSERT INTO t1 (a, b) {source} {clauses};"
+    )
+    assert any(v.rule_code() == "PRS" for v in parsed.violations)

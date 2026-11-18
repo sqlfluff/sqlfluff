@@ -4,6 +4,12 @@ import pytest
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
+
+try:
+    from sqlfluffrs import RsPositionMarker
+except ImportError:  # pragma: no cover
+    RsPositionMarker = None  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -70,3 +76,47 @@ def test_markers__comparison():
     assert all(a_pos <= p for p in all_pos)
     # Check greater than or equal
     assert all(c_pos >= p for p in all_pos)
+
+
+def _jinja_file():
+    """A Jinja-style file where `{{ cols }}` renders over two lines."""
+    return TemplatedFile(
+        "SELECT {{ cols }}\nFROM t",
+        "test.sql",
+        "SELECT a,\n\tb\nFROM t",
+        [
+            TemplatedFileSlice("literal", slice(0, 7), slice(0, 7)),
+            TemplatedFileSlice("templated", slice(7, 17), slice(7, 12)),
+            TemplatedFileSlice("literal", slice(17, 24), slice(12, 19)),
+        ],
+        [
+            RawFileSlice("SELECT ", "literal", 0),
+            RawFileSlice("{{ cols }}", "templated", 7),
+            RawFileSlice("\nFROM t", "literal", 17),
+        ],
+    )
+
+
+@pytest.mark.skipif(RsPositionMarker is None, reason="Rust extension not available")
+@pytest.mark.parametrize(
+    "templ,source_point,templated_point",
+    [
+        # `x` after a tab.
+        (TemplatedFile.from_string("SELECT\n\tx"), 8, 8),
+        # `FROM`, after a placeholder that rendered over two lines.
+        (_jinja_file(), 18, 13),
+        # `b`, after a tab inside the rendered placeholder.
+        (_jinja_file(), 7, 11),
+    ],
+)
+@pytest.mark.parametrize("raw", ["ab", "é\nab", "ünï"])
+def test_markers__rust_working_position_parity(
+    templ, source_point, templated_point, raw
+):
+    """Rust markers report the same working positions as Python markers."""
+    py = PositionMarker.from_point(source_point, templated_point, templ)
+    rs = RsPositionMarker.from_point(source_point, templated_point, templ, None, None)
+    assert rs.working_loc == py.working_loc
+    for tab_size in (2, 4):
+        assert rs.working_visual_column(tab_size) == py.working_visual_column(tab_size)
+    assert rs.working_loc_after(raw) == py.working_loc_after(raw)

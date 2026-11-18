@@ -210,6 +210,17 @@ fn collect_python_sources(repo_root: &Path) -> Vec<PathBuf> {
         sources.push(lookbehind);
     }
 
+    // The client command rules that build_lexers.py turns into tables.
+    let client_commands = repo_root
+        .join("src")
+        .join("sqlfluff")
+        .join("core")
+        .join("parser")
+        .join("client_commands.py");
+    if client_commands.exists() {
+        sources.push(client_commands);
+    }
+
     sources
 }
 
