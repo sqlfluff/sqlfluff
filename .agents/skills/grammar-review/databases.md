@@ -28,11 +28,11 @@ licence or EULA the image accepts.
 
 | Dialect | Image or tool | Notes | Syntax error | Parsed (semantic error) |
 |---|---|---|---|---|
-| sqlite | host `sqlite3` | Always run with `-safe` from a temp dir: otherwise fixture dot-commands (`.shell`) run on your machine. `-safe` also blocks `ATTACH` | `syntax error`, `incomplete input`, `unrecognized token` | Everything else; every error starts with "Parse error" |
+| sqlite | host `sqlite3` | Always run with `-safe` from a temp dir: otherwise fixture dot-commands (`.shell`) run on your machine. `-safe` also blocks `ATTACH` | `syntax error`, `incomplete input`, `unrecognized token` | `no such table`, `no such column`; other errors are inconclusive. Every error starts with "Parse error" |
 | duckdb | `duckdb/duckdb` | One-shot, no server | `Parser Error` | `Catalog Error` |
 | clickhouse | `clickhouse-format` in `clickhouse/clickhouse-server` | Parse-only, no server needed | `Syntax error` | — |
 | postgres | `postgres:17` | | `syntax error at or near` (42601), `unterminated …` | `does not exist` |
-| mysql / mariadb | `mysql:8.4` / `mariadb:11.4` | | `ERROR 1064` | other `ERROR` codes |
+| mysql / mariadb | `mysql:8.4` / `mariadb:11.4` | | `ERROR 1064` | `ERROR 1146`, `ERROR 1054`; other errors are inconclusive |
 | materialize | `materialize/materialized` | psql protocol on port 6875 | `syntax error` | |
 | trino (+ athena DML) | `trinodb/trino` | ~30 s to ready | `mismatched input`, `SYNTAX_ERROR` | |
 | tsql | `mcr.microsoft.com/mssql/server:2022-latest` | Heavy; accepts the Developer-edition EULA. `SET PARSEONLY ON` gives a parse-only run; mind `GO` batches | `Msg 102`, `Msg 156` | `Msg 208` (invalid object) |
@@ -40,7 +40,7 @@ licence or EULA the image accepts.
 | sparksql (+ databricks, partial) | `apache/spark` (4.x for newer syntax) | One-shot `spark-sql`, ~20 s JVM start. Databricks-only syntax (Delta, Unity Catalog, `IDENTIFIER()`) fails here: docs only | `PARSE_SYNTAX_ERROR`, `ParseException` | `AnalysisException` |
 | hive (+ athena DDL) | `apache/hive:4.0.0` | Heavy; `beeline` against HiveServer2 | `ParseException` | |
 | db2 | `icr.io/db2_community/db2` | Heavy (~5–10 min, ~4 GB); needs `--privileged`; accepts the licence | `SQL0104N`, `SQL0007N` | `SQL0204N`, `SQL0205N`, `SQL0612N` |
-| starrocks / doris | `starrocks/allin1-ubuntu` / `apache/doris` all-in-one | Heavy; MySQL protocol on port 9030. Unverified | `ERROR 1064` / `Syntax error` | |
+| starrocks / doris | `starrocks/allin1-ubuntu` / `apache/doris:doris-all-in-one-2.1.0` | Heavy; MySQL protocol on port 9030. Unverified | `ERROR 1064` / `Syntax error` | |
 | exasol | `exasol/docker-db` | Heavy; needs `--privileged`; no bundled client. Unverified | `syntax error, unexpected` | |
 | flink | `flink:1.20` | One-shot `sql-client.sh`; DDL/DML parse without a cluster. Unverified | `SqlParseException` | |
 
