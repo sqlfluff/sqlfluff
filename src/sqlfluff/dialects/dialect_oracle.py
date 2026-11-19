@@ -36,6 +36,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import (
@@ -1499,6 +1500,7 @@ class BatchSegment(BaseSegment):
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
                     Ref("SqlplusShowStatementSegment"),
+                    Ref("SqlplusWheneverStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1712,6 +1714,69 @@ class SqlplusShowStatementSegment(BaseSegment):
             # Any other SET system variable (e.g. LINESIZE, PAGESIZE).
             Ref("SingleIdentifierGrammar"),
         ),
+    )
+
+
+class SqlplusWheneverStatementSegment(BaseSegment):
+    """A SQL*Plus `WHENEVER OSERROR` or `WHENEVER SQLERROR` command.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/WHENEVER-OSERROR.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/WHENEVER-SQLERROR.html
+    """
+
+    type = "sqlplus_whenever_statement"
+
+    # SQL*Plus commands end at a newline, even without a semicolon.
+    _space = TypedParser("whitespace", WhitespaceSegment)
+    _variable = Sequence(
+        Ref("ParameterNameSegment", exclude=OneOf("COMMIT", "ROLLBACK")),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("ParameterNameSegment"),
+            allow_gaps=False,
+            optional=True,
+        ),
+        allow_gaps=False,
+    )
+    _exit_status = OneOf(
+        "SUCCESS",
+        "FAILURE",
+        "WARNING",
+        Ref("NumericLiteralSegment"),
+        Ref("QualifiedNumericLiteralSegment"),
+        Ref("BindVariableSegment"),
+        _variable,
+        allow_gaps=False,
+    )
+    match_grammar = Sequence(
+        "WHENEVER",
+        _space,
+        OneOf("OSERROR", "SQLERROR"),
+        _space,
+        OneOf(
+            Sequence(
+                "EXIT",
+                Sequence(_space, _exit_status, allow_gaps=False, optional=True),
+                Sequence(
+                    _space,
+                    OneOf("COMMIT", "ROLLBACK", allow_gaps=False),
+                    allow_gaps=False,
+                    optional=True,
+                ),
+                allow_gaps=False,
+            ),
+            Sequence(
+                "CONTINUE",
+                Sequence(
+                    _space,
+                    OneOf("COMMIT", "ROLLBACK", "NONE", allow_gaps=False),
+                    allow_gaps=False,
+                    optional=True,
+                ),
+                allow_gaps=False,
+            ),
+        ),
+        allow_gaps=False,
     )
 
 
