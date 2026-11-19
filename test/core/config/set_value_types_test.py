@@ -36,8 +36,10 @@ def test_set_value_scalar_types(value, expected):
     config = FluffConfig(overrides={"dialect": "ansi"}, ignore_local_config=True)
     path = ("templater", "jinja", "context", "value")
     config.set_value(path, value)
-    actual = config.get_section(path)
+    missing = object()
+    actual = config.get(path[-1], section=path[:-1], default=missing)
 
+    assert actual is not missing
     assert type(actual) is type(expected)
     assert actual == expected
 
