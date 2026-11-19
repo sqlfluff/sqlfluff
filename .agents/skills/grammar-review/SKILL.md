@@ -44,6 +44,11 @@ Files in this skill's folder:
 - Keep scratch files (probe SQL, backups) inside the review worktree.
 - Read the `.yml` node for each new or changed statement: check the segment type and its children,
   not just that it parsed.
+- **Nesting probes (required when the change adds terminators or changes a block or body grammar).**
+  Write probes that nest each construct the body allows (`CASE … ELSE … END`, sub-blocks, nested
+  statements) inside each statement form it accepts: SELECT and DML, not just assignment. Parse every
+  probe on `HEAD~1` and `HEAD`. Base parses and head doesn't: **Blocking**. Passing tests don't replace
+  this, because existing fixtures rarely nest these constructs.
 
 Project-specific traps:
 - If `sqlfluffrs` is installed, `use_rust_parser = auto` parses with Rust tables compiled when it

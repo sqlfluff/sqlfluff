@@ -61,9 +61,8 @@ process (34–38) · Don't flag.
     the next statement. **Suggestion:** a narrower ref instead of `ExpressionSegment`.
 11. Don't bound a grammar with a terminator list copied from another dialect's statements; it drifts
     from the parent. Bound it structurally, and prefer `exclude=` on the ref that steals a keyword over
-    adding terminators. When a change adds terminators or closes a block, probe the nested constructs
-    the body allows (`CASE … ELSE … END`, sub-blocks, nested statements) inside each statement form it
-    accepts (SELECT/DML, not just assignment), on base and head. Base parses, head doesn't: **Blocking**.
+    adding terminators. A change that adds terminators or closes a block needs the nesting probes from
+    `SKILL.md` step 2; base parses and head doesn't: **Blocking**.
 12. In a `OneOf`, a specific keyword comes before a generic ref that would also match it
     (`CURRENT_USER` before `RoleReferenceSegment`).
 13. New lexer rules must not steal identifiers or operators: anchor them, and run them after the word
