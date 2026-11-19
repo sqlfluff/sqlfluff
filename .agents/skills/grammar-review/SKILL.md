@@ -47,8 +47,9 @@ Files in this skill's folder:
 - **Nesting probes (required when the change adds terminators or changes a block or body grammar).**
   Write probes that nest each construct the body allows (`CASE … ELSE … END`, sub-blocks, nested
   statements) inside each statement form it accepts: SELECT and DML, not just assignment. Parse every
-  probe on `HEAD~1` and `HEAD`. Base parses and head doesn't: **Blocking**. Passing tests don't replace
-  this, because existing fixtures rarely nest these constructs.
+  probe on the comparison base and the reviewed revision (for local changes, the pre-change `HEAD` and
+  the working tree). Base parses and head doesn't: **Blocking**. Passing tests don't replace this,
+  because existing fixtures rarely nest these constructs.
 
 Project-specific traps:
 - If `sqlfluffrs` is installed, `use_rust_parser = auto` parses with Rust tables compiled when it
