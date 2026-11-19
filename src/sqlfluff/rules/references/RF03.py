@@ -1,7 +1,7 @@
 """Implementation of Rule RF03."""
 
 from collections.abc import Iterator
-from typing import Optional
+from typing import Optional, cast
 
 from sqlfluff.core.dialects.common import (
     AliasInfo,
@@ -13,7 +13,7 @@ from sqlfluff.core.dialects.common import (
     iter_raw_references,
     qualification,
 )
-from sqlfluff.core.parser import IdentifierSegment
+from sqlfluff.core.parser import IdentifierSegment, RawSegment
 from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import (
     BaseRule,
@@ -707,9 +707,12 @@ def _validate_one_reference(
         # dropping the fix) and, in dialects like MySQL, strips the
         # quotes entirely, which breaks keyword table names like
         # `order`.
+        # AliasInfo.segment is always a RawSegment (an identifier) in
+        # practice; mypy only sees the wider Optional[BaseSegment] type.
+        table_source = cast(RawSegment, table_ref_str_source)
         table_identifier = IdentifierSegment(
-            raw=table_ref_str_source.raw,
-            instance_types=table_ref_str_source.instance_types,
+            raw=table_source.raw,
+            instance_types=table_source.instance_types,
         )
         fixes = [
             LintFix.create_before(
