@@ -107,6 +107,7 @@ WITHIN"""
 # so these are just ones we need to allow parsing to work
 bigquery_unreserved_keywords = """ACCESS
 ACCOUNT
+ACTION
 ADD
 ADMIN
 AFTER
