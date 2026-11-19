@@ -15,7 +15,8 @@ class Rule_ST04(BaseRule):
     When simplifying nested ``CASE`` expressions, this rule preserves differences
     in string literals and case-sensitive identifiers. Differences in keyword
     casing, including ``TRUE``, ``FALSE`` and ``NULL``, do not prevent safe
-    flattening.
+    flattening. Unquoted function names are compared without regard to ASCII
+    case in ANSI, PostgreSQL and SQLite.
 
     **Anti-pattern**
 
@@ -55,8 +56,14 @@ class Rule_ST04(BaseRule):
     is_fix_compatible = True
 
     @staticmethod
-    def _operand_identity(segment: BaseSegment) -> tuple[str, str]:
+    def _operand_identity(segment: BaseSegment, dialect_name: str) -> tuple[str, str]:
         if segment.is_type("keyword"):
+            value = segment.raw_upper
+        elif (
+            dialect_name in {"ansi", "postgres", "sqlite"}
+            and segment.is_type("function_name_identifier")
+            and segment.raw.isascii()
+        ):
             value = segment.raw_upper
         elif segment.is_type("quoted_literal"):
             # Preserve spelling conservatively because collation is unknown.
@@ -100,12 +107,12 @@ class Rule_ST04(BaseRule):
         # second case expressions should be the same. If they aren't, that
         # case currently isn't handled.
         if [
-            self._operand_identity(x)
+            self._operand_identity(x, context.dialect.name)
             for x in segment.children(sp.is_code())
             .select(start_seg=case1_first_case, stop_seg=case1_first_when)
             .raw_segments
         ] != [
-            self._operand_identity(x)
+            self._operand_identity(x, context.dialect.name)
             for x in case2.children(sp.is_code())
             .select(start_seg=case2_first_case, stop_seg=case2_first_when)
             .raw_segments

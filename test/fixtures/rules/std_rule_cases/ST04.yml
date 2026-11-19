@@ -1,5 +1,57 @@
 rule: ST04
 
+test_fail_equivalent_sqlite_function_name_case:
+  configs:
+    core:
+      dialect: sqlite
+  fail_str: &mixed_case_function |
+    SELECT CASE abs(-2) WHEN 0 THEN 1
+      ELSE CASE ABS(-2) WHEN 2 THEN 2 ELSE 3 END
+    END;
+  fix_str: &mixed_case_function_fixed |
+    SELECT CASE abs(-2) WHEN 0 THEN 1
+            WHEN 2 THEN 2
+            ELSE 3
+    END;
+
+test_fail_equivalent_ansi_function_name_case:
+  fail_str: *mixed_case_function
+  fix_str: *mixed_case_function_fixed
+
+test_fail_equivalent_postgres_function_name_case:
+  configs:
+    core:
+      dialect: postgres
+  fail_str: *mixed_case_function
+  fix_str: *mixed_case_function_fixed
+
+test_pass_different_clickhouse_function_name_case:
+  configs:
+    core:
+      dialect: clickhouse
+  pass_str: |
+    SELECT CASE f() WHEN 0 THEN 1
+      ELSE CASE F() WHEN 2 THEN 2 ELSE 3 END
+    END;
+
+test_pass_different_quoted_postgres_function_names:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT CASE "f"() WHEN 0 THEN 1
+      ELSE CASE "F"() WHEN 2 THEN 2 ELSE 3 END
+    END;
+
+test_pass_different_sqlite_function_argument_case:
+  configs:
+    core:
+      dialect: sqlite
+  pass_str: |
+    SELECT CASE unicode('a') WHEN 0 THEN 1
+      ELSE CASE UNICODE('A') WHEN 65 THEN 2 ELSE 3 END
+    END;
+
 test_pass_different_literal_case:
   configs:
     core:
