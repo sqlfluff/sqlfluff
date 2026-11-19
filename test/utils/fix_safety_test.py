@@ -203,3 +203,19 @@ def test_several_dialects(tmp_path, monkeypatch):
     text = report.read_text()
     assert "## duckdb, judged by the duckdb parser" in text
     assert "## postgres, judged by the postgres parser" in text
+
+
+def test_default_run_names_the_rule(tmp_path, monkeypatch):
+    """Without `--rules`, the rules with a fix are tried one at a time.
+
+    RF06 removes the quotes from "time" in a RETURNS TABLE column, which
+    PostgreSQL can't parse: the known failure, unlisted here.
+    """
+    pytest.importorskip("pglast")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    report = tmp_path / "report.md"
+    args = ["--dialect", "postgres", "--filter", "create_function.sql"]
+    assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 1
+    text = report.read_text()
+    assert "New failures: 1." in text
+    assert "The postgres parser can't parse the fixed statement. Rules: RF06." in text
