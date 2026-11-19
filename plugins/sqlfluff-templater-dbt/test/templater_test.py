@@ -764,6 +764,78 @@ def test__templater_dbt_handle_database_connection_failure(
     assert "dbt tried to connect to the database" in error_message
 
 
+@pytest.mark.parametrize(
+    "populate_cache, env, expected",
+    [
+        (None, {}, True),
+        (None, {"DBT_POPULATE_CACHE": "false"}, False),
+        (None, {"DBT_POPULATE_CACHE": "0"}, False),
+        (None, {"DBT_POPULATE_CACHE": "true"}, True),
+        (
+            None,
+            {"DBT_POPULATE_CACHE": "false", "DBT_ENGINE_POPULATE_CACHE": "true"},
+            True,
+        ),
+        (False, {"DBT_POPULATE_CACHE": "true"}, False),
+        (True, {"DBT_POPULATE_CACHE": "false"}, True),
+    ],
+)
+def test__populate_cache_from_config_and_env(
+    dbt_templater, monkeypatch, populate_cache, env, expected
+):
+    """Test the populate_cache setting and the DBT_POPULATE_CACHE env vars."""
+    monkeypatch.delenv("DBT_POPULATE_CACHE", raising=False)
+    monkeypatch.delenv("DBT_ENGINE_POPULATE_CACHE", raising=False)
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"populate_cache": populate_cache}},
+        }
+    )
+    assert dbt_templater._get_populate_cache() is expected
+
+
+@pytest.mark.parametrize("env_value, called", [(None, True), ("false", False)])
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
+def test__templater_dbt_populate_cache(
+    set_relations_cache,
+    env_value,
+    called,
+    project_dir,
+    dbt_templater,
+    dbt_fluff_config,
+    monkeypatch,
+):
+    """Test the relations cache is only warmed when populate_cache is enabled.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8239
+    """
+    from dbt.adapters.factory import get_adapter
+
+    monkeypatch.delenv("DBT_ENGINE_POPULATE_CACHE", raising=False)
+    if env_value is None:
+        monkeypatch.delenv("DBT_POPULATE_CACHE", raising=False)
+    else:
+        monkeypatch.setenv("DBT_POPULATE_CACHE", env_value)
+
+    # Clear the adapter cache to force this test to create a new connection.
+    DbtTemplater.adapters.clear()
+    try:
+        dbt_templater.process(
+            in_str="",
+            fname=os.path.join(
+                project_dir, "models/my_new_project/select_distinct_group_by.sql"
+            ),
+            config=FluffConfig(configs=dbt_fluff_config),
+        )
+    finally:
+        get_adapter(dbt_templater.dbt_config).connections.release()
+        DbtTemplater.adapters.clear()
+    assert set_relations_cache.called is called
+
+
 def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
     """Test possibility to set project_dir from env variable."""
     dbt_templater.sqlfluff_config = FluffConfig(

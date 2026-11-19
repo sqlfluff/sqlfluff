@@ -88,7 +88,14 @@ profiles_dir = <relative or absolute path to the directory that contains the pro
 profile = <dbt profile>
 target = <dbt target>
 dbt_skip_compilation_error = <True or False, default is True>
+populate_cache = <True or False, default is True>
 ```
+
+`populate_cache` mirrors dbt's `--populate-cache/--no-populate-cache` option.
+When enabled, dbt queries the database to warm its relations cache when
+SQLFluff first connects, which can be slow for projects with many schemas.
+If it is omitted, the `DBT_ENGINE_POPULATE_CACHE` or `DBT_POPULATE_CACHE`
+environment variable is used.
 
 ::: tip NOTE
 

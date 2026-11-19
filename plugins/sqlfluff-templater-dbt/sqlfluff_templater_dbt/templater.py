@@ -459,6 +459,26 @@ class DbtTemplater(JinjaTemplater):
             default=True,
         )
 
+    def _get_populate_cache(self) -> bool:
+        """Get whether to populate dbt's relations cache on connection.
+
+        Mirrors dbt's ``--populate-cache/--no-populate-cache`` option,
+        including its ``DBT_POPULATE_CACHE`` environment variable. SQLFluff
+        config takes precedence over the environment variables.
+        """
+        value = self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "populate_cache")
+        )
+        if value is None:
+            value = os.getenv("DBT_ENGINE_POPULATE_CACHE") or os.getenv(
+                "DBT_POPULATE_CACHE"
+            )
+        if value is None:
+            return True
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() not in ("0", "false", "f", "no", "n", "off")
+
     def sequence_files(
         self, fnames: list[str], config=None, formatter=None
     ) -> Iterator[str]:
@@ -889,9 +909,13 @@ class DbtTemplater(JinjaTemplater):
 
                 adapter.set_macro_resolver(self.dbt_manifest)
                 adapter.set_macro_context_generator(generate_runtime_macro_context)
-                adapter.set_relations_cache(self.dbt_manifest.nodes.values())
-            else:
-                adapter.set_relations_cache(self.dbt_manifest)
+            # Warming the relations cache can be slow and linting doesn't
+            # materialize anything, so respect dbt's --no-populate-cache.
+            if self._get_populate_cache():
+                if self.dbt_version_tuple >= (1, 8):
+                    adapter.set_relations_cache(self.dbt_manifest.nodes.values())
+                else:
+                    adapter.set_relations_cache(self.dbt_manifest)
 
         yield
         # :TRICKY: Once connected, we never disconnect. Making multiple
