@@ -53,7 +53,9 @@ The [producer's design notes](https://github.com/alanmcruickshank/dbt/blob/3116b
 and [short JSON example](https://github.com/alanmcruickshank/dbt/blob/3116b949886d85aae646cc1479e7f703b88865d1/crates/dbt-tasks-sa/tests/fixtures/render_trace/example.render_trace.json)
 describe the format. SQLFluff depends on:
 
-- Protocol version 1 and the `jinja_before_ephemeral_injection` render stage.
+- Protocol version 1 (JSON sidecars) or version 2 (nested Parquet epochs), and
+  the `jinja_before_ephemeral_injection` render stage. See the
+  [Parquet compatibility contract](README.md#parquet-producer-compatibility).
 - Exact source and rendered strings, without applying source-rewriting offsets
   to a different file or applying pre-injection offsets to final compiled SQL.
 - Ordered literal, expression, macro, layout and loop events with half-open

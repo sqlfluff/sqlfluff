@@ -9,7 +9,7 @@ description = "Experimental dbt v2 render-trace templater for SQLFluff"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-dependencies = ["sqlfluff==4.5.0", "packaging"]
+dependencies = ["sqlfluff==4.5.0", "packaging", "pyarrow>=14"]
 
 [project.entry-points.sqlfluff]
 sqlfluff_templater_dbt2 = "sqlfluff_templater_dbt2"

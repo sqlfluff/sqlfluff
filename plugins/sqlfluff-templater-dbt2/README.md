@@ -86,13 +86,35 @@ eventual normal installation can then obtain the upstream runtime through pip.
 ## How the consumer works
 
 1. Compile the selected models together once per lint pass with `--feature write_render_trace`, using fresh
-   temporary target and log directories. Load the manifest and sidecars once,
+   temporary target and log directories. Load the manifest and trace artifacts once,
    then serve per-file traces from memory after removing the temporary output.
-2. Read the model's `*.render_trace.json` sidecar. Verify its source path, exact
-   input, node identity and invocation against that compilation's manifest.
+2. Read protocol-v2 Parquet epochs when present, or protocol-v1
+   `*.render_trace.json` sidecars from the original proposal. Verify the source
+   path, exact input, node identity and invocation against the compilation manifest.
 3. Validate protocol version, render stage, UTF-8 byte boundaries, literal
    equality and event coverage. Translate events into SQLFluff source slices.
 4. Run SQLFluff's usual lexer, parser, rules and fixer on that `TemplatedFile`.
+
+### Parquet producer compatibility
+
+Protocol-v2 producers write
+`target/private/metadata/compile/render_traces/v1_<epoch>.parquet`.
+Each row contains the same identity, source, rendered SQL and ordered events as
+the JSON proposal, plus an `ingested_at` integer timestamp. The `events` column
+is a `LIST<STRUCT<kind, source_start, source_end, rendered_start, rendered_end>>`;
+offsets are signed 64-bit UTF-8 byte positions. The `v1_` storage prefix and
+`protocol_version = 2` describe separate versioned contracts.
+
+The plugin uses PyArrow to read these nested rows. It accepts only rows matching
+the fresh manifest's invocation, selects the greatest `ingested_at` per node,
+and preserves event order and repeated source ranges. Conflicting rows with the
+same timestamp are rejected. A retained trace from an older invocation cannot
+authorize a source fix. Corrupt Parquet causes a templater error rather than a
+fallback to possibly stale JSON.
+
+The protocol-v1 JSON reader remains available for the original producer. This
+does not support the intermediate JSON layout that groups spans by event kind.
+Both supported representations pass through the same source-mapping validation.
 
 dbt performs all rendering and execution. Python only lexically classifies the
 original Jinja source to account for source-only tags and skipped text. The

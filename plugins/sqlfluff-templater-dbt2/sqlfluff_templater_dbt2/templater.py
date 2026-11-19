@@ -230,7 +230,7 @@ class Dbt2Templater(RawTemplater):
     def _compile_project(
         self, settings: dict[str, Any], project: Path, paths: list[Path]
     ) -> RenderArtifacts:
-        """Invoke dbt once and load all emitted JSON before deleting temporary files."""
+        """Invoke dbt once and load its artifacts before deleting temporary files."""
         command = self._command(settings)
         with tempfile.TemporaryDirectory(prefix="sqlfluff-dbt2-") as temporary:
             target = Path(temporary) / "target"
