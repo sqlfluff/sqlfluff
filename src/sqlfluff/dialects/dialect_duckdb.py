@@ -360,6 +360,9 @@ duckdb_dialect.replace(
         insert=[
             Ref("EqualsSegment_a"),
             Ref("GlobOperatorSegment"),
+            # `^@` is an alias of starts_with:
+            # https://duckdb.org/docs/stable/sql/functions/text#starts_withstring-search_string
+            Ref("StartsWithOperatorSegment"),
         ]
     ),
     LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
