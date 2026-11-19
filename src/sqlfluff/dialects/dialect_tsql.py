@@ -5754,16 +5754,18 @@ class AlterTableStatementSegment(BaseSegment):
                         ),
                     ),
                     Sequence(
-                        "ADD",
+                        OneOf("ADD", "DROP"),
                         "MASKED",
-                        "WITH",
-                        Bracketed(
-                            "FUNCTION",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                "FUNCTION",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                            ),
+                            optional=True,
                         ),
                     ),
-                    Sequence("DROP", "MASKED"),
                 ),
             ),
             Sequence(

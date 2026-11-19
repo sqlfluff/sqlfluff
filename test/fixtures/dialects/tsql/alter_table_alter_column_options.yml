@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4fbde8c170ca628eb88014eaca2d9dabf268c6693dfbd88e250ad37b06a9cb46
+_hash: d568ba65fdb2e49dc6b586a642650262c4f763c68e3929be90f91e8c3018aceb
 file:
   batch:
   - statement:
@@ -71,6 +71,42 @@ file:
             raw_comparison_operator: '='
           quoted_literal: "'random(1, 100)'"
           end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: FirstName
+      - keyword: ADD
+      - keyword: MASKED
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: FUNCTION
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "N'default()'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: LastName
+      - keyword: ADD
+      - keyword: MASKED
   - statement_terminator: ;
   - statement:
       alter_table_statement:
