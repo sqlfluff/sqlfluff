@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b3546f599843bea2e82c2b6fc97f93ba8a7924f3b16baffa3568d2e6d1d144b
+_hash: 8ca671dc9833affed2b3287797322d24cc727c30bd8aa6ed8e6fff17e87c1460
 file:
   batch:
   - statement:
@@ -108,5 +108,78 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: NONE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: notes
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: LABEL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "N'Confidential'"
+        - comma: ','
+        - keyword: INFORMATION_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "N'Contact Info'"
+        - comma: ','
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: LOW
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: phone
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: MEDIUM
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: birth_date
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: HIGH
         - end_bracket: )
   - statement_terminator: ;

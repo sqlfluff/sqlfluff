@@ -10160,7 +10160,7 @@ class AddSensitivityClassificationStatementSegment(BaseSegment):
                         "INFORMATION_TYPE_ID",
                     ),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
                 ),
                 Sequence(
                     "RANK",
