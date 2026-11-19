@@ -31,6 +31,38 @@ The `-k` option simply searches for the content of the argument being in the nam
 of the test, which will match any single or combo tests for that rule. By convention,
 any test cases for a rule should include the code for that rule.
 
+## Checking That Fixes Keep the Meaning
+
+A fix should change how a query is written, not what it does. `utils/fix_safety.py`
+checks this for the dialect fixtures: it fixes each statement with every rule, then
+asks the database's own parser (an *oracle*) for the statement's syntax tree before
+and after the fix. If the trees differ, or the database can't parse the fixed
+statement, the fix changed the query, and the check names the rules that did it.
+
+There are oracles for DuckDB (DuckDB's `json_serialize_sql`, which handles
+`SELECT` statements) and PostgreSQL ([pglast](https://pglast.readthedocs.io/),
+PostgreSQL's own parser). The `fix-safety` tox environment installs them and checks
+both dialects:
+
+```sh
+tox -e fix-safety
+```
+
+Or run it directly, for one dialect, some fixtures, some rules or a config file
+with other rule settings:
+
+```sh
+python utils/fix_safety.py --dialect postgres --filter "create_function*"
+python utils/fix_safety.py --dialect postgres --rules CV11 --config my.sqlfluff
+python utils/fix_safety.py --dialect postgres --fixtures ansi
+```
+
+Rules whose fixes change the tree on purpose, like ST06 reordering the columns of a
+`SELECT`, aren't checked; they're listed with the reason in the script. Failures
+that are known are listed in `utils/fix_safety_known_failures.yml`, so they don't
+fail the check. When you fix one, remove it from the list: the check also fails if
+a listed statement passes.
+
 ## Traversal Options
 
 ### `crawl_behaviour`
