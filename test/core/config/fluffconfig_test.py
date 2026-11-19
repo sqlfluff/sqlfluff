@@ -566,6 +566,29 @@ def test_resolve_path_no_matches(tmp_path):
     assert len(matches) == 0
 
 
+def test_resolve_path_literal_config_directory(tmp_path):
+    """Glob syntax in the config directory itself is treated literally.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8970
+    """
+    from sqlfluff.core.config.file import _resolve_path
+
+    project = tmp_path / "project[1]"
+    (project / "macros").mkdir(parents=True)
+    (project / "macros" / "macro1.sql").touch()
+    # A sibling which ``project[1]`` would match as a glob pattern.
+    (tmp_path / "project1" / "macros").mkdir(parents=True)
+
+    config_path = str(project / ".sqlfluff")
+
+    # Exact paths resolve against the literal directory, not the sibling.
+    assert _resolve_path(config_path, "macros") == [str(project / "macros")]
+    # Glob syntax in the configured value still works.
+    assert _resolve_path(config_path, "macros/*.sql") == [
+        str(project / "macros" / "macro1.sql")
+    ]
+
+
 def test_resolve_paths_in_config_comma_separated(tmp_path):
     """Test that _resolve_paths_in_config handles comma-separated glob patterns."""
     from sqlfluff.core.config.file import _resolve_paths_in_config
