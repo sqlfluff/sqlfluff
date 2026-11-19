@@ -2,4 +2,4 @@
 # change between versions: DuckDB 2.0 changed how constants are serialised,
 # and pglast follows a PostgreSQL major version (8.x is PostgreSQL 18).
 duckdb~=2.0.0
-pglast~=8.8
+pglast~=8.8.0

@@ -152,3 +152,54 @@ def test_known_failures_file():
         assert statements is not None, entry
         matches = [s for s in statements if s.startswith(entry["starts_with"])]
         assert len(matches) == 1, entry
+
+
+def test_unjudged_known_failure_isnt_stale(tmp_path, monkeypatch):
+    """A listed statement the oracle can't judge isn't reported as passing."""
+    pytest.importorskip("duckdb")
+    known = tmp_path / "known.yml"
+    # DuckDB's json_serialize_sql only handles SELECTs.
+    known.write_text(
+        "- dialect: duckdb\n"
+        "  fixture: duckdb/create_type.sql\n"
+        "  starts_with: CREATE TYPE mood\n"
+    )
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
+    args = ["--dialect", "duckdb", "--filter", "create_type.sql", "--processes", "1"]
+    assert fix_safety.main(args) == 0
+
+
+def test_each_rule_is_tried_alone(monkeypatch):
+    """A rule that can't fix the statement alone doesn't hide later rules."""
+    pytest.importorskip("duckdb")
+    statement = "SELECT 'a'"
+
+    def fake_fix(sql, dialect, rules, config_path):
+        if rules == ["AA01"]:
+            raise ValueError("can't fix this alone")
+        return "SELECT 'b'\n"
+
+    monkeypatch.setattr(fix_safety, "_fix", fake_fix)
+    _, reason, rules = fix_safety._check_statement(
+        statement,
+        "duckdb",
+        fix_safety.DuckDBOracle(),
+        "duckdb",
+        ["AA01", "BB02"],
+        None,
+    )
+    assert reason == "The fix changes the syntax tree"
+    assert rules == ["BB02"]
+
+
+def test_several_dialects(tmp_path, monkeypatch):
+    """Each dialect gets its own section of one report."""
+    pytest.importorskip("duckdb")
+    pytest.importorskip("pglast")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    report = tmp_path / "report.md"
+    args = ["--dialect", "duckdb", "--dialect", "postgres", "--filter", "select.sql"]
+    assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 0
+    text = report.read_text()
+    assert "## duckdb, judged by the duckdb parser" in text
+    assert "## postgres, judged by the postgres parser" in text
