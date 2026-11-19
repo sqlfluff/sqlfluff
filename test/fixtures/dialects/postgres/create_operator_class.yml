@@ -1,0 +1,288 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a8a2e43cdcbb12e0618a09a99662dbbfffa5c655e1e53618499b34d2ff992095
+file:
+- statement:
+    create_operator_class_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: complex_abs_ops
+    - keyword: DEFAULT
+    - keyword: FOR
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: complex
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: AS
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '1'
+        operator_name:
+          operator: <
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '2'
+        operator_name:
+        - operator: <
+        - operator: '='
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '3'
+        operator_name:
+          operator: '='
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '4'
+        operator_name:
+        - operator: '>'
+        - operator: '='
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '5'
+        operator_name:
+          operator: '>'
+    - comma: ','
+    - operator_class_item:
+        keyword: FUNCTION
+        numeric_literal: '1'
+        function_name:
+          function_name_identifier: complex_abs_cmp
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: complex
+        - comma: ','
+        - data_type:
+            data_type_identifier: complex
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_operator_class_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: gist__int_ops
+    - keyword: DEFAULT
+    - keyword: FOR
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: _int4
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: gist
+    - keyword: AS
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '3'
+        operator_name:
+        - operator: '&'
+        - operator: '&'
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '6'
+        operator_name:
+          operator: '='
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: anyarray
+        - comma: ','
+        - data_type:
+            data_type_identifier: anyarray
+        - end_bracket: )
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '7'
+        operator_name:
+          operator: '@>'
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '8'
+        operator_name:
+          operator: <@
+    - comma: ','
+    - operator_class_item:
+        keyword: OPERATOR
+        numeric_literal: '20'
+        operator_name:
+          operator: '@@'
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: _int4
+        - comma: ','
+        - data_type:
+            data_type_identifier: query_int
+        - end_bracket: )
+    - comma: ','
+    - operator_class_item:
+        keyword: FUNCTION
+        numeric_literal: '1'
+        function_name:
+          function_name_identifier: g_int_consistent
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: internal
+        - comma: ','
+        - data_type:
+            data_type_identifier: _int4
+        - comma: ','
+        - data_type:
+            keyword: smallint
+        - comma: ','
+        - data_type:
+            data_type_identifier: oid
+        - comma: ','
+        - data_type:
+            data_type_identifier: internal
+        - end_bracket: )
+    - comma: ','
+    - operator_class_item:
+        keyword: FUNCTION
+        numeric_literal: '2'
+        function_name:
+          function_name_identifier: g_int_union
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: internal
+        - comma: ','
+        - data_type:
+            data_type_identifier: internal
+        - end_bracket: )
+    - comma: ','
+    - operator_class_item:
+        keyword: FUNCTION
+        numeric_literal: '7'
+        function_name:
+          function_name_identifier: g_int_same
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: _int4
+        - comma: ','
+        - data_type:
+            data_type_identifier: _int4
+        - comma: ','
+        - data_type:
+            data_type_identifier: internal
+        - end_bracket: )
+    - comma: ','
+    - operator_class_item:
+        keyword: STORAGE
+        data_type:
+          data_type_identifier: internal
+- statement_terminator: ;
+- statement:
+    create_operator_class_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: int4_custom_ops
+    - keyword: FOR
+    - keyword: TYPE
+    - data_type:
+        keyword: int4
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: integer_ops
+    - keyword: AS
+    - operator_class_item:
+      - keyword: OPERATOR
+      - numeric_literal: '1'
+      - operator_name:
+          operator: <
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int4
+        - comma: ','
+        - data_type:
+            keyword: int4
+        - end_bracket: )
+      - keyword: FOR
+      - keyword: SEARCH
+    - comma: ','
+    - operator_class_item:
+      - keyword: FUNCTION
+      - numeric_literal: '1'
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int4
+        - comma: ','
+        - data_type:
+            keyword: int4
+        - end_bracket: )
+      - function_name:
+          function_name_identifier: btint4cmp
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int4
+        - comma: ','
+        - data_type:
+            keyword: int4
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_operator_class_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: point_knn_ops
+    - keyword: FOR
+    - keyword: TYPE
+    - data_type:
+        keyword: point
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: gist
+    - keyword: AS
+    - operator_class_item:
+      - keyword: OPERATOR
+      - numeric_literal: '15'
+      - operator_name:
+          operator: <->
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: point
+        - comma: ','
+        - data_type:
+            keyword: point
+        - end_bracket: )
+      - keyword: FOR
+      - keyword: ORDER
+      - keyword: BY
+      - operator_family_reference:
+          naked_identifier: float_ops
+    - comma: ','
+    - operator_class_item:
+        keyword: STORAGE
+        data_type:
+          keyword: box
+- statement_terminator: ;

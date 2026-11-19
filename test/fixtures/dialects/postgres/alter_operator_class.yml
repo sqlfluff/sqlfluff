@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 802cadfc12fd07a16ef9c98dd4992f3cb18f651b75cf768fd42305ea4ee724f1
+file:
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: int4_custom_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: RENAME
+    - keyword: TO
+    - operator_class_reference:
+        naked_identifier: int4_new_ops
+- statement_terminator: ;
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: int4_new_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: int4_new_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: int4_new_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: int4_new_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: int4_new_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: test_schema
+- statement_terminator: ;
+- statement:
+    alter_operator_class_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: gist__int_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: gist
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
