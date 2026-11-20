@@ -878,6 +878,11 @@ available:
     line_position = leading
     ```
 
+    For operators, see the `line_position` examples for
+    [LT03 (`layout.operators`)](../reference/rules/layout#lt03), the rule
+    formerly known as `L007`. For example, configure arithmetic operators
+    under `binary_operator` and comparisons under `comparison_operator`.
+
   * `alone`, which means if there is a line break on either side,
     then there must be a line break on *both sides* (i.e. that it should
     be the only thing on that line.
