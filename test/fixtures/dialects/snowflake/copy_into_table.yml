@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03ebb03d1607d492fc6f819c3273de3b70736a79c54de8357b6fe94c3933f4c4
+_hash: 8c785cbcbb8cbc1c47090ecd370b5b01314f5cdd2a414a2bec42e0649f361943
 file:
 - statement:
     copy_into_table_statement:
@@ -517,4 +517,72 @@ file:
               raw_comparison_operator: '='
           - boolean_literal: 'FALSE'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: iceberg_table1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_type: PARQUET
+          - keyword: USE_VECTORIZED_SCANNER
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'TRUE'
+          end_bracket: )
+    - keyword: LOAD_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ADD_FILES_COPY
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CASE_SENSITIVE
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: iceberg_table1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: PARQUET
+          end_bracket: )
+    - keyword: LOAD_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FULL_INGEST
+    - keyword: PURGE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CASE_SENSITIVE
 - statement_terminator: ;

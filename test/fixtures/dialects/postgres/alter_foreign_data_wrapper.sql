@@ -1,0 +1,20 @@
+ALTER FOREIGN DATA WRAPPER dummy HANDLER postgres_fdw_handler;
+
+ALTER FOREIGN DATA WRAPPER dummy NO HANDLER NO VALIDATOR;
+
+ALTER FOREIGN DATA WRAPPER dummy
+    VALIDATOR ext.my_validator
+    OPTIONS (ADD debug 'true', retries '3');
+
+ALTER FOREIGN DATA WRAPPER dummy OPTIONS (SET debug 'false', DROP retries);
+
+ALTER FOREIGN DATA WRAPPER dummy OWNER TO some_role;
+
+ALTER FOREIGN DATA WRAPPER dummy OWNER TO CURRENT_USER;
+
+ALTER FOREIGN DATA WRAPPER dummy RENAME TO renamed;
+
+ALTER FOREIGN DATA WRAPPER dummy OPTIONS (ADD null 'NA', SET "debug" 'true', DROP select);
+
+-- An option can be called `add`, `set` or `drop`
+ALTER FOREIGN DATA WRAPPER dummy OPTIONS (set 'x', DROP drop);

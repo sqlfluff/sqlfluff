@@ -103,9 +103,9 @@ For example, to enable [RF02](../reference/rules/references#rf02):
 rules = RF02
 ```
 
-Rules can also be enabled/disabled by their grouping. Right now, the only
-rule grouping is `core`. This will enable (or disable) a select group
-of rules that have been deemed 'core rules'.
+Use rule groups to enable or disable multiple rules together. For example,
+`rules = layout` enables layout rules. The configuration below enables the
+rules in the `core` group.
 
 ```ini
 [sqlfluff]

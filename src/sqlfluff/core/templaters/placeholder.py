@@ -99,17 +99,17 @@ class PlaceholderTemplater(RawTemplater):
     ) -> dict[str, Any]:
         """Get the templating context from the config."""
         live_context = super().get_context(fname, config)
+        # None allows a nested config to clear an inherited style or regex.
+        param_regex = live_context.get("param_regex")
+        param_style = live_context.get("param_style")
 
-        if "param_regex" in live_context and "param_style" in live_context:
+        if param_regex is not None and param_style is not None:
             raise ValueError(
                 "Either param_style or param_regex must be provided, not both"
             )
-        if "param_regex" in live_context:
-            live_context["__bind_param_regex"] = regex.compile(
-                live_context["param_regex"]
-            )
-        elif "param_style" in live_context:
-            param_style = live_context["param_style"]
+        if param_regex is not None:
+            live_context["__bind_param_regex"] = regex.compile(param_regex)
+        elif param_style is not None:
             if param_style not in KNOWN_STYLES:
                 raise ValueError(
                     'Unknown param_style "{}", available are: {}'.format(

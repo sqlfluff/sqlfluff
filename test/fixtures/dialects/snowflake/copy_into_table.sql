@@ -91,3 +91,14 @@ MATCH_BY_COLUMN_NAME = 'case_insensitive';
 copy into mytable1
     from 's3://bucket/source'
     file_format = (type=csv MULTI_LINE=FALSE);
+
+COPY INTO iceberg_table1 FROM @stage1
+FILE_FORMAT = (TYPE = PARQUET USE_VECTORIZED_SCANNER = TRUE)
+LOAD_MODE = ADD_FILES_COPY
+MATCH_BY_COLUMN_NAME = CASE_SENSITIVE;
+
+COPY INTO iceberg_table1 FROM @stage1
+FILE_FORMAT = (TYPE = PARQUET)
+LOAD_MODE = FULL_INGEST
+PURGE = TRUE
+MATCH_BY_COLUMN_NAME = CASE_SENSITIVE;

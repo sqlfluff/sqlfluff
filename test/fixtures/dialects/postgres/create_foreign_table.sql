@@ -133,3 +133,18 @@ CREATE FOREIGN TABLE foreign_table_partition_with_with_columns
     )
     FOR VALUES WITH ( MODULUS 2, REMAINDER 0)
     SERVER a_server;
+
+-- `null` is a reserved word, which pg_dump writes quoted
+CREATE FOREIGN TABLE measurements (
+    city text OPTIONS ("force_not_null" 'true'),
+    peak int
+)
+SERVER files
+OPTIONS (filename '/data/measurements.csv', format 'csv', null '');
+
+CREATE FOREIGN TABLE measurements_dumped (
+    city text,
+    peak int
+)
+SERVER files
+OPTIONS (filename '/data/measurements.csv', format 'csv', "null" '');

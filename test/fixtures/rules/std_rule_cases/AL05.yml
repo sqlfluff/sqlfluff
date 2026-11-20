@@ -936,6 +936,53 @@ test_fail_duckdb_single_quote_select_naked_table:
     core:
       dialect: duckdb
 
+test_pass_duckdb_struct_field_of_aliased_table:
+  # `a.col_1.field_1` is alias `a`, column `col_1`, struct field `field_1`.
+  # Without the alias, DuckDB fails with `Referenced table "a.col_1" not found`.
+  pass_str: |
+    SELECT a.col_1.field_1
+    FROM table_a AS a
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_nested_struct_field_of_aliased_table:
+  pass_str: |
+    SELECT a.col_1.field_1.field_2
+    FROM table_a AS a
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_struct_field_of_aliased_table_in_where:
+  pass_str: |
+    SELECT col_2
+    FROM table_a AS a
+    WHERE a.col_1.field_1 > 0
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_struct_field_of_aliased_table_in_subquery:
+  pass_str: |
+    SELECT (SELECT a.col_1.field_1) AS col_3
+    FROM table_a AS a
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_duckdb_struct_field_of_other_name:
+  # The first part of `b.col_1.field_1` isn't the alias, so `a` is unused.
+  fail_str: |
+    SELECT b.col_1.field_1
+    FROM table_a AS a
+  fix_str: |
+    SELECT b.col_1.field_1
+    FROM table_a
+  configs:
+    core:
+      dialect: duckdb
+
 test_pass_exasol_naked_select_double_quoted_table:
   pass_str: |
     SELECT a.col_1

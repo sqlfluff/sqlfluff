@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7896a836b627ffe251f7f06554f3b57976f63be10a1e0d50593a332cf412255d
+_hash: 3056128971e97034d14f9cda82bd85a4cd4257492fe1af64898d5af5cb2107fd
 file:
 - statement:
     alter_network_policy_statement:
@@ -103,4 +103,95 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'bar'"
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: example_policy
+    - keyword: SET
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: example_policy
+    - keyword: SET
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: example_policy
+    - keyword: SET
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: example_policy
+    - keyword: SET
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'192.0.2.1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: example_policy
+    - keyword: SET
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'192.0.2.1'"
+      - comma: ','
+      - quoted_literal: "'192.0.2.2'"
+      - end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'example'"
 - statement_terminator: ;

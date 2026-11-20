@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0d959f82af31851b39c885cc891c8ace400e3e5281dc3fea415ffea82d061c86
+_hash: 2530532050f63a50b73372d113d54d853016f8657f5e89a818dc32b88f770e6e
 file:
 - statement:
     alter_sequence_statement:
@@ -113,7 +113,8 @@ file:
         naked_identifier: foo
     - keyword: OWNER
     - keyword: TO
-    - parameter: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
@@ -123,7 +124,7 @@ file:
         naked_identifier: foo
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
@@ -133,7 +134,7 @@ file:
         naked_identifier: foo
     - keyword: OWNER
     - keyword: TO
-    - parameter: SESSION_USER
+    - keyword: SESSION_USER
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:

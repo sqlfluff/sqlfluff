@@ -1,0 +1,100 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bdec25a99cf3cf36fadabe2cac4f5d467f7f0ae3ce7219f48518a7a438fa131c
+file:
+  batch:
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: HumanResources
+      - keyword: TRANSFER
+      - object_reference:
+        - naked_identifier: Person
+        - dot: .
+        - naked_identifier: Address
+  - statement_terminator: ;
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: Person
+      - keyword: TRANSFER
+      - keyword: type
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: TestType
+  - statement_terminator: ;
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: Sales
+      - keyword: TRANSFER
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Region
+  - statement_terminator: ;
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          quoted_identifier: '[Sales]'
+      - keyword: TRANSFER
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Region]'
+  - statement_terminator: ;
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: Sales
+      - keyword: TRANSFER
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Region
+  - statement_terminator: ;
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: dbo
+      - keyword: TRANSFER
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - casting_operator: '::'
+      - object_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ManuInstructionsSchemaCollection
+  - statement_terminator: ;
+  - statement:
+      alter_schema_statement:
+      - keyword: ALTER
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: stage
+      - keyword: TRANSFER
+      - object_reference:
+          naked_identifier: Region
+  - statement_terminator: ;

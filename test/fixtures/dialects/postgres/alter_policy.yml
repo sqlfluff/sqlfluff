@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e78af7a252b3bef96469b1a43141d16eeccc9304424d52eb076f718ed1a814cd
+_hash: 515c3f217a66d02874aeca8843a8cefd6dae52bbe8eb256e4251096f84ecad17
 file:
 - statement:
     alter_policy_statement:
@@ -29,8 +29,7 @@ file:
     - table_reference:
         naked_identifier: accounts
     - keyword: TO
-    - role_reference:
-        naked_identifier: current_user
+    - keyword: current_user
 - statement_terminator: ;
 - statement:
     alter_policy_statement:
@@ -42,8 +41,7 @@ file:
     - table_reference:
         naked_identifier: accounts
     - keyword: TO
-    - role_reference:
-        naked_identifier: public
+    - keyword: public
     - comma: ','
     - keyword: session_user
 - statement_terminator: ;
@@ -165,8 +163,7 @@ file:
     - table_reference:
         naked_identifier: test_table
     - keyword: TO
-    - role_reference:
-        naked_identifier: public
+    - keyword: public
     - comma: ','
     - keyword: session_user
     - keyword: USING
