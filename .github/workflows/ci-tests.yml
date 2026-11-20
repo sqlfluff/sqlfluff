@@ -109,9 +109,10 @@ jobs:
         run: corepack pnpm run docs:build
 
   rust-lint:
-    # Rust formatting, lints and unit tests for the sqlfluffrs workspace.
-    # Integration tests (sqlfluffrs/tests/*.rs) are not run here; parity is
-    # covered by the python -rust suites below.
+    # Rust formatting, lints and tests for the sqlfluffrs workspace.
+    # The integration tests (sqlfluffrs/tests/*.rs) check the Rust-built
+    # parse tree against the dialect fixtures. The python -rust suites
+    # can't: Python builds its own tree from Rust's match result.
     runs-on: ubuntu-latest
     steps:
 
@@ -164,9 +165,10 @@ jobs:
         working-directory: sqlfluffrs
         run: cargo clippy --workspace --all-targets --features python,verbose-debug -- -D warnings
 
-      - name: Run unit tests
+      # --tests: unit and integration tests, but not the criterion benches.
+      - name: Run tests
         working-directory: sqlfluffrs
-        run: cargo test --workspace --lib
+        run: cargo test --workspace --tests
 
   rs-build-linux-x86_64:
     # Fast build for CI testing (always runs)
@@ -220,9 +222,11 @@ jobs:
           path: dist
 
   rs-build-linux-exotic:
-    # Exotic architectures - only build on main branch, tags, or manual dispatch
-    # Skip on PRs to save CI time since tests only need x86_64
-    if: github.event_name != 'pull_request'
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -267,6 +271,11 @@ jobs:
           path: dist
 
   rs-build-musllinux:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -319,6 +328,11 @@ jobs:
           path: dist
 
   rs-build-windows:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -366,6 +380,11 @@ jobs:
           path: dist
 
   rs-build-macos:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -412,6 +431,11 @@ jobs:
           path: dist
 
   rs-build-sdist:
+    # Release-style wheel builds. These artifacts aren't consumed by any test
+    # job (the release workflow builds its own), so only run them on pushes to
+    # main, the nightly schedule and manual dispatch - not on PRs or in the
+    # merge queue, where they only consume runner slots.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -451,9 +475,13 @@ jobs:
           path: dist
 
   # Test with coverage tracking on most recent python (py314).
+  #
+  # The pure-python and rust-backed legs are separate jobs so that the
+  # pure-python ones can start immediately rather than waiting on the wheel
+  # build, which they don't use. Both keep the same display name so the
+  # required status checks on main are unchanged.
   python-version-tests:
     name: Python Tests
-    needs: rs-build-linux-x86_64
     strategy:
       matrix:
         python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
@@ -464,7 +492,6 @@ jobs:
           # Override coverage to be true for most recent python version.
           - python-version: "3.14"
             coverage: true
-        with-rust: [ "-rust", "" ]
     permissions:
       contents: read
       pull-requests: write
@@ -473,7 +500,29 @@ jobs:
     with:
       python-version: ${{ matrix.python-version }}
       coverage: ${{ matrix.coverage }}
-      with-rust: ${{ matrix.with-rust }}
+      with-rust: ""
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  python-version-tests-rust:
+    name: Python Tests (rust)
+    needs: rs-build-linux-x86_64
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        include:
+          - coverage: false
+          - python-version: "3.14"
+            coverage: true
+    permissions:
+      contents: read
+      pull-requests: write
+
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      coverage: ${{ matrix.coverage }}
+      with-rust: "-rust"
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -521,12 +570,10 @@ jobs:
       python-version: ${{ matrix.python-version }}
 
   dialect-tests:
-    name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
-    needs: rs-build-linux-x86_64
+    name: Dialect ${{ matrix.marks }}
     strategy:
       matrix:
         marks: [ "parse_suite", "fix_suite", "rules_suite" ]
-        with-rust: [ "-rust", "" ]
         include:
           # This runs the bulk of the dialect _parsing_ tests.
           #
@@ -560,7 +607,35 @@ jobs:
       python-version: "3.14"
       marks: ${{ matrix.marks }}
       coverage: ${{ matrix.coverage }}
-      with-rust: ${{ matrix.with-rust }}
+      with-rust: ""
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # Same suites against the rust-backed parser. Split from dialect-tests only
+  # so that the pure-python legs above don't wait on the wheel build.
+  dialect-tests-rust:
+    name: Dialect ${{ matrix.marks }}-rust
+    needs: rs-build-linux-x86_64
+    strategy:
+      matrix:
+        marks: [ "parse_suite", "fix_suite", "rules_suite" ]
+        include:
+          - marks: "parse_suite"
+            coverage: true
+          - marks: "fix_suite"
+            coverage: false
+          - marks: "rules_suite"
+            coverage: true
+    permissions:
+      contents: read
+      pull-requests: write
+
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.14"
+      marks: ${{ matrix.marks }}
+      coverage: ${{ matrix.coverage }}
+      with-rust: "-rust"
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -683,9 +758,11 @@ jobs:
       shell: bash
       # Set python temp dir in working dir as on GitHub Actions Windows
       # machine often has system temp dir (which tox uses) on C drive and
-      # working dir on D drive which causes problems.
+      # working dir on D drive which causes problems. Keep it outside the
+      # checkout, so temporary config files written by tests are not picked
+      # up by tests which scan the working tree.
       run: |
-        mkdir temp_pytest
+        mkdir ../temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
 
     - name: Upload coverage data (github)
@@ -858,7 +935,7 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
+    needs: [python-version-tests, python-version-tests-rust, dbt-tests, python-windows-tests, dialect-tests, dialect-tests-rust]
     steps:
 
       - name: Checkout code

@@ -1,0 +1,86 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a32d85c854e5eb0d37bdbe6aa7b957908ef8182de9f5d78a0fc0e89d9df6b684
+file:
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: bob
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: PUBLIC
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: CURRENT_USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: CURRENT_ROLE
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: SESSION_USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    drop_user_mapping_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - quoted_identifier: '"Bob"'
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f1734f630ee47d7a045af95feeabe73761863f3bcf3815ace163a70b26ef29b
+_hash: c15f92228550d3024ca850507b5d1b1d39739d654963fe6de6b6bd1cfe5024b0
 file:
 - statement:
     create_foreign_table_statement:
@@ -978,4 +978,80 @@ file:
     - keyword: SERVER
     - server_reference:
         naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurements
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: city
+      - data_type:
+          keyword: text
+      - keyword: OPTIONS
+      - bracketed:
+          start_bracket: (
+          quoted_identifier: '"force_not_null"'
+          quoted_literal: "'true'"
+          end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: peak
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: files
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: filename
+      - quoted_literal: "'/data/measurements.csv'"
+      - comma: ','
+      - naked_identifier_all: format
+      - quoted_literal: "'csv'"
+      - comma: ','
+      - naked_identifier_all: 'null'
+      - quoted_literal: "''"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurements_dumped
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: city
+      - data_type:
+          keyword: text
+      - comma: ','
+      - column_reference:
+          naked_identifier: peak
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: files
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: filename
+      - quoted_literal: "'/data/measurements.csv'"
+      - comma: ','
+      - naked_identifier_all: format
+      - quoted_literal: "'csv'"
+      - comma: ','
+      - quoted_identifier: '"null"'
+      - quoted_literal: "''"
+      - end_bracket: )
 - statement_terminator: ;

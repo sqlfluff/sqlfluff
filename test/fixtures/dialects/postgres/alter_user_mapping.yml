@@ -1,0 +1,142 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 90d2d6d5c01879685989c14445d89773e466f786a8dafbf47506c67377cb9bbe
+file:
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - naked_identifier: bob
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        keyword: SET
+        naked_identifier: password
+        quoted_literal: "'public'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: PUBLIC
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - keyword: ADD
+      - naked_identifier: user
+      - quoted_literal: "'guest'"
+      - comma: ','
+      - keyword: DROP
+      - naked_identifier: password
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: CURRENT_USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - keyword: SET
+      - naked_identifier: user
+      - quoted_literal: "'me'"
+      - comma: ','
+      - keyword: ADD
+      - naked_identifier: sslcert
+      - quoted_literal: "'/certs/me.crt'"
+      - comma: ','
+      - keyword: DROP
+      - naked_identifier: sslkey
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        keyword: ADD
+        naked_identifier: password
+        quoted_literal: "'secret'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: CURRENT_ROLE
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        keyword: ADD
+        naked_identifier: password_required
+        quoted_literal: "'false'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - keyword: SESSION_USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        keyword: SET
+        quoted_identifier: '"user"'
+        quoted_literal: "'session'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_user_mapping_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - quoted_identifier: '"Bob"'
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        keyword: DROP
+        naked_identifier: user
+        end_bracket: )
+- statement_terminator: ;

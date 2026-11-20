@@ -152,3 +152,13 @@ BEGIN
   END IF;
 END;
 /
+
+-- Parenthesized ELSIF condition (#9102)
+BEGIN
+  IF 1 = 0 THEN
+    NULL;
+  ELSIF (1 = 1) THEN
+    NULL;
+  END IF;
+END;
+/

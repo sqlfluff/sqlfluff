@@ -26,7 +26,8 @@ impl PositionMarker {
     ) -> Self {
         let (working_line_no, working_line_pos) = match (working_line_no, working_line_pos) {
             (Some(working_line_no), Some(working_line_pos)) => (working_line_no, working_line_pos),
-            _ => templated_file.get_line_pos_of_char_pos(source_slice.start, false),
+            // Python infers from `templated_position()`, i.e. the templated start.
+            _ => templated_file.get_line_pos_of_char_pos(templated_slice.start, false),
         };
 
         Self {
@@ -77,7 +78,33 @@ impl PositionMarker {
     #[must_use]
     pub fn templated_position(&self) -> (usize, usize) {
         self.templated_file
-            .get_line_pos_of_char_pos(self.source_slice.start, false)
+            .get_line_pos_of_char_pos(self.templated_slice.start, false)
+    }
+
+    /// Visual column (0-indexed) of the templated start, expanding tabs to
+    /// tab stops. Mirrors Python `PositionMarker.working_visual_column`.
+    #[must_use]
+    pub fn working_visual_column(&self, tab_space_size: usize) -> usize {
+        let start = self.templated_slice.start;
+        let newlines = self.templated_file.templated_newlines();
+        let line_start = match newlines.partition_point(|&nl| nl < start) {
+            0 => 0,
+            n => newlines[n - 1] + 1,
+        };
+        // O(offset) char walk to the line start. If this shows up in a
+        // profile, cache newline byte offsets on TemplatedFile on first use.
+        self.templated_file
+            .templated_str
+            .chars()
+            .skip(line_start)
+            .take(start.saturating_sub(line_start))
+            .fold(0, |col, c| {
+                if c == '\t' {
+                    (col / tab_space_size + 1) * tab_space_size
+                } else {
+                    col + 1
+                }
+            })
     }
 
     #[must_use]
@@ -272,6 +299,63 @@ pub fn slice_is_point(test_slice: &Slice) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::templater::fileslice::{RawFileSlice, TemplatedFileSlice};
+
+    /// `SELECT {{ cols }}\nFROM t` rendering `cols` to `a,\n\tb`, so source
+    /// and templated offsets (and line numbers) differ after the placeholder.
+    fn jinja_file() -> Arc<TemplatedFile> {
+        let slice = |t: &str, s, tm| TemplatedFileSlice::new(t.to_string(), s, tm);
+        let raw =
+            |r: &str, t: &str, i| RawFileSlice::new(r.to_string(), t.to_string(), i, None, None);
+        Arc::new(TemplatedFile::new(
+            "SELECT {{ cols }}\nFROM t".to_string(),
+            "test.sql".to_string(),
+            Some("SELECT a,\n\tb\nFROM t".to_string()),
+            Some(vec![
+                slice("literal", Slice::from(0..7), Slice::from(0..7)),
+                slice("templated", Slice::from(7..17), Slice::from(7..12)),
+                slice("literal", Slice::from(17..24), Slice::from(12..19)),
+            ]),
+            Some(vec![
+                raw("SELECT ", "literal", 0),
+                raw("{{ cols }}", "templated", 7),
+                raw("\nFROM t", "literal", 17),
+            ]),
+        ))
+    }
+
+    fn marker(
+        tf: &Arc<TemplatedFile>,
+        src: (usize, usize),
+        tmpl: (usize, usize),
+    ) -> PositionMarker {
+        PositionMarker::new(
+            Slice::from(src.0..src.1),
+            Slice::from(tmpl.0..tmpl.1),
+            tf,
+            None,
+            None,
+        )
+    }
+
+    #[test]
+    fn working_position_defaults_to_templated_position() {
+        let tf = jinja_file();
+        assert_eq!(tf.templated_newlines(), &[9, 12]);
+        let from_kw = marker(&tf, (18, 22), (13, 17));
+        assert_eq!(from_kw.source_position(), (2, 1));
+        assert_eq!(from_kw.templated_position(), (3, 1));
+        assert_eq!(from_kw.working_loc(), (3, 1));
+    }
+
+    #[test]
+    fn working_visual_column_expands_tabs() {
+        let tf = jinja_file();
+        let b = marker(&tf, (7, 17), (11, 12));
+        assert_eq!(b.working_visual_column(4), 4);
+        assert_eq!(b.working_visual_column(2), 2);
+        assert_eq!(marker(&tf, (0, 6), (0, 6)).working_visual_column(4), 0);
+    }
 
     #[test]
     fn infer_next_position_counts_characters() {

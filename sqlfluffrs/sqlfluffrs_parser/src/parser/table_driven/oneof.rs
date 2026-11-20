@@ -368,7 +368,7 @@ impl Parser<'_> {
             // If we matched up to max_idx, we can return immediately without trying other options
             // This is a major optimization for expressions with many alternatives
             // See Python's longest_match() lines 245-246
-            if !child_match.is_empty() && child_end_pos_val >= *max_idx {
+            if consumed > 0 && child_end_pos_val >= *max_idx {
                 vdebug!(
                 "OneOf[table]: COMPLETE MATCH - child {} matched all segments up to max_idx={}, returning immediately",
                 current_child.0,
@@ -386,7 +386,7 @@ impl Parser<'_> {
 
             // Update longest match if this is better
             let mut should_early_terminate = false;
-            if !child_match.is_empty() {
+            if consumed > 0 {
                 let is_better = if let Some((ref current_best, current_consumed, _)) = longest_match
                 {
                     // Use MatchResult's contains_unparsable instead of is_node_clean

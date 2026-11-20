@@ -234,6 +234,39 @@ def _validate_int_config(
         )
 
 
+def _validate_encoding_config(
+    config: ConfigMappingType, logging_reference: str
+) -> None:
+    """Validate that the core ``encoding`` is ``autodetect`` or a text encoding.
+
+    Otherwise the value is only used when ``open()`` reads each file, where an
+    unknown codec crashes the run with an uncaught ``LookupError``.
+    """
+    core_section = config.get("core", {})
+    if not core_section:
+        return None
+
+    assert isinstance(core_section, dict)
+    if "encoding" not in core_section:
+        return None
+
+    value = core_section["encoding"]
+    # `encoding = none` loads as None, which open() takes as the locale default.
+    if value in (None, "autodetect"):
+        return None
+
+    try:
+        # Unlike codecs.lookup, this also rejects non-text codecs like rot13,
+        # which open() refuses too.
+        "".encode(value)  # type: ignore[arg-type]
+    except (LookupError, TypeError, UnicodeError):
+        raise SQLFluffUserError(
+            f"Config file {logging_reference!r} set an invalid value for "
+            f"`encoding`: {value!r}. This value must be `autodetect` or the "
+            "name of a text encoding known to Python."
+        )
+
+
 def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> None:
     """Validate a config dict.
 
@@ -260,3 +293,5 @@ def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> N
     # Validate other core integer limits which have no disable sentinel.
     _validate_int_config(config, "render_variant_limit", 1, logging_reference)
     _validate_int_config(config, "runaway_limit", 1, logging_reference)
+    # Validate the file encoding.
+    _validate_encoding_config(config, logging_reference)

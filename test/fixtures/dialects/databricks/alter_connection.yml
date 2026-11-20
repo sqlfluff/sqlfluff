@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6c0019e95f07e356c0a7f31d1fdefd7f7767bcd22a67b5386c02c64d2498752b
+file:
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`u`'
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: d
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: host
+        quoted_literal: "'h'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: user
+        function:
+          function_name:
+            function_name_identifier: secret
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'s'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'u'"
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - naked_identifier: c
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        object_reference:
+          naked_identifier: port
+        numeric_literal: '5432'
+        end_bracket: )
+- statement_terminator: ;

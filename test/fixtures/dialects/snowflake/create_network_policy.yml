@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: caa607d0870e46ada1b9f71475a659b93ed9f7203dc0e9a27e54510b2c9ff128
+_hash: b88f65ee84f08d17e2016a68fa4a1fe932961fa214b5eebd7eee554537ebecaa
 file:
 - statement:
     create_statement:
@@ -98,4 +98,102 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: example_policy
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: example_policy
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: example_policy
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'example'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: example_policy
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'192.0.2.1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: example_policy
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'192.0.2.0/24'"
+      - comma: ','
+      - quoted_literal: "'198.51.100.7'"
+      - end_bracket: )
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'example'"
 - statement_terminator: ;

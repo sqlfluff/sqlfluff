@@ -321,6 +321,7 @@ impl Parser<'_> {
                     // borrow the grammar-table class name straight into the node.
                     class_name: Cow::Borrowed(segment_class_name.unwrap_or_default()),
                     segment_type: Some(segment_type),
+                    class_type: None,
                     segment_kwargs: SegmentKwargs {
                         class_types,
                         ..Default::default()

@@ -120,6 +120,13 @@ oracle_dialect.patch_lexer_matchers(
 oracle_dialect.insert_lexer_matchers(
     [
         RegexLexer(
+            "alternative_quote",
+            r"(?s)[nN]?[qQ]'(?:\[.*?\]|\{.*?\}|\(.*?\)|<.*?>|"
+            r"(?P<delimiter>[^ \t\r\n\[\{(<]).*?(?P=delimiter))'",
+            CodeSegment,
+            segment_kwargs={"quoted_value": (r"(?s)[nN]?[qQ]'.(.*).'", 1)},
+        ),
+        RegexLexer(
             "prompt_command",
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
@@ -302,7 +309,8 @@ oracle_dialect.add(
         # The top-level BatchSegment references StatementSegment directly, so it is
         # shielded from ProcedureCallStatementSegment and cannot silently absorb DDL
         # unreserved keywords (e.g. NOCACHE, NOROWDEPENDENCIES) as phantom calls.
-        Ref("PlsqlStatementSegment"),
+        # Keep ELSIF (...) for the enclosing IF statement.
+        Ref("PlsqlStatementSegment", exclude=Ref.keyword("ELSIF")),
         Ref("DelimiterGrammar", optional=True),
     ),
     OneOrMoreStatementsGrammar=AnyNumberOf(
@@ -706,6 +714,10 @@ oracle_dialect.replace(
     # Oracle's word lexer also accepts non-ASCII names.
     FunctionNameIdentifierSegment=TypedParser(
         "word", WordSegment, type="function_name_identifier"
+    ),
+    QuotedLiteralSegment=OneOf(
+        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("alternative_quote", LiteralSegment, type="quoted_literal"),
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "FromClauseTerminatorGrammar"

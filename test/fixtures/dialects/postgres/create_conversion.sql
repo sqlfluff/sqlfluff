@@ -1,0 +1,4 @@
+CREATE CONVERSION my_conv FOR 'UTF8' TO 'LATIN1' FROM utf8_to_iso8859_1;
+
+CREATE DEFAULT CONVERSION public.my_default
+FOR 'LATIN1' TO 'UTF8' FROM pg_catalog.iso8859_1_to_utf8;

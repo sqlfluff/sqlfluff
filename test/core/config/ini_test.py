@@ -1,6 +1,9 @@
 """Tests for INI config file parsing."""
 
+import pytest
+
 from sqlfluff.core.config.ini import load_ini_string
+from sqlfluff.core.errors import SQLFluffUserError
 
 
 def test__config__ini_dotted_keys_nested_structure():
@@ -111,3 +114,35 @@ some.nested.config = value
             },
         },
     }
+
+
+@pytest.mark.parametrize(
+    "cfg_content",
+    [
+        # Missing "]" on the section header.
+        "[sqlfluff\ndialect = ansi\n",
+        # A line which is not a key/value pair.
+        "[sqlfluff]\ndialect = ansi\nthis is not valid\n",
+        # The same option given twice in one section.
+        "[sqlfluff]\ndialect = ansi\ndialect = postgres\n",
+    ],
+)
+def test__config__ini_invalid_syntax_raises_user_error(cfg_content):
+    """Invalid INI syntax raises a user error instead of a configparser error.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9067
+    """
+    with pytest.raises(SQLFluffUserError) as exc_info:
+        load_ini_string(cfg_content)
+
+    assert "Failed to parse INI config" in str(exc_info.value)
+
+
+def test__config__ini_invalid_syntax_includes_filepath():
+    """The user error identifies the config file which failed to parse."""
+    cfg_path = "/tmp/project/.sqlfluff"
+    with pytest.raises(SQLFluffUserError) as exc_info:
+        load_ini_string("[sqlfluff\n", cfg_path)
+
+    message = str(exc_info.value)
+    assert f"Failed to parse INI config file {cfg_path}" in message

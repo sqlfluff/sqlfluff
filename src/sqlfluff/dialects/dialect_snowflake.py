@@ -234,6 +234,11 @@ snowflake_dialect.sets("initialize_types").update(
     ["ON_CREATE", "ON_SCHEDULE"],
 )
 
+snowflake_dialect.sets("data_metric_schedule_types").clear()
+snowflake_dialect.sets("data_metric_schedule_types").update(
+    ["TRIGGER_ON_CHANGES"],
+)
+
 snowflake_dialect.add(
     # Pipe properties shared by CREATE PIPE and DEFINE PIPE
     # https://docs.snowflake.com/en/sql-reference/sql/create-pipe
@@ -497,6 +502,20 @@ snowflake_dialect.add(
             KeywordSegment,
             type="initialize_type",
         )
+    ),
+    # DCM projects set this inline in a definition, where the schedule may
+    # also be the bare `TRIGGER_ON_CHANGES` keyword.
+    # https://docs.snowflake.com/en/user-guide/dcm-projects/dcm-projects-supported-entities
+    DataMetricScheduleGrammar=Sequence(
+        "DATA_METRIC_SCHEDULE",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            MultiStringParser(
+                snowflake_dialect.sets("data_metric_schedule_types"),
+                KeywordSegment,
+            ),
+        ),
     ),
     # EXECUTE AS USER <user_name>
     #   [ USE SECONDARY ROLES { ALL | NONE | <role_name> [ , ... ] } ]
@@ -785,33 +804,23 @@ snowflake_dialect.add(
         Ref("PatternQuantifierGrammar", optional=True),
         allow_gaps=False,
     ),
+    # One or more `|`-delimited alternatives, each a concatenation of one or
+    # more operators, like `A B+ | C`.
+    PatternAlternativesGrammar=Delimited(
+        AnyNumberOf(Ref("PatternOperatorGrammar"), min_times=1),
+        delimiter=Ref("BitwiseOrSegment"),
+    ),
     PatternOperatorGrammar=OneOf(
         Ref("PatternSymbolGrammar"),
         Sequence(
             OneOf(
                 Bracketed(
-                    OneOf(
-                        AnyNumberOf(
-                            Ref("PatternOperatorGrammar"),
-                        ),
-                        Delimited(
-                            Ref("PatternOperatorGrammar"),
-                            delimiter=Ref("BitwiseOrSegment"),
-                        ),
-                    ),
+                    Ref("PatternAlternativesGrammar"),
                     bracket_type="exclude",
                     bracket_pairs_set="bracket_pairs",
                 ),
                 Bracketed(
-                    OneOf(
-                        AnyNumberOf(
-                            Ref("PatternOperatorGrammar"),
-                        ),
-                        Delimited(
-                            Ref("PatternOperatorGrammar"),
-                            delimiter=Ref("BitwiseOrSegment"),
-                        ),
-                    ),
+                    Ref("PatternAlternativesGrammar"),
                 ),
                 Sequence(
                     "PERMUTE",
@@ -1406,6 +1415,9 @@ snowflake_dialect.replace(
                 "GEOMETRY",
                 # UUID data type
                 "UUID",
+                # IP address data type
+                # https://docs.snowflake.com/en/sql-reference/data-types-ipaddress
+                "IPADDRESS",
                 # Vector data types
                 "VECTOR",
                 # Scriptiong data types
@@ -1676,6 +1688,19 @@ class DatabaseRoleReferenceSegment(ansi.ObjectReferenceSegment):
             Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), optional=True),
             Ref("SingleIdentifierGrammar"),
         ),
+    )
+
+
+class ApplicationRoleReferenceSegment(ansi.ObjectReferenceSegment):
+    """Application role reference ([application_name.]rolename).
+
+    See https://docs.snowflake.com/en/sql-reference/sql/grant-application-role
+    """
+
+    type = "application_role_reference"
+    match_grammar: Matchable = Sequence(
+        Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), optional=True),
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -2145,6 +2170,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
             Ref("CreateStreamlitStatementSegment"),
+            Ref("CreateNotebookStatementSegment"),
             Ref("CreateCortexSearchServiceStatementSegment"),
             Ref("AlterStreamStatementSegment"),
             Ref("AlterStreamlitStatementSegment"),
@@ -2219,6 +2245,14 @@ class StatementSegment(ansi.StatementSegment):
         remove=[
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
+            # Snowflake has no CREATE/DROP CAST or triggers. The inherited
+            # grammars also reference keywords (CONSTRUCTOR, REFERENCING, ...)
+            # that this dialect never registers, so reaching them raised an
+            # internal RuntimeError instead of parsing.
+            Ref("CreateCastStatementSegment"),
+            Ref("DropCastStatementSegment"),
+            Ref("CreateTriggerStatementSegment"),
+            Ref("DropTriggerStatementSegment"),
         ],
     )
 
@@ -2337,15 +2371,7 @@ class PatternSegment(BaseSegment):
     match_grammar = Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
         Ref("CaretSegment", optional=True),
-        OneOf(
-            AnyNumberOf(
-                Ref("PatternOperatorGrammar"),
-            ),
-            Delimited(
-                Ref("PatternOperatorGrammar"),
-                delimiter=Ref("BitwiseOrSegment"),
-            ),
-        ),
+        Ref("PatternAlternativesGrammar"),
         Ref("DollarSegment", optional=True),
     )
 
@@ -2509,7 +2535,10 @@ class ChangesClauseSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        # Unbounded form: no time bounds.
+        # Unbounded form: no time bounds. This must not be GREEDY, otherwise
+        # a table named CHANGES followed by a column list (e.g.
+        # `CREATE TABLE db.sch.CHANGES (col INT)`) matches this clause and
+        # terminates the object reference early.
         Sequence(
             "CHANGES",
             Bracketed(
@@ -2519,7 +2548,6 @@ class ChangesClauseSegment(BaseSegment):
                     OneOf("DEFAULT", "APPEND_ONLY"),
                     optional=True,
                 ),
-                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -4562,7 +4590,7 @@ class GrantStatementSegment(ansi.GrantStatementSegment):
                 "SCHEMA",
                 Ref("SchemaReferenceSegment"),
             ),
-            Sequence("APPLICATION", "ROLE", Ref("RoleReferenceSegment")),
+            Sequence("APPLICATION", "ROLE", Ref("ApplicationRoleReferenceSegment")),
             # In the case where a role is granted non-explicitly,
             # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
             # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
@@ -4984,12 +5012,16 @@ class AlterNetworkPolicyStatementSegment(BaseSegment):
                     Sequence(
                         "ALLOWED_IP_LIST",
                         Ref("EqualsSegment"),
-                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
                     ),
                     Sequence(
                         "BLOCKED_IP_LIST",
                         Ref("EqualsSegment"),
-                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
                     ),
                     Ref("CommentEqualsClauseSegment"),
                 ),
@@ -6412,6 +6444,7 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
+            Ref("DataMetricScheduleGrammar", optional=True),
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
@@ -7234,21 +7267,13 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "ALLOWED_IP_LIST",
                 Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                ),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
             ),
             # For network policy
             Sequence(
                 "BLOCKED_IP_LIST",
                 Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                ),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
             ),
             Sequence(
                 "ALLOWED_NETWORK_RULE_LIST",
@@ -7881,6 +7906,17 @@ class CreateUserSegment(BaseSegment):
                 ),
             ),
             Ref("CommentEqualsClauseSegment"),
+            # Object and session parameters, e.g. `ABORT_DETACHED_QUERY = FALSE`.
+            # The set of parameters is open-ended, so any name is accepted, as in
+            # `ALTER USER ... SET`. Spaces, commas or newlines may separate them.
+            # This must stay a single assignment, listed last: a run of them
+            # would outmatch, and so replace, the specific properties above.
+            Sequence(
+                Ref("CommaSegment", optional=True),
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment"),
+                OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+            ),
         ),
         Dedent,
     )
@@ -7996,6 +8032,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             ),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
+            Ref("DataMetricScheduleGrammar"),
         ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
@@ -9203,6 +9240,12 @@ class CopyIntoTableStatementSegment(BaseSegment):
             # We explode the CopyOptionsSegments because the AnySetOf may appear in any
             # order for these other elements as well.
             *CopyOptionsSegment._copy_options_matchables,
+            # Only valid when loading into a table.
+            Sequence(
+                "LOAD_MODE",
+                Ref("EqualsSegment"),
+                OneOf("FULL_INGEST", "ADD_FILES_COPY"),
+            ),
         ),
         Sequence(
             "VALIDATION_MODE",
@@ -9807,6 +9850,46 @@ class CreateStreamStatementSegment(BaseSegment):
     )
 
 
+class CreateNotebookStatementSegment(BaseSegment):
+    """A Snowflake `CREATE NOTEBOOK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-notebook
+    """
+
+    type = "create_notebook_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "NOTEBOOK",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence("FROM", Ref("QuotedLiteralSegment")),
+            Sequence("MAIN_FILE", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                "QUERY_WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence("RUNTIME_NAME", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence("COMPUTE_POOL", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateStreamlitStatementSegment(BaseSegment):
     """A Snowflake `CREATE STREAMLIT` statement.
 
@@ -10323,6 +10406,8 @@ class AlterUserStatementSegment(BaseSegment):
                 "POLICY",
             ),
             Sequence("SET", Ref("WorkloadIdentityPropertyGrammar")),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
             # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
             # we will just use that.
@@ -11458,6 +11543,31 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
     )
 
 
+class FetchClauseSegment(ansi.FetchClauseSegment):
+    """A `FETCH` clause.
+
+    Snowflake supports `FETCH ... ONLY` but not `WITH TIES` (whose `TIES`
+    keyword this dialect doesn't register).
+
+    https://docs.snowflake.com/en/sql-reference/constructs/limit
+    """
+
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            optional=True,
+        ),
+        OneOf("ROW", "ROWS"),
+        "ONLY",
+    )
+
+
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """An `ORDER BY` clause.
 
@@ -11471,6 +11581,8 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Delimited(
             Sequence(
                 OneOf(
+                    # Can `ORDER BY ALL` to sort by every column in the SELECT list
+                    "ALL",
                     Ref("BooleanLiteralGrammar"),
                     Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
@@ -11830,11 +11942,29 @@ class ObjectTypeSchemaSegment(BaseSegment):
     )
 
 
+class VectorTypeSegment(BaseSegment):
+    """VECTOR datatype.
+
+    https://docs.snowflake.com/en/sql-reference/data-types-vector
+    """
+
+    type = "vector_type"
+    match_grammar = Sequence(
+        "VECTOR",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
+
+
 class DatatypeSegment(ansi.DatatypeSegment):
     """A Snowflake data type segment."""
 
     match_grammar = OneOf(
         Ref("ObjectTypeSegment"),
+        Ref("VectorTypeSegment"),
         ansi.DatatypeSegment.match_grammar,
     )
 

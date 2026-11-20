@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -232,6 +233,8 @@ redshift_dialect.patch_lexer_matchers(
             r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
             WordSegment,
         ),
+        # So `#` is an operator only when no name follows it. `##` always is.
+        RegexLexer("hash", r"##|#(?![0-9a-zA-Z_])", CodeSegment),
     ]
 )
 
@@ -2551,9 +2554,6 @@ class StatementSegment(postgres.StatementSegment):
             # and ShowDatashares segments so those still match first.
             Ref("ShowStatementSegment"),
             Ref("AltereDatashareStatementSegment"),
-            Ref("DeclareStatementSegment"),
-            Ref("FetchStatementSegment"),
-            Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
@@ -2570,6 +2570,7 @@ class StatementSegment(postgres.StatementSegment):
         ],
         remove=[
             Ref("ShowStatementSegment"),
+            Ref("MoveStatementSegment"),
             Ref("AlterSubscriptionStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CreateForeignTableStatementSegment"),

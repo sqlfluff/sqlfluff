@@ -126,24 +126,12 @@ impl PyTemplatedFile {
 
     #[getter("_source_newlines")]
     fn source_newlines(&self) -> PyResult<Vec<usize>> {
-        Ok(self
-            .0
-            .source_str
-            .char_indices()
-            .filter(|(_i, c)| *c == '\n')
-            .map(|(i, _)| i)
-            .collect())
+        Ok(self.0.source_newlines().to_vec())
     }
 
     #[getter("_templated_newlines")]
     fn templated_newlines(&self) -> PyResult<Vec<usize>> {
-        Ok(self
-            .0
-            .templated_str
-            .char_indices()
-            .filter(|(_i, c)| *c == '\n')
-            .map(|(i, _)| i)
-            .collect())
+        Ok(self.0.templated_newlines().to_vec())
     }
 
     fn __str__(&self) -> PyResult<String> {
