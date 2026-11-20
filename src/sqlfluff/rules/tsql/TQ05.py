@@ -114,13 +114,18 @@ class Rule_TQ05(BaseRule):
         owner = next(
             seg
             for seg in reversed(children[:idx])
-            if seg.is_code and not seg.is_type("statement_terminator")
+            if seg.is_type("if_clause", "keyword")
         )
         owner_line_start = self._line_start(root, owner.raw_segments[0])
         owner_indent = owner_line_start.raw if owner_line_start.is_whitespace else ""
-        owner_idx = children.index(owner)
+        prev_code = next(
+            seg
+            for seg in reversed(children[:idx])
+            if seg.is_code and not seg.is_type("statement_terminator")
+        )
         on_new_line = any(
-            seg.is_type("newline") for seg in children[owner_idx + 1 : idx]
+            seg.is_type("newline")
+            for seg in children[children.index(prev_code) + 1 : idx]
         )
 
         body = [statement, *moved]

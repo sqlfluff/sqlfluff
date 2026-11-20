@@ -163,6 +163,70 @@ test_fail_keeps_comment_with_body:
       tsql.if_while_begin_end:
         force_enable: true
 
+test_fail_keeps_own_line_comment_outside:
+  fail_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        IF @a = 1
+            SELECT 1;
+        -- two
+        ELSE
+            SELECT 2;
+    END
+  fix_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        IF @a = 1
+        BEGIN
+            SELECT 1;
+        END
+        -- two
+        ELSE
+        BEGIN
+            SELECT 2;
+        END
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_while_condition_on_own_line:
+  fail_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        WHILE
+            @i < 3
+            SET @i = @i + 1;
+        WHILE
+            @i < 6 SET @i = @i + 1;
+    END
+  fix_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        WHILE
+            @i < 3
+        BEGIN
+            SET @i = @i + 1;
+        END
+        WHILE
+            @i < 6 BEGIN
+            SET @i = @i + 1;
+        END
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
 test_fail_tab_indent:
   fail_str: "IF @x IS NULL RETURN;\n"
   fix_str: "IF @x IS NULL BEGIN\n\tRETURN;\nEND\n"
