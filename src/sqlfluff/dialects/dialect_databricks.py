@@ -243,6 +243,13 @@ databricks_dialect.replace(
         ]
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    # Timestamp time travel accepts an arithmetic timestamp expression.
+    TimestampAsOfGrammar=Sequence(
+        "TIMESTAMP",
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    ),
 )
 
 databricks_dialect.add(
@@ -2151,6 +2158,8 @@ class OptimizeTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "OPTIMIZE",
         Ref("TableReferenceSegment"),
+        # The FULL mode is a full-file rewrite (DBR 16.0+).
+        Ref.keyword("FULL", optional=True),
         Sequence(
             "WHERE",
             Ref("ExpressionSegment"),
@@ -2161,6 +2170,31 @@ class OptimizeTableStatementSegment(BaseSegment):
             "BY",
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             optional=True,
+        ),
+    )
+
+
+class VacuumStatementSegment(sparksql.VacuumStatementSegment):
+    """A `VACUUM` statement, with the FULL and LITE modes.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-vacuum
+    """
+
+    match_grammar: Matchable = Sequence(
+        "VACUUM",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        AnySetOf(
+            Sequence(
+                "RETAIN",
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            Sequence("DRY", "RUN"),
+            OneOf("FULL", "LITE"),
         ),
     )
 
@@ -2654,6 +2688,285 @@ class SetRecipientStatementSegment(BaseSegment):
     match_grammar = Sequence("SET", "RECIPIENT", Ref("ObjectReferenceSegment"))
 
 
+class RestoreTableStatementSegment(sparksql.RestoreTableStatementSegment):
+    """A `RESTORE` statement with optional `TABLE` and `TO`.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-restore
+    """
+
+    match_grammar = Sequence(
+        "RESTORE",
+        Ref.keyword("TABLE", optional=True),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        Ref.keyword("TO", optional=True),
+        OneOf(
+            Ref("TimestampAsOfGrammar"),
+            Ref("VersionAsOfGrammar"),
+        ),
+    )
+
+
+class FsckRepairTableStatementSegment(BaseSegment):
+    """An `FSCK REPAIR TABLE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-fsck
+    """
+
+    type = "fsck_repair_table_statement"
+    match_grammar = Sequence(
+        "FSCK",
+        "REPAIR",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("METADATA", "ONLY"),
+            Sequence("VERIFY", "ALL", "FILES"),
+            Sequence(
+                "VERIFY",
+                "FILES",
+                "MODIFIED",
+                "BETWEEN",
+                Ref("Expression_B_Grammar"),
+                "AND",
+                Ref("Expression_B_Grammar"),
+            ),
+            optional=True,
+        ),
+        Sequence("DRY", "RUN", optional=True),
+    )
+
+
+class ReorgTableStatementSegment(BaseSegment):
+    """A `REORG TABLE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-reorg-table
+    """
+
+    type = "reorg_table_statement"
+    match_grammar = Sequence(
+        "REORG",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+        "APPLY",
+        Bracketed(
+            OneOf(
+                "PURGE",
+                "CHECKPOINT",
+                Sequence(
+                    "UPGRADE",
+                    "UNIFORM",
+                    Bracketed(
+                        "ICEBERG_COMPAT_VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                Sequence(
+                    "SET",
+                    "PARQUET",
+                    Bracketed(
+                        "FORMAT_VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            )
+        ),
+    )
+
+
+class CacheSelectStatementSegment(BaseSegment):
+    """A `CACHE SELECT` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-cache
+    """
+
+    type = "cache_select_statement"
+    match_grammar = Sequence(
+        "CACHE",
+        "SELECT",
+        Delimited(
+            Ref("WildcardExpressionSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+        "FROM",
+        Ref("TableReferenceSegment"),
+        Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+    )
+
+
+class DropBloomFilterIndexStatementSegment(BaseSegment):
+    """A `DROP BLOOMFILTER INDEX` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/delta-drop-bloomfilter-index
+    """
+
+    type = "drop_bloom_filter_index_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "BLOOMFILTER",
+        "INDEX",
+        "ON",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "FOR",
+            "COLUMNS",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    )
+
+
+class MsckRepairTableStatementSegment(sparksql.MsckRepairTableStatementSegment):
+    """A `[MSCK] REPAIR TABLE` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-repair-table
+    """
+
+    match_grammar = Sequence(
+        Ref.keyword("MSCK", optional=True),
+        "REPAIR",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(OneOf("ADD", "DROP", "SYNC"), "PARTITIONS"),
+            Sequence("SYNC", "METADATA"),
+            optional=True,
+        ),
+    )
+
+
+class RefreshStatementSegment(sparksql.RefreshStatementSegment):
+    """A `REFRESH` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-refresh-full
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-refresh-foreign
+    """
+
+    type = "refresh_statement"
+    match_grammar = Sequence(
+        "REFRESH",
+        OneOf(
+            Sequence(
+                "FOREIGN",
+                OneOf(
+                    Sequence("CATALOG", Ref("CatalogReferenceSegment")),
+                    Sequence(
+                        "SCHEMA",
+                        Ref("DatabaseReferenceSegment"),
+                        Sequence("RESOLVE", "DBFS", "LOCATION", optional=True),
+                    ),
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                        Sequence("RESOLVE", "DBFS", "LOCATION", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                OneOf(
+                    Sequence("MATERIALIZED", "VIEW"),
+                    Sequence(Ref.keyword("STREAMING", optional=True), "TABLE"),
+                    optional=True,
+                ),
+                Ref("TableReferenceSegment"),
+                Ref.keyword("FULL", optional=True),
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+                OneOf("SYNC", "ASYNC", optional=True),
+            ),
+            Sequence("FUNCTION", Ref("FunctionNameSegment")),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class UndropStatementSegment(BaseSegment):
+    """An `UNDROP` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-undrop-table
+    """
+
+    type = "undrop_statement"
+    match_grammar = Sequence(
+        "UNDROP",
+        OneOf(
+            Sequence("MATERIALIZED", "VIEW"),
+            "TABLE",
+        ),
+        OneOf(
+            Sequence("WITH", "ID", Ref("QuotedLiteralSegment")),
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class SyncStatementSegment(BaseSegment):
+    """A `SYNC` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-sync
+    """
+
+    type = "sync_statement"
+    match_grammar = Sequence(
+        "SYNC",
+        OneOf(
+            Sequence(
+                "SCHEMA",
+                Ref("DatabaseReferenceSegment"),
+                Sequence("AS", "EXTERNAL", optional=True),
+                "FROM",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Sequence("AS", "EXTERNAL", optional=True),
+                "FROM",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "SET",
+            "OWNER",
+            Ref("PrincipalIdentifierSegment"),
+            optional=True,
+        ),
+        Sequence("DRY", "RUN", optional=True),
+    )
+
+
+class AnalyzeStorageMetricsStatementSegment(BaseSegment):
+    """An `ANALYZE TABLE ... COMPUTE STORAGE METRICS` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-analyze-compute-storage-metrics
+    """
+
+    type = "analyze_storage_metrics_statement"
+    match_grammar = Sequence(
+        "ANALYZE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        "COMPUTE",
+        "STORAGE",
+        "METRICS",
+        Sequence(
+            "USING",
+            "INVENTORY",
+            "LOCATION",
+            Ref("QuotedLiteralSegment"),
+            "CONF",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
 class ScriptingLabelGrammar(BaseSegment):
     """An optional `label :` prefix for a scripting statement."""
 
@@ -3124,6 +3437,13 @@ class StatementSegment(sparksql.StatementSegment):
                 Ref("CreateDatabaseStatementSegment"),
                 Ref("SetTimeZoneStatementSegment"),
                 Ref("OptimizeTableStatementSegment"),
+                Ref("FsckRepairTableStatementSegment"),
+                Ref("ReorgTableStatementSegment"),
+                Ref("CacheSelectStatementSegment"),
+                Ref("DropBloomFilterIndexStatementSegment"),
+                Ref("UndropStatementSegment"),
+                Ref("SyncStatementSegment"),
+                Ref("AnalyzeStorageMetricsStatementSegment"),
                 Ref("CreateDatabricksFunctionStatementSegment"),
                 Ref("CreateTableCloneStatementSegment"),
                 Ref("FunctionParameterListGrammarWithComments"),
