@@ -410,10 +410,10 @@ postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 # they stay usable as ordinary identifiers.
 postgres_dialect.sets("unreserved_keywords").update(["MAINTAIN", "PARAMETER"])
 
-# PostgreSQL 19 `REPACK` statement. The word is not reserved, so keep it usable
-# as an ordinary identifier.
+# PostgreSQL 19 `REPACK` and `WAIT FOR LSN` statements. None of these words is
+# reserved, so keep them usable as ordinary identifiers.
 postgres_dialect.sets("unreserved_keywords").update(
-    ["REPACK"]
+    ["REPACK", "WAIT", "LSN", "TIMEOUT", "NO_THROW"]
 )
 
 # Add datetime units
@@ -5901,6 +5901,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LockTableStatementSegment"),
             Ref("ClusterStatementSegment"),
             Ref("RepackStatementSegment"),
+            Ref("WaitForLsnStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("AlterCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
@@ -8189,6 +8190,40 @@ class RepackStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("USING", "INDEX"),
+            optional=True,
+        ),
+    )
+
+
+class WaitForLsnStatementSegment(BaseSegment):
+    """A `WAIT FOR LSN` statement (PostgreSQL 19+).
+
+    https://www.postgresql.org/docs/19/sql-wait.html
+    """
+
+    type = "wait_for_lsn_statement"
+    match_grammar = Sequence(
+        "WAIT",
+        "FOR",
+        "LSN",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Sequence("MODE", Ref("QuotedLiteralSegment")),
+                        Sequence(
+                            "TIMEOUT",
+                            OneOf(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                        ),
+                        "NO_THROW",
+                    )
+                )
+            ),
             optional=True,
         ),
     )

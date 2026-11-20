@@ -1,0 +1,86 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 35c9391a9eea23f3203578380fb527973fc71480825016ab3b2e30fb5df57639
+file:
+- statement:
+    wait_for_lsn_statement:
+    - keyword: WAIT
+    - keyword: FOR
+    - keyword: LSN
+    - quoted_literal: "'0/0306EE20'"
+- statement_terminator: ;
+- statement:
+    wait_for_lsn_statement:
+    - keyword: WAIT
+    - keyword: FOR
+    - keyword: LSN
+    - quoted_literal: "'0/0306EE20'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: MODE
+        quoted_literal: "'standby_flush'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    wait_for_lsn_statement:
+    - keyword: WAIT
+    - keyword: FOR
+    - keyword: LSN
+    - quoted_literal: "'0/0306EE20'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: MODE
+      - quoted_literal: "'standby_write'"
+      - comma: ','
+      - keyword: TIMEOUT
+      - quoted_literal: "'100ms'"
+      - comma: ','
+      - keyword: NO_THROW
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    wait_for_lsn_statement:
+    - keyword: WAIT
+    - keyword: FOR
+    - keyword: LSN
+    - quoted_literal: "'0/0306EE20'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: MODE
+        quoted_literal: "'primary_flush'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    wait_for_lsn_statement:
+    - keyword: WAIT
+    - keyword: FOR
+    - keyword: LSN
+    - quoted_literal: "'0/0306EE20'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: TIMEOUT
+        quoted_literal: "'0.1s'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    wait_for_lsn_statement:
+    - keyword: WAIT
+    - keyword: FOR
+    - keyword: LSN
+    - quoted_literal: "'0/0306EE20'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: TIMEOUT
+      - numeric_literal: '100'
+      - comma: ','
+      - keyword: NO_THROW
+      - end_bracket: )
+- statement_terminator: ;
