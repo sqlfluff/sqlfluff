@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9d83a229da239c6ff664046b9026e521e5bc254ab5defbf89579b4fd5d6aa2c9
+_hash: 06964325519088bda0215883d036b753d397c17490549248f00168b2e7237b7c
 file:
 - statement:
     undrop_statement:
@@ -26,5 +26,5 @@ file:
     - keyword: TABLE
     - keyword: WITH
     - keyword: ID
-    - numeric_literal: '1'
+    - quoted_literal: "'6ca7be55-8f58-47a7-85ee-7a59082fd17a'"
 - statement_terminator: ;

@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 98ddbfb2d99164d869c65736287e8a2c8bc5db610702e31907126fd11b2a6f5f
+_hash: 0576e4a8fd4fc1c7c22b8ea96b89a8644a7e47e3d02e3911ab8dd9019b067907
 file:
 - statement:
-    repair_table_statement:
+    msck_repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
         naked_identifier: t
 - statement_terminator: ;
 - statement:
-    repair_table_statement:
+    msck_repair_table_statement:
     - keyword: MSCK
     - keyword: REPAIR
     - keyword: TABLE
@@ -23,7 +23,7 @@ file:
     - keyword: METADATA
 - statement_terminator: ;
 - statement:
-    repair_table_statement:
+    msck_repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
@@ -32,7 +32,7 @@ file:
     - keyword: PARTITIONS
 - statement_terminator: ;
 - statement:
-    repair_table_statement:
+    msck_repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:

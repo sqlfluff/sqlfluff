@@ -243,6 +243,13 @@ databricks_dialect.replace(
         ]
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    # Timestamp time travel accepts an arithmetic timestamp expression.
+    TimestampAsOfGrammar=Sequence(
+        "TIMESTAMP",
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    ),
 )
 
 databricks_dialect.add(
@@ -2152,7 +2159,7 @@ class OptimizeTableStatementSegment(BaseSegment):
         "OPTIMIZE",
         Ref("TableReferenceSegment"),
         # The FULL mode is a full-file rewrite (DBR 16.0+).
-        Sequence("FULL", optional=True),
+        Ref.keyword("FULL", optional=True),
         Sequence(
             "WHERE",
             Ref("ExpressionSegment"),
@@ -2180,15 +2187,14 @@ class VacuumStatementSegment(sparksql.VacuumStatementSegment):
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
         ),
-        AnyNumberOf(
+        AnySetOf(
             Sequence(
                 "RETAIN",
                 Ref("NumericLiteralSegment"),
                 Ref("DatetimeUnitSegment"),
             ),
             Sequence("DRY", "RUN"),
-            "FULL",
-            "LITE",
+            OneOf("FULL", "LITE"),
         ),
     )
 
@@ -2682,17 +2688,6 @@ class SetRecipientStatementSegment(BaseSegment):
     match_grammar = Sequence("SET", "RECIPIENT", Ref("ObjectReferenceSegment"))
 
 
-databricks_dialect.replace(
-    # Timestamp time travel accepts an arithmetic timestamp expression.
-    TimestampAsOfGrammar=Sequence(
-        "TIMESTAMP",
-        "AS",
-        "OF",
-        Ref("ExpressionSegment"),
-    ),
-)
-
-
 class RestoreTableStatementSegment(sparksql.RestoreTableStatementSegment):
     """A `RESTORE` statement with optional `TABLE` and `TO`.
 
@@ -2735,17 +2730,9 @@ class FsckRepairTableStatementSegment(BaseSegment):
                 "FILES",
                 "MODIFIED",
                 "BETWEEN",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("ColumnReferenceSegment"),
-                ),
+                Ref("Expression_B_Grammar"),
                 "AND",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("ColumnReferenceSegment"),
-                ),
+                Ref("Expression_B_Grammar"),
             ),
             optional=True,
         ),
@@ -2774,22 +2761,18 @@ class ReorgTableStatementSegment(BaseSegment):
                     "UPGRADE",
                     "UNIFORM",
                     Bracketed(
-                        Sequence(
-                            "ICEBERG_COMPAT_VERSION",
-                            Ref("EqualsSegment"),
-                            Ref("NumericLiteralSegment"),
-                        )
+                        "ICEBERG_COMPAT_VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
                     ),
                 ),
                 Sequence(
                     "SET",
                     "PARQUET",
                     Bracketed(
-                        Sequence(
-                            "FORMAT_VERSION",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                        )
+                        "FORMAT_VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
                     ),
                 ),
             )
@@ -2808,10 +2791,8 @@ class CacheSelectStatementSegment(BaseSegment):
         "CACHE",
         "SELECT",
         Delimited(
-            OneOf(
-                Ref("WildcardExpressionSegment"),
-                Ref("ColumnReferenceSegment"),
-            )
+            Ref("WildcardExpressionSegment"),
+            Ref("ColumnReferenceSegment"),
         ),
         "FROM",
         Ref("TableReferenceSegment"),
@@ -2842,13 +2823,12 @@ class DropBloomFilterIndexStatementSegment(BaseSegment):
     )
 
 
-class RepairTableStatementSegment(BaseSegment):
+class MsckRepairTableStatementSegment(sparksql.MsckRepairTableStatementSegment):
     """A `[MSCK] REPAIR TABLE` statement.
 
     https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-repair-table
     """
 
-    type = "repair_table_statement"
     match_grammar = Sequence(
         Ref.keyword("MSCK", optional=True),
         "REPAIR",
@@ -2892,15 +2872,9 @@ class RefreshStatementSegment(sparksql.RefreshStatementSegment):
             Sequence(
                 OneOf(
                     Sequence("MATERIALIZED", "VIEW"),
-                    Sequence("STREAMING", "TABLE"),
-                    "TABLE",
+                    Sequence(Ref.keyword("STREAMING", optional=True), "TABLE"),
+                    optional=True,
                 ),
-                Ref("TableReferenceSegment"),
-                Ref.keyword("FULL", optional=True),
-                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
-                OneOf("SYNC", "ASYNC", optional=True),
-            ),
-            Sequence(
                 Ref("TableReferenceSegment"),
                 Ref.keyword("FULL", optional=True),
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
@@ -2926,7 +2900,7 @@ class UndropStatementSegment(BaseSegment):
             "TABLE",
         ),
         OneOf(
-            Sequence("WITH", "ID", Ref("NumericLiteralSegment")),
+            Sequence("WITH", "ID", Ref("QuotedLiteralSegment")),
             Ref("TableReferenceSegment"),
         ),
     )
@@ -2958,7 +2932,7 @@ class SyncStatementSegment(BaseSegment):
             ),
         ),
         Sequence(
-            Ref.keyword("SET", optional=True),
+            "SET",
             "OWNER",
             Ref("PrincipalIdentifierSegment"),
             optional=True,
@@ -3467,7 +3441,6 @@ class StatementSegment(sparksql.StatementSegment):
                 Ref("ReorgTableStatementSegment"),
                 Ref("CacheSelectStatementSegment"),
                 Ref("DropBloomFilterIndexStatementSegment"),
-                Ref("RepairTableStatementSegment"),
                 Ref("UndropStatementSegment"),
                 Ref("SyncStatementSegment"),
                 Ref("AnalyzeStorageMetricsStatementSegment"),

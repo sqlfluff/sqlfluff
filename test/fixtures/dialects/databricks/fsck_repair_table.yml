@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a505e3ea3b8b97c7d4b9a96bbc12d053019cb7da075e4b8940bf0e571797a519
+_hash: d11ea768ff8b3deb286ae487058c8c470fbba5b4191d64ccc2899d8d7107546c
 file:
 - statement:
     fsck_repair_table_statement:
@@ -62,4 +62,61 @@ file:
           bracketed:
             start_bracket: (
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    fsck_repair_table_statement:
+    - keyword: FSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: VERIFY
+    - keyword: FILES
+    - keyword: MODIFIED
+    - keyword: BETWEEN
+    - function:
+        function_name:
+          function_name_identifier: current_timestamp
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - binary_operator: '-'
+    - interval_expression:
+        keyword: INTERVAL
+        interval_literal:
+          numeric_literal: '1'
+          date_part: DAY
+    - keyword: AND
+    - function:
+        function_name:
+          function_name_identifier: current_timestamp
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    fsck_repair_table_statement:
+    - keyword: FSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: VERIFY
+    - keyword: FILES
+    - keyword: MODIFIED
+    - keyword: BETWEEN
+    - keyword: TIMESTAMP
+    - date_constructor_literal: "'2024-01-01'"
+    - keyword: AND
+    - function:
+        function_name:
+          function_name_identifier: current_date
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: DRY
+    - keyword: RUN
 - statement_terminator: ;
