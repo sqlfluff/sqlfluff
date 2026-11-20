@@ -10159,7 +10159,7 @@ class ShowStatementSegment(BaseSegment):
         "SCHEMAS",
         "OBJECTS",
         Sequence(
-            OneOf("EXTERNAL", "ICEBERG", "HYBRID", "EVENT", optional=True),
+            OneOf("DYNAMIC", "EXTERNAL", "ICEBERG", "HYBRID", "EVENT", optional=True),
             "TABLES",
         ),
         "VIEWS",
@@ -11105,8 +11105,9 @@ class DescribeStatementSegment(BaseSegment):
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-event-table
             # https://docs.snowflake.com/en/sql-reference/sql/desc-iceberg-table
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-dynamic-table
             Sequence(
-                OneOf("EVENT", "ICEBERG"),
+                OneOf("DYNAMIC", "EVENT", "ICEBERG"),
                 "TABLE",
                 Ref("TableReferenceSegment"),
             ),
@@ -11336,6 +11337,8 @@ class UndropStatementSegment(BaseSegment):
     DATABASE: https://docs.snowflake.com/en/sql-reference/sql/undrop-database.html
     SCHEMA: https://docs.snowflake.com/en/sql-reference/sql/undrop-schema.html
     TABLE: https://docs.snowflake.com/en/sql-reference/sql/undrop-table.html
+    DYNAMIC TABLE: https://docs.snowflake.com/en/sql-reference/sql/undrop-dynamic-table
+    ICEBERG TABLE: https://docs.snowflake.com/en/sql-reference/sql/undrop-iceberg-table
     """
 
     type = "undrop_statement"
@@ -11351,6 +11354,7 @@ class UndropStatementSegment(BaseSegment):
                 Ref("SchemaReferenceSegment"),
             ),
             Sequence(
+                OneOf("DYNAMIC", "ICEBERG", optional=True),
                 "TABLE",
                 Ref("TableReferenceSegment"),
             ),
