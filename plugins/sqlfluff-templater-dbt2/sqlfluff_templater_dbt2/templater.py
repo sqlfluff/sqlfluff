@@ -246,6 +246,7 @@ class Dbt2Templater(RawTemplater):
                 *[f"path:{path.relative_to(project).as_posix()}" for path in paths],
                 "--feature",
                 "write_render_trace",
+                "--generate-info-schema",
             ]
             for key in ("profiles_dir", "profile", "target"):
                 if settings.get(key):

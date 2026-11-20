@@ -3,10 +3,11 @@
 ## Public Parquet integration
 
 On Linux x86-64 and Python 3.12, built the public producer at
-[`8117688473e`](https://github.com/dataders/dbt-core/commit/8117688473e)
+[`852d30797a7`](https://github.com/dataders/dbt-core/commit/852d30797a7)
 as an ABI3 wheel and installed it into the consumer test environment.
 
 - All 130 plugin tests passed, including five live producer integrations.
+- The templater requests both `--generate-info-schema` and `--feature write_render_trace`.
 - The new artifact contract test inspects actual
   `target/info_schema/v1/dbt.render_traces.parquet` files before the
   loader removes its temporary target. It checks signed 64-bit protocol,

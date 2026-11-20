@@ -86,7 +86,7 @@ eventual normal installation can then obtain the upstream runtime through pip.
 
 ## How the consumer works
 
-1. Compile the selected models together once per lint pass with `--feature write_render_trace`, using fresh
+1. Compile the selected models together once per lint pass with `--generate-info-schema --feature write_render_trace`, using fresh
    temporary target and log directories. Load the manifest and trace artifacts once,
    then serve per-file traces from memory after removing the temporary output.
 2. Read the protocol-v2 Parquet snapshot when present, or protocol-v1
@@ -101,7 +101,8 @@ eventual normal installation can then obtain the upstream runtime through pip.
 The [Parquet producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
 writes
 `target/info_schema/v1/dbt.render_traces.parquet`.
-The export flag does not require `--generate-info-schema`. `--target-path`
+Public export requires `--generate-info-schema` alongside
+`--feature write_render_trace`. The feature alone records private epochs. `--target-path`
 relocates the target root. Private incremental epochs remain producer-owned;
 consumers read only this latest-row public table. The intermediate single-file
 `target/render_traces.parquet` layout is not supported.
