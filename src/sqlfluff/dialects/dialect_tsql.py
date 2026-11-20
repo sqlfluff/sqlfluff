@@ -5738,6 +5738,38 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
             ),
+            # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql
+            # ALTER COLUMN column { ADD | DROP } { ROWGUIDCOL | PERSISTED | ... }
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        OneOf(
+                            "ROWGUIDCOL",
+                            "PERSISTED",
+                            Sequence("NOT", "FOR", "REPLICATION"),
+                            "SPARSE",
+                            "HIDDEN",
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        "MASKED",
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                "FUNCTION",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
             Sequence(
                 "ALTER",
                 "COLUMN",
