@@ -75,6 +75,53 @@ def test_inert_indent_marking_survives_tree_copies():
         )
 
 
+def test_inert_indent_marking_survives_freeing_one_of_two_equal_copies():
+    """Freeing one of two *live* equal copies must not un-mark the other.
+
+    Equal copies compare equal, and weak references to equal objects
+    compare equal and hash equal, so a set-based bucket would collapse
+    both references into one and the first collection would prune the
+    marking while the twin was still alive. The bucket is therefore a
+    list deduplicated by referent identity.
+    """
+    config = FluffConfig(overrides={"dialect": "snowflake"})
+    linter = Linter(config=config)
+    root = linter.parse_string("SELECT * FROM (VALUES ('v1')) AS x;").tree
+
+    original_marked = _marked_indents(root)
+    assert original_marked, "expected the bracketed VALUES indents to be marked"
+
+    # Both trees are alive at the same time, and their marked indents
+    # are value-equal copies of each other.
+    copied_tree = root.copy()
+    copied_marked = _marked_indents(copied_tree)
+    uuids = [seg.uuid for seg in original_marked]
+    assert [seg.uuid for seg in copied_marked] == uuids
+    assert all(seg is not other for seg, other in zip(original_marked, copied_marked))
+    assert all(_inert_indent_uuids.live_count(uuid) == 2 for uuid in uuids), (
+        "equal copies must be tracked as distinct live references"
+    )
+
+    # Freeing the ORIGINAL must leave the copy marked...
+    del root, original_marked
+    gc.collect()
+    for seg in copied_marked:
+        assert _inert_indent_uuids.is_marked(seg.uuid), (
+            f"uuid {seg.uuid} lost its marking while its equal twin lives on"
+        )
+        assert _inert_indent_uuids.live_count(seg.uuid) == 1
+    # The loop variable would otherwise keep the last copied segment
+    # (and through it, its whole parent chain) alive below.
+    del seg
+
+    # ... and freeing the copy must prune the buckets eagerly.
+    uuids = [seg.uuid for seg in copied_marked]
+    del copied_tree, copied_marked
+    gc.collect()
+    for uuid in uuids:
+        assert uuid not in _inert_indent_uuids._refs
+
+
 def test_inert_indent_registry_prunes_dead_buckets_eagerly():
     """Dead uuid buckets are pruned by the weakref removal callbacks.
 

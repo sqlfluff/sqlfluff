@@ -62,34 +62,60 @@ class _InertIndentRegistry:
     dropping the whole bucket once the last live instance for a uuid
     is gone. The registry therefore never accumulates entries for
     freed parse trees, even if their uuids are never looked up again.
+
+    The references are kept in a list, deduplicated by referent
+    identity, rather than in a set: equal copies compare equal and
+    their weak references compare equal and hash equal, so a set
+    would silently collapse them into a single reference and the
+    first collection would prune the bucket while another equal copy
+    of the same segment was still alive. Identity is the only stable
+    discriminator here, both when deduplicating and when the removal
+    callback drops its dead reference.
     """
 
     def __init__(self) -> None:
-        self._refs: dict[int, set["weakref.ref[BaseSegment]"]] = {}
+        self._refs: dict[int, list["weakref.ref[BaseSegment]"]] = {}
 
     def _forget(self, uuid: int, ref: "weakref.ref[BaseSegment]") -> None:
         """Drop a dead reference, and its bucket once it empties.
 
         Registered as the callback of the weak references, so cleanup
         happens eagerly, as the tracked segment is collected, rather
-        than waiting for the uuid to be looked up again.
+        than waiting for the uuid to be looked up again. The dead
+        reference is dropped by identity: equal-but-distinct instances
+        produce equal references, so removing by value could drop a
+        live twin's reference instead.
         """
         bucket = self._refs.get(uuid)
         if bucket is not None:
-            bucket.discard(ref)
+            bucket[:] = [r for r in bucket if r is not ref]
             if not bucket:
                 del self._refs[uuid]
 
     def add(self, segment: BaseSegment) -> None:
-        """Track a newly marked indent instance."""
+        """Track a newly marked indent instance.
+
+        Duplicates of the *same instance* are collapsed by referent
+        identity; equal-but-distinct copies are kept separately, since
+        collapsing them would tie the marking to whichever reference
+        was stored first.
+        """
         uuid = segment.uuid
-        self._refs.setdefault(uuid, set()).add(
-            weakref.ref(segment, partial(self._forget, uuid))
-        )
+        bucket = self._refs.setdefault(uuid, [])
+        if not any(r() is segment for r in bucket):
+            bucket.append(weakref.ref(segment, partial(self._forget, uuid)))
 
     def is_marked(self, uuid: int) -> bool:
         """Return whether any live segment instance carries this uuid."""
         return any(ref() is not None for ref in self._refs.get(uuid, ()))
+
+    def live_count(self, uuid: int) -> int:
+        """Return how many live tracked instances carry this uuid.
+
+        Test-observability helper: with value-equal copies around, only
+        a count of live references can tell the tracking apart.
+        """
+        return sum(1 for ref in self._refs.get(uuid, ()) if ref() is not None)
 
 
 #: Indent segments whose impulse should be ignored during reflow.
