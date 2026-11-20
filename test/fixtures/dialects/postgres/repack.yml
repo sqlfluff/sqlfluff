@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7a66304a543ac130353e5d3638c2c437ae6910ee5e2dc98d806375a2de8c1c80
+file:
+- statement:
+    repack_statement:
+      keyword: REPACK
+      table_reference:
+        naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    repack_statement:
+    - keyword: REPACK
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    repack_statement:
+    - keyword: REPACK
+    - bracketed:
+        start_bracket: (
+        repack_option:
+          keyword: CONCURRENTLY
+        end_bracket: )
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - keyword: INDEX
+- statement_terminator: ;
+- statement:
+    repack_statement:
+    - keyword: REPACK
+    - bracketed:
+      - start_bracket: (
+      - repack_option:
+          keyword: ANALYZE
+      - comma: ','
+      - repack_option:
+          keyword: VERBOSE
+      - end_bracket: )
+    - table_reference:
+        naked_identifier: cases
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: district
+      - comma: ','
+      - column_reference:
+          naked_identifier: case_nr
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    repack_statement:
+      keyword: REPACK
+- statement_terminator: ;
+- statement:
+    repack_statement:
+    - keyword: REPACK
+    - bracketed:
+        start_bracket: (
+        repack_option:
+          keyword: VERBOSE
+        end_bracket: )
+    - keyword: USING
+    - keyword: INDEX
+- statement_terminator: ;
+- statement:
+    repack_statement:
+      keyword: REPACK
+      table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    repack_statement:
+    - keyword: REPACK
+    - bracketed:
+      - start_bracket: (
+      - repack_option:
+        - keyword: VERBOSE
+        - keyword: 'OFF'
+      - comma: ','
+      - repack_option:
+          keyword: ANALYSE
+      - comma: ','
+      - repack_option:
+          keyword: CONCURRENTLY
+          boolean_literal: 'TRUE'
+      - end_bracket: )
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: employees
+    - keyword: USING
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    repack_statement:
+    - keyword: REPACK
+    - keyword: USING
+    - keyword: INDEX
+- statement_terminator: ;

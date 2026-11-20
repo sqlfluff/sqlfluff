@@ -1,0 +1,9 @@
+REPACK employees;
+REPACK employees USING INDEX employees_ind;
+REPACK (CONCURRENTLY) employees USING INDEX;
+REPACK (ANALYZE, VERBOSE) cases (district, case_nr);
+REPACK;
+REPACK (VERBOSE) USING INDEX;
+REPACK public.employees;
+REPACK (VERBOSE OFF, ANALYSE, CONCURRENTLY TRUE) public.employees USING INDEX employees_ind;
+REPACK USING INDEX;

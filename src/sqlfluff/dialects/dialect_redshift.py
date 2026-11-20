@@ -2577,6 +2577,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateOperatorStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("CreateStatisticsStatementSegment"),
+            # PostgreSQL 19 statement, not available in Redshift.
+            Ref("RepackStatementSegment"),
         ],
     )
 

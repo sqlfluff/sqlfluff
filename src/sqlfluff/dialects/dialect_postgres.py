@@ -410,6 +410,12 @@ postgres_dialect.sets("unreserved_keywords").update(["SOURCE", "TARGET"])
 # they stay usable as ordinary identifiers.
 postgres_dialect.sets("unreserved_keywords").update(["MAINTAIN", "PARAMETER"])
 
+# PostgreSQL 19 `REPACK` statement. The word is not reserved, so keep it usable
+# as an ordinary identifier.
+postgres_dialect.sets("unreserved_keywords").update(
+    ["REPACK"]
+)
+
 # Add datetime units
 postgres_dialect.sets("datetime_units").update(
     [
@@ -5894,6 +5900,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
             Ref("ClusterStatementSegment"),
+            Ref("RepackStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("AlterCollationStatementSegment"),
             Ref("DropCollationStatementSegment"),
@@ -8142,6 +8149,46 @@ class ClusterStatementSegment(BaseSegment):
                 Sequence("USING", Ref("IndexReferenceSegment"), optional=True),
             ),
             Sequence(Ref("IndexReferenceSegment"), "ON", Ref("TableReferenceSegment")),
+            optional=True,
+        ),
+    )
+
+
+class RepackOptionSegment(BaseSegment):
+    """A parenthesised option in a `REPACK` statement.
+
+    https://www.postgresql.org/docs/19/sql-repack.html
+    """
+
+    type = "repack_option"
+    match_grammar = Sequence(
+        OneOf("VERBOSE", "ANALYZE", "ANALYSE", "CONCURRENTLY"),
+        Ref("OptionBooleanGrammar", optional=True),
+    )
+
+
+class RepackStatementSegment(BaseSegment):
+    """A `REPACK` statement (PostgreSQL 19+).
+
+    https://www.postgresql.org/docs/19/sql-repack.html
+    """
+
+    type = "repack_statement"
+    match_grammar = Sequence(
+        "REPACK",
+        Bracketed(Delimited(Ref("RepackOptionSegment")), optional=True),
+        OneOf(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Sequence(
+                    "USING",
+                    "INDEX",
+                    Ref("IndexReferenceSegment", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence("USING", "INDEX"),
             optional=True,
         ),
     )
