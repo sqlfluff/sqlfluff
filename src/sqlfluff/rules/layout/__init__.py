@@ -15,6 +15,13 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 " be ignored when linting line lengths?"
             ),
         },
+        "ignore_url_comment_lines": {
+            "validation": [True, False],
+            "definition": (
+                "Ignore lines containing only whitespace and an inline comment "
+                "whose entire content is one HTTP or HTTPS URL."
+            ),
+        },
         "ignore_comment_clauses": {
             "validation": [True, False],
             "definition": (
