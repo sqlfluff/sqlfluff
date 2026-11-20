@@ -238,11 +238,21 @@ duckdb_dialect.add(
 )
 
 duckdb_dialect.replace(
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*",
-        CodeSegment,
-        type="function_name_identifier",
-        anti_template=r"^(STRUCT|UNION|ENUM)$",
+    FunctionNameIdentifierSegment=OneOf(
+        RegexParser(
+            r"[A-Za-z_][A-Za-z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            anti_template=r"(?i)^(STRUCT|UNION|ENUM)$",
+            casefold=str.lower,
+            ignore_case=False,
+        ),
+        RegexParser(
+            r"[A-Z_][A-Z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            anti_template=r"^(STRUCT|UNION|ENUM)$",
+        ),
     ),
     DivideSegment=OneOf(
         StringParser("//", BinaryOperatorSegment),

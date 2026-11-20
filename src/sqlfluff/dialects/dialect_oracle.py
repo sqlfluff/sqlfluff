@@ -703,6 +703,10 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    # Oracle's word lexer also accepts non-ASCII names.
+    FunctionNameIdentifierSegment=TypedParser(
+        "word", WordSegment, type="function_name_identifier"
+    ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "FromClauseTerminatorGrammar"
     ).copy(insert=[Ref("ReturningClauseSegment")]),

@@ -347,7 +347,10 @@ ansi_dialect.add(
         r"\"?[A-Z][A-Z0-9_]*\"?", CodeSegment, type="parameter"
     ),
     FunctionNameIdentifierSegment=TypedParser(
-        "word", WordSegment, type="function_name_identifier"
+        "word",
+        WordSegment,
+        type="function_name_identifier",
+        casefold=str.upper,
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=SegmentGenerator(

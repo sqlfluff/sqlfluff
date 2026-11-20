@@ -25,6 +25,27 @@ test_fail_equivalent_postgres_function_name_case:
   fail_str: *mixed_case_function
   fix_str: *mixed_case_function_fixed
 
+test_fail_equivalent_duckdb_function_name_case:
+  configs:
+    core:
+      dialect: duckdb
+  fail_str: *mixed_case_function
+  fix_str: *mixed_case_function_fixed
+
+test_fail_equivalent_snowflake_function_name_case:
+  configs:
+    core:
+      dialect: snowflake
+  fail_str: *mixed_case_function
+  fix_str: *mixed_case_function_fixed
+
+test_fail_equivalent_mysql_function_name_case:
+  configs:
+    core:
+      dialect: mysql
+  fail_str: *mixed_case_function
+  fix_str: *mixed_case_function_fixed
+
 test_pass_different_clickhouse_function_name_case:
   configs:
     core:
@@ -42,6 +63,12 @@ test_pass_different_quoted_postgres_function_names:
     SELECT CASE "f"() WHEN 0 THEN 1
       ELSE CASE "F"() WHEN 2 THEN 2 ELSE 3 END
     END;
+
+test_pass_different_non_ascii_postgres_function_names:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: "SELECT CASE k() WHEN 0 THEN 1 ELSE CASE \u212A() WHEN 2 THEN 2 ELSE 3 END END;"
 
 test_pass_different_sqlite_function_argument_case:
   configs:

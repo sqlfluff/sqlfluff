@@ -695,10 +695,20 @@ postgres_dialect.replace(
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*",
-        CodeSegment,
-        type="function_name_identifier",
+    FunctionNameIdentifierSegment=OneOf(
+        RegexParser(
+            r"[A-Za-z_][A-Za-z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            casefold=str.lower,
+            ignore_case=False,
+        ),
+        # Keep the original match for non-ASCII spellings without case folding.
+        RegexParser(
+            r"[A-Z_][A-Z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+        ),
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),

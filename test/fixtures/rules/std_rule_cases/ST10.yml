@@ -1,5 +1,17 @@
 rule: ST10
 
+test_pass_distinct_non_ascii_postgres_functions:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: &distinct_non_ascii_functions "SELECT 1 WHERE k() = \u212A();"
+
+test_pass_distinct_non_ascii_duckdb_functions:
+  configs:
+    core:
+      dialect: duckdb
+  pass_str: *distinct_non_ascii_functions
+
 test_pass_where:
   pass_str: |
     select * from foo where col = 3
