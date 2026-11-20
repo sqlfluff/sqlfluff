@@ -67,3 +67,10 @@ SELECT *
 FROM table1
 WHERE col1 OPERATOR (schema1.=) val1
   AND col2 OPERATOR (schema2.<>) val2;
+
+-- Operators of more than one character, with a schema, a quoted schema or none
+SELECT *
+FROM table1
+WHERE col1 OPERATOR (myschema.===) col2
+  AND col2 OPERATOR ("My Schema".===) col3
+  AND col3 OPERATOR (<<<) col4;

@@ -8,7 +8,7 @@ from unittest.mock import call, patch
 
 import pytest
 
-from sqlfluff.core import FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.config import (
     clear_config_caches,
     load_config_at_path,
@@ -258,6 +258,26 @@ def test__config__load_placeholder_cfg():
             }
         },
     }
+
+
+def test__config__placeholder_regex_preserves_literal_quotes():
+    """A quoted custom regex only replaces the quoted positional parameters."""
+    config = FluffConfig.from_string(
+        "[sqlfluff]\n"
+        "dialect = ansi\n"
+        "templater = placeholder\n"
+        "[sqlfluff:templater:placeholder]\n"
+        "param_regex = '__[a-z]+__'\n"
+        "1 = 10\n"
+        "2 = 200\n"
+    )
+
+    parsed = Linter(config=config).parse_string(
+        "SELECT '__first__', __untouched__, '__second__';"
+    )
+    assert not parsed.violations
+    assert parsed.tree is not None
+    assert parsed.tree.raw == "SELECT 10, __untouched__, 200;"
 
 
 @patch("os.path.exists")
@@ -525,6 +545,26 @@ def test__config__load_toml_invalid_syntax(tmp_path):
     assert f"line {expected_line}" in message
     assert f"column {expected_column}" in message
     assert "UTF-8 BOM" not in message
+
+
+def test__config__load_ini_invalid_syntax(tmp_path):
+    """Invalid INI should raise a SQLFluff user error with the file path.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9067
+    """
+    sqlfluff_path = tmp_path / ".sqlfluff"
+    sqlfluff_path.write_text("[sqlfluff\ndialect = ansi\n", encoding="utf-8")
+
+    try:
+        with pytest.raises(SQLFluffUserError) as exc_info:
+            load_config_file(str(tmp_path), ".sqlfluff")
+    finally:
+        clear_config_caches()
+        sqlfluff_path.unlink(missing_ok=True)
+
+    message = str(exc_info.value)
+    assert str(sqlfluff_path).replace("\\", "/") in message.replace("\\", "/")
+    assert "Failed to parse INI config file" in message
 
 
 def test__config__load_toml_utf8_bom_hint(tmp_path):

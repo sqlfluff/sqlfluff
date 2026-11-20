@@ -251,6 +251,18 @@ def determine_constraints(
         idx = prev_block.depth_info.stack_hashes.index(common[-1])
 
         within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
+        # The exception is `any`, which leaves the spacing within a segment as
+        # it is, so it holds for the segments nested inside it too, like the
+        # groups of a `MATCH_RECOGNIZE` pattern. The other constraints only
+        # space a segment's own children. The configs run from the outermost
+        # parent inwards, so search them in reverse for the nearest `any`.
+        if (within_constraint or "").partition(":")[0] != "any":
+            for stack_hash, constraint in reversed(
+                prev_block.stack_spacing_configs.items()
+            ):
+                if constraint.partition(":")[0] == "any" and stack_hash in common:
+                    within_constraint = constraint
+                    break
         if within_constraint:
             within_spacing, strip_newlines = _unpack_constraint(
                 within_constraint, strip_newlines
@@ -377,10 +389,13 @@ def process_spacing(
                 )
             )
 
-    # Turn the removal buffer updated segment buffer, last whitespace
-    # and associated fixes.
+    # Return the buffer without the removed segments, the remaining
+    # whitespace (if any) and the associated fixes. Removed segments are
+    # matched by identity, because a literal space and an adjacent templated
+    # space can compare equal, and only the duplicate should be removed.
+    removal_ids = {id(s) for s in removal_buffer}
     return (
-        [s for s in segment_buffer if s not in removal_buffer],
+        [s for s in segment_buffer if id(s) not in removal_ids],
         # We should have removed all other whitespace by now.
         last_whitespace[0] if last_whitespace else None,
         result_buffer,

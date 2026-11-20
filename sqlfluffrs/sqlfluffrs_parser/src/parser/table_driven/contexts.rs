@@ -97,7 +97,7 @@ impl crate::parser::AnyNumberOfState {
         child_match: Arc<MatchResult>,
         end_pos: usize,
         grammar_id: GrammarId,
-    ) {
+    ) -> bool {
         // Cleanliness flags are not consulted by the LongestEnd policy.
         let is_better = parity::is_better_candidate(
             parity::MatchQualityPolicy::LongestEnd,
@@ -115,6 +115,7 @@ impl crate::parser::AnyNumberOfState {
                 end_pos
             );
         }
+        is_better
     }
 
     #[inline]

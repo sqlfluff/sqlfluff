@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab532251b3d9600dcf60000aded025e23cede64062054b8e4bc8256a735a3008
+_hash: 0448f08575d527cde6abd50de93b4b7924cd0d593ab436f82aef6847905b4c6c
 file:
 - statement:
     select_statement:
@@ -67,4 +67,72 @@ file:
               alias_operator:
                 keyword: AS
               quoted_identifier: '"nih"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - quoted_identifier: '[nih]'
+          - dot: .
+          - quoted_identifier: '[userID]'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - quoted_identifier: '[nih]'
+          - dot: .
+          - quoted_identifier: '[user name]'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: '[name]'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                quoted_identifier: '[flight_notification_item_history]'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[nih]'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '[order items]'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '[item id]'
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '[select]'
+          data_type:
+            data_type_identifier: TEXT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '[idx "x"]'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '[order items]'
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          quoted_identifier: '[select]'
+        end_bracket: )
 - statement_terminator: ;

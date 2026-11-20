@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 38632396a15cae04d275906ac2cc8e8332d66b283e389463b924659e992ba0fa
+file:
+- statement:
+    alter_group:
+    - keyword: ALTER
+    - keyword: GROUP
+    - role_reference:
+        naked_identifier: staff
+    - keyword: ADD
+    - keyword: USER
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: ALTER
+    - keyword: GROUP
+    - role_reference:
+        naked_identifier: staff
+    - keyword: ADD
+    - keyword: USER
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - role_reference:
+        quoted_identifier: '"Carol"'
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: ALTER
+    - keyword: GROUP
+    - role_reference:
+        naked_identifier: staff
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+        naked_identifier: alice
+    - comma: ','
+    - role_reference:
+        naked_identifier: bob
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: ALTER
+    - keyword: GROUP
+    - keyword: CURRENT_USER
+    - keyword: ADD
+    - keyword: USER
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: ALTER
+    - keyword: GROUP
+    - keyword: CURRENT_USER
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: ALTER
+    - keyword: GROUP
+    - role_reference:
+        naked_identifier: staff
+    - keyword: RENAME
+    - keyword: TO
+    - role_reference:
+        naked_identifier: crew
+- statement_terminator: ;

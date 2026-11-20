@@ -159,3 +159,30 @@ select * from stock_price_history
       row_with_price_increase as price > lag(price)
   )
 order by company, match_number;
+
+-- A concatenation next to `|`, as in the example in the Snowflake docs.
+select * from stock_price_history
+  match_recognize(
+    partition by company
+    order by price_date
+    measures
+      match_number() as match_number
+    one row per match
+    pattern(^ S1 S2*? ( {- S3 -} S4 )+ | PERMUTE(S1, S2){1,2} $)
+    define
+      S1 as price > 0,
+      S2 as price > lag(price),
+      S3 as price < lag(price),
+      S4 as price = lag(price)
+  )
+order by company, match_number;
+
+select * from stock_price_history
+  match_recognize(
+    partition by company
+    order by price_date
+    all rows per match
+    pattern((A B | C) {- D E | F -} (G | H I)* J)
+    define
+      A as price > 0
+  );

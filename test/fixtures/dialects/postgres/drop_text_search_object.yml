@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f5e6f886d25d10d076da7a5e9f945f6e83ae81a207fc1c4f2604e88cd073a73
+file:
+- statement:
+    drop_text_search_object_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+      - naked_identifier: utils
+      - dot: .
+      - naked_identifier: my_stem
+- statement_terminator: ;
+- statement:
+    drop_text_search_object_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: simple_dict
+    - comma: ','
+    - object_reference:
+        naked_identifier: no_such_dict
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_text_search_object_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: PARSER
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: utils
+      - dot: .
+      - naked_identifier: my_prs
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_text_search_object_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: TEMPLATE
+    - object_reference:
+      - naked_identifier: utils
+      - dot: .
+      - naked_identifier: my_tmpl
+    - comma: ','
+    - object_reference:
+        naked_identifier: lexize_only
+- statement_terminator: ;

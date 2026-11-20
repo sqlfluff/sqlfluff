@@ -42,7 +42,7 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
         return load_toml_file_config(filepath)
     # If it's not a pyproject file, assume that it's an ini file.
     with open(filepath, mode="r") as file:
-        return load_ini_string(file.read())
+        return load_ini_string(file.read(), filepath)
 
 
 def _resolve_path(filepath: str, val: str) -> list[str]:
@@ -136,7 +136,7 @@ def load_config_string_as_dict(
     structure, that happens further up the stack. The working path is
     necessary to resolve any paths in the config file.
     """
-    raw_config = load_ini_string(config_string)
+    raw_config = load_ini_string(config_string, logging_reference)
 
     # The raw loaded files have some path interpolation which is necessary.
     _resolve_paths_in_config(

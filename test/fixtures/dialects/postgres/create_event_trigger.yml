@@ -1,0 +1,122 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 72660c8ccdfbeda3681e99edd933b89762597fb073e319708015e40b0e942452
+file:
+- statement:
+    create_event_trigger_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: abort_ddl
+    - keyword: 'ON'
+    - naked_identifier: ddl_command_start
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: abort_any_command
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_trigger_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: log_drops
+    - keyword: 'ON'
+    - naked_identifier: sql_drop
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function:
+        function_name:
+          function_name_identifier: log_drop
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_trigger_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: no_table_ddl
+    - keyword: 'ON'
+    - naked_identifier: ddl_command_end
+    - keyword: WHEN
+    - naked_identifier: TAG
+    - keyword: IN
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'CREATE TABLE'"
+      - comma: ','
+      - quoted_literal: "'ALTER TABLE'"
+      - comma: ','
+      - quoted_literal: "'DROP TABLE'"
+      - end_bracket: )
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: abort_any_command
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_trigger_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: rewrite_watch
+    - keyword: 'ON'
+    - naked_identifier: table_rewrite
+    - keyword: WHEN
+    - naked_identifier: tag
+    - keyword: IN
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'ALTER TABLE'"
+      - comma: ','
+      - quoted_literal: "'ALTER TYPE'"
+      - end_bracket: )
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: abort_any_command
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_trigger_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: on_login
+    - keyword: 'ON'
+    - naked_identifier: login
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: on_login_fn
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d563bae184b5e408bcdcff03da940f1f6aaefd82cb52ed38f84bf6083d916afd
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            indexed_by_clause:
+            - keyword: INDEXED
+            - keyword: BY
+            - index_reference:
+                naked_identifier: idx
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            indexed_by_clause:
+            - keyword: NOT
+            - keyword: INDEXED
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: x
+          - dot: .
+          - naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: main
+              - dot: .
+              - naked_identifier: t
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: x
+            indexed_by_clause:
+            - keyword: INDEXED
+            - keyword: BY
+            - index_reference:
+                naked_identifier: idx
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: x
+          - dot: .
+          - naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: u
+          - dot: .
+          - naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            indexed_by_clause:
+            - keyword: NOT
+            - keyword: INDEXED
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: u
+              indexed_by_clause:
+              - keyword: INDEXED
+              - keyword: BY
+              - index_reference:
+                  naked_identifier: idx_u
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: u
+                - dot: .
+                - naked_identifier: b
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t
+      indexed_by_clause:
+      - keyword: INDEXED
+      - keyword: BY
+      - index_reference:
+          naked_identifier: idx
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '2'
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - keyword: OR
+    - keyword: IGNORE
+    - table_reference:
+        naked_identifier: t
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: x
+    - indexed_by_clause:
+      - keyword: NOT
+      - keyword: INDEXED
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+          naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '2'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: x
+          - dot: .
+          - naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+            indexed_by_clause:
+            - keyword: INDEXED
+            - keyword: BY
+            - index_reference:
+                naked_identifier: idx
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: main
+              - dot: .
+              - naked_identifier: t
+            indexed_by_clause:
+            - keyword: NOT
+            - keyword: INDEXED
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;

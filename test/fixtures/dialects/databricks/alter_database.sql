@@ -25,3 +25,10 @@ ALTER SCHEMA some_cat DISABLE PREDICTIVE OPTIMIZATION;
 
 -- -- Add some schema properties
 ALTER SCHEMA some_cat SET DBPROPERTIES ('Edited-by'='John Doe', 'Edit-date'='2020-01-01');
+
+-- Clauses from the ALTER SCHEMA reference page.
+ALTER SCHEMA s SET MANAGED LOCATION 's3://b/';
+
+ALTER SCHEMA s RETAIN DROPPED TO 1 DAY;
+
+ALTER SCHEMA s DEFAULT COLLATION 'UTF8_LCASE';

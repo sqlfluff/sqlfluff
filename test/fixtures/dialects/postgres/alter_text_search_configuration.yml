@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e7a5512b8fb4e3a9e2cc3c7ddef7ab9cfaf65a29d1bc6b7064a9764403c6bfc
+_hash: b604f0caad4788ec4667209d088e1dce071964e0762a3be5350da62204ea15e6
 file:
 - statement:
     alter_text_search_configuration_statement:
@@ -115,7 +115,7 @@ file:
         naked_identifier: my_config
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
+    - role_reference:
         naked_identifier: new_owner
 - statement_terminator: ;
 - statement:

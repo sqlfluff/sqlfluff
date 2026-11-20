@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d55f1d2f9af21a3d663fb06ffff9bb9efed047ad693e1fe3d4f54528d73c2eaa
+_hash: 76cba51e05f4ffe9cd71ed893a439406477c03cfc99d516654e2bed8409027f6
 file:
 - statement:
     access_statement:
@@ -1999,13 +1999,112 @@ file:
       - keyword: GRANT
       - keyword: APPLICATION
       - keyword: ROLE
-      - role_reference:
+      - application_role_reference:
           naked_identifier: DBROLENAME
       - keyword: TO
       - access_target:
           keyword: ROLE
           role_reference:
             naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - application_role_reference:
+        - naked_identifier: example_app
+        - dot: .
+        - naked_identifier: example_role
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - application_role_reference:
+        - quoted_identifier: '"Example_App"'
+        - dot: .
+        - quoted_identifier: '"Example_Role"'
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - application_role_reference:
+          naked_identifier: example_app
+          dot: .
+          quoted_identifier: '"Example_Role"'
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - application_role_reference:
+        - naked_identifier: example_app
+        - dot: .
+        - naked_identifier: example_role
+      - keyword: TO
+      - access_target:
+          keyword: USER
+          user_reference:
+            naked_identifier: example_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - application_role_reference:
+        - naked_identifier: example_app
+        - dot: .
+        - naked_identifier: example_role
+      - keyword: TO
+      - access_target:
+          keyword: APPLICATION
+          object_reference:
+            naked_identifier: example_consumer
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - application_role_reference:
+        - naked_identifier: example_app
+        - dot: .
+        - naked_identifier: example_role
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: analyst
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
 - statement_terminator: ;
 - statement:
     access_statement:
