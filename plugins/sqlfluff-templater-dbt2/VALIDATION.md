@@ -1,5 +1,27 @@
 # Reference implementation validation
 
+## Parquet epoch integration
+
+On Linux x86-64 and Python 3.12, built the public producer at
+[`897a1915044`](https://github.com/dataders/dbt-core/commit/897a1915044)
+as an ABI3 wheel and installed it into the consumer test environment.
+
+- All 129 plugin tests passed, including five live producer integrations.
+- The new artifact contract test inspects actual
+  `target/private/metadata/compile/render_traces/v1_*.parquet` files before the
+  loader removes its temporary target. It checks signed 64-bit protocol,
+  ingestion and offset fields; nested ordered events; and invocation identity.
+  Loaded source, rendered SQL and event order match the producer rows exactly.
+- Live source fixes, recompilation/idempotence, CLI persistence, disabled models
+  and parallel workers run against that same wheel.
+- Repository-wide pre-commit checks passed.
+
+This verifies the producer/consumer artifact contract. The separate
+[nested-loop LT02 fix cycle](https://github.com/dataders/sqlfluff-dbt2-indent-repro)
+remains unresolved and is not covered by those capitalization-fix integrations.
+
+## Historical JSON producer validation
+
 Validated on Windows x86-64, Python 3.13.5, against the Python ABI3 wheel built
 from dbt PR [#16870](https://github.com/dbt-labs/dbt/pull/16870), revision
 `3116b949886d85aae646cc1479e7f703b88865d1` (including recursive-loop, include and super fixes,

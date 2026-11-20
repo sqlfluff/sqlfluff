@@ -6,9 +6,10 @@ Python SQLFluff plugin can lint and fix original Jinja SQL using provenance from
 dbt's actual Rust renderer.
 
 **The upstream API is not released.** Installing a stock dbt v2 package is not
-currently sufficient. Use a build of that PR to try this draft. This plugin
-contains no dbt binary, Rust code, renderer patches or commit-specific runtime
-checks.
+currently sufficient. For Parquet, use the [producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
+to that PR. The original producer remains supported through protocol-v1 JSON.
+This plugin contains no dbt binary, Rust code, renderer patches or commit-specific
+runtime checks.
 
 ## Choose the matching templater
 
@@ -97,11 +98,16 @@ eventual normal installation can then obtain the upstream runtime through pip.
 
 ### Parquet producer compatibility
 
-Protocol-v2 producers write
+The [Parquet producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
+writes
 `target/private/metadata/compile/render_traces/v1_<epoch>.parquet`.
+The export flag does not require `--generate-info-schema`. `--target-path`
+relocates the target root. The intermediate single-file
+`target/render_traces.parquet` layout is not supported.
+
 Each row contains the same identity, source, rendered SQL and ordered events as
-the JSON proposal, plus an `ingested_at` integer timestamp. The `events` column
-is a `LIST<STRUCT<kind, source_start, source_end, rendered_start, rendered_end>>`;
+the JSON proposal, plus an `ingested_at` microsecond timestamp (signed 64-bit
+integer). The `events` column is a `LIST<STRUCT<kind, source_start, source_end, rendered_start, rendered_end>>`;
 offsets are signed 64-bit UTF-8 byte positions. The `v1_` storage prefix and
 `protocol_version = 2` describe separate versioned contracts.
 
@@ -157,9 +163,11 @@ With a trace-capable dbt-core build installed, enable the live test:
 SQLFLUFF_DBT2_INTEGRATION=1 python -m pytest plugins/sqlfluff-templater-dbt2/test/live_test.py
 ```
 
-That test compiles a DuckDB project with config(), return(), ref(), loops and an
-ephemeral parent; fixes the original source; recompiles to check idempotence;
-and runs the real SQLFluff CLI to persist a source fix.
+The tests compile a DuckDB project with config(), return(), ref(), loops and an
+ephemeral parent; fix the original source; recompile to check idempotence;
+and run the real SQLFluff CLI to persist a source fix. The Parquet contract test
+inspects real epoch files before loading, checks the nested types and invocation
+identity, and compares the producer event order with the loaded trace.
 
 To regenerate recorded artifacts using that same installed runtime:
 
