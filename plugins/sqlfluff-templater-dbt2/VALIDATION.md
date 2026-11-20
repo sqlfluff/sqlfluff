@@ -1,14 +1,14 @@
 # Reference implementation validation
 
-## Parquet epoch integration
+## Public Parquet integration
 
 On Linux x86-64 and Python 3.12, built the public producer at
-[`897a1915044`](https://github.com/dataders/dbt-core/commit/897a1915044)
+[`8117688473e`](https://github.com/dataders/dbt-core/commit/8117688473e)
 as an ABI3 wheel and installed it into the consumer test environment.
 
-- All 129 plugin tests passed, including five live producer integrations.
+- All 130 plugin tests passed, including five live producer integrations.
 - The new artifact contract test inspects actual
-  `target/private/metadata/compile/render_traces/v1_*.parquet` files before the
+  `target/info_schema/v1/dbt.render_traces.parquet` files before the
   loader removes its temporary target. It checks signed 64-bit protocol,
   ingestion and offset fields; nested ordered events; and invocation identity.
   Loaded source, rendered SQL and event order match the producer rows exactly.

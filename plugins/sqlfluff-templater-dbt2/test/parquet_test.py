@@ -1,4 +1,4 @@
-"""Consume nested Parquet epochs without weakening provenance or freshness checks."""
+"""Consume public nested Parquet snapshot without weakening provenance or freshness checks."""
 
 import json
 from pathlib import Path
@@ -12,9 +12,9 @@ from sqlfluff_templater_dbt2.trace import trace_to_templated_file
 from sqlfluff.core.errors import SQLTemplaterError
 
 
-def write_epoch(target: Path, epoch: int, rows: list[dict]) -> Path:
+def write_snapshot(target: Path, rows: list[dict]) -> Path:
     """Write the producer's nested event representation as an actual Parquet file."""
-    path = target / f"private/metadata/compile/render_traces/v1_{epoch}.parquet"
+    path = target / "info_schema/v1/dbt.render_traces.parquet"
     path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(pa.Table.from_pylist(rows), path)
     return path
@@ -70,7 +70,7 @@ def test_parquet_preserves_recorded_source_mappings(case, parquet_artifacts, tra
         **identity,
         **{key: original[key] for key in ("source", "rendered", "events")},
     }
-    write_epoch(target, 0, [trace])
+    write_snapshot(target, [trace])
     loaded = RenderArtifacts.load(target, model.parent).trace_for(
         model, trace["source"]
     )
@@ -82,13 +82,12 @@ def test_parquet_preserves_recorded_source_mappings(case, parquet_artifacts, tra
     assert actual.raw_sliced == expected.raw_sliced
 
 
-def test_parquet_selects_newest_fresh_row_across_epochs(parquet_artifacts):
-    """Timestamps select rows; filename order and older invocations do not."""
+def test_parquet_validates_duplicate_fresh_rows(parquet_artifacts):
+    """Defensively select fresh rows even if a producer writes duplicate model IDs."""
     target, model, trace = parquet_artifacts
     newest = {**trace, "ingested_at": 20}
     stale = {**trace, "invocation_id": "older-invocation", "ingested_at": 100}
-    write_epoch(target, 9, [newest])
-    write_epoch(target, 10, [trace, stale])
+    write_snapshot(target, [newest, trace, stale])
     loaded = RenderArtifacts.load(target, model.parent).trace_for(
         model, trace["source"]
     )
@@ -98,27 +97,24 @@ def test_parquet_selects_newest_fresh_row_across_epochs(parquet_artifacts):
 def test_retained_trace_is_not_reused_for_another_invocation(parquet_artifacts):
     """An unselected node's last-known trace cannot authorize a fresh source fix."""
     target, model, trace = parquet_artifacts
-    write_epoch(target, 0, [{**trace, "invocation_id": "older-invocation"}])
+    write_snapshot(target, [{**trace, "invocation_id": "older-invocation"}])
     with pytest.raises(SQLTemplaterError, match="exactly one render trace"):
         RenderArtifacts.load(target, model.parent).trace_for(model, trace["source"])
 
 
-def test_conflicting_epoch_rows_are_rejected(parquet_artifacts):
+def test_conflicting_snapshot_rows_are_rejected(parquet_artifacts):
     """Equal timestamps with different contents are ambiguous, regardless of file order."""
     target, model, trace = parquet_artifacts
-    write_epoch(target, 0, [trace])
-    write_epoch(target, 1, [{**trace, "rendered": "select 2"}])
+    write_snapshot(target, [trace, {**trace, "rendered": "select 2"}])
     with pytest.raises(SQLTemplaterError, match="Conflicting"):
         RenderArtifacts.load(target, model.parent)
 
 
-def test_corrupt_epoch_does_not_fall_back_to_json(parquet_artifacts):
+def test_corrupt_snapshot_does_not_fall_back_to_json(parquet_artifacts):
     """Corrupt Parquet must surface an error even when another artifact is readable."""
     target, model, trace = parquet_artifacts
-    write_epoch(target, 0, [trace])
-    (target / "private/metadata/compile/render_traces/v1_1.parquet").write_bytes(
-        b"broken"
-    )
+    write_snapshot(target, [trace])
+    (target / "info_schema/v1/dbt.render_traces.parquet").write_bytes(b"broken")
     (target / "model.render_trace.json").write_text(json.dumps(trace), encoding="utf-8")
     with pytest.raises(SQLTemplaterError, match="Cannot read.*Parquet"):
         RenderArtifacts.load(target, model.parent)
@@ -128,7 +124,7 @@ def test_corrupt_epoch_does_not_fall_back_to_json(parquet_artifacts):
     "mutation,match",
     [
         ({"protocol_version": 3}, "Unsupported"),
-        ({"ingested_at": "invalid"}, "epoch identity"),
+        ({"ingested_at": "invalid"}, "row identity"),
         ({"source_path": None}, "source identity"),
         ({"source": "stale"}, "source differs"),
         ({"unique_id": "model.example.other"}, "model/invocation identity"),
@@ -137,6 +133,19 @@ def test_corrupt_epoch_does_not_fall_back_to_json(parquet_artifacts):
 def test_invalid_parquet_provenance_is_rejected(parquet_artifacts, mutation, match):
     """Container migration preserves producer, source and model checks."""
     target, model, trace = parquet_artifacts
-    write_epoch(target, 0, [{**trace, **mutation}])
+    write_snapshot(target, [{**trace, **mutation}])
     with pytest.raises(SQLTemplaterError, match=match):
         RenderArtifacts.load(target, model.parent).trace_for(model, trace["source"])
+
+
+def test_private_epochs_are_not_a_consumer_contract(parquet_artifacts):
+    """A corrupt private store cannot affect a valid public snapshot."""
+    target, model, trace = parquet_artifacts
+    write_snapshot(target, [trace])
+    private = target / "private/metadata/compile/render_traces/v1_0.parquet"
+    private.parent.mkdir(parents=True)
+    private.write_bytes(b"broken")
+    assert (
+        RenderArtifacts.load(target, model.parent).trace_for(model, trace["source"])
+        == trace
+    )

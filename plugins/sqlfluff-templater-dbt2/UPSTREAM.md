@@ -8,9 +8,9 @@ implemented in dbt; this repository implements the consumer.
 
 Use the [producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
 to dbt-labs/dbt#16870. The validated Parquet producer revision is
-[`897a1915044`](https://github.com/dataders/dbt-core/commit/897a1915044).
-It writes protocol-v2 nested epochs, including ingestion timestamps, to
-`target/private/metadata/compile/render_traces/v1_<epoch>.parquet`.
+[`8117688473e`](https://github.com/dataders/dbt-core/commit/8117688473e).
+It publishes protocol-v2 rows, including ingestion timestamps, to
+`target/info_schema/v1/dbt.render_traces.parquet`.
 A stock released dbt build does not provide this experimental API.
 The plugin selects compatibility by protocol, not commit hash or version label.
 
@@ -23,7 +23,7 @@ Then build the public producer and install its wheel into the SQLFluff environme
 ```sh
 git clone --branch codex/render-trace-columnar-dbt https://github.com/dataders/dbt-core.git
 cd dbt-core
-git checkout 897a1915044
+git checkout 8117688473e
 uvx maturin build --manifest-path crates/dbt-sa-python/Cargo.toml --out dist
 uv pip install --python /path/to/sqlfluff/.venv/bin/python dist/dbt_core-<version>-<platform>.whl
 ```
@@ -50,11 +50,11 @@ The consumer invokes:
 dbt compile --select path:models/example.sql --feature write_render_trace
 ```
 
-The [producer's design notes](https://github.com/dataders/dbt-core/blob/897a1915044/docs/architecture/render-trace.md)
+The [producer's design notes](https://github.com/dataders/dbt-core/blob/8117688473e/docs/architecture/render-trace.md)
 and the [Parquet compatibility contract](README.md#parquet-producer-compatibility)
 describe the format. `--generate-info-schema` is not required. SQLFluff depends on:
 
-- Protocol version 1 (JSON sidecars) or version 2 (nested Parquet epochs), and
+- Protocol version 1 (JSON sidecars) or version 2 (nested Parquet snapshot), and
   the `jinja_before_ephemeral_injection` render stage. See the
   [Parquet compatibility contract](README.md#parquet-producer-compatibility).
 - Exact source and rendered strings, without applying source-rewriting offsets

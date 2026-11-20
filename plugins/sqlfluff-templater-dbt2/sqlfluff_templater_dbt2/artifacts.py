@@ -33,12 +33,10 @@ class RenderArtifacts:
         ):
             raise SQLTemplaterError("Invalid dbt2 invocation manifest")
         traces: dict[Path, list[dict[str, Any]]] = {}
-        epochs = list(
-            (target / "private/metadata/compile/render_traces").glob("v1_*.parquet")
-        )
-        if epochs:
+        snapshot = target / "info_schema/v1/dbt.render_traces.parquet"
+        if snapshot.exists():
             records = cls._read_parquet(
-                epochs, manifest["metadata"].get("invocation_id")
+                [snapshot], manifest["metadata"].get("invocation_id")
             )
         else:
             records = [
@@ -57,7 +55,7 @@ class RenderArtifacts:
         return cls(project, manifest, traces)
 
     @staticmethod
-    def _read_parquet(epochs: list[Path], invocation_id: Any) -> list[dict[str, Any]]:
+    def _read_parquet(paths: list[Path], invocation_id: Any) -> list[dict[str, Any]]:
         """Select fresh protocol-v2 rows without changing ordered nested events."""
         import pyarrow as pa
         import pyarrow.parquet as pq
@@ -65,9 +63,9 @@ class RenderArtifacts:
         if not isinstance(invocation_id, str) or not invocation_id:
             raise SQLTemplaterError("Invalid dbt2 invocation identity")
         latest: dict[str, dict[str, Any]] = {}
-        for epoch in epochs:
+        for path in paths:
             try:
-                batches = pq.ParquetFile(epoch).iter_batches()
+                batches = pq.ParquetFile(path).iter_batches()
                 for batch in batches:
                     for trace in batch.to_pylist():
                         if trace.get("protocol_version") != 2:
@@ -79,16 +77,14 @@ class RenderArtifacts:
                         uid = trace.get("unique_id")
                         timestamp = trace.get("ingested_at")
                         if not isinstance(uid, str) or type(timestamp) is not int:
-                            raise SQLTemplaterError("Invalid dbt2 trace epoch identity")
+                            raise SQLTemplaterError("Invalid dbt2 trace row identity")
                         previous = latest.get(uid)
                         if previous is not None:
                             if (
                                 timestamp == previous["ingested_at"]
                                 and trace != previous
                             ):
-                                raise SQLTemplaterError(
-                                    "Conflicting dbt2 trace epoch rows"
-                                )
+                                raise SQLTemplaterError("Conflicting dbt2 trace rows")
                             if timestamp < previous["ingested_at"]:
                                 continue
                         latest[uid] = trace

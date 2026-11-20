@@ -89,7 +89,7 @@ eventual normal installation can then obtain the upstream runtime through pip.
 1. Compile the selected models together once per lint pass with `--feature write_render_trace`, using fresh
    temporary target and log directories. Load the manifest and trace artifacts once,
    then serve per-file traces from memory after removing the temporary output.
-2. Read protocol-v2 Parquet epochs when present, or protocol-v1
+2. Read the protocol-v2 Parquet snapshot when present, or protocol-v1
    `*.render_trace.json` sidecars from the original proposal. Verify the source
    path, exact input, node identity and invocation against the compilation manifest.
 3. Validate protocol version, render stage, UTF-8 byte boundaries, literal
@@ -100,15 +100,16 @@ eventual normal installation can then obtain the upstream runtime through pip.
 
 The [Parquet producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
 writes
-`target/private/metadata/compile/render_traces/v1_<epoch>.parquet`.
+`target/info_schema/v1/dbt.render_traces.parquet`.
 The export flag does not require `--generate-info-schema`. `--target-path`
-relocates the target root. The intermediate single-file
+relocates the target root. Private incremental epochs remain producer-owned;
+consumers read only this latest-row public table. The intermediate single-file
 `target/render_traces.parquet` layout is not supported.
 
 Each row contains the same identity, source, rendered SQL and ordered events as
 the JSON proposal, plus an `ingested_at` microsecond timestamp (signed 64-bit
 integer). The `events` column is a `LIST<STRUCT<kind, source_start, source_end, rendered_start, rendered_end>>`;
-offsets are signed 64-bit UTF-8 byte positions. The `v1_` storage prefix and
+offsets are signed 64-bit UTF-8 byte positions. The `info_schema/v1/` directory and
 `protocol_version = 2` describe separate versioned contracts.
 
 The plugin uses PyArrow to read these nested rows. It accepts only rows matching
@@ -166,7 +167,7 @@ SQLFLUFF_DBT2_INTEGRATION=1 python -m pytest plugins/sqlfluff-templater-dbt2/tes
 The tests compile a DuckDB project with config(), return(), ref(), loops and an
 ephemeral parent; fix the original source; recompile to check idempotence;
 and run the real SQLFluff CLI to persist a source fix. The Parquet contract test
-inspects real epoch files before loading, checks the nested types and invocation
+inspects the public snapshot before loading, checks the nested types and invocation
 identity, and compares the producer event order with the loaded trace.
 
 To regenerate recorded artifacts using that same installed runtime:

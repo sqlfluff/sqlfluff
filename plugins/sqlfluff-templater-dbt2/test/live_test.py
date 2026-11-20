@@ -263,8 +263,8 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
         assert file.fix_string()[0] == cases[Path(file.path).stem][1]
 
 
-def test_live_parquet_epoch_contract(tmp_path, monkeypatch):
-    """Read the producer's actual nested epochs, not a synthetic Parquet fixture."""
+def test_live_public_parquet_contract(tmp_path, monkeypatch):
+    """Read the producer's actual public snapshot, not a synthetic Parquet fixture."""
     import pyarrow as pa
     import pyarrow.parquet as pq
 
@@ -276,15 +276,13 @@ def test_live_parquet_epoch_contract(tmp_path, monkeypatch):
     execute = Dbt2Templater._execute
     recorded = []
 
-    def inspect_epochs(command, timeout):
+    def inspect_snapshot(command, timeout):
         result = execute(command, timeout)
         target = Path(command[command.index("--target-path") + 1])
         assert not (target / "render_traces.parquet").exists()
         assert not list(target.rglob("*.render_trace.json"))
-        paths = sorted(
-            (target / "private/metadata/compile/render_traces").glob("v1_*.parquet")
-        )
-        assert paths
+        paths = [target / "info_schema/v1/dbt.render_traces.parquet"]
+        assert paths[0].is_file()
         for path in paths:
             table = pq.read_table(path)
             assert table.schema.field("protocol_version").type == pa.int64()
@@ -296,7 +294,7 @@ def test_live_parquet_epoch_contract(tmp_path, monkeypatch):
             recorded.extend(table.to_pylist())
         return result
 
-    monkeypatch.setattr(Dbt2Templater, "_execute", staticmethod(inspect_epochs))
+    monkeypatch.setattr(Dbt2Templater, "_execute", staticmethod(inspect_snapshot))
     trace = Dbt2Templater()._runtime(
         source,
         str(model),
