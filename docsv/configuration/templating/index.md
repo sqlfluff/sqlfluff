@@ -26,9 +26,10 @@ SQLFluff natively supports the following templating engines
 - [Placeholder templater](placeholder)
 - [Python templater](python)
 
-Also, SQLFluff has an integration to use `dbt` as a templater.
+SQLFluff also supports the following templaters through separate plugins:
 
-- [dbt templater](dbt) (via plugin which is covered in a different section).
+- [dbt templater](dbt)
+- [SQLMesh templater](sqlmesh)
 
 ::: tip NOTE
 Templaters may not be able to generate a rendered SQL that cover
@@ -54,3 +55,4 @@ configuration.
 - [Placeholder templater](placeholder)
 - [Python templater](python)
 - [dbt templater](dbt)
+- [SQLMesh templater](sqlmesh)

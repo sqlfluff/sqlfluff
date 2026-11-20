@@ -1,0 +1,183 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 77a21b8b620ae6ddca94f42ef4890485a127fe53762b954fcb479134315a1812
+file:
+- statement:
+    move_statement:
+      keyword: MOVE
+      object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: NEXT
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: PRIOR
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: FIRST
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: LAST
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: ABSOLUTE
+        numeric_literal: '2'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: RELATIVE
+        sign_indicator: '-'
+        numeric_literal: '1'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        numeric_literal: '3'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        sign_indicator: '-'
+        numeric_literal: '2'
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: ALL
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: FORWARD
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: FORWARD
+        numeric_literal: '2'
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+      - keyword: FORWARD
+      - keyword: ALL
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+      keyword: MOVE
+      cursor_direction:
+        keyword: BACKWARD
+      object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+        keyword: BACKWARD
+        numeric_literal: '1'
+    - keyword: IN
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+    - keyword: MOVE
+    - cursor_direction:
+      - keyword: BACKWARD
+      - keyword: ALL
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    move_statement:
+      keyword: MOVE
+      object_reference:
+        naked_identifier: prior
+- statement_terminator: ;
+- statement:
+    move_statement:
+      keyword: MOVE
+      cursor_direction:
+        keyword: FORWARD
+      object_reference:
+        naked_identifier: forward
+- statement_terminator: ;

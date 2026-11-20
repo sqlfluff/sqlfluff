@@ -112,6 +112,8 @@ UNRESERVED_KEYWORDS = [
     "TARGET",
     "TIMESERIES",
     "TRIGGER",
+    "UNIFORM",
+    "URL",
     "VOLUME",
     "VOLUMES",
     "WEEK",

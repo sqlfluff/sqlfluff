@@ -15,3 +15,5 @@ ALTER FOREIGN TABLE test RENAME TO test_renamed;
 ALTER FOREIGN TABLE distributors ALTER COLUMN street OPTIONS (ADD opt1 'value', SET opt2 'value2', DROP opt3);
 
 ALTER FOREIGN TABLE distributors ALTER street OPTIONS (ADD opt1 'value');
+
+ALTER FOREIGN TABLE measurements OPTIONS (SET null 'NA', DROP "header");

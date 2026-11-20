@@ -93,6 +93,69 @@ def test_dbt_json_uncalled(name):
         str(DBT_BUILTINS[name])
 
 
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("columns: [a, b]", {"columns": ["a", "b"]}),
+        ("- 1\n- true\n- null\n- café", [1, True, None, "café"]),
+        ("hello", "hello"),
+        ("42", 42),
+        ("1.5", 1.5),
+        ("false", False),
+        ("null", None),
+        ("", None),
+    ],
+)
+def test_dbt_fromyaml(value, expected):
+    """Deserialize YAML collections and scalars using dbt's value argument."""
+    assert DBT_BUILTINS["fromyaml"](value=value) == expected
+
+
+@pytest.mark.parametrize(
+    "value", ["columns: [", "a: 1\n---\nb: 2", None, 42, [], object()]
+)
+def test_dbt_fromyaml_default(value):
+    """Malformed YAML and unsupported inputs return the supplied fallback."""
+    default = {"columns": ["fallback"]}
+    assert DBT_BUILTINS["fromyaml"](value) is None
+    assert DBT_BUILTINS["fromyaml"](value, default=default) is default
+
+
+def test_dbt_fromyaml_safe_loader():
+    """YAML object constructors are rejected instead of constructing objects."""
+    value = "!!python/object:builtins.object {}"
+    assert DBT_BUILTINS["fromyaml"](value, default="fallback") == "fallback"
+
+
+@pytest.mark.parametrize(
+    "value", [{"columns": ["a", "b"]}, [1, True, None], "hello", 42, 1.5, False, None]
+)
+def test_dbt_yaml_roundtrip(value):
+    """YAML helpers preserve primitive values and nested collections."""
+    assert DBT_BUILTINS["fromyaml"](DBT_BUILTINS["toyaml"](value=value)) == value
+
+
+def test_dbt_toyaml_sort_keys():
+    """Match dbt's insertion-order default and optional key sorting."""
+    value = {"b": 2, "a": 1}
+    assert DBT_BUILTINS["toyaml"](value) == "b: 2\na: 1\n"
+    assert DBT_BUILTINS["toyaml"](value, sort_keys=True) == "a: 1\nb: 2\n"
+
+
+def test_dbt_toyaml_default():
+    """Values unsupported by the safe dumper return the supplied fallback."""
+    default = "fallback"
+    assert DBT_BUILTINS["toyaml"](object()) is None
+    assert DBT_BUILTINS["toyaml"](object(), default=default) is default
+
+
+@pytest.mark.parametrize("name", ["fromyaml", "toyaml"])
+def test_dbt_yaml_uncalled(name):
+    """Rendering a YAML helper without calling it gives a useful error."""
+    with pytest.raises(SQLTemplaterError, match=f"builtin callable '{name}'"):
+        str(DBT_BUILTINS[name])
+
+
 def test_var_emulator_magic_methods():
     """Test the placeholder methods defined on the mocked dbt `var()` result."""
     var = DBT_BUILTINS["var"]("foo")

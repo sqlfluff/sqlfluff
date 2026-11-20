@@ -19,6 +19,8 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
 )
 from sqlfluff.core.parser.segments.raw import SourceFix
+from sqlfluff.core.rules import BaseRule, LintResult, RulePack
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
@@ -503,3 +505,81 @@ def test__fix__jinja_lt02_nested_block_tags_reach_a_fixed_point(sql, expected):
     assert twice == once
     assert once == expected
     assert not linter.lint_string(once, fname="test.sql").get_violations()
+
+
+class Rule_T901(BaseRule):
+    """A post-phase rule which counts evaluations and returns no results."""
+
+    groups = ("all",)
+    crawl_behaviour = RootOnlyCrawler()
+    is_fix_compatible = True
+    lint_phase = "post"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.evaluations = 0
+
+    def _eval(self, context):
+        self.evaluations += 1
+
+
+class Rule_T902(Rule_T901):
+    """A post-phase rule which returns a fix that leaves the tree unchanged."""
+
+    def _eval(self, context):
+        self.evaluations += 1
+        anchor = context.segment.raw_segments[0]
+        return LintResult(anchor=anchor, fixes=[LintFix.replace(anchor, [anchor])])
+
+
+class Rule_T903(BaseRule):
+    """A main-phase rule which replaces the first "a" with "b"."""
+
+    groups = ("all",)
+    crawl_behaviour = RootOnlyCrawler()
+    is_fix_compatible = True
+
+    def _eval(self, context):
+        for seg in context.segment.raw_segments:
+            if seg.raw == "a":
+                return LintResult(
+                    anchor=seg, fixes=[LintFix.replace(seg, [seg.edit("b")])]
+                )
+
+
+def _lint_fix_with_rules(*rule_classes):
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    linter = Linter(config=config)
+    tree = linter.parse_string("SELECT a FROM b\n").tree
+    rules = [
+        rule_cls(code=rule_cls.__name__.removeprefix("Rule_"), description="Test rule.")
+        for rule_cls in rule_classes
+    ]
+    rule_pack = RulePack(rules=rules, reference_map={})
+    fixed_tree, _, _, timings = Linter.lint_fix_parsed(
+        tree, config, rule_pack, fix=True
+    )
+    return rules, tree, fixed_tree, timings
+
+
+def test__fix__post_phase_skipped_when_main_phase_clean():
+    """A post rule runs once on a clean file in fix mode."""
+    (rule,), tree, fixed_tree, timings = _lint_fix_with_rules(Rule_T901)
+    assert rule.evaluations == 1
+    assert fixed_tree is tree
+    assert len(timings) == 1
+
+
+def test__fix__post_phase_runs_when_final_main_loop_returned_fixes():
+    """Fixes returned but not applied in the last main loop keep the post phase."""
+    (rule,), tree, fixed_tree, _ = _lint_fix_with_rules(Rule_T902)
+    # Once in the main phase and once in the post phase.
+    assert rule.evaluations == 2
+    assert fixed_tree.raw == tree.raw
+
+
+def test__fix__post_phase_skipped_when_main_phase_settles_after_a_fix():
+    """The post phase is skipped when the main phase settles after a fix."""
+    (_, post_rule), _, fixed_tree, _ = _lint_fix_with_rules(Rule_T903, Rule_T901)
+    assert post_rule.evaluations == 2
+    assert fixed_tree.raw == "SELECT b FROM b\n"

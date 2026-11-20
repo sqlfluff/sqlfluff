@@ -266,8 +266,11 @@ def release(new_version_num):
 
     write_changelog.close()
 
-    click.echo("Updating plugins/sqlfluff-templater-dbt/pyproject.toml")
-    for filename in ["plugins/sqlfluff-templater-dbt/pyproject.toml"]:
+    for filename in [
+        "plugins/sqlfluff-templater-dbt/pyproject.toml",
+        "plugins/sqlfluff-templater-sqlmesh/pyproject.toml",
+    ]:
+        click.echo(f"Updating {filename}")
         # NOTE: Toml files are always encoded in UTF-8.
         input_file = open(filename, "r", encoding="utf-8").readlines()
         # Regardless of platform, write newlines as \n

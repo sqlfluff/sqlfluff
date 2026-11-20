@@ -400,9 +400,9 @@ class BaseRule(metaclass=RuleMetaclass):
     crawl_behaviour: BaseCrawler
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
-    # They run on two occasions:
-    # - On the first pass of the main phase
-    # - In a second linter pass after the main phase
+    # They run in the main phase like other rules, and in fix mode again in a
+    # post phase after it. The post phase is skipped when the final main loop
+    # returned no fixes.
     lint_phase = "main"
     # Groups attribute to be overwritten.
     groups: tuple[str, ...] = ()
@@ -490,15 +490,7 @@ class BaseRule(metaclass=RuleMetaclass):
     @staticmethod
     def _rust_rules_enabled(config: "FluffConfig") -> bool:
         """Whether Rust-native rule detection is enabled (core.use_rust_rules)."""
-        return config.get_section(["core", "use_rust_rules"]) in (
-            "auto",
-            "Auto",
-            "AUTO",
-            True,
-            "True",
-            "true",
-            1,
-        )
+        return config.rust_rules_enabled()
 
     def _eval_rust(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Optionally evaluate the whole rule natively in Rust.
@@ -1115,7 +1107,12 @@ class RuleSet:
             # AND codes) so that we preserve the most backward compatibility
             # with existing references to legacy codes in config files.
             else:
-                matched_refs = fnmatch.filter(reference_map.keys(), r)
+                r_lower = r.lower()
+                matched_refs = [
+                    k
+                    for k in reference_map.keys()
+                    if fnmatch.fnmatchcase(k.lower(), r_lower)
+                ]
                 for matched in matched_refs:
                     expanded_rule_set.update(reference_map[matched])
         return expanded_rule_set
@@ -1261,7 +1258,9 @@ class RuleSet:
             r
             for r in allowlist
             # Add valid groups to the register when searching for invalid rules _only_
-            if not fnmatch.filter(reference_map.keys(), r)
+            if not any(
+                fnmatch.fnmatchcase(k.lower(), r.lower()) for k in reference_map.keys()
+            )
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
@@ -1271,7 +1270,11 @@ class RuleSet:
             )
 
         denylisted_unknown_rule_codes = [
-            r for r in denylist if not fnmatch.filter(reference_map.keys(), r)
+            r
+            for r in denylist
+            if not any(
+                fnmatch.fnmatchcase(k.lower(), r.lower()) for k in reference_map.keys()
+            )
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(

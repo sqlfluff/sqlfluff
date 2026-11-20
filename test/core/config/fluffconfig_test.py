@@ -7,6 +7,7 @@ import pytest
 
 import sqlfluff
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     JinjaTemplater,
@@ -239,6 +240,35 @@ def test__config_missing_dialect():
     with pytest.raises(SQLFluffUserError) as e:
         FluffConfig.from_kwargs()
     assert "must configure a dialect" in str(e.value)
+
+
+def test__config__dialect_obj_shared():
+    """Configs with the same dialect share one expanded dialect object."""
+    ansi_a = FluffConfig(overrides={"dialect": "ansi"})
+    ansi_b = FluffConfig(overrides={"dialect": "ansi"})
+    postgres = FluffConfig(overrides={"dialect": "postgres"})
+    assert ansi_a.get("dialect_obj") is ansi_b.get("dialect_obj")
+    assert ansi_a.get("dialect_obj") is not postgres.get("dialect_obj")
+    assert ansi_a.get("dialect_obj").name == "ansi"
+    assert postgres.get("dialect_obj").name == "postgres"
+    # An inline dialect change switches to the other shared object.
+    ansi_a.process_inline_config("-- sqlfluff:dialect:postgres", "test.sql")
+    assert ansi_a.get("dialect_obj") is postgres.get("dialect_obj")
+    # Copies share it too.
+    assert ansi_b.copy().get("dialect_obj") is ansi_b.get("dialect_obj")
+    # The public `dialect_selector` still returns a fresh dialect each call.
+    assert dialect_selector("ansi") is not ansi_b.get("dialect_obj")
+
+
+@pytest.mark.parametrize(
+    "dialect,expected_error",
+    [("not_a_dialect", KeyError), ("spark3", SQLFluffUserError)],
+)
+def test__config__dialect_errors_not_cached(dialect, expected_error):
+    """Failures are not cached, so unknown and legacy dialects raise every time."""
+    for _ in range(2):
+        with pytest.raises(expected_error):
+            FluffConfig(overrides={"dialect": dialect})
 
 
 def test__config__validate_configs_indirect():

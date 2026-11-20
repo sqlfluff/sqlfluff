@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24246d19967abbaf8f3d13a9a26e338003476e9fbe7505a9ed735e1907e20e68
+_hash: 3f354fd7a3ed945e9d532ca4c2e89d7226681c3314867a1ee4427b7c28fa594c
 file:
 - statement:
     alter_function_statement:
@@ -13,7 +13,8 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: auser
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -33,7 +34,8 @@ file:
         - end_bracket: )
     - keyword: OWNER
     - keyword: TO
-    - parameter: auser
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -43,7 +45,8 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: auser
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -53,7 +56,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_ROLE
+    - keyword: CURRENT_ROLE
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -63,7 +66,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -73,19 +76,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: SESSION_USER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        naked_identifier: public
-        dot: .
-        function_name_identifier: fn
-    - keyword: OWNER
-    - keyword: TO
-    - parameter: auser
+    - keyword: SESSION_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -97,7 +88,8 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_USER
+    - role_reference:
+        naked_identifier: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -109,7 +101,7 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: CURRENT_ROLE
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -121,7 +113,19 @@ file:
         function_name_identifier: fn
     - keyword: OWNER
     - keyword: TO
-    - parameter: SESSION_USER
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: public
+        dot: .
+        function_name_identifier: fn
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1585,6 +1589,126 @@ file:
     - function_name:
         function_name_identifier: fn
     - alter_function_action_segment:
+      - keyword: RESET
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: STABLE
+      - keyword: SECURITY
+      - keyword: DEFINER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: IMMUTABLE
+      - keyword: STRICT
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: COST
+      - numeric_literal: '5'
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: SET
+      - parameter: search_path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: public
+      - comma: ','
+      - naked_identifier: pg_temp
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: SET
+      - parameter: search_path
+      - keyword: TO
+      - naked_identifier: pg_catalog
+      - comma: ','
+      - quoted_literal: "'public'"
+      - keyword: SET
+      - parameter: work_mem
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'64MB'"
+      - keyword: RESET
+      - parameter: statement_timeout
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+        keyword: SET
+        parameter: search_path
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_identifier: '"$user"'
+        comma: ','
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+        keyword: SET
+        parameter: enable_seqscan
+        comparison_operator:
+          raw_comparison_operator: '='
+        naked_identifier: 'on'
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: NOT
+      - keyword: LEAKPROOF
+      - keyword: CALLED
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
       - keyword: RESET
       - keyword: ALL
 - statement_terminator: ;

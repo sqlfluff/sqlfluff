@@ -194,6 +194,12 @@ class JinjaTemplater(PythonTemplater):
     """
 
     name = "jinja"
+    # Enable persistent warm worker pools. Each worker keeps its Linter and
+    # templater alive across files, so repeated Linter/templater construction
+    # and the per-pool config transfer are paid once per worker rather than
+    # once per file. Uses default protocol implementations from RawTemplater
+    # (no heavy init needed for Jinja).
+    supports_warm_workers = True
 
     class Libraries:
         """Mock namespace for user-defined Jinja library."""

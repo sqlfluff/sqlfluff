@@ -508,3 +508,28 @@ seg = WhitespaceSegment(
 def test_rules__lint_result_repr(lint_result, expected):
     """Test that repr(LintResult) works as expected."""
     assert repr(lint_result) == expected
+
+
+def test_ruleset_get_rulepack_case_insensitive(monkeypatch):
+    """Test get_rulepack with mixed-case allowlist and denylist references (#9005)."""
+    ruleset = get_ruleset()
+    reference_map = ruleset.rule_reference_map()
+    layout_codes = reference_map["layout"]
+    assert "LT01" in layout_codes
+    assert "LT02" in layout_codes
+
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "rules": "LAYOUT,cp01", "exclude_rules": "lt02"},
+    )
+    for normcase_fn in (lambda x: x, lambda x: x.lower()):
+        monkeypatch.setattr("os.path.normcase", normcase_fn)
+        with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
+            rule_pack = ruleset.get_rulepack(config)
+            codes = {r.code for r in rule_pack.rules}
+            warnings = [record.message for record in caplog.records]
+            assert not any("unknown rule references" in w for w in warnings), warnings
+            assert not any("unknown rules references" in w for w in warnings), warnings
+
+        assert "CP01" in codes
+        assert "LT02" not in codes
+        assert (layout_codes - {"LT02"}).issubset(codes)

@@ -142,6 +142,19 @@ bigquery_dialect.patch_lexer_matchers(
 )
 
 bigquery_dialect.add(
+    # resource_type resource_name in GRANT/REVOKE, e.g. `SCHEMA myProject.myDataset`.
+    # TableReferenceSegment (not ObjectReferenceSegment) so that dashed project IDs
+    # like my-project.mydataset.mytable are accepted, as they are elsewhere.
+    AccessResourceGrammar=Sequence(
+        OneOf(
+            "SCHEMA",
+            "TABLE",
+            "VIEW",
+            "PROJECT",
+            Sequence("EXTERNAL", "TABLE"),
+        ),
+        Ref("TableReferenceSegment"),
+    ),
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         LiteralSegment,
@@ -2247,6 +2260,41 @@ class GrantToSegment(BaseSegment):
     )
 
 
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement.
+
+    BigQuery's DCL grants IAM roles on a resource to a list of principals,
+    which is much narrower than the generic ANSI grammar.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+    """
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        Delimited(Ref("RoleReferenceSegment"), terminators=["ON"]),
+        "ON",
+        Ref("AccessResourceGrammar"),
+        "TO",
+        Delimited(Ref("QuotedLiteralSegment")),
+    )
+
+
+class RevokeStatementSegment(ansi.RevokeStatementSegment):
+    """A `REVOKE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+    """
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        Delimited(Ref("RoleReferenceSegment"), terminators=["ON"]),
+        "ON",
+        Ref("AccessResourceGrammar"),
+        "FROM",
+        Delimited(Ref("QuotedLiteralSegment")),
+    )
+
+
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
@@ -3896,7 +3944,28 @@ class PipeOperatorClauseSegment(BaseSegment):
             Ref("SamplingExpressionSegment"),
             Ref("PivotOperatorSegment"),
             Ref("UnpivotOperatorSegment"),
+            "DISTINCT",
+            Ref("PipeWithClauseSegment"),
         ),
+    )
+
+
+class PipeWithClauseSegment(BaseSegment):
+    """A `WITH` pipe operator, defining CTEs for the rest of the query.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax#with_pipe_operator
+    """
+
+    type = "pipe_with_clause"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        Indent,
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            allow_trailing=True,
+        ),
+        Dedent,
     )
 
 

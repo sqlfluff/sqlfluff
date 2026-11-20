@@ -253,3 +253,35 @@ test_fail_postgres_alter_type:
   configs:
     core:
       dialect: postgres
+
+test_pass_clickhouse_case_sensitive_types:
+  pass_str: |
+    CREATE TABLE t (
+        a String,
+        b UInt8,
+        c LowCardinality(String),
+        d Nullable(DateTime64(3))
+    ) ENGINE = MergeTree ORDER BY a;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_case_sensitive_types_upper_policy:
+  pass_str: |
+    CREATE TABLE t (a String, b UInt8) ENGINE = MergeTree ORDER BY a;
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_pass_clickhouse_case_sensitive_types_lower_policy:
+  pass_str: |
+    CREATE TABLE t (a String, b UInt8) ENGINE = MergeTree ORDER BY a;
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: lower

@@ -283,6 +283,36 @@ def test__cli__command_extra_config_fail():
     )
 
 
+def test__cli__command_invalid_ini_config(tmp_path, monkeypatch):
+    """A malformed INI config is reported cleanly, not as a traceback.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9067
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff\ndialect = ansi\n")
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=2,
+        args=[lint, ["in.sql"]],
+        assert_stdout_contains=(
+            "Error loading config: Failed to parse INI config file"
+        ),
+    )
+
+
+def test__cli__command_unknown_encoding(tmp_path, monkeypatch):
+    """An unknown ``--encoding`` is reported cleanly, not as a traceback."""
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    invoke_assert_code(
+        ret_code=2,
+        args=[lint, ["in.sql", "--dialect", "ansi", "--encoding", "not-a-codec"]],
+        assert_stdout_contains=("set an invalid value for `encoding`: 'not-a-codec'"),
+    )
+
+
 stdin_cli_input = (
     "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\nPOSITIONAL JOIN TABB AS B;\n"
 )
@@ -925,6 +955,46 @@ def test__cli__verbose_machine_output_stays_serialized():
     assert result.stderr
 
 
+@pytest.mark.parametrize(
+    "format", ["json", "yaml", "sarif", "gitlab", "github-annotation"]
+)
+def test__cli__lint_bench_keeps_machine_output_serialized(format):
+    """--bench must not append a timing table to a machine-readable payload.
+
+    The payload must still parse: an appended table would leave a valid document
+    followed by a second one, which every one of these formats would reject on
+    the consumer's side.
+    """
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                f"--format={format}",
+                "--bench",
+                "--disable-progress-bar",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert "==== overall timings ====" not in result.stdout
+    payload = (
+        yaml.safe_load(result.stdout) if format == "yaml" else json.loads(result.stdout)
+    )
+    assert payload, f"the {format} payload must carry the run's violations"
+
+
+def test__cli__lint_bench_keeps_human_output():
+    """--bench still reports timings when the output is meant for a person."""
+    result = invoke_assert_code(
+        args=[
+            lint,
+            ["--bench", "--disable-progress-bar", "test/fixtures/cli/passing_a.sql"],
+        ],
+    )
+    assert "==== overall timings ====" in result.stdout
+
+
 @pytest.mark.parametrize("command", [lint, fix, cli_format])
 def test__cli__quiet_suppresses_success_output(command):
     """The linting commands should be silent on success when quiet."""
@@ -1324,6 +1394,35 @@ def test__cli__command_lint_warning():
         "L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace"
         in result.stdout.strip()
     )
+
+
+@pytest.mark.parametrize(
+    "invalid_config_line",
+    [
+        "large_file_skip_byte_limit = abc\n",
+        "large_file_skip_char_limit = abc\n",
+        "large_file_skip_byte_limit = \n",
+        "large_file_skip_char_limit = \n",
+        "large_file_skip_byte_limit = 1e999\n",
+        "large_file_skip_char_limit = 1e999\n",
+    ],
+)
+def test__cli__command_invalid_large_file_skip_limit(
+    tmp_path, monkeypatch, invalid_config_line
+):
+    """Invalid large-file skip limits are reported as user errors, not tracebacks.
+
+    https://github.com/sqlfluff/sqlfluff/issues/9069
+    """
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n" + invalid_config_line
+    )
+    (tmp_path / "in.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(ret_code=2, args=[lint, ["in.sql"]])
+    assert "User Error:" in result.stderr
+    assert "must be an integer" in result.stderr
 
 
 def test__cli__command_lint_warning_name_rule():
@@ -2798,6 +2897,127 @@ def test__cli__command_lint_serialize_gitlab():
     ]
 
 
+@pytest.mark.parametrize(
+    "path_kind", ["omitted", "dot", "relative", "dot-relative", "absolute", "file"]
+)
+@pytest.mark.parametrize("write_output", [False, True])
+def test__cli__command_lint_gitlab_relative_paths(
+    tmp_path, monkeypatch, path_kind, write_output
+):
+    """GitLab paths and fingerprints do not depend on the input path form."""
+    models = tmp_path / "models"
+    models.mkdir()
+    sql_file = models / "query.sql"
+    sql_file.write_text("SELECT  1;\n", encoding="utf8")
+    monkeypatch.chdir(tmp_path)
+    paths = {
+        "omitted": (),
+        "dot": (".",),
+        "relative": ("models",),
+        "dot-relative": ("./models",),
+        "absolute": (str(models),),
+        "file": (str(sql_file),),
+    }
+    options = (
+        "--ignore-local-config",
+        "--dialect",
+        "ansi",
+        "--rules",
+        "LT01",
+        "--format",
+        "gitlab",
+        "--disable-progress-bar",
+    )
+    reference = invoke_assert_code(args=[lint, ("models", *options)], ret_code=1)
+    output_options = ("--write-output", "report.json") if write_output else ()
+    result = invoke_assert_code(
+        args=[lint, (*paths[path_kind], *options, *output_options)], ret_code=1
+    )
+    output = (
+        (tmp_path / "report.json").read_text(encoding="utf8")
+        if write_output
+        else result.stdout
+    )
+    report = json.loads(output)
+    assert len(report) == 1
+    assert report[0]["location"]["path"] == "models/query.sql"
+    assert report == json.loads(reference.stdout)
+
+
+@pytest.mark.parametrize("write_output", [False, True])
+def test__cli__command_lint_gitlab_cross_drive_path(
+    tmp_path, monkeypatch, write_output
+):
+    """An unrelativizable path does not prevent reporting it or other files."""
+    cross_drive_file = tmp_path / "cross-drive.sql"
+    cross_drive_file.write_text("SELECT  1;\n", encoding="utf8")
+    (tmp_path / "same-drive.sql").write_text("SELECT  2;\n", encoding="utf8")
+    monkeypatch.chdir(tmp_path)
+    original_relpath = os.path.relpath
+
+    def cross_drive_relpath(path, *args, **kwargs):
+        if os.fspath(path) == str(cross_drive_file):
+            raise ValueError("path is on a different mount")
+        return original_relpath(path, *args, **kwargs)
+
+    monkeypatch.setattr(os.path, "relpath", cross_drive_relpath)
+    output_options = ("--write-output", "report.json") if write_output else ()
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                str(tmp_path),
+                "--ignore-local-config",
+                "--dialect",
+                "ansi",
+                "--rules",
+                "LT01",
+                "--format",
+                "gitlab",
+                "--disable-progress-bar",
+                *output_options,
+            ),
+        ],
+        ret_code=1,
+    )
+    output = (
+        (tmp_path / "report.json").read_text(encoding="utf8")
+        if write_output
+        else result.stdout
+    )
+    report = json.loads(output)
+    assert [finding["location"]["path"] for finding in report] == [
+        str(cross_drive_file).replace("\\", "/"),
+        "same-drive.sql",
+    ]
+    assert all(finding["check_name"] == "LT01" for finding in report)
+
+
+def test__cli__command_lint_gitlab_preserves_json_paths(tmp_path, monkeypatch):
+    """Other output formats retain their existing absolute file paths."""
+    sql_file = tmp_path / "query.sql"
+    sql_file.write_text("SELECT  1;\n", encoding="utf8")
+    monkeypatch.chdir(tmp_path)
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                str(sql_file),
+                "--ignore-local-config",
+                "--dialect",
+                "ansi",
+                "--rules",
+                "LT01",
+                "--format",
+                "json",
+                "--disable-progress-bar",
+            ),
+        ],
+        ret_code=1,
+    )
+    assert json.loads(result.stdout)[0]["filepath"] == str(sql_file)
+
+
 def test__cli__command_lint_serialize_gitlab_parse_error():
     """Test gitlab Code Quality output for a failed parse."""
     fpath = "test/fixtures/linter/parse_error.sql"
@@ -3407,3 +3627,168 @@ def test__cli__command_fix_large_file_skip_fail(tmpdir):
         ret_code=1,
         args=[fix, ["--config", config_path, sql_path]],
     )
+
+
+def test__cli__command_render_large_file_skip(tmpdir):
+    """Test that `render` reports a byte-limit skip without a traceback.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write("[sqlfluff]\ndialect = ansi\nlarge_file_skip_byte_limit = 5\n")
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[render, ["--config", config_path, sql_path]],
+    )
+    # The skip should be reported rather than raising `SQLFluffSkipFile`.
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_large_file_skip_fail(tmpdir):
+    """Test that `render` returns exit code 1 when large_file_skip_fail is set.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    # Create a SQL file larger than the byte limit.
+    sql_path = str(tmpdir / "big.sql")
+    with open(sql_path, "w") as f:
+        f.write("SELECT 1;\n")
+
+    # Write a config file that sets the byte limit very low and
+    # enables large_file_skip_fail.
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_byte_limit = 5\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["--config", config_path, sql_path]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip(tmpdir):
+    """Test that `render` reports a char-limit skip without an IndexError.
+
+    The templater skips the file (rendering no variants) instead of raising,
+    which used to crash on `rendered.templated_variants[0]`.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write("[sqlfluff]\ndialect = ansi\nlarge_file_skip_char_limit = 10\n")
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[render, ["--config", config_path, "-"]],
+        cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
+    )
+    # The skip should be reported rather than raising IndexError.
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail(tmpdir):
+    """Test that a char-limit skip exits 1 when large_file_skip_fail is set.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    config_path = str(tmpdir / "extra.cfg")
+    with open(config_path, "w") as f:
+        f.write(
+            "[sqlfluff]\n"
+            "dialect = ansi\n"
+            "large_file_skip_char_limit = 10\n"
+            "large_file_skip_fail = True\n"
+        )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["--config", config_path, "-"]],
+        cli_input="SELECT 1 FROM tbl_with_a_long_name\n",
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail_file_config(tmp_path, monkeypatch):
+    """A file-level `large_file_skip_fail` also fails char-limit skips.
+
+    The char-limit check uses the per-file config, so the exit-code check must
+    read `large_file_skip_fail` from that same config rather than the root one.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff]\nlarge_file_skip_char_limit = 10\nlarge_file_skip_fail = True\n"
+    )
+    (subdir / "query.sql").write_text("SELECT 1 FROM tbl_with_a_long_name\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["sub/query.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_byte_limit_skip_fail_file_config(tmp_path, monkeypatch):
+    """A file-level `large_file_skip_fail` also fails byte-limit skips.
+
+    The byte-limit check also uses the per-file config (nested `.sqlfluff`), so
+    the exit-code check must read `large_file_skip_fail` from that config too.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    subdir = tmp_path / "sub"
+    subdir.mkdir()
+    (subdir / ".sqlfluff").write_text(
+        "[sqlfluff]\nlarge_file_skip_byte_limit = 5\nlarge_file_skip_fail = True\n"
+    )
+    (subdir / "big.sql").write_text("SELECT 1;\n")
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["sub/big.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
+
+
+def test__cli__command_render_char_limit_skip_fail_inline_config(tmp_path, monkeypatch):
+    """An inline `large_file_skip_fail` also fails char-limit skips.
+
+    Inline config directives are applied to the per-file config before
+    templating, so the exit-code check must read the per-file config.
+
+    https://github.com/sqlfluff/sqlfluff/issues/8979
+    """
+    (tmp_path / ".sqlfluff").write_text("[sqlfluff]\ndialect = ansi\n")
+    (tmp_path / "query.sql").write_text(
+        "-- sqlfluff:large_file_skip_char_limit:10\n"
+        "-- sqlfluff:large_file_skip_fail:True\n"
+        "SELECT 1 FROM tbl_with_a_long_name\n"
+    )
+    monkeypatch.chdir(tmp_path)
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[render, ["query.sql"]],
+    )
+    assert "Skipping to avoid parser lock" in result.output
