@@ -6326,6 +6326,21 @@ class ConflictActionSegment(BaseSegment):
         "DO",
         OneOf(
             "NOTHING",
+            # `DO SELECT` is PostgreSQL 19+.
+            Sequence(
+                "SELECT",
+                Sequence(
+                    "FOR",
+                    OneOf(
+                        "UPDATE",
+                        Sequence("NO", "KEY", "UPDATE"),
+                        "SHARE",
+                        Sequence("KEY", "SHARE"),
+                    ),
+                    optional=True,
+                ),
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+            ),
             Sequence(
                 "UPDATE",
                 Indent,

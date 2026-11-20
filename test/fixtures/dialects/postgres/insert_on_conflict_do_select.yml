@@ -1,0 +1,285 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 68b33801c5278f990763b9c5ac54fd6fe5b7015835428f7a00575e6e73f8b484
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '11'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Global Electronics'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: did
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: SELECT
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: d
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '12'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Micro Devices Inc'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: did
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: SELECT
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: d
+          - dot: .
+          - naked_identifier: dname
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: EXCLUDED
+          - dot: .
+          - naked_identifier: dname
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '13'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Advanced Systems'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: did
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: SELECT
+      - keyword: FOR
+      - keyword: UPDATE
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '14'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Example Parts'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: did
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: SELECT
+      - keyword: FOR
+      - keyword: 'NO'
+      - keyword: KEY
+      - keyword: UPDATE
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: did
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '15'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Sample Supply'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: did
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: SELECT
+      - keyword: FOR
+      - keyword: SHARE
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: did
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: d
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '16'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Test Traders'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+      - keyword: 'ON'
+      - keyword: CONSTRAINT
+      - parameter: distributors_pkey
+    - conflict_action:
+      - keyword: DO
+      - keyword: SELECT
+      - keyword: FOR
+      - keyword: KEY
+      - keyword: SHARE
+      - keyword: WHERE
+      - expression:
+          column_reference:
+          - naked_identifier: d
+          - dot: .
+          - naked_identifier: active
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+        - naked_identifier: d
+        - dot: .
+        - naked_identifier: did
+    - comma: ','
+    - expression:
+        column_reference:
+        - naked_identifier: d
+        - dot: .
+        - naked_identifier: dname
+- statement_terminator: ;
