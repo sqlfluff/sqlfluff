@@ -3,7 +3,7 @@
 ## Public Parquet integration
 
 On Linux x86-64 and Python 3.12, built the public producer at
-[`852d30797a7`](https://github.com/dataders/dbt-core/commit/852d30797a7)
+[`e7813a27b1d`](https://github.com/dataders/dbt-core/commit/e7813a27b1d)
 as an ABI3 wheel and installed it into the consumer test environment.
 
 - All 130 plugin tests passed, including five live producer integrations.

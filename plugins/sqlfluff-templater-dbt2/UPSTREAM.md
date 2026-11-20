@@ -8,7 +8,7 @@ implemented in dbt; this repository implements the consumer.
 
 Use the [producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
 to dbt-labs/dbt#16870. The validated Parquet producer revision is
-[`852d30797a7`](https://github.com/dataders/dbt-core/commit/852d30797a7).
+[`e7813a27b1d`](https://github.com/dataders/dbt-core/commit/e7813a27b1d).
 It publishes protocol-v2 rows, including ingestion timestamps, to
 `target/info_schema/v1/dbt.render_traces.parquet`.
 A stock released dbt build does not provide this experimental API.
@@ -23,7 +23,7 @@ Then build the public producer and install its wheel into the SQLFluff environme
 ```sh
 git clone --branch codex/render-trace-columnar-dbt https://github.com/dataders/dbt-core.git
 cd dbt-core
-git checkout 852d30797a7
+git checkout e7813a27b1d
 uvx maturin build --manifest-path crates/dbt-sa-python/Cargo.toml --out dist
 uv pip install --python /path/to/sqlfluff/.venv/bin/python dist/dbt_core-<version>-<platform>.whl
 ```
@@ -50,7 +50,7 @@ The consumer invokes:
 dbt compile --select path:models/example.sql --generate-info-schema --feature write_render_trace
 ```
 
-The [producer's design notes](https://github.com/dataders/dbt-core/blob/852d30797a7/docs/architecture/render-trace.md)
+The [producer's design notes](https://github.com/dataders/dbt-core/blob/e7813a27b1d/docs/architecture/render-trace.md)
 and the [Parquet compatibility contract](README.md#parquet-producer-compatibility)
 describe the format. `--generate-info-schema` is required to publish the public table. SQLFluff depends on:
 

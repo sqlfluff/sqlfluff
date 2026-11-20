@@ -210,8 +210,8 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
             "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% continue %}{% endif %}{% endfor %}SELECT 9\n",
         ),
         "broken": (
-            "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}select 9\n",
-            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}SELECT 9\n",
+            "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0;{% endfor %}select 9\n",
+            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% break %}{% endif %}{% else %}SELECT 0;{% endfor %}SELECT 9\n",
         ),
         "returned": (
             "select 0 {{ return('select 1') }}\n",
