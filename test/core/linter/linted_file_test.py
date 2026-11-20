@@ -7,9 +7,61 @@ import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.linter.patch import FixPatch
-from sqlfluff.core.templaters import RawFileSlice
+from sqlfluff.core.parser import CodeSegment, PositionMarker
+from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
+
+
+@pytest.mark.parametrize(
+    "source,offset,edits,limit,fits",
+    [
+        ("abc", 0, [(1, 1, "\n")], 2, True),
+        (
+            "old\nABCD\nnext",
+            4,
+            [(0, 1, "O"), (6, 6, "\n"), (10, 11, "E")],
+            2,
+            True,
+        ),
+        (
+            "old\nABCD\nnext",
+            4,
+            [(0, 4, "old\n"), (6, 6, "\n"), (8, 9, "\n ")],
+            2,
+            True,
+        ),
+        ("old\nABCD\nnext", 4, [(3, 4, ""), (6, 6, "\n")], 2, False),
+        ("old\nABCD\nnext", 4, [(6, 6, "\n"), (8, 9, "")], 2, False),
+        ("a\nABCDEFGHIJ\nk", 2, [(2, 7, "abcd"), (5, 5, "\n")], 6, False),
+    ],
+    ids=[
+        "no-final-newline",
+        "edits-on-other-lines",
+        "preserved-newline-boundaries",
+        "joined-to-previous-line",
+        "joined-to-next-line",
+        "overlapping-insertion",
+    ],
+)
+def test__linted_file__fixed_source_line_fits(source, offset, edits, limit, fits):
+    """Keep the warning when a patch cannot resolve the line in isolation."""
+    marker = PositionMarker.from_point(
+        offset, offset, TemplatedFile.from_string(source)
+    )
+    rule = Linter(dialect="ansi", rules=["LT05"]).get_rulepack().rules[0]
+    violation = SQLLintError(
+        "Line is too long.",
+        segment=CodeSegment(raw=source[offset], pos_marker=marker),
+        rule=rule,
+        defer_to_fix=True,
+    )
+    patches = [
+        FixPatch(slice(start, stop), replacement, "", slice(start, stop), "", "")
+        for start, stop, replacement in edits
+    ]
+    assert LintedFile._fixed_source_line_fits(violation, patches, limit) is fits
 
 
 @pytest.mark.parametrize(
