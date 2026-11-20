@@ -462,9 +462,18 @@ def test__templater_custom_regex():
     assert str(outstr) == "SELECT bla FROM blob WHERE id = john"
 
 
-def test__templater_setup():
+@pytest.mark.parametrize(
+    "context",
+    [
+        {},
+        {"param_style": None},
+        {"param_regex": None},
+        {"param_style": None, "param_regex": None},
+    ],
+)
+def test__templater_setup(context):
     """Test the exception raised when config is incomplete or ambiguous."""
-    t = PlaceholderTemplater(override_context=dict(name="'john'"))
+    t = PlaceholderTemplater(override_context={"name": "'john'", **context})
     with pytest.raises(
         ValueError,
         match=(
@@ -483,8 +492,49 @@ def test__templater_setup():
         t.process(in_str="SELECT 2+2", fname="test")
 
 
-def test__templater_styles():
+@pytest.mark.parametrize("param_style", ["pperccent", ""])
+def test__templater_styles(param_style):
     """Test the exception raised when parameter style is unknown."""
-    t = PlaceholderTemplater(override_context=dict(param_style="pperccent"))
+    t = PlaceholderTemplater(override_context=dict(param_style=param_style))
     with pytest.raises(ValueError, match=r"Unknown param_style"):
         t.process(in_str="SELECT 2+2", fname="test")
+
+
+@pytest.mark.parametrize(
+    "parent_settings,child_settings,sql",
+    [
+        (
+            "param_style = colon_optional_quotes",
+            "param_style = None\nparam_regex = __(?P<param_name>[\\w_]+)__",
+            "SELECT __my_name__",
+        ),
+        (
+            "param_regex = __(?P<param_name>[\\w_]+)__",
+            "param_regex = None\nparam_style = colon_optional_quotes",
+            "SELECT :my_name",
+        ),
+    ],
+)
+def test__templater_clear_inherited_style(
+    tmp_path, monkeypatch, parent_settings, child_settings, sql
+):
+    """A nested config can clear a placeholder style or regex with None (#6691)."""
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\ntemplater = placeholder\n"
+        "[sqlfluff:templater:placeholder]\nmy_name = 'john'\n"
+        f"{parent_settings}\n",
+        encoding="utf-8",
+    )
+    nested_path = tmp_path / "nested"
+    nested_path.mkdir()
+    (nested_path / ".sqlfluff").write_text(
+        f"[sqlfluff:templater:placeholder]\n{child_settings}\n",
+        encoding="utf-8",
+    )
+    config = FluffConfig.from_path(str(nested_path))
+    outstr, violations = PlaceholderTemplater().process(
+        in_str=sql, fname=str(nested_path / "query.sql"), config=config
+    )
+    assert str(outstr) == "SELECT 'john'"
+    assert not violations

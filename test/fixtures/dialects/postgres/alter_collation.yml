@@ -1,0 +1,85 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2bc110f5f7d501850eb1953fd021b53d8344922815938037f604141e8af47572
+file:
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        naked_identifier: german
+    - keyword: REFRESH
+    - keyword: VERSION
+- statement_terminator: ;
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        naked_identifier: german
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        quoted_identifier: '"de-DE"'
+- statement_terminator: ;
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        quoted_identifier: '"de-DE"'
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        naked_identifier: public
+        dot: .
+        quoted_identifier: '"de-DE"'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        quoted_identifier: '"de-DE"'
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: utils
+- statement_terminator: ;
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        naked_identifier: utils
+        dot: .
+        quoted_identifier: '"de-DE"'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_collation_statement:
+    - keyword: ALTER
+    - keyword: COLLATION
+    - object_reference:
+        naked_identifier: utils
+        dot: .
+        quoted_identifier: '"de-DE"'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac31a4047b4c864b050f1ea4f6a753f033b88e8289387e9b5bf171b44d3cebe5
+_hash: b6d879c98645e8b5f63e7a0ad7b5cf0c0afdf78b916ee9ddd8f0ed5056b1a82b
 file:
 - statement:
     create_collation_statement:
@@ -11,18 +11,21 @@ file:
     - keyword: COLLATION
     - object_reference:
         naked_identifier: numeric
-    - bracketed:
-      - start_bracket: (
-      - keyword: provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: icu
-      - comma: ','
-      - keyword: locale
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'en@colNumeric=yes'"
-      - end_bracket: )
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+          - properties_naked_identifier: provider
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: icu
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: locale
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'en@colNumeric=yes'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_collation_statement:
@@ -30,13 +33,15 @@ file:
     - keyword: COLLATION
     - object_reference:
         naked_identifier: french
-    - bracketed:
-        start_bracket: (
-        keyword: locale
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'fr_FR.utf8'"
-        end_bracket: )
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: locale
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'fr_FR.utf8'"
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_collation_statement:
@@ -44,18 +49,21 @@ file:
     - keyword: COLLATION
     - object_reference:
         naked_identifier: german_phonebook
-    - bracketed:
-      - start_bracket: (
-      - keyword: provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: icu
-      - comma: ','
-      - keyword: locale
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'de-u-co-phonebk'"
-      - end_bracket: )
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+          - properties_naked_identifier: provider
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: icu
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: locale
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'de-u-co-phonebk'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_collation_statement:
@@ -73,21 +81,25 @@ file:
     - keyword: COLLATION
     - object_reference:
         naked_identifier: c
-    - bracketed:
-      - start_bracket: (
-      - keyword: provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: icu
-      - comma: ','
-      - keyword: locale
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'und'"
-      - comma: ','
-      - keyword: deterministic
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: 'off'
-      - end_bracket: )
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+          - properties_naked_identifier: provider
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: icu
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: locale
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'und'"
+        - comma: ','
+        - definition_parameter:
+          - properties_naked_identifier: deterministic
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: 'off'
+        - end_bracket: )
 - statement_terminator: ;

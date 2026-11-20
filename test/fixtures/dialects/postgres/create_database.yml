@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f625fa5b58ec4101bdb744d9124478aa51aac49435bf793ab5049a209c6f882
+_hash: e6cc1ce12f13a1683427da8228b8eaa0c6d83732be21c4ccceff1332e51a3042
 file:
 - statement:
     create_database_statement:
@@ -529,4 +529,122 @@ file:
     - keyword: OWNER
     - object_reference:
         naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: STRATEGY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: file_copy
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: STRATEGY
+    - naked_identifier: wal_log
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: LOCALE_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: icu
+    - keyword: ICU_LOCALE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-US'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: TEMPLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: template0
+    - keyword: LOCALE_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: builtin
+    - keyword: BUILTIN_LOCALE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'C.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: ICU_RULES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'&a < b'"
+    - keyword: COLLATION_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'153.14'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: STRATEGY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: wal_log
+    - keyword: OID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '16384'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: ENCODING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: UTF8
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: ENCODING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '6'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: app
+    - keyword: LOCALE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: C
 - statement_terminator: ;

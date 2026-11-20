@@ -1,0 +1,115 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b64a757df6c5a87ca89188c0dbab591af29ce4870a77c2f0de6b46424e74106c
+file:
+- statement:
+    drop_operator_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - operator_name:
+      - operator: ^
+      - operator: ^
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: text
+      - comma: ','
+      - data_type:
+          keyword: text
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_operator_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: IF
+    - keyword: EXISTS
+    - operator_name:
+      - naked_identifier: bob
+      - dot: .
+      - operator: '!'
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_operator_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: IF
+    - keyword: EXISTS
+    - operator_name:
+        operator: ~~~
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: character
+        - keyword: varying
+      - comma: ','
+      - data_type:
+          keyword: text
+          array_type_suffix:
+            start_square_bracket: '['
+            end_square_bracket: ']'
+      - end_bracket: )
+    - comma: ','
+    - operator_name:
+        operator: '!!'
+    - bracketed:
+        start_bracket: (
+        keyword: NONE
+        comma: ','
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_operator_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - operator_name:
+        naked_identifier: public
+        dot: .
+        operator: <<->
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: double
+        - keyword: precision
+      - comma: ','
+      - data_type:
+        - keyword: double
+        - keyword: precision
+      - end_bracket: )
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_operator_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: IF
+    - keyword: EXISTS
+    - operator_name:
+      - operator: '='
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+- statement_terminator: ;

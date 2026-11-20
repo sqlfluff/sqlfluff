@@ -10,6 +10,10 @@ from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 class Rule_CP05(Rule_CP01):
     """Inconsistent capitalisation of datatypes.
 
+    .. note::
+       This rule is disabled for ClickHouse because its data type names are
+       case-sensitive.
+
     **Anti-pattern**
 
     In this example, ``int`` and ``unsigned`` are in lower-case whereas
@@ -69,6 +73,8 @@ class Rule_CP05(Rule_CP01):
         for what the possible case is.
 
         """
+        if context.dialect.name == "clickhouse":
+            return []
         results = []
         # For some of these segments we want to run the code on
         if context.segment.is_type(

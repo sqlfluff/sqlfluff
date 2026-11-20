@@ -1,0 +1,42 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 767ada73685bf4002d0a4b68f5d680d626bf2d1683496a689519841e3749a184
+file:
+- statement:
+    create_operator_family_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam2
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+- statement_terminator: ;
+- statement:
+    create_operator_family_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: custom_fam
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: hash
+- statement_terminator: ;
+- statement:
+    create_operator_family_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: my_op_fam
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: gist
+- statement_terminator: ;
