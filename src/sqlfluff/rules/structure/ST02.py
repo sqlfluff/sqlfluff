@@ -209,18 +209,27 @@ class Rule_ST02(BaseRule):
                 if child.is_type("expression"):
                     return None
 
-            # Can't fix if multiple WHEN clauses.
-            if len(when_clauses) > 1:
+            # Can't fix if not exactly one WHEN clause.
+            if len(when_clauses) != 1:
                 return None
 
             # Find condition and then expressions.
-            condition_expression = when_clauses.children(sp.is_type("expression"))[0]
-            then_expression = when_clauses.children(sp.is_type("expression"))[1]
+            when_expressions = when_clauses.children(sp.is_type("expression"))
+            if len(when_expressions) < 2:
+                return None
+            condition_expression = when_expressions[0]
+            then_expression = when_expressions[1]
+
+            else_expression: Optional[BaseSegment] = None
+            if else_clauses:
+                else_expressions = else_clauses.children(sp.is_type("expression"))
+                if not else_expressions:
+                    return None
+                else_expression = else_expressions[0]
 
             # Method 1: Check if THEN/ELSE expressions are both Boolean and can
             # therefore be reduced.
-            if else_clauses:
-                else_expression = else_clauses.children(sp.is_type("expression"))[0]
+            if else_expression:
                 upper_bools = ["TRUE", "FALSE"]
                 if (
                     (then_expression.raw_upper in upper_bools)
@@ -320,8 +329,7 @@ class Rule_ST02(BaseRule):
                     for segment in condition_operand_segments
                 )
 
-                if else_clauses:
-                    else_expression = else_clauses.children(sp.is_type("expression"))[0]
+                if else_expression:
                     # Check if we can reduce the CASE expression to a single coalesce
                     # function.
                     if (
