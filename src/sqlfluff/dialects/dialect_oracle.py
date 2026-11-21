@@ -3692,7 +3692,10 @@ class IfExpressionStatement(BaseSegment):
     match_grammar = Sequence(
         Ref("IfClauseSegment"),
         Indent,
-        Ref("OneOrMoreStatementsGrammar"),
+        Ref(
+            "OneOrMoreStatementsGrammar",
+            terminators=[Ref.keyword("ELSIF"), Ref.keyword("ELSE"), Ref.keyword("END")],
+        ),
         Dedent,
         AnyNumberOf(
             Sequence(
@@ -3707,14 +3710,24 @@ class IfExpressionStatement(BaseSegment):
                 ),
                 "THEN",
                 Indent,
-                Ref("OneOrMoreStatementsGrammar"),
+                Ref(
+                    "OneOrMoreStatementsGrammar",
+                    terminators=[
+                        Ref.keyword("ELSIF"),
+                        Ref.keyword("ELSE"),
+                        Ref.keyword("END"),
+                    ],
+                ),
                 Dedent,
             ),
         ),
         Sequence(
             "ELSE",
             Indent,
-            Ref("OneOrMoreStatementsGrammar"),
+            Ref(
+                "OneOrMoreStatementsGrammar",
+                terminators=[Ref.keyword("END")],
+            ),
             Dedent,
             optional=True,
         ),

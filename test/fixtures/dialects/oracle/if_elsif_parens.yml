@@ -1,0 +1,160 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ed8d35024905f0eab16d992a1198cdba8b32f281ebd811f441cc7175bec2c16e
+file:
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: invcolor
+      - function_parameter_list:
+          bracketed:
+          - start_bracket: (
+          - parameter: p_is_available
+          - keyword: IN
+          - data_type:
+              data_type_identifier: VARCHAR2
+          - comma: ','
+          - parameter: p_inventory_in_stock
+          - keyword: IN
+          - data_type:
+              data_type_identifier: NUMBER
+          - end_bracket: )
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: VARCHAR2
+      - keyword: IS
+      - begin_end_block:
+        - declare_segment:
+            naked_identifier: color
+            data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '6'
+                  end_bracket: )
+            statement_terminator: ;
+        - keyword: BEGIN
+        - statement:
+            if_then_statement:
+            - if_clause:
+              - keyword: IF
+              - expression:
+                  column_reference:
+                    naked_identifier: p_is_available
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'Y'"
+              - keyword: THEN
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: color
+                  assignment_operator: :=
+                  expression:
+                    quoted_literal: "'purple'"
+            - statement_terminator: ;
+            - keyword: ELSIF
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: p_inventory_in_stock
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '0'
+                  end_bracket: )
+            - keyword: THEN
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: color
+                  assignment_operator: :=
+                  expression:
+                    quoted_literal: "'green'"
+            - statement_terminator: ;
+            - keyword: ELSE
+            - statement:
+                assignment_segment_statement:
+                  object_reference:
+                    naked_identifier: color
+                  assignment_operator: :=
+                  expression:
+                    quoted_literal: "'gray'"
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - statement:
+            return_statement:
+              keyword: RETURN
+              expression:
+                column_reference:
+                  naked_identifier: color
+        - statement_terminator: ;
+        - keyword: END
+        - object_reference:
+            naked_identifier: invcolor
+      - statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
+- batch:
+    statement:
+      if_then_statement:
+      - if_clause:
+        - keyword: IF
+        - expression:
+            column_reference:
+              naked_identifier: p_is_available
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Y'"
+        - keyword: THEN
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: color
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'purple'"
+      - statement_terminator: ;
+      - keyword: ELSIF
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: p_inventory_in_stock
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - keyword: THEN
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: color
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'green'"
+      - statement_terminator: ;
+      - keyword: ELSE
+      - statement:
+          assignment_segment_statement:
+            object_reference:
+              naked_identifier: color
+            assignment_operator: :=
+            expression:
+              quoted_literal: "'gray'"
+      - statement_terminator: ;
+      - keyword: END
+      - keyword: IF
+    statement_terminator: ;
+    slash_buffer_executor:
+      slash: /
