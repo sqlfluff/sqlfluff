@@ -557,6 +557,22 @@ def _check_references(
         yield lint_res
 
 
+def _qualifier_raw(source: RawSegment, table_ref_str: str) -> str:
+    """Return raw text for a qualifier, matching the table's quoting.
+
+    For a multipart identifier (e.g. BigQuery ``project.dataset.table``), the
+    qualifier is only the table component, not the whole path. Rebuild it with
+    the source's quote characters so it still parses as an identifier.
+    """
+    raw = source.raw
+    if raw == table_ref_str:
+        return raw
+    for start, end in (("`", "`"), ('"', '"'), ("[", "]")):
+        if raw.startswith(start) and raw.endswith(end):
+            return f"{start}{table_ref_str}{end}"
+    return table_ref_str
+
+
 def _validate_one_reference(
     single_table_references: str,
     ref: ObjectReferenceSegment,
@@ -666,8 +682,13 @@ def _validate_one_reference(
         # practice; mypy only sees the wider Optional[BaseSegment] type.
         table_source = cast(RawSegment, table_ref_str_source)
         table_identifier = IdentifierSegment(
-            raw=table_source.raw,
+            raw=_qualifier_raw(table_source, table_ref_str),
             instance_types=table_source.instance_types,
+            trim_start=table_source.trim_start,
+            trim_chars=table_source.trim_chars,
+            quoted_value=table_source.quoted_value,
+            escape_replacements=table_source.escape_replacements,
+            casefold=table_source.casefold,
         )
         fixes = [
             LintFix.create_before(
