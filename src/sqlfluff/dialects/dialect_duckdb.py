@@ -523,6 +523,52 @@ class ColumnIndexSegment(BaseSegment):
     )
 
 
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """A `LIMIT` clause, including DuckDB's percentage limit.
+
+    https://duckdb.org/docs/stable/sql/query_syntax/limit
+    """
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            # A percentage of the rows: `LIMIT 10%` / `LIMIT 10 PERCENT`
+            Ref("SamplePercentageGrammar"),
+            OptionallyBracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref(
+                        "ExpressionSegment",
+                        # Don't let `12.5 % OFFSET 5` parse as a modulo expression.
+                        exclude=Sequence(
+                            Ref("NumericLiteralSegment"),
+                            Ref("ModuloSegment"),
+                            "OFFSET",
+                        ),
+                    ),
+                    "ALL",
+                )
+            ),
+        ),
+        OneOf(
+            Sequence(
+                "OFFSET",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Dedent,
+    )
+
+
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
