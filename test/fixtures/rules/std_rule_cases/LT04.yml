@@ -424,3 +424,38 @@ leading_comma_align_following_fail:
       type:
         comma:
           line_position: "leading:align-following"
+
+leading_comma_in_jinja_loop_unfixable:
+  # The comma is in the body of a loop, so moving it changes every iteration.
+  # That's right for the second iteration, where it would follow `b`, but the
+  # first iteration's comma follows `a`, outside the loop. Moving it would give
+  # `SELECT a b, c,`, so it's left alone.
+  fail_str: |
+    SELECT
+        a
+        {% for c in ['b', 'c'] %}
+        , {{ c }}
+        {% endfor %}
+    FROM t
+
+leading_comma_in_jinja_loop_same_in_every_iteration:
+  # Here every iteration moves the comma after `{{ c }}_1` the same way, so
+  # the fix is still applied.
+  fail_str: |
+    SELECT
+        a,
+        {% for c in ['b', 'c'] %}
+        {{ c }}_1
+        , {{ c }}_2,
+        {% endfor %}
+        d
+    FROM t
+  fix_str: |
+    SELECT
+        a,
+        {% for c in ['b', 'c'] %}
+        {{ c }}_1,
+        {{ c }}_2,
+        {% endfor %}
+        d
+    FROM t
