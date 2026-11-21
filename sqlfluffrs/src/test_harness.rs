@@ -1,3 +1,4 @@
+
 use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
@@ -76,8 +77,19 @@ impl FixtureTest {
             }
         };
 
-        // Parse with Rust parser
-        let dialect = Dialect::from_str(self.dialect.as_str()).expect("Invalid dialect");
+        // Parse with Rust parser, returning a test failure for invalid dialects.
+        let dialect = match Dialect::from_str(self.dialect.as_str()) {
+            Ok(dialect) => dialect,
+            Err(e) => {
+                return TestResult {
+                    test: self.clone(),
+                    success: false,
+                    error: Some(format!("Invalid dialect '{}': {}", self.dialect, e)),
+                    generated_yaml: None,
+                    expected_yaml: None,
+                };
+            }
+        };
 
         let input = LexInput::String(sql_content.clone());
         let lexer = Lexer::for_dialect(dialect);
@@ -135,7 +147,7 @@ impl FixtureTest {
         // Read expected YAML if it exists
         let expected_yaml = fs::read_to_string(&self.yml_path).ok();
 
-        // Compare (simple string comparison for now)
+        // Compare generated and expected YAML while ignoring hashes and comments.
         let success = if let Some(ref expected) = expected_yaml {
             compare_yaml(&generated_yaml, expected)
         } else {
@@ -153,7 +165,7 @@ impl FixtureTest {
 }
 
 /// Convert a Node to YAML using the canonical `as_record` serialization path,
-/// which mirrors Python's `BaseSegment.as_record()`.  Used by `FixtureTest::run`.
+/// which mirrors Python's `BaseSegment.as_record()`. Used by `FixtureTest::run`.
 fn node_to_yaml_via_as_record(node: &Node) -> Result<String, Box<dyn std::error::Error>> {
     let mut root_map = Mapping::new();
     root_map.insert(
@@ -173,7 +185,7 @@ fn node_to_yaml_via_as_record(node: &Node) -> Result<String, Box<dyn std::error:
     let header = "# YML test files are auto-generated from SQL files and should not be edited by\n\
                   # hand. To help enforce this, the \"hash\" field in the file must match a hash\n\
                   # computed by SQLFluff when running the tests. Please run\n\
-                  # `python test/generate_parse_fixture_yml.py`  to generate them after adding or\n\
+                  # `python test/generate_parse_fixture_yml.py` to generate them after adding or\n\
                   # altering SQL files.\n";
 
     let yaml_str = serde_yaml_ng::to_string(&Value::Mapping(root_map))?;
@@ -182,13 +194,11 @@ fn node_to_yaml_via_as_record(node: &Node) -> Result<String, Box<dyn std::error:
 
 /// Compare two YAML strings (ignoring hash and comments)
 fn compare_yaml(generated: &str, expected: &str) -> bool {
-    // Parse both as YAML
     let gen_yaml: Result<Value, _> = serde_yaml_ng::from_str(generated);
     let exp_yaml: Result<Value, _> = serde_yaml_ng::from_str(expected);
 
     match (gen_yaml, exp_yaml) {
         (Ok(gen), Ok(exp)) => {
-            // Remove _hash fields for comparison by creating new mappings
             let gen_clean = if let Value::Mapping(gen_map) = gen {
                 let mut clean = gen_map.clone();
                 clean.remove(Value::String("_hash".to_string()));
@@ -216,6 +226,38 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_invalid_dialect_returns_error() {
+        let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .unwrap()
+            .join("test/fixtures");
+
+        let sql_path = fixtures_root
+            .join("dialects")
+            .join("ansi")
+            .join("create_table_a_c1_c2.sql");
+
+        let test = FixtureTest {
+            dialect: "invalid_dialect".to_string(),
+            name: "invalid_dialect_test".to_string(),
+            sql_path,
+            yml_path: PathBuf::new(),
+        };
+
+        let result = test.run();
+
+        assert!(!result.success);
+        assert!(result.generated_yaml.is_none());
+        assert!(
+            result
+                .error
+                .as_deref()
+                .unwrap()
+                .starts_with("Invalid dialect 'invalid_dialect':")
+        );
+    }
+
+    #[test]
     fn dialect_specific_brackets_pair_only_when_supplied() {
         // Snowflake's `{-`/`-}` brackets are absent from the lexer's default
         // set, so a dialect's own bracket set must be supplied or they're
@@ -229,7 +271,6 @@ mod tests {
                 .unwrap_or_else(|| panic!("no {raw:?} token"))
         };
 
-        // With the dialect's bracket pairs, `{-` and `-}` pair up.
         let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone())
             .with_bracket_pairs(Dialect::get_bracket_pairs(&dialect).clone());
         let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
@@ -237,7 +278,6 @@ mod tests {
         assert_eq!(tokens[open].matching_bracket_idx, Some(close));
         assert_eq!(tokens[close].matching_bracket_idx, Some(open));
 
-        // With the ASCII-only default the exclude brackets stay unpaired.
         let default_lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
         let (tokens, _) = default_lexer.lex(LexInput::String(sql.to_string()), false);
         assert_eq!(tokens[find(&tokens, "{-")].matching_bracket_idx, None);
@@ -253,10 +293,8 @@ mod tests {
         let tests = FixtureTest::discover("ansi", &fixtures_root);
         println!("Found {} ANSI fixture tests", tests.len());
 
-        // Should find multiple tests
         assert!(!tests.is_empty(), "No ANSI fixtures found");
 
-        // Check that we found select_simple_a.sql
         let select_simple_a = tests.iter().find(|t| t.name == "create_table_a_c1_c2");
         assert!(
             select_simple_a.is_some(),
@@ -287,15 +325,11 @@ mod tests {
             println!("Generated YAML:\n{}", generated);
         }
 
-        // This test might not pass yet, but it will show us what's generated
         println!("Test success: {}", result.success);
     }
 
     #[test]
     fn test_node_types() {
-        use sqlfluffrs_dialects::Dialect;
-        use sqlfluffrs_lexer::{LexInput, Lexer};
-
         let sql = "SELECT 1";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
@@ -306,16 +340,11 @@ mod tests {
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let _ast = parser.call_rule_as_root().expect("Parse failed");
 
-        // Print pruning statistics
         parser.print_cache_stats();
     }
 
     #[test]
     fn test_complex_query_cache() {
-        use sqlfluffrs_dialects::Dialect;
-        use sqlfluffrs_lexer::{LexInput, Lexer};
-
-        // A more complex query to exercise the cache better
         let sql = "SELECT a, b, c FROM table1 WHERE a = 1 AND b = 2 ORDER BY c";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
@@ -326,7 +355,6 @@ mod tests {
         let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let _ast = parser.call_rule_as_root().expect("Parse failed");
 
-        // Print cache statistics for complex query
         println!("\n=== Complex Query Cache Stats ===");
         parser.print_cache_stats();
     }
