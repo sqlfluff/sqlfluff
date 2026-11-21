@@ -238,6 +238,16 @@ redshift_dialect.patch_lexer_matchers(
     ]
 )
 
+# Redshift has no hexadecimal, octal or binary integer literals (those are
+# Postgres 16), so keep lexing text like `0x1F` as a word, as before.
+redshift_dialect.set_lexer_matchers(
+    [
+        matcher
+        for matcher in redshift_dialect.get_lexer_matchers()
+        if matcher.name != "non_decimal_integer_literal"
+    ]
+)
+
 
 redshift_dialect.add(
     CompressionTypeGrammar=OneOf(
