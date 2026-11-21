@@ -731,3 +731,27 @@ test_fail_shorthand_multi_cast_operand_unaffected:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+test_fail_subscripted_cast_to_shorthand:
+  # When converting a subscripted CAST to shorthand, wrap in parentheses
+  # so that DuckDB/Postgres does not treat the subscript as an array type cast (#8983).
+  fail_str: SELECT CAST(y AS TEXT)[1] FROM a;
+  fix_str: SELECT (y::TEXT)[1] FROM a;
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
+test_fail_nested_subscripted_cast_to_shorthand:
+  # Multiple subscripts should also preserve the parentheses
+  fail_str: SELECT CAST(y AS TEXT)[1][2] FROM a;
+  fix_str: SELECT (y::TEXT)[1][2] FROM a;
+  configs:
+    core:
+      dialect: duckdb
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
