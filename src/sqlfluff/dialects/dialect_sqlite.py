@@ -602,6 +602,40 @@ class DatatypeSegment(ansi.DatatypeSegment):
     )
 
 
+class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    In SQLite the type name is optional.
+    https://www.sqlite.org/syntax/column-def.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref(
+            "DatatypeSegment",
+            optional=True,
+            # A constraint keyword is not a type name.
+            exclude=OneOf(
+                "CONSTRAINT",
+                "NOT",
+                "NULL",
+                "DEFAULT",
+                "PRIMARY",
+                "UNIQUE",
+                "CHECK",
+                "REFERENCES",
+                "COLLATE",
+                "GENERATED",
+                "AS",
+            ),
+        ),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
 class TableEndClauseSegment(BaseSegment):
     """Support Table Options at end of tables.
 
