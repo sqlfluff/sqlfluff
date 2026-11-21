@@ -158,8 +158,14 @@ impl Parser<'_> {
     /// Edge case: if the terminator is at the very start of the search range
     /// (`_start_idx == working_idx`), Python allows it without whitespace.
     ///
-    /// A closing bracket also counts: a keyword glued to one (`(a)FROM t`) is
-    /// still a terminator, because no word-like token can absorb it.
+    /// A comment, a closing bracket, a star or a quoted token also counts:
+    /// these are unambiguous code boundaries (`(a)FROM t`, `*FROM t`,
+    /// `'x'FROM t`), because no word-like token can absorb the keyword into
+    /// them. Symbols like `:` or `.` are deliberately NOT boundaries:
+    /// dialects such as Snowflake use keywords as path keys after them
+    /// (`value:from`).
+    ///
+    /// PYTHON PARITY: `greedy_match()` in `match_algorithms.py`.
     pub(crate) fn is_preceded_by_whitespace(
         &self,
         tokens: &[Token],
@@ -180,19 +186,31 @@ impl Parser<'_> {
             // Found a concrete token before position i
             let token_type: &str = &tok.token_type;
             let token_raw = tok.raw();
-            return tok.is_whitespace()
-                || token_type == "newline"
-                || token_type == "whitespace"
-                // A closing bracket is an unambiguous code boundary: a keyword
-                // may follow one directly (`(a)FROM t`) and should still
-                // terminate. Only a word-like token could absorb the keyword
-                // into the preceding token, so the whitespace requirement does
-                // not apply after a bracket. The Rust lexer leaves brackets as
-                // `raw` tokens (the Python parser re-types them), so match on
-                // the raw bracket rather than the segment type.
-                // PYTHON PARITY: `greedy_match()` in `match_algorithms.py`.
-                || (tok.is_code()
-                    && (token_raw == ")" || token_raw == "]" || token_raw == "}"));
+            if tok.is_whitespace() || token_type == "newline" || token_type == "whitespace" {
+                return true;
+            }
+            // A comment is an unambiguous boundary.
+            if token_raw.starts_with("--") || token_raw.starts_with("/*") {
+                return true;
+            }
+            // A closing bracket, a star or a quoted token is an unambiguous
+            // code boundary: a keyword may follow one directly (`(a)FROM t`,
+            // `*FROM t`, `'x'FROM t`) and still terminate. Only a word-like
+            // raw could have absorbed the keyword in the lexer, so the
+            // whitespace requirement applies there. Symbols like `:` or `.`
+            // are NOT boundaries: dialects such as Snowflake use keywords as
+            // path keys after them (`value:from`).
+            // PYTHON PARITY: `greedy_match()` in `match_algorithms.py`.
+            if tok.is_code() {
+                return token_raw == ")"
+                    || token_raw == "]"
+                    || token_raw == "}"
+                    || token_raw == "*"
+                    || token_raw.ends_with('\'')
+                    || token_raw.ends_with('"')
+                    || token_raw.ends_with('`');
+            }
+            return false;
         }
         // Went all the way back to start_idx — allow it (first element)
         true

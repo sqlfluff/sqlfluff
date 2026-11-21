@@ -610,21 +610,37 @@ def greedy_match(
                 allowable_match = True
             # Work backward through previous segments looking for whitespace.
             for _idx in range(_start_idx, working_idx, -1):
-                if segments[_idx - 1].is_meta:
+                _prev = segments[_idx - 1]
+                if _prev.is_meta:
                     continue
-                elif segments[_idx - 1].is_type("whitespace", "newline"):
+                elif _prev.is_type("whitespace", "newline"):
                     allowable_match = True
                     break
-                elif segments[_idx - 1].is_type(
-                    "end_bracket",
-                    "end_square_bracket",
-                    "end_curly_bracket",
+                elif _prev.raw.startswith(("--", "/*")):
+                    # A comment is an unambiguous boundary: a keyword may
+                    # follow one directly and still terminate.
+                    # PYTHON/RUST PARITY: `is_preceded_by_whitespace()` in
+                    # `match_algorithms.rs`.
+                    allowable_match = True
+                    break
+                elif _prev.is_code and (
+                    _prev.is_type(
+                        "end_bracket",
+                        "end_square_bracket",
+                        "end_curly_bracket",
+                    )
+                    or _prev.raw == "*"
+                    or _prev.raw.endswith(("'", '"', "`"))
                 ):
-                    # A closing bracket is unambiguously a code boundary: a
-                    # keyword may follow one directly (`(a)FROM t`) and still
-                    # terminate. Only a word-like segment could absorb the
-                    # keyword into the preceding token, so the whitespace
-                    # requirement does not apply here.
+                    # A closing bracket, a star or a quoted token is an
+                    # unambiguous code boundary: a keyword may follow one
+                    # directly (`(a)FROM t`, `*FROM t`, `'x'FROM t`) and
+                    # still terminate. Only a word-like segment could
+                    # absorb the keyword into the preceding token, so the
+                    # whitespace requirement applies there. Symbols like
+                    # `:` or `.` are NOT boundaries: dialects such as
+                    # Snowflake use keywords as path keys after them
+                    # (`value:from`).
                     allowable_match = True
                     break
                 else:
