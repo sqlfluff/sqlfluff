@@ -640,7 +640,7 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://.*'",
+        r"'s3(?:china|gov)?://.*'",
         CodeSegment,
         type="bucket_path",
     ),
