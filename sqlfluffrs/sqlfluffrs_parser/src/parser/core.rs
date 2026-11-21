@@ -142,10 +142,12 @@ static INDENT_KEYS: std::sync::LazyLock<std::sync::Mutex<hashbrown::HashSet<&'st
 pub fn intern_indent_config(
     config: impl IntoIterator<Item = (String, bool)>,
 ) -> hashbrown::HashMap<&'static str, bool> {
-    let mut keys = INDENT_KEYS.lock().unwrap_or_else(|e| e.into_inner());
     config
         .into_iter()
         .map(|(k, v)| {
+            // Lock per key: holding it across `config`'s iterator would
+            // deadlock an iterator that itself interns.
+            let mut keys = INDENT_KEYS.lock().unwrap_or_else(|e| e.into_inner());
             let key = match keys.get(k.as_str()) {
                 Some(&key) => key,
                 None => {
@@ -1849,5 +1851,15 @@ mod tests {
                 assert!(std::ptr::eq(*k, *orig), "{k} was re-leaked");
             }
         }
+    }
+
+    #[test]
+    fn intern_indent_config_allows_reentrant_iterator() {
+        // An iterator that interns while being consumed must not deadlock.
+        let config = (0..2).map(|i| {
+            intern_indent_config([(format!("intern_inner_{i}"), true)]);
+            (format!("intern_outer_{i}"), false)
+        });
+        assert_eq!(intern_indent_config(config).len(), 2);
     }
 }
