@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
@@ -208,6 +209,9 @@ clickhouse_dialect.add(
 )
 
 clickhouse_dialect.replace(
+    FunctionNameIdentifierSegment=TypedParser(
+        "word", WordSegment, type="function_name_identifier"
+    ),
     LateralColumnAliasExpressionGrammar=Sequence(
         Ref("ExpressionSegment"),
         Ref("AliasExpressionSegment"),
