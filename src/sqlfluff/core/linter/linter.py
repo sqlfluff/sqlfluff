@@ -3,14 +3,22 @@
 import fnmatch
 import logging
 import os
+import threading
 import time
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Optional, Union, cast
+from contextlib import contextmanager
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 import regex
 from tqdm import tqdm
 
-from sqlfluff.core.config import FluffConfig, progress_bar_configuration
+from sqlfluff.core.config import (
+    FluffConfig,
+    load_config_at_path,
+    load_config_up_to_path,
+    progress_bar_configuration,
+)
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
@@ -44,17 +52,101 @@ from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
+from sqlfluff.core.templaters import RawTemplater
+from sqlfluff.core.types import ConfigMappingType
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects import Dialect
     from sqlfluff.core.parser.segments.meta import MetaSegment
-    from sqlfluff.core.templaters import RawTemplater, TemplatedFile
+    from sqlfluff.core.templaters import TemplatedFile
 
 
 RuleTimingsType = list[tuple[str, str, float]]
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+
+def _shares_state_by_key(templater_class: type[RawTemplater]) -> bool:
+    """Whether a templater class says how its state is shared (`session_key`)."""
+    return templater_class.session_key is not RawTemplater.session_key
+
+
+def _selectable_by_nested_config(templater: RawTemplater) -> bool:
+    """Whether nested configuration may select this templater.
+
+    Templaters which render in worker processes hold no state shared between
+    files. Others can only be selected per directory if they say how their
+    state is shared, by overriding `session_key`. Otherwise (e.g. dbt) only
+    the root templater is used.
+    """
+    return templater.templates_in_worker or _shares_state_by_key(type(templater))
+
+
+class _TemplaterSession:
+    """The templaters used during one public linter operation, in one thread.
+
+    Files whose configs give the same `session_key` share a templater. The
+    session creates those templaters, and closes them when they're released
+    or when the session closes. The root templater is shared, but stays owned
+    by the caller.
+    """
+
+    def __init__(self, root_config: FluffConfig, root_templater: RawTemplater):
+        self._templaters: dict[tuple[str, ...], RawTemplater] = {
+            root_templater.session_key(root_config): root_templater
+        }
+        # The templaters which the session created, by id.
+        self._owned: dict[int, RawTemplater] = {}
+        # Errors from closing released templaters, raised when the session
+        # closes, so that one failure doesn't stop the rest of the operation.
+        self._release_errors: list[Exception] = []
+
+    def get(
+        self, key: tuple[str, ...], templater_class: type[RawTemplater]
+    ) -> RawTemplater:
+        """Return the templater for a session key.
+
+        A new instance of the templater class is created for each new key,
+        so the session owns it.
+        """
+        templater = self._templaters.get(key)
+        if templater is None:
+            templater = templater_class()
+            self._templaters[key] = templater
+            self._owned[id(templater)] = templater
+        return templater
+
+    def release(self, templater: RawTemplater) -> None:
+        """Close a templater which the session created, once it's done with."""
+        if self._owned.pop(id(templater), None) is None:
+            return
+        self._templaters = {
+            key: value
+            for key, value in self._templaters.items()
+            if value is not templater
+        }
+        try:
+            templater.close()
+        except Exception as error:
+            self._release_errors.append(error)
+
+    def close(self) -> None:
+        """Close the templaters which the session created.
+
+        Every templater is closed even if another fails. The first failure,
+        including any when releasing templaters, is raised and others logged.
+        """
+        errors: list[BaseException] = list(self._release_errors)
+        for templater in reversed(self._owned.values()):
+            try:
+                templater.close()
+            except BaseException as error:
+                errors.append(error)
+        for other_error in errors[1:]:
+            linter_logger.error("Failed to close templater", exc_info=other_error)
+        if errors:
+            raise errors[0]
 
 
 class Linter:
@@ -92,9 +184,14 @@ class Linter:
         )
         # Get the dialect and templater
         self.dialect: "Dialect" = cast("Dialect", self.config.get("dialect_obj"))
-        self.templater: "RawTemplater" = cast(
-            "RawTemplater", self.config.get("templater_obj")
+        self.templater: RawTemplater = cast(
+            RawTemplater, self.config.get("templater_obj")
         )
+        # The templaters for the current operation in each thread. They're
+        # kept by thread rather than thread id, as ids may be reused once a
+        # thread ends, even if a session it opened is still open (e.g. in a
+        # suspended generator). See `_templater_session`.
+        self._templater_sessions: dict[threading.Thread, _TemplaterSession] = {}
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -128,6 +225,15 @@ class Linter:
         # The file may supply its dialect via an inline config directive.
         # Dialect validation happens in render_string() after those are processed.
         file_config = root_config.make_child_from_path(fname, require_dialect=False)
+        raw_file, encoding = Linter._load_raw_file(fname, file_config)
+        return raw_file, file_config, encoding
+
+    @staticmethod
+    def _load_raw_file(fname: str, file_config: FluffConfig) -> tuple[str, str]:
+        """Load a raw file using its effective config.
+
+        Inline config in the file is applied to the config.
+        """
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
@@ -160,8 +266,7 @@ class Linter:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
         file_config.process_raw_file_for_config(raw_file, fname)
-        # Return the raw file and config
-        return raw_file, file_config, encoding
+        return raw_file, encoding
 
     @staticmethod
     def _normalise_newlines(string: str) -> str:
@@ -945,11 +1050,178 @@ class Linter:
     # These are tied to a specific instance and so are not necessarily
     # safe to use in parallel operations.
 
+    def _loaded_core_config(self, path: str) -> ConfigMappingType:
+        """Load the core config set by config files up to a path."""
+        configs = load_config_up_to_path(
+            path,
+            extra_config_path=self.config._extra_config_path,
+            ignore_local_config=self.config._ignore_local_config,
+        )
+        core_config = configs.get("core", {})
+        assert isinstance(core_config, dict)
+        return core_config
+
+    def _nested_core_value(self, path: str, key: str) -> Any:
+        """Return a core config value set by nested config files for a path.
+
+        A value set by config files for a path applies when it differs from
+        the value set for the current working directory, or when a config file
+        below the current working directory sets it, and it isn't overridden.
+        Otherwise this returns None, and the value in the root config applies,
+        so that values set when creating it (e.g. with
+        ``FluffConfig(configs=...)``) are still used.
+
+        NOTE: As on main, the baseline is the current working directory, even
+        if the root config was loaded from another path (e.g. with
+        ``FluffConfig.from_path(...)``).
+        """
+        if self.config._overrides and key in self.config._overrides:
+            return None
+        value = self._loaded_core_config(path).get(key)
+        if value != self._loaded_core_config(os.getcwd()).get(key):
+            return value
+        # The value is the same as for the current working directory, so only
+        # use it if a nested config file sets it explicitly. Otherwise a value
+        # set when creating the root config would be ignored.
+        if self.config._ignore_local_config:
+            return None
+        cwd = Path.cwd().resolve()
+        target = Path(path).resolve()
+        for config_dir in (target, *target.parents):
+            if config_dir == cwd or config_dir in cwd.parents:
+                break
+            if config_dir.is_dir():
+                core_config = load_config_at_path(str(config_dir)).get("core", {})
+                if isinstance(core_config, dict) and key in core_config:
+                    return value
+        return None
+
+    @contextmanager
+    def _templater_session(self) -> Iterator[_TemplaterSession]:
+        """Share templaters between the files of one public operation.
+
+        Templaters created for the operation are closed at its end. A session
+        which is already open in this thread (e.g. when rendering during a
+        lint) is reused. Each thread has its own sessions. The root templater
+        (`self.templater`) is shared and never closed.
+        """
+        thread = threading.current_thread()
+        session = self._templater_sessions.get(thread)
+        if session is not None:
+            yield session
+            return
+        session = _TemplaterSession(self.config, self.templater)
+        self._templater_sessions[thread] = session
+        # Track failure explicitly, rather than using sys.exc_info(), which
+        # would also report an exception which a caller is handling around
+        # a successful operation.
+        operation_failed = False
+        try:
+            yield session
+        except BaseException:
+            operation_failed = True
+            raise
+        finally:
+            # A generator may be closed from another thread, so remove the
+            # session by the thread which opened it.
+            del self._templater_sessions[thread]
+            try:
+                session.close()
+            except BaseException:
+                if not operation_failed:
+                    raise
+                # Don't hide the error which ended the operation.
+                linter_logger.exception("Failed to close templater session")
+
+    def _templater_for_config(
+        self,
+        session: _TemplaterSession,
+        config: FluffConfig,
+        fname: str,
+        warn: bool = True,
+    ) -> RawTemplater:
+        """Return the templater to render a file with the given config.
+
+        A templater set by nested config files (see `_nested_core_value`) is
+        used if both it and the root templater can be selected by nested
+        config (see `_selectable_by_nested_config`). Otherwise (e.g. dbt) the
+        root templater is used, and a warning logged unless `warn` is False.
+        """
+        file_templater: RawTemplater = config.get("templater_obj") or self.templater
+        file_class = type(file_templater)
+        selectable = _selectable_by_nested_config(
+            self.templater
+        ) and _selectable_by_nested_config(file_templater)
+        if file_class is type(self.templater):
+            if not selectable:
+                return self.templater
+            return session.get(file_templater.session_key(config), file_class)
+        if (
+            selectable
+            and self._nested_core_value(fname, "templater") == file_templater.name
+        ):
+            return session.get(file_templater.session_key(config), file_class)
+        if warn:
+            reason = (
+                ""
+                if selectable
+                else "Templaters which cannot render in worker processes (e.g. dbt) "
+                "must be set in a .sqlfluff in the current working directory, and "
+                "cannot be set or replaced in a .sqlfluff file in a subdirectory "
+                "of it. "
+            )
+            linter_logger.warning(
+                f"Attempt to set templater to {file_templater.name} failed. "
+                f"Using {self.templater.name} templater. {reason}See Nesting "
+                "section of the docs for more details."
+            )
+        return self.templater
+
+    def _templater_for_path(
+        self, session: _TemplaterSession, fname: str
+    ) -> Optional[RawTemplater]:
+        """Choose the templater for a file without building its config, if possible.
+
+        Returns what `_templater_for_config` would for the file, or None if
+        the file's config is needed to choose: if the root templater, or the
+        one set by nested config files, says how its state is shared, or if
+        the nested one renders in the main process.
+        """
+        if not _selectable_by_nested_config(self.templater):
+            return self.templater
+        if _shares_state_by_key(type(self.templater)):
+            return None
+        name = self._nested_core_value(fname, "templater")
+        if name is None:
+            return self.templater
+        templater_class = self.config._templater_lookup().get(name)
+        if (
+            templater_class is None
+            or not templater_class.templates_in_worker
+            or _shares_state_by_key(templater_class)
+        ):
+            return None
+        # This is the default `session_key`.
+        return session.get((templater_class.name,), templater_class)
+
     def render_string(
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info("Rendering String [%s] (%s)", self.templater.name, fname)
+        with self._templater_session() as session:
+            return self._render_string(session, in_str, fname, config, encoding)
+
+    def _render_string(
+        self,
+        session: _TemplaterSession,
+        in_str: str,
+        fname: str,
+        config: FluffConfig,
+        encoding: str,
+    ) -> RenderedFile:
+        """Template the file, within a templater session."""
+        templater = self._templater_for_config(session, config, fname)
+        linter_logger.info("Rendering String [%s] (%s)", templater.name, fname)
 
         # Start the templating timer
         t0 = time.monotonic()
@@ -964,22 +1236,13 @@ class Linter:
         # not going to pick up a .sqlfluff or other config file to provide a
         # missing dialect at this point.)
         config.verify_dialect_specified()
-        if not config.get("templater_obj") == self.templater:
-            linter_logger.warning(
-                f"Attempt to set templater to {config.get('templater_obj').name} "
-                f"failed. Using {self.templater.name} templater. Templater cannot "
-                "be set in a .sqlfluff file in a subdirectory of the current "
-                "working directory. It can be set in a .sqlfluff in the current "
-                "working directory. See Nesting section of the docs for more "
-                "details."
-            )
 
         variant_limit = config.get("render_variant_limit")
         templated_variants: list[TemplatedFile] = []
         templater_violations: list[SQLTemplaterError] = []
 
         try:
-            for variant, templater_errs in self.templater.process_with_variants(
+            for variant, templater_errs in templater.process_with_variants(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             ):
                 if variant:
@@ -1126,6 +1389,15 @@ class Linter:
             encoding=encoding,
         )
 
+    def _file_extensions_for_path(self, path: str) -> list[str]:
+        """Return the file extensions to discover at a path."""
+        # NOTE: An empty value falls back to the root config, as splitting it
+        # would give an empty extension, which matches every file.
+        extensions: str = self._nested_core_value(path, "sql_file_exts") or (
+            self.config.get("sql_file_exts", default=".sql")
+        )
+        return extensions.lower().split(",")
+
     def lint_string_wrapped(
         self,
         string: str,
@@ -1196,6 +1468,7 @@ class Linter:
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
                 target_file_exts=sql_exts,
+                target_file_exts_for_path=self._file_extensions_for_path,
             ):
                 expanded_paths.append(fname)
                 expanded_path_to_linted_dir[fname] = linted_dir
@@ -1284,24 +1557,26 @@ class Linter:
         within the path iteratively.
         """
         sql_exts = self.config.get("sql_file_exts", default=".sql").lower().split(",")
-        for fname in paths_from_path(
-            path,
-            target_file_exts=sql_exts,
-        ):
-            if self.formatter:
-                self.formatter.dispatch_path(path)
-            # Load the file with the config and yield the result.
-            try:
-                raw_file, config, encoding = self.load_raw_file_and_config(
-                    fname, self.config
+        with self._templater_session():
+            for fname in paths_from_path(
+                path,
+                target_file_exts=sql_exts,
+                target_file_exts_for_path=self._file_extensions_for_path,
+            ):
+                if self.formatter:
+                    self.formatter.dispatch_path(path)
+                # Load the file with the config and yield the result.
+                try:
+                    raw_file, config, encoding = self.load_raw_file_and_config(
+                        fname, self.config
+                    )
+                except SQLFluffSkipFile as s:
+                    linter_logger.warning(str(s))
+                    continue
+                yield self.parse_string(
+                    raw_file,
+                    fname=fname,
+                    config=config,
+                    encoding=encoding,
+                    parse_statistics=parse_statistics,
                 )
-            except SQLFluffSkipFile as s:
-                linter_logger.warning(str(s))
-                continue
-            yield self.parse_string(
-                raw_file,
-                fname=fname,
-                config=config,
-                encoding=encoding,
-                parse_statistics=parse_statistics,
-            )

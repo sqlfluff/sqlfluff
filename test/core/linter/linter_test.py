@@ -26,6 +26,8 @@ from sqlfluff.core.linter.common import DeferredRenderTask
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
+from sqlfluff.core.plugin import hookimpl
+from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -1359,23 +1361,680 @@ def test_delayed_exception():
         de.reraise()
 
 
-def test__attempt_to_change_templater_warning():
-    """Test warning when changing templater in .sqlfluff file in subdirectory."""
-    initial_config = FluffConfig(
-        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+class MainProcessTemplater(RawTemplater):
+    """A templater which cannot render in worker processes (like dbt)."""
+
+    name = "main_process"
+    templates_in_worker = False
+
+
+def test__linter__uses_nested_worker_templater():
+    """A nested templater is used when root and nested render in workers."""
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root))
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(f"{root}/placeholder/placeholder.sql", lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == (
+        "SELECT value FROM my_table\n"
     )
-    lntr = Linter(config=initial_config)
-    updated_config = FluffConfig(
-        configs={"core": {"templater": "python", "dialect": "ansi"}}
+
+
+def test__linter__root_config_templater_used(tmp_path):
+    """A templater set when creating the root config applies to all files.
+
+    Files only use another templater if it's set by a nested config file.
+    """
+    tmp_path.joinpath("query.sql").write_text("SELECT {{ 1 }}\n", encoding="utf-8")
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"templater": "raw"}}, overrides={"dialect": "ansi"}
+        )
     )
     with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        lntr.render_string(
-            in_str="select * from table",
+        rendered = lntr.render_file(str(tmp_path / "query.sql"), lntr.config)
+    # The file's own config has the default templater, as on main.
+    assert "Attempt to set templater to jinja failed" in caplog.text
+    # Both templaters can render in workers, so the warning doesn't say that
+    # they can't.
+    assert "cannot render in worker processes" not in caplog.text
+    assert rendered.templated_variants[0].templated_str == "SELECT {{ 1 }}\n"
+
+
+def test__linter__root_config_file_exts_used(tmp_path):
+    """File extensions set when creating the root config apply to all paths."""
+    tmp_path.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    tmp_path.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}}, overrides={"dialect": "ansi"}
+        )
+    )
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(tmp_path / "a.txt")
+    ]
+
+
+def test__linter__nested_config_file_exts_beat_root_config(tmp_path, monkeypatch):
+    """Nested config files set file extensions even if the root config differs.
+
+    This applies even when the nested value is the same as the value in the
+    working directory's config file, which the root config replaces here.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8"
+    )
+    tmp_path.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    tmp_path.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8"
+    )
+    nested.joinpath("c.txt").write_text("SELECT 1\n", encoding="utf-8")
+    nested.joinpath("d.sql").write_text("SELECT 1\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}}, overrides={"dialect": "ansi"}
+        )
+    )
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert sorted(file.path for path in result.paths for file in path.files) == [
+        str(tmp_path / "a.txt"),
+        str(nested / "d.sql"),
+    ]
+
+
+def test__linter__ignored_nested_config_file_exts(tmp_path, monkeypatch):
+    """Nested config files don't set file extensions when local config is ignored."""
+    extra_config = tmp_path / "extra.cfg"
+    extra_config.write_text("[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8")
+    project = tmp_path / "project"
+    nested = project / "nested"
+    nested.mkdir(parents=True)
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .sql\n", encoding="utf-8"
+    )
+    nested.joinpath("a.txt").write_text("SELECT 1\n", encoding="utf-8")
+    nested.joinpath("b.sql").write_text("SELECT 1\n", encoding="utf-8")
+    monkeypatch.chdir(project)
+    lntr = Linter(
+        config=FluffConfig(
+            configs={"core": {"sql_file_exts": ".txt"}},
+            extra_config_path=str(extra_config),
+            ignore_local_config=True,
+            overrides={"dialect": "ansi"},
+        )
+    )
+
+    result = lntr.lint_paths((str(project),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested / "a.txt")
+    ]
+
+
+def test__linter__discovery_ignores_bad_nested_config(tmp_path):
+    """Discovery reads only file extensions from nested config files.
+
+    A nested config which can't be used to lint (here with an unknown dialect)
+    doesn't stop discovery when there are no files to lint next to it.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+    tmp_path.joinpath("a.sql").write_text("SELECT 1\n", encoding="utf-8")
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = notadialect\n", encoding="utf-8"
+    )
+    nested.joinpath("readme.txt").write_text("Not SQL.\n", encoding="utf-8")
+    lntr = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = lntr.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(tmp_path / "a.sql")
+    ]
+
+
+@pytest.mark.parametrize("main_process_root", [False, True])
+def test__linter__ignores_nested_main_process_templater(main_process_root):
+    """Templaters which can't render in workers are only used from the root."""
+    root_config = FluffConfig(
+        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+    )
+    file_config = FluffConfig(
+        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+    )
+    lntr = Linter(config=root_config)
+    main_process_templater = MainProcessTemplater()
+    if main_process_root:
+        lntr.templater = main_process_templater
+    else:
+        file_config._configs["core"]["templater_obj"] = main_process_templater
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_string(
+            in_str="select {{ 1 }}",
             fname="test.sql",
-            config=updated_config,
+            config=file_config,
             encoding="utf-8",
         )
     assert "Attempt to set templater to " in caplog.text
+    assert "cannot render in worker processes" in caplog.text
+    expected = "select {{ 1 }}" if main_process_root else "select 1"
+    assert rendered.templated_variants[0].templated_str == expected
+
+
+def test__linter__templater_override_beats_nested_config():
+    """A templater override (e.g. ``--templater``) beats nested config."""
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root, overrides={"templater": "raw"}))
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(f"{root}/placeholder/placeholder.sql", lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == (
+        "SELECT {value} FROM my_table\n"
+    )
+
+
+@pytest.mark.parametrize("processes", [1, 2])
+@pytest.mark.parametrize("fix", [False, True])
+def test__linter__uses_templater_from_file_config(processes, fix):
+    """Lint files using different built-in templaters in one invocation."""
+    config = FluffConfig.from_path("test/fixtures/linter/mixed_templaters")
+    linter = Linter(config=config)
+
+    result = linter.lint_paths(
+        ("test/fixtures/linter/mixed_templaters",),
+        fix=fix,
+        processes=processes,
+    )
+
+    assert not result.get_violations()
+
+
+def test__linter__discovers_extensions_from_nested_config(tmp_path):
+    """Directory discovery uses file extensions from nested configuration."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\ntemplater = jinja\n", encoding="utf-8"
+    )
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = placeholder\nsql_file_exts = .bq\n\n"
+        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
+        encoding="utf-8",
+    )
+    nested_file = nested / "query.bq"
+    nested_file.write_text("SELECT :value\n", encoding="utf-8")
+    linter = Linter(config=FluffConfig.from_path(str(tmp_path)))
+
+    result = linter.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested_file)
+    ]
+
+
+def test__linter__file_exts_override_beats_nested_config(tmp_path):
+    """Overridden file extensions apply to all paths."""
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\nsql_file_exts = .bq\n", encoding="utf-8"
+    )
+    nested.joinpath("query.bq").write_text("SELECT 1\n", encoding="utf-8")
+    nested_file = nested / "query.sql"
+    nested_file.write_text("SELECT 1\n", encoding="utf-8")
+    linter = Linter(
+        config=FluffConfig.from_path(
+            str(tmp_path), overrides={"dialect": "ansi", "sql_file_exts": ".sql"}
+        )
+    )
+
+    result = linter.lint_paths((str(tmp_path),))
+
+    assert [file.path for path in result.paths for file in path.files] == [
+        str(nested_file)
+    ]
+
+
+def test__linter__parse_path_uses_nested_templaters():
+    """Path parsing uses the templaters from nested configuration."""
+    root = "test/fixtures/linter/mixed_templaters"
+    linter = Linter(config=FluffConfig.from_path(root))
+
+    parsed = list(linter.parse_path(root))
+
+    assert len(parsed) == 2
+    assert not [violation for result in parsed for violation in result.violations]
+
+
+class StatefulTemplater(RawTemplater):
+    """A templater which renders in the main process and shares state by key."""
+
+    name = "stateful"
+    templates_in_worker = False
+    # What every instance did, set by the `stateful_events` fixture.
+    events: list = []
+    fail_close = False
+
+    def __init__(self):
+        super().__init__()
+        self.closed = False
+
+    def session_key(self, config):
+        """Share instances by the key in the templater's config section."""
+        return (self.name, str(config.get("key", section=("templater", self.name))))
+
+    def sequence_files(self, fnames, config=None, formatter=None):
+        """Render files in reverse order."""
+        return list(reversed(fnames))
+
+    def process(self, *, in_str, fname, config=None, formatter=None):
+        """Record which instance rendered which file."""
+        self.events.append(("render", fname, self))
+        return super().process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
+
+    def close(self):
+        """Record closing, and fail if asked to."""
+        self.closed = True
+        self.events.append(("close", self))
+        if self.fail_close:
+            raise RuntimeError("close failed")
+
+
+class UnkeyedTemplater(StatefulTemplater):
+    """A main-process templater which doesn't say how its state is shared."""
+
+    name = "unkeyed"
+    session_key = RawTemplater.session_key
+
+
+class _StatefulTemplaterPlugin:
+    """Provides the test templaters above."""
+
+    @hookimpl
+    def get_templaters(self):
+        """Return the test templaters."""
+        return [StatefulTemplater, UnkeyedTemplater]
+
+
+@pytest.fixture
+def stateful_events(monkeypatch):
+    """Provide the test templaters, and record what they do."""
+    events = []
+    monkeypatch.setattr(StatefulTemplater, "events", events)
+    plugin_manager = get_plugin_manager()
+    plugin = plugin_manager.register(_StatefulTemplaterPlugin())
+    yield events
+    plugin_manager.unregister(name=plugin)
+
+
+def _stateful_file(tmp_path, key, index=0, templater="stateful"):
+    """A file whose directory's config selects a test templater with a key.
+
+    Without a key, the directory has no config.
+    """
+    directory = tmp_path / (key or "plain")
+    directory.mkdir(exist_ok=True)
+    if key:
+        directory.joinpath(".sqlfluff").write_text(
+            f"[sqlfluff]\ntemplater = {templater}\n\n"
+            f"[sqlfluff:templater:{templater}]\nkey = {key}\n",
+            encoding="utf-8",
+        )
+    path = directory / f"{index}.sql"
+    path.write_text("select 1\n", encoding="utf-8")
+    return str(path)
+
+
+def test__linter__uses_nested_stateful_templater(tmp_path, stateful_events):
+    """A main-process templater with a session key can be set in nested config.
+
+    The session creates and closes its own instance, not the root templater.
+    """
+    fname = _stateful_file(tmp_path, "a")
+    lntr = Linter(dialect="ansi")
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        rendered = lntr.render_file(fname, lntr.config)
+    assert "Attempt to set templater to " not in caplog.text
+    assert rendered.templated_variants[0].templated_str == "select 1\n"
+    (_, _, session_templater), close_event = stateful_events
+    assert isinstance(session_templater, StatefulTemplater)
+    assert session_templater is not lntr.templater
+    assert close_event == ("close", session_templater)
+
+
+@pytest.mark.parametrize("nested", [True, False])
+def test__warm_worker_runner__nested_templater_uses_general_runner(
+    nested, tmp_path, stateful_events, monkeypatch
+):
+    """Warm workers don't render files whose nested config sets a templater.
+
+    The jinja root templater uses warm workers, but a nested main-process
+    templater must render in the main process, so the general parallel runner
+    is used instead.
+    """
+    fnames = [_stateful_file(tmp_path, None)]
+    if nested:
+        fnames.append(_stateful_file(tmp_path, "a"))
+    lntr = Linter(dialect="ansi")
+    warm_runner, _ = runner.get_runner(lntr, lntr.config, processes=2)
+    assert isinstance(warm_runner, runner.WarmWorkerRunner)
+    general_runs = []
+
+    def general_run(self, fnames, fix):
+        general_runs.append(fnames)
+        yield from ()
+
+    monkeypatch.setattr(runner.MultiProcessRunner, "run", general_run)
+    assert warm_runner._nested_templater_set(fnames) is nested
+    if nested:
+        assert list(warm_runner.run(fnames, fix=False)) == []
+        assert general_runs == [fnames]
+
+
+def test__linter__stateful_root_templater_is_shared_not_closed(
+    tmp_path, stateful_events
+):
+    """A stateful root templater renders files with its key, and isn't closed."""
+    fname = _stateful_file(tmp_path, None)
+    lntr = Linter(
+        config=FluffConfig(
+            configs={
+                "core": {"templater": "stateful"},
+                "templater": {"stateful": {"key": "a"}},
+            },
+            overrides={"dialect": "ansi"},
+        )
+    )
+    list(runner.SequentialRunner(lntr, lntr.config).run([fname], fix=False))
+    assert stateful_events == [("render", fname, lntr.templater)]
+    assert not lntr.templater.closed
+
+
+def test__linter__ignores_nested_unkeyed_templater_once(tmp_path, stateful_events):
+    """A nested main-process templater without a session key isn't used.
+
+    The warning is logged once, when the file is rendered.
+    """
+    fname = _stateful_file(tmp_path, "a", templater="unkeyed")
+    lntr = Linter(dialect="ansi")
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        list(runner.SequentialRunner(lntr, lntr.config).run([fname], fix=False))
+    assert caplog.text.count("Attempt to set templater to unkeyed failed") == 1
+    assert "cannot render in worker processes" in caplog.text
+    assert not stateful_events
+
+
+def test__sequential_runner__groups_files_by_templater(tmp_path, stateful_events):
+    """Each templater sequences its own files, which keep its places in order.
+
+    Each templater is closed after its last file.
+    """
+    fnames = [
+        _stateful_file(tmp_path, key, index)
+        for index, key in enumerate(["x", None, "x", "y", None])
+    ]
+    lntr = Linter(dialect="ansi")
+    linted = list(runner.SequentialRunner(lntr, lntr.config).run(fnames, fix=False))
+
+    # The "x" files are reversed, in the places of the "x" files.
+    assert [linted_file.path for linted_file in linted] == [
+        fnames[2],
+        fnames[1],
+        fnames[0],
+        fnames[3],
+        fnames[4],
+    ]
+    x_templater = stateful_events[0][2]
+    y_templater = stateful_events[3][2]
+    assert stateful_events == [
+        ("render", fnames[2], x_templater),
+        ("render", fnames[0], x_templater),
+        ("close", x_templater),
+        ("render", fnames[3], y_templater),
+        ("close", y_templater),
+    ]
+
+
+def test__parallel_runner__iter_partials_by_templater(tmp_path, stateful_events):
+    """Files are rendered where their own templater can render them."""
+    fnames = [
+        _stateful_file(tmp_path, key, index)
+        for index, key in enumerate([None, "x", "x"])
+    ]
+    lntr = Linter(dialect="ansi")
+    thd_runner = runner.MultiThreadRunner(lntr, lntr.config, processes=2)
+
+    partials = list(thd_runner.iter_partials(fnames))
+
+    assert [fname for fname, _ in partials] == [fnames[0], fnames[2], fnames[1]]
+    assert isinstance(partials[0][1], DeferredRenderTask)
+    assert [partial().path for _, partial in partials[1:]] == fnames[:0:-1]
+    assert stateful_events[-1][0] == "close"
+
+
+def test__linter__templater_session_close_failure(
+    tmp_path, monkeypatch, caplog, stateful_events
+):
+    """A templater which fails to close fails the operation.
+
+    Every templater is closed. Further failures are logged.
+    """
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fnames = [_stateful_file(tmp_path, key) for key in ("a", "b")]
+    lntr = Linter(dialect="ansi")
+    with pytest.raises(RuntimeError, match="close failed"):
+        with lntr._templater_session():
+            for fname in fnames:
+                lntr.render_file(fname, lntr.config)
+    assert [event[0] for event in stateful_events] == [
+        "render",
+        "render",
+        "close",
+        "close",
+    ]
+    assert "Failed to close templater" in caplog.text
+
+
+def test__linter__templater_session_close_failure_inside_handled_error(
+    tmp_path, monkeypatch, stateful_events
+):
+    """A close failure is raised if the operation succeeded, despite a handler.
+
+    The caller may be handling an unrelated exception around an operation
+    which succeeds. That mustn't hide a failing close.
+    """
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fname = _stateful_file(tmp_path, "a")
+    lntr = Linter(dialect="ansi")
+    with pytest.raises(RuntimeError, match="close failed"):
+        try:
+            raise ValueError("unrelated")
+        except ValueError:
+            lntr.render_file(fname, lntr.config)
+
+
+def test__linter__templater_session_close_failure_after_error(
+    tmp_path, monkeypatch, caplog, stateful_events
+):
+    """A close failure doesn't hide the error which ended the operation."""
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fname = _stateful_file(tmp_path, "a")
+    lntr = Linter(dialect="ansi")
+    with pytest.raises(ValueError, match="render failed"):
+        with lntr._templater_session():
+            lntr.render_file(fname, lntr.config)
+            raise ValueError("render failed")
+    assert "Failed to close templater session" in caplog.text
+
+
+def test__parallel_runner__root_config_for_workers_stateful_root():
+    """Workers get the root config if nested config may select their templater.
+
+    That's possible under a main-process root templater with a session key.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lntr = Linter(config=config)
+    lntr.templater = StatefulTemplater()
+    thd_runner = runner.MultiThreadRunner(lntr, config, processes=2)
+    assert pickle.loads(thd_runner._root_config_for_workers()).get("dialect") == "ansi"
+
+
+def test__sequential_runner__release_failure_raised_at_end(
+    tmp_path, monkeypatch, caplog, stateful_events
+):
+    """A templater which fails to close doesn't stop the other files.
+
+    The failure is raised once the run ends.
+    """
+    monkeypatch.setattr(StatefulTemplater, "fail_close", True)
+    fnames = [_stateful_file(tmp_path, key, index) for index, key in enumerate("xyz")]
+    lntr = Linter(dialect="ansi")
+    linted = []
+    with pytest.raises(RuntimeError, match="close failed"):
+        for linted_file in runner.SequentialRunner(lntr, lntr.config).run(
+            fnames, fix=False
+        ):
+            linted.append(linted_file.path)
+    assert linted == fnames
+    assert [event[0] for event in stateful_events] == ["render", "close"] * 3
+    assert caplog.text.count("Failed to close templater") == 2
+
+
+def test__parallel_runner__run_closes_session_on_early_exit(tmp_path, stateful_events):
+    """Stopping a parallel run early closes its templater session."""
+    fnames = [
+        _stateful_file(tmp_path, key, index)
+        for index, key in enumerate(["x", "x", None, "x"])
+    ]
+    lntr = Linter(dialect="ansi")
+    results = runner.MultiThreadRunner(lntr, lntr.config, processes=2).run(
+        fnames, fix=False
+    )
+    next(results)
+    results.close()
+    assert stateful_events[-1][0] == "close"
+    assert not lntr._templater_sessions
+
+
+def test__linter__templater_sessions_per_thread():
+    """Each thread using a linter has its own templater session."""
+    lntr = Linter(dialect="ansi")
+    sessions = []
+    opened = threading.Event()
+    finish = threading.Event()
+
+    def hold_session():
+        with lntr._templater_session() as session:
+            sessions.append(session)
+            opened.set()
+            finish.wait(10)
+
+    thread = threading.Thread(target=hold_session)
+    thread.start()
+    try:
+        assert opened.wait(10)
+        with lntr._templater_session() as session:
+            assert session is not sessions[0]
+            # Another thread's session ending doesn't end this one.
+            finish.set()
+            thread.join(10)
+            assert lntr.lint_string("select 1\n").tree
+            assert lntr._templater_sessions == {threading.current_thread(): session}
+    finally:
+        finish.set()
+        thread.join(10)
+    assert not lntr._templater_sessions
+
+
+def test__linter__templater_session_not_reused_after_thread_ends():
+    """A session left open by a thread which ended isn't used by other threads.
+
+    Thread ids may be reused once a thread ends.
+    """
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/linter/mixed_templaters"))
+    parsers = []
+    sessions = []
+
+    def start_parsing():
+        parsed = lntr.parse_path("test/fixtures/linter/mixed_templaters")
+        next(parsed)
+        parsers.append(parsed)
+
+    def open_session():
+        with lntr._templater_session() as session:
+            sessions.append(session)
+
+    for target in (start_parsing, open_session):
+        thread = threading.Thread(target=target)
+        thread.start()
+        thread.join(10)
+    (left_open,) = lntr._templater_sessions.values()
+    assert sessions[0] is not left_open
+    parsers[0].close()
+    assert not lntr._templater_sessions
+
+
+def test__linter__nested_templater_chosen_without_config(tmp_path, monkeypatch):
+    """Files using a nested worker templater don't need their config to group.
+
+    Only one config is built, to sequence the files.
+    """
+    tmp_path.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n", encoding="utf-8"
+    )
+    nested = tmp_path / "placeholder"
+    nested.mkdir()
+    nested.joinpath(".sqlfluff").write_text(
+        "[sqlfluff]\ntemplater = placeholder\n\n"
+        "[sqlfluff:templater:placeholder]\nparam_style = colon\n",
+        encoding="utf-8",
+    )
+    fnames = []
+    for index in range(3):
+        nested.joinpath(f"{index}.sql").write_text("SELECT :value\n", encoding="utf-8")
+        fnames.append(str(nested / f"{index}.sql"))
+    lntr = Linter(config=FluffConfig.from_path(str(tmp_path)))
+    built = []
+    make_child = FluffConfig.make_child_from_path
+
+    def record(config, path, **kwargs):
+        built.append(path)
+        return make_child(config, path, **kwargs)
+
+    monkeypatch.setattr(FluffConfig, "make_child_from_path", record)
+    partials = list(
+        runner.MultiThreadRunner(lntr, lntr.config, processes=2).iter_partials(fnames)
+    )
+    assert [fname for fname, _ in partials] == fnames
+    assert all(isinstance(task, DeferredRenderTask) for _, task in partials)
+    assert built == fnames[:1]
+
+
+def test__linter__closing_parse_path_ends_templater_session():
+    """Closing a partly consumed path parser ends its templater session."""
+    root = "test/fixtures/linter/mixed_templaters"
+    lntr = Linter(config=FluffConfig.from_path(root))
+    parsed = lntr.parse_path(root)
+
+    assert next(parsed).tree
+    assert lntr._templater_sessions
+    parsed.close()
+
+    assert not lntr._templater_sessions
 
 
 def test_advanced_api_methods():
