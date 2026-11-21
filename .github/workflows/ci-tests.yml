@@ -227,7 +227,9 @@ jobs:
     # main, the nightly schedule and manual dispatch - not on PRs or in the
     # merge queue, where they only consume runner slots.
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    # Ubuntu 26.04's Docker seccomp profile blocks i686 glibc socket calls.
+    # https://github.com/actions/runner-images/issues/15312
+    runs-on: ${{ matrix.target == 'x86' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     strategy:
       matrix:
         target: [x86, aarch64, armv7, s390x, ppc64le]
