@@ -7,6 +7,7 @@ import pytest
 
 import sqlfluff
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config.file import _resolve_paths_in_config
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
@@ -652,3 +653,19 @@ def test_resolve_paths_in_config_skips_jinja_context(tmp_path):
     context = test_config["templater"]["jinja"]["context"]
     assert context["tbl_path"] == "data"
     assert context["is_dir"] is True
+
+
+@pytest.mark.parametrize(
+    "key",
+    ["load_macros_from_path", "loader_search_path", "exclude_macros_from_path"],
+)
+def test_resolve_paths_in_config_non_string_value_is_user_error(tmp_path, key):
+    """A non string path value is a user error, not an assertion error."""
+    test_config = {"templater:jinja": {key: ["macros", "other_macros"]}}
+    config_path = str(tmp_path / ".sqlfluff")
+
+    with pytest.raises(SQLFluffUserError) as exc_info:
+        _resolve_paths_in_config(test_config, config_path)
+
+    assert key in str(exc_info.value)
+    assert config_path in str(exc_info.value)
