@@ -278,14 +278,20 @@ class JinjaAnalyzer:
         # Input
         self.raw_str: str = raw_str
         self.env = env
+        # NOTE: Sort by length descending so that longer delimiters are tried
+        # first when one delimiter is a prefix of another (regex alternation
+        # is ordered). The secondary sort key on the string itself makes the
+        # ordering fully deterministic: the delimiters are collected in a set,
+        # and iterating a set of equal-length strings is hash-order dependent
+        # (i.e. varies with PYTHONHASHSEED), which `sorted` would otherwise
+        # preserve because its sort is stable.
         open_alts = sorted(
             {
                 env.variable_start_string,
                 env.block_start_string,
                 env.comment_start_string,
             },
-            key=len,
-            reverse=True,
+            key=lambda s: (-len(s), s),
         )
         close_alts = sorted(
             {
@@ -293,8 +299,7 @@ class JinjaAnalyzer:
                 env.block_end_string,
                 env.comment_end_string,
             },
-            key=len,
-            reverse=True,
+            key=lambda s: (-len(s), s),
         )
         open_pat = "|".join(regex.escape(s) for s in open_alts)
         close_pat = "|".join(regex.escape(s) for s in close_alts)

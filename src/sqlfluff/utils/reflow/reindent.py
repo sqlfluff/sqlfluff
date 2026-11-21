@@ -8,7 +8,7 @@ from itertools import chain
 from typing import DefaultDict, Optional, Union, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.helpers.slice import slice_length
+from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.parser import (
     BaseSegment,
     NewlineSegment,
@@ -346,15 +346,23 @@ def _revise_templated_lines(
                 # NOTE: We still need the forward version of this.
                 elif not _element.segments[0].is_type("placeholder"):
                     break
-                elif cast(TemplateSegment, _element.segments[0]).block_type not in (
-                    "block_start",
-                    "block_end",
-                    "skipped_source",
-                    "block_mid",
+                elif not (
+                    cast(TemplateSegment, _element.segments[0]).block_type
+                    in (
+                        "block_start",
+                        "block_end",
+                        "skipped_source",
+                        "block_mid",
+                    )
+                    or is_zero_slice(_element.segments[0].pos_marker.templated_slice)
                 ):
-                    # Recreating this condition is hard, but we shouldn't allow any
-                    # rendered content here.
-                    break  # pragma: no cover
+                    # We shouldn't allow any rendered content here. A
+                    # placeholder which rendered something (i.e. it has a
+                    # non-zero slice in the templated file) acts as a barrier,
+                    # but a zero-width one (e.g. an inline expression like
+                    # `{{ "," if not loop.last }}` which renders empty on the
+                    # final loop iteration) is blank and transparent.
+                    break
 
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance

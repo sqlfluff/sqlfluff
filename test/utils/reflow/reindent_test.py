@@ -1050,9 +1050,9 @@ def test_reflow_empty_inline_loop_comma(dialect, count):
     """A suppressed inline comma must not grow blank lines on each fix (#5371)."""
     sql = (
         "select\n"
-        f"{{% for i in range({count}) %}}\n"
+        f"    {{% for i in range({count}) %}}\n"
         '        0 as col{{ i }}{{ "," if not loop.last }}\n'
-        "{% endfor %}\n"
+        "    {% endfor %}\n"
     )
     linter = Linter(config=FluffConfig(overrides={"dialect": dialect, "rules": "LT02"}))
     parsed = linter.parse_string(sql)
@@ -1071,3 +1071,45 @@ def test_reflow_empty_inline_loop_comma(dialect, count):
         fixed = linter.lint_string(sql, fix=True)
         assert not fixed.violations
         assert fixed.fix_string()[0] == sql
+
+
+@pytest.mark.parametrize("dialect", ["ansi", "redshift", "snowflake"])
+def test_reflow_inline_expr_loop_comma_5371(dialect):
+    """The exact repro from #5371 must lint clean and fix stably.
+
+    `{{ "," if not loop.last }}` renders empty on the final loop iteration,
+    producing a zero-width templated placeholder. That placeholder must not
+    act as a barrier when LT02 works out the indentation options for the
+    surrounding loop block lines, and the result must not depend on whether
+    the comma is spelled with an inline expression or an if/endif block.
+    """
+    expr_sql = (
+        "{% set cols = ['col1', 'col2', 'col3'] %}\n"
+        "select\n"
+        "    {% for col in cols %}\n"
+        '        0 as {{ col }}{{ "," if not loop.last }}\n'
+        "    {% endfor %}\n"
+    )
+    if_sql = (
+        "{% set cols = ['col1', 'col2', 'col3'] %}\n"
+        "select\n"
+        "    {% for col in cols %}\n"
+        "        0 as {{ col }}{% if not loop.last %},{% endif %}\n"
+        "    {% endfor %}\n"
+    )
+    linter = Linter(config=FluffConfig(overrides={"dialect": dialect, "rules": "LT02"}))
+    violation_sets = []
+    for sql in (expr_sql, if_sql):
+        parsed = linter.parse_string(sql)
+        assert not parsed.violations
+        # Repeated fixing must be stable: no violations and no source changes.
+        for _ in range(2):
+            fixed = linter.lint_string(sql, fix=True)
+            assert not fixed.violations
+            assert fixed.fix_string()[0] == sql
+        result = linter.lint_string(sql, fix=False)
+        violation_sets.append(
+            [(v.rule_code(), v.line_no, v.line_pos) for v in result.violations]
+        )
+    # Both spellings must give the *same* LT02 outcome.
+    assert violation_sets[0] == violation_sets[1] == []

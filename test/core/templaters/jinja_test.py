@@ -2691,3 +2691,85 @@ def test__templater_jinja_library_available_in_macro(tmp_path, macro_source):
     )
     assert not violations
     assert str(templated) == "SELECT 42 AS result;\n"
+
+
+# The exact repro from https://github.com/sqlfluff/sqlfluff/issues/5371
+ISSUE_5371_SQL = (
+    "{% set cols = ['col1', 'col2', 'col3'] %}\n"
+    "select\n"
+    "    {% for col in cols %}\n"
+    '        0 as {{ col }}{{ "," if not loop.last }}\n'
+    "    {% endfor %}\n"
+)
+
+
+def test__templater_jinja_slice_inline_conditional_comma_5371():
+    """Slicing the #5371 repro must be stable and correctly mapped.
+
+    The `{{ "," if not loop.last }}` expression renders empty on the final
+    loop iteration, so the last occurrence is a zero-width *templated* slice.
+    Regression test for the indeterminate lint outcomes in #5371: repeated
+    processing of the same input must always produce the same slices.
+    """
+    t = JinjaTemplater()
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    expected = t.process(in_str=ISSUE_5371_SQL, fname="test.sql", config=config)[0]
+    assert expected.templated_str == (
+        "\nselect\n    \n        0 as col1,\n    \n        0 as col2,\n    \n"
+        "        0 as col3\n    \n"
+    )
+    # The final, empty-rendering `{{ "," if not loop.last }}` is a zero-width
+    # templated slice at the end of the final loop iteration.
+    zero_width_templated = [
+        ts for ts in expected.sliced_file if ts.slice_type == "templated"
+    ]
+    assert zero_width_templated[-1].templated_slice == slice(
+        len(expected.templated_str) - 6, len(expected.templated_str) - 6
+    )
+    # Repeat: results must be identical every time (i.e. independent of any
+    # hash-seed dependent set/dict iteration order).
+    for _ in range(3):
+        templated_file, violations = t.process(
+            in_str=ISSUE_5371_SQL, fname="test.sql", config=config
+        )
+        assert not violations
+        assert templated_file.templated_str == expected.templated_str
+        assert templated_file.sliced_file == expected.sliced_file
+        assert templated_file.raw_sliced == expected.raw_sliced
+
+
+@pytest.mark.parametrize(
+    "env_kwargs, expected_open, expected_close",
+    [
+        # Default delimiters are all the same length, so a plain
+        # `sorted(..., key=len)` leaves them in set iteration order, which
+        # varies with PYTHONHASHSEED. The tie-break on the string itself
+        # makes the order fully deterministic.
+        (
+            {},
+            r"^\s*(\{\#|\{%|\{\{)[\+\-]?\s*",
+            r"\s*[\+\-]?(\#\}|%\}|\}\})\s*$",
+        ),
+        # Longer delimiters must still sort first so that a delimiter which
+        # is a prefix of another matches correctly.
+        (
+            {
+                "variable_start_string": "{{{",
+                "variable_end_string": "}}}",
+                "block_start_string": "{%",
+                "block_end_string": "%}",
+                "comment_start_string": "{#",
+                "comment_end_string": "#}",
+            },
+            r"^\s*(\{\{\{|\{\#|\{%)[\+\-]?\s*",
+            r"\s*[\+\-]?(\}\}\}|\#\}|%\})\s*$",
+        ),
+    ],
+)
+def test__templater_jinja_analyzer_delimiter_patterns_deterministic(
+    env_kwargs, expected_open, expected_close
+):
+    """JinjaAnalyzer tag regexes must have a fixed, hash-independent order."""
+    analyzer = JinjaAnalyzer("select 1", SandboxedEnvironment(**env_kwargs))
+    assert analyzer.re_open_tag.pattern == expected_open
+    assert analyzer.re_close_tag.pattern == expected_close
