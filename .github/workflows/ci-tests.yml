@@ -540,6 +540,8 @@ jobs:
           - dbt180
           - dbt190
           - dbt1100
+          # Catalogs v2 requires dbt-core 1.12+.
+          - dbt1120
         include:
           # Default to python 3.12 for dbt tests.
           # * Python 3.13 not supported yet.
