@@ -137,6 +137,10 @@ duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"
 # MICROSECONDS (both plural). We add the missing MICROSECOND (singular) and
 # all other plural forms (DAYS, HOURS, MINUTES, MONTHS, QUARTERS, SECONDS,
 # WEEKS, YEARS).
+# `OFFSET` is reserved in DuckDB, so it can't name a type. Without this, in
+# `LIMIT 10% OFFSET 2` the `%` reads as a modulo of the typed literal `OFFSET 2`.
+duckdb_dialect.sets("cannot_be_type_keywords").update(["OFFSET"])
+
 duckdb_dialect.sets("datetime_units").update(
     [
         "DAYS",
@@ -473,6 +477,51 @@ class UsingSampleClauseSegment(BaseSegment):
         "USING",
         "SAMPLE",
         Ref("SampleExpressionGrammar"),
+    )
+
+
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Overrides the ANSI one because the limit can be a percentage of the rows,
+    as in `LIMIT 10%` or `LIMIT 10 PERCENT`.
+
+    https://duckdb.org/docs/stable/sql/query_syntax/limit
+    """
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        OptionallyBracketed(
+            OneOf(
+                # Allow a number by itself OR
+                Ref("NumericLiteralSegment"),
+                # An arbitrary expression
+                Ref("ExpressionSegment"),
+                "ALL",
+            )
+        ),
+        # A `%` after the value makes it a percentage, as DuckDB reads it: `LIMIT
+        # 2 * 5%` is 10% of the rows, while `LIMIT 10 % 3` is 1 row. `PERCENT`
+        # isn't in the docs, but DuckDB takes it as well, as in `USING SAMPLE`.
+        OneOf(Ref("ModuloSegment"), "PERCENT", optional=True),
+        OneOf(
+            Sequence(
+                "OFFSET",
+                OneOf(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # An arbitrary expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Dedent,
     )
 
 
