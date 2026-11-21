@@ -1,0 +1,5 @@
+BEGIN
+    FORALL i IN 1..10 SAVE EXCEPTIONS
+        INSERT INTO t VALUES (i);
+END;
+/
