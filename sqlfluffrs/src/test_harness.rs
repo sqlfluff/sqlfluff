@@ -1,3 +1,4 @@
+
 use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
@@ -77,7 +78,18 @@ impl FixtureTest {
         };
 
         // Parse with Rust parser
-        let dialect = Dialect::from_str(self.dialect.as_str()).expect("Invalid dialect");
+        let dialect = match Dialect::from_str(self.dialect.as_str()) {
+            Ok(dialect) => dialect,
+            Err(e) => {
+                return TestResult {
+                    test: self.clone(),
+                    success: false,
+                    error: Some(format!("Invalid dialect '{}': {}", self.dialect, e)),
+                    generated_yaml: None,
+                    expected_yaml: None,
+                };
+            }
+        };
 
         let input = LexInput::String(sql_content.clone());
         let lexer = Lexer::for_dialect(dialect);
@@ -153,7 +165,7 @@ impl FixtureTest {
 }
 
 /// Convert a Node to YAML using the canonical `as_record` serialization path,
-/// which mirrors Python's `BaseSegment.as_record()`.  Used by `FixtureTest::run`.
+/// which mirrors Python's `BaseSegment.as_record()`. Used by `FixtureTest::run`.
 fn node_to_yaml_via_as_record(node: &Node) -> Result<String, Box<dyn std::error::Error>> {
     let mut root_map = Mapping::new();
     root_map.insert(
@@ -173,7 +185,7 @@ fn node_to_yaml_via_as_record(node: &Node) -> Result<String, Box<dyn std::error:
     let header = "# YML test files are auto-generated from SQL files and should not be edited by\n\
                   # hand. To help enforce this, the \"hash\" field in the file must match a hash\n\
                   # computed by SQLFluff when running the tests. Please run\n\
-                  # `python test/generate_parse_fixture_yml.py`  to generate them after adding or\n\
+                  # `python test/generate_parse_fixture_yml.py` to generate them after adding or\n\
                   # altering SQL files.\n";
 
     let yaml_str = serde_yaml_ng::to_string(&Value::Mapping(root_map))?;
