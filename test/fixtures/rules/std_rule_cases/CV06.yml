@@ -751,6 +751,60 @@ test_pass_tsql_batch_already_has_semicolon:
       convention.terminator:
         require_final_semicolon: true
 
+# Missing intermediate terminators in dialects which parse adjacent statements.
+test_pass_tsql_sqlcmd_include_before_statement:
+  pass_str: |
+    :r script.sql
+    SELECT 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_sqlcmd_variable_before_statement:
+  pass_str: |
+    :setvar variable value
+    SELECT 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_sqlcmd_final_commands:
+  pass_str: |
+    :r script.sql
+    :setvar variable value
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_oracle_missing_intermediate_semicolons:
+  fail_str: |
+    DELETE FROM code_detail
+    -- Keep this comment between statements.
+    INSERT INTO code_head(code_type) VALUES('PLTQ')
+    INSERT INTO code_head(code_type) VALUES('RSCD')
+  fix_str: |
+    DELETE FROM code_detail;
+    -- Keep this comment between statements.
+    INSERT INTO code_head(code_type) VALUES('PLTQ');
+    INSERT INTO code_head(code_type) VALUES('RSCD')
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_tsql_missing_intermediate_semicolon:
+  fail_str: |
+    SELECT 1
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+
 # BigQuery specific tests for multi_statement_segment handling (procedures)
 test_pass_bigquery_procedure_with_semicolon:
   pass_str: |
