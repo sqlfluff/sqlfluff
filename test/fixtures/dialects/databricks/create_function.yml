@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f818121dd2dff35fe84b9d56ff428fc7a13949cf7b4adcad7a8f5e05483f39f8
+_hash: 6ecc2b7362e85c1fe30a6faa8570d52c1e7b62a392cfd17394c5b6fe5b6b541d
 file:
 - statement:
     create_function_statement:
@@ -605,4 +605,123 @@ file:
                   alias_operator:
                     keyword: AS
                   naked_identifier: col
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: scala_f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - function_definition:
+      - keyword: LANGUAGE
+      - keyword: SCALA
+      - keyword: ENVIRONMENT
+      - bracketed:
+          start_bracket: (
+          naked_identifier: java_dependencies
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'[\"x.jar\"]'"
+          end_bracket: )
+      - keyword: HANDLER
+      - quoted_literal: "'com.example.X.f'"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: java_f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - function_definition:
+      - keyword: LANGUAGE
+      - keyword: JAVA
+      - keyword: ENVIRONMENT
+      - bracketed:
+          start_bracket: (
+          naked_identifier: java_dependencies
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'[\"x.jar\"]'"
+          end_bracket: )
+      - keyword: HANDLER
+      - quoted_literal: "'com.example.X.f'"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: py_f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - function_definition:
+      - keyword: LANGUAGE
+      - keyword: PYTHON
+      - keyword: ENVIRONMENT
+      - bracketed:
+          start_bracket: (
+          naked_identifier: dependencies
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'[\"a\"]'"
+          end_bracket: )
+      - keyword: AS
+      - udf_body: $$ return 1 $$
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: collated_f
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            primitive_type:
+              keyword: STRING
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - function_definition:
+      - keyword: DEFAULT
+      - keyword: COLLATION
+      - naked_identifier: UTF8_BINARY
+      - keyword: RETURN
+      - expression:
+          column_reference:
+            naked_identifier: x
 - statement_terminator: ;

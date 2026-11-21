@@ -27,4 +27,15 @@ COMMENT 'This database is used to maintain Inventory';
 
 -- Create schema with a managed location
 CREATE SCHEMA IF NOT EXISTS database_name
-MANAGED LOCATION "s3://root_database_bucket/"
+MANAGED LOCATION "s3://root_database_bucket/";
+
+-- Clause set from the CREATE SCHEMA reference page.
+CREATE SCHEMA s DEFAULT COLLATION UTF8_BINARY;
+
+CREATE SCHEMA s RETAIN DROPPED FOR 14 DAYS;
+
+CREATE SCHEMA s RETAIN DROPPED FOR 0 HOURS;
+
+CREATE SCHEMA s RETAIN DROPPED FOR 1 WEEK;
+
+CREATE SCHEMA s COMMENT 'a schema' WITH DBPROPERTIES (k = 'v');
