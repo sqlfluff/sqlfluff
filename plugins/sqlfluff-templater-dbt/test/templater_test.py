@@ -211,6 +211,75 @@ def _run_templater_and_verify_result(
     assert not lexing_violations
 
 
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        ("", ""),
+        ("\n", "\n"),
+        ("  \n", "  \n"),
+        ("{{ '' }}", ""),
+        ("{{ config(materialized='table') }}", ""),
+        ("{% if false %}select 1{% endif %}", ""),
+        ("{{ '' -}}\n", ""),
+        ("{# empty model -#}\n", ""),
+        ("select 1\n", "select 1\n"),
+        ("select {{ 1 }} -- -}}\n", "select 1 -- -}}\n"),
+        ("select {{ 1 }} -- -#}\n", "select 1 -- -#}\n"),
+        ("select {{ 1 }} -- -%}\n", "select 1 -- -%}\n"),
+        ("select {{ 1 -}}\n", "select 1"),
+        ("select 1 {# comment -#}\n", "select 1 "),
+        ("{% if true %}select 1{% endif -%}\n", "select 1"),
+        ("{% raw %}select 1{% endraw -%}\n", "select 1"),
+    ],
+)
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
+def test__templater_dbt_empty_output(
+    _set_relations_cache, project_dir, dbt_templater, dbt_fluff_config, source, expected
+):
+    """Empty models and templates may successfully compile to an empty string."""
+    path = Path(project_dir) / "models/my_new_project/empty_model.sql"
+    path.write_text(source)
+    config = FluffConfig(configs=dbt_fluff_config)
+    try:
+        templated_file, violations = dbt_templater.process(
+            in_str=source, fname=str(path), config=config
+        )
+    finally:
+        path.unlink()
+
+    assert not violations
+    assert templated_file.source_str == source
+    assert templated_file.templated_str == expected
+    _, lexing_violations = Lexer(config=config).lex(templated_file)
+    assert not lexing_violations
+
+
+@pytest.mark.parametrize("source", ["", "select 1\n"])
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
+def test__templater_dbt_missing_compiled_output(
+    _set_relations_cache, project_dir, dbt_templater, dbt_fluff_config, source
+):
+    """A missing compilation result remains an error, even for an empty source."""
+    from dbt.compilation import Compiler
+
+    path = Path(project_dir) / "models/my_new_project/missing_compilation.sql"
+    path.write_text(source)
+    config = FluffConfig(configs=dbt_fluff_config)
+    compile_node = Compiler.compile_node
+
+    def missing_compiled_output(*args, **kwargs):
+        node = compile_node(*args, **kwargs)
+        node.compiled_code = None
+        return node
+
+    try:
+        with mock.patch.object(Compiler, "compile_node", new=missing_compiled_output):
+            with pytest.raises(SQLTemplaterError, match="compilation failed silently"):
+                dbt_templater.process(in_str=source, fname=str(path), config=config)
+    finally:
+        path.unlink()
+
+
 def _get_fixture_path(template_output_folder_path, fname):
     fixture_path: Path = template_output_folder_path / fname  # Default fixture location
     dbt_version_specific_fixture_folder = "dbt_utils_0.8.0"
