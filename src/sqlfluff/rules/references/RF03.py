@@ -610,12 +610,23 @@ def _qualifier_raw(source: RawSegment, table_ref_str: str) -> str:
     the source's quote characters so it still parses as an identifier.
     """
     raw = source.raw
-    if raw == table_ref_str:
+    if (
+        raw == table_ref_str
+        or source.raw_trimmed() == table_ref_str
+        or source.raw_normalized(casefold=False) == table_ref_str
+    ):
+        # The source already is the table component. Keep its spelling so
+        # escaped quote characters survive the fix.
         return raw
-    for start, end in (("`", "`"), ('"', '"'), ("[", "]")):
-        if raw.startswith(start) and raw.endswith(end):
-            return f"{start}{table_ref_str}{end}"
-    return table_ref_str
+    quote = next(
+        (
+            pair
+            for pair in (("`", "`"), ('"', '"'), ("[", "]"), ("'", "'"))
+            if raw.startswith(pair[0]) and raw.endswith(pair[1])
+        ),
+        ("", ""),
+    )
+    return f"{quote[0]}{table_ref_str}{quote[1]}"
 
 
 def _validate_one_reference(

@@ -1958,3 +1958,15 @@ test_fail_qualify_single_table_bigquery_multipart_table:
       references.consistent:
         force_enable: true
         single_table_references: qualified
+
+test_fail_qualify_single_table_escaped_quote_alias:
+  # The alias already contains the escaped quote. Keep its source spelling
+  # so the inserted qualifier stays parseable.
+  fail_str: SELECT c FROM t AS "a""b";
+  fix_str: SELECT "a""b".c FROM t AS "a""b";
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
