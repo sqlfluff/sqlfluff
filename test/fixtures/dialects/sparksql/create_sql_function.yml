@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2dcf50930327d9986b8b47f51b19510859e3a9ac3ca8eb000fcaaf4c9a36a8d
+_hash: bf3d4f7411ec7926e4b78fb166d0811067f81f8fcb0b18e335a5d1b394fd683e
 file:
 - statement:
     create_sql_function_statement:
@@ -172,28 +172,27 @@ file:
         primitive_type:
           keyword: INT
     - keyword: RETURN
-    - expression:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              function:
-                function_name:
-                  function_name_identifier: MAX
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: a
-                    end_bracket: )
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: MAX
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:
@@ -340,11 +339,10 @@ file:
     - keyword: RETURNS
     - keyword: TABLE
     - keyword: RETURN
-    - expression:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                naked_identifier: a
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
 - statement_terminator: ;

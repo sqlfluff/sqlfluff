@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec24b6baf97659f7b5ce55f4aba60c9adbd732441150259421cf037faadabc0b
+_hash: 3241b5c3f367571d944a173d0553ca994f862f11205f258cbf1db9014b6f4a83
 file:
 - batch:
   - statement:
@@ -339,44 +339,40 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    function:
-                      function_name:
-                        function_name_identifier: MULTISET
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
+                    keyword: MULTISET
+                    bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            column_reference:
+                            - naked_identifier: c
+                            - dot: .
+                            - naked_identifier: cust_address
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: customers
+                              alias_expression:
+                                naked_identifier: c
+                        where_clause:
+                          keyword: WHERE
                           expression:
-                            select_statement:
-                              select_clause:
-                                keyword: SELECT
-                                select_clause_element:
-                                  column_reference:
-                                  - naked_identifier: c
-                                  - dot: .
-                                  - naked_identifier: cust_address
-                              from_clause:
-                                keyword: FROM
-                                from_expression:
-                                  from_expression_element:
-                                    table_expression:
-                                      table_reference:
-                                        naked_identifier: customers
-                                    alias_expression:
-                                      naked_identifier: c
-                              where_clause:
-                                keyword: WHERE
-                                expression:
-                                - column_reference:
-                                  - naked_identifier: c
-                                  - dot: .
-                                  - naked_identifier: customer_id
-                                - comparison_operator:
-                                    raw_comparison_operator: '='
-                                - column_reference:
-                                  - naked_identifier: cd
-                                  - dot: .
-                                  - naked_identifier: customer_id
-                          end_bracket: )
+                          - column_reference:
+                            - naked_identifier: c
+                            - dot: .
+                            - naked_identifier: customer_id
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - column_reference:
+                            - naked_identifier: cd
+                            - dot: .
+                            - naked_identifier: customer_id
+                      end_bracket: )
                   keyword: AS
                   data_type:
                     data_type_identifier: cust_address_tab_typ
