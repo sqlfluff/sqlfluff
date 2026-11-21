@@ -12,6 +12,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
 from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+from sqlfluff.core.parser.match_algorithms import next_match
 from sqlfluff.core.parser.types import ParseMode
 
 
@@ -228,6 +229,22 @@ def test__parser__grammar_nothing_match(test_segments, fresh_ansi_dialect):
     """Test the Nothing grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
     assert not Nothing().match(test_segments, 0, ctx)
+
+
+def test__parser__grammar_nothing_simple(test_segments, fresh_ansi_dialect):
+    """Test that Nothing has an empty hint, so lookahead can skip it.
+
+    An unimplemented keyword resolves to Nothing, and it can sit among the
+    terminators of a grammar, where next_match() needs a hint from every
+    matcher.
+    """
+    ctx = ParseContext(dialect=fresh_ansi_dialect, max_parse_depth=0)
+    assert Nothing().simple(ctx) == (frozenset(), frozenset())
+
+    foo = StringParser("foo", KeywordSegment)
+    match, matcher = next_match(test_segments, 0, [Nothing(), foo], ctx)
+    assert matcher is foo
+    assert match.matched_slice == slice(2, 3)
 
 
 def test__parser__grammar_noncode_match(test_segments, fresh_ansi_dialect):

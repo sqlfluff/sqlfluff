@@ -50,8 +50,20 @@ The dialect for `Athena <https://aws.amazon.com/athena/>`_
 on Amazon Web Services (AWS).""",
 )
 
-athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
-athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)
+# A word athena lists as unreserved that is reserved, in its own list or in the
+# ANSI keywords it adds to, stays reserved, as it always behaved.
+athena_reserved = set(athena_reserved_keywords)
+athena_dialect.declare_keyword_sets(
+    reserved=athena_reserved,
+    reserved_mode="add",
+    unreserved=set(athena_unreserved_keywords)
+    - athena_reserved
+    - set(ansi_dialect.sets("reserved_keywords")),
+    unimplemented=[],
+    future_reserved=[],
+    future_reserved_mode="replace",
+    unspecified_parent_keywords="unreserved",
+)
 
 athena_dialect.insert_lexer_matchers(
     # Array Operations: https://prestodb.io/docs/0.217/functions/array.html
@@ -114,12 +126,20 @@ athena_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
     RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
-    OrcKeywordSegment=StringParser("ORCFILE", KeywordSegment, type="file_format"),
-    ParquetKeywordSegment=StringParser(
+    # Athena documents ORC, PARQUET, AVRO and ION. Before this, these matched
+    # only ORCFILE, PARQUETFILE, AVROFILE and IONFILE, so those still parse:
+    # Hive, whose DDL Athena's is based on, takes the first three, and IONFILE
+    # is kept because it parsed here before, though no source names it.
+    OrcKeywordSegment=StringParser("ORC", KeywordSegment, type="file_format"),
+    OrcfileKeywordSegment=StringParser("ORCFILE", KeywordSegment, type="file_format"),
+    ParquetKeywordSegment=StringParser("PARQUET", KeywordSegment, type="file_format"),
+    ParquetfileKeywordSegment=StringParser(
         "PARQUETFILE", KeywordSegment, type="file_format"
     ),
-    AvroKeywordSegment=StringParser("AVROFILE", KeywordSegment, type="file_format"),
-    IonKeywordSegment=StringParser("IONFILE", KeywordSegment, type="file_format"),
+    AvroKeywordSegment=StringParser("AVRO", KeywordSegment, type="file_format"),
+    AvrofileKeywordSegment=StringParser("AVROFILE", KeywordSegment, type="file_format"),
+    IonKeywordSegment=StringParser("ION", KeywordSegment, type="file_format"),
+    IonfileKeywordSegment=StringParser("IONFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
         "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
@@ -184,10 +204,14 @@ athena_dialect.add(
         "TEXTFILE",
         "RCFILE",
         "ORC",
+        "ORCFILE",
         "PARQUET",
+        "PARQUETFILE",
         "AVRO",
+        "AVROFILE",
         "JSONFILE",
         "ION",
+        "IONFILE",
         Sequence(
             "INPUTFORMAT",
             Ref("QuotedLiteralSegment"),

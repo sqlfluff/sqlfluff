@@ -29,6 +29,20 @@ from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 
+# Values at the top of u32 that the Rust side reserves, so no real id may reach
+# them. They must match the Rust side.
+# GrammarId::NONCODE in sqlfluffrs_types/src/grammar_inst.rs: not a grammar in
+# the tables but the terminator for any non-code token (Python's
+# NonCodeMatcher), which Delimited adds at runtime when allow_gaps is False.
+NONCODE_GRAMMAR_ID = 0xFFFFFFFE
+# NO_SIMPLE_HINT, NO_STRING, NO_REGEX and NO_REPEAT_LIMIT in
+# sqlfluffrs_types/src/grammar_tables.rs.
+NO_SIMPLE_HINT = 0xFFFFFFFF
+NO_STRING = 0xFFFFFFFF
+NO_REGEX = 0xFFFFFFFF
+# A count, not an index: max_times with no upper bound.
+NO_REPEAT_LIMIT = 0xFFFFFFFF
+
 
 @dataclass
 class DummyParseContext:
@@ -51,7 +65,8 @@ class GrammarInstData:
     first_terminator_idx: int
     terminator_count: int
     aux_data_offset: int
-    simple_hint_idx: int
+    # Position in simple_hints, or None: no hint, try a full match.
+    simple_hint_index: Optional[int]
     comment: str = ""
 
 
@@ -90,11 +105,11 @@ class TableBuilder:
         self.regex_patterns: List[str] = []
         self.simple_hints: List[SimpleHintData] = []
         self.hint_string_indices: List[int] = []  # Indices into strings for hints
-        # Per-instruction segment type index (into strings) or 0xFFFFFFFF
-        # if none
+        # Per-instruction segment type index (into strings) or NO_STRING
+        # (0xFFFFFFFF)
         self.segment_type_offsets: List[int] = []
         # Per-instruction segment class name index (into strings) or
-        # 0xFFFFFFFF if none
+        # NO_STRING (0xFFFFFFFF)
         self.segment_class_offsets: List[int] = []
         # Sparse casefold entries: list of (grammar_id, mode) tuples
         # mode: 0=None, 1=Upper, 2=Lower. Only populated for grammars that
@@ -135,6 +150,10 @@ class TableBuilder:
         if s in self.string_to_id:
             return self.string_to_id[s]
         string_id = len(self.strings)
+        if string_id == NO_STRING:
+            raise ValueError(
+                "Too many strings: the next index is NO_STRING (0xFFFFFFFF)."
+            )
         self.strings.append(s)
         self.string_to_id[s] = string_id
         return string_id
@@ -162,16 +181,25 @@ class TableBuilder:
         if pattern in self.regex_to_id:
             return self.regex_to_id[pattern]
         regex_id = len(self.regex_patterns)
+        if regex_id == NO_REGEX:
+            raise ValueError(
+                "Too many regex patterns: the next index is NO_REGEX (0xFFFFFFFF)."
+            )
         self.regex_patterns.append(pattern)
         self.regex_to_id[pattern] = regex_id
         return regex_id
 
-    def _add_simple_hint(self, grammar, parse_context) -> int:
-        """Precompute and add simple hint. Returns hint_id (0 = None)."""
+    def _add_simple_hint(self, grammar, parse_context) -> Optional[int]:
+        """Precompute and add a simple hint, returning its position in simple_hints.
+
+        None is Python's simple() returning None: no hint, so the parser must
+        try a full match. An empty hint, for a grammar that can never match,
+        is a real hint with its own id.
+        """
         try:
             hint = grammar.simple(parse_context)
             if hint is None:
-                return 0  # 0 means no hint
+                return None
 
             # Create hashable key for deduplication
             raw_tuple = tuple(sorted(hint[0]))
@@ -196,8 +224,12 @@ class TableBuilder:
                 self.hint_string_indices.append(idx)
             token_types_count = len(type_indices)
 
-            # Add new hint (index 0 reserved for None)
-            hint_id = len(self.simple_hints) + 1
+            hint_id = len(self.simple_hints)
+            if hint_id == NO_SIMPLE_HINT:
+                raise ValueError(
+                    "Too many simple hints: the next position is NO_SIMPLE_HINT "
+                    "(0xFFFFFFFF)."
+                )
             self.simple_hints.append(
                 SimpleHintData(
                     raw_values_start=raw_values_start,
@@ -209,7 +241,7 @@ class TableBuilder:
             self.hint_to_id[key] = hint_id
             return hint_id
         except (RuntimeError, AttributeError):
-            return 0  # No hint available
+            return None  # No hint available
 
     def _flatten_optional(self, grammar, parse_context) -> Optional[int]:
         """Flatten optional grammar (e.g., exclude). Returns GrammarId or None."""
@@ -277,15 +309,20 @@ class TableBuilder:
         # append their instructions. If we don't reserve the slot first, this
         # instruction will end up at the wrong index!
         grammar_id = len(self.instructions)
+        if grammar_id == NONCODE_GRAMMAR_ID:
+            raise ValueError(
+                "Too many grammar instructions: the next id is GrammarId::NONCODE "
+                "(0xFFFFFFFE)."
+            )
         self.grammar_to_id[python_id] = grammar_id
         # Pin the object so its id() cannot be reused by a different grammar
         # while the cache entry is live (see _cached_grammars in __init__).
         self._cached_grammars.append(grammar)
         self.instructions.append(None)  # Reserve slot - will be replaced below
         # Reserve a slot for the segment_type offset (default: no type)
-        self.segment_type_offsets.append(0xFFFFFFFF)
+        self.segment_type_offsets.append(NO_STRING)
         # Reserve a slot for the segment_class offset (default: no class)
-        self.segment_class_offsets.append(0xFFFFFFFF)
+        self.segment_class_offsets.append(NO_STRING)
         # Note: casefold and trim_chars use sparse storage, no reservation needed
 
         # Convert to GrammarInst (variant-specific logic)
@@ -297,8 +334,8 @@ class TableBuilder:
         # If this grammar is a Segment class, record its `type` string index
         # into the per-instruction segment_type_offsets table. We store the
         # index into the existing strings table so runtime can map back to
-        # the textual type (e.g., "keyword", "file", etc.). Use 0xFFFFFFFF
-        # to indicate "no type".
+        # the textual type (e.g., "keyword", "file", etc.). NO_STRING
+        # (0xFFFFFFFF) means "no type".
         try:
             # If this grammar is a Segment class itself, use its `type` and
             # `__name__` attrs
@@ -467,7 +504,7 @@ class TableBuilder:
                 first_terminator_idx=len(self.terminators),
                 terminator_count=0,
                 aux_data_offset=name_id,
-                simple_hint_idx=0,
+                simple_hint_index=None,
                 comment=comment,
             )
 
@@ -523,7 +560,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=name_id,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -571,7 +608,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=0,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -628,7 +665,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -666,12 +703,12 @@ class TableBuilder:
         aux_offset = len(self.aux_data)
         self.aux_data.append(grammar.min_times)
         self.aux_data.append(
-            grammar.max_times if grammar.max_times is not None else 0xFFFFFFFF
+            grammar.max_times if grammar.max_times is not None else NO_REPEAT_LIMIT
         )
         self.aux_data.append(
             grammar.max_times_per_element
             if grammar.max_times_per_element is not None
-            else 0xFFFFFFFF
+            else NO_REPEAT_LIMIT
         )
         self.aux_data.append(1 if exclude_id is not None else 0)
 
@@ -693,7 +730,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -730,7 +767,7 @@ class TableBuilder:
         aux_offset = len(self.aux_data)
         self.aux_data.append(grammar.min_times)
         self.aux_data.append(
-            grammar.max_times if grammar.max_times is not None else 0xFFFFFFFF
+            grammar.max_times if grammar.max_times is not None else NO_REPEAT_LIMIT
         )
         self.aux_data.append(1)  # max_times_per_element=1 for AnySetOf
         self.aux_data.append(1 if exclude_id is not None else 0)  # has_exclude
@@ -754,7 +791,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -824,7 +861,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -888,7 +925,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -950,7 +987,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -1015,7 +1052,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -1085,7 +1122,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=hint_id,
+            simple_hint_index=hint_id,
             comment=comment,
         )
 
@@ -1097,7 +1134,7 @@ class TableBuilder:
         anti_regex_id = (
             self._add_regex(grammar.anti_template)
             if grammar.anti_template
-            else 0xFFFFFFFF
+            else NO_REGEX
         )
         instance_type_ids = [
             self._add_string(t)
@@ -1151,7 +1188,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=comment,
         )
 
@@ -1167,7 +1204,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_index=self._add_simple_hint(grammar, parse_context),
             comment="Nothing",
         )
 
@@ -1193,7 +1230,7 @@ class TableBuilder:
             first_terminator_idx=terminators_start,
             terminator_count=terminators_count,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment="Anything",
         )
 
@@ -1244,7 +1281,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f"Meta(conditional: {config_key}={expected_value} -> {meta_type})",
         )
 
@@ -1269,7 +1306,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=type_id,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f'Meta("{type_name}")',
         )
 
@@ -1300,7 +1337,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=(f"PrecededBy(preceding_sequences={grammar.preceding_sequences})"),
         )
 
@@ -1342,7 +1379,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f'Token("{grammar.type}")',
         )
 
@@ -1358,7 +1395,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=0,
-            simple_hint_idx=0,
+            simple_hint_index=None,
             comment=f"Missing({grammar.__class__.__name__})",
         )
 
@@ -1497,7 +1534,7 @@ class TableBuilder:
         lines.append("")
 
         # Segment type offsets (indexed by GrammarId)
-        # - index into STRINGS or 0xFFFFFFFF
+        # - index into STRINGS or NO_STRING (0xFFFFFFFF)
         lines.append("pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[")
         for i in range(0, len(self.segment_type_offsets), 16):
             chunk = self.segment_type_offsets[i : i + 16]
@@ -1507,7 +1544,7 @@ class TableBuilder:
         lines.append("")
 
         # Segment class name offsets (indexed by GrammarId)
-        # - index into STRINGS or 0xFFFFFFFF
+        # - index into STRINGS or NO_STRING (0xFFFFFFFF)
         lines.append("pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[")
         for i in range(0, len(self.segment_class_offsets), 16):
             chunk = self.segment_class_offsets[i : i + 16]
@@ -1583,7 +1620,6 @@ class TableBuilder:
 
         # Simple hints - generate SimpleHintData with offsets into HINT_STRING_INDICES
         lines.append("pub static SIMPLE_HINTS: &[SimpleHintData] = &[")
-        lines.append("    SimpleHintData::empty(), // [0] reserved for no hint")
         for i, hint in enumerate(self.simple_hints):
             lines.append(
                 f"    SimpleHintData {{ "
@@ -1591,16 +1627,21 @@ class TableBuilder:
                 f"raw_values_count: {hint.raw_values_count}, "
                 f"token_types_start: {hint.token_types_start}, "
                 f"token_types_count: {hint.token_types_count} "
-                f"}}, // [{i + 1}]"
+                f"}}, // [{i}]"
             )
         lines.append("];")
         lines.append("")
 
-        # Simple hint indices per instruction (indexed by GrammarId)
+        # Simple hint position per instruction (indexed by GrammarId), or
+        # NO_SIMPLE_HINT (0xFFFFFFFF).
         lines.append("pub static SIMPLE_HINT_INDICES: &[u32] = &[")
         for i in range(0, len(self.instructions), 16):
-            chunk = [inst.simple_hint_idx for inst in self.instructions[i : i + 16]]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            chunk = [inst.simple_hint_index for inst in self.instructions[i : i + 16]]
+            line = (
+                "    "
+                + ", ".join("NO_SIMPLE_HINT" if x is None else str(x) for x in chunk)
+                + ","
+            )
             lines.append(line)
         lines.append("];")
         lines.append("")
@@ -1691,7 +1732,7 @@ def generate_parser_table_driven(dialect: str):
     print("use sqlfluffrs_types::{")
     print("    GrammarInst, GrammarVariant, GrammarFlags,")
     print("    ParseMode, GrammarId, GrammarTables,")
-    print("    SimpleHintData, RootGrammar")
+    print("    SimpleHintData, NO_SIMPLE_HINT, RootGrammar")
     print("};")
 
     # Build tables

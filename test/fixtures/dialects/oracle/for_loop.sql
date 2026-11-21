@@ -139,3 +139,19 @@ BEGIN
   END LOOP;
 END;
 /
+
+BEGIN
+  FOR i IN 5..15 BY 5 LOOP
+    DBMS_OUTPUT.PUT_LINE (i);
+  END LOOP;
+END;
+/
+
+DECLARE
+  step_size PLS_INTEGER := 2;
+BEGIN
+  FOR i IN REVERSE 1..9 BY step_size LOOP
+    DBMS_OUTPUT.PUT_LINE (i);
+  END LOOP;
+END;
+/
