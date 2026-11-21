@@ -159,3 +159,54 @@ test_pass_templated_queries:
 test_pass_array_access:
   pass_str: |
     SELECT my_array[1] = [1] FROM t
+
+test_pass_function_equality:
+  pass_str: |
+    SELECT next_value() = next_value();
+
+test_pass_function_inequality:
+  pass_str: |
+    SELECT next_value() != next_value();
+
+test_pass_function_inequality_alternative:
+  pass_str: |
+    SELECT next_value() <> next_value();
+
+test_pass_nested_function_comparison:
+  pass_str: |
+    SELECT abs(next_value()) = abs(next_value());
+
+test_pass_parenthesized_function_comparison:
+  pass_str: |
+    SELECT (next_value()) = (next_value());
+
+test_pass_function_in_expression_comparison:
+  pass_str: |
+    SELECT (next_value() + 1) = (next_value() + 1);
+
+test_pass_qualified_function_comparison:
+  pass_str: |
+    SELECT my_schema.next_value() = my_schema.next_value();
+
+test_pass_random_function_comparison_sqlite:
+  pass_str: |
+    SELECT random() = random();
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_constant_comparisons_after_function:
+  fail_str: |
+    SELECT col FROM t
+    WHERE next_value() = next_value()
+        OR col = col
+        OR abs(next_value()) <> abs(next_value())
+        OR 1 = 2;
+  line_numbers: [3, 5]
+
+test_fail_constant_comparisons_before_function:
+  fail_str: |
+    SELECT col FROM t
+    WHERE col = col
+        OR next_value() = next_value();
+  line_numbers: [2]

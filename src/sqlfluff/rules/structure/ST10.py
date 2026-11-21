@@ -21,6 +21,10 @@ class Rule_ST10(BaseRule):
     an automatic fix, and instead invites the user to resolve the problem
     manually.
 
+    Comparisons containing function calls are skipped because repeated calls
+    may return different values. This also skips deterministic functions:
+    the rule does not know whether a function is deterministic.
+
     **Anti-pattern**
 
     .. code-block:: sql
@@ -138,6 +142,13 @@ class Rule_ST10(BaseRule):
                     if lhs.type != rhs.type:
                         continue
                     if lhs.raw_normalized() != rhs.raw_normalized():
+                        continue
+                    # Identical function calls may return different values.
+                    if any(
+                        operand.is_type("function")
+                        or "function" in operand.descendant_type_set
+                        for operand in (lhs, rhs)
+                    ):
                         continue
 
                 # attach violation to eq/ne operator in expression
