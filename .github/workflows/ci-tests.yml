@@ -257,6 +257,52 @@ jobs:
           uv pip install --system -e .
           python utils/rustify.py build
 
+      - name: Diagnose x86 manylinux repository access
+        if: matrix.target == 'x86'
+        # Keep the original maturin build running even if the reproduction fails.
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          echo "::group::Runner DNS and repository access"
+          cat /etc/resolv.conf
+          curl --version
+          for host in vault.centos.org github.com pypi.org; do
+            echo "Resolving $host"
+            if ! getent ahosts "$host"; then
+              echo "::warning::Runner could not resolve $host"
+            fi
+          done
+          url=https://vault.centos.org/altarch/7/os/i386/repodata/repomd.xml
+          if ! curl --head --silent --show-error --connect-timeout 10 --max-time 30 "$url"; then
+            echo "::warning::Runner could not access $url"
+          fi
+          echo "::endgroup::"
+
+          image=quay.io/pypa/manylinux2014_i686:latest
+          docker pull "$image"
+          docker image inspect --format '{{json .RepoDigests}}' "$image"
+          docker run --rm -i "$image" /bin/bash -s <<'DIAGNOSTICS'
+          set -euo pipefail
+          echo "::group::Container DNS and repository configuration"
+          cat /etc/resolv.conf
+          curl --version
+          grep -nE '^(\[|#?baseurl=|#?mirrorlist=|enabled=)' /etc/yum.repos.d/*.repo
+          for host in vault.centos.org github.com pypi.org; do
+            echo "Resolving $host"
+            if ! getent ahosts "$host"; then
+              echo "::warning::Container could not resolve $host"
+            fi
+          done
+          url=https://vault.centos.org/altarch/7/os/i386/repodata/repomd.xml
+          if ! curl --head --silent --show-error --connect-timeout 10 --max-time 30 "$url"; then
+            echo "::warning::Container could not access $url"
+          fi
+          echo "::endgroup::"
+          echo "::group::Reproduce maturin libatomic installation"
+          yum install -y libatomic
+          echo "::endgroup::"
+          DIAGNOSTICS
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
