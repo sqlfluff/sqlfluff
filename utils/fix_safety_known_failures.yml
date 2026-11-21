@@ -1,0 +1,15 @@
+# Statements whose meaning `sqlfluff fix` changes, found by `utils/fix_safety.py`
+# with all rules and the default settings. They're reported but don't fail the
+# check. Remove an entry once it's fixed: the check fails if a listed statement
+# no longer fails, so the list stays current.
+#
+# Each entry is the dialect the fixture is fixed as, the fixture, and the start
+# of the statement's SQL, which only needs to be long enough to tell it apart
+# from the fixture's other statements.
+
+# RF06 removes the quotes from "time", a keyword that can't name a
+# RETURNS TABLE column, so PostgreSQL can't parse the result.
+- dialect: postgres
+  fixture: postgres/create_function.sql
+  starts_with: "CREATE OR REPLACE FUNCTION time_series(\n    _from timestamp"
+  rules: [RF06]
