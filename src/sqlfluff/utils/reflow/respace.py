@@ -1054,7 +1054,9 @@ def handle_respace__inline_without_space(
             ],
             description=desc,
         )
-    else:  # pragma: no cover
-        NotImplementedError("Not set up to handle a missing _after_ and _before_.")
+    else:
+        raise NotImplementedError(
+            "Not set up to handle a missing _after_ and _before_."
+        )
 
     return segment_buffer, existing_results + [new_result], True

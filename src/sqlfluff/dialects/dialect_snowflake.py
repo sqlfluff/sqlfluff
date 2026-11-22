@@ -640,7 +640,7 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://.*'",
+        r"'s3(?:china|gov)?://.*'",
         CodeSegment,
         type="bucket_path",
     ),
@@ -2240,6 +2240,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropResourceMonitorStatementSegment"),
             Ref("CreateSecretStatementSegment"),
             Ref("AlterSecretStatementSegment"),
+            Ref("AlterNetworkRuleStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -11063,6 +11064,12 @@ class DescribeStatementSegment(BaseSegment):
                 "POLICY",
                 Ref("ObjectReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-network-rule
+            Sequence(
+                "NETWORK",
+                "RULE",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-share.html
             Sequence(
                 "SHARE",
@@ -11740,6 +11747,7 @@ class DropObjectStatementSegment(BaseSegment):
                         ),
                         "INTEGRATION",
                     ),
+                    Sequence("NETWORK", "RULE"),
                     "PIPE",
                     Sequence("PROJECTION", "POLICY"),
                     Sequence("ROW", "ACCESS", "POLICY"),
@@ -12902,6 +12910,39 @@ class AlterSecretStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "SET",
         Ref("SecretOptionsSegment"),
+    )
+
+
+class AlterNetworkRuleStatementSegment(BaseSegment):
+    """Alter Network Rule Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-network-rule
+    """
+
+    type = "alter_network_rule_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NETWORK",
+        "RULE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "VALUE_LIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(
+                            Delimited(Ref("QuotedLiteralSegment"), optional=True)
+                        ),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence("UNSET", Delimited(OneOf("VALUE_LIST", "COMMENT"))),
+        ),
     )
 
 

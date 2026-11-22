@@ -1,6 +1,5 @@
 """Dataclasses for reflow work."""
 
-import copy
 import logging
 import weakref
 from collections.abc import Iterator, Sequence
@@ -10,7 +9,7 @@ from typing import Literal, Optional, cast
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
-from sqlfluff.utils.reflow.config import ConfigDictType, ReflowConfig
+from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 from sqlfluff.utils.reflow.elements import (
     ReflowBlock,
@@ -47,7 +46,6 @@ _from_root_cache: Optional[
         list[RawSegment],
         type["ReflowSequence"],
         ReflowConfig,
-        ConfigDictType,
         ReflowSequenceType,
         DepthMap,
     ]
@@ -251,9 +249,6 @@ class ReflowSequence:
         global _from_root_cache
         raw_segments = root_segment.raw_segments
         reflow_config = ReflowConfig.from_fluff_config(config)
-        # The reflow config holds the config's own layout settings, not a copy,
-        # so edits to those are found by comparing them with a copy.
-        layout = config.get_section(["layout", "type"])
         cached = _from_root_cache
         if (
             cached
@@ -261,15 +256,14 @@ class ReflowSequence:
             and cached[1] is raw_segments
             and cached[2] is cls
             and cached[3] == reflow_config
-            and cached[4] == layout
         ):
             return cls(
                 # Each caller gets its own list and depth map, so that editing
                 # one sequence can't change another.
-                elements=list(cached[5]),
+                elements=list(cached[4]),
                 root_segment=root_segment,
                 reflow_config=reflow_config,
-                depth_map=cached[6].copy(),
+                depth_map=cached[5].copy(),
             )
         sequence = cls.from_raw_segments(
             raw_segments,
@@ -283,7 +277,6 @@ class ReflowSequence:
             raw_segments,
             cls,
             sequence.reflow_config,
-            copy.deepcopy(layout),
             list(sequence.elements),
             sequence.depth_map.copy(),
         )
