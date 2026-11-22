@@ -7,9 +7,14 @@ from unittest.mock import patch
 
 import pytest
 
-from sqlfluff.core import Linter
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix
+from sqlfluff.utils.reflow.config import (
+    _DEFAULT_BLOCK_CONFIG,
+    _EMPTY_LIST_BLOCK_CONFIG,
+    BlockConfig,
+)
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
@@ -343,3 +348,89 @@ def test_reflow_sequence_from_root_forgets_freed_tree(
     del root
     gc.collect()
     assert raw_segment() is None
+
+
+def test_reflow_elements_parent_config_cache_matches_uncached(default_config):
+    """Cached parent stack configs match uncached ReflowBlock.from_config()."""
+    sql = (
+        "WITH cte AS (\n"
+        "    SELECT a + b AS x, COALESCE(c, d) AS y\n"
+        "    FROM tbl\n"
+        "    WHERE e = 1 AND f IN (1, 2, 3)\n"
+        ")\n"
+        "SELECT * FROM cte ORDER BY x DESC\n"
+    )
+    root = parse_ansi_string(sql, default_config)
+    seq = ReflowSequence.from_root(root, config=default_config)
+    blocks_by_raw: dict[str, ReflowBlock] = {}
+    for elem in seq.elements:
+        if isinstance(elem, ReflowBlock):
+            uncached = ReflowBlock.from_config(
+                segments=elem.segments,
+                config=seq.reflow_config,
+                depth_info=elem.depth_info,
+            )
+            assert elem == uncached
+            blocks_by_raw.setdefault(elem.raw, elem)
+
+    # Literal expected values under default config (including exclusions parity
+    # and parent-inherited spacing on function brackets).
+    assert blocks_by_raw["SELECT"].spacing_before == "single"
+    assert blocks_by_raw["SELECT"].spacing_after == "single"
+    assert blocks_by_raw["SELECT"].keyword_line_position_exclusions == []
+    assert blocks_by_raw[","].spacing_before == "touch"
+    assert blocks_by_raw[","].spacing_after == "single"
+    assert blocks_by_raw[","].line_position == "trailing"
+    assert blocks_by_raw[","].keyword_line_position_exclusions == []
+    assert blocks_by_raw["+"].line_position == "leading"
+    assert blocks_by_raw["a"].keyword_line_position_exclusions == []
+    lparen_blocks = [
+        elem
+        for elem in seq.elements
+        if isinstance(elem, ReflowBlock) and elem.raw == "("
+    ]
+    assert lparen_blocks[0].spacing_before == "single"
+    assert lparen_blocks[0].spacing_after == "touch"
+    assert lparen_blocks[1].spacing_before == "touch:inline"
+    assert lparen_blocks[1].spacing_after == "touch"
+    assert lparen_blocks[1].keyword_line_position_exclusions == []
+
+    # Non-default layout config exercising keyword_line_position and exclusions.
+    custom_cfg = FluffConfig(
+        overrides={"dialect": "ansi"},
+        configs={
+            "layout": {
+                "type": {
+                    "from_clause": {
+                        "keyword_line_position": "alone",
+                        "keyword_line_position_exclusions": "where_clause,join_clause",
+                    },
+                    "where_clause": {"keyword_line_position": "leading"},
+                }
+            }
+        },
+    )
+    custom_root = parse_ansi_string("SELECT a FROM t WHERE b = 1\n", custom_cfg)
+    custom_seq = ReflowSequence.from_root(custom_root, config=custom_cfg)
+    custom_blocks = {
+        elem.raw: elem for elem in custom_seq.elements if isinstance(elem, ReflowBlock)
+    }
+    assert list(custom_blocks["FROM"].keyword_line_position_configs.values()) == [
+        "alone"
+    ]
+    assert list(
+        custom_blocks["FROM"].keyword_line_position_exclusions_configs.values()
+    ) == [["where_clause", "join_clause"]]
+    assert list(custom_blocks["WHERE"].keyword_line_position_configs.values()) == [
+        "leading"
+    ]
+    for elem in custom_blocks.values():
+        assert elem == ReflowBlock.from_config(
+            segments=elem.segments,
+            config=custom_seq.reflow_config,
+            depth_info=elem.depth_info,
+        )
+
+    # Shared read-only defaults must remain unmodified.
+    assert _DEFAULT_BLOCK_CONFIG == BlockConfig()
+    assert _EMPTY_LIST_BLOCK_CONFIG == BlockConfig(keyword_line_position_exclusions=[])

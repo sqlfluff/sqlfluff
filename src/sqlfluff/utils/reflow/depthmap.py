@@ -3,6 +3,7 @@
 import logging
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
+from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -110,6 +111,24 @@ class DepthInfo:
         )
 
 
+@dataclass(slots=True)
+class _DepthFrame:
+    """Mutable traversal frame for `DepthMap.from_parent()`."""
+
+    children: Iterator[tuple[int, BaseSegment]]
+    hashes: tuple[int, ...]
+    hash_set: Optional[frozenset[int]]
+    class_types: tuple[frozenset[str], ...]
+    positions: dict[int, StackPosition]
+    parent_hash: int
+    stack_depth: int
+    num_children: int
+    last_idx: int
+    solo: bool
+    first_code: int
+    last_code: int
+
+
 class DepthMap:
     """A mapping of raw segments to depth and parent information.
 
@@ -143,39 +162,47 @@ class DepthMap:
         """
         depth_map = cls(raws_with_stack=())
         depth_info = depth_map.depth_info
-        # Each entry holds a segment whose children are still to visit, an
-        # iterator over them, and the stack information they share: the
-        # hashes and class types of the segment and its ancestors, and the
-        # stack positions for the ancestors above it.
-        root_hashes: tuple[int, ...] = (hash(parent),)
-        stack: list[
-            tuple[
-                BaseSegment,
-                Iterator[tuple[int, BaseSegment]],
-                tuple[int, ...],
-                frozenset[int],
-                tuple[frozenset[str], ...],
-                dict[int, StackPosition],
-            ]
-        ] = [
-            (
-                parent,
-                enumerate(parent.segments),
-                root_hashes,
-                frozenset(root_hashes),
-                (parent.class_types,),
-                {},
+        # Precomputing code_idxs and child bounds once per parent avoids
+        # redoing that work each time the loop resumes after a non-raw child.
+        root_segments = parent.segments
+        root_hash = hash(parent)
+        root_hashes: tuple[int, ...] = (root_hash,)
+        root_code_idxs = parent._code_indices
+        root_num = len(root_segments)
+        stack: list[_DepthFrame] = [
+            _DepthFrame(
+                children=enumerate(root_segments),
+                hashes=root_hashes,
+                hash_set=None,
+                class_types=(parent.class_types,),
+                positions={},
+                parent_hash=root_hash,
+                stack_depth=1,
+                num_children=root_num,
+                last_idx=root_num - 1,
+                solo=len(root_code_idxs) == 1,
+                first_code=root_code_idxs[0] if root_code_idxs else -1,
+                last_code=root_code_idxs[-1] if root_code_idxs else -1,
             )
         ]
+        stack_pos_cls = StackPosition
+        depth_info_cls = DepthInfo
+        frame_cls = _DepthFrame
+        pos_cache: dict[tuple[int, int, str], StackPosition] = {}
         while stack:
-            seg, children, hashes, hash_set, class_types, positions = stack[-1]
-            # As in `StackPosition._stack_pos_interpreter()`.
-            code_idxs = seg._code_indices
-            solo = len(code_idxs) == 1
-            first_code = code_idxs[0] if code_idxs else -1
-            last_code = code_idxs[-1] if code_idxs else -1
-            num_children = len(seg.segments)
-            for idx, child in children:
+            frame = stack[-1]
+            hashes = frame.hashes
+            hash_set = frame.hash_set
+            class_types = frame.class_types
+            positions = frame.positions
+            parent_hash = frame.parent_hash
+            stack_depth = frame.stack_depth
+            num_children = frame.num_children
+            last_idx = frame.last_idx
+            solo = frame.solo
+            first_code = frame.first_code
+            last_code = frame.last_code
+            for idx, child in frame.children:
                 if solo:
                     pos_type = "solo"
                 elif idx == first_code:
@@ -184,26 +211,46 @@ class DepthMap:
                     pos_type = "end"
                 else:
                     pos_type = ""
-                child_positions = positions.copy()
-                child_positions[hashes[-1]] = StackPosition(idx, num_children, pos_type)
-                if child.is_type("raw"):
-                    depth_info[child.uuid] = DepthInfo(
-                        stack_depth=len(hashes),
+                # Reuse the parent's positions dict for its last child (which
+                # includes every single-child wrapper); no later sibling will
+                # read it again.
+                child_positions = positions if idx == last_idx else positions.copy()
+                pos_key = (idx, num_children, pos_type)
+                stack_pos = pos_cache.get(pos_key)
+                if stack_pos is None:
+                    stack_pos = stack_pos_cls(idx, num_children, pos_type)
+                    pos_cache[pos_key] = stack_pos
+                child_positions[parent_hash] = stack_pos
+                if isinstance(child, RawSegment):
+                    if hash_set is None:
+                        hash_set = frozenset(hashes)
+                        frame.hash_set = hash_set
+                    depth_info[child.uuid] = depth_info_cls(
+                        stack_depth=stack_depth,
                         stack_hashes=hashes,
                         stack_hash_set=hash_set,
                         stack_class_types=class_types,
                         stack_positions=child_positions,
                     )
                 else:
-                    child_hashes = hashes + (hash(child),)
+                    child_segments = child.segments
+                    child_hash = hash(child)
+                    child_code_idxs = child._code_indices
+                    child_num = len(child_segments)
                     stack.append(
-                        (
-                            child,
-                            enumerate(child.segments),
-                            child_hashes,
-                            frozenset(child_hashes),
-                            class_types + (child.class_types,),
-                            child_positions,
+                        frame_cls(
+                            children=enumerate(child_segments),
+                            hashes=hashes + (child_hash,),
+                            hash_set=None,
+                            class_types=class_types + (child.class_types,),
+                            positions=child_positions,
+                            parent_hash=child_hash,
+                            stack_depth=stack_depth + 1,
+                            num_children=child_num,
+                            last_idx=child_num - 1,
+                            solo=len(child_code_idxs) == 1,
+                            first_code=child_code_idxs[0] if child_code_idxs else -1,
+                            last_code=child_code_idxs[-1] if child_code_idxs else -1,
                         )
                     )
                     break

@@ -3,7 +3,7 @@
 import logging
 import weakref
 from collections.abc import Iterator, Sequence
-from itertools import chain
+from itertools import chain, islice
 from typing import Literal, Optional, cast
 
 from sqlfluff.core.config import FluffConfig
@@ -12,6 +12,7 @@ from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 from sqlfluff.utils.reflow.elements import (
+    ParentStackConfigs,
     ReflowBlock,
     ReflowPoint,
     ReflowSequenceType,
@@ -29,6 +30,8 @@ from sqlfluff.utils.reflow.reindent import (
 # logs to appear in the context of rules. Hence it's a subset
 # of the rules logger.
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
+
+_POINT_TYPES = frozenset(("whitespace", "newline", "indent"))
 
 # What the latest `ReflowSequence.from_root()` call built, and what it was built
 # from. Several rules (e.g. LT01, LT02, LT05) reflow the whole file one after
@@ -142,13 +145,13 @@ class ReflowSequence:
         EvenType = ReflowPoint if OddType is ReflowBlock else ReflowBlock
         try:
             # Check odds are all points
-            assert all(isinstance(elem, OddType) for elem in elements[::2]), (
-                f"Not all odd elements are {OddType.__name__}"
-            )
+            assert all(
+                isinstance(elem, OddType) for elem in islice(elements, 0, None, 2)
+            ), f"Not all odd elements are {OddType.__name__}"
             # Check evens are all blocks
-            assert all(isinstance(elem, EvenType) for elem in elements[1::2]), (
-                f"Not all even elements are {EvenType.__name__}"
-            )
+            assert all(
+                isinstance(elem, EvenType) for elem in islice(elements, 1, None, 2)
+            ), f"Not all even elements are {EvenType.__name__}"
             return None
         except AssertionError as err:  # pragma: no cover
             for elem in elements:
@@ -167,14 +170,19 @@ class ReflowSequence:
         """
         elem_buff: ReflowSequenceType = []
         seg_buff: list[RawSegment] = []
+        parent_config_cache: dict[tuple[int, ...], ParentStackConfigs] = {
+            (): ({}, {}, {}, {})
+        }
+        depth_info_map = depth_map.depth_info
         for seg in segments:
             # NOTE: end_of_file is block-like rather than point-like.
             # This is to facilitate better evaluation of the ends of files.
             # NOTE: This also allows us to include literal placeholders for
             # whitespace only strings.
-            if (
-                seg.is_type("whitespace", "newline", "indent")
-                or (get_consumed_whitespace(seg) or "").isspace()
+            seg_types = seg.class_types
+            if not _POINT_TYPES.isdisjoint(seg_types) or (
+                "placeholder" in seg_types
+                and (get_consumed_whitespace(seg) or "").isspace()
             ):
                 # Add to the buffer and move on.
                 seg_buff.append(seg)
@@ -185,14 +193,17 @@ class ReflowSequence:
                 elem_buff.append(ReflowPoint(segments=tuple(seg_buff)))
             # Add the block, with config info.
             elem_buff.append(
-                ReflowBlock.from_config(
+                ReflowBlock._from_config_cached(
                     segments=(seg,),
                     config=reflow_config,
-                    depth_info=depth_map.get_depth_info(seg),
+                    depth_info=(
+                        depth_info_map.get(seg.uuid) or depth_map.get_depth_info(seg)
+                    ),
+                    parent_config_cache=parent_config_cache,
                 )
             )
             # Empty the buffer
-            seg_buff = []
+            seg_buff.clear()
 
         # If we ended with a buffer, apply it.
         # TODO: Consider removing this clause?
