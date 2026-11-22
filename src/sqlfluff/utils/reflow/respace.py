@@ -929,6 +929,7 @@ def handle_respace__inline_without_space(
     segment_buffer: list[RawSegment],
     existing_results: list[LintResult],
     anchor_on: str = "before",
+    mutate_results: bool = False,
 ) -> tuple[list[RawSegment], list[LintResult], bool]:
     """Ensure spacing is the right size.
 
@@ -1071,4 +1072,7 @@ def handle_respace__inline_without_space(
             "Not set up to handle a missing _after_ and _before_."
         )
 
+    if mutate_results:
+        existing_results.append(new_result)
+        return segment_buffer, existing_results, True
     return segment_buffer, existing_results + [new_result], True

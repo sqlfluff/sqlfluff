@@ -329,11 +329,12 @@ def test_reflow__inline_without_space_requires_a_block():
 
 def test_reflow_respace_point_preserves_caller_results_and_identity(default_config):
     """respace_point() leaves caller lint_results untouched and reuses clean points."""
-    root = parse_ansi_string("SELECT a +  b, c  \nFROM t\n", default_config)
+    root = parse_ansi_string("SELECT a+b, c +  d  \nFROM t\n", default_config)
     seq = ReflowSequence.from_root(root, config=default_config)
     sentinel = LintResult(anchor=root.raw_segments[0], description="sentinel")
     saw_clean = False
-    saw_dirty = False
+    saw_dirty_with_space = False
+    saw_dirty_without_space = False
     for idx, elem in enumerate(seq.elements):
         if not isinstance(elem, ReflowPoint):
             continue
@@ -355,8 +356,22 @@ def test_reflow_respace_point_preserves_caller_results_and_identity(default_conf
             saw_clean = True
         else:
             assert new_point is not elem
-            saw_dirty = True
-    assert saw_clean and saw_dirty
+            if elem.segments:
+                saw_dirty_with_space = True
+            else:
+                saw_dirty_without_space = True
+                mutable_results = [sentinel]
+                mut_out, _ = elem._respace_point(
+                    prev_block,
+                    next_block,
+                    root_segment=root,
+                    lint_results=mutable_results,
+                    strip_newlines=False,
+                    mutate_results=True,
+                )
+                assert mut_out is mutable_results
+                assert len(mutable_results) > 1
+    assert saw_clean and saw_dirty_with_space and saw_dirty_without_space
 
     def _sig(results):
         return [

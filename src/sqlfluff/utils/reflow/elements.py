@@ -888,6 +888,7 @@ class ReflowPoint(ReflowElement):
                     segment_buffer,
                     base_results,
                     anchor_on=anchor_on,
+                    mutate_results=mutate_results,
                 )
             )
             if edited and reflow_logger.isEnabledFor(logging.DEBUG):
