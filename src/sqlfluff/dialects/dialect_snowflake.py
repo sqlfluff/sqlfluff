@@ -2198,6 +2198,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterStorageIntegrationSegment"),
             Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
+            Ref("ExecuteAlertStatementSegment"),
             Ref("CreateResourceMonitorStatementSegment"),
             Ref("AlterResourceMonitorStatementSegment"),
             Ref("CreateSequenceStatementSegment"),
@@ -10135,6 +10136,7 @@ class ShowStatementSegment(BaseSegment):
     """
 
     _object_types_plural = OneOf(
+        "ALERTS",
         "PARAMETERS",
         Sequence("GLOBAL", "ACCOUNTS"),
         "REGIONS",
@@ -10906,6 +10908,20 @@ class ExecuteImmediateClauseSegment(BaseSegment):
     )
 
 
+class ExecuteAlertStatementSegment(BaseSegment):
+    """Snowflake's `EXECUTE ALERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-alert
+    """
+
+    type = "execute_alert_statement"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "ALERT",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class ExecuteTaskClauseSegment(BaseSegment):
     """Snowflake's EXECUTE TASK clause.
 
@@ -11029,6 +11045,11 @@ class DescribeStatementSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("DESCRIBE", "DESC"),
         OneOf(
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-alert
+            Sequence(
+                "ALERT",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-result.html
             Sequence(
                 "RESULT",

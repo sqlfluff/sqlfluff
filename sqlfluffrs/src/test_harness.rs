@@ -1,4 +1,3 @@
-
 use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
@@ -80,11 +79,14 @@ impl FixtureTest {
         // Parse with Rust parser, returning a test failure for invalid dialects.
         let dialect = match Dialect::from_str(self.dialect.as_str()) {
             Ok(dialect) => dialect,
-            Err(e) => {
+            Err(()) => {
                 return TestResult {
                     test: self.clone(),
                     success: false,
-                    error: Some(format!("Invalid dialect '{}': {}", self.dialect, e)),
+                    error: Some(format!(
+                        "Invalid dialect '{}': unknown dialect",
+                        self.dialect
+                    )),
                     generated_yaml: None,
                     expected_yaml: None,
                 };
@@ -248,13 +250,11 @@ mod tests {
 
         assert!(!result.success);
         assert!(result.generated_yaml.is_none());
-        assert!(
-            result
-                .error
-                .as_deref()
-                .unwrap()
-                .starts_with("Invalid dialect 'invalid_dialect':")
-        );
+        assert!(result
+            .error
+            .as_deref()
+            .unwrap()
+            .starts_with("Invalid dialect 'invalid_dialect':"));
     }
 
     #[test]
