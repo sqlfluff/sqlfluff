@@ -246,10 +246,15 @@ class PythonTemplater(RawTemplater):
             template variable containing "." into a dictionary lookup.
                 Example:  {foo.bar} => {sqlfluff[foo.bar]}
             """
-            # Hack to allow template variables with dot notation (e.g. foo.bar)
+            # Hack to allow template variables with dot notation (e.g. foo.bar).
+            # Consume escaped brace pairs first so their contents stay literal.
             raw_str_with_dot_notation_hack = re.sub(
-                r"{([^:!}]*\.[^:!}]*)(![ars])?(:\S*)?}",
-                r"{sqlfluff[\1]\2\3}",
+                r"{{|}}|{([^{}:!]*\.[^{}:!]*)(![ars])?(:[^\s{}]*)?}",
+                lambda match: (
+                    match.expand(r"{sqlfluff[\1]\2\3}")
+                    if match.group(1)
+                    else match.group(0)
+                ),
                 raw_str,
             )
             templater_logger.debug(
