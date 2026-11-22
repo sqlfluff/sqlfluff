@@ -11100,8 +11100,16 @@ class DescribeStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-catalog-integration
             Sequence(
-                OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
+                OneOf(
+                    "API",
+                    "CATALOG",
+                    "NOTIFICATION",
+                    "SECURITY",
+                    "STORAGE",
+                    optional=True,
+                ),
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
@@ -11285,6 +11293,26 @@ class DescribeStatementSegment(BaseSegment):
             Sequence(
                 "MCP",
                 "SERVER",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-authentication-policy
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-join-policy
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-packages-policy
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-privacy-policy
+            Sequence(
+                OneOf("AUTHENTICATION", "JOIN", "PACKAGES", "PRIVACY"),
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-notebook
+            Sequence(
+                "NOTEBOOK",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-semantic-view
+            Sequence(
+                "SEMANTIC",
+                "VIEW",
                 Ref("ObjectReferenceSegment"),
             ),
         ),
