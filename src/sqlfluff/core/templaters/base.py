@@ -669,6 +669,21 @@ class RawTemplater:
         # Default is to process in the original order.
         return fnames
 
+    def session_key(self, config: FluffConfig) -> tuple[str, ...]:
+        """Return a key for sharing this templater within one operation.
+
+        Files whose configurations give the same key share one instance for
+        the length of a lint, parse or render operation. The default shares
+        one instance by templater name, which suits stateless templaters.
+        """
+        return (self.name,)
+
+    def close(self) -> None:
+        """Release any resources held by this templater.
+
+        Called once the operation which created it no longer needs it.
+        """
+
     @large_file_check
     def process(
         self,
