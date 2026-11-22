@@ -311,10 +311,12 @@ class SQLLintError(SQLBaseError):
         ignore: bool = False,
         fatal: bool = False,
         warning: Optional[bool] = None,
+        defer_to_fix: bool = False,
     ) -> None:
         self.segment = segment
         self.rule = rule
         self.fixes = fixes or []
+        self.defer_to_fix = defer_to_fix
         super().__init__(
             description=description,
             pos=segment.pos_marker if segment else None,
@@ -335,6 +337,7 @@ class SQLLintError(SQLBaseError):
             self.ignore,
             self.fatal,
             self.warning,
+            self.defer_to_fix,
         )
 
     def to_dict(self) -> SerializedObject:
