@@ -13,6 +13,7 @@ from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.respace import (
     _find_alignment_siblings,
+    handle_respace__inline_without_space,
     process_spacing,
 )
 from sqlfluff.utils.reflow.sequence import ReflowSequence
@@ -306,3 +307,20 @@ def test_reflow__find_alignment_siblings_matches_path_to(
         ]
         actual = _find_alignment_siblings(parent, segment_type, align_scope)
         assert [id(s) for s in actual] == [id(s) for s in expected]
+
+
+def test_reflow__inline_without_space_requires_a_block():
+    """Without either neighbouring block there is nothing to anchor a fix on.
+
+    That case must raise `NotImplementedError` rather than fall through to an
+    `UnboundLocalError` on the result that was never created.
+    """
+    with pytest.raises(NotImplementedError, match="missing _after_ and _before_"):
+        handle_respace__inline_without_space(
+            pre_constraint="single",
+            post_constraint="single",
+            prev_block=None,
+            next_block=None,
+            segment_buffer=[],
+            existing_results=[],
+        )

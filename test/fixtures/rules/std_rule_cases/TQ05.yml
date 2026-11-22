@@ -1,0 +1,278 @@
+# TQ05 tests for opt-in BEGIN/END around T-SQL IF, ELSE and WHILE bodies.
+rule: TQ05
+
+test_pass_default_disabled:
+  pass_str: |
+    IF @flag = 1
+        SELECT 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_if_body:
+  fail_str: |
+    IF @flag = 1
+        SELECT * FROM Table1;
+
+    SELECT * FROM Table2;
+  fix_str: |
+    IF @flag = 1
+    BEGIN
+        SELECT * FROM Table1;
+    END
+
+    SELECT * FROM Table2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_if_else_if_else:
+  fail_str: |
+    IF @a = 1
+        SELECT 1;
+    ELSE IF @a = 2
+        SELECT
+            b
+        FROM t;
+    ELSE
+        SELECT 3;
+  fix_str: |
+    IF @a = 1
+    BEGIN
+        SELECT 1;
+    END
+    ELSE IF @a = 2
+    BEGIN
+        SELECT
+            b
+        FROM t;
+    END
+    ELSE
+    BEGIN
+        SELECT 3;
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_while_body:
+  fail_str: |
+    WHILE @i < 3
+        SET @i = @i + 1;
+  fix_str: |
+    WHILE @i < 3
+    BEGIN
+        SET @i = @i + 1;
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_body_on_same_line:
+  fail_str: |
+    IF @x IS NULL RETURN;
+  fix_str: |
+    IF @x IS NULL BEGIN
+        RETURN;
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_nested_in_procedure:
+  fail_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        IF @y = 1
+            PRINT 'y'
+        ELSE
+            PRINT 'n'
+    END
+  fix_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        IF @y = 1
+        BEGIN
+            PRINT 'y'
+        END
+        ELSE
+        BEGIN
+            PRINT 'n'
+        END
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_nested_if:
+  fail_str: |
+    IF @a = 1
+        IF @b = 2
+            SELECT 1;
+  fix_str: |
+    IF @a = 1
+    BEGIN
+        IF @b = 2
+        BEGIN
+            SELECT 1;
+        END
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_keeps_comment_with_body:
+  fail_str: |
+    IF @a = 1
+        SELECT 1; -- one
+    ELSE
+        SELECT 2;
+  fix_str: |
+    IF @a = 1
+    BEGIN
+        SELECT 1; -- one
+    END
+    ELSE
+    BEGIN
+        SELECT 2;
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_keeps_own_line_comment_outside:
+  fail_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        IF @a = 1
+            SELECT 1;
+        -- two
+        ELSE
+            SELECT 2;
+    END
+  fix_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        IF @a = 1
+        BEGIN
+            SELECT 1;
+        END
+        -- two
+        ELSE
+        BEGIN
+            SELECT 2;
+        END
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_while_condition_on_own_line:
+  fail_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        WHILE
+            @i < 3
+            SET @i = @i + 1;
+        WHILE
+            @i < 6 SET @i = @i + 1;
+    END
+  fix_str: |
+    CREATE PROCEDURE dbo.p
+    AS
+    BEGIN
+        WHILE
+            @i < 3
+        BEGIN
+            SET @i = @i + 1;
+        END
+        WHILE
+            @i < 6 BEGIN
+            SET @i = @i + 1;
+        END
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_fail_tab_indent:
+  fail_str: "IF @x IS NULL RETURN;\n"
+  fix_str: "IF @x IS NULL BEGIN\n\tRETURN;\nEND\n"
+  configs:
+    core:
+      dialect: tsql
+    indentation:
+      indent_unit: tab
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_pass_begin_end:
+  pass_str: |
+    IF @a = 1
+    BEGIN
+        SELECT 1;
+    END
+    ELSE
+    BEGIN
+        SELECT 2;
+    END
+
+    WHILE @i < 3
+    BEGIN
+        SET @i = @i + 1;
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
+
+test_pass_try_catch_body:
+  pass_str: |
+    IF @a = 1
+        BEGIN TRY
+            SELECT 1;
+        END TRY
+        BEGIN CATCH
+            SELECT 2;
+        END CATCH
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      tsql.if_while_begin_end:
+        force_enable: true
