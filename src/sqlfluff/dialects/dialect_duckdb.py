@@ -1263,6 +1263,11 @@ class InstallStatementSegment(BaseSegment):
             OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
             optional=True,
         ),
+        Sequence(
+            "VERSION",
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+            optional=True,
+        ),
     )
 
 
