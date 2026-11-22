@@ -9,6 +9,7 @@ import shutil
 import subprocess
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 import pytest
@@ -991,3 +992,682 @@ def test__templater_dbt_threads_explicit(dbt_templater):
         },
     )
     assert dbt_templater._get_threads() == 4
+
+
+def _clear_populate_cache_env(monkeypatch):
+    """Clear dbt cache environment variables for test isolation."""
+    monkeypatch.delenv("DBT_ENGINE_POPULATE_CACHE", raising=False)
+    monkeypatch.delenv("DBT_POPULATE_CACHE", raising=False)
+
+
+def _make_dbt_cache_config(ctx=None, **dbt_overrides):
+    """Build a FluffConfig for dbt populate_relations_cache tests."""
+    dbt_section = (
+        {"project_dir": ctx["project_dir"], "profiles_dir": ctx["profiles_dir"]}
+        if ctx is not None
+        else {}
+    )
+    dbt_section.update(dbt_overrides)
+    return FluffConfig(
+        configs={
+            "core": {"dialect": "ansi", "templater": "dbt"},
+            "templater": {"dbt": dbt_section},
+        }
+    )
+
+
+def _make_mock_dbt_process_context(tmp_path, project_name="project"):
+    """Create minimal fake dbt objects for unit testing process() -> connection()."""
+    project_dir = tmp_path / project_name
+    profiles_dir = tmp_path / f"{project_name}_profiles"
+    (project_dir / "models").mkdir(parents=True)
+    profiles_dir.mkdir(parents=True)
+    model_sql = "select 1"
+    model_file = project_dir / "models" / "my_model.sql"
+    model_file.write_text(model_sql)
+
+    node = SimpleNamespace(
+        original_file_path="models/my_model.sql",
+        compiled_code=model_sql,
+        raw_code=model_sql,
+        config=SimpleNamespace(materialized="view"),
+        compiled=False,
+    )
+    manifest = mock.MagicMock()
+    manifest.nodes = {"model.test.my_model": node}
+    manifest.expect.return_value = node
+
+    selector = mock.MagicMock()
+    selector.search.return_value = ["model.test.my_model"]
+
+    compiler = mock.MagicMock()
+    compiler.compile_node.return_value = node
+
+    dbt_config = SimpleNamespace(credentials=SimpleNamespace(type=project_name))
+    return {
+        "project_dir": str(project_dir),
+        "profiles_dir": str(profiles_dir),
+        "model_file": str(model_file),
+        "model_sql": model_sql,
+        "manifest": manifest,
+        "selector": selector,
+        "compiler": compiler,
+        "adapter": mock.MagicMock(),
+        "dbt_config": dbt_config,
+    }
+
+
+def _attach_mock_dbt_context(templater, ctx):
+    """Attach mocked dbt runtime objects while preserving installed dbt version."""
+    templater.dbt_config = ctx["dbt_config"]
+    templater.dbt_manifest = ctx["manifest"]
+    templater.dbt_selector_method = ctx["selector"]
+    templater.dbt_compiler = ctx["compiler"]
+
+
+def _patch_adapter_lookup(monkeypatch, lookup):
+    """Patch FACTORY.lookup_adapter without replacing get_adapter module bindings."""
+    from dbt.adapters.factory import FACTORY
+
+    monkeypatch.setattr(FACTORY, "lookup_adapter", lookup)
+
+
+@pytest.mark.parametrize(
+    ("env_value", "expected_cache_calls"),
+    [(None, 1), ("false", 0)],
+    ids=["default_unset", "dbt_populate_cache_false"],
+)
+def test__templater_dbt_populate_relations_cache_process_regression(
+    tmp_path, monkeypatch, env_value, expected_cache_calls
+):
+    """process() -> connection() warms cache by default and skips on opt-out."""
+    _clear_populate_cache_env(monkeypatch)
+    if env_value is not None:
+        monkeypatch.setenv("DBT_POPULATE_CACHE", env_value)
+    monkeypatch.setattr(DbtTemplater, "adapters", {})
+
+    ctx = _make_mock_dbt_process_context(tmp_path)
+    config = _make_dbt_cache_config(ctx)
+    templater = config.get_templater()
+    _attach_mock_dbt_context(templater, ctx)
+    _patch_adapter_lookup(monkeypatch, lambda _type: ctx["adapter"])
+
+    templated_file, violations = templater.process(
+        fname=ctx["model_file"], in_str=ctx["model_sql"], config=config
+    )
+
+    assert violations == []
+    assert templated_file.templated_str == ctx["model_sql"]
+    assert ctx["adapter"].acquire_connection.call_args_list == [mock.call("master")]
+    assert ctx["adapter"].set_relations_cache.call_count == expected_cache_calls
+    if templater.dbt_version_tuple >= (1, 8):
+        assert ctx["adapter"].set_macro_resolver.call_args_list == [
+            mock.call(ctx["manifest"])
+        ]
+        assert ctx["adapter"].set_macro_context_generator.call_count == 1
+    else:
+        assert ctx["adapter"].set_macro_resolver.call_count == 0
+        assert ctx["adapter"].set_macro_context_generator.call_count == 0
+
+
+@pytest.mark.parametrize(
+    ("config_value", "engine_env", "legacy_env", "expected"),
+    [
+        (None, None, None, True),
+        (False, "true", "true", False),
+        (True, "false", "false", True),
+        ("false", "true", "true", False),
+        ("true", "false", "false", True),
+        ("0", "1", "1", False),
+        ("1", "0", "0", True),
+        (None, "false", "true", False),
+        (None, "true", "false", True),
+        (None, None, "false", False),
+        (None, None, "true", True),
+        (None, "", "false", False),
+        (None, "", "true", True),
+        (None, "", "", True),
+        (None, None, "", True),
+    ],
+)
+def test__templater_dbt_populate_relations_cache_precedence(
+    dbt_templater, monkeypatch, config_value, engine_env, legacy_env, expected
+):
+    """Verify config > DBT_ENGINE_POPULATE_CACHE > DBT_POPULATE_CACHE > True."""
+    _clear_populate_cache_env(monkeypatch)
+    if engine_env is not None:
+        monkeypatch.setenv("DBT_ENGINE_POPULATE_CACHE", engine_env)
+    if legacy_env is not None:
+        monkeypatch.setenv("DBT_POPULATE_CACHE", legacy_env)
+    dbt_templater.sqlfluff_config = _make_dbt_cache_config(
+        populate_relations_cache=config_value
+    )
+    assert dbt_templater._get_populate_relations_cache() is expected
+
+
+def test__templater_dbt_populate_relations_cache_no_config_object(
+    dbt_templater, monkeypatch
+):
+    """When sqlfluff_config is None, resolver falls through to env/default."""
+    _clear_populate_cache_env(monkeypatch)
+    dbt_templater.sqlfluff_config = None
+    assert dbt_templater._get_populate_relations_cache() is True
+    monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+    assert dbt_templater._get_populate_relations_cache() is False
+
+
+@pytest.mark.parametrize(
+    ("raw_text", "expected"),
+    [
+        *(
+            (tok, True)
+            for tok in (
+                "1",
+                "true",
+                "t",
+                "yes",
+                "y",
+                "on",
+                "TRUE",
+                "TrUe",
+                "YES",
+                "On",
+                "T",
+                "Y",
+                "  true \t",
+                "\n 1 ",
+            )
+        ),
+        *(
+            (tok, False)
+            for tok in (
+                "0",
+                "false",
+                "f",
+                "no",
+                "n",
+                "off",
+                "FALSE",
+                "FaLsE",
+                "No",
+                "OFF",
+                "F",
+                "N",
+                "  false\n",
+                "\t0  ",
+            )
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "source", ["config", "DBT_ENGINE_POPULATE_CACHE", "DBT_POPULATE_CACHE"]
+)
+def test__templater_dbt_populate_relations_cache_text_tokens(
+    dbt_templater, monkeypatch, source, raw_text, expected
+):
+    """Verify every accepted boolean text token, case variant, and trimming."""
+    _clear_populate_cache_env(monkeypatch)
+    overrides = {}
+    if source == "config":
+        overrides["populate_relations_cache"] = raw_text
+    else:
+        monkeypatch.setenv(source, raw_text)
+    dbt_templater.sqlfluff_config = _make_dbt_cache_config(**overrides)
+    assert dbt_templater._get_populate_relations_cache() is expected
+
+
+@pytest.mark.parametrize(
+    ("ini_line", "expected"),
+    [
+        ("populate_relations_cache = True", True),
+        ("populate_relations_cache = False", False),
+        ("populate_relations_cache = off", False),
+        ("populate_relations_cache = yes", True),
+        ("populate_relations_cache = None", False),  # falls through to env
+    ],
+)
+def test__templater_dbt_populate_relations_cache_ini_config(
+    dbt_templater, monkeypatch, ini_line, expected
+):
+    """Verify INI parsing for booleans, text tokens, and None fallthrough."""
+    _clear_populate_cache_env(monkeypatch)
+    monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+    dbt_templater.sqlfluff_config = FluffConfig.from_string(
+        f"[sqlfluff]\ndialect = ansi\n[sqlfluff:templater:dbt]\n{ini_line}\n"
+    )
+    assert dbt_templater._get_populate_relations_cache() is expected
+
+
+@pytest.mark.parametrize(
+    ("mode", "value", "expected_source"),
+    [
+        *(
+            ("config", bad, "populate_relations_cache")
+            for bad in (
+                "",
+                " ",
+                "\t\n",
+                "maybe",
+                "2",
+                "enabled",
+                "none",
+                0,
+                1,
+                1.5,
+                ["true"],
+                {"value": True},
+            )
+        ),
+        *(
+            ("ini", line, "populate_relations_cache")
+            for line in (
+                "populate_relations_cache =",
+                "populate_relations_cache = 0",
+                "populate_relations_cache = 1",
+                "populate_relations_cache = maybe",
+            )
+        ),
+        *(
+            ("engine_env", bad, "DBT_ENGINE_POPULATE_CACHE")
+            for bad in (" ", "\t\n", "maybe", "2", "none")
+        ),
+        *(
+            ("legacy_env", bad, "DBT_POPULATE_CACHE")
+            for bad in (" ", "\t\n", "maybe", "2", "none")
+        ),
+    ],
+)
+def test__templater_dbt_populate_relations_cache_invalid_values(
+    dbt_templater, monkeypatch, mode, value, expected_source
+):
+    """Invalid selected config, INI, or env values error without fallback."""
+    _clear_populate_cache_env(monkeypatch)
+    if mode == "config":
+        monkeypatch.setenv("DBT_ENGINE_POPULATE_CACHE", "true")
+        monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+        dbt_templater.sqlfluff_config = _make_dbt_cache_config(
+            populate_relations_cache=value
+        )
+    elif mode == "ini":
+        monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+        dbt_templater.sqlfluff_config = FluffConfig.from_string(
+            f"[sqlfluff]\ndialect = ansi\n[sqlfluff:templater:dbt]\n{value}\n"
+        )
+    elif mode == "engine_env":
+        monkeypatch.setenv("DBT_ENGINE_POPULATE_CACHE", value)
+        monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+        dbt_templater.sqlfluff_config = _make_dbt_cache_config()
+    else:
+        monkeypatch.setenv("DBT_POPULATE_CACHE", value)
+        dbt_templater.sqlfluff_config = _make_dbt_cache_config()
+
+    with pytest.raises(SQLFluffUserError, match=expected_source):
+        dbt_templater._get_populate_relations_cache()
+
+
+@pytest.mark.parametrize("dbt_version_tuple", [(1, 7), (1, 8)])
+@pytest.mark.parametrize(
+    ("config_value", "expected_warm"),
+    [(None, True), (True, True), (False, False)],
+    ids=["default", "explicit_true", "explicit_false"],
+)
+def test__templater_dbt_populate_relations_cache_connection_signatures(
+    tmp_path, monkeypatch, dbt_version_tuple, config_value, expected_warm
+):
+    """Verify exact connection() calls and signatures for dbt 1.7 and >=1.8."""
+    import dbt.context.providers as dbt_providers
+
+    _clear_populate_cache_env(monkeypatch)
+    monkeypatch.setattr(DbtTemplater, "adapters", {})
+    ctx = _make_mock_dbt_process_context(tmp_path)
+
+    nodes_sentinel = object()
+    values_calls = 0
+
+    class _TrackingNodes(dict):
+        def values(self):
+            nonlocal values_calls
+            values_calls += 1
+            return nodes_sentinel
+
+    ctx["manifest"].nodes = _TrackingNodes(ctx["manifest"].nodes)
+    overrides = (
+        {"populate_relations_cache": config_value} if config_value is not None else {}
+    )
+    config = _make_dbt_cache_config(ctx, **overrides)
+    templater = config.get_templater()
+    templater.sqlfluff_config = config
+    templater.project_dir = ctx["project_dir"]
+    templater.dbt_version_tuple = dbt_version_tuple
+    templater.dbt_config = ctx["dbt_config"]
+    templater.dbt_manifest = ctx["manifest"]
+    templater.populate_relations_cache = templater._get_populate_relations_cache()
+
+    macro_ctx_gen = object()
+    monkeypatch.setattr(
+        dbt_providers, "generate_runtime_macro_context", macro_ctx_gen, raising=False
+    )
+    _patch_adapter_lookup(monkeypatch, lambda _type: ctx["adapter"])
+
+    with templater.connection():
+        pass
+
+    assert ctx["adapter"].acquire_connection.call_args_list == [mock.call("master")]
+    if dbt_version_tuple >= (1, 8):
+        assert ctx["adapter"].set_macro_resolver.call_args_list == [
+            mock.call(ctx["manifest"])
+        ]
+        assert ctx["adapter"].set_macro_context_generator.call_args_list == [
+            mock.call(macro_ctx_gen)
+        ]
+        assert values_calls == int(expected_warm)
+        expected_cache = [mock.call(nodes_sentinel)] if expected_warm else []
+    else:
+        assert ctx["adapter"].set_macro_resolver.call_count == 0
+        assert ctx["adapter"].set_macro_context_generator.call_count == 0
+        assert values_calls == 0
+        expected_cache = [mock.call(ctx["manifest"])] if expected_warm else []
+    assert ctx["adapter"].set_relations_cache.call_args_list == expected_cache
+
+
+def test__templater_dbt_populate_relations_cache_direct_connection_default(
+    tmp_path, monkeypatch
+):
+    """Direct connection() before process() preserves default True warm-up."""
+    monkeypatch.setattr(DbtTemplater, "adapters", {})
+    ctx = _make_mock_dbt_process_context(tmp_path)
+    _patch_adapter_lookup(monkeypatch, lambda _type: ctx["adapter"])
+
+    templater = DbtTemplater()
+    assert templater.populate_relations_cache is True
+    templater.project_dir = ctx["project_dir"]
+    templater.dbt_config = ctx["dbt_config"]
+    templater.dbt_manifest = ctx["manifest"]
+
+    with templater.connection():
+        pass
+
+    assert ctx["adapter"].acquire_connection.call_args_list == [mock.call("master")]
+    assert ctx["adapter"].set_relations_cache.call_count == 1
+
+
+@pytest.mark.parametrize(
+    ("config_value", "env_var", "env_value", "expected_source"),
+    [
+        ("invalid", None, None, "populate_relations_cache"),
+        (0, None, None, "populate_relations_cache"),
+        (None, "DBT_ENGINE_POPULATE_CACHE", "   ", "DBT_ENGINE_POPULATE_CACHE"),
+        (None, "DBT_POPULATE_CACHE", "invalid", "DBT_POPULATE_CACHE"),
+    ],
+)
+def test__templater_dbt_populate_relations_cache_error_timing_and_pickling(
+    tmp_path, monkeypatch, config_value, env_var, env_value, expected_source
+):
+    """Invalid values fail before project/profile/dbt/adapter setup and pickle."""
+    _clear_populate_cache_env(monkeypatch)
+    if env_var is not None:
+        monkeypatch.setenv(env_var, env_value)
+
+    adapters_snapshot = {"/existing/project": object()}
+    monkeypatch.setattr(DbtTemplater, "adapters", dict(adapters_snapshot))
+
+    overrides = {"project_dir": str(tmp_path), "profiles_dir": str(tmp_path)}
+    if config_value is not None:
+        overrides["populate_relations_cache"] = config_value
+    config = _make_dbt_cache_config(**overrides)
+    templater = config.get_templater()
+
+    def _forbid(*args, **kwargs):
+        raise AssertionError("Should not run before cache flag validation")
+
+    _patch_adapter_lookup(monkeypatch, _forbid)
+    with (
+        mock.patch.object(templater, "_get_project_dir", side_effect=_forbid),
+        mock.patch.object(templater, "_get_profiles_dir", side_effect=_forbid),
+        mock.patch.object(
+            type(templater), "dbt_config", new_callable=lambda: property(_forbid)
+        ),
+        mock.patch.object(
+            type(templater), "dbt_manifest", new_callable=lambda: property(_forbid)
+        ),
+        pytest.raises(SQLFluffUserError, match=expected_source) as excinfo,
+    ):
+        templater.process(
+            fname=str(tmp_path / "models" / "my_model.sql"),
+            in_str="select 1",
+            config=config,
+        )
+
+    assert DbtTemplater.adapters == adapters_snapshot
+    assert excinfo.value.__context__ is None
+    assert excinfo.value.__cause__ is None
+    roundtrip = pickle.loads(pickle.dumps(excinfo.value))
+    assert isinstance(roundtrip, SQLFluffUserError)
+    assert str(roundtrip) == str(excinfo.value)
+
+
+def test__templater_dbt_populate_relations_cache_lifecycle(tmp_path, monkeypatch):
+    """Preserve adapter reuse across entries/instances and independent projects."""
+    _clear_populate_cache_env(monkeypatch)
+    monkeypatch.setattr(DbtTemplater, "adapters", {})
+
+    ctxs = {
+        name: _make_mock_dbt_process_context(tmp_path, project_name=name)
+        for name in ("project_a", "project_b", "project_c")
+    }
+    _patch_adapter_lookup(monkeypatch, lambda name: ctxs[name]["adapter"])
+
+    def _run_step(ctx, populate_cache, templater=None, *, expected_warm):
+        config = _make_dbt_cache_config(ctx, populate_relations_cache=populate_cache)
+        if templater is None:
+            templater = config.get_templater()
+            _attach_mock_dbt_context(templater, ctx)
+        templater.process(
+            fname=ctx["model_file"], in_str=ctx["model_sql"], config=config
+        )
+        assert templater.populate_relations_cache is populate_cache
+        assert ctx["adapter"].acquire_connection.call_count == 1
+        assert ctx["adapter"].set_relations_cache.call_count == expected_warm
+        assert DbtTemplater.adapters[ctx["project_dir"]] is ctx["adapter"]
+        return templater
+
+    # Project A: disabled -> repeat -> flip True -> 2nd instance (no retroactive warm)
+    templater_a1 = _run_step(ctxs["project_a"], False, expected_warm=0)
+    _run_step(ctxs["project_a"], False, templater=templater_a1, expected_warm=0)
+    _run_step(ctxs["project_a"], True, templater=templater_a1, expected_warm=0)
+    _run_step(ctxs["project_a"], True, expected_warm=0)
+
+    # Project B: enabled -> flip False -> 2nd instance (no rewarm or cache clear)
+    templater_b1 = _run_step(ctxs["project_b"], True, expected_warm=1)
+    _run_step(ctxs["project_b"], False, templater=templater_b1, expected_warm=1)
+    _run_step(ctxs["project_b"], False, expected_warm=1)
+    assert ctxs["project_b"]["adapter"].cache.clear.call_count == 0
+
+    # Distinct project C initializes independently while A and B remain registered
+    _run_step(ctxs["project_c"], False, expected_warm=0)
+    assert set(DbtTemplater.adapters) == {ctx["project_dir"] for ctx in ctxs.values()}
+
+
+def test__templater_dbt_populate_relations_cache_real_dbt_flags_invalid_env(
+    dbt_templater, monkeypatch
+):
+    """Verify SQLFluff selection vs installed dbt's own raw env flag validation."""
+    import click
+    from dbt import flags
+    from dbt.cli.main import cli
+
+    from sqlfluff_templater_dbt.templater import DbtConfigArgs
+
+    envvar = next(
+        param.envvar
+        for param in cli.commands["run"].params
+        if param.name == "populate_cache"
+    )
+    declared = {envvar} if isinstance(envvar, str) else set(envvar or ())
+    assert "DBT_POPULATE_CACHE" in declared
+    engine_env_supported = "DBT_ENGINE_POPULATE_CACHE" in declared
+
+    original_flags = flags.get_flags()
+    _clear_populate_cache_env(monkeypatch)
+    dbt_templater.sqlfluff_config = _make_dbt_cache_config(
+        populate_relations_cache=False
+    )
+    try:
+        monkeypatch.setenv("DBT_POPULATE_CACHE", "not_a_bool")
+        assert dbt_templater._get_populate_relations_cache() is False
+        with pytest.raises(click.exceptions.BadParameter, match="not_a_bool"):
+            flags.set_from_args(DbtConfigArgs(), None)
+
+        monkeypatch.delenv("DBT_POPULATE_CACHE", raising=False)
+        monkeypatch.setenv("DBT_ENGINE_POPULATE_CACHE", "not_a_bool")
+        assert dbt_templater._get_populate_relations_cache() is False
+        if engine_env_supported:
+            with pytest.raises(click.exceptions.BadParameter, match="not_a_bool"):
+                flags.set_from_args(DbtConfigArgs(), None)
+        else:
+            flags.set_from_args(DbtConfigArgs(), None)
+    finally:
+        flags.set_flags(original_flags)
+
+
+@pytest.mark.parametrize("table_exists", [True, False], ids=["existing", "absent"])
+def test__templater_dbt_populate_relations_cache_relation_consumer_mocked_db_boundary(
+    tmp_path, monkeypatch, table_exists
+):
+    """Prove real is_incremental() / PostgresAdapter lookup at mocked DB boundary.
+
+    Uses real DbtTemplater.process(), ManifestLoader, DbtCompiler,
+    PostgresAdapter cache/get_relation/list_relations, and incremental.sql.
+    Mocks only Postgres DB calls and forbids PostgresConnectionManager.open.
+    """
+    from dbt import flags
+    from dbt.adapters.base.relation import RelationType
+    from dbt.adapters.factory import reset_adapters
+    from dbt.adapters.postgres.connections import PostgresConnectionManager
+    from dbt.adapters.postgres.impl import PostgresAdapter
+    from dbt.adapters.postgres.relation import PostgresRelation
+    from dbt.compilation import Compiler as DbtCompiler
+
+    incremental_sql = Path(
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/"
+        "models/my_new_project/incremental.sql"
+    ).read_text()
+
+    def _run_mode(populate_cache: bool):
+        base = tmp_path / ("warm_on" if populate_cache else "warm_off")
+        project_dir, profiles_dir = base / "dbt_project", base / "profiles"
+        model_path = project_dir / "models" / "my_new_project" / "incremental.sql"
+        model_path.parent.mkdir(parents=True)
+        profiles_dir.mkdir(parents=True)
+
+        (project_dir / "dbt_project.yml").write_text(
+            "name: 'my_new_project'\nversion: '1.0.0'\nconfig-version: 2\n"
+            "profile: 'default'\nmodels:\n  my_new_project:\n    materialized: view\n"
+        )
+        (profiles_dir / "profiles.yml").write_text(
+            "default:\n  target: dev\n  outputs:\n    dev:\n      type: postgres\n"
+            "      host: localhost\n      user: postgres\n      pass: password\n"
+            "      port: 5432\n      dbname: postgres\n      schema: dbt_alice\n"
+            "      threads: 1\n"
+        )
+        (project_dir / ".sqlfluff").write_text(
+            "[sqlfluff]\ndialect = postgres\ntemplater = dbt\n"
+            "[sqlfluff:templater:dbt]\n"
+            f"project_dir = {project_dir}\nprofiles_dir = {profiles_dir}\n"
+            f"populate_relations_cache = {populate_cache}\n"
+        )
+        model_path.write_text(incremental_sql)
+
+        events: list[str] = []
+        cache_at_compile: list[set[tuple[str | None, str]]] = []
+        orig_set_cache = PostgresAdapter.set_relations_cache
+        orig_compile = DbtCompiler.compile_node
+
+        def _spy_set_cache(self, *args, **kwargs):
+            events.append("set_relations_cache")
+            return orig_set_cache(self, *args, **kwargs)
+
+        def _spy_compile(self, *args, **kwargs):
+            cache_at_compile.append(
+                set(DbtTemplater.adapters[str(project_dir)].cache.schemas)
+            )
+            events.append("compile_node_start")
+            return orig_compile(self, *args, **kwargs)
+
+        def _fake_list_relations(self, schema_relation):
+            events.append(f"list:{schema_relation.database}.{schema_relation.schema}")
+            if table_exists and schema_relation.schema == "dbt_alice":
+                return [
+                    PostgresRelation.create(
+                        database="postgres",
+                        schema="dbt_alice",
+                        identifier="incremental",
+                        type=RelationType.Table,
+                    )
+                ]
+            return []
+
+        def _forbid_db_open(cls, connection):
+            raise AssertionError("Live DB connection must not be opened in unit test")
+
+        original_flags = flags.get_flags()
+        monkeypatch.setattr(DbtTemplater, "adapters", {})
+        reset_adapters()
+        try:
+            with (
+                mock.patch.object(
+                    PostgresAdapter, "set_relations_cache", _spy_set_cache
+                ),
+                mock.patch.object(
+                    PostgresAdapter,
+                    "list_relations_without_caching",
+                    _fake_list_relations,
+                ),
+                mock.patch.object(
+                    PostgresAdapter,
+                    "_link_cached_database_relations",
+                    lambda self, schemas: None,
+                ),
+                mock.patch.object(
+                    PostgresConnectionManager, "open", classmethod(_forbid_db_open)
+                ),
+                mock.patch.object(DbtCompiler, "compile_node", _spy_compile),
+            ):
+                linted = Linter(
+                    config=FluffConfig.from_path(str(project_dir))
+                ).lint_path(path=str(model_path))
+        finally:
+            reset_adapters()
+            flags.set_flags(original_flags)
+
+        assert len(linted.files) == 1
+        assert len(cache_at_compile) == 1
+        return {
+            "templated_str": linted.files[0].templated_file.templated_str,
+            "violations": linted.check_tuples(),
+            "events": events,
+            "cache_at_compile": cache_at_compile[0],
+        }
+
+    _clear_populate_cache_env(monkeypatch)
+    warm_on = _run_mode(populate_cache=True)
+    warm_off = _run_mode(populate_cache=False)
+
+    assert warm_off["templated_str"] == warm_on["templated_str"]
+    assert warm_off["violations"] == warm_on["violations"]
+    assert (
+        "select max(valid_date_local) from" in warm_on["templated_str"]
+    ) is table_exists
+
+    on_idx = warm_on["events"].index("compile_node_start")
+    assert warm_on["events"].count("set_relations_cache") == 1
+    assert warm_on["events"].index("set_relations_cache") < on_idx
+    assert any(e.startswith("list:") for e in warm_on["events"][:on_idx])
+    assert not any(e.startswith("list:") for e in warm_on["events"][on_idx:])
+    assert ("postgres", "dbt_alice") in warm_on["cache_at_compile"]
+
+    off_idx = warm_off["events"].index("compile_node_start")
+    assert "set_relations_cache" not in warm_off["events"]
+    assert warm_off["cache_at_compile"] == set()
+    assert not any(e.startswith("list:") for e in warm_off["events"][:off_idx])
+    assert any(e.startswith("list:") for e in warm_off["events"][off_idx:])
