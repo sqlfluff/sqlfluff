@@ -101,23 +101,15 @@ class Linter:
         self.user_rules = user_rules or []
         # directory -> (root config, file config shared by its files)
         self._dir_configs: dict[str, tuple[FluffConfig, FluffConfig]] = {}
-        # shared file config -> its rule pack, once built
-        self._rulepacks: dict[FluffConfig, Optional[RulePack]] = {}
 
     def get_rulepack(self, config: Optional[FluffConfig] = None) -> RulePack:
         """Get hold of a set of rules."""
-        cfg = config or self.config
-        rule_pack = self._rulepacks.get(cfg)
-        if rule_pack is not None:
-            return rule_pack
         rs = get_ruleset()
         # Register any user rules
         for rule in self.user_rules:
             rs.register(rule)
-        rule_pack = rs.get_rulepack(config=cfg)
-        if cfg in self._rulepacks:
-            self._rulepacks[cfg] = rule_pack
-        return rule_pack
+        cfg = config or self.config
+        return rs.get_rulepack(config=cfg)
 
     def _dir_config(self, fname: str, root_config: FluffConfig) -> FluffConfig:
         """Get the file config shared by the directory of `fname`.
@@ -129,7 +121,6 @@ class Linter:
         if cached is None or cached[0] is not root_config:
             file_config = root_config.make_child_from_path(fname, require_dialect=False)
             self._dir_configs[directory] = (root_config, file_config)
-            self._rulepacks[file_config] = None
             return file_config
         return cached[1]
 

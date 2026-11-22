@@ -1575,7 +1575,7 @@ def config_dirs(tmp_path):
 
 
 def test__linter__dir_config_shared(config_dirs):
-    """Files in one directory share a file config and its rule pack."""
+    """Files in one directory share a file config."""
     root = FluffConfig(require_dialect=False)
     lntr = Linter(config=root)
 
@@ -1589,8 +1589,6 @@ def test__linter__dir_config_shared(config_dirs):
     assert a_one is not b_one
     assert (a_one.get("dialect"), b_one.get("dialect")) == ("ansi", "tsql")
 
-    # The rule pack is built once per shared config.
-    assert lntr.get_rulepack(config=a_one) is lntr.get_rulepack(config=a_two)
     assert [r.code for r in lntr.get_rulepack(config=a_one).rules] == ["LT01"]
     assert [r.code for r in lntr.get_rulepack(config=b_one).rules] == ["CP01"]
 
