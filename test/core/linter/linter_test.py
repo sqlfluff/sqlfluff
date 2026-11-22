@@ -1655,3 +1655,32 @@ def test__linter__dir_config_lint_paths(config_dirs):
     assert codes[os.path.join("a", "one.sql")] == ["LT01"]
     assert codes[os.path.join("b", "one.sql")] == ["CP01"]
     assert codes[os.path.join("a", "inline.sql")] == []
+
+
+@pytest.mark.parametrize(
+    "order", [("plain.sql", "inline.sql"), ("inline.sql", "plain.sql")]
+)
+def test__linter__dir_config_align_not_shared(tmp_path, order):
+    """Linting a file doesn't change the layout config of its siblings."""
+    sql = "SELECT\n    a AS b,\n    cccccccc AS d\nFROM t;\n\nSELECT e AS f\nFROM t;\n"
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\nrules = LT01\n\n"
+        "[sqlfluff:layout:type:alias_expression]\n"
+        "spacing_before = align\nalign_within = select_clause\n"
+    )
+    (tmp_path / "plain.sql").write_text(sql)
+    (tmp_path / "inline.sql").write_text(
+        "-- sqlfluff:layout:type:alias_expression:align_within:file\n" + sql
+    )
+    result = Linter(config=FluffConfig(require_dialect=False)).lint_paths(
+        tuple(str(tmp_path / name) for name in order), fix=True
+    )
+    fixed = {
+        os.path.basename(file.path): file.fix_string()[0]
+        for path in result.paths
+        for file in path.files
+    }
+    # Aligned within each select clause, so the second select is left alone.
+    assert fixed["plain.sql"].endswith("SELECT e AS f\nFROM t;\n")
+    # Aligned within the file.
+    assert fixed["inline.sql"].endswith("SELECT e     AS f\nFROM t;\n")
