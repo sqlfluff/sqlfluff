@@ -6613,6 +6613,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Ref.keyword("DYNAMIC", optional=True),
                 Ref.keyword("HYBRID", optional=True),
                 Ref.keyword("ICEBERG", optional=True),
+                Ref.keyword("INTERACTIVE", optional=True),
                 "TABLE",
                 Ref("IfNotExistsGrammar", optional=True),
             ),
