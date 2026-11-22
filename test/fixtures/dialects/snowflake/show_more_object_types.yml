@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c078863ddb543fe3b64fd8567a45b6b53548de18b11ada98dc87d741c2743bf
+_hash: a3efe9c0d4e005105d93bf586ebe8d29f63758e9c33a5877509224f5b27ec594
 file:
 - statement:
     show_statement:
@@ -130,4 +130,23 @@ file:
     - keyword: ACCOUNTS
     - keyword: LIKE
     - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: connections
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: connection_stats
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: connections
 - statement_terminator: ;

@@ -25,3 +25,5 @@ SHOW CONNECTIONS LIKE 'my%';
 SHOW MANAGED ACCOUNTS;
 
 SHOW MANAGED ACCOUNTS LIKE 'my%';
+
+SELECT connections FROM connection_stats AS connections;
