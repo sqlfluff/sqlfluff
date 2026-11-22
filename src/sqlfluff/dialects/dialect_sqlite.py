@@ -924,16 +924,24 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
         OneOf(
             # CHECK ( <expr> )
             Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
-            Sequence(  # UNIQUE ( column_name [, ... ] )
+            Sequence(  # UNIQUE ( indexed_column [, ... ] )
                 "UNIQUE",
-                Ref("BracketedColumnReferenceListGrammar"),
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    # Columns with an optional COLLATE, ASC or DESC
+                    Bracketed(Delimited(Ref("IndexColumnDefinitionSegment"))),
+                ),
                 # Later add support for index_parameters?
                 Ref("ConflictClauseSegment", optional=True),
             ),
-            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
+            Sequence(  # PRIMARY KEY ( indexed_column [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    # Columns with an optional COLLATE, ASC or DESC
+                    Bracketed(Delimited(Ref("IndexColumnDefinitionSegment"))),
+                ),
                 # Later add support for index_parameters?
                 Ref("ConflictClauseSegment", optional=True),
             ),
