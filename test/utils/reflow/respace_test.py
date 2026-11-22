@@ -9,6 +9,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.rules import LintResult
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.respace import (
@@ -324,3 +325,61 @@ def test_reflow__inline_without_space_requires_a_block():
             segment_buffer=[],
             existing_results=[],
         )
+
+
+def test_reflow_respace_point_preserves_caller_results_and_identity(default_config):
+    """respace_point() leaves caller lint_results untouched and reuses clean points."""
+    root = parse_ansi_string("SELECT a +  b, c  \nFROM t\n", default_config)
+    seq = ReflowSequence.from_root(root, config=default_config)
+    sentinel = LintResult(anchor=root.raw_segments[0], description="sentinel")
+    saw_clean = False
+    saw_dirty = False
+    for idx, elem in enumerate(seq.elements):
+        if not isinstance(elem, ReflowPoint):
+            continue
+        prev_block = seq.elements[idx - 1] if idx > 0 else None
+        next_block = seq.elements[idx + 1] if idx + 1 < len(seq.elements) else None
+        caller_results = [sentinel]
+        out_results, new_point = elem.respace_point(
+            prev_block,
+            next_block,
+            root_segment=root,
+            lint_results=caller_results,
+            strip_newlines=False,
+        )
+        assert caller_results == [sentinel]
+        assert out_results is not caller_results
+        assert out_results[0] is sentinel
+        if len(out_results) == 1:
+            assert new_point is elem
+            saw_clean = True
+        else:
+            assert new_point is not elem
+            saw_dirty = True
+    assert saw_clean and saw_dirty
+
+    def _sig(results):
+        return [
+            (r.description, str(r.anchor.pos_marker) if r.anchor else None)
+            for r in results
+        ]
+
+    # Filtered respace must discard violations from excluded points and leave
+    # the source sequence's result list untouched.
+    assert seq.get_results() == []
+    res_inline = seq.respace(filter="inline")
+    assert seq.get_results() == []
+    res_newline = seq.respace(filter="newline")
+    assert seq.get_results() == []
+    res_all_first = seq.respace(filter="all")
+    assert seq.get_results() == []
+    res_all_second = seq.respace(filter="all")
+    assert seq.get_results() == []
+
+    assert _sig(res_inline.get_results())
+    assert _sig(res_newline.get_results())
+    assert sorted(_sig(res_inline.get_results()) + _sig(res_newline.get_results())) == (
+        sorted(_sig(res_all_first.get_results()))
+    )
+    assert _sig(res_all_first.get_results()) == _sig(res_all_second.get_results())
+    assert res_all_first.get_raw() == res_all_second.get_raw()

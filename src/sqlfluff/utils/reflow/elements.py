@@ -707,21 +707,54 @@ class ReflowPoint(ReflowElement):
         exception to pure respacing, but as a very simple case of positioning
         line breaks. The default operation of `respace` does not enable it,
         however it exists as a convenience for rules which wish to use it.
+
+        Returns a fresh results list without modifying `lint_results`, and may
+        return `self` when the point's segments are unchanged.
         """
-        existing_results = lint_results[:]
+        return self._respace_point(
+            prev_block=prev_block,
+            next_block=next_block,
+            root_segment=root_segment,
+            lint_results=lint_results,
+            strip_newlines=strip_newlines,
+            anchor_on=anchor_on,
+            indent_unit=indent_unit,
+            tab_space_size=tab_space_size,
+            mutate_results=False,
+        )
+
+    def _respace_point(
+        self,
+        prev_block: Optional[ReflowBlock],
+        next_block: Optional[ReflowBlock],
+        root_segment: BaseSegment,
+        lint_results: list[LintResult],
+        strip_newlines: bool = False,
+        anchor_on: str = "before",
+        indent_unit: str = "space",
+        tab_space_size: int = 4,
+        mutate_results: bool = False,
+    ) -> tuple[list[LintResult], "ReflowPoint"]:
+        """Internal respace implementation with optional in-place result updates."""
         pre_constraint, post_constraint, strip_newlines = determine_constraints(
             prev_block, next_block, strip_newlines
         )
 
-        reflow_logger.debug("* Respacing: %r @ %s", self.raw, self.pos_marker)
+        if reflow_logger.isEnabledFor(logging.DEBUG):
+            reflow_logger.debug("* Respacing: %r @ %s", self.raw, self.pos_marker)
 
         # The buffer is used to create the new reflow point to return
         segment_buffer, last_whitespace, new_results = process_spacing(
             list(self.segments), strip_newlines
         )
 
+        is_eof = bool(
+            next_block
+            and any(seg.is_type("end_of_file") for seg in next_block.segments)
+        )
+
         # Check for final trailing whitespace (which otherwise looks like an indent).
-        if next_block and "end_of_file" in next_block.class_types and last_whitespace:
+        if is_eof and last_whitespace:
             new_results.append(
                 LintResult(
                     last_whitespace,
@@ -732,18 +765,37 @@ class ReflowPoint(ReflowElement):
             segment_buffer.remove(last_whitespace)
             last_whitespace = None
 
+        def _finish(
+            results: list[LintResult],
+            extra: list[LintResult],
+        ) -> tuple[list[LintResult], "ReflowPoint"]:
+            if extra:
+                if mutate_results:
+                    results.extend(extra)
+                    out_results = results
+                else:
+                    out_results = results + extra
+            else:
+                out_results = results if mutate_results else results[:]
+            if len(segment_buffer) == len(self.segments) and all(
+                a is b for a, b in zip(segment_buffer, self.segments)
+            ):
+                return out_results, self
+            return out_results, ReflowPoint(tuple(segment_buffer))
+
         # Is there a newline?
         # NOTE: We do this based on the segment buffer rather than self.class_types
         # because we may have just removed any present newlines in the buffer.
         if (
-            any(seg.is_type("newline") for seg in segment_buffer) and not strip_newlines
-        ) or (next_block and "end_of_file" in next_block.class_types):
+            not strip_newlines and any(seg.is_type("newline") for seg in segment_buffer)
+        ) or is_eof:
             # Most of this section should be handled as _Indentation_.
             # BUT: There is one case we should handle here.
             # If we find that the last whitespace has a newline
             # before it, and the position markers imply there was
             # a removal between them, then remove the whitespace.
             # This ensures a consistent indent.
+            existing_results = lint_results
             if last_whitespace:
                 ws_idx = self.segments.index(last_whitespace)
                 if ws_idx > 0:
@@ -770,6 +822,8 @@ class ReflowPoint(ReflowElement):
                         # To do that effectively, we should look for the removed
                         # segment in the existing results.
                         temp_idx = last_whitespace.pos_marker.templated_slice.start
+                        if not mutate_results:
+                            existing_results = lint_results[:]
                         for res in existing_results:
                             if (
                                 res.anchor
@@ -789,14 +843,15 @@ class ReflowPoint(ReflowElement):
                             )
                         )
             # Return the results.
-            return existing_results + new_results, ReflowPoint(tuple(segment_buffer))
+            return _finish(existing_results, new_results)
 
         # Otherwise is this an inline case? (i.e. no newline)
-        reflow_logger.debug(
-            "    Inline case. Constraints: %s <-> %s.",
-            pre_constraint,
-            post_constraint,
-        )
+        if reflow_logger.isEnabledFor(logging.DEBUG):
+            reflow_logger.debug(
+                "    Inline case. Constraints: %s <-> %s.",
+                pre_constraint,
+                post_constraint,
+            )
 
         # Do we at least have _some_ whitespace?
         if last_whitespace:
@@ -812,28 +867,36 @@ class ReflowPoint(ReflowElement):
                 indent_unit,
                 tab_space_size,
             )
-            new_results.extend(results)
+            if results:
+                new_results.extend(results)
+            if new_results:
+                reflow_logger.debug("    New Results: %s", new_results)
+            return _finish(lint_results, new_results)
         else:
             # No. Should we insert some?
             # NOTE: This method operates on the existing fix buffer.
-            segment_buffer, new_results, edited = handle_respace__inline_without_space(
-                pre_constraint,
-                post_constraint,
-                prev_block,
-                next_block,
-                segment_buffer,
-                existing_results + new_results,
-                anchor_on=anchor_on,
+            base_results = lint_results if mutate_results else lint_results[:]
+            if new_results:
+                reflow_logger.debug("    New Results: %s", new_results)
+                base_results.extend(new_results)
+            segment_buffer, combined_results, edited = (
+                handle_respace__inline_without_space(
+                    pre_constraint,
+                    post_constraint,
+                    prev_block,
+                    next_block,
+                    segment_buffer,
+                    base_results,
+                    anchor_on=anchor_on,
+                )
             )
-            existing_results = []
-            if edited:
-                reflow_logger.debug("    Modified result buffer: %s", new_results)
-
-        # Only log if we actually made a change.
-        if new_results:
-            reflow_logger.debug("    New Results: %s", new_results)
-
-        return existing_results + new_results, ReflowPoint(tuple(segment_buffer))
+            if edited and reflow_logger.isEnabledFor(logging.DEBUG):
+                reflow_logger.debug("    Modified result buffer: %s", combined_results)
+            if len(segment_buffer) == len(self.segments) and all(
+                a is b for a, b in zip(segment_buffer, self.segments)
+            ):
+                return combined_results, self
+            return combined_results, ReflowPoint(tuple(segment_buffer))
 
 
 ReflowSequenceType = list[Union[ReflowBlock, ReflowPoint]]
