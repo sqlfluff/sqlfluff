@@ -6489,6 +6489,27 @@ class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
     )
 
 
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Overriding ANSI to allow `OVERRIDING { SYSTEM | USER } VALUE` and
+    `DEFAULT VALUES`, as in the `INSERT` statement.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
+        OneOf(
+            Ref("ValuesClauseSegment"),
+            Sequence("DEFAULT", "VALUES"),
+        ),
+    )
+
+
 class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
     """Drop Type Statement.
 
