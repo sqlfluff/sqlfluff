@@ -83,7 +83,10 @@ impl FixtureTest {
                 return TestResult {
                     test: self.clone(),
                     success: false,
-                    error: Some(format!("Invalid dialect '{}': unknown dialect", self.dialect)),
+                    error: Some(format!(
+                        "Invalid dialect '{}': unknown dialect",
+                        self.dialect
+                    )),
                     generated_yaml: None,
                     expected_yaml: None,
                 };
