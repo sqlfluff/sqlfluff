@@ -1,0 +1,12 @@
+-- FSCK REPAIR TABLE. https://docs.databricks.com/aws/en/sql/language-manual/delta-fsck
+FSCK REPAIR TABLE t;
+
+FSCK REPAIR TABLE t METADATA ONLY DRY RUN;
+
+FSCK REPAIR TABLE t VERIFY ALL FILES;
+
+FSCK REPAIR TABLE t VERIFY FILES MODIFIED BETWEEN current_timestamp() AND current_timestamp();
+
+FSCK REPAIR TABLE t VERIFY FILES MODIFIED BETWEEN current_timestamp() - INTERVAL 1 DAY AND current_timestamp();
+
+FSCK REPAIR TABLE t VERIFY FILES MODIFIED BETWEEN TIMESTAMP '2024-01-01' AND current_date() DRY RUN;

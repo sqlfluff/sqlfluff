@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3976e93ec40043666418cf1e1cc6157e5c95cb68b12fbc3371e3534e670968fa
+file:
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: employee
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - table_reference:
+        naked_identifier: employee
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: employee
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: employee
+    - keyword: TO
+    - keyword: TIMESTAMP
+    - keyword: AS
+    - keyword: OF
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: current_timestamp
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        binary_operator: '-'
+        interval_expression:
+          keyword: INTERVAL
+          interval_literal:
+            signed_quoted_literal: "'1'"
+            date_part: HOUR
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'employee'"
+            end_bracket: )
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '1'
+- statement_terminator: ;
