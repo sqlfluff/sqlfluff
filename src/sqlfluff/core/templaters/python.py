@@ -249,7 +249,7 @@ class PythonTemplater(RawTemplater):
             # Hack to allow template variables with dot notation (e.g. foo.bar).
             # Consume escaped brace pairs first so their contents stay literal.
             raw_str_with_dot_notation_hack = re.sub(
-                r"{{|}}|{([^{}:!]*\.[^{}:!]*)(![ars])?(:[^\s{}]*)?}",
+                r"{{|}}|{([^{}:!]*\.[^{}:!]*)(![ars])?(:\S*)?}",
                 lambda match: (
                     match.expand(r"{sqlfluff[\1]\2\3}")
                     if match.group(1)

@@ -729,6 +729,26 @@ def test__templater_python_ignore_templating(
             "SELECT '{00baz}';",
             {"sqlfluff": {"foo.bar": "baz"}},
         ),
+        (
+            "SELECT '{foo.bar:{width}}';",
+            "SELECT 'baz   ';",
+            {"sqlfluff": {"foo.bar": "baz"}, "width": 6},
+        ),
+        (
+            "SELECT '{foo.bar!s:0>{width}}';",
+            "SELECT '000baz';",
+            {"sqlfluff": {"foo.bar": "baz"}, "width": 6},
+        ),
+        (
+            "SELECT '{{{foo.bar!s:0>{width}}}}';",
+            "SELECT '{000baz}';",
+            {"sqlfluff": {"foo.bar": "baz"}, "width": 6},
+        ),
+        (
+            "SELECT '{{foo.bar:{{width}}}}';",
+            "SELECT '{foo.bar:{width}}';",
+            {},
+        ),
         ("SELECT '{{foo}}';", "SELECT '{foo}';", {}),
     ],
 )
