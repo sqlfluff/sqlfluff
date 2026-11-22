@@ -1,0 +1,48 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fa877488caab0e186cd8997690582541417aedfbf6bf4c57517ce81f017812cd
+file:
+- statement:
+    create_access_method_statement:
+    - keyword: CREATE
+    - keyword: ACCESS
+    - keyword: METHOD
+    - object_reference:
+        naked_identifier: heap2
+    - keyword: TYPE
+    - keyword: TABLE
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: heap_tableam_handler
+- statement_terminator: ;
+- statement:
+    create_access_method_statement:
+    - keyword: CREATE
+    - keyword: ACCESS
+    - keyword: METHOD
+    - object_reference:
+        quoted_identifier: '"Btree2"'
+    - keyword: TYPE
+    - keyword: INDEX
+    - keyword: HANDLER
+    - function_name:
+        naked_identifier: pg_catalog
+        dot: .
+        function_name_identifier: bthandler
+- statement_terminator: ;
+- statement:
+    create_access_method_statement:
+    - keyword: CREATE
+    - keyword: ACCESS
+    - keyword: METHOD
+    - object_reference:
+        naked_identifier: hash2
+    - keyword: TYPE
+    - keyword: INDEX
+    - keyword: HANDLER
+    - function_name:
+        function_name_identifier: hashhandler
+- statement_terminator: ;

@@ -401,6 +401,7 @@ mysql_dialect.replace(
     ).copy(
         insert=[
             Ref("SessionVariableNameSegment"),
+            Ref("MatchAgainstExpressionSegment"),
             # Allow VALUES() function in expressions, e.g. in ON DUPLICATE KEY UPDATE.
             # https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
             Ref("ValuesClauseSegment"),
@@ -824,6 +825,35 @@ class FunctionSegment(ansi.FunctionSegment):
             ),
         ],
         at=0,
+    )
+
+
+class MatchAgainstExpressionSegment(BaseSegment):
+    """A full-text search, `MATCH (col, ...) AGAINST (expr [search_modifier])`.
+
+    https://dev.mysql.com/doc/refman/8.0/en/fulltext-search.html
+    """
+
+    type = "match_against_expression"
+    match_grammar: Matchable = Sequence(
+        "MATCH",
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "AGAINST",
+        Bracketed(
+            Ref("ExpressionSegment"),
+            OneOf(
+                Sequence(
+                    "IN",
+                    "NATURAL",
+                    "LANGUAGE",
+                    "MODE",
+                    Sequence("WITH", "QUERY", "EXPANSION", optional=True),
+                ),
+                Sequence("IN", "BOOLEAN", "MODE"),
+                Sequence("WITH", "QUERY", "EXPANSION"),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -1400,6 +1430,7 @@ class InsertStatementSegment(BaseSegment):
         ),
         Ref.keyword("IGNORE", optional=True),
         Ref.keyword("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Sequence(
             "PARTITION",
@@ -1409,6 +1440,7 @@ class InsertStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
         AnySetOf(
             OneOf(
                 Ref("ValuesClauseSegment"),
@@ -1470,18 +1502,22 @@ class DeleteStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "FROM",
+                Indent,
                 Delimited(
                     Ref("DeleteTargetTableSegment"),
                     terminators=["USING"],
                 ),
+                Dedent,
                 Ref("DeleteUsingClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
             Sequence(
+                Indent,
                 Delimited(
                     Ref("DeleteTargetTableSegment"),
                     terminators=["FROM"],
                 ),
+                Dedent,
                 Ref("FromClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
@@ -1987,6 +2023,75 @@ class SetDefaultRoleStatementSegment(BaseSegment):
     )
 
 
+class SetRoleStatementSegment(BaseSegment):
+    """A `SET ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/set-role.html
+    """
+
+    type = "set_role_statement"
+
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "ROLE",
+        OneOf(
+            "DEFAULT",
+            "NONE",
+            Sequence(
+                "ALL",
+                Sequence(
+                    "EXCEPT",
+                    Delimited(Ref("RoleReferenceSegment")),
+                    optional=True,
+                ),
+            ),
+            Delimited(Ref("RoleReferenceSegment")),
+        ),
+    )
+
+
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
+    """A `CREATE ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/create-role.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
+    """A `DROP ROLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/drop-role.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/drop-user.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("RoleReferenceSegment")),
+    )
+
+
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
@@ -2088,6 +2193,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateViewStatementSegment"),
             Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
+            Ref("ResetPersistStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
             Ref("HelpStatementSegment"),
             Ref("CheckTableStatementSegment"),
@@ -2108,6 +2214,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterEventStatementSegment"),
             Ref("DropEventStatementSegment"),
             Ref("SetDefaultRoleStatementSegment"),
+            Ref("SetRoleStatementSegment"),
             Ref("ShowStatementSegment"),
         ],
         remove=[
@@ -3063,6 +3170,7 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
+        Indent,
         OneOf(
             Delimited(
                 AnyNumberOf(
@@ -3112,6 +3220,7 @@ class IntoClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        Dedent,
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
         terminators=[Ref("SelectClauseTerminatorGrammar")],
     )
@@ -3196,7 +3305,13 @@ class ForClauseSegment(BaseSegment):
                 "FOR",
                 OneOf("UPDATE", "SHARE"),
             ),
-            Sequence("OF", Delimited(Ref("NakedIdentifierSegment")), optional=True),
+            Sequence(
+                "OF",
+                Indent,
+                Delimited(Ref("NakedIdentifierSegment")),
+                Dedent,
+                optional=True,
+            ),
             OneOf("NOWAIT", Sequence("SKIP", "LOCKED"), optional=True),
         ),
         Sequence("LOCK", "IN", "SHARE", "MODE"),
@@ -3776,6 +3891,32 @@ class ResetMasterStatementSegment(BaseSegment):
     )
 
 
+class ResetPersistStatementSegment(BaseSegment):
+    """A `RESET PERSIST` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/reset-persist.html
+
+    MySQL's `persisted_variable_ident` rule allows an unquoted `DEFAULT` prefix.
+    https://github.com/mysql/mysql-server/blob/mysql-8.4.0/sql/sql_yacc.yy#L14232-L14255
+    """
+
+    type = "reset_persist_statement"
+    match_grammar = Sequence(
+        "RESET",
+        "PERSIST",
+        Sequence(
+            Ref("IfExistsGrammar", optional=True),
+            Sequence(
+                OneOf("DEFAULT", Ref("SingleIdentifierGrammar")),
+                Ref("DotSegment"),
+                optional=True,
+            ),
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class PurgeBinaryLogsStatementSegment(BaseSegment):
     """A `PURGE BINARY LOGS` statement.
 
@@ -3838,7 +3979,6 @@ class CheckTableStatementSegment(BaseSegment):
             "MEDIUM",
             "EXTENDED",
             "CHANGED",
-            min_times=1,
         ),
     )
 
@@ -3859,6 +3999,7 @@ class ChecksumTableStatementSegment(BaseSegment):
         OneOf(
             "QUICK",
             "EXTENDED",
+            optional=True,
         ),
     )
 
@@ -4130,16 +4271,22 @@ class ReplaceSegment(BaseSegment):
         "REPLACE",
         OneOf("LOW_PRIORITY", "DELAYED", optional=True),
         Sequence("INTO", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("SelectPartitionClauseSegment", optional=True),
+        Dedent,
         OneOf(
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 Ref("ValuesClauseSegment"),
             ),
             Ref("SetClauseListSegment"),
             Sequence(
+                Indent,
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
                 OneOf(
                     Ref("SelectableGrammar"),
                     Sequence(

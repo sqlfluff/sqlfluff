@@ -729,6 +729,61 @@ class FormatClauseSegment(BaseSegment):
     )
 
 
+class InsertFormatClauseSegment(BaseSegment):
+    """The `FORMAT` clause that names the format of an `INSERT`'s row data.
+
+    Unlike the `SELECT` `FORMAT` clause, nothing can follow the format name:
+    ClickHouse reads everything after `FORMAT format_name` as data, so query
+    `SETTINGS` have to come before it.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/insert-into
+    """
+
+    type = "format_clause"
+    match_grammar: Matchable = Sequence(
+        "FORMAT",
+        OneOf(*[Ref.keyword(allowed_format) for allowed_format in FORMAT_KEYWORDS]),
+    )
+
+
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` statement, with ClickHouse's `SETTINGS` and `FORMAT` forms.
+
+    `FORMAT format_name` stands in for the `VALUES`/`SELECT` source, with the
+    row data supplied after it (out of band, e.g. over client stdin). It does
+    not combine with `VALUES`, which is itself the `Values` format. Query
+    `SETTINGS` go after the column list and before the source.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/insert-into
+    """
+
+    type = "insert_statement"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Ref.keyword("OVERWRITE", optional=True),
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("SettingsClauseSegment", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("InsertFormatClauseSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SettingsClauseSegment", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("InsertFormatClauseSegment"),
+                ),
+            ),
+            Ref("DefaultValuesGrammar"),
+        ),
+    )
+
+
 class MergeTreesOrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause for the MergeTree family engine."""
 
@@ -2286,8 +2341,10 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
         # TABLE keyword is optional, even though the documentation
         # doesn't state it
         Ref.keyword("TABLE", optional=True),
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Dedent,
         Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
@@ -2305,8 +2362,10 @@ class TruncateDatabaseStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "TRUNCATE",
         "DATABASE",
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
+        Dedent,
         Ref("OnClusterClauseSegment", optional=True),
     )
 
@@ -2325,8 +2384,10 @@ class TruncateTablesStatementSegment(BaseSegment):
         Ref.keyword("ALL", optional=True),
         "TABLES",
         "FROM",
+        Indent,
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
+        Dedent,
         # We specifically do not use LikeExpressionGrammar here,
         # as it covers cases that TRUNCATE TABLES does not support.
         # For instance, something like
@@ -2871,6 +2932,7 @@ class ProjectionBodySegment(BaseSegment):
             OneOf(
                 Ref("OrderByClauseSegment"),
                 Ref("GroupByClauseSegment"),
+                optional=True,
             ),
         ),
         # Projection index

@@ -39,6 +39,29 @@ def test_reflow__process_spacing_duplicate_whitespace_fix_anchors():
     assert all(anchor is not w1 for anchor in anchors)
 
 
+def test_reflow__process_spacing_equal_whitespace_kept_by_identity():
+    """Pruning a duplicate whitespace must keep the retained one.
+
+    Distinct whitespace segments compare equal when they share a raw and a
+    position, as a literal space and an adjacent templated space can. Only
+    the duplicate is removed, and the returned ``last_whitespace`` remains in
+    the buffer.
+    """
+    # Two distinct segments sharing a position marker compare equal.
+    tree = Linter(dialect="ansi").parse_string("select 1\n").tree
+    pos = next(seg for seg in tree.raw_segments if seg.is_type("whitespace")).pos_marker
+    w1 = WhitespaceSegment(" ", pos_marker=pos)
+    w2 = WhitespaceSegment(" ", pos_marker=pos)
+    assert w1 == w2 and w1 is not w2
+    buffer, last_whitespace, results = process_spacing([w1, w2])
+
+    assert last_whitespace is w1
+    assert len(buffer) == 1 and buffer[0] is w1
+    # w1 == w2, so check the anchor by identity.
+    anchors = [fix.anchor for r in results for fix in r.fixes]
+    assert len(anchors) == 1 and anchors[0] is w2
+
+
 def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)

@@ -158,6 +158,18 @@ impl TemplatedFile {
         }
     }
 
+    /// Codepoint indices of newlines in the source string.
+    #[must_use]
+    pub fn source_newlines(&self) -> &[usize] {
+        &self.source_newlines
+    }
+
+    /// Codepoint indices of newlines in the templated string.
+    #[must_use]
+    pub fn templated_newlines(&self) -> &[usize] {
+        &self.templated_newlines
+    }
+
     pub fn raw_slices_spanning_source_slice(&self, source_slice: Slice) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
         let last_raw_slice = self.raw_sliced.last().unwrap();
@@ -461,7 +473,8 @@ impl std::fmt::Display for TemplatedFile {
 
 fn iter_codepoint_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     raw_str
-        .char_indices()
+        .chars()
+        .enumerate()
         .filter(|(_i, c)| *c == '\n')
         .map(|(idx, _)| idx)
 }
@@ -709,6 +722,8 @@ mod tests {
             ("foo", vec![]),
             ("foo\nbar", vec![3]),
             ("\nfoo\n\nbar\nfoo\n\nbar\n", vec![0, 4, 5, 9, 13, 14, 18]),
+            // Codepoints, not bytes: 'é' and 'Ω' are two bytes each.
+            ("é\nΩx\n", vec![1, 4]),
         ];
 
         for (raw_str, positions) in test_cases {

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6345cd7f4d54d1b9ac88a05c469dac1d95483e525997ac2bbd8a8eba5043fbc6
+_hash: 1742e1c2f55fbc4f4e8a6dbc09c52748c79cd758ed247225dda4ec57bd8a2a69
 file:
 - statement:
     access_statement:
@@ -359,4 +359,71 @@ file:
       - quoted_identifier: "'user_name'"
       - at_sign_literal: '@'
       - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: "'reader'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: "'reader'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'writer'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: "'reader'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: EXCEPT
+    - role_reference:
+        quoted_identifier: "'writer'"
+- statement_terminator: ;
+- statement:
+    set_role_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: EXCEPT
+    - role_reference:
+      - quoted_identifier: "'reader'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - comma: ','
+    - role_reference:
+        quoted_identifier: "'writer'"
 - statement_terminator: ;

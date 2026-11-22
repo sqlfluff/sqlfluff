@@ -1,0 +1,40 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 633bdfa921ec5b214ce3a4d6c07ed7aaaaa5d2785e3f5baf61aa7fe198a38f5a
+file:
+- statement:
+    create_conversion_statement:
+    - keyword: CREATE
+    - keyword: CONVERSION
+    - object_reference:
+        naked_identifier: my_conv
+    - keyword: FOR
+    - quoted_literal: "'UTF8'"
+    - keyword: TO
+    - quoted_literal: "'LATIN1'"
+    - keyword: FROM
+    - function_name:
+        function_name_identifier: utf8_to_iso8859_1
+- statement_terminator: ;
+- statement:
+    create_conversion_statement:
+    - keyword: CREATE
+    - keyword: DEFAULT
+    - keyword: CONVERSION
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: my_default
+    - keyword: FOR
+    - quoted_literal: "'LATIN1'"
+    - keyword: TO
+    - quoted_literal: "'UTF8'"
+    - keyword: FROM
+    - function_name:
+        naked_identifier: pg_catalog
+        dot: .
+        function_name_identifier: iso8859_1_to_utf8
+- statement_terminator: ;

@@ -1,0 +1,74 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: efbdb8b86431b243a81ce5b3d2a13a1498c063e2e0162e97400ef35530bbaa3c
+file:
+- statement:
+    create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+        naked_identifier: example_user
+    - parameter: abort_detached_query
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+        naked_identifier: example_user2
+    - keyword: default_role
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_role
+    - parameter: use_cached_result
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+    - parameter: query_tag
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my tag'"
+    - parameter: statement_timeout_in_seconds
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3600'
+    - parameter: network_policy
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_policy
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'with parameters'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+        naked_identifier: example_user3
+    - parameter: autocommit
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - comma: ','
+    - parameter: binary_output_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: hex
+    - comma: ','
+    - parameter: timezone
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'UTC'"
+- statement_terminator: ;

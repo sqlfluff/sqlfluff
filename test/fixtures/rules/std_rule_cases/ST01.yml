@@ -65,3 +65,75 @@ else_expression:
             else iff(wing_type is not null, 'tweet', 'invalid')
         end
     from x
+
+redundant_else_null_preserves_block_comment:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            else /* keep default */ null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            /* keep default */
+        end
+    from x
+
+redundant_else_null_preserves_inline_comment:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            else -- keep default
+                null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            -- keep default
+        end
+    from x
+
+redundant_else_null_preserves_single_line_comment:
+  fail_str: select case when a = 1 then 2 else /* keep default */ null end from t;
+  fix_str: select case when a = 1 then 2 /* keep default */ end from t;
+
+redundant_else_null_preserves_multiple_comments:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            else
+                /* first note */
+                /* second note */
+                null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            /* first note */
+                /* second note */
+        end
+    from x
+
+redundant_else_null_preserves_inline_comment_same_line_end:
+  fail_str: |
+    select case when a = 1 then 2 else -- keep default
+     null end from t;
+  fix_str: |
+    select case when a = 1 then 2 -- keep default
+     end from t;

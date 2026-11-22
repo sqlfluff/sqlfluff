@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: badc43c6ce89dd56f744d4940cbae8e8d9ee4f782398c677cbc57ac8cb1f202e
+_hash: 4ebb381df137d3e2b4f20a8833acacbafc522a3496716a5a3e746238a1819880
 file:
 - statement:
     alter_table_statement:
@@ -1083,7 +1083,8 @@ file:
         naked_identifier: measurement
     - keyword: ATTACH
     - keyword: PARTITION
-    - parameter: measurement_y2016m07
+    - table_reference:
+        naked_identifier: measurement_y2016m07
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1108,7 +1109,8 @@ file:
         naked_identifier: cities
     - keyword: ATTACH
     - keyword: PARTITION
-    - parameter: cities_ab
+    - table_reference:
+        naked_identifier: cities_ab
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1130,7 +1132,34 @@ file:
         naked_identifier: orders
     - keyword: ATTACH
     - keyword: PARTITION
-    - parameter: orders_p4
+    - table_reference:
+        naked_identifier: orders_p4
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: WITH
+        bracketed:
+        - start_bracket: (
+        - keyword: MODULUS
+        - numeric_literal: '4'
+        - comma: ','
+        - keyword: REMAINDER
+        - numeric_literal: '3'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: orders
+    - keyword: ATTACH
+    - keyword: PARTITION
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: orders_p4
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1152,7 +1181,8 @@ file:
         naked_identifier: cities
     - keyword: ATTACH
     - keyword: PARTITION
-    - parameter: cities_partdef
+    - table_reference:
+        naked_identifier: cities_partdef
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
@@ -1163,7 +1193,8 @@ file:
         naked_identifier: measurement
     - keyword: DETACH
     - keyword: PARTITION
-    - parameter: measurement_y2015m12
+    - table_reference:
+        naked_identifier: measurement_y2015m12
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1173,7 +1204,8 @@ file:
         naked_identifier: measurement
     - keyword: DETACH
     - keyword: PARTITION
-    - parameter: measurement_y2021m10
+    - table_reference:
+        naked_identifier: measurement_y2021m10
     - keyword: CONCURRENTLY
     - keyword: FINALIZE
 - statement_terminator: ;
@@ -1237,7 +1269,8 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: to
-      - parameter: postgres
+      - role_reference:
+          naked_identifier: postgres
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1325,7 +1358,8 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - parameter: '"ID"'
+      - role_reference:
+          quoted_identifier: '"ID"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1338,7 +1372,8 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - parameter: ID
+      - role_reference:
+          naked_identifier: ID
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1354,7 +1389,7 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - parameter: CURRENT_ROLE
+      - keyword: CURRENT_ROLE
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -2232,4 +2267,78 @@ file:
       - keyword: SET
       - keyword: COMPRESSION
       - parameter: LZ4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: PLAIN
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: EXTERNAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: MAIN
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: mycolumn
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: DEFAULT
 - statement_terminator: ;

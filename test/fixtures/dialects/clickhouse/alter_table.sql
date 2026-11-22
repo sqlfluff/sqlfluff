@@ -174,6 +174,12 @@ ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_3 (with (1 
 
 ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_4 (with 1 = 0 as f1, cast('JP' as String) as country select region, user_id where region = country order by user_id);
 
+ALTER TABLE default.example ADD PROJECTION total_proj (select sum(user_id));
+
+ALTER TABLE default.example ADD PROJECTION IF NOT EXISTS region_proj_5 (select region, user_id where region = 'JP');
+
+ALTER TABLE default.example ADD PROJECTION region_proj_6 (with 'JP' as country select region, user_id where region = country);
+
 ALTER TABLE default.example MODIFY PROJECTION uid_proj INDEX user_id TYPE basic WITH SETTINGS (
     index_granularity = 4096
 );

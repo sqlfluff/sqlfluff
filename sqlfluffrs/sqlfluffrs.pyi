@@ -38,6 +38,9 @@ class RsPositionMarker:
     working_line_no: int
     working_line_pos: int
 
+    def working_visual_column(self, tab_space_size: int = 4) -> int: ...
+    def working_loc_after(self, raw: str) -> tuple[int, int]: ...
+
 class RsToken:
     raw: str
     pos_marker: RsPositionMarker
@@ -196,12 +199,17 @@ class RsHandle:
     children: List["RsHandle"]
     parent: Optional["RsHandle"]
 
+    def class_type(self) -> str: ...
     def is_type(self, seg_type: List[str]) -> bool: ...
     def is_raw(self) -> bool: ...
     def class_types(self) -> List[str]: ...
     def instance_types(self) -> List[str]: ...
     def is_implicit(self) -> Optional[bool]: ...
     def trim_chars(self) -> Optional[List[str]]: ...
+    def trim_start(self) -> Optional[tuple[str, ...]]: ...
+    def casefold(self) -> Optional[str]: ...
+    def block_type(self) -> Optional[str]: ...
+    def block_uuid(self) -> Optional[int]: ...
     def quoted_value(self) -> Optional[tuple[str, str]]: ...
     def escape_replacements(self) -> Optional[List[tuple[str, str]]]: ...
     def descendant_type_set(self) -> List[str]: ...
@@ -296,5 +304,36 @@ def cp04_violations(
     """Detect CP04 (boolean/null literal capitalisation) violations natively over the arena.
 
     Same contract as ``cp01_violations``.
+    """
+    ...
+
+def engine_parse_paths(
+    paths: list[str],
+    config: "FluffConfig",
+    formatter: Any = None,
+    *,
+    stdin_content: Optional[str] = None,
+    stdin_filename: Optional[str] = None,
+    code_only: bool = False,
+    include_meta: bool = False,
+) -> list[dict[str, Any]]:
+    """Rust-driven discover->render->lex->parse for the `parse` command.
+
+    Returns one dict per file: `{fname, segments, templater_violations,
+    lex_errors, parse_errors}`. Violations/errors are pre-filtered against
+    the config's `ignore`/`warnings` settings (inline `noqa` comments are
+    not yet honored), so raw counts can drive the exit code.
+    """
+    ...
+
+def engine_render_string(
+    raw_sql: str,
+    fname: str,
+    config: "FluffConfig",
+    formatter: Any = None,
+) -> dict[str, Any]:
+    """Rust-driven render for the `render` command.
+
+    Returns `{templated_variants, templater_violations}`.
     """
     ...

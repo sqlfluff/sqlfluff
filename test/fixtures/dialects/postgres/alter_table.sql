@@ -106,6 +106,8 @@ ALTER TABLE cities
 ALTER TABLE orders
     ATTACH PARTITION orders_p4 FOR VALUES WITH (MODULUS 4, REMAINDER 3);
 
+ALTER TABLE ONLY orders ATTACH PARTITION public.orders_p4 FOR VALUES WITH (MODULUS 4, REMAINDER 3);
+
 ALTER TABLE cities
     ATTACH PARTITION cities_partdef DEFAULT;
 
@@ -203,3 +205,11 @@ ALTER TABLE many_options ADD EXCLUDE
 -- Compression settings
 ALTER TABLE mytable ALTER COLUMN mycolumn SET COMPRESSION LZ4;
 ALTER TABLE mytable ALTER mycolumn SET COMPRESSION LZ4;
+
+-- Storage settings (DEFAULT is PostgreSQL 16+)
+-- https://www.postgresql.org/docs/17/sql-altertable.html
+ALTER TABLE mytable ALTER COLUMN mycolumn SET STORAGE PLAIN;
+ALTER TABLE mytable ALTER COLUMN mycolumn SET STORAGE EXTERNAL;
+ALTER TABLE mytable ALTER COLUMN mycolumn SET STORAGE EXTENDED;
+ALTER TABLE mytable ALTER COLUMN mycolumn SET STORAGE MAIN;
+ALTER TABLE mytable ALTER mycolumn SET STORAGE DEFAULT;

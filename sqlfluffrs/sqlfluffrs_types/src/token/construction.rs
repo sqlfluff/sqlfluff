@@ -2,10 +2,9 @@ use super::{config::TokenConfig, Token};
 use crate::{marker::PositionMarker, slice::Slice, templater::templatefile::TemplatedFile};
 
 use std::borrow::Cow;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 
 use hashbrown::HashSet;
-use once_cell::sync::Lazy;
 use uuid::Uuid;
 
 impl Token {
@@ -329,7 +328,7 @@ fn make_class_types(types: &[&str]) -> Arc<HashSet<String>> {
 
 macro_rules! class_types_static {
     ($name:ident, $($ty:literal),+) => {
-        static $name: Lazy<Arc<HashSet<String>>> = Lazy::new(|| make_class_types(&[$($ty),+]));
+        static $name: LazyLock<Arc<HashSet<String>>> = LazyLock::new(|| make_class_types(&[$($ty),+]));
     };
 }
 

@@ -1,0 +1,255 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ad371adc7445a931de31df157dc477579e7af470af9bf37b662ca8adeda3e3c4
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'parquet_output'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: ROW_GROUPS_PER_FILE
+      - numeric_literal: '2'
+      - comma: ','
+      - keyword: CHUNK_SIZE
+      - numeric_literal: '1000'
+      - comma: ','
+      - keyword: DATA_PAGE_SIZE_LIMIT
+      - numeric_literal: '65536'
+      - comma: ','
+      - keyword: DICTIONARY_SIZE_LIMIT
+      - numeric_literal: '0'
+      - comma: ','
+      - keyword: WRITE_BLOOM_FILTER
+      - boolean_literal: 'false'
+      - comma: ','
+      - keyword: BLOOM_FILTER_FALSE_POSITIVE_RATIO
+      - numeric_literal: '0.001'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: FIELD_IDS
+      - object_literal:
+        - start_curly_bracket: '{'
+        - object_literal_element:
+            naked_identifier: i
+            colon: ':'
+            numeric_literal: '42'
+        - comma: ','
+        - object_literal_element:
+            naked_identifier: j
+            colon: ':'
+            numeric_literal: '43'
+        - end_curly_bracket: '}'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: FIELD_IDS
+      - quoted_literal: "'auto'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: FIELD_IDS
+      - naked_identifier: auto
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: KV_METADATA
+      - object_literal:
+        - start_curly_bracket: '{'
+        - object_literal_element:
+            naked_identifier: origin
+            colon: ':'
+            quoted_literal: "'sqlfluff'"
+        - comma: ','
+        - object_literal_element:
+            naked_identifier: version
+            colon: ':'
+            quoted_literal: "'1'"
+        - end_curly_bracket: '}'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: variants
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: SHREDDING
+      - object_literal:
+          start_curly_bracket: '{'
+          object_literal_element:
+            naked_identifier: v
+            colon: ':'
+            quoted_literal: "'INTEGER'"
+          end_curly_bracket: '}'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: PARQUET_VERSION
+      - naked_identifier: V2
+      - comma: ','
+      - keyword: GEOPARQUET_VERSION
+      - quoted_literal: "'NONE'"
+      - comma: ','
+      - keyword: TIMESTAMP_IS_ADJUSTED_TO_UTC
+      - naked_identifier: AUTO
+      - comma: ','
+      - keyword: WRITE_TIMESTAMP_AS_INT96
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: PARQUET_VERSION
+      - quoted_literal: "'V1'"
+      - comma: ','
+      - keyword: GEOPARQUET_VERSION
+      - naked_identifier: V2
+      - comma: ','
+      - keyword: TIMESTAMP_IS_ADJUSTED_TO_UTC
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.json'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: json
+      - comma: ','
+      - keyword: ARRAY
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: TO
+    - quoted_literal: "'output.json'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: json
+      - comma: ','
+      - keyword: ARRAY
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: field_ids
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: chunk_size
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: kv_metadata
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: shredding
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: row_groups_per_file
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;

@@ -1,0 +1,242 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a2196a701dfc7f01e8ce9785a7b0d075e4b1059f1c4de17afba65364605e5d4b
+file:
+  batch:
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: AdventureWorks2022
+      - keyword: TO
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'Z:\\SQLServerBackups\\AdventureWorks2022.bak'"
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: LOG
+      - database_reference:
+          naked_identifier: AdventureWorks2022
+      - keyword: TO
+      - naked_identifier: MyAdvWorks_FullRM_log1
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: TO
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'D:\\Backups\\Sales_diff.bak'"
+      - keyword: WITH
+      - keyword: DIFFERENTIAL
+      - comma: ','
+      - keyword: INIT
+      - comma: ','
+      - keyword: NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'Sales differential'"
+      - comma: ','
+      - keyword: DESCRIPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'Nightly differential'"
+      - comma: ','
+      - keyword: STATS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10'
+      - comma: ','
+      - keyword: CHECKSUM
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          parameter: '@db_name'
+      - keyword: TO
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@path_1'
+      - comma: ','
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: '@path_2'
+      - keyword: WITH
+      - keyword: COPY_ONLY
+      - comma: ','
+      - keyword: COMPRESSION
+      - comma: ','
+      - keyword: FORMAT
+      - comma: ','
+      - keyword: NOSKIP
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: TO
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'D:\\Backups\\Sales.bak'"
+      - keyword: WITH
+      - keyword: COMPRESSION
+      - bracketed:
+          start_bracket: (
+          keyword: ALGORITHM
+          comparison_operator:
+            raw_comparison_operator: '='
+          naked_identifier: QAT_DEFLATE
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: AdventureWorks2022
+      - keyword: TO
+      - keyword: TAPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'\\\\.\\tape0'"
+      - comma: ','
+      - keyword: TAPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'\\\\.\\tape1'"
+      - keyword: MIRROR
+      - keyword: TO
+      - keyword: TAPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'\\\\.\\tape2'"
+      - comma: ','
+      - keyword: TAPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'\\\\.\\tape3'"
+      - keyword: WITH
+      - keyword: FORMAT
+      - comma: ','
+      - keyword: MEDIANAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'MyMedia'"
+      - comma: ','
+      - keyword: MEDIADESCRIPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'Mirrored set'"
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: TO
+      - keyword: URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://mystorage.blob.core.windows.net/backups/Sales.bak'"
+      - keyword: WITH
+      - keyword: ENCRYPTION
+      - bracketed:
+        - start_bracket: (
+        - keyword: ALGORITHM
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - naked_identifier: AES_256
+        - comma: ','
+        - keyword: SERVER
+        - keyword: CERTIFICATE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: BackupCert
+        - end_bracket: )
+      - comma: ','
+      - keyword: RETAINDAYS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '30'
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: FILEGROUP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'SalesGroup1'"
+      - comma: ','
+      - keyword: FILEGROUP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'SalesGroup2'"
+      - keyword: TO
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'C:\\MySQLServer\\Backups\\Sales\\SalesFiles.bck'"
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: LOG
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: TO
+      - keyword: DISK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'D:\\Backups\\Sales_tail.trn'"
+      - keyword: WITH
+      - keyword: NORECOVERY
+      - comma: ','
+      - keyword: NO_TRUNCATE
+      - comma: ','
+      - keyword: EXPIREDATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2026-12-31'"
+  - statement_terminator: ;
+  - statement:
+      backup_statement:
+      - keyword: BACKUP
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: Sales
+      - keyword: TO
+      - keyword: URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://mystorage.blob.core.windows.net/backups/Sales.bak'"
+      - keyword: WITH
+      - keyword: CREDENTIAL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'mycredential'"
+      - comma: ','
+      - keyword: COMPRESSION
+  - statement_terminator: ;

@@ -1,0 +1,222 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 056a8bcff04cb763a3dde401690459af4dfc8259066aa2a0054b321d2a77862b
+file:
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam2
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: RENAME
+    - keyword: TO
+    - operator_family_reference:
+        naked_identifier: alt_fam3
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam3
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam3
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam3
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam3
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: alt_fam3
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: test_schema
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: custom_fam
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: hash
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: integer_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: ADD
+    - operator_family_add_member:
+        keyword: OPERATOR
+        numeric_literal: '6'
+        operator_name:
+          operator: <
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - comma: ','
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - end_bracket: )
+    - comma: ','
+    - operator_family_add_member:
+        keyword: OPERATOR
+        numeric_literal: '7'
+        operator_name:
+        - operator: <
+        - operator: '='
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - comma: ','
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - end_bracket: )
+    - comma: ','
+    - operator_family_add_member:
+        keyword: OPERATOR
+        numeric_literal: '8'
+        operator_name:
+          operator: '='
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - comma: ','
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - end_bracket: )
+    - comma: ','
+    - operator_family_add_member:
+        keyword: FUNCTION
+        numeric_literal: '1'
+        function_name:
+          function_name_identifier: btint42cmp
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int4
+        - comma: ','
+        - data_type:
+            keyword: int2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_operator_family_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - operator_family_reference:
+        naked_identifier: integer_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: DROP
+    - operator_family_drop_member:
+        keyword: OPERATOR
+        numeric_literal: '6'
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - comma: ','
+        - data_type:
+            datetime_type_identifier:
+              keyword: time
+        - end_bracket: )
+    - comma: ','
+    - operator_family_drop_member:
+        keyword: FUNCTION
+        numeric_literal: '1'
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int4
+        - comma: ','
+        - data_type:
+            keyword: int2
+        - end_bracket: )
+- statement_terminator: ;

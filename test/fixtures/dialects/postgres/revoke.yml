@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 90b028ed8c42766e4808430cca7f2b6c23b3465eb60bb4d6c0aa9f433a5dcbbc
+_hash: 511605577994be061447024ff700a0c1e8ed2fc1530e86bb65fc5637f002a01e
 file:
-  statement:
+- statement:
     access_statement:
       revoke_statement:
       - keyword: REVOKE
@@ -15,4 +15,40 @@ file:
       - access_target:
           role_reference:
             naked_identifier: lc_api
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+            keyword: MAINTAIN
+      - keyword: 'ON'
+      - access_object:
+          access_schema_object:
+            keyword: TABLE
+          object_reference:
+            naked_identifier: my_table
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+      revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+          access_permission:
+          - keyword: ALTER
+          - keyword: SYSTEM
+      - keyword: 'ON'
+      - access_object:
+          keyword: PARAMETER
+          parameter: work_mem
+      - keyword: FROM
+      - access_target:
+          role_reference:
+            naked_identifier: my_user
+      - keyword: CASCADE
+- statement_terminator: ;

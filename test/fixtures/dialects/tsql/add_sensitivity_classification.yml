@@ -1,0 +1,185 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8ca671dc9833affed2b3287797322d24cc727c30bd8aa6ed8e6fff17e87c1460
+file:
+  batch:
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: sales
+        - dot: .
+        - naked_identifier: price
+      - comma: ','
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: sales
+        - dot: .
+        - naked_identifier: discount
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: LABEL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'Highly Confidential'"
+        - comma: ','
+        - keyword: INFORMATION_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'Financial'"
+        - comma: ','
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: CRITICAL
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: comments
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: LABEL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'Confidential'"
+        - comma: ','
+        - keyword: LABEL_ID
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'643f7acd-776a-438d-890c-79c3f2a520d6'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[customer]'
+        - dot: .
+        - quoted_identifier: '[email]'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: INFORMATION_TYPE_ID
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'5c503e21-22c6-81fa-620b-f369b8ec38d1'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: email
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: NONE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: notes
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: LABEL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "N'Confidential'"
+        - comma: ','
+        - keyword: INFORMATION_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "N'Contact Info'"
+        - comma: ','
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: LOW
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: phone
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: MEDIUM
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      add_sensitivity_classification_statement:
+      - keyword: ADD
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: TO
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: customer
+        - dot: .
+        - naked_identifier: birth_date
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: RANK
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: HIGH
+        - end_bracket: )
+  - statement_terminator: ;

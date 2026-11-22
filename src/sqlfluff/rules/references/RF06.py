@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
-from sqlfluff.core.parser import CodeSegment, IdentifierSegment
+from sqlfluff.core.parser import CodeSegment, IdentifierSegment, PyLexer
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -295,6 +295,25 @@ class Rule_RF06(BaseRule):
             regex.IGNORECASE,
         ):
             return None
+        # Unquoted, a name like `1e5` or `0x1F` in MySQL matches the pattern above,
+        # but the lexer reads it as a number, so the reference would become a
+        # literal: `SELECT 1e5` selects 100000, not the column.
+        if self._lexes_as_number(identifier_contents, context):
+            return None
+        # Unquoted, a bare function name (e.g. "user" in PostgreSQL) is parsed as a
+        # call to that function rather than as a reference to the identifier.
+        if identifier_contents.upper() in {
+            name.upper() for name in context.dialect.sets("bare_functions")
+        }:
+            return None
+        # Unquoted as a type name, a keyword that can't be one is the SQL syntax for
+        # a built-in type, which can be a different type: in PostgreSQL, `"char"`
+        # is a one-byte type, but `char` is `character(1)`. After a schema, as in
+        # `pg_catalog."char"`, it's an ordinary name, so the quotes can go there.
+        if identifier_contents.upper() in context.dialect.sets(
+            "cannot_be_type_keywords"
+        ) and self._is_bare_type_name(context):
+            return None
 
         return LintResult(
             context.segment,
@@ -311,6 +330,31 @@ class Rule_RF06(BaseRule):
             ],
             description=f"Unnecessary quoted identifier {context.segment.raw}.",
         )
+
+    @staticmethod
+    def _lexes_as_number(raw: str, context: RuleContext) -> bool:
+        """Whether the dialect's lexer reads the start of the raw string as a number."""
+        lexer_matchers = context.dialect.get_lexer_matchers()
+        elements = PyLexer.lex_match(raw, lexer_matchers).elements
+        # Build the first segment, as its type can come from the lexer's settings.
+        return any(
+            element.matcher.construct_segment(
+                element.raw, context.segment.get_start_point_marker()
+            ).is_type("numeric_literal")
+            for element in elements[:1]
+        )
+
+    @staticmethod
+    def _is_bare_type_name(context: RuleContext) -> bool:
+        """Whether the segment is the name in a data type, without a schema."""
+        parent = context.parent_stack[-1]
+        if not parent.is_type("data_type"):
+            return False
+        position = next(
+            i for i, seg in enumerate(parent.segments) if seg is context.segment
+        )
+        before = [seg for seg in parent.segments[:position] if seg.is_code]
+        return not (before and before[-1].is_type("dot"))
 
     @cached_property
     def ignore_words_list(self) -> list[str]:

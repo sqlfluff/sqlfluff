@@ -108,13 +108,13 @@ class _RebreakLocation:
         # Slice backward to search in reverse.
         for seg in elements[self.prev.newline_pt_idx].segments[::-1]:
             if seg.is_type("newline"):
-                if not seg.pos_marker.is_literal():
+                if seg.pos_marker and not seg.pos_marker.is_literal():
                     return True
                 break
         # Check the _first_ newline of the next point.
         for seg in elements[self.next.newline_pt_idx].segments:
             if seg.is_type("newline"):
-                if not seg.pos_marker.is_literal():
+                if seg.pos_marker and not seg.pos_marker.is_literal():
                     return True
                 break
         return False

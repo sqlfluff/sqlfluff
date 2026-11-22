@@ -15,3 +15,36 @@ CREATE OPERATOR === (
     JOIN = area_join_function,
     HASHES, MERGES
 );
+
+-- pg_dump writes the schema of the operator, and `OPERATOR(schema.name)`
+CREATE OPERATOR app.=== (
+    FUNCTION = app.int_eq,
+    LEFTARG = integer,
+    RIGHTARG = integer,
+    COMMUTATOR = OPERATOR(app.===),
+    NEGATOR = OPERATOR(app.!==)
+);
+
+CREATE OPERATOR <<-> (
+    LEFTARG = double precision,
+    RIGHTARG = double precision,
+    FUNCTION = float8_distance,
+    COMMUTATOR = <<->
+);
+
+CREATE OPERATOR ~~~ (
+    LEFTARG = character varying,
+    RIGHTARG = text[],
+    FUNCTION = varchar_in_array
+);
+
+CREATE OPERATOR public.@@ (
+    RIGHTARG = timestamp with time zone,
+    FUNCTION = age_of
+);
+
+CREATE OPERATOR public.## (
+    LEFTARG = point,
+    RIGHTARG = lseg,
+    FUNCTION = close_ps
+);
