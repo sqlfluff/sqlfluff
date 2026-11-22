@@ -99,15 +99,39 @@ class Linter:
         self.formatter = formatter
         # Store references to user rule classes
         self.user_rules = user_rules or []
+        # directory -> (root config, file config shared by its files)
+        self._dir_configs: dict[str, tuple[FluffConfig, FluffConfig]] = {}
+        # shared file config -> its rule pack, once built
+        self._rulepacks: dict[FluffConfig, Optional[RulePack]] = {}
 
     def get_rulepack(self, config: Optional[FluffConfig] = None) -> RulePack:
         """Get hold of a set of rules."""
+        cfg = config or self.config
+        rule_pack = self._rulepacks.get(cfg)
+        if rule_pack is not None:
+            return rule_pack
         rs = get_ruleset()
         # Register any user rules
         for rule in self.user_rules:
             rs.register(rule)
-        cfg = config or self.config
-        return rs.get_rulepack(config=cfg)
+        rule_pack = rs.get_rulepack(config=cfg)
+        if cfg in self._rulepacks:
+            self._rulepacks[cfg] = rule_pack
+        return rule_pack
+
+    def _dir_config(self, fname: str, root_config: FluffConfig) -> FluffConfig:
+        """Get the file config shared by the directory of `fname`.
+
+        It is shared, so it must not be changed.
+        """
+        directory = os.path.dirname(os.path.abspath(fname))
+        cached = self._dir_configs.get(directory)
+        if cached is None or cached[0] is not root_config:
+            file_config = root_config.make_child_from_path(fname, require_dialect=False)
+            self._dir_configs[directory] = (root_config, file_config)
+            self._rulepacks[file_config] = None
+            return file_config
+        return cached[1]
 
     def rule_tuples(self) -> list[RuleTuple]:
         """A simple pass through to access the rule tuples of the rule set."""
@@ -122,12 +146,20 @@ class Linter:
 
     @staticmethod
     def load_raw_file_and_config(
-        fname: str, root_config: FluffConfig
+        fname: str,
+        root_config: FluffConfig,
+        dir_config: Optional[FluffConfig] = None,
     ) -> tuple[str, FluffConfig, str]:
-        """Load a raw file and the associated config."""
+        """Load a raw file and the associated config.
+
+        `dir_config` is the shared config for the file's directory. It is
+        copied if the file has inline config.
+        """
         # The file may supply its dialect via an inline config directive.
         # Dialect validation happens in render_string() after those are processed.
-        file_config = root_config.make_child_from_path(fname, require_dialect=False)
+        file_config = dir_config
+        if file_config is None:
+            file_config = root_config.make_child_from_path(fname, require_dialect=False)
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
@@ -158,6 +190,11 @@ class Linter:
                 )
         with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
             raw_file = target_file.read()
+        if dir_config is not None:
+            # No inline config, nothing to process. Over-matching costs a copy.
+            if "sqlfluff" not in raw_file:
+                return raw_file, file_config, encoding
+            file_config = file_config.copy()
         # Scan the raw file for config commands.
         file_config.process_raw_file_for_config(raw_file, fname)
         # Return the raw file and config
@@ -1018,7 +1055,9 @@ class Linter:
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
         # Load the raw file.
-        raw_file, config, encoding = self.load_raw_file_and_config(fname, root_config)
+        raw_file, config, encoding = self.load_raw_file_and_config(
+            fname, root_config, self._dir_config(fname, root_config)
+        )
         # Render the file
         return self.render_string(raw_file, fname, config, encoding)
 
@@ -1293,7 +1332,7 @@ class Linter:
             # Load the file with the config and yield the result.
             try:
                 raw_file, config, encoding = self.load_raw_file_and_config(
-                    fname, self.config
+                    fname, self.config, self._dir_config(fname, self.config)
                 )
             except SQLFluffSkipFile as s:
                 linter_logger.warning(str(s))
