@@ -94,6 +94,8 @@ class ReflowConfig:
     def from_dict(cls, config_dict: ConfigDictType, **kwargs: Any) -> "ReflowConfig":
         """Construct a ReflowConfig from a dict."""
         config_types = set(config_dict.keys())
+        # Copy, so that the caller's dict (often shared config) isn't changed.
+        config_dict = {seg_type: dict(cfg) for seg_type, cfg in config_dict.items()}
         # Enrich any of the "align" keys with what they're aligning with.
         for seg_type in config_dict:
             for key in ("spacing_before", "spacing_after"):
