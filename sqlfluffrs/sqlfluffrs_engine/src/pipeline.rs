@@ -8,7 +8,7 @@ use std::sync::Arc;
 use anyhow::{anyhow, Result};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_parser::parser::{Node, Parser};
+use sqlfluffrs_parser::parser::{intern_indent_config, Node, Parser};
 use sqlfluffrs_types::{TemplatedFile, Token};
 
 /// Resolve a dialect by name, erroring if `None` or unknown.
@@ -80,15 +80,7 @@ pub fn parse_tokens(
     indent_config: BTreeMap<String, bool>,
     limits: ParseLimits,
 ) -> Result<Node> {
-    // The parser keeps `&'static str` keys; leak the owned strings (these live
-    // for the duration of the process, matching the PyParser binding's approach).
-    let indent: hashbrown::HashMap<&'static str, bool> = indent_config
-        .into_iter()
-        .map(|(k, v)| {
-            let static_key: &'static str = Box::leak(k.into_boxed_str());
-            (static_key, v)
-        })
-        .collect();
+    let indent = intern_indent_config(indent_config);
 
     // Thread the configured limits, exactly as the `PyParser` binding does.
     let mut parser =
