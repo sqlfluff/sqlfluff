@@ -160,32 +160,32 @@ test_pass_array_access:
   pass_str: |
     SELECT my_array[1] = [1] FROM t
 
-test_pass_function_equality:
-  pass_str: |
+test_fail_unknown_function_equality:
+  fail_str: |
     SELECT next_value() = next_value();
 
-test_pass_function_inequality:
-  pass_str: |
+test_fail_unknown_function_inequality:
+  fail_str: |
     SELECT next_value() != next_value();
 
-test_pass_function_inequality_alternative:
-  pass_str: |
+test_fail_unknown_function_inequality_alternative:
+  fail_str: |
     SELECT next_value() <> next_value();
 
-test_pass_nested_function_comparison:
-  pass_str: |
+test_fail_nested_unknown_function_comparison:
+  fail_str: |
     SELECT abs(next_value()) = abs(next_value());
 
-test_pass_parenthesized_function_comparison:
-  pass_str: |
+test_fail_parenthesized_unknown_function_comparison:
+  fail_str: |
     SELECT (next_value()) = (next_value());
 
-test_pass_function_in_expression_comparison:
-  pass_str: |
+test_fail_unknown_function_in_expression_comparison:
+  fail_str: |
     SELECT (next_value() + 1) = (next_value() + 1);
 
-test_pass_qualified_function_comparison:
-  pass_str: |
+test_fail_qualified_unknown_function_comparison:
+  fail_str: |
     SELECT my_schema.next_value() = my_schema.next_value();
 
 test_pass_random_function_comparison_sqlite:
@@ -195,18 +195,80 @@ test_pass_random_function_comparison_sqlite:
     core:
       dialect: sqlite
 
-test_fail_constant_comparisons_after_function:
+test_fail_constant_comparisons_after_random:
   fail_str: |
     SELECT col FROM t
-    WHERE next_value() = next_value()
+    WHERE random() = random()
         OR col = col
-        OR abs(next_value()) <> abs(next_value())
+        OR abs(random()) <> abs(random())
         OR 1 = 2;
   line_numbers: [3, 5]
+  configs:
+    core:
+      dialect: sqlite
 
-test_fail_constant_comparisons_before_function:
+test_fail_constant_comparisons_before_random:
   fail_str: |
     SELECT col FROM t
     WHERE col = col
-        OR next_value() = next_value();
+        OR random() = random();
   line_numbers: [2]
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_nested_random_sqlite:
+  pass_str: |
+    SELECT lower(hex(randomblob(16))) = lower(hex(randomblob(16)));
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_parenthesized_random_sqlite:
+  pass_str: |
+    SELECT (random()) != (random());
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_random_in_expression_sqlite:
+  pass_str: |
+    SELECT (random() + 1) <> (random() + 1);
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_quoted_random_sqlite:
+  pass_str: |
+    SELECT "random"() = "random"();
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_unknown_function_sqlite:
+  fail_str: |
+    SELECT next_value() = next_value();
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_random_other_dialect:
+  fail_str: |
+    SELECT random() = random();
+
+test_fail_qualified_random_sqlite:
+  fail_str: |
+    SELECT my_schema.random() = my_schema.random();
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_deterministic_functions_sqlite:
+  fail_str: |
+    SELECT * FROM a JOIN b
+      ON lower(a.email) = lower(a.email)
+      AND CAST(a.id AS TEXT) = CAST(a.id AS TEXT);
+  line_numbers: [2, 3]
+  configs:
+    core:
+      dialect: sqlite

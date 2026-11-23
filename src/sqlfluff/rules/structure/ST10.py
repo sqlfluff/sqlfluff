@@ -21,9 +21,10 @@ class Rule_ST10(BaseRule):
     an automatic fix, and instead invites the user to resolve the problem
     manually.
 
-    Comparisons containing function calls are skipped because repeated calls
-    may return different values. This also skips deterministic functions:
-    the rule does not know whether a function is deterministic.
+    Comparisons containing SQLite's ``random()`` or ``randomblob()`` are
+    skipped because repeated calls can return different values within one
+    statement. This includes nested calls. Other functions retain the usual
+    checks, including unknown functions.
 
     **Anti-pattern**
 
@@ -51,6 +52,9 @@ class Rule_ST10(BaseRule):
     config_keywords = []
     crawl_behaviour = SegmentSeekerCrawler({"expression"})
     is_fix_compatible = False
+    # SQLite documents these calls as producing random values on each invocation.
+    # https://www.sqlite.org/lang_corefunc.html#random
+    _nondeterministic_functions = {"sqlite": {"RANDOM", "RANDOMBLOB"}}
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         return [lint_result for lint_result in self._eval_gen(context)]
@@ -63,6 +67,9 @@ class Rule_ST10(BaseRule):
         # often included in auto-generated code.
         # NOTE: In future this could become a configuration option.
         allowable_literal_expressions = {"1 = 1", "1 = 0"}
+        nondeterministic_functions = self._nondeterministic_functions.get(
+            context.dialect.name, set()
+        )
 
         for idx, seg in enumerate(context.segment.segments):
             if seg.is_type("comparison_operator"):
@@ -143,11 +150,12 @@ class Rule_ST10(BaseRule):
                         continue
                     if lhs.raw_normalized() != rhs.raw_normalized():
                         continue
-                    # Identical function calls may return different values.
+                    # Only exempt documented functions that can vary within a statement.
                     if any(
-                        operand.is_type("function")
-                        or "function" in operand.descendant_type_set
+                        function_name.raw_normalized().upper()
+                        in nondeterministic_functions
                         for operand in (lhs, rhs)
+                        for function_name in operand.recursive_crawl("function_name")
                     ):
                         continue
 
