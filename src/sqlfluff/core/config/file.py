@@ -50,7 +50,7 @@ def _resolve_path(filepath: str, val: str) -> list[str]:
 
     Handles both exact paths and wildcard patterns.
     """
-    directory = os.path.dirname(filepath)
+    directory = glob.escape(os.path.dirname(filepath))
     search_path = os.path.join(directory, val)
 
     # Use glob which handles both wildcard patterns and exact matches

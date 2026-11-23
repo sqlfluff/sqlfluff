@@ -652,3 +652,20 @@ def test_resolve_paths_in_config_skips_jinja_context(tmp_path):
     context = test_config["templater"]["jinja"]["context"]
     assert context["tbl_path"] == "data"
     assert context["is_dir"] is True
+
+
+def test_resolve_path_with_brackets_in_config_directory(tmp_path):
+    """Test _resolve_path treats brackets in the config directory literally."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    project_dir = tmp_path / "project[1]"
+    macros_dir = project_dir / "macros"
+    macros_dir.mkdir(parents=True)
+    (macros_dir / "a.sql").touch()
+
+    sibling_dir = tmp_path / "project1" / "macros"
+    sibling_dir.mkdir(parents=True)
+
+    config_path = str(project_dir / ".sqlfluff")
+    assert _resolve_path(config_path, "macros") == [str(macros_dir)]
+    assert _resolve_path(config_path, "macros/*.sql") == [str(macros_dir / "a.sql")]
