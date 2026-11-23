@@ -1114,7 +1114,6 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
-            Ref("NamedWindowSegment", optional=True),
         ],
         before=Ref("UsingSampleClauseSegment", optional=True),
         replace_terminators=True,
