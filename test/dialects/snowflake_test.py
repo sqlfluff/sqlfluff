@@ -51,6 +51,18 @@ from sqlfluff.core.dialects import dialect_selector
             "AlterSessionStatementSegment",
             "ALTER SESSION UNSET TIME_OUTPUT_FORMAT, TWO_DIGIT_CENTURY_START;",
         ),
+        (
+            "ScriptingDeclareStatementSegment",
+            "DECLARE x STRING; y VARCHAR; BEGIN SELECT 1; END;",
+        ),
+        (
+            "ScriptingDeclareStatementSegment",
+            "CREATE OR REPLACE TASK t WAREHOUSE = w AS DECLARE x STRING; BEGIN SELECT 1; END;",
+        ),
+        (
+            "ScriptingDeclareStatementSegment",
+            "CREATE OR REPLACE PROCEDURE p() RETURNS STRING LANGUAGE SQL AS DECLARE x VARCHAR; BEGIN RETURN x; END;",
+        ),
     ],
 )
 def test_snowflake_queries(segment_cls, raw, caplog):
