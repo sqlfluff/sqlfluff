@@ -109,3 +109,21 @@ CROSS JOIN LATERAL JSON_TABLE(
     '$.line_items[*]'
     COLUMNS (sku text PATH '$.sku')
 ) AS li;
+
+-- FORMAT JSON on the context item and PASSING variables
+SELECT jt.* FROM JSON_TABLE(
+    '[1, 2, 3]' FORMAT JSON,
+    '$[*] ? (@ > $min)' PASSING 1 AS min
+    COLUMNS (v int PATH '$')
+) AS jt;
+
+-- Formatted columns with wrapper and quotes clauses
+SELECT jt.* FROM JSON_TABLE(
+    '{"a": [1, 2], "b": "x"}'::jsonb,
+    '$'
+    COLUMNS (
+        a jsonb FORMAT JSON PATH '$.a' WITH CONDITIONAL ARRAY WRAPPER,
+        b text FORMAT JSON ENCODING UTF8 PATH '$.b' WITHOUT WRAPPER OMIT QUOTES,
+        c text PATH '$.b' KEEP QUOTES ON SCALAR STRING NULL ON EMPTY ERROR ON ERROR
+    )
+) AS jt;

@@ -548,6 +548,45 @@ postgres_dialect.add(
         Sequence("EMPTY", OneOf("ARRAY", "OBJECT", optional=True)),
         Sequence("DEFAULT", Ref("ExpressionSegment")),
     ),
+    # Shared clauses of the SQL/JSON query functions and JSON_TABLE.
+    # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-QUERYING
+    JsonFormatClauseGrammar=Sequence(
+        "FORMAT",
+        "JSON",
+        Sequence("ENCODING", Ref("SingleIdentifierGrammar"), optional=True),
+    ),
+    JsonValueExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("JsonFormatClauseGrammar", optional=True),
+    ),
+    JsonPassingClauseGrammar=Sequence(
+        "PASSING",
+        Delimited(
+            Sequence(
+                Ref("JsonValueExpressionGrammar"),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+    ),
+    JsonReturningClauseGrammar=Sequence(
+        "RETURNING",
+        Ref("DatatypeSegment"),
+        Ref("JsonFormatClauseGrammar", optional=True),
+    ),
+    JsonWrapperClauseGrammar=Sequence(
+        OneOf(
+            "WITHOUT",
+            Sequence("WITH", OneOf("CONDITIONAL", "UNCONDITIONAL", optional=True)),
+        ),
+        Ref.keyword("ARRAY", optional=True),
+        "WRAPPER",
+    ),
+    JsonQuotesClauseGrammar=Sequence(
+        OneOf("KEEP", "OMIT"),
+        "QUOTES",
+        Sequence("ON", "SCALAR", "STRING", optional=True),
+    ),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
@@ -2210,11 +2249,15 @@ class JsonTableColumnDefinitionSegment(BaseSegment):
             "FOR",
             "ORDINALITY",
         ),
-        # name type [PATH path] [behaviour ON EMPTY] [behaviour ON ERROR]
+        # name type [FORMAT JSON] [PATH path] [wrapper] [quotes]
+        #     [behaviour ON EMPTY] [behaviour ON ERROR]
         Sequence(
             Ref("SingleIdentifierGrammar"),
             Ref("DatatypeSegment"),
+            Ref("JsonFormatClauseGrammar", optional=True),
             _path_clause,
+            Ref("JsonWrapperClauseGrammar", optional=True),
+            Ref("JsonQuotesClauseGrammar", optional=True),
             Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
             Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
         ),
@@ -2262,10 +2305,11 @@ class JsonTableFunctionContentsSegment(BaseSegment):
 
     type = "function_contents"
     match_grammar: Matchable = Bracketed(
-        Ref("ExpressionSegment"),
+        Ref("JsonValueExpressionGrammar"),
         Ref("CommaSegment"),
         Ref("QuotedLiteralSegment"),
         Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Ref("JsonPassingClauseGrammar", optional=True),
         Ref("JsonTableColumnsClauseSegment"),
         Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
     )
@@ -2283,14 +2327,55 @@ class JsonTableFunctionNameSegment(BaseSegment):
     )
 
 
+class JsonQueryFunctionContentsSegment(BaseSegment):
+    """JSON_EXISTS, JSON_QUERY and JSON_VALUE function contents.
+
+    The three functions share one permissive grammar; PostgreSQL rejects
+    clauses that don't apply to a given function at analysis time.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-QUERYING
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("JsonValueExpressionGrammar"),
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),
+        Ref("JsonPassingClauseGrammar", optional=True),
+        Ref("JsonReturningClauseGrammar", optional=True),
+        Ref("JsonWrapperClauseGrammar", optional=True),
+        Ref("JsonQuotesClauseGrammar", optional=True),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+    )
+
+
+class JsonQueryFunctionNameSegment(BaseSegment):
+    """JSON_EXISTS, JSON_QUERY and JSON_VALUE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = OneOf(
+        StringParser("JSON_EXISTS", WordSegment, type="function_name_identifier"),
+        StringParser("JSON_QUERY", WordSegment, type="function_name_identifier"),
+        StringParser("JSON_VALUE", WordSegment, type="function_name_identifier"),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
-    """A scalar or aggregate function, with JSON_TABLE support."""
+    """A scalar or aggregate function, with SQL/JSON query function support."""
 
     match_grammar = ansi.FunctionSegment.match_grammar.copy(
         insert=[
             Sequence(
                 Ref("JsonTableFunctionNameSegment"),
                 Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("JsonQueryFunctionNameSegment"),
+                Ref("JsonQueryFunctionContentsSegment"),
             ),
         ],
         at=0,
