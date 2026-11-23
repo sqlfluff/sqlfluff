@@ -2205,6 +2205,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("InstallPluginStatementSegment"),
+            Ref("UninstallPluginStatementSegment"),
             Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
@@ -4139,6 +4141,28 @@ class UpdateStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class InstallPluginStatementSegment(BaseSegment):
+    """An `INSTALL PLUGIN` statement."""
+
+    type = "install_plugin_statement"
+    match_grammar: Matchable = Sequence(
+        "INSTALL",
+        "PLUGIN",
+        Ref("SingleIdentifierGrammar"),
+        "SONAME",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class UninstallPluginStatementSegment(BaseSegment):
+    """An `UNINSTALL PLUGIN` statement."""
+
+    type = "uninstall_plugin_statement"
+    match_grammar: Matchable = Sequence(
+        "UNINSTALL", "PLUGIN", Ref("SingleIdentifierGrammar")
     )
 
 
