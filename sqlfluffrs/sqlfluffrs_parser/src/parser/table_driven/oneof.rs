@@ -23,7 +23,6 @@ impl Parser<'_> {
         let grammar_id = frame.grammar_id;
         #[cfg(feature = "verbose-debug")]
         let child_count = self.grammar_ctx.inst(grammar_id).child_count;
-        let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
         let optional = self.grammar_ctx.inst(grammar_id).flags.optional();
@@ -53,8 +52,12 @@ impl Parser<'_> {
             vdebug!("OneOf[table]: exclude grammar did not match, continuing");
         }
 
-        // Collect leading transparent tokens if allow_gaps
-        let post_skip_pos = self.skip_to_code_if_gaps(start_pos, self.tokens.len(), allow_gaps);
+        // PYTHON PARITY: OneOf never skips leading non-code. Python's
+        // AnyNumberOf.match hands its own start index straight to
+        // longest_match and only skips gaps *between* repeated matches, so a
+        // OneOf starting on whitespace (e.g. inside an allow_gaps=False
+        // Sequence) must fail unless an option itself skips the gap.
+        let post_skip_pos = start_pos;
 
         // Combine terminators (read parent terminators from frame directly)
         let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
@@ -531,5 +534,46 @@ impl Parser<'_> {
 
         // Transition to Complete
         Ok(stack.complete_frame(frame, result_match))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
+
+    use crate::parser::Parser;
+
+    /// Python's OneOf and Ref never skip a leading gap, so inside an
+    /// `allow_gaps=False` Sequence they must fail on whitespace. Expected
+    /// ends are Python's match results.
+    /// - sparksql `ParameterizedSegment`: `Sequence(Colon, OneOf(..), allow_gaps=False)`
+    ///   (OneOf skip).
+    /// - ansi `DatatypeSegment`: `Sequence(Sequence(Ident, Dot), Ref("DatatypeIdentifierSegment"),
+    ///   allow_gaps=False)` where the Ref target is a OneOf (Ref skip).
+    #[test]
+    fn test_no_gap_sequence_child_does_not_skip_leading_whitespace() {
+        for (dialect_name, grammar_name, sql, expected_end) in [
+            ("sparksql", "ParameterizedSegment", ":a", Some(2)),
+            ("sparksql", "ParameterizedSegment", ": a", None),
+            ("ansi", "DatatypeSegment", "b.c", Some(3)),
+            ("ansi", "DatatypeSegment", "b. c", None),
+        ] {
+            let dialect = Dialect::from_str(dialect_name).expect("dialect");
+            let grammar_id = dialect
+                .get_segment_grammar(grammar_name)
+                .expect("segment grammar")
+                .grammar_id;
+            let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let mr = parser
+                .parse_table_iterative_match_result(grammar_id, &[])
+                .expect("parse");
+            let got = (!mr.is_empty()).then(|| mr.end());
+            assert_eq!(got, expected_end, "{dialect_name} {grammar_name} {sql:?}");
+        }
     }
 }

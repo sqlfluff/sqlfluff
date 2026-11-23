@@ -123,14 +123,11 @@ impl Parser<'_> {
             }
         };
 
-        // If the explicit child grammar allows gaps, collect leading transparent
-        // tokens so child parsing starts at the next non-transparent token.
-        let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        let child_start_pos = if child_allows_gaps {
-            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
-        } else {
-            start_pos
-        };
+        // PYTHON PARITY: Ref.match hands its own index straight to the target,
+        // never skipping a leading gap (only Sequence skips before its
+        // elements). Skipping here let e.g. a OneOf-backed segment match
+        // across whitespace inside an allow_gaps=False Sequence.
+        let child_start_pos = start_pos;
 
         // name/segment_class/segment_type are pure functions of grammar_id,
         // so build_ref_wrap looks them up itself rather than RefState
@@ -345,10 +342,8 @@ impl Parser<'_> {
     /// terminal parser.
     ///
     /// Mirrors the frame-based Ref handlers step for step: the
-    /// parent-max-idx guard, the leading-gap skip when the target allows
-    /// gaps, the failed-child position semantics of
-    /// `handle_ref_waiting_for_child` (position and reported extent at the
-    /// post-skip position), and the result wrapping of
+    /// parent-max-idx guard, the failed-child position semantics of
+    /// `handle_ref_waiting_for_child`, and the result wrapping of
     /// `handle_ref_combining` (via `build_ref_wrap`). Refs with an exclude
     /// grammar, an unresolvable target, or a non-terminal target return
     /// `Ok(None)` and take the frame path - for an unresolvable target that
@@ -383,36 +378,15 @@ impl Parser<'_> {
                 return Ok(Some(MatchResult::empty_at(start_pos)));
             }
         }
-        // Skip leading non-code when the target allows gaps (mirrors
-        // handle_ref_initial's child_start_pos). Bounded by the parent's
-        // ceiling so a gap that runs up to (or past) the terminator can't
-        // push the child start beyond what the enclosing Sequence allows.
-        let child_allows_gaps = self.grammar_ctx.inst(child_id).flags.allow_gaps();
-        let skip_bound = parent_max_idx.unwrap_or(self.tokens.len());
-        let child_start_pos = if child_allows_gaps {
-            self.skip_start_index_forward_to_code(start_pos, skip_bound)
-        } else {
-            start_pos
-        };
-        if let Some(parent_max) = parent_max_idx {
-            if child_start_pos >= parent_max {
-                self.pos = child_start_pos;
-                return Ok(Some(MatchResult::empty_at(start_pos)));
-            }
-        }
-        self.pos = child_start_pos;
+        // No leading-gap skip (mirrors handle_ref_initial).
         let mr = self.dispatch_terminal_match(child_variant, child_id)?;
         if mr.is_empty() {
-            // Failed child: extent and position are the post-skip position
-            // (handle_ref_waiting_for_child's original_pos semantics), while
-            // the empty result itself sits at the Ref's own position
-            // (handle_ref_combining's `empty_at(frame.pos)`).
-            self.pos = child_start_pos;
+            self.pos = start_pos;
             return Ok(Some(MatchResult::empty_at(start_pos)));
         }
         let final_pos = self.pos;
         let child = Arc::new(mr);
-        let wrapped = self.build_ref_wrap(grammar_id, child_id, child_start_pos, final_pos, &child);
+        let wrapped = self.build_ref_wrap(grammar_id, child_id, start_pos, final_pos, &child);
         self.pos = final_pos;
         Ok(Some(wrapped))
     }
