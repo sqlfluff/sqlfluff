@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8525f9d9db359bd9bd95d6663b2c9a471661a0bc8c3a10070871c843f31e5147
+file:
+- statement:
+    lock_tables_statement:
+    - keyword: LOCK
+    - keyword: TABLES
+    - table_reference:
+        naked_identifier: t1
+    - keyword: READ
+- statement_terminator: ;
+- statement:
+    lock_tables_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: WRITE
+- statement_terminator: ;
+- statement:
+    lock_tables_statement:
+    - keyword: LOCK
+    - keyword: TABLES
+    - table_reference:
+      - quoted_identifier: '`db`'
+      - dot: .
+      - quoted_identifier: '`t1`'
+    - keyword: WRITE
+    - comma: ','
+    - table_reference:
+        naked_identifier: t2
+    - keyword: READ
+    - keyword: LOCAL
+    - comma: ','
+    - table_reference:
+        naked_identifier: t3
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: alias
+    - keyword: LOW_PRIORITY
+    - keyword: WRITE
+- statement_terminator: ;
+- statement:
+    lock_tables_statement:
+    - keyword: LOCK
+    - keyword: TABLES
+    - table_reference:
+        naked_identifier: t1
+    - alias_expression:
+        naked_identifier: a
+    - keyword: READ
+- statement_terminator: ;
+- statement:
+    unlock_tables_statement:
+    - keyword: UNLOCK
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    unlock_tables_statement:
+    - keyword: UNLOCK
+    - keyword: TABLE
+- statement_terminator: ;

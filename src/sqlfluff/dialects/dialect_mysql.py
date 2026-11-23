@@ -2205,6 +2205,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("LockTablesStatementSegment"),
+            Ref("UnlockTablesStatementSegment"),
             Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
@@ -4140,6 +4142,39 @@ class UpdateStatementSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
     )
+
+
+class LockTablesStatementSegment(BaseSegment):
+    """A `LOCK TABLES` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/lock-tables.html
+    """
+
+    type = "lock_tables_statement"
+    match_grammar = Sequence(
+        "LOCK",
+        OneOf("TABLE", "TABLES"),
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+                OneOf(
+                    Sequence("READ", Ref.keyword("LOCAL", optional=True)),
+                    Sequence(Ref.keyword("LOW_PRIORITY", optional=True), "WRITE"),
+                ),
+            ),
+        ),
+    )
+
+
+class UnlockTablesStatementSegment(BaseSegment):
+    """An `UNLOCK TABLES` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/lock-tables.html
+    """
+
+    type = "unlock_tables_statement"
+    match_grammar = Sequence("UNLOCK", OneOf("TABLE", "TABLES"))
 
 
 class FlushStatementSegment(BaseSegment):
