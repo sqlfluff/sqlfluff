@@ -523,44 +523,13 @@ impl<'a> Parser<'a> {
             self.pos = init_pos;
             return false;
         }
-        // PYTHON PARITY: In Python, AnyNumberOf checks terminators via term.match().
-        // Python's StringParser type-gates: StringParser("FROM") only matches `keyword`
-        // type segments, never `word` type. So a `word`-type `from` token (as in
-        // `value:data:from::string`) never matches the FROM terminator.
-        //
-        // In Rust, StringParser does not type-gate today, so `from` (word type)
-        // incorrectly matches. We compensate: if the token at the current position
-        // is all-alphabetical code and is NOT preceded by whitespace, skip all
-        // non-TypedParser terminators (TypedParser matches by type, not raw string).
-        let current_tok_is_alpha_only = self.peek().is_some_and(|tok| {
-            tok.is_code()
-                && !tok.raw().is_empty()
-                && tok.raw().chars().all(|c| c.is_ascii_alphabetic())
-        });
-        let alpha_tok_has_whitespace_before = if current_tok_is_alpha_only {
-            self.is_preceded_by_whitespace(self.tokens, saved_pos, 0)
-        } else {
-            true // symbol terminators don't need this check
-        };
-
+        // PYTHON PARITY: Delimited and longest_match call `terminator.match`
+        // directly; a keyword terminator need not be preceded by whitespace
+        // here. That requirement only exists in greedy_match.
         for term_id in pruned_terminators.iter() {
             // Skip NONCODE - already handled above
             if *term_id == GrammarId::NONCODE {
                 continue;
-            }
-
-            // See block comment above: compensate for Rust StringParser not type-gating.
-            // TypedParser terminators are exempt (they match by token type, not raw string).
-            if current_tok_is_alpha_only && !alpha_tok_has_whitespace_before {
-                let tables = self.grammar_ctx.tables();
-                let variant = tables.get_inst(*term_id).variant;
-                if variant != sqlfluffrs_types::GrammarVariant::TypedParser {
-                    vdebug!(
-                        "  NOTERM All-alpha non-whitespace-preceded: skipping non-TypedParser terminator {:?} at pos {}",
-                        term_id, saved_pos
-                    );
-                    continue;
-                }
             }
 
             // Check terminator match cache first - key is (position after skipping transparent, grammar_id)
@@ -706,5 +675,46 @@ impl<'a> Parser<'a> {
             final_idx
         );
         Ok(final_idx)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
+
+    use crate::parser::Parser;
+
+    /// Python's terminator checks (`Delimited`, `longest_match`) call
+    /// `terminator.match` with no whitespace requirement, so a keyword
+    /// terminator fires even when glued to the previous word. Oracle
+    /// `BeginEndSegment` on `BEGIN BEGIN NULL; END` with the first gap
+    /// removed: the declaration list must stop at the second `BEGIN`, which
+    /// then opens a nested block that eats the only `END`, so Python finds no
+    /// match. With the gap kept the result is the same.
+    #[test]
+    fn test_keyword_terminator_not_preceded_by_whitespace() {
+        let dialect = Dialect::from_str("oracle").expect("dialect");
+        let grammar_id = dialect
+            .get_segment_grammar("BeginEndSegment")
+            .expect("segment grammar")
+            .grammar_id;
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        let (tokens, _) = lexer.lex(
+            LexInput::String("BEGIN\nBEGIN\n    NULL;\nEND".to_string()),
+            false,
+        );
+        assert_eq!(tokens[1].token_type, "newline");
+        let mut adjacent = tokens.clone();
+        adjacent.remove(1);
+        for (label, toks) in [("gap kept", &tokens), ("adjacent", &adjacent)] {
+            let mut parser = Parser::new(toks, dialect, hashbrown::HashMap::new());
+            let mr = parser
+                .parse_table_iterative_match_result(grammar_id, &[])
+                .expect("parse");
+            assert!(mr.is_empty(), "{label}: matched to {}", mr.end());
+        }
     }
 }
