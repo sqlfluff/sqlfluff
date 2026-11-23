@@ -58,6 +58,7 @@ duckdb_dialect.sets("reserved_keywords").update(
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
+        "QUALIFY",
         "SHOW",
         "SUMMARIZE",
         "UNPIVOT",
@@ -128,8 +129,10 @@ duckdb_dialect.sets("unreserved_keywords").update(
     ]
 )
 
-# Postgres doesn't reserve these, but DuckDB does.
-duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"])
+# Postgres/ANSI don't reserve these, but DuckDB does.
+duckdb_dialect.sets("unreserved_keywords").difference_update(
+    ["DESCRIBE", "QUALIFY", "SHOW"]
+)
 
 # Add plural datetime units for interval expressions
 # DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
@@ -1050,33 +1053,6 @@ class ListComprehensionExpressionSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(ansi.SelectStatementSegment):
-    """A duckdb `SELECT` statement including optional Qualify.
-
-    https://duckdb.org/docs/sql/query_syntax/qualify
-    """
-
-    type = "select_statement"
-
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        insert=[Ref("QualifyClauseSegment", optional=True)],
-        before=Ref("OrderByClauseSegment", optional=True),
-        replace_terminators=True,
-        terminators=[
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
-            Sequence("ON", "CONFLICT"),
-            "RETURNING",
-            Ref("WithCheckOptionSegment"),
-            Ref("MetaCommandQueryBufferSegment"),
-        ],
-    ).copy(
-        # `USING SAMPLE` is query-level, so it trails the whole statement.
-        insert=[Ref("UsingSampleClauseSegment", optional=True)],
-    )
-
-
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -1097,6 +1073,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
                 # From-First Syntax:
                 # https://duckdb.org/docs/sql/query_syntax/from
                 Ref("FromClauseSegment"),
+                Ref("UsingSampleClauseSegment", optional=True),
                 Ref("SelectClauseSegment", optional=True),
             ),
         ),
@@ -1112,8 +1089,64 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("SetOperatorSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
+            Ref("OffsetClauseSegment"),
+            Ref("FetchClauseSegment"),
             Sequence("ON", "CONFLICT"),
             "RETURNING",
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A duckdb `SELECT` statement including optional Qualify.
+
+    https://duckdb.org/docs/sql/query_syntax/qualify
+    """
+
+    type = "select_statement"
+
+    # Inherit from DuckDB's UnorderedSelectStatementSegment so FROM-first
+    # queries also support ORDER BY, OFFSET, FETCH, LIMIT, and USING SAMPLE.
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ],
+        before=Ref("UsingSampleClauseSegment", optional=True),
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Sequence("ON", "CONFLICT"),
+            "RETURNING",
+            Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
+        ],
+    )
+
+
+class SelectClauseSegment(postgres.SelectClauseSegment):
+    """A group of elements in a select target statement.
+
+    Extends Postgres terminators so FROM-first queries (`FROM t SELECT a ...`)
+    can terminate the SELECT clause at GROUP BY, HAVING, WINDOW, QUALIFY,
+    OFFSET, FETCH, or USING SAMPLE without an intervening FROM.
+    """
+
+    match_grammar = postgres.SelectClauseSegment.match_grammar.copy(
+        terminators=[
+            Sequence("GROUP", "BY"),
+            "HAVING",
+            "WINDOW",
+            "QUALIFY",
+            "OFFSET",
+            "FETCH",
+            Sequence("USING", "SAMPLE"),
         ],
     )
 
