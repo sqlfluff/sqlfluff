@@ -2174,6 +2174,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCortexSearchServiceStatementSegment"),
             Ref("AlterStreamStatementSegment"),
             Ref("AlterStreamlitStatementSegment"),
+            Ref("AlterNotebookStatementSegment"),
             Ref("AlterCortexSearchServiceStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
@@ -10028,6 +10029,79 @@ class AlterStreamStatementSegment(BaseSegment):
     )
 
 
+class AlterNotebookStatementSegment(BaseSegment):
+    """A Snowflake `ALTER NOTEBOOK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-notebook
+    """
+
+    type = "alter_notebook_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NOTEBOOK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "MAIN_FILE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "QUERY_WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("ObjectReferenceSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "RUNTIME_NAME",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "COMPUTE_POOL",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("ObjectReferenceSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "TITLE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    "COMMENT",
+                    "QUERY_WAREHOUSE",
+                    "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                    "RUNTIME_NAME",
+                    "COMPUTE_POOL",
+                    "TITLE",
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("ADD", "LIVE", "VERSION", "FROM", "LAST"),
+        ),
+    )
+
+
 class AlterStreamlitStatementSegment(BaseSegment):
     """A Snowflake `ALTER STREAMLIT` statement.
 
@@ -11246,7 +11320,7 @@ class DescribeStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
             Sequence(
-                "STREAMLIT",
+                OneOf("NOTEBOOK", "STREAMLIT"),
                 Ref("ObjectReferenceSegment"),
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-task.html
@@ -11793,6 +11867,7 @@ class DropObjectStatementSegment(BaseSegment):
                     Sequence("ROW", "ACCESS", "POLICY"),
                     "SECRET",
                     Sequence("STORAGE", "LIFECYCLE", "POLICY"),
+                    "NOTEBOOK",
                     "STAGE",
                     "STREAM",
                     "STREAMLIT",

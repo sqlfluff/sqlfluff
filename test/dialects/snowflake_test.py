@@ -51,6 +51,18 @@ from sqlfluff.core.dialects import dialect_selector
             "AlterSessionStatementSegment",
             "ALTER SESSION UNSET TIME_OUTPUT_FORMAT, TWO_DIGIT_CENTURY_START;",
         ),
+        (
+            "AlterNotebookStatementSegment",
+            "ALTER NOTEBOOK IF EXISTS nb SET QUERY_WAREHOUSE = wh COMMENT = 'updated';",
+        ),
+        (
+            "DropObjectStatementSegment",
+            "DROP NOTEBOOK IF EXISTS nb;",
+        ),
+        (
+            "DescribeStatementSegment",
+            "DESCRIBE NOTEBOOK nb;",
+        ),
     ],
 )
 def test_snowflake_queries(segment_cls, raw, caplog):
