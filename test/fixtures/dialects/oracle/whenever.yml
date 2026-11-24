@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d731038c8be0a4c744f120af8537116c7aa4d8dab4ea1df4fb08a1e98bf060d1
+_hash: 460b199b03d95eb3f2b0420ee645cae48131aa3b465943de2d930d84c7416c9a
 file:
 - batch:
     sqlplus_whenever_statement:
@@ -335,7 +335,40 @@ file:
     - keyword: sqlerror
     - keyword: continue
 - batch:
-    statement:
+    sqlplus_whenever_statement:
+    - keyword: WHENEVER
+    - keyword: SQLERROR
+    - keyword: EXIT
+    - keyword: FAILURE
+    - keyword: ROLLBACK
+- batch:
+    sqlplus_whenever_statement:
+    - keyword: WHENEVER
+    - keyword: OSERROR
+    - keyword: EXIT
+    - numeric_literal: '42'
+    - keyword: COMMIT
+- batch:
+  - sqlplus_whenever_statement:
+    - keyword: WHENEVER
+    - keyword: SQLERROR
+    - keyword: EXIT
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '6'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -348,4 +381,4 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: dual
-    statement_terminator: ;
+  - statement_terminator: ;

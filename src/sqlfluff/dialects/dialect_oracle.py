@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     Indent,
     LiteralSegment,
     Matchable,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -36,7 +37,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
-    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.core.parser.grammar.lookbehind import (
@@ -1730,8 +1730,6 @@ class SqlplusWheneverStatementSegment(BaseSegment):
 
     type = "sqlplus_whenever_statement"
 
-    # SQL*Plus commands end at a newline, even without a semicolon.
-    _space = TypedParser("whitespace", WhitespaceSegment)
     _variable = Sequence(
         Ref("ParameterNameSegment", exclude=OneOf("COMMIT", "ROLLBACK")),
         Sequence(
@@ -1750,37 +1748,27 @@ class SqlplusWheneverStatementSegment(BaseSegment):
         Ref("QualifiedNumericLiteralSegment"),
         Ref("BindVariableSegment"),
         _variable,
-        allow_gaps=False,
     )
     match_grammar = Sequence(
         "WHENEVER",
-        _space,
         OneOf("OSERROR", "SQLERROR"),
-        _space,
         OneOf(
             Sequence(
                 "EXIT",
-                Sequence(_space, _exit_status, allow_gaps=False, optional=True),
-                Sequence(
-                    _space,
-                    OneOf("COMMIT", "ROLLBACK", allow_gaps=False),
-                    allow_gaps=False,
-                    optional=True,
-                ),
-                allow_gaps=False,
+                Sequence(_exit_status, optional=True),
+                OneOf("COMMIT", "ROLLBACK", optional=True),
             ),
             Sequence(
                 "CONTINUE",
-                Sequence(
-                    _space,
-                    OneOf("COMMIT", "ROLLBACK", "NONE", allow_gaps=False),
-                    allow_gaps=False,
-                    optional=True,
-                ),
-                allow_gaps=False,
+                OneOf("COMMIT", "ROLLBACK", "NONE", optional=True),
             ),
         ),
-        allow_gaps=False,
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+        terminators=[
+            # SQL*Plus commands end at a newline, even without a semicolon.
+            TypedParser("newline", NewlineSegment),
+            Ref("DelimiterGrammar"),
+        ],
     )
 
 
