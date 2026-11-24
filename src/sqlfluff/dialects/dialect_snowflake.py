@@ -2241,6 +2241,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSecretStatementSegment"),
             Ref("AlterSecretStatementSegment"),
             Ref("AlterNetworkRuleStatementSegment"),
+            Ref("CreateComputePoolStatementSegment"),
+            Ref("AlterComputePoolStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -4425,6 +4427,7 @@ class AccessObjectSegment(ansi.AccessObjectSegment):
         Sequence(
             OneOf(
                 Sequence("RESOURCE", "MONITOR"),
+                Sequence("COMPUTE", "POOL"),
                 Sequence("EXTERNAL", "VOLUME"),
                 "WAREHOUSE",
                 "DATABASE",
@@ -10205,6 +10208,7 @@ class ShowStatementSegment(BaseSegment):
         Sequence("CORTEX", "SEARCH", "SERVICES"),
         Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
         Sequence("RESOURCE", "MONITORS"),
+        Sequence("COMPUTE", "POOLS"),
         Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
         "TAGS",
         Sequence("ROW", "ACCESS", "POLICIES"),
@@ -11097,6 +11101,12 @@ class DescribeStatementSegment(BaseSegment):
                 "USER",
                 Ref("ObjectReferenceSegment"),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-compute-pool
+            Sequence(
+                "COMPUTE",
+                "POOL",
+                Ref("ObjectReferenceSegment"),
+            ),
             Sequence(
                 "WAREHOUSE",
                 Ref("ObjectReferenceSegment"),
@@ -11776,6 +11786,7 @@ class DropObjectStatementSegment(BaseSegment):
                 OneOf(
                     Sequence("AGGREGATION", "POLICY"),
                     "ALERT",
+                    Sequence("COMPUTE", "POOL"),
                     "CONNECTION",
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
@@ -12982,6 +12993,111 @@ class AlterNetworkRuleStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("UNSET", Delimited(OneOf("VALUE_LIST", "COMMENT"))),
+        ),
+    )
+
+
+class ComputePoolOptionsSegment(BaseSegment):
+    """Options shared by `CREATE COMPUTE POOL` and `ALTER COMPUTE POOL ... SET`."""
+
+    type = "compute_pool_options"
+
+    match_grammar = AnySetOf(
+        Sequence("MIN_NODES", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence("MAX_NODES", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence(
+            "INSTANCE_FAMILY", Ref("EqualsSegment"), Ref("SingleIdentifierGrammar")
+        ),
+        Sequence("AUTO_RESUME", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "AUTO_SUSPEND_SECS", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence("PLACEMENT_GROUP", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "BACKUP_INSTANCE_FAMILIES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Ref("CommentEqualsClauseSegment"),
+        min_times=1,
+    )
+
+
+class CreateComputePoolStatementSegment(BaseSegment):
+    """A `CREATE COMPUTE POOL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-compute-pool
+    """
+
+    type = "create_compute_pool_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "COMPUTE",
+        "POOL",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence("FOR", "APPLICATION", Ref("ObjectReferenceSegment"), optional=True),
+        AnyNumberOf(
+            Ref("ComputePoolOptionsSegment"),
+            Sequence(
+                "INITIALLY_SUSPENDED",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Ref("TagBracketedEqualsSegment"),
+            min_times=1,
+        ),
+    )
+
+
+class AlterComputePoolStatementSegment(BaseSegment):
+    """An `ALTER COMPUTE POOL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-compute-pool
+    """
+
+    type = "alter_compute_pool_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "COMPUTE",
+        "POOL",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                "STOP",
+                "ALL",
+                Sequence(
+                    "OF",
+                    "TYPE",
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Ref("ComputePoolOptionsSegment"),
+                    Ref("TagEqualsSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "AUTO_SUSPEND_SECS",
+                        "AUTO_RESUME",
+                        "PLACEMENT_GROUP",
+                        "BACKUP_INSTANCE_FAMILIES",
+                        "COMMENT",
+                    ),
+                ),
+            ),
         ),
     )
 

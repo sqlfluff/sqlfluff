@@ -1,0 +1,402 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fa2a79a5d7cd96c96823114ac4f3692489dd9c1b071375cf280d46c5c5793313
+file:
+- statement:
+    create_compute_pool_statement:
+    - keyword: CREATE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+    - compute_pool_options:
+      - keyword: MIN_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: MAX_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: INSTANCE_FAMILY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: CPU_X64_XS
+- statement_terminator: ;
+- statement:
+    create_compute_pool_statement:
+    - keyword: CREATE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - compute_pool_options:
+      - keyword: MIN_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: MAX_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10'
+      - keyword: INSTANCE_FAMILY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: GEN_X64_G2_4
+      - keyword: BACKUP_INSTANCE_FAMILIES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'GEN_X64_G2_8'"
+        - comma: ','
+        - quoted_literal: "'GEN_X64_G2_16'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_compute_pool_statement:
+    - keyword: CREATE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: FOR
+    - keyword: APPLICATION
+    - object_reference:
+        naked_identifier: my_app
+    - compute_pool_options:
+      - keyword: MIN_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: MAX_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2'
+      - keyword: INSTANCE_FAMILY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: CPU_X64_XS
+      - keyword: AUTO_RESUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+    - keyword: INITIALLY_SUSPENDED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - compute_pool_options:
+        keyword: AUTO_SUSPEND_SECS
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '600'
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+        - start_bracket: (
+        - tag_reference:
+            naked_identifier: cost_center
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'finance'"
+        - comma: ','
+        - tag_reference:
+            naked_identifier: env
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'dev'"
+        - end_bracket: )
+    - compute_pool_options:
+        comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'my pool'"
+        keyword: PLACEMENT_GROUP
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'A'"
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+    - keyword: SET
+    - compute_pool_options:
+      - keyword: MAX_NODES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '5'
+      - keyword: AUTO_RESUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+    - keyword: SET
+    - compute_pool_options:
+        keyword: INSTANCE_FAMILY
+        comparison_operator:
+          raw_comparison_operator: '='
+        naked_identifier: CPU_X64_S
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+    - keyword: RESUME
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: SET
+    - compute_pool_options:
+        keyword: BACKUP_INSTANCE_FAMILIES
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'GEN_X64_G2_8'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: cost_center
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'finance'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: env
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'dev'"
+    - compute_pool_options:
+        comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'my pool'"
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: UNSET
+    - keyword: BACKUP_INSTANCE_FAMILIES
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: UNSET
+    - keyword: AUTO_SUSPEND_SECS
+    - comma: ','
+    - keyword: AUTO_RESUME
+    - comma: ','
+    - keyword: PLACEMENT_GROUP
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: STOP
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_compute_pool_statement:
+    - keyword: ALTER
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: my_compute_pool
+    - keyword: STOP
+    - keyword: ALL
+    - keyword: OF
+    - keyword: TYPE
+    - naked_identifier: NOTEBOOK
+    - comma: ','
+    - naked_identifier: MODEL_SERVING
+- statement_terminator: ;
+- statement:
+    drop_object_statement:
+    - keyword: DROP
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+- statement_terminator: ;
+- statement:
+    drop_object_statement:
+    - keyword: DROP
+    - keyword: COMPUTE
+    - keyword: POOL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: COMPUTE
+    - keyword: POOL
+    - object_reference:
+        naked_identifier: tutorial_compute_pool
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COMPUTE
+    - keyword: POOLS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COMPUTE
+    - keyword: POOLS
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COMPUTE
+    - keyword: POOLS
+    - keyword: LIKE
+    - quoted_literal: "'%my_pool%'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COMPUTE
+    - keyword: POOLS
+    - keyword: STARTS
+    - keyword: WITH
+    - quoted_literal: "'my'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '2'
+    - keyword: FROM
+    - quoted_literal: "'my_p'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+      grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+          access_permission:
+            keyword: USAGE
+      - keyword: 'ON'
+      - access_object:
+        - keyword: COMPUTE
+        - keyword: POOL
+        - object_reference:
+            naked_identifier: my_compute_pool
+      - keyword: TO
+      - access_target:
+          keyword: ROLE
+          role_reference:
+            naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: compute
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pool
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pools
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: stop
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: min_nodes
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: max_nodes
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: pool
+- statement_terminator: ;
