@@ -1622,6 +1622,14 @@ impl<'a> Parser<'a> {
         if !self.grammar_ctx.inst(grammar_id).flags.reset_terminators() {
             terminators_vec.extend(parent_terminators.iter().cloned());
         }
+        // PYTHON PARITY: like greedy_match, keyword terminators need whitespace.
+        let glued_terminators: Vec<GrammarId> = terminators_vec
+            .iter()
+            .copied()
+            .filter(|t| !self.terminator_requires_whitespace(*t))
+            .collect();
+        // Next code position, reused across a run of non-code tokens.
+        let mut next_code: Option<usize> = None;
 
         loop {
             // Check if we've reached our parent_max_idx boundary
@@ -1636,7 +1644,20 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            if self.is_terminated(&terminators_vec) || self.is_at_end() {
+            let code_pos = match next_code {
+                Some(c) if c >= self.pos => c,
+                _ => {
+                    let c = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+                    next_code = Some(c);
+                    c
+                }
+            };
+            let terminators = if self.is_preceded_by_whitespace(self.tokens, code_pos, start_pos) {
+                &terminators_vec
+            } else {
+                &glued_terminators
+            };
+            if self.is_terminated(terminators) || self.is_at_end() {
                 break;
             }
 
@@ -1861,5 +1882,58 @@ mod tests {
             (format!("intern_outer_{i}"), false)
         });
         assert_eq!(intern_indent_config(config).len(), 2);
+    }
+
+    /// Expected ends are Python's `Anything().match` with FROM and `;`.
+    #[test]
+    fn anything_skips_keyword_terminator_without_whitespace() {
+        use std::str::FromStr;
+
+        use sqlfluffrs_dialects::Dialect;
+        use sqlfluffrs_lexer::{LexInput, Lexer};
+        use sqlfluffrs_types::GrammarVariant;
+
+        let dialect = Dialect::from_str("ansi").expect("dialect");
+        let from_kw = dialect
+            .get_segment_grammar("FromKeywordSegment")
+            .expect("FROM keyword");
+        let anything_id = from_kw
+            .tables
+            .instructions
+            .iter()
+            .position(|i| {
+                i.variant == GrammarVariant::Anything
+                    && i.terminator_count == 0
+                    && !i.flags.reset_terminators()
+            })
+            .map(|i| GrammarId(i as u32))
+            .expect("an Anything grammar");
+        let semicolon = dialect
+            .get_segment_grammar("SemicolonSegment")
+            .expect("semicolon")
+            .grammar_id;
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        for (sql, expected_end) in [
+            ("a:from:b FROM t", 5),
+            ("FROM t", 0),
+            ("a FROM t", 1),
+            ("a\nFROM t", 1),
+            ("(a)FROM t", 3),
+            ("a/*c*/FROM t;x", 5),
+            ("a /*c*/FROM t;x", 6),
+            ("a:from;x", 3),
+            ("a.from FROM t", 3),
+            ("(a FROM b) FROM t", 7),
+            ("a:from:from FROM t", 5),
+            ("a;b", 1),
+            ("a:from;b", 3),
+        ] {
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let mr = parser
+                .handle_anything(anything_id, &[from_kw.grammar_id, semicolon], None)
+                .expect("parse");
+            assert_eq!(mr.end(), expected_end, "{sql:?}");
+        }
     }
 }

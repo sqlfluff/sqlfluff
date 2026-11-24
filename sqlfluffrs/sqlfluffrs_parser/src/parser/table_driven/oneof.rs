@@ -23,7 +23,6 @@ impl Parser<'_> {
         let grammar_id = frame.grammar_id;
         #[cfg(feature = "verbose-debug")]
         let child_count = self.grammar_ctx.inst(grammar_id).child_count;
-        let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
         let optional = self.grammar_ctx.inst(grammar_id).flags.optional();
@@ -53,9 +52,6 @@ impl Parser<'_> {
             vdebug!("OneOf[table]: exclude grammar did not match, continuing");
         }
 
-        // Collect leading transparent tokens if allow_gaps
-        let post_skip_pos = self.skip_to_code_if_gaps(start_pos, self.tokens.len(), allow_gaps);
-
         // Combine terminators (read parent terminators from frame directly)
         let local_terminators = self.grammar_ctx.terminators_slice(grammar_id);
         let all_terminators = self.combine_terminators(
@@ -66,7 +62,7 @@ impl Parser<'_> {
 
         // Calculate max_idx with terminators
         let max_idx = self.calculate_max_idx(
-            post_skip_pos,
+            start_pos,
             &all_terminators,
             parse_mode,
             frame.parent_max_idx,
@@ -76,8 +72,7 @@ impl Parser<'_> {
         frame.calculated_max_idx = Some(max_idx);
 
         vdebug!(
-            "OneOf[table]: post_skip_pos={}, max_idx={}, terminators={}",
-            post_skip_pos,
+            "OneOf[table]: max_idx={}, terminators={}",
             max_idx,
             all_terminators.len()
         );
@@ -146,7 +141,6 @@ impl Parser<'_> {
         frame.context = FrameContext::OneOf(Box::new(OneOfState {
             grammar_id,
             pruned_children,
-            post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
@@ -159,7 +153,8 @@ impl Parser<'_> {
 
         // Inline fast path: terminal candidates need no frame machinery.
         // Feed the result straight into the shared candidate-handling logic.
-        self.pos = post_skip_pos;
+        // PYTHON PARITY: no leading-gap skip; only Sequence skips.
+        self.pos = start_pos;
         if let Some(mr) = self.try_terminal_inline(first_child, Some(max_idx))? {
             let end_pos = self.pos;
             let arc = stack.share_result(mr);
@@ -170,7 +165,7 @@ impl Parser<'_> {
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             first_child,
-            post_skip_pos,
+            start_pos,
             &frame.table_terminators,
             Some(max_idx),
         );
@@ -291,6 +286,7 @@ impl Parser<'_> {
         // only by this OneOf's candidate count.
         let mut child_match = Arc::clone(child_match);
         let mut child_end_pos = *child_end_pos;
+        let start_pos = frame.pos;
 
         loop {
             let FrameContext::OneOf(boxed) = &mut frame.context else {
@@ -298,7 +294,6 @@ impl Parser<'_> {
             };
             let OneOfState {
                 pruned_children,
-                post_skip_pos,
                 longest_match,
                 tried_elements,
                 max_idx,
@@ -306,7 +301,7 @@ impl Parser<'_> {
                 ..
             } = &mut **boxed;
 
-            let consumed = child_end_pos - *post_skip_pos;
+            let consumed = child_end_pos - start_pos;
             let current_child = current_child_id.expect("current_child_id should be set");
 
             // Store the child result for reuse
@@ -338,8 +333,8 @@ impl Parser<'_> {
 
                 // Collect the raw tokens consumed by this candidate for debugging (bounded)
                 let mut candidate_tokens: Vec<String> = Vec::new();
-                if child_end_pos_val > *post_skip_pos {
-                    let start_idx = (*post_skip_pos).min(self.tokens.len());
+                if child_end_pos_val > start_pos {
+                    let start_idx = start_pos.min(self.tokens.len());
                     let end_idx = child_end_pos_val.min(self.tokens.len());
                     if start_idx < end_idx {
                         for tok in &self.tokens[start_idx..end_idx] {
@@ -438,7 +433,7 @@ impl Parser<'_> {
 
             // Try next child
             if *tried_elements < pruned_children.len() {
-                self.pos = *post_skip_pos;
+                self.pos = start_pos;
                 let next_child = pruned_children[*tried_elements];
                 *current_child_id = Some(next_child);
 
@@ -463,7 +458,7 @@ impl Parser<'_> {
                 let child_frame = TableParseFrame::new_child(
                     stack.frame_id_counter,
                     next_child,
-                    *post_skip_pos,
+                    start_pos,
                     &frame.table_terminators,
                     Some(*max_idx),
                 );
@@ -484,11 +479,9 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         // Extract values from context by moving them out
-        let (post_skip_pos, longest_match) = match &mut frame.context {
-            FrameContext::OneOf(state) => {
-                // Take ownership to avoid clones
-                (state.post_skip_pos, state.longest_match.take())
-            }
+        let longest_match = match &mut frame.context {
+            // Take ownership to avoid clones
+            FrameContext::OneOf(state) => state.longest_match.take(),
             _ => {
                 return Err(ParseError::new(
                     "Expected OneOf context in combining".to_string(),
@@ -519,7 +512,7 @@ impl Parser<'_> {
             self.metrics
                 .match_successes
                 .set(self.metrics.match_successes.get() + 1);
-            self.pos = post_skip_pos + best_consumed;
+            self.pos = frame.pos + best_consumed;
 
             best_match
         } else {
@@ -531,5 +524,40 @@ impl Parser<'_> {
 
         // Transition to Complete
         Ok(stack.complete_frame(frame, result_match))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
+
+    use crate::parser::Parser;
+
+    /// OneOf (sparksql) and Ref (ansi) in a no-gap Sequence; ends are Python's.
+    #[test]
+    fn test_no_gap_sequence_child_does_not_skip_leading_whitespace() {
+        for (dialect_name, grammar_name, sql, expected_end) in [
+            ("sparksql", "ParameterizedSegment", ":a", Some(2)),
+            ("sparksql", "ParameterizedSegment", ": a", None),
+            ("ansi", "DatatypeSegment", "b.c", Some(3)),
+            ("ansi", "DatatypeSegment", "b. c", None),
+        ] {
+            let dialect = Dialect::from_str(dialect_name).expect("dialect");
+            let grammar_id = dialect
+                .get_segment_grammar(grammar_name)
+                .expect("segment grammar")
+                .grammar_id;
+            let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let mr = parser
+                .parse_table_iterative_match_result(grammar_id, &[])
+                .expect("parse");
+            let got = (!mr.is_empty()).then(|| mr.end());
+            assert_eq!(got, expected_end, "{dialect_name} {grammar_name} {sql:?}");
+        }
     }
 }

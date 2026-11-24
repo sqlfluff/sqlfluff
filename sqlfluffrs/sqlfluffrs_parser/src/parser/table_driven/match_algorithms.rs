@@ -198,6 +198,27 @@ impl Parser<'_> {
         true
     }
 
+    /// True when the simple hint has raws and all are alphabetic (a keyword).
+    /// Hint-less (complex) terminators share the empty hint 0 and don't count.
+    pub(crate) fn terminator_requires_whitespace(&self, term_id: GrammarId) -> bool {
+        if term_id == GrammarId::NONCODE {
+            return false;
+        }
+        let tables = self.grammar_ctx.tables();
+        tables
+            .get_simple_hint_for_grammar(term_id)
+            .is_some_and(|hint| {
+                let start = hint.raw_values_start as usize;
+                let end = start + hint.raw_values_count as usize;
+                hint.raw_values_count > 0
+                    && hint.token_types_count == 0
+                    && tables.hint_string_indices[start..end].iter().all(|&idx| {
+                        let raw = tables.strings[idx as usize];
+                        !raw.is_empty() && raw.chars().all(char::is_alphabetic)
+                    })
+            })
+    }
+
     pub(crate) fn greedy_match(
         &mut self,
         start_idx: usize,
@@ -255,20 +276,8 @@ impl Parser<'_> {
                     result
                 };
                 if matched {
-                    // Python checks the whole terminator hint, including symbolic
-                    // alternatives, rather than just the token that matched.
-                    let requires_whitespace = tables
-                        .get_simple_hint_for_grammar(term_id)
-                        .is_some_and(|hint| {
-                            let start = hint.raw_values_start as usize;
-                            let end = start + hint.raw_values_count as usize;
-                            hint.token_types_count == 0
-                                && tables.hint_string_indices[start..end].iter().all(|&idx| {
-                                    let raw = tables.strings[idx as usize];
-                                    !raw.is_empty() && raw.chars().all(char::is_alphabetic)
-                                })
-                        });
-                    if requires_whitespace && !self.is_preceded_by_whitespace(tokens, i, start_idx)
+                    if self.terminator_requires_whitespace(term_id)
+                        && !self.is_preceded_by_whitespace(tokens, i, start_idx)
                     {
                         vdebug!(
                                 "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
@@ -399,6 +408,31 @@ mod tests {
                 .expect("greedy_match");
 
             assert_eq!(tokens[term_idx].raw(), expected, "{grammar_name}");
+        }
+    }
+
+    /// Only keyword hints need whitespace; hint-less grammars (empty hint 0)
+    /// aren't keywords.
+    #[test]
+    fn test_terminator_requires_whitespace() {
+        let dialect = Dialect::Ansi;
+        let tokens = Vec::new();
+        let parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+        for (name, expected) in [
+            ("FromKeywordSegment", true),
+            ("SemicolonSegment", false),
+            ("ObjectReferenceTerminatorGrammar", false),
+        ] {
+            let root = dialect.get_segment_grammar(name).expect(name);
+            if name == "ObjectReferenceTerminatorGrammar" {
+                let hint = root.tables.get_simple_hint_for_grammar(root.grammar_id);
+                assert_eq!(hint.map(|h| h.raw_values_count), Some(0), "hint-less");
+            }
+            assert_eq!(
+                parser.terminator_requires_whitespace(root.grammar_id),
+                expected,
+                "{name}"
+            );
         }
     }
 
