@@ -652,3 +652,23 @@ def test_resolve_paths_in_config_skips_jinja_context(tmp_path):
     context = test_config["templater"]["jinja"]["context"]
     assert context["tbl_path"] == "data"
     assert context["is_dir"] is True
+
+
+def test_resolve_path_literal_brackets_in_config_directory(tmp_path):
+    """Directory names containing glob metacharacters must be matched literally (#8970)."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    bracket_dir = tmp_path / "project[1]"
+    (bracket_dir / "macros").mkdir(parents=True)
+    (bracket_dir / "macros" / "m1.sql").write_text("SELECT 1;")
+
+    sibling_dir = tmp_path / "project1"
+    (sibling_dir / "macros").mkdir(parents=True)
+    (sibling_dir / "macros" / "m2.sql").write_text("SELECT 2;")
+
+    config_path = str(bracket_dir / ".sqlfluff")
+
+    assert _resolve_path(config_path, "macros") == [str(bracket_dir / "macros")]
+    assert _resolve_path(config_path, "macros/*.sql") == [
+        str(bracket_dir / "macros" / "m1.sql")
+    ]
