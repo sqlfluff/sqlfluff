@@ -523,8 +523,8 @@ impl<'a> Parser<'a> {
             self.pos = init_pos;
             return false;
         }
-        // PYTHON PARITY: only greedy_match needs whitespace before a keyword
-        // terminator.
+        // PYTHON PARITY: only greedy_match (and Anything, which uses it)
+        // needs whitespace before a keyword terminator.
         for term_id in pruned_terminators.iter() {
             // Skip NONCODE - already handled above
             if *term_id == GrammarId::NONCODE {

@@ -198,6 +198,27 @@ impl Parser<'_> {
         true
     }
 
+    /// Whether greedy_match only accepts `term_id` after whitespace: its
+    /// whole simple hint (symbolic alternatives included, as Python checks)
+    /// is alphabetic raws, i.e. a keyword.
+    pub(crate) fn terminator_requires_whitespace(&self, term_id: GrammarId) -> bool {
+        if term_id == GrammarId::NONCODE {
+            return false;
+        }
+        let tables = self.grammar_ctx.tables();
+        tables
+            .get_simple_hint_for_grammar(term_id)
+            .is_some_and(|hint| {
+                let start = hint.raw_values_start as usize;
+                let end = start + hint.raw_values_count as usize;
+                hint.token_types_count == 0
+                    && tables.hint_string_indices[start..end].iter().all(|&idx| {
+                        let raw = tables.strings[idx as usize];
+                        !raw.is_empty() && raw.chars().all(char::is_alphabetic)
+                    })
+            })
+    }
+
     pub(crate) fn greedy_match(
         &mut self,
         start_idx: usize,
@@ -255,20 +276,8 @@ impl Parser<'_> {
                     result
                 };
                 if matched {
-                    // Python checks the whole terminator hint, including symbolic
-                    // alternatives, rather than just the token that matched.
-                    let requires_whitespace = tables
-                        .get_simple_hint_for_grammar(term_id)
-                        .is_some_and(|hint| {
-                            let start = hint.raw_values_start as usize;
-                            let end = start + hint.raw_values_count as usize;
-                            hint.token_types_count == 0
-                                && tables.hint_string_indices[start..end].iter().all(|&idx| {
-                                    let raw = tables.strings[idx as usize];
-                                    !raw.is_empty() && raw.chars().all(char::is_alphabetic)
-                                })
-                        });
-                    if requires_whitespace && !self.is_preceded_by_whitespace(tokens, i, start_idx)
+                    if self.terminator_requires_whitespace(term_id)
+                        && !self.is_preceded_by_whitespace(tokens, i, start_idx)
                     {
                         vdebug!(
                                 "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
