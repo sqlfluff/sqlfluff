@@ -9213,6 +9213,7 @@ class CopyIntoTableStatementSegment(BaseSegment):
             OneOf(
                 Ref("StorageLocation"),
                 Bracketed(Ref("SelectStatementSegment")),
+                Ref("FunctionSegment"),
             ),
             optional=True,
         ),
