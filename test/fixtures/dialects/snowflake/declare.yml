@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f9de1f34769f07e2598fcce4c02bf5944c214d8eded2fe052998c91dd814029
+_hash: 6a8ce121792a6a57f687648001590b433747db70c60b7d652df8b50ac56cb86f
 file:
 - statement:
     scripting_declare_statement:
@@ -231,4 +231,114 @@ file:
                   - column_reference:
                       naked_identifier: a
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+      keyword: DECLARE
+      variable: x
+      data_type:
+        data_type_identifier: STRING
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: x
+    - data_type:
+        data_type_identifier: VARCHAR
+    - statement_terminator: ;
+    - variable: y
+    - data_type:
+        data_type_identifier: NUMBER
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: t
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: w
+    - keyword: AS
+    - statement:
+        scripting_declare_statement:
+          keyword: DECLARE
+          variable: x
+          data_type:
+            data_type_identifier: STRING
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: STRING
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - scripting_declare_statement:
+        keyword: DECLARE
+        variable: x
+        data_type:
+          data_type_identifier: VARCHAR
+    - statement_terminator: ;
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: x
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;

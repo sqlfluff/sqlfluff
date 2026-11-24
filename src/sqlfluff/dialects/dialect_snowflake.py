@@ -4861,7 +4861,14 @@ class CreateProcedureStatementSegment(BaseSegment):
                 Ref("SingleQuotedUDFBody"),
                 Ref("DollarQuotedUDFBody"),
                 # ...or a SQL UDF
-                Ref("ScriptingBlockStatementSegment"),
+                Sequence(
+                    Sequence(
+                        Ref("ScriptingDeclareStatementSegment"),
+                        Ref("DelimiterGrammar"),
+                        optional=True,
+                    ),
+                    Ref("ScriptingBlockStatementSegment"),
+                ),
             ),
             optional=True,
         ),
@@ -4910,7 +4917,14 @@ class CallWithAnonymousProcedureSegment(BaseSegment):
                     Ref("DoubleQuotedUDFBody"),
                     Ref("SingleQuotedUDFBody"),
                     Ref("DollarQuotedUDFBody"),
-                    Ref("ScriptingBlockStatementSegment"),
+                    Sequence(
+                        Sequence(
+                            Ref("ScriptingDeclareStatementSegment"),
+                            Ref("DelimiterGrammar"),
+                            optional=True,
+                        ),
+                        Ref("ScriptingBlockStatementSegment"),
+                    ),
                 ),
             ),
         ),
@@ -5311,7 +5325,14 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("SingleQuotedUDFBody"),
                 Ref("DollarQuotedUDFBody"),
                 # ...or a SQL UDF
-                Ref("ScriptingBlockStatementSegment"),
+                Sequence(
+                    Sequence(
+                        Ref("ScriptingDeclareStatementSegment"),
+                        Ref("DelimiterGrammar"),
+                        optional=True,
+                    ),
+                    Ref("ScriptingBlockStatementSegment"),
+                ),
             ),
             optional=True,
         ),
@@ -12518,18 +12539,6 @@ class ScriptingDeclareStatementSegment(BaseSegment):
             # Avoid BEGIN as a variable from the subsequent scripting block
             Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
             OneOf(
-                # Variable assignment
-                OneOf(
-                    Sequence(
-                        Ref("DatatypeSegment"),
-                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                        Ref("ExpressionSegment"),
-                    ),
-                    Sequence(
-                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                        Ref("ExpressionSegment"),
-                    ),
-                ),
                 # Cursor assignment
                 Sequence(
                     "CURSOR",
@@ -12558,6 +12567,21 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                         )
                     ),
                 ),
+                # Variable assignment
+                OneOf(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
             ),
         ),
         AnyNumberOf(
@@ -12566,18 +12590,6 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                 # Avoid BEGIN as a variable from the subsequent scripting block
                 Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
                 OneOf(
-                    # Variable assignment
-                    OneOf(
-                        Sequence(
-                            Ref("DatatypeSegment"),
-                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                            Ref("ExpressionSegment"),
-                        ),
-                        Sequence(
-                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                            Ref("ExpressionSegment"),
-                        ),
-                    ),
                     # Cursor assignment
                     Sequence(
                         "CURSOR",
@@ -12606,6 +12618,21 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                             Delimited(
                                 Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")
                             )
+                        ),
+                    ),
+                    # Variable assignment
+                    OneOf(
+                        Sequence(
+                            Ref("DatatypeSegment"),
+                            Sequence(
+                                OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                                Ref("ExpressionSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
                         ),
                     ),
                 ),
