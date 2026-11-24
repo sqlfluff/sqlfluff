@@ -652,3 +652,51 @@ def test_resolve_paths_in_config_skips_jinja_context(tmp_path):
     context = test_config["templater"]["jinja"]["context"]
     assert context["tbl_path"] == "data"
     assert context["is_dir"] is True
+
+
+def test_resolve_path_bracketed_directory(tmp_path):
+    """Test that brackets in the config directory are treated literally."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    # Set up a project directory whose name contains glob characters,
+    # plus a sibling directory that a glob character class would match.
+    project_dir = tmp_path / "project[1]"
+    macros_dir = project_dir / "macros"
+    macros_dir.mkdir(parents=True)
+    (macros_dir / "macro1.sql").touch()
+    sibling_dir = tmp_path / "project1" / "macros"
+    sibling_dir.mkdir(parents=True)
+    (sibling_dir / "other.sql").touch()
+
+    config_path = str(project_dir / ".sqlfluff")
+
+    # The macros directory should resolve literally, not via the sibling.
+    matches = _resolve_path(config_path, "macros")
+    assert matches == [str(macros_dir)]
+
+    # Glob patterns in the configured value itself should still work.
+    matches = _resolve_path(config_path, "macros/*.sql")
+    assert matches == [str(macros_dir / "macro1.sql")]
+
+
+def test_resolve_paths_in_config_bracketed_directory(tmp_path):
+    """Test config paths resolve literally for bracketed directories."""
+    from sqlfluff.core.config.file import _resolve_paths_in_config
+
+    project_dir = tmp_path / "project[1]"
+    macros_dir = project_dir / "macros"
+    macros_dir.mkdir(parents=True)
+    (macros_dir / "macro1.sql").touch()
+    sibling_dir = tmp_path / "project1" / "macros"
+    sibling_dir.mkdir(parents=True)
+    (sibling_dir / "other.sql").touch()
+
+    test_config = {
+        "templater:jinja": {
+            "load_macros_from_path": "macros",
+        },
+    }
+    config_path = str(project_dir / ".sqlfluff")
+    _resolve_paths_in_config(test_config, config_path)
+
+    assert test_config["templater:jinja"]["load_macros_from_path"] == str(macros_dir)
