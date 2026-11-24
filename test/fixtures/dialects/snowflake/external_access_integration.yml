@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c0fe3a8e635b80115e1c894cbcd638207948883571c7c70804d6f90218dc774
+_hash: 1425f62d0928ace1df76d4a1b160a114beff82d6f154483066cc17999e8aee65
 file:
 - statement:
     create_external_access_integration_statement:
@@ -111,6 +111,31 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: none
+      - keyword: ENABLED
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_external_access_integration_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: ACCESS
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_integration
+    - external_access_integration_options:
+      - keyword: ALLOWED_NETWORK_RULES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: my_rule
+          end_bracket: )
       - keyword: ENABLED
       - comparison_operator:
           raw_comparison_operator: '='

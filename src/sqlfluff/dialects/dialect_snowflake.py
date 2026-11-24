@@ -13115,6 +13115,7 @@ class CreateExternalAccessIntegrationStatementSegment(BaseSegment):
         "EXTERNAL",
         "ACCESS",
         "INTEGRATION",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Ref("ExternalAccessIntegrationOptionsSegment"),
     )
