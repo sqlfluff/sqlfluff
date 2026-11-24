@@ -1628,6 +1628,8 @@ impl<'a> Parser<'a> {
             .copied()
             .filter(|t| !self.terminator_requires_whitespace(*t))
             .collect();
+        // Next code position, reused across a run of non-code tokens.
+        let mut next_code: Option<usize> = None;
 
         loop {
             // Check if we've reached our parent_max_idx boundary
@@ -1642,7 +1644,14 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            let code_pos = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+            let code_pos = match next_code {
+                Some(c) if c >= self.pos => c,
+                _ => {
+                    let c = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+                    next_code = Some(c);
+                    c
+                }
+            };
             let terminators = if self.is_preceded_by_whitespace(self.tokens, code_pos, start_pos) {
                 &terminators_vec
             } else {
