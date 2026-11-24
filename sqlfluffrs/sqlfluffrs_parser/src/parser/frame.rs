@@ -194,9 +194,8 @@ pub struct OneOfState {
     pub grammar_id: GrammarId,
     /// Children after simple_hint pruning.
     pub pruned_children: SmallVec<[GrammarId; 8]>,
-    pub post_skip_pos: usize,
     /// Best candidate seen so far, as `(result, consumed, child_grammar_id)`
-    /// where `consumed = child_end_pos - post_skip_pos` (token count, NOT an
+    /// where `consumed = child_end_pos - frame.pos` (token count, NOT an
     /// absolute position). OneOf keeps the *longest clean* match: a clean
     /// (no-unparsable) candidate beats an unclean one of equal length
     /// (`parity::MatchQualityPolicy::LongestClean`).

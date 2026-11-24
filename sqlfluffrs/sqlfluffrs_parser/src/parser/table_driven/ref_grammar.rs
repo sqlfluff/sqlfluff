@@ -123,12 +123,6 @@ impl Parser<'_> {
             }
         };
 
-        // PYTHON PARITY: Ref.match hands its own index straight to the target,
-        // never skipping a leading gap (only Sequence skips before its
-        // elements). Skipping here let e.g. a OneOf-backed segment match
-        // across whitespace inside an allow_gaps=False Sequence.
-        let child_start_pos = start_pos;
-
         // name/segment_class/segment_type are pure functions of grammar_id,
         // so build_ref_wrap looks them up itself rather than RefState
         // storing a redundant copy here.
@@ -138,10 +132,9 @@ impl Parser<'_> {
             self.grammar_ctx.segment_class(grammar_id)
         );
 
-        // Store context with collected leading transparent tokens
         frame.context = FrameContext::Ref(RefState {
             grammar_id,
-            saved_pos: child_start_pos,
+            saved_pos: start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
             match_result: None,
@@ -160,10 +153,12 @@ impl Parser<'_> {
             reset_terminators,
         );
 
+        // PYTHON PARITY: the child starts at start_pos; Ref doesn't skip a
+        // leading gap, only Sequence does.
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar_id,
-            child_start_pos,
+            start_pos,
             &child_terminators,
             frame.parent_max_idx,
         );
@@ -173,7 +168,7 @@ impl Parser<'_> {
             child_grammar_id.0,
             frame.frame_id,
             stack.frame_id_counter,
-            child_start_pos
+            start_pos
         );
 
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
@@ -216,13 +211,7 @@ impl Parser<'_> {
                 original_pos,
                 original_pos
             );
-            // CRITICAL: Revert parser position when child returns Empty.
-            // The Ref may have collected leading transparent tokens via collect_transparent
-            // which advanced self.pos, but if the child fails, we must restore the original
-            // position (saved_pos from before transparent collection) so the parent can try
-            // alternative grammars from the correct location.
-            // ALSO CRITICAL: Set frame.end_pos to original_pos, not frame.pos, because
-            // frame.pos might still be at the advanced position after transparent collection.
+            // Restore the Ref's start so the parent can try alternatives there.
             self.pos = original_pos;
             frame.end_pos = Some(original_pos);
         }

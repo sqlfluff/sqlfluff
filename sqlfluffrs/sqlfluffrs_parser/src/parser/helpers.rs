@@ -523,9 +523,8 @@ impl<'a> Parser<'a> {
             self.pos = init_pos;
             return false;
         }
-        // PYTHON PARITY: Delimited and longest_match call `terminator.match`
-        // directly; a keyword terminator need not be preceded by whitespace
-        // here. That requirement only exists in greedy_match.
+        // PYTHON PARITY: only greedy_match needs whitespace before a keyword
+        // terminator.
         for term_id in pruned_terminators.iter() {
             // Skip NONCODE - already handled above
             if *term_id == GrammarId::NONCODE {
@@ -687,13 +686,9 @@ mod tests {
 
     use crate::parser::Parser;
 
-    /// Python's terminator checks (`Delimited`, `longest_match`) call
-    /// `terminator.match` with no whitespace requirement, so a keyword
-    /// terminator fires even when glued to the previous word. Oracle
-    /// `BeginEndSegment` on `BEGIN BEGIN NULL; END` with the first gap
-    /// removed: the declaration list must stop at the second `BEGIN`, which
-    /// then opens a nested block that eats the only `END`, so Python finds no
-    /// match. With the gap kept the result is the same.
+    /// A keyword terminator glued to the previous word still fires: the
+    /// second `BEGIN` ends the declarations and opens a nested block that
+    /// takes the only `END`, so Python finds no match, gap or not.
     #[test]
     fn test_keyword_terminator_not_preceded_by_whitespace() {
         let dialect = Dialect::from_str("oracle").expect("dialect");
