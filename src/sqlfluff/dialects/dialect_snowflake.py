@@ -4861,6 +4861,7 @@ class CreateProcedureStatementSegment(BaseSegment):
                 Ref("SingleQuotedUDFBody"),
                 Ref("DollarQuotedUDFBody"),
                 # ...or a SQL UDF
+                Ref("ScriptingDeclareStatementSegment"),
                 Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
@@ -4910,6 +4911,7 @@ class CallWithAnonymousProcedureSegment(BaseSegment):
                     Ref("DoubleQuotedUDFBody"),
                     Ref("SingleQuotedUDFBody"),
                     Ref("DollarQuotedUDFBody"),
+                    Ref("ScriptingDeclareStatementSegment"),
                     Ref("ScriptingBlockStatementSegment"),
                 ),
             ),
@@ -5145,8 +5147,11 @@ class ScriptingLetStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         Ref("DatatypeSegment"),
-                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                        Ref("ExpressionSegment"),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
                     ),
                     Sequence(
                         OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
@@ -5311,6 +5316,7 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref("SingleQuotedUDFBody"),
                 Ref("DollarQuotedUDFBody"),
                 # ...or a SQL UDF
+                Ref("ScriptingDeclareStatementSegment"),
                 Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
@@ -12522,8 +12528,11 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         Ref("DatatypeSegment"),
-                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                        Ref("ExpressionSegment"),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
                     ),
                     Sequence(
                         OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
@@ -12570,8 +12579,11 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                     OneOf(
                         Sequence(
                             Ref("DatatypeSegment"),
-                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
-                            Ref("ExpressionSegment"),
+                            Sequence(
+                                OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                                Ref("ExpressionSegment"),
+                                optional=True,
+                            ),
                         ),
                         Sequence(
                             OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
