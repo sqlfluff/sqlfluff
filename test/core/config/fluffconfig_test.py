@@ -566,6 +566,24 @@ def test_resolve_path_no_matches(tmp_path):
     assert len(matches) == 0
 
 
+def test_resolve_path_brackets_in_config_dir(tmp_path):
+    """Config directory names containing glob metacharacters are matched literally."""
+    from sqlfluff.core.config.file import _resolve_path
+
+    bracket_dir = tmp_path / "project[1]"
+    macros_dir = bracket_dir / "macros"
+    macros_dir.mkdir(parents=True)
+    (macros_dir / "helper.sql").touch()
+    # A sibling that would falsely match if `[1]` were treated as a character class.
+    sibling_macros = tmp_path / "project1" / "macros"
+    sibling_macros.mkdir(parents=True)
+    (sibling_macros / "wrong.sql").touch()
+
+    config_path = str(bracket_dir / ".sqlfluff")
+    assert _resolve_path(config_path, "macros") == [str(macros_dir)]
+    assert _resolve_path(config_path, "macros/*.sql") == [str(macros_dir / "helper.sql")]
+
+
 def test_resolve_paths_in_config_comma_separated(tmp_path):
     """Test that _resolve_paths_in_config handles comma-separated glob patterns."""
     from sqlfluff.core.config.file import _resolve_paths_in_config
