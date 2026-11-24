@@ -2245,6 +2245,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterNetworkRuleStatementSegment"),
             Ref("CreateComputePoolStatementSegment"),
             Ref("AlterComputePoolStatementSegment"),
+            Ref("CreateExternalAccessIntegrationStatementSegment"),
+            Ref("AlterExternalAccessIntegrationStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -10208,6 +10210,7 @@ class ShowStatementSegment(BaseSegment):
             OneOf(
                 "API",
                 "CATALOG",
+                Sequence("EXTERNAL", "ACCESS"),
                 "NOTIFICATION",
                 "SECURITY",
                 "STORAGE",
@@ -11193,6 +11196,7 @@ class DescribeStatementSegment(BaseSegment):
                 OneOf(
                     "API",
                     "CATALOG",
+                    Sequence("EXTERNAL", "ACCESS"),
                     "NOTIFICATION",
                     "SECURITY",
                     "STORAGE",
@@ -11860,7 +11864,13 @@ class DropObjectStatementSegment(BaseSegment):
                     Sequence("MCP", "SERVER"),
                     Sequence(
                         OneOf(
-                            "API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True
+                            "API",
+                            "CATALOG",
+                            Sequence("EXTERNAL", "ACCESS"),
+                            "NOTIFICATION",
+                            "SECURITY",
+                            "STORAGE",
+                            optional=True,
                         ),
                         "INTEGRATION",
                     ),
@@ -13060,6 +13070,92 @@ class AlterNetworkRuleStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("UNSET", Delimited(OneOf("VALUE_LIST", "COMMENT"))),
+        ),
+    )
+
+
+class ExternalAccessIntegrationOptionsSegment(BaseSegment):
+    """Options shared by `CREATE` and `ALTER EXTERNAL ACCESS INTEGRATION`."""
+
+    type = "external_access_integration_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "ALLOWED_NETWORK_RULES",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+        ),
+        Sequence(
+            "ALLOWED_API_AUTHENTICATION_INTEGRATIONS",
+            Ref("EqualsSegment"),
+            OneOf(Bracketed(Delimited(Ref("ObjectReferenceSegment"))), "NONE"),
+        ),
+        Sequence(
+            "ALLOWED_AUTHENTICATION_SECRETS",
+            Ref("EqualsSegment"),
+            OneOf(Bracketed(Delimited(Ref("ObjectReferenceSegment"))), "ALL", "NONE"),
+        ),
+        Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Ref("CommentEqualsClauseSegment"),
+        min_times=1,
+    )
+
+
+class CreateExternalAccessIntegrationStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL ACCESS INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-access-integration
+    """
+
+    type = "create_external_access_integration_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "EXTERNAL",
+        "ACCESS",
+        "INTEGRATION",
+        Ref("ObjectReferenceSegment"),
+        Ref("ExternalAccessIntegrationOptionsSegment"),
+    )
+
+
+class AlterExternalAccessIntegrationStatementSegment(BaseSegment):
+    """An `ALTER EXTERNAL ACCESS INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-external-access-integration
+    """
+
+    type = "alter_external_access_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "EXTERNAL",
+        "ACCESS",
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Ref("ExternalAccessIntegrationOptionsSegment"),
+                    Ref("TagEqualsSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    OneOf(
+                        "ALLOWED_NETWORK_RULES",
+                        "ALLOWED_API_AUTHENTICATION_INTEGRATIONS",
+                        "ALLOWED_AUTHENTICATION_SECRETS",
+                        "COMMENT",
+                        Sequence("TAG", Ref("TagReferenceSegment")),
+                    ),
+                ),
+            ),
         ),
     )
 
