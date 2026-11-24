@@ -1168,6 +1168,7 @@ postgres_dialect.replace(
     NonWithSelectableGrammar=OneOf(
         Ref("SetExpressionSegment"),
         OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("ExplicitTableSegment"),
         Ref("NonSetSelectableGrammar"),
         # moved from NonWithNonSelectableGrammar:
         Ref("UpdateStatementSegment"),
@@ -1176,6 +1177,10 @@ postgres_dialect.replace(
         Ref("MergeStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
+    # The TABLE command can be used wherever a SELECT can.
+    NonSetSelectableGrammar=ansi_dialect.get_grammar("NonSetSelectableGrammar").copy(
+        insert=[Ref("UnorderedExplicitTableSegment")],
+    ),
     # https://www.postgresql.org/docs/current/functions-datetime.html
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
@@ -3219,7 +3224,6 @@ class CreateTableAsStatementSegment(BaseSegment):
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
-            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
@@ -3870,7 +3874,6 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
-            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
@@ -7436,6 +7439,41 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class UnorderedExplicitTableSegment(BaseSegment):
+    """A `TABLE` command, short for `SELECT * FROM table_name`.
+
+    This version has no ORDER BY, LIMIT etc., so that in a set expression
+    those clauses belong to the set expression.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-TABLE
+    """
+
+    type = "explicit_table"
+    match_grammar: Matchable = Sequence(
+        "TABLE",
+        Ref.keyword("ONLY", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("StarSegment", optional=True),
+    )
+
+
+class ExplicitTableSegment(UnorderedExplicitTableSegment):
+    """A `TABLE` command, which can be followed by ORDER BY, LIMIT etc.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-TABLE
+    """
+
+    match_grammar: Matchable = UnorderedExplicitTableSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("ForClauseSegment", optional=True),
+        ],
     )
 
 

@@ -238,8 +238,9 @@ duckdb_dialect.add(
         "DATABASES",
         "SCHEMAS",
         "VARIABLES",
-        Ref("SelectableGrammar"),
+        # Before SelectableGrammar, which would also match TABLE tbl.
         Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+        Ref("SelectableGrammar"),
     ),
 )
 
@@ -1430,8 +1431,9 @@ class SummarizeStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "SUMMARIZE",
         OneOf(
-            Ref("SelectableGrammar"),
+            # Before SelectableGrammar, which would also match TABLE tbl.
             Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+            Ref("SelectableGrammar"),
         ),
     )
 
