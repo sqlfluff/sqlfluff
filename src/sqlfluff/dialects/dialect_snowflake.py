@@ -2174,6 +2174,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCortexSearchServiceStatementSegment"),
             Ref("AlterStreamStatementSegment"),
             Ref("AlterStreamlitStatementSegment"),
+            Ref("AlterNotebookStatementSegment"),
             Ref("AlterCortexSearchServiceStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
@@ -2198,6 +2199,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterStorageIntegrationSegment"),
             Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
+            Ref("ExecuteNotebookStatementSegment"),
             Ref("ExecuteAlertStatementSegment"),
             Ref("CreateResourceMonitorStatementSegment"),
             Ref("AlterResourceMonitorStatementSegment"),
@@ -10070,6 +10072,49 @@ class AlterStreamlitStatementSegment(BaseSegment):
     )
 
 
+class AlterNotebookStatementSegment(BaseSegment):
+    """A Snowflake `ALTER NOTEBOOK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-notebook
+    """
+
+    type = "alter_notebook_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NOTEBOOK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "QUERY_WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                    ),
+                    Sequence(
+                        "IDLE_AUTO_SHUTDOWN_TIME_SECONDS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Ref("SecretsEqualsSegment"),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(OneOf("QUERY_WAREHOUSE", "COMMENT")),
+            ),
+        ),
+    )
+
+
 class AlterCortexSearchServiceStatementSegment(BaseSegment):
     """A Snowflake `ALTER CORTEX SEARCH SERVICE` statement.
 
@@ -10974,6 +11019,27 @@ class ExecuteTaskClauseSegment(BaseSegment):
     )
 
 
+class ExecuteNotebookStatementSegment(BaseSegment):
+    """A Snowflake `EXECUTE NOTEBOOK` statement.
+
+    ```
+        EXECUTE NOTEBOOK <name>( [ '<parameter_string>' [ , ... ] ] )
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-notebook
+    """
+
+    type = "execute_notebook_statement"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "NOTEBOOK",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(Ref("QuotedLiteralSegment"), optional=True),
+        ),
+    )
+
+
 ############################
 # MERGE
 ############################
@@ -11788,6 +11854,7 @@ class DropObjectStatementSegment(BaseSegment):
                         "INTEGRATION",
                     ),
                     Sequence("NETWORK", "RULE"),
+                    "NOTEBOOK",
                     "PIPE",
                     Sequence("PROJECTION", "POLICY"),
                     Sequence("ROW", "ACCESS", "POLICY"),
