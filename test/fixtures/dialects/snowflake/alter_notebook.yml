@@ -1,0 +1,144 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 10a72a125ae16d1972c79a5edcbe939274751205563222061c25a91db721f015
+file:
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: notebook_v2
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: notebook_v2
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: SET
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: SET
+    - keyword: IDLE_AUTO_SHUTDOWN_TIME_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '7200'
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: SET
+    - external_access_integration_equals:
+        keyword: SECRETS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'api_key'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_secret
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_notebook
+    - keyword: SET
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+    - keyword: IDLE_AUTO_SHUTDOWN_TIME_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3600'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: UNSET
+    - keyword: QUERY_WAREHOUSE
+- statement_terminator: ;
+- statement:
+    alter_notebook_statement:
+    - keyword: ALTER
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - keyword: UNSET
+    - keyword: QUERY_WAREHOUSE
+    - comma: ','
+    - keyword: COMMENT
+- statement_terminator: ;
