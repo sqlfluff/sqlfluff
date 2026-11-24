@@ -1,0 +1,184 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4310f5d84e63535bf2aade8664b5f8ec4102a40622d753940bc6b981bcce1e4c
+file:
+- statement:
+    attach_statement:
+      keyword: ATTACH
+      expression:
+        quoted_literal: "'file.db'"
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+    - bracketed:
+        start_bracket: (
+        parameter: READ_ONLY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: DATABASE
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: file_db
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: OR
+    - keyword: REPLACE
+    - expression:
+        quoted_literal: "'file2.db'"
+    - keyword: AS
+    - naked_identifier: file_db
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+    - bracketed:
+        start_bracket: (
+        parameter: TYPE
+        expression:
+          column_reference:
+            naked_identifier: sqlite
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+    - bracketed:
+      - start_bracket: (
+      - parameter: READ_ONLY
+      - comma: ','
+      - parameter: TYPE
+      - expression:
+          column_reference:
+            naked_identifier: sqlite
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    detach_statement:
+      keyword: DETACH
+      naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    detach_statement:
+    - keyword: DETACH
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - expression:
+        quoted_literal: "'file.db'"
+    - keyword: AS
+    - naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    attach_statement:
+      keyword: ATTACH
+      expression:
+        quoted_literal: "'file.db'"
+      bracketed:
+        start_bracket: (
+        parameter: BLOCK_SIZE
+        expression:
+          numeric_literal: '16384'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+      keyword: ATTACH
+      expression:
+        quoted_literal: "'file.db'"
+      bracketed:
+      - start_bracket: (
+      - parameter: RECOVERY_MODE
+      - expression:
+          column_reference:
+            naked_identifier: no_wal_writes
+      - comma: ','
+      - parameter: READ_ONLY
+      - expression:
+          boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        quoted_literal: "'encrypted.db'"
+    - keyword: AS
+    - naked_identifier: enc_db
+    - bracketed:
+      - start_bracket: (
+      - parameter: ENCRYPTION_KEY
+      - expression:
+          quoted_literal: "'quack_quack'"
+      - comma: ','
+      - parameter: ENCRYPTION_CIPHER
+      - expression:
+          quoted_literal: "'CBC'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    attach_statement:
+    - keyword: ATTACH
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: getenv
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'DATABASE_PATH'"
+              end_bracket: )
+    - keyword: AS
+    - naked_identifier: env_db
+- statement_terminator: ;

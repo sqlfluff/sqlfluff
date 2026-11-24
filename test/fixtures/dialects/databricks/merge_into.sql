@@ -88,3 +88,20 @@ update set * except (last_updated)
 when not matched then
 insert * except (last_updated)
 ;
+
+-- MERGE with schema evolution.
+MERGE WITH SCHEMA EVOLUTION INTO t USING s ON t.k = s.k WHEN MATCHED THEN UPDATE SET *;
+
+-- MERGE with schema evolution after a CTE: WITH in both roles.
+with src as (
+    select key, value from source
+)
+
+merge with schema evolution into target as t
+using src as s
+on t.key = s.key
+when matched and t.value <> s.value then
+update set *
+when not matched then
+insert *
+;

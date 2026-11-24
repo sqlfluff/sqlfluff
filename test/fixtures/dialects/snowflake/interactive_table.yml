@@ -1,0 +1,171 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c445a2185ad407ea4d1f64439001435d38f18ce5b0161e997cedf6615f7c81dd
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: INTERACTIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: id
+            end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: INTERACTIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empty_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: id
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: INTERACTIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: timestamped_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: id
+            end_bracket: )
+      - keyword: ROW_TIMESTAMP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: INTERACTIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dynamic_t
+    - dynamic_table_options:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: id
+            end_bracket: )
+      - keyword: TARGET_LAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - dynamic_table_lag_interval_segment: "'5 minutes'"
+      - keyword: WAREHOUSE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: wh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: regular_t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
+    - dynamic_table_options:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: id
+            end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: id
+- statement_terminator: ;

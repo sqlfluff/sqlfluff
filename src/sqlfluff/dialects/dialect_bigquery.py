@@ -803,6 +803,16 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropTableFunctionStatementSegment"),
             Ref("CreateTableFunctionStatementSegment"),
         ],
+        remove=[
+            # BigQuery has no CREATE/DROP CAST or triggers. The inherited
+            # grammars also reference keywords (CONSTRUCTOR, REFERENCING, ...)
+            # that this dialect never registers, so reaching them raised an
+            # internal RuntimeError instead of parsing.
+            Ref("CreateCastStatementSegment"),
+            Ref("DropCastStatementSegment"),
+            Ref("CreateTriggerStatementSegment"),
+            Ref("DropTriggerStatementSegment"),
+        ],
     )
 
 

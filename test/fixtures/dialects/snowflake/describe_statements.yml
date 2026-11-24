@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c0168e7c355c7df06f8cc8925be624509541148f33f8ce35201cb6a216dc733
+_hash: 7d327dfe3ce4057ec099a6994641a5a889b0685dac74e0e9fcef8b39ceb3cedb
 file:
 - statement:
     describe_statement:
@@ -744,4 +744,24 @@ file:
     - keyword: SERVICE
     - object_reference:
         naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_dynamic_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: my_dynamic_table
 - statement_terminator: ;

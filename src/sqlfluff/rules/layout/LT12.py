@@ -139,6 +139,11 @@ class Rule_LT12(BaseRule):
         if _trailing_segment.is_type("placeholder"):
             self.logger.debug("Trailing placeholder detected.")
             _template_segment = cast(TemplateSegment, _trailing_segment)
+            if context.templated_file and not context.templated_file.source_str:
+                # The file has no source at all, so there's nothing to terminate.
+                # Adding a newline here would give LT13 a leading newline to remove
+                # and the file would never settle.
+                return None
             _trailing_whitespace = get_trailing_whitespace_from_string(
                 _template_segment.source_str
             )

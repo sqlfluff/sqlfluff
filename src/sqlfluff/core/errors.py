@@ -403,6 +403,10 @@ class SQLLintError(SQLBaseError):
         )
 
 
+class _SQLRuleError(SQLLintError):
+    """An internal rule failure, retained even when its anchor is templated."""
+
+
 class SQLUnusedNoQaWarning(SQLBaseError):
     """A warning about an unused noqa directive."""
 
