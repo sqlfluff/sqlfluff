@@ -375,26 +375,49 @@ def test_reflow_respace_point_preserves_caller_results_and_identity(default_conf
 
     def _sig(results):
         return [
-            (r.description, str(r.anchor.pos_marker) if r.anchor else None)
+            (
+                r.description,
+                str(r.anchor.pos_marker) if r.anchor else None,
+                tuple(
+                    (
+                        f.edit_type,
+                        str(f.anchor.pos_marker) if f.anchor else None,
+                        tuple((seg.get_type(), seg.raw) for seg in f.edit)
+                        if f.edit
+                        else (),
+                    )
+                    for f in r.fixes
+                ),
+            )
             for r in results
         ]
 
-    # Filtered respace must discard violations from excluded points and leave
-    # the source sequence's result list untouched.
-    assert seq.get_results() == []
-    res_inline = seq.respace(filter="inline")
-    assert seq.get_results() == []
-    res_newline = seq.respace(filter="newline")
-    assert seq.get_results() == []
-    res_all_first = seq.respace(filter="all")
-    assert seq.get_results() == []
-    res_all_second = seq.respace(filter="all")
-    assert seq.get_results() == []
-
-    assert _sig(res_inline.get_results())
-    assert _sig(res_newline.get_results())
-    assert sorted(_sig(res_inline.get_results()) + _sig(res_newline.get_results())) == (
-        sorted(_sig(res_all_first.get_results()))
+    # Filtered and unfiltered respace must preserve pre-existing sequence
+    # results without mutating the source sequence's list.
+    seeded_seq = ReflowSequence(
+        elements=seq.elements,
+        root_segment=seq.root_segment,
+        reflow_config=seq.reflow_config,
+        depth_map=seq.depth_map,
+        lint_results=[sentinel],
     )
+    assert seeded_seq.get_results() == [sentinel]
+    res_inline = seeded_seq.respace(filter="inline")
+    assert seeded_seq.get_results() == [sentinel]
+    res_newline = seeded_seq.respace(filter="newline")
+    assert seeded_seq.get_results() == [sentinel]
+    res_all_first = seeded_seq.respace(filter="all")
+    assert seeded_seq.get_results() == [sentinel]
+    res_all_second = seeded_seq.respace(filter="all")
+    assert seeded_seq.get_results() == [sentinel]
+
+    for res in (res_inline, res_newline, res_all_first, res_all_second):
+        assert res.get_results()[0] is sentinel
+
+    assert _sig(res_inline.get_results()[1:])
+    assert _sig(res_newline.get_results()[1:])
+    assert sorted(
+        _sig(res_inline.get_results()[1:]) + _sig(res_newline.get_results()[1:])
+    ) == sorted(_sig(res_all_first.get_results()[1:]))
     assert _sig(res_all_first.get_results()) == _sig(res_all_second.get_results())
     assert res_all_first.get_raw() == res_all_second.get_raw()

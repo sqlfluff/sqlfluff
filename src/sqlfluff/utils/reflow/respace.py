@@ -840,6 +840,7 @@ def handle_respace__inline_with_space(
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
         desc: Optional[str] = None
+        align_seg_type: Optional[str] = None
         if post_constraint.startswith("align") and next_block:
             seg_type, align_within, align_scope, align_space = (
                 _extract_alignment_config(post_constraint)
@@ -875,18 +876,19 @@ def handle_respace__inline_with_space(
                     indent_unit,
                     tab_space_size,
                 )
-
-                desc = (
-                    f"{seg_type!r} elements are expected to be aligned. Found "
-                    "incorrect whitespace before "
-                    f"{pretty_segment_name(next_block.segments[0])}: "
-                    f"{last_whitespace.raw!r}."
-                )
+                align_seg_type = seg_type
         else:
             desired_space = " "
 
         if last_whitespace.raw != desired_space:
-            if desc is None:
+            if align_seg_type is not None and next_block:
+                desc = (
+                    f"{align_seg_type!r} elements are expected to be aligned. Found "
+                    "incorrect whitespace before "
+                    f"{pretty_segment_name(next_block.segments[0])}: "
+                    f"{last_whitespace.raw!r}."
+                )
+            elif desc is None:
                 if next_block:
                     desc = (
                         "Expected only single space before "
