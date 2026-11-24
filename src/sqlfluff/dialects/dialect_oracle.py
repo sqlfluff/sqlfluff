@@ -712,6 +712,10 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    # Oracle's word lexer also accepts non-ASCII names.
+    FunctionNameIdentifierSegment=TypedParser(
+        "word", WordSegment, type="function_name_identifier"
+    ),
     QuotedLiteralSegment=OneOf(
         TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
         TypedParser("alternative_quote", LiteralSegment, type="quoted_literal"),

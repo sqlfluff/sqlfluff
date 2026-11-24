@@ -1569,3 +1569,58 @@ def test__rust_parser__arena_built_when_rust_rules_enabled(value):
     tree = RustParser(config=config).parse(segments, fname="t.sql")
     assert tree is not None
     assert tree._rs_tree is not None
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize("dialect", ["ansi", "snowflake", "postgres", "bigquery"])
+@pytest.mark.parametrize(
+    "tail, expected",
+    [
+        ("-- comment\n", "blah"),
+        ("/* comment */\n", "blah"),
+        ("/* first */ -- second\n", "blah"),
+        ("/* interior */ + 2 -- trailing\n", "blah /* interior */ + 2"),
+        ("   \n", "blah"),
+        ('{{ "/* generated */" }}\n', "blah"),
+        ("{% if true %}/* generated */{% endif %}\n", "blah"),
+    ],
+)
+def test__rust_parser__greedy_sequence_trailing_non_code(dialect, tail, expected):
+    """The leftover span ends at code, preserving interior comments."""
+    from sqlfluff.core import FluffConfig, Linter
+
+    sql = (
+        f"with x as (select 1 from t where x is not null blah {tail}) select * from x\n"
+    )
+    observations = []
+    for rust in (False, True):
+        config = FluffConfig(overrides={"dialect": dialect, "use_rust_parser": rust})
+        linter = Linter(config=config)
+        parsed = linter.parse_string(sql)
+        unparsables = list(parsed.tree.recursive_crawl("unparsable"))
+        assert [segment.raw for segment in unparsables] == [expected]
+        assert len(parsed.violations) == 1
+        assert repr(expected) in parsed.violations[0].desc()
+        if tail in ("-- comment\n", "/* comment */\n"):
+            comments = list(parsed.tree.recursive_crawl("comment"))
+            assert [comment.raw for comment in comments] == [tail.rstrip()]
+            assert all(
+                not path.segment.is_type("unparsable")
+                for path in parsed.tree.path_to(comments[0])
+            )
+        fixed = linter.lint_string(sql, fix=True).fix_string()[0]
+        assert fixed == sql
+        observations.append(
+            (
+                [(s.raw, s.pos_marker.source_slice) for s in unparsables],
+                parsed.tree.to_tuple(
+                    code_only=False,
+                    show_raw=True,
+                    include_meta=True,
+                    include_position=True,
+                ),
+                [v.desc() for v in parsed.violations],
+                fixed,
+            )
+        )
+    assert observations[0] == observations[1]

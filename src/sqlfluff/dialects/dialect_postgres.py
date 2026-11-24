@@ -766,6 +766,36 @@ postgres_dialect.add(
             Ref("DatatypeSegment"),
         ),
     ),
+    # An `OPERATOR` or `FUNCTION` member of an operator class or family, as
+    # used by `CREATE OPERATOR CLASS` and `ALTER OPERATOR FAMILY ... ADD`.
+    OperatorClassMemberGrammar=OneOf(
+        Sequence(
+            "OPERATOR",
+            Ref("NumericLiteralSegment"),
+            OneOf(
+                Ref("OperatorNameSegment"),
+                Ref("QualifiedOperatorSegment"),
+            ),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+            OneOf(
+                Sequence("FOR", "SEARCH"),
+                Sequence(
+                    "FOR",
+                    "ORDER",
+                    "BY",
+                    Ref("OperatorFamilyReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "FUNCTION",
+            Ref("NumericLiteralSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+            Ref("FunctionNameSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -858,10 +888,20 @@ postgres_dialect.replace(
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*",
-        CodeSegment,
-        type="function_name_identifier",
+    FunctionNameIdentifierSegment=OneOf(
+        RegexParser(
+            r"[A-Za-z_][A-Za-z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            casefold=str.lower,
+            ignore_case=False,
+        ),
+        # Keep the original match for non-ASCII spellings without case folding.
+        RegexParser(
+            r"[A-Z_][A-Z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+        ),
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
@@ -5932,6 +5972,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateOperatorFamilyStatementSegment"),
             Ref("AlterOperatorFamilyStatementSegment"),
             Ref("DropOperatorFamilyStatementSegment"),
+            Ref("CreateOperatorClassStatementSegment"),
+            Ref("AlterOperatorClassStatementSegment"),
+            Ref("DropOperatorClassStatementSegment"),
             Ref("CreateAccessMethodStatementSegment"),
             Ref("DropAccessMethodStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
@@ -6486,6 +6529,27 @@ class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
             Sequence("DO", "NOTHING"),
         ),
         Dedent,
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Overriding ANSI to allow `OVERRIDING { SYSTEM | USER } VALUE` and
+    `DEFAULT VALUES`, as in the `INSERT` statement.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
+        OneOf(
+            Ref("ValuesClauseSegment"),
+            Sequence("DEFAULT", "VALUES"),
+        ),
     )
 
 
@@ -8737,34 +8801,7 @@ class OperatorFamilyAddMemberSegment(BaseSegment):
     """
 
     type = "operator_family_add_member"
-    match_grammar: Matchable = OneOf(
-        Sequence(
-            "OPERATOR",
-            Ref("NumericLiteralSegment"),
-            OneOf(
-                Ref("OperatorNameSegment"),
-                Ref("QualifiedOperatorSegment"),
-            ),
-            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
-            OneOf(
-                Sequence("FOR", "SEARCH"),
-                Sequence(
-                    "FOR",
-                    "ORDER",
-                    "BY",
-                    Ref("OperatorFamilyReferenceSegment"),
-                ),
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "FUNCTION",
-            Ref("NumericLiteralSegment"),
-            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
-            Ref("FunctionNameSegment"),
-            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
-        ),
-    )
+    match_grammar: Matchable = Ref("OperatorClassMemberGrammar")
 
 
 class OperatorFamilyDropMemberSegment(BaseSegment):
@@ -8828,6 +8865,88 @@ class DropOperatorFamilyStatementSegment(BaseSegment):
         "FAMILY",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("OperatorFamilyReferenceSegment")),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class OperatorClassItemSegment(BaseSegment):
+    """An `OPERATOR`, `FUNCTION` or `STORAGE` item of `CREATE OPERATOR CLASS`.
+
+    https://www.postgresql.org/docs/current/sql-createopclass.html
+    """
+
+    type = "operator_class_item"
+    match_grammar: Matchable = OneOf(
+        Ref("OperatorClassMemberGrammar"),
+        Sequence("STORAGE", Ref("DatatypeSegment")),
+    )
+
+
+class CreateOperatorClassStatementSegment(BaseSegment):
+    """A `CREATE OPERATOR CLASS` statement.
+
+    https://www.postgresql.org/docs/current/sql-createopclass.html
+    """
+
+    type = "create_operator_class_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "OPERATOR",
+        "CLASS",
+        Ref("OperatorClassReferenceSegment"),
+        Ref.keyword("DEFAULT", optional=True),
+        "FOR",
+        "TYPE",
+        Ref("DatatypeSegment"),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        Sequence("FAMILY", Ref("OperatorFamilyReferenceSegment"), optional=True),
+        "AS",
+        Delimited(Ref("OperatorClassItemSegment")),
+    )
+
+
+class AlterOperatorClassStatementSegment(BaseSegment):
+    """An `ALTER OPERATOR CLASS` statement.
+
+    https://www.postgresql.org/docs/current/sql-alteropclass.html
+    """
+
+    type = "alter_operator_class_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "OPERATOR",
+        "CLASS",
+        Ref("OperatorClassReferenceSegment"),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("OperatorClassReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleSpecificationGrammar"),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+        ),
+    )
+
+
+class DropOperatorClassStatementSegment(BaseSegment):
+    """A `DROP OPERATOR CLASS` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropopclass.html
+    """
+
+    type = "drop_operator_class_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "OPERATOR",
+        "CLASS",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("OperatorClassReferenceSegment")),
         "USING",
         Ref("IndexAccessMethodSegment"),
         Ref("DropBehaviorGrammar", optional=True),

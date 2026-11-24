@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a3efe9c0d4e005105d93bf586ebe8d29f63758e9c33a5877509224f5b27ec594
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIMARY
+    - keyword: KEYS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TERSE
+    - keyword: PRIMARY
+    - keyword: KEYS
+    - keyword: IN
+    - keyword: ACCOUNT
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIMARY
+    - keyword: KEYS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIMARY
+    - keyword: KEYS
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIMARY
+    - keyword: KEYS
+    - keyword: IN
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PRIMARY
+    - keyword: KEYS
+    - keyword: IN
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CATALOG
+    - keyword: INTEGRATIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CATALOG
+    - keyword: INTEGRATIONS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: NOTEBOOKS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: NOTEBOOKS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+    - keyword: STARTS
+    - keyword: WITH
+    - quoted_literal: "'my'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+    - keyword: FROM
+    - quoted_literal: "'my_nb'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CONNECTIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CONNECTIONS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: MANAGED
+    - keyword: ACCOUNTS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: MANAGED
+    - keyword: ACCOUNTS
+    - keyword: LIKE
+    - quoted_literal: "'my%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: connections
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: connection_stats
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: connections
+- statement_terminator: ;

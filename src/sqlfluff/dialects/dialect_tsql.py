@@ -937,6 +937,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSecurityPolicySegment"),
             Ref("AlterSecurityPolicySegment"),
             Ref("DropSecurityPolicySegment"),
+            Ref("AddSensitivityClassificationStatementSegment"),
+            Ref("DropSensitivityClassificationStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
@@ -5736,6 +5738,38 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("EqualsSegment", optional=True),
                 OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
             ),
+            # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql
+            # ALTER COLUMN column { ADD | DROP } { ROWGUIDCOL | PERSISTED | ... }
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        OneOf(
+                            "ROWGUIDCOL",
+                            "PERSISTED",
+                            Sequence("NOT", "FOR", "REPLICATION"),
+                            "SPARSE",
+                            "HIDDEN",
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        "MASKED",
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                "FUNCTION",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
             Sequence(
                 "ALTER",
                 "COLUMN",
@@ -10131,6 +10165,58 @@ class DropSecurityPolicySegment(BaseSegment):
         "POLICY",
         Sequence("IF", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class AddSensitivityClassificationStatementSegment(BaseSegment):
+    """An `ADD SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/add-sensitivity-classification-transact-sql
+
+    type = "add_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "TO",
+        Delimited(Ref("ColumnReferenceSegment")),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        "LABEL",
+                        "LABEL_ID",
+                        "INFORMATION_TYPE",
+                        "INFORMATION_TYPE_ID",
+                    ),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                Sequence(
+                    "RANK",
+                    Ref("EqualsSegment"),
+                    OneOf("NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropSensitivityClassificationStatementSegment(BaseSegment):
+    """A `DROP SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-sensitivity-classification-transact-sql
+
+    type = "drop_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "FROM",
+        Delimited(Ref("ColumnReferenceSegment")),
     )
 
 
