@@ -843,3 +843,11 @@ test_pass_derived_table_column_list_set_expression_postgres:
         UNION ALL
         SELECT a + 2, b FROM t
     ) AS s (x, y)
+
+test_pass_row_value_in_subquery:
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) IN (SELECT max(w), x FROM b GROUP BY x);
+
+test_pass_row_value_not_in_subquery:
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) NOT IN (SELECT max(w), x FROM b GROUP BY x);

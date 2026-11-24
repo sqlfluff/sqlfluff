@@ -114,12 +114,20 @@ class Rule_ST06(BaseRule):
     def _has_direct_column_list(select: BaseSegment) -> bool:
         """Check the output's owner without crossing another SELECT or CTE."""
         while parent_info := select.get_parent():
+            child = select
             select, _ = parent_info
             if select.is_type("common_table_expression"):
                 return select.get_child("cte_column_list") is not None
             if select.is_type("from_expression_element"):
                 alias = select.get_child("alias_expression")
                 return alias is not None and alias.get_child("bracketed") is not None
+            if select.is_type("expression"):
+                for seg in select.segments:
+                    if seg is child:
+                        break
+                    if seg.is_type("keyword") and seg.raw_upper == "IN":
+                        return True
+                return False
             if not select.is_type(
                 "bracketed",
                 "table_expression",
