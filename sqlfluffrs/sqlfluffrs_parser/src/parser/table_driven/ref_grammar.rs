@@ -134,7 +134,6 @@ impl Parser<'_> {
 
         frame.context = FrameContext::Ref(RefState {
             grammar_id,
-            saved_pos: start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
             match_result: None,
@@ -181,10 +180,10 @@ impl Parser<'_> {
         child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
     ) -> Result<TableFrameResult, ParseError> {
+        let original_pos = frame.pos;
         let FrameContext::Ref(state) = &mut frame.context else {
             unreachable!("Expected Ref context");
         };
-        let original_pos = state.saved_pos;
 
         vdebug!(
             "Ref[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}",
@@ -239,8 +238,7 @@ impl Parser<'_> {
             let child = Arc::clone(ref_match_result);
             let grammar_id = state.grammar_id;
             let child_grammar_id = state.child_grammar_id;
-            let saved_pos = state.saved_pos;
-            self.build_ref_wrap(grammar_id, child_grammar_id, saved_pos, final_pos, &child)
+            self.build_ref_wrap(grammar_id, child_grammar_id, frame.pos, final_pos, &child)
         } else {
             MatchResult::empty_at(frame.pos)
         };
@@ -266,7 +264,7 @@ impl Parser<'_> {
         &mut self,
         grammar_id: GrammarId,
         child_grammar_id: GrammarId,
-        saved_pos: usize,
+        start_pos: usize,
         final_pos: usize,
         ref_match_result: &Arc<MatchResult>,
     ) -> MatchResult {
@@ -320,7 +318,7 @@ impl Parser<'_> {
             MatchResult::ref_match(
                 name,
                 matched_class,
-                saved_pos,
+                start_pos,
                 final_pos,
                 vec![Arc::clone(ref_match_result)],
             )
@@ -378,5 +376,43 @@ impl Parser<'_> {
         let wrapped = self.build_ref_wrap(grammar_id, child_id, start_pos, final_pos, &child);
         self.pos = final_pos;
         Ok(Some(wrapped))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
+    use sqlfluffrs_types::{GrammarId, GrammarVariant};
+
+    use crate::parser::Parser;
+
+    /// A Ref to a terminal target takes `try_ref_terminal_inline`, which like
+    /// the frame path must not skip a leading gap. Expected ends are Python's
+    /// `Ref("FromKeywordSegment").match`.
+    #[test]
+    fn test_inline_terminal_ref_does_not_skip_leading_whitespace() {
+        let dialect = Dialect::from_str("ansi").expect("dialect");
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        for (sql, expected_end) in [("FROM", Some(1)), (" FROM", None)] {
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let ctx = &parser.grammar_ctx;
+            let ref_id = (0..ctx.len() as u32)
+                .map(GrammarId)
+                .find(|&g| {
+                    ctx.variant(g) == GrammarVariant::Ref && ctx.ref_name(g) == "FromKeywordSegment"
+                })
+                .expect("Ref(FromKeywordSegment)");
+            let mr = parser
+                .try_ref_terminal_inline(ref_id, None)
+                .expect("parse")
+                .expect("terminal target takes the inline path");
+            let got = (!mr.is_empty()).then(|| mr.end());
+            assert_eq!(got, expected_end, "{sql:?}");
+            assert_eq!(parser.pos, expected_end.unwrap_or(0), "{sql:?} pos");
+        }
     }
 }

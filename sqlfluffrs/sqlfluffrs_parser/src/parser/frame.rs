@@ -218,9 +218,6 @@ pub struct OneOfState {
 #[derive(Debug, Clone)]
 pub struct RefState {
     pub grammar_id: GrammarId,
-    /// Position the child was started at (after any leading-transparent skip);
-    /// the position restored when the child comes back empty.
-    pub saved_pos: usize,
     pub last_child_frame_id: Option<usize>,
     /// The actual grammar this Ref resolves to (for casefold lookup).
     pub child_grammar_id: GrammarId,
