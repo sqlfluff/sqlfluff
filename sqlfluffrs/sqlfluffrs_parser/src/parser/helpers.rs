@@ -523,8 +523,7 @@ impl<'a> Parser<'a> {
             self.pos = init_pos;
             return false;
         }
-        // PYTHON PARITY: only greedy_match (and Anything, which uses it)
-        // needs whitespace before a keyword terminator.
+        // PYTHON PARITY: no whitespace rule here; greedy_match and Anything have it.
         for term_id in pruned_terminators.iter() {
             // Skip NONCODE - already handled above
             if *term_id == GrammarId::NONCODE {
@@ -686,9 +685,7 @@ mod tests {
 
     use crate::parser::Parser;
 
-    /// A keyword terminator glued to the previous word still fires: the
-    /// second `BEGIN` ends the declarations and opens a nested block that
-    /// takes the only `END`, so Python finds no match, gap or not.
+    /// The glued second `BEGIN` still terminates, so like Python there's no match.
     #[test]
     fn test_keyword_terminator_not_preceded_by_whitespace() {
         let dialect = Dialect::from_str("oracle").expect("dialect");

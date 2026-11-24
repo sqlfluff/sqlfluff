@@ -1622,8 +1622,7 @@ impl<'a> Parser<'a> {
         if !self.grammar_ctx.inst(grammar_id).flags.reset_terminators() {
             terminators_vec.extend(parent_terminators.iter().cloned());
         }
-        // PYTHON PARITY: Anything is greedy_match, so a keyword terminator
-        // only counts after whitespace.
+        // PYTHON PARITY: like greedy_match, keyword terminators need whitespace.
         let glued_terminators: Vec<GrammarId> = terminators_vec
             .iter()
             .copied()
@@ -1876,9 +1875,7 @@ mod tests {
         assert_eq!(intern_indent_config(config).len(), 2);
     }
 
-    /// Python's Anything is greedy_match, so a keyword terminator only stops
-    /// it after whitespace (or a closing bracket, or at the start). Expected
-    /// ends are Python's `Anything().match` with FROM and `;` terminators.
+    /// Expected ends are Python's `Anything().match` with FROM and `;`.
     #[test]
     fn anything_skips_keyword_terminator_without_whitespace() {
         use std::str::FromStr;

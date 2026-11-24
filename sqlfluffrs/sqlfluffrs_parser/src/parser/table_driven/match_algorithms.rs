@@ -198,9 +198,7 @@ impl Parser<'_> {
         true
     }
 
-    /// Whether greedy_match only accepts `term_id` after whitespace: its
-    /// whole simple hint (symbolic alternatives included, as Python checks)
-    /// is alphabetic raws, i.e. a keyword.
+    /// True when every raw in the simple hint is alphabetic (a keyword).
     pub(crate) fn terminator_requires_whitespace(&self, term_id: GrammarId) -> bool {
         if term_id == GrammarId::NONCODE {
             return false;

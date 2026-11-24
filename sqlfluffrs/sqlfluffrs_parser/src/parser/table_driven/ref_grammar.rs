@@ -152,8 +152,7 @@ impl Parser<'_> {
             reset_terminators,
         );
 
-        // PYTHON PARITY: the child starts at start_pos; Ref doesn't skip a
-        // leading gap, only Sequence does.
+        // PYTHON PARITY: no leading-gap skip; only Sequence skips.
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar_id,
@@ -210,7 +209,7 @@ impl Parser<'_> {
                 original_pos,
                 original_pos
             );
-            // Restore the Ref's start so the parent can try alternatives there.
+            // Restore the start so the parent can try alternatives.
             self.pos = original_pos;
             frame.end_pos = Some(original_pos);
         }
@@ -389,9 +388,7 @@ mod tests {
 
     use crate::parser::Parser;
 
-    /// A Ref to a terminal target takes `try_ref_terminal_inline`, which like
-    /// the frame path must not skip a leading gap. Expected ends are Python's
-    /// `Ref("FromKeywordSegment").match`.
+    /// Inline terminal Ref path; ends are Python's `Ref("FromKeywordSegment").match`.
     #[test]
     fn test_inline_terminal_ref_does_not_skip_leading_whitespace() {
         let dialect = Dialect::from_str("ansi").expect("dialect");

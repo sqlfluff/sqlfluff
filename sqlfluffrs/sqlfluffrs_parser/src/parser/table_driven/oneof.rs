@@ -153,8 +153,7 @@ impl Parser<'_> {
 
         // Inline fast path: terminal candidates need no frame machinery.
         // Feed the result straight into the shared candidate-handling logic.
-        // PYTHON PARITY: candidates start at start_pos; OneOf doesn't skip a
-        // leading gap, only Sequence does.
+        // PYTHON PARITY: no leading-gap skip; only Sequence skips.
         self.pos = start_pos;
         if let Some(mr) = self.try_terminal_inline(first_child, Some(max_idx))? {
             let end_pos = self.pos;
@@ -537,8 +536,7 @@ mod tests {
 
     use crate::parser::Parser;
 
-    /// OneOf (sparksql) and Ref (ansi) inside an `allow_gaps=False` Sequence
-    /// must fail on whitespace. Expected ends are Python's.
+    /// OneOf (sparksql) and Ref (ansi) in a no-gap Sequence; ends are Python's.
     #[test]
     fn test_no_gap_sequence_child_does_not_skip_leading_whitespace() {
         for (dialect_name, grammar_name, sql, expected_end) in [
