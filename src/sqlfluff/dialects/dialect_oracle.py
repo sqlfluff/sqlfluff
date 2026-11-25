@@ -42,6 +42,7 @@ from sqlfluff.core.parser.grammar.lookbehind import (
     PrecededByMatcher,
     is_distinct_from_lookbehind,
 )
+from sqlfluff.core.parser.grammar.standalone import StandaloneLineMatcher
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
     oracle_reserved_keywords,
@@ -1820,6 +1821,70 @@ class FetchClauseSegment(ansi.FetchClauseSegment):
     )
 
 
+# A slash followed by a comment is a delimiter when the next token is a
+# likely statement starter or there is no next token. Otherwise the slash may
+# be a division operator with its right operand on the next line.
+#
+# These Oracle 19c references help check candidate keywords for this heuristic:
+#   SQL statements: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlqr/SQL-Statements.html
+#   SQL*Plus commands: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/SQL-Plus-command-summary.html
+ORACLE_STATEMENT_STARTERS = frozenset(
+    {
+        "ACCEPT",
+        "ALTER",
+        "ANALYZE",
+        "AUDIT",
+        "BEGIN",
+        "CALL",
+        "COLUMN",
+        "COMMENT",
+        "COMMIT",
+        "CONNECT",
+        "CREATE",
+        "DECLARE",
+        "DEFINE",
+        "DELETE",
+        "DESC",
+        "DESCRIBE",
+        "DISCONNECT",
+        "DROP",
+        "EXEC",
+        "EXECUTE",
+        "EXIT",
+        "EXPLAIN",
+        "FLASHBACK",
+        "GRANT",
+        "HOST",
+        "INSERT",
+        "LOCK",
+        "MERGE",
+        "NOAUDIT",
+        "PAUSE",
+        "PRINT",
+        "PROMPT",
+        "PURGE",
+        "REM",
+        "REMARK",
+        "RENAME",
+        "REVOKE",
+        "ROLLBACK",
+        "SAVEPOINT",
+        "SELECT",
+        "SET",
+        "SHOW",
+        "SPOOL",
+        "START",
+        "TRUNCATE",
+        "UNDEFINE",
+        "UPDATE",
+        "VALIDATE",
+        "VARIABLE",
+        "WHENEVER",
+        "WITH",
+    }
+)
+
+
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement."""
 
@@ -1843,7 +1908,16 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         OptionallyBracketed(
-            Ref("SelectableGrammar"), terminators=[Ref("BatchDelimiterGrammar")]
+            Ref("SelectableGrammar"),
+            # NOTE: The SQL*Plus `/` delimiter only terminates a statement when
+            # it sits on a line of its own. Using the raw batch delimiter as a
+            # terminator here would also match division, e.g. `SELECT 1 / 100`.
+            terminators=[
+                StandaloneLineMatcher(
+                    StringParser("/", SymbolSegment, type="slash"),
+                    resume_keywords=sorted(ORACLE_STATEMENT_STARTERS),
+                )
+            ],
         ),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
