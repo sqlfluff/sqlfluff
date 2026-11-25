@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     Indent,
     LiteralSegment,
     Matchable,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -1504,6 +1505,7 @@ class BatchSegment(BaseSegment):
                 OneOf(
                     Ref("SqlplusSetStatementSegment"),
                     Ref("SqlplusShowStatementSegment"),
+                    Ref("SqlplusWheneverStatementSegment"),
                     Ref("StatementSegment"),
                 ),
                 delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
@@ -1717,6 +1719,57 @@ class SqlplusShowStatementSegment(BaseSegment):
             # Any other SET system variable (e.g. LINESIZE, PAGESIZE).
             Ref("SingleIdentifierGrammar"),
         ),
+    )
+
+
+class SqlplusWheneverStatementSegment(BaseSegment):
+    """A SQL*Plus `WHENEVER OSERROR` or `WHENEVER SQLERROR` command.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/WHENEVER-OSERROR.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqpug/WHENEVER-SQLERROR.html
+    """
+
+    type = "sqlplus_whenever_statement"
+
+    _variable = Sequence(
+        Ref("ParameterNameSegment", exclude=OneOf("COMMIT", "ROLLBACK")),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("ParameterNameSegment"),
+            allow_gaps=False,
+            optional=True,
+        ),
+        allow_gaps=False,
+    )
+    _exit_status = OneOf(
+        "SUCCESS",
+        "FAILURE",
+        "WARNING",
+        Ref("NumericLiteralSegment"),
+        Ref("QualifiedNumericLiteralSegment"),
+        Ref("BindVariableSegment"),
+        _variable,
+    )
+    match_grammar = Sequence(
+        "WHENEVER",
+        OneOf("OSERROR", "SQLERROR"),
+        OneOf(
+            Sequence(
+                "EXIT",
+                Sequence(_exit_status, optional=True),
+                OneOf("COMMIT", "ROLLBACK", optional=True),
+            ),
+            Sequence(
+                "CONTINUE",
+                OneOf("COMMIT", "ROLLBACK", "NONE", optional=True),
+            ),
+        ),
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+        terminators=[
+            # SQL*Plus commands end at a newline, even without a semicolon.
+            TypedParser("newline", NewlineSegment),
+            Ref("DelimiterGrammar"),
+        ],
     )
 
 
