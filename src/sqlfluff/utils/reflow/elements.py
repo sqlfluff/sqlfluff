@@ -197,6 +197,7 @@ class ReflowBlock(ReflowElement):
         config: ReflowConfig,
         depth_info: DepthInfo,
         parent_configs: ParentStackConfigs,
+        allow_default: bool = False,
     ) -> "ReflowBlock":
         """Build a ReflowBlock from resolved block config and parent-stack dicts."""
         block_class_types = (
@@ -205,7 +206,7 @@ class ReflowBlock(ReflowElement):
             else cls._class_types(segments)
         )
         block_config = config._get_block_config(
-            block_class_types, depth_info, allow_default=True
+            block_class_types, depth_info, allow_default=allow_default
         )
         (
             stack_spacing_configs,
@@ -264,7 +265,9 @@ class ReflowBlock(ReflowElement):
                 configs = (sc, lpc, klpc, klpec)
                 parent_config_cache[stack_hashes[: j + 1]] = configs
             cached = configs
-        return cls._build_from_config(segments, config, depth_info, cached)
+        return cls._build_from_config(
+            segments, config, depth_info, cached, allow_default=True
+        )
 
     @classmethod
     def from_config(

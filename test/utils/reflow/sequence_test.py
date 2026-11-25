@@ -8,14 +8,19 @@ from unittest.mock import patch
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import Indent, WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.config import (
     _DEFAULT_BLOCK_CONFIG,
     _EMPTY_LIST_BLOCK_CONFIG,
     BlockConfig,
 )
-from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
+from sqlfluff.utils.reflow.elements import (
+    _EMPTY_INDENT_STATS,
+    IndentStats,
+    ReflowBlock,
+    ReflowPoint,
+)
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
@@ -431,6 +436,57 @@ def test_reflow_elements_parent_config_cache_matches_uncached(default_config):
             depth_info=elem.depth_info,
         )
 
-    # Shared read-only defaults must remain unmodified.
+    # Public get_block_config() and ReflowBlock.from_config() must return fresh
+    # configs that callers can mutate without affecting shared read-only defaults.
+    fresh_default = seq.reflow_config.get_block_config(set())
+    assert fresh_default is not _DEFAULT_BLOCK_CONFIG
+    fresh_default.incorporate(before="touch")
     assert _DEFAULT_BLOCK_CONFIG == BlockConfig()
+    assert seq.reflow_config.get_block_config(set()) == BlockConfig()
+
+    fresh_parent_default = seq.reflow_config.get_block_config(
+        set(), depth_info=blocks_by_raw["a"].depth_info
+    )
+    assert fresh_parent_default is not _EMPTY_LIST_BLOCK_CONFIG
+    assert isinstance(fresh_parent_default.keyword_line_position_exclusions, list)
+    assert (
+        fresh_parent_default.keyword_line_position_exclusions
+        is not _EMPTY_LIST_BLOCK_CONFIG.keyword_line_position_exclusions
+    )
+    fresh_parent_default.keyword_line_position_exclusions.append("mutated")
     assert _EMPTY_LIST_BLOCK_CONFIG == BlockConfig(keyword_line_position_exclusions=[])
+
+    fresh_block = ReflowBlock.from_config(
+        segments=blocks_by_raw["a"].segments,
+        config=seq.reflow_config,
+        depth_info=blocks_by_raw["a"].depth_info,
+    )
+    assert (
+        fresh_block.keyword_line_position_exclusions
+        is not _EMPTY_LIST_BLOCK_CONFIG.keyword_line_position_exclusions
+    )
+
+
+def test_reflow_point_lazy_indent_stats():
+    """ReflowPoint computes _stats lazily without affecting repr, ==, or hash."""
+    ws_segs = (WhitespaceSegment(" "),)
+    pt_a = ReflowPoint(ws_segs)
+    pt_b = ReflowPoint(ws_segs)
+    assert pt_a._stats is None
+    assert "_stats" not in repr(pt_a)
+
+    stats = pt_a.get_indent_impulse()
+    assert stats is _EMPTY_INDENT_STATS
+    assert pt_a._stats is _EMPTY_INDENT_STATS
+    assert pt_b._stats is None
+    assert pt_a == pt_b
+    assert hash(pt_a) == hash(pt_b)
+
+    indent_segs = (Indent(), WhitespaceSegment("    "))
+    indent_a = ReflowPoint(indent_segs)
+    indent_b = ReflowPoint(indent_segs)
+    assert indent_a._stats is None
+    assert indent_a.get_indent_impulse() == IndentStats(1, 0)
+    assert indent_b._stats is None
+    assert indent_a == indent_b
+    assert hash(indent_a) == hash(indent_b)
