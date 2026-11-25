@@ -9,7 +9,8 @@ SQLFluff can identify original source positions and safely apply fixes.
 
 [dbt-labs/dbt#16870](https://github.com/dbt-labs/dbt/pull/16870) exports ordered
 events from the real render. This plugin consumes those events through a
-versioned JSON artifact. It needs no patched runtime in the SQLFluff wheel.
+versioned JSON sidecar or nested Parquet epochs. Both feed the same validated
+source-mapping conversion. It needs no patched runtime in the SQLFluff wheel.
 
 Assumptions: the shipped runtime exposes the exporter; event and offset
 semantics remain compatible; source/invocation identity is reliable; and the

@@ -123,6 +123,7 @@ def test_runtime_command_and_artifact(tmp_path, monkeypatch, traces):
     assert len(calls) == 2
     assert calls[0] != calls[1]
     assert calls[0][calls[0].index("--feature") + 1] == "write_render_trace"
+    assert "--generate-info-schema" in calls[0]
     assert json.loads(calls[0][-1]) == {"x": 1}
     assert calls[0][calls[0].index("--target") + 1] == "dev"
 

@@ -133,7 +133,10 @@ def trace_to_templated_file(
 def _convert_trace(trace: dict[str, Any], source: str, fname: str) -> TemplatedFile:
     if not isinstance(trace, dict) or not isinstance(trace["source"], str):
         raise TypeError("trace must be an object containing string source")
-    if type(trace["protocol_version"]) is not int or trace["protocol_version"] != 1:
+    if type(trace["protocol_version"]) is not int or trace["protocol_version"] not in (
+        1,
+        2,
+    ):
         raise ValueError("unsupported trace protocol")
     if Version(trace["dbt_version"]).major < 2:
         raise ValueError("trace requires dbt v2")

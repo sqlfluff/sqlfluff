@@ -96,7 +96,7 @@ def test_reject_invalid_provenance(mutation, traces):
     if mutation == "source":
         trace["source"] = "stale"
     elif mutation == "protocol":
-        trace["protocol_version"] = 2
+        trace["protocol_version"] = 3
     elif mutation == "producer":
         trace["dbt_version"] = "1.10.0"
     elif mutation == "stage":

@@ -210,8 +210,8 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
             "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% continue %}{% endif %}{% endfor %}SELECT 9\n",
         ),
         "broken": (
-            "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}select 9\n",
-            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% break %}{% endif %}{% else %}select 0{% endfor %}SELECT 9\n",
+            "{% for n in [1, 2] %}{% if n > 0 %}select {{ n }};{% break %}{% endif %}{% else %}select 0;{% endfor %}select 9\n",
+            "{% for n in [1, 2] %}{% if n > 0 %}SELECT {{ n }};{% break %}{% endif %}{% else %}SELECT 0;{% endfor %}SELECT 9\n",
         ),
         "returned": (
             "select 0 {{ return('select 1') }}\n",
@@ -261,3 +261,52 @@ def test_live_review_regressions_fix_only_executed_source(tmp_path, monkeypatch)
             file.path
         )
         assert file.fix_string()[0] == cases[Path(file.path).stem][1]
+
+
+def test_live_public_parquet_contract(tmp_path, monkeypatch):
+    """Read the producer's actual public snapshot, not a synthetic Parquet fixture."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
+    project = tmp_path / "project"
+    shutil.copytree(Path(__file__).parent / "fixtures/project", project)
+    model = project / "models/probe.sql"
+    source = model.read_text(encoding="utf-8")
+    execute = Dbt2Templater._execute
+    recorded = []
+
+    def inspect_snapshot(command, timeout):
+        result = execute(command, timeout)
+        target = Path(command[command.index("--target-path") + 1])
+        assert not (target / "render_traces.parquet").exists()
+        assert not list(target.rglob("*.render_trace.json"))
+        paths = [target / "info_schema/v1/dbt.render_traces.parquet"]
+        assert paths[0].is_file()
+        for path in paths:
+            table = pq.read_table(path)
+            assert table.schema.field("protocol_version").type == pa.int64()
+            assert table.schema.field("ingested_at").type == pa.int64()
+            events = table.schema.field("events").type
+            assert pa.types.is_list(events)
+            assert pa.types.is_struct(events.value_type)
+            assert events.value_type.field("source_start").type == pa.int64()
+            recorded.extend(table.to_pylist())
+        return result
+
+    monkeypatch.setattr(Dbt2Templater, "_execute", staticmethod(inspect_snapshot))
+    trace = Dbt2Templater()._runtime(
+        source,
+        str(model),
+        {"project_dir": str(project), "profiles_dir": str(project)},
+    )
+    produced = [row for row in recorded if row["unique_id"] == trace["unique_id"]]
+    assert len(produced) == 1
+    row = produced[0]
+    assert row["protocol_version"] == 2
+    assert row["ingested_at"] > 0
+    assert row["invocation_id"] == trace["invocation_id"]
+    assert row["source"] == source
+    assert row["rendered"] == trace["rendered"]
+    assert row["events"] == trace["events"]
+    assert any(event["kind"] == "loop_iteration" for event in row["events"])

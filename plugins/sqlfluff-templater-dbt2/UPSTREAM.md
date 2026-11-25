@@ -4,56 +4,59 @@ This SQLFluff draft consumes the artifact proposed by
 [dbt-labs/dbt#16870](https://github.com/dbt-labs/dbt/pull/16870). The producer is
 implemented in dbt; this repository implements the consumer.
 
-The tested producer revision is
-[`3116b9498`](https://github.com/alanmcruickshank/dbt/commit/3116b949886d85aae646cc1479e7f703b88865d1),
-including the elif, raw-span, loop-control, inheritance, buffered-render and
-explicit-return, recursive-loop, include and super fixes, and based on
-upstream `335cf309c`. It reports `dbt-oss 2.0.8`. A released binary
-with the same version number does not contain the proposed feature merely
-because its version matches. The revision identifies our validation build;
-the plugin does not pin or inspect commit hashes.
+## Parquet producer
+
+Use the [producer follow-up](https://github.com/alanmcruickshank/dbt/pull/1)
+to dbt-labs/dbt#16870. The validated Parquet producer revision is
+[`e7813a27b1d`](https://github.com/dataders/dbt-core/commit/e7813a27b1d).
+It publishes protocol-v2 rows, including ingestion timestamps, to
+`target/info_schema/v1/dbt.render_traces.parquet`.
+A stock released dbt build does not provide this experimental API.
+The plugin selects compatibility by protocol, not commit hash or version label.
 
 ## Build the prerequisite
 
-To build locally, follow dbt's
-[contributor prerequisites](https://github.com/alanmcruickshank/dbt/blob/codex/render-trace-export/CONTRIBUTING.md),
-including its Rust toolchain and the separate Protocol Buffers compiler
-(`protoc`). Check `protoc --version` before building; alternatively set `PROTOC`
-to its executable and `PROTOC_INCLUDE` to its include directory. Then build and
-install the Python distribution:
+Follow dbt's contributor prerequisites, including its Rust toolchain and
+Protocol Buffers compiler (`protoc`). Check `protoc --version` before building.
+Then build the public producer and install its wheel into the SQLFluff environment:
 
 ```sh
-git clone https://github.com/alanmcruickshank/dbt.git
-cd dbt
-git checkout 3116b949886d85aae646cc1479e7f703b88865d1
-python -m pip install maturin
-python -m maturin build --manifest-path crates/dbt-sa-python/Cargo.toml --out dist
-# Install the wheel produced above into the SQLFluff test environment:
-python -m pip install /path/to/dbt/dist/dbt_core-<version>-<platform>.whl
+git clone --branch codex/render-trace-columnar-dbt https://github.com/dataders/dbt-core.git
+cd dbt-core
+git checkout e7813a27b1d
+uvx maturin build --manifest-path crates/dbt-sa-python/Cargo.toml --out dist
+uv pip install --python /path/to/sqlfluff/.venv/bin/python dist/dbt_core-<version>-<platform>.whl
 ```
 
-These commands build dbt's own wheel, not a runtime bundled in this plugin.
-For a standalone dbt CLI built from the same PR, configure `runtime_path`.
+These commands build dbt's own wheel; the plugin bundles no native runtime.
+The debug runtime validation sets `RUST_LOG=debug` and `DBT_LOG_LEVEL=debug`
+to avoid an upstream tracing-initialization panic also seen without trace export.
+Those settings are inherited by subprocesses, not forced on users by the plugin.
+Release builds have not been validated.
 
-On our Windows debug build, both `RUST_LOG=debug` and `DBT_LOG_LEVEL=debug` were
-needed to avoid an upstream tracing-initialization panic that also occurs
-without trace export. Set these for local testing of that build. The plugin
-inherits the caller's environment and does not force debug settings for users.
-Release-build behavior has not been validated.
+## Legacy JSON producer
+
+Protocol-v1 JSON support remains available for the original proposal. Earlier
+validation used public producer
+[`3116b9498`](https://github.com/alanmcruickshank/dbt/commit/3116b949886d85aae646cc1479e7f703b88865d1).
+That historical revision is distinct from the Parquet producer above. The
+intermediate single-file Parquet and parallel-array JSON formats are not supported.
 
 ## Contract used by SQLFluff
 
 The consumer invokes:
 
 ```sh
-dbt compile --select path:models/example.sql --feature write_render_trace
+dbt compile --select path:models/example.sql --generate-info-schema --feature write_render_trace
 ```
 
-The [producer's design notes](https://github.com/alanmcruickshank/dbt/blob/3116b949886d85aae646cc1479e7f703b88865d1/docs/architecture/render-trace.md)
-and [short JSON example](https://github.com/alanmcruickshank/dbt/blob/3116b949886d85aae646cc1479e7f703b88865d1/crates/dbt-tasks-sa/tests/fixtures/render_trace/example.render_trace.json)
-describe the format. SQLFluff depends on:
+The [producer's design notes](https://github.com/dataders/dbt-core/blob/e7813a27b1d/docs/architecture/render-trace.md)
+and the [Parquet compatibility contract](README.md#parquet-producer-compatibility)
+describe the format. `--generate-info-schema` is required to publish the public table. SQLFluff depends on:
 
-- Protocol version 1 and the `jinja_before_ephemeral_injection` render stage.
+- Protocol version 1 (JSON sidecars) or version 2 (nested Parquet snapshot), and
+  the `jinja_before_ephemeral_injection` render stage. See the
+  [Parquet compatibility contract](README.md#parquet-producer-compatibility).
 - Exact source and rendered strings, without applying source-rewriting offsets
   to a different file or applying pre-injection offsets to final compiled SQL.
 - Ordered literal, expression, macro, layout and loop events with half-open

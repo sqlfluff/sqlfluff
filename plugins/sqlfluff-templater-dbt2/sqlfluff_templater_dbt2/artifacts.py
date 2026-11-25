@@ -21,7 +21,7 @@ class RenderArtifacts:
 
     @classmethod
     def load(cls, target: Path, project: Path) -> RenderArtifacts:
-        """Read JSON once before disposing of the compilation's temporary output."""
+        """Read artifacts before disposing of the compilation's temporary output."""
         manifest_path = target / "manifest.json"
         if not manifest_path.is_file():
             raise SQLTemplaterError("dbt2 trace has no matching invocation manifest")
@@ -33,8 +33,17 @@ class RenderArtifacts:
         ):
             raise SQLTemplaterError("Invalid dbt2 invocation manifest")
         traces: dict[Path, list[dict[str, Any]]] = {}
-        for artifact in target.rglob("*.render_trace.json"):
-            trace = json.loads(artifact.read_text(encoding="utf-8"))
+        snapshot = target / "info_schema/v1/dbt.render_traces.parquet"
+        if snapshot.exists():
+            records = cls._read_parquet(
+                [snapshot], manifest["metadata"].get("invocation_id")
+            )
+        else:
+            records = [
+                json.loads(artifact.read_text(encoding="utf-8"))
+                for artifact in target.rglob("*.render_trace.json")
+            ]
+        for trace in records:
             if not isinstance(trace, dict) or not isinstance(
                 trace.get("source_path"), str
             ):
@@ -45,6 +54,46 @@ class RenderArtifacts:
             traces.setdefault(path.resolve(), []).append(trace)
         return cls(project, manifest, traces)
 
+    @staticmethod
+    def _read_parquet(paths: list[Path], invocation_id: Any) -> list[dict[str, Any]]:
+        """Select fresh protocol-v2 rows without changing ordered nested events."""
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        if not isinstance(invocation_id, str) or not invocation_id:
+            raise SQLTemplaterError("Invalid dbt2 invocation identity")
+        latest: dict[str, dict[str, Any]] = {}
+        for path in paths:
+            try:
+                batches = pq.ParquetFile(path).iter_batches()
+                for batch in batches:
+                    for trace in batch.to_pylist():
+                        if trace.get("protocol_version") != 2:
+                            raise SQLTemplaterError(
+                                "Unsupported dbt2 Parquet trace protocol"
+                            )
+                        if trace.get("invocation_id") != invocation_id:
+                            continue
+                        uid = trace.get("unique_id")
+                        timestamp = trace.get("ingested_at")
+                        if not isinstance(uid, str) or type(timestamp) is not int:
+                            raise SQLTemplaterError("Invalid dbt2 trace row identity")
+                        previous = latest.get(uid)
+                        if previous is not None:
+                            if (
+                                timestamp == previous["ingested_at"]
+                                and trace != previous
+                            ):
+                                raise SQLTemplaterError("Conflicting dbt2 trace rows")
+                            if timestamp < previous["ingested_at"]:
+                                continue
+                        latest[uid] = trace
+            except (pa.ArrowException, OSError) as error:
+                raise SQLTemplaterError(
+                    f"Cannot read dbt2 render-trace Parquet: {error}"
+                ) from error
+        return list(latest.values())
+
     def trace_for(self, model: Path, source: str) -> dict[str, Any]:
         """Verify identity and exact source for each file served from the batch."""
         candidates = self.traces.get(model, [])
@@ -53,7 +102,7 @@ class RenderArtifacts:
         if len(candidates) != 1:
             raise SQLTemplaterError(
                 "dbt did not export exactly one render trace for this source file. "
-                "Use a build containing https://github.com/dbt-labs/dbt/pull/16870. "
+                "Use a build with the experimental dbt render-trace API. "
                 "Rewritten snapshot inputs are not supported by this reference "
                 "implementation."
             )
