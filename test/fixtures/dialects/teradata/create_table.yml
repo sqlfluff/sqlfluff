@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 135aa15aee3aaa164354414c14c781d2be79758ef50a82691d3c31d809a06d78
+_hash: 054cb90f86ca3b30b6d40394c9dc168f666d2fe10b2c8afbc0f45d7202ba8af7
 file:
 - statement:
     create_table_statement:
@@ -1077,4 +1077,62 @@ file:
         - comma: ','
         - naked_identifier: BYTE_FIELD
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: AND
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: 'NO'
+      - keyword: STATISTICS
 - statement_terminator: ;
