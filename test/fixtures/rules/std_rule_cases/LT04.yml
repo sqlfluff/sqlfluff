@@ -427,7 +427,8 @@ leading_comma_align_following_fail:
 
 redshift_procedure_trailing_commas:
   fail_str: |
-    CREATE PROCEDURE p(a int, b int) AS $body$
+    CREATE PROCEDURE p(a int
+        , b int) AS $body$
     BEGIN
         RAISE NOTICE 'first %, second %' -- message
             , a
@@ -441,7 +442,8 @@ redshift_procedure_trailing_commas:
     END;
     $body$ LANGUAGE plpgsql;
   fix_str: |
-    CREATE PROCEDURE p(a int, b int) AS $body$
+    CREATE PROCEDURE p(a int,
+        b int) AS $body$
     BEGIN
         RAISE NOTICE 'first %, second %', -- message
             a,
@@ -505,13 +507,93 @@ redshift_procedure_do_not_reflow_option_value:
     core:
       dialect: redshift
 
-redshift_procedure_unlexable_body:
-  # A body the lexer cannot tokenize reliably must still be treated as opaque.
-  pass_str: |
+redshift_procedure_unicode_identifiers:
+  fail_str: |
     CREATE PROCEDURE p() AS $$
     BEGIN
         SELECT café
             , b FROM t;
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        SELECT café,
+            b FROM t;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_non_nested_block_comment:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        RAISE NOTICE 'another %' /* a literal /* marker
+            , still in the comment */
+            , 1;
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        RAISE NOTICE 'another %', /* a literal /* marker
+            , still in the comment */
+            1;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_jinja_comment_and_expression:
+  fail_str: |
+    CREATE PROCEDURE p() AS $body$
+    BEGIN
+        NULL;{#- source comment -#}
+        RAISE NOTICE 'another %'
+            , 1;
+        SELECT {{ 2 }}
+            , 3;
+    END;
+    $body$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $body$
+    BEGIN
+        NULL;{#- source comment -#}
+        RAISE NOTICE 'another %',
+            1;
+        SELECT {{ 2 }},
+            3;
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+
+redshift_procedure_generated_comma:
+  pass_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        SELECT a
+            {{ "," }} b;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+
+redshift_procedure_incomplete_quote:
+  # The outer statement accepts the body as data. Avoid changes when the inner
+  # lexer cannot determine which commas are SQL separators.
+  pass_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        RAISE NOTICE 'unfinished
+            , x;
     END;
     $$ LANGUAGE plpgsql;
   configs:
