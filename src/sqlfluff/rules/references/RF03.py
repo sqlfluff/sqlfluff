@@ -90,6 +90,9 @@ class Rule_RF03(BaseRule):
     # If any of the parents would have also triggered the rule, don't fire
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
+    # Unused: kept for subclasses that read it. The flag depends on the
+    # dialect, so it is now worked out per query from the dialect name.
+    _is_struct_dialect = False
     # Dialects with STRUCT-like data types accessed via dot syntax (e.g.
     # `col.field.subfield`), which can be misread as table-qualified column
     # references (`table.column`) in single table SELECTs.
