@@ -683,9 +683,9 @@ jobs:
 
     - name: Run the tests
       shell: bash
-      # Set python temp dir in working dir as on GitHub Actions Windows
-      # machine often has system temp dir (which tox uses) on C drive and
-      # working dir on D drive which causes problems. Keep it outside the
+      # Set Python's temp dir on the checkout's drive, as GitHub Actions Windows
+      # machines often have the system temp dir (which tox uses) on C: and
+      # the checkout on D:, which causes problems. Keep it outside the
       # checkout, so temporary config files written by tests are not picked
       # up by tests which scan the working tree.
       run: |
