@@ -1,0 +1,224 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d568ba65fdb2e49dc6b586a642650262c4f763c68e3929be90f91e8c3018aceb
+file:
+  batch:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Email
+      - keyword: ADD
+      - keyword: MASKED
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: FUNCTION
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'email()'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Phone
+      - keyword: ADD
+      - keyword: MASKED
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: FUNCTION
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'partial(1,\"xxxxxxx\",0)'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Discount
+      - keyword: ADD
+      - keyword: MASKED
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: FUNCTION
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'random(1, 100)'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: FirstName
+      - keyword: ADD
+      - keyword: MASKED
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: FUNCTION
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "N'default()'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: LastName
+      - keyword: ADD
+      - keyword: MASKED
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Membership
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Email
+      - keyword: DROP
+      - keyword: MASKED
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Id
+      - keyword: ADD
+      - keyword: ROWGUIDCOL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Id
+      - keyword: DROP
+      - keyword: ROWGUIDCOL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Total
+      - keyword: ADD
+      - keyword: PERSISTED
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Id
+      - keyword: DROP
+      - keyword: NOT
+      - keyword: FOR
+      - keyword: REPLICATION
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: Notes
+      - keyword: ADD
+      - keyword: SPARSE
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - naked_identifier: ValidFrom
+      - keyword: ADD
+      - keyword: HIDDEN
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: T1
+      - keyword: ALTER
+      - keyword: COLUMN
+      - quoted_identifier: '[ValidTo]'
+      - keyword: DROP
+      - keyword: HIDDEN
+  - statement_terminator: ;

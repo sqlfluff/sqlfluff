@@ -1548,3 +1548,139 @@ def test__linter__large_file_skip_fail_config(
     # But if large_file_skip_fail is set, the CLI would bump this to 1.
     would_fail = bool(result.files_skipped and config.get("large_file_skip_fail"))
     assert would_fail == expected_would_fail
+
+
+@pytest.fixture
+def config_dirs(tmp_path):
+    """Two directories with different config, and files with inline config."""
+    for name, dialect, rules in (("a", "ansi", "LT01"), ("b", "tsql", "CP01")):
+        directory = tmp_path / name
+        directory.mkdir()
+        (directory / ".sqlfluff").write_text(
+            f"[sqlfluff]\ndialect = {dialect}\nrules = {rules}\n"
+        )
+        (directory / "one.sql").write_text("select 1\n")
+        (directory / "two.sql").write_text("select 2\n")
+    (tmp_path / "a" / "inline.sql").write_text(
+        "-- sqlfluff:dialect:postgres\nselect 1\n"
+    )
+    (tmp_path / "a" / "inline_no_space.sql").write_text(
+        "--sqlfluff:dialect:bigquery\nselect 1\n"
+    )
+    (tmp_path / "a" / "inline_nested.sql").write_text(
+        "-- sqlfluff:rules:capitalisation.keywords:capitalisation_policy:upper\n"
+        "select 1\n"
+    )
+    return tmp_path
+
+
+def test__linter__dir_config_shared(config_dirs):
+    """Files in one directory share a file config."""
+    root = FluffConfig(require_dialect=False)
+    lntr = Linter(config=root)
+
+    def file_config(*parts):
+        return lntr.render_file(str(config_dirs.joinpath(*parts)), root).config
+
+    a_one, a_two = file_config("a", "one.sql"), file_config("a", "two.sql")
+    b_one, b_two = file_config("b", "one.sql"), file_config("b", "two.sql")
+    assert a_one is a_two
+    assert b_one is b_two
+    assert a_one is not b_one
+    assert (a_one.get("dialect"), b_one.get("dialect")) == ("ansi", "tsql")
+
+    assert [r.code for r in lntr.get_rulepack(config=a_one).rules] == ["LT01"]
+    assert [r.code for r in lntr.get_rulepack(config=b_one).rules] == ["CP01"]
+
+    # A file with inline config gets a config of its own, in either spelling.
+    inline = file_config("a", "inline.sql")
+    inline_no_space = file_config("a", "inline_no_space.sql")
+    assert inline.get("dialect") == "postgres"
+    assert inline_no_space.get("dialect") == "bigquery"
+    assert inline is not a_one
+    # The same goes for a nested value.
+    policy = ("capitalisation_policy", ["rules", "capitalisation.keywords"])
+    inline_nested = file_config("a", "inline_nested.sql")
+    assert inline_nested.get(*policy) == "upper"
+    assert inline_nested is not a_one
+    # ...and all of them leave the shared one as it was.
+    assert file_config("a", "one.sql") is a_one
+    assert a_one.get("dialect") == "ansi"
+    assert a_one.get(*policy) == "consistent"
+
+    # Another root config (other overrides or `--config`) is resolved afresh.
+    other_root = FluffConfig(overrides={"dialect": "mysql"}, require_dialect=False)
+    other = lntr.render_file(str(config_dirs / "a" / "one.sql"), other_root).config
+    assert other is not a_one
+    assert other.get("dialect") == "mysql"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "a/one.sql",
+        "a/two.sql",
+        "a/inline.sql",
+        "a/inline_no_space.sql",
+        "a/inline_nested.sql",
+        "b/one.sql",
+    ],
+)
+def test__linter__dir_config_matches_uncached(config_dirs, path):
+    """A file's config is the same with and without the shared config."""
+    root = FluffConfig(require_dialect=False)
+    lntr = Linter(config=root)
+    fname = str(config_dirs / path)
+    # Fill the cache from a sibling first, so `fname` gets the shared config.
+    lntr.render_file(str(config_dirs / os.path.dirname(path) / "two.sql"), root)
+    cached = lntr.render_file(fname, root).config
+    _, uncached, _ = Linter.load_raw_file_and_config(fname, root)
+    assert cached.diff_to(uncached) == {}
+    assert uncached.diff_to(cached) == {}
+
+
+def test__linter__dir_config_lint_paths(config_dirs):
+    """Linting a tree applies each directory's config and inline config."""
+    (config_dirs / "a" / "one.sql").write_text("select  1\n")
+    (config_dirs / "b" / "one.sql").write_text("SELECT a  from b\n")
+    result = Linter(config=FluffConfig(require_dialect=False)).lint_paths(
+        (str(config_dirs),)
+    )
+    codes = {
+        os.path.relpath(record["filepath"], config_dirs): [
+            violation["code"] for violation in record["violations"]
+        ]
+        for record in result.as_records()
+    }
+    assert codes[os.path.join("a", "one.sql")] == ["LT01"]
+    assert codes[os.path.join("b", "one.sql")] == ["CP01"]
+    assert codes[os.path.join("a", "inline.sql")] == []
+
+
+@pytest.mark.parametrize(
+    "order", [("plain.sql", "inline.sql"), ("inline.sql", "plain.sql")]
+)
+def test__linter__dir_config_align_not_shared(tmp_path, order):
+    """Linting a file doesn't change the layout config of its siblings."""
+    sql = "SELECT\n    a AS b,\n    cccccccc AS d\nFROM t;\n\nSELECT e AS f\nFROM t;\n"
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\nrules = LT01\n\n"
+        "[sqlfluff:layout:type:alias_expression]\n"
+        "spacing_before = align\nalign_within = select_clause\n"
+    )
+    (tmp_path / "plain.sql").write_text(sql)
+    (tmp_path / "inline.sql").write_text(
+        "-- sqlfluff:layout:type:alias_expression:align_within:file\n" + sql
+    )
+    result = Linter(config=FluffConfig(require_dialect=False)).lint_paths(
+        tuple(str(tmp_path / name) for name in order), fix=True
+    )
+    fixed = {
+        os.path.basename(file.path): file.fix_string()[0]
+        for path in result.paths
+        for file in path.files
+    }
+    # Aligned within each select clause, so the second select is left alone.
+    assert fixed["plain.sql"].endswith("SELECT e AS f\nFROM t;\n")
+    # Aligned within the file.
+    assert fixed["inline.sql"].endswith("SELECT e     AS f\nFROM t;\n")

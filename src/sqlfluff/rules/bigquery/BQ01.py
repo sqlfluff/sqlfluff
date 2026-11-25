@@ -1,99 +1,65 @@
 """Implementation of Rule BQ01."""
 
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from typing import Optional
+
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.reflow.elements import ReflowPoint
-from sqlfluff.utils.reflow.helpers import deduce_line_indent
 
 
 class Rule_BQ01(BaseRule):
-    """BigQuery chained function calls should follow the configured layout.
+    """Forbid BigQuery ``WITH`` expressions.
 
-    With ``consistent`` (the default), use the first chain's first call boundary
-    to infer the style for the file. Other styles are ``one_liner``, ``aligned``
-    and ``indented``. This rule enforces call-boundary line breaks; LT02 handles
-    indentation using the BigQuery grammar. Multiline arguments are preserved.
-    Comments can prevent an automatic boundary fix.
+    BigQuery's ``WITH`` expression assigns variables inside an expression and
+    then evaluates a final expression:
+
+    .. code-block:: sql
+
+        SELECT WITH(a AS 1, b AS a + 1, b * 2) AS total;
+
+    Some teams prefer to keep statements to CTEs, subqueries or plain
+    expressions, and to avoid this construct entirely. This rule flags every
+    ``WITH`` expression in the ``bigquery`` dialect.
+
+    This rule only applies to the ``bigquery`` dialect and is disabled by
+    default. Enable it with the ``forbid_with_expressions = True`` flag.
 
     **Anti-pattern**
 
-    With ``writing_style = aligned``, calls should start on separate lines.
+    Using a ``WITH`` expression.
 
     .. code-block:: sql
 
-        SELECT (foo).LOWER().TRIM();
+        SELECT WITH(a AS 1, a) AS x;
 
     **Best practice**
 
-    With this rule and LT02 enabled:
+    Rewrite the expression without ``WITH``.
 
     .. code-block:: sql
 
-        SELECT (foo)
-        .LOWER()
-        .TRIM();
+        SELECT 1 AS x;
+
     """
 
-    name = "bigquery.chained_functions"
-    config_keywords = ["writing_style"]
-    groups = ("all", "bigquery", "layout")
-    crawl_behaviour = SegmentSeekerCrawler({"chained_function_call"})
-    is_fix_compatible = True
-    writing_style: str = "consistent"
+    name = "bigquery.forbid_with_expressions"
+    aliases = ()
+    groups = ("all", "bigquery")
+    config_keywords = ["forbid_with_expressions"]
+    crawl_behaviour = SegmentSeekerCrawler({"with_expression"})
 
-    def _eval(self, context: RuleContext) -> list[LintResult]:
-        """Enforce line breaks without calculating or correcting indentation."""
-        if context.dialect.name != "bigquery":
-            return []  # pragma: no cover
+    _target_dialects = ("bigquery",)
 
-        gap = []
-        for segment in reversed(context.siblings_pre):
-            if segment.is_code:
-                break
-            gap.append(segment)
-        gap.reverse()
-        has_newline = any(segment.is_type("newline") for segment in gap)
-        memory = context.memory or {}
-        multiline = self.writing_style != "one_liner"
-        if self.writing_style == "consistent":
-            multiline = memory.setdefault("multiline", has_newline)
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        self.forbid_with_expressions: bool
 
-        whitespace = [seg for seg in gap if seg.is_type("whitespace", "newline")]
-        if (multiline and has_newline) or (not multiline and not gap):
-            return [LintResult(memory=memory)]
+        if not self.forbid_with_expressions:
+            return None
 
-        # Crossing comments or template markers can change SQL semantics.
-        safe_to_fix = all(
-            seg.is_type("whitespace", "newline", "indent", "dedent") for seg in gap
-        )
-        description = (
-            "Chained calls should start on a new line."
-            if multiline
-            else "Chained calls should touch the preceding expression."
-        )
-        if multiline and safe_to_fix:
-            # Preserve the physical line's indent when inserting a boundary.
-            # LT02 sets the required indentation from grammar markers.
-            results, _ = ReflowPoint(
-                segments=tuple(raw for seg in gap for raw in seg.raw_segments)
-            ).indent_to(
-                deduce_line_indent(
-                    context.segment.raw_segments[0], context.parent_stack[0]
-                ),
-                before=context.segment.raw_segments[0],
-                description=description,
-            )
-            for result in results:
-                result.memory = memory
-            return results
+        if context.dialect.name not in self._target_dialects:
+            # ``with_expression`` is only defined in the bigquery dialect, so
+            # the crawler cannot reach this rule elsewhere today. Keep the
+            # guard (and test/rules/std_BQ01_test.py) so a future dialect that
+            # grows the segment does not get flagged by accident.
+            return None
 
-        return [
-            LintResult(
-                anchor=context.segment,
-                description=description,
-                fixes=[LintFix.delete(seg) for seg in whitespace]
-                if safe_to_fix
-                else [],
-                memory=memory,
-            )
-        ]
+        return LintResult(anchor=context.segment)

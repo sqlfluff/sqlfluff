@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16d15e8519dbab613a443eba667433d314693c98d6d2c44b720110d4b04c96d5
+_hash: 10ecae2b273003663de5e399e548340b909a77077ff9c39e0ef883fd7a5c32a7
 file:
 - statement:
     alter_view_statement:
@@ -313,7 +313,7 @@ file:
         naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
+    - role_reference:
         naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
@@ -324,7 +324,7 @@ file:
         naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
+    - role_reference:
         quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
@@ -345,8 +345,7 @@ file:
         naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
-        naked_identifier: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -368,7 +367,7 @@ file:
         naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
+    - role_reference:
         naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
@@ -381,7 +380,7 @@ file:
         naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
+    - role_reference:
         quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
@@ -406,8 +405,7 @@ file:
         naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
-    - object_reference:
-        naked_identifier: CURRENT_USER
+    - keyword: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_view_statement:

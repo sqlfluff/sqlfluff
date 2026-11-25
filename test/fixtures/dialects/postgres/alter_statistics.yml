@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6e3b056473ca523d519bb1a896a94b0590464fe9ba8d14df7c1e756fd96ead6
+_hash: 7427090d8127fe2e7abbb3ddb72e90636c7d6edaa8eaab6c82bdc753ebd21e32
 file:
 - statement:
     alter_statistics_statement:
@@ -35,7 +35,7 @@ file:
         naked_identifier: s1
     - keyword: OWNER
     - keyword: TO
-    - parameter: current_user
+    - keyword: current_user
 - statement_terminator: ;
 - statement:
     alter_statistics_statement:

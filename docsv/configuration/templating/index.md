@@ -20,6 +20,10 @@ production template setup. This means it is necessary to either provide that
 environment or provide dummy values to effectively render the template and
 generate valid SQL. Refer to the templater sections below for details.
 
+With `ignore_templated_areas = True` (the default), SQLFluff suppresses ordinary
+lint findings in templated SQL. Internal rule failures remain visible even when
+they occur there, because the rule could not finish checking the file.
+
 SQLFluff natively supports the following templating engines
 
 - [Jinja templater](jinja)

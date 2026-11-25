@@ -1,4 +1,4 @@
-rule: BQ01,LT02
+rule: BQ02,LT02
 configs:
   core:
     dialect: bigquery

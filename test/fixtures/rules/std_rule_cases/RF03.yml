@@ -1634,3 +1634,249 @@ test_fail_sqlite_order_by_function_with_unqualified_reference:
   configs:
     core:
       dialect: sqlite
+
+test_pass_update_correlated_subquery_unqualified:
+  # https://github.com/sqlfluff/sqlfluff/issues/8714
+  # The subquery can see the target table of the UPDATE, so removing the
+  # qualifiers would turn `l.id = o.id` into the always true `id = id`.
+  pass_str: |
+    UPDATE orders AS o SET x = 1
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_update_correlated_subquery_unaliased_target_unqualified:
+  pass_str: |
+    UPDATE orders SET x = 1
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = orders.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_update_from_correlated_subquery_unqualified:
+  pass_str: |
+    UPDATE orders AS o SET x = 1
+    FROM src AS s
+    WHERE o.id = s.id AND EXISTS (SELECT 1 FROM lines AS l WHERE l.id = s.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_delete_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE FROM orders AS o
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_delete_using_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE FROM orders AS o
+    USING src AS s
+    WHERE o.id = s.id AND EXISTS (SELECT 1 FROM lines AS l WHERE l.id = s.id)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_merge_correlated_subquery_unqualified:
+  pass_str: |
+    MERGE INTO orders AS o
+    USING src AS s ON o.id = s.id
+    WHEN MATCHED AND EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+    THEN DELETE
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_update_from_correlated_subquery_unqualified:
+  pass_str: |
+    UPDATE o SET x = 1
+    FROM orders AS o
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_delete_from_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE o
+    FROM orders AS o
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = o.id)
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_unfixable_update_subquery_inconsistent:
+  # Inconsistent references in a subquery of an UPDATE are still reported, but
+  # not fixed, as more than one table is visible. This matches a subquery in
+  # a SELECT.
+  fail_str: |
+    UPDATE orders AS o SET x = 1
+    WHERE EXISTS (SELECT id FROM lines AS l WHERE l.id = 5)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_update_from_derived_table_qualified:
+  # A derived table in the FROM clause of an UPDATE can't see the target
+  # table, so it is still a single table select, and can be fixed.
+  fail_str: |
+    UPDATE orders AS o SET x = s.v
+    FROM (SELECT id, v FROM src) AS s
+    WHERE o.id = s.id
+  fix_str: |
+    UPDATE orders AS o SET x = s.v
+    FROM (SELECT src.id, src.v FROM src) AS s
+    WHERE o.id = s.id
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_merge_using_derived_table_qualified:
+  fail_str: |
+    MERGE INTO orders AS o
+    USING (SELECT id, v FROM src) AS s ON o.id = s.id
+    WHEN MATCHED THEN UPDATE SET x = s.v;
+  fix_str: |
+    MERGE INTO orders AS o
+    USING (SELECT src.id, src.v FROM src) AS s ON o.id = s.id
+    WHEN MATCHED THEN UPDATE SET x = s.v;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_pass_tsql_update_table_variable_correlated_subquery_unqualified:
+  # An unaliased table variable has no name part, but a subquery can still
+  # reference it by its bracketed name.
+  pass_str: |
+    UPDATE @orders SET x = 1
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = [@orders].id)
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_tsql_delete_table_variable_correlated_subquery_unqualified:
+  pass_str: |
+    DELETE FROM @orders
+    WHERE EXISTS (SELECT 1 FROM lines AS l WHERE l.id = [@orders].id)
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_no_fix_postgres_where_subquery_outer_unnest_alias_9134:
+  # `k` is the column of the outer `unnest(...) AS k`, not of `widget`, so
+  # qualifying it with `w` would be wrong.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_where_subquery_outer_generate_series_alias_9134:
+  fail_str: |
+    SELECT k FROM generate_series(1, 3) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_where_subquery_outer_unnest_column_alias_9134:
+  # The column isn't named after the table alias here.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS u (k)
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_postgres_where_subquery_outer_unnest_alias_unqualified_9134:
+  # Removing qualifiers is still safe: unqualified names resolve to the
+  # inner table first.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = 1)
+  fix_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE id = 1)
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_postgres_derived_table_subquery_outer_unnest_alias_9134:
+  # The derived table `d` can't see `k` from the outer `unnest`, so `x`
+  # belongs to `widget` and qualifying it is safe.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k,
+    (SELECT (SELECT 1 FROM widget AS w WHERE w.id = x) AS c) AS d
+  fix_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k,
+    (SELECT (SELECT 1 FROM widget AS w WHERE w.id = w.x) AS c) AS d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent
+
+test_fail_no_fix_postgres_lateral_subquery_outer_unnest_alias_9134:
+  # A LATERAL subquery can see `k`, so the nested subquery can too.
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k,
+    LATERAL (SELECT (SELECT 1 FROM widget AS w WHERE w.id = k) AS c) AS d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.consistent:
+        single_table_references: consistent

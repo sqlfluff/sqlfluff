@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd3916ba1884383a1838c82b074f634b9fa71cee2b674f5e5aece224b0f4d727
+_hash: 3cd046f8028d11e88244e523407c8873989028a94c7d86a42b1a85ee96d2cf6a
 file:
 - statement:
     install_statement:
@@ -54,6 +54,39 @@ file:
     install_statement:
       keyword: INSTALL
       quoted_literal: "'/path/to/httpfs.duckdb_extension'"
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: spatial
+    - keyword: VERSION
+    - quoted_literal: "'v1.1.8'"
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: spatial
+    - keyword: FROM
+    - naked_identifier: core
+    - keyword: VERSION
+    - quoted_literal: "'v1.1.8'"
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: FORCE
+    - keyword: INSTALL
+    - quoted_literal: "'spatial'"
+    - keyword: FROM
+    - quoted_literal: "'https://extensions.duckdb.org'"
+    - keyword: VERSION
+    - quoted_literal: "'v1.1.8'"
+- statement_terminator: ;
+- statement:
+    install_statement:
+    - keyword: INSTALL
+    - naked_identifier: spatial
+    - keyword: VERSION
+    - naked_identifier: latest
 - statement_terminator: ;
 - statement:
     load_statement:

@@ -9,7 +9,7 @@ import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.parser import WhitespaceSegment
-from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
@@ -346,7 +346,8 @@ def test_reflow_sequence_from_root_forgets_freed_tree(
 
 
 @pytest.mark.parametrize("marker", ["indent", "dedent"])
-def test_reflow_respace_preserves_trailing_indent_marker(marker, default_config):
+@pytest.mark.parametrize("api", ["sequence", "point", "mutable_point"])
+def test_reflow_respace_preserves_trailing_indent_marker(marker, api, default_config):
     """A focused sequence ending in a grammar marker must not gain a space."""
     root = parse_ansi_string("SELECT foo", default_config)
     before = root.stringify()
@@ -358,6 +359,23 @@ def test_reflow_respace_preserves_trailing_indent_marker(marker, default_config)
     sequence = ReflowSequence.from_raw_segments(
         root.raw_segments[:end], root, config=default_config
     )
+    if api != "sequence":
+        point = sequence.elements[-1]
+        existing = [LintResult(anchor=root, description="Existing result")]
+        method = point.respace_point if api == "point" else point._respace_point
+        kwargs = {} if api == "point" else {"mutate_results": True}
+        results, new_point = method(
+            prev_block=sequence.elements[-2],
+            next_block=None,
+            root_segment=root,
+            lint_results=existing,
+            **kwargs,
+        )
+        assert results == existing
+        assert (results is existing) == (api == "mutable_point")
+        assert new_point is point
+        assert root.stringify() == before
+        return
     result = sequence.respace()
     assert result.get_raw() == sequence.get_raw()
     assert not result.get_fixes()

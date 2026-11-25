@@ -1,183 +1,54 @@
 rule: BQ01
-configs:
-  core:
-    dialect: bigquery
 
-test_one_liner_pass:
-  pass_str: SELECT (foo).LOWER().TRIM();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: one_liner
-
-test_one_liner_removes_only_boundary_whitespace:
+test_fail_with_expression_is_flagged:
   fail_str: |
-    SELECT (foo)
-        .REPLACE(
-          'a',
-          'b'
-        )
-        .TRIM();
-  fix_str: |
-    SELECT (foo).REPLACE(
-          'a',
-          'b'
-        ).TRIM();
+    SELECT WITH(a AS 1, a) AS x;
   configs:
     core:
       dialect: bigquery
     rules:
-      bigquery.chained_functions:
-        writing_style: one_liner
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
 
-test_one_liner_removes_inline_spaces:
-  fail_str: SELECT (foo) .LOWER()  .TRIM();
-  fix_str: SELECT (foo).LOWER().TRIM();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: one_liner
-
-test_one_liner_preserves_line_comment:
+test_fail_nested_with_expression:
   fail_str: |
-    SELECT (foo) -- preserve this comment
-      .LOWER();
+    SELECT CONCAT(WITH(a AS 'x', a), 'y') AS joined;
   configs:
     core:
       dialect: bigquery
     rules:
-      bigquery.chained_functions:
-        writing_style: one_liner
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
 
-test_one_liner_reports_comment_only_gap_before_first_call:
-  fail_str: SELECT (foo)/* preserve */.LOWER();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: one_liner
-
-test_one_liner_reports_comment_only_gap_between_calls:
-  fail_str: SELECT (foo).LOWER()/* preserve */.TRIM();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: one_liner
-
-test_consistent_reports_comment_only_gap_after_one_liner:
-  fail_str: SELECT (foo).LOWER(), (bar)/* preserve */.TRIM();
-
-test_aligned_inserts_only_newlines:
-  fail_str: SELECT (foo).LOWER().TRIM();
-  fix_str: |-
-    SELECT (foo)
-    .LOWER()
-    .TRIM();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: aligned
-
-test_indented_inserts_only_newlines:
-  fail_str: SELECT (foo).LOWER().TRIM();
-  fix_str: |-
-    SELECT (foo)
-    .LOWER()
-    .TRIM();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: indented
-
-test_aligned_leaves_indentation_to_lt02:
+test_pass_default_config_is_noop:
   pass_str: |
-    SELECT
-        (foo)
-      .LOWER()
-             .TRIM();
+    SELECT WITH(a AS 1, a) AS x;
   configs:
     core:
       dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: aligned
 
-test_indented_leaves_indentation_to_lt02:
+test_pass_cte_is_not_a_with_expression:
   pass_str: |
-    SELECT
-        (foo)
-    .LOWER()
-               .TRIM();
+    WITH a AS (
+        SELECT 1 AS x
+    )
+    SELECT *
+    FROM a;
   configs:
     core:
       dialect: bigquery
     rules:
-      bigquery.chained_functions:
-        writing_style: indented
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true
 
-test_multiline_preserves_comment_boundary:
+test_pass_other_dialect:
+  # A CTE is the closest thing postgres has to a WITH expression: if the
+  # crawler or the dialect guard were widened by mistake, this would be caught.
   pass_str: |
-    SELECT (foo) -- preserve this comment
-      .LOWER();
+    WITH t AS (SELECT 1 AS x) SELECT * FROM t;
   configs:
     core:
-      dialect: bigquery
+      dialect: postgres
     rules:
-      bigquery.chained_functions:
-        writing_style: aligned
-
-test_multiline_does_not_cross_inline_comment:
-  fail_str: SELECT (foo) /* preserve */ .LOWER();
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      bigquery.chained_functions:
-        writing_style: indented
-
-test_consistent_first_one_liner_sets_boundary:
-  fail_str: |
-    SELECT (foo).LOWER(),
-        (bar)
-            .TRIM();
-  fix_str: |
-    SELECT (foo).LOWER(),
-        (bar).TRIM();
-
-test_consistent_first_multiline_sets_boundary:
-  fail_str: |
-    SELECT (foo)
-        .LOWER(),
-        (bar).TRIM();
-  fix_str: |
-    SELECT (foo)
-        .LOWER(),
-        (bar)
-        .TRIM();
-
-test_consistent_first_nested_chain_sets_boundary:
-  fail_str: |
-    SELECT ((foo).LOWER())
-        .TRIM();
-  fix_str: |
-    SELECT ((foo).LOWER()).TRIM();
-
-test_traditional_nested_calls_remain_unchanged:
-  pass_str: SELECT LOWER(TRIM(foo));
-
-test_ansi_functions_remain_unchanged:
-  pass_str: SELECT LOWER(TRIM(foo));
-  configs:
-    core:
-      dialect: ansi
+      bigquery.forbid_with_expressions:
+        forbid_with_expressions: true

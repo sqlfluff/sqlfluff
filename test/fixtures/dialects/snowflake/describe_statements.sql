@@ -128,3 +128,7 @@ DESC PASSWORD POLICY password_policy_prod_1;
 DESCRIBE CORTEX SEARCH SERVICE mysvc;
 
 DESC CORTEX SEARCH SERVICE mysvc;
+
+DESCRIBE DYNAMIC TABLE my_dynamic_table;
+
+DESC DYNAMIC TABLE mydb.myschema.my_dynamic_table;

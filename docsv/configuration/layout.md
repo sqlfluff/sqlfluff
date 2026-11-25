@@ -317,7 +317,7 @@ applies. To also fill the select targets, add `LT09` to `exclude_rules`.
 
 ### Chained function calls
 
-The [`bigquery.chained_functions` rule (BQ01)](../reference/rules/bigquery#bq01)
+The [`bigquery.chained_functions` rule (BQ02)](../reference/rules/bigquery#bq02)
 controls boundaries between BigQuery chained calls such as
 `(value).TRIM().LOWER()`. Use it with LT02 for the layouts below; both rules are
 enabled by default and included in `sqlfluff format`:
@@ -335,7 +335,7 @@ writing_style = indented
 ```
 
 For a mixed first chain, its first call boundary determines the consistent style.
-The rule enforces line breaks; LT02 corrects indentation. BQ01 alone preserves
+The rule enforces line breaks; LT02 corrects indentation. BQ02 alone preserves
 existing indentation and uses the current line's indent when inserting a break.
 The rule preserves multiline arguments. Line length rules can still wrap long
 argument lists, and comments can prevent an automatic fix across a boundary.

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 438001101b37641a260ff62f2d66dad4a72bfdc791834090fac15d5d1035fd0b
+_hash: 279df04df50b9359aca9356790a6ff97dd2f3d4717c45337b2638d20f70c601d
 file:
 - statement:
     alter_extension_statement:
@@ -66,4 +66,63 @@ file:
     - extension_reference:
         naked_identifier: repmgr
     - keyword: UPDATE
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: ADD
+    - keyword: OPERATOR
+    - operator_name:
+      - naked_identifier: public
+      - dot: .
+      - operator: '='
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: ADD
+    - keyword: OPERATOR
+    - operator_name:
+        operator: '!!'
+    - bracketed:
+        start_bracket: (
+        keyword: NONE
+        comma: ','
+        data_type:
+          keyword: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: DROP
+    - keyword: OPERATOR
+    - operator_name:
+        operator: '!!'
+    - bracketed:
+        start_bracket: (
+        keyword: NONE
+        comma: ','
+        data_type:
+          keyword: integer
+        end_bracket: )
 - statement_terminator: ;

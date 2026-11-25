@@ -674,7 +674,7 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
             "references": "Column and table reference validation",
             "jinja": "Jinja templating best practices",
             "tsql": "T-SQL specific conventions",
-            "bigquery": "BigQuery-specific chained function layout",
+            "bigquery": "BigQuery-specific conventions and layout",
         }
         index_content += descriptions.get(bundle_key, "SQL linting rules")
         index_content += "\n\n"

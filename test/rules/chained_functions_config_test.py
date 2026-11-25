@@ -1,4 +1,4 @@
-"""Exercise BQ01 discovery, native configuration and actual layout fixing."""
+"""Exercise BQ02 discovery, native configuration and actual layout fixing."""
 
 import pytest
 from click.testing import CliRunner
@@ -10,7 +10,7 @@ from sqlfluff.core.rules import get_config_info
 from sqlfluff.core.types import ConfigMappingType
 
 PUBLIC_RULE_NAME = "bigquery.chained_functions"
-NATIVE_RULES = ("LT02", "BQ01")
+NATIVE_RULES = ("LT02", "BQ02")
 SQL = "SELECT\n    (foo).LOWER().TRIM() AS cleaned\nFROM t;\n"
 BOUNDARIES = {
     "one_liner": "",
@@ -20,7 +20,7 @@ BOUNDARIES = {
 }
 
 
-@pytest.mark.parametrize("reference", ["BQ01", PUBLIC_RULE_NAME, "bigquery", "layout"])
+@pytest.mark.parametrize("reference", ["BQ02", PUBLIC_RULE_NAME, "bigquery", "layout"])
 def test_rule_is_discovered_without_user_rules(
     reference: str, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -28,15 +28,38 @@ def test_rule_is_discovered_without_user_rules(
     linter = Linter(dialect="bigquery", rules=[reference])
     assert linter.user_rules == []
     rules = {rule.code: rule for rule in linter.get_rulepack().rules}
-    rule = rules["BQ01"]
+    rule = rules["BQ02"]
     assert rule.name == PUBLIC_RULE_NAME
     assert rule.writing_style == "consistent"
     assert rule.config_keywords == ["writing_style"]
     assert set(rule.groups) == {"all", "bigquery", "layout"}
-    if reference != "layout":
-        assert list(rules) == ["BQ01"]
+    if reference == "bigquery":
+        assert list(rules) == ["BQ01", "BQ02"]
+        assert rules["BQ01"].name == "bigquery.forbid_with_expressions"
+    elif reference != "layout":
+        assert list(rules) == ["BQ02"]
     assert "unknown rule" not in caplog.text.lower()
     assert "unexpected rule" not in caplog.text.lower()
+
+
+def test_bigquery_rules_keep_independent_configuration() -> None:
+    """The opt-in WITH rule can report while the chain rule fixes its layout."""
+    config = FluffConfig(
+        configs={
+            "rules": {
+                "bigquery.forbid_with_expressions": {"forbid_with_expressions": True},
+                PUBLIC_RULE_NAME: {"writing_style": "one_liner"},
+            }
+        },
+        overrides={"dialect": "bigquery", "rules": "bigquery"},
+    )
+    linter = Linter(config=config)
+    sql = "SELECT WITH(a AS (foo)\n    .LOWER()\n    .TRIM(), a) AS cleaned;"
+    fixed = linter.lint_string(sql, fix=True).fix_string()[0]
+    assert fixed == "SELECT WITH(a AS (foo).LOWER().TRIM(), a) AS cleaned;"
+    assert [v.rule_code() for v in linter.lint_string(fixed).get_violations()] == [
+        "BQ01"
+    ]
 
 
 @pytest.mark.parametrize("style", BOUNDARIES)
@@ -72,18 +95,18 @@ def test_format_command_includes_bigquery_rule(style: str, tmp_path) -> None:
         assert any("(foo).LOWER" in line and ".TRIM" in line for line in lines)
     # Other formatter rules control SELECT placement and spacing inside calls.
     config = FluffConfig.from_path(str(config_path))
-    config.set_value(("core", "rules"), "BQ01,LT02")
+    config.set_value(("core", "rules"), "BQ02,LT02")
     assert not Linter(config=config).lint_string(result.stdout).violations
 
 
-@pytest.mark.parametrize("reference", ["BQ01", PUBLIC_RULE_NAME])
+@pytest.mark.parametrize("reference", ["BQ02", PUBLIC_RULE_NAME])
 def test_rule_can_be_excluded(reference: str) -> None:
     """Native allowlists and denylists must work for the new rule."""
     config = FluffConfig(
         configs={"rules": {PUBLIC_RULE_NAME: {"writing_style": "indented"}}},
         overrides={
             "dialect": "bigquery",
-            "rules": "LT02,BQ01",
+            "rules": "LT02,BQ02",
             "exclude_rules": reference,
         },
     )
@@ -99,11 +122,11 @@ def test_rule_can_be_excluded(reference: str) -> None:
 def test_ini_style_is_used_by_rule_and_reflow(style: str) -> None:
     """Real INI settings must reach both native rule configuration and LT02."""
     config = FluffConfig.from_string(
-        f"[sqlfluff]\ndialect = bigquery\nrules = LT02,BQ01\n\n[sqlfluff:rules:{PUBLIC_RULE_NAME}]\nwriting_style = {style}\n"
+        f"[sqlfluff]\ndialect = bigquery\nrules = LT02,BQ02\n\n[sqlfluff:rules:{PUBLIC_RULE_NAME}]\nwriting_style = {style}\n"
     )
     linter = Linter(config=config)
     rules = linter.get_rulepack().rules
-    assert [rule.code for rule in rules] == ["BQ01", "LT02"]
+    assert [rule.code for rule in rules] == ["BQ02", "LT02"]
     assert rules[0].writing_style == style
     assert config.get("dialect_obj").get_root_segment().get_indentation_config(config)[
         "indented_chained_functions"
@@ -115,7 +138,7 @@ def test_ini_style_is_used_by_rule_and_reflow(style: str) -> None:
     result = linter.lint_string(SQL, fix=True)
     assert result.fix_string()[0] == expected
     if style in ("aligned", "indented"):
-        assert any((v.rule_code() == "BQ01" for v in result.violations))
+        assert any((v.rule_code() == "BQ02" for v in result.violations))
     assert not linter.parse_string(expected).violations
     assert not linter.lint_string(expected).violations
     assert linter.lint_string(expected, fix=True).fix_string()[0] == expected
@@ -124,7 +147,7 @@ def test_ini_style_is_used_by_rule_and_reflow(style: str) -> None:
 @pytest.mark.parametrize("style", BOUNDARIES)
 def test_rule_default_is_scoped_to_chained_functions(style: str) -> None:
     """The rule's own default must take precedence over generic rule values."""
-    config = FluffConfig(overrides={"dialect": "bigquery", "rules": "BQ01"})
+    config = FluffConfig(overrides={"dialect": "bigquery", "rules": "BQ02"})
     assert config.get("writing_style", ["rules"]) is None
     assert config.get("writing_style", ["rules", PUBLIC_RULE_NAME]) == "consistent"
     config.set_value(("rules", "writing_style"), style)
@@ -139,7 +162,7 @@ def test_rule_default_is_scoped_to_chained_functions(style: str) -> None:
 def test_specific_style_overrides_generic(generic: str, specific: str) -> None:
     """Native rules and grammar must agree on the rule's config precedence."""
     config = FluffConfig.from_string(
-        f"[sqlfluff]\ndialect = bigquery\nrules = LT02,BQ01\n\n[sqlfluff:rules]\nwriting_style = {generic}\n\n[sqlfluff:rules:{PUBLIC_RULE_NAME}]\nwriting_style = {specific}\n"
+        f"[sqlfluff]\ndialect = bigquery\nrules = LT02,BQ02\n\n[sqlfluff:rules]\nwriting_style = {generic}\n\n[sqlfluff:rules:{PUBLIC_RULE_NAME}]\nwriting_style = {specific}\n"
     )
     linter = Linter(config=config)
     assert linter.get_rulepack().rules[0].writing_style == specific
@@ -158,7 +181,7 @@ def test_layout_formats_chains_without_converting_nested_calls(style: str) -> No
     """Formatting an existing chain must leave ordinary nested calls intact."""
     config = FluffConfig(
         configs={"rules": {PUBLIC_RULE_NAME: {"writing_style": style}}},
-        overrides={"dialect": "bigquery", "rules": "LT02,BQ01"},
+        overrides={"dialect": "bigquery", "rules": "LT02,BQ02"},
     )
     linter = Linter(config=config)
     sql = (
@@ -189,7 +212,7 @@ def test_invalid_style_is_rejected_by_native_validation(
     if scope == "specific":
         rules = {PUBLIC_RULE_NAME: rules}
     config = FluffConfig(
-        configs={"rules": rules}, overrides={"dialect": "bigquery", "rules": "BQ01"}
+        configs={"rules": rules}, overrides={"dialect": "bigquery", "rules": "BQ02"}
     )
     linter = Linter(config=config)
     with pytest.raises(SQLFluffUserError, match="Invalid option.*writing_style"):
@@ -198,7 +221,7 @@ def test_invalid_style_is_rejected_by_native_validation(
 
 def test_configuration_metadata_is_documented() -> None:
     """The rule metaclass must enrich docs from registered ConfigInfo."""
-    linter = Linter(dialect="bigquery", rules=["BQ01"])
+    linter = Linter(dialect="bigquery", rules=["BQ02"])
     rule = linter.get_rulepack().rules[0]
     info = get_config_info()["writing_style"]
     assert set(info["validation"] or []) == set(BOUNDARIES)
@@ -211,9 +234,9 @@ def test_configuration_metadata_is_documented() -> None:
 
 
 def test_default_consistent_resets_between_files() -> None:
-    """A default-configured native BQ01 must infer style separately per file."""
-    linter = Linter(dialect="bigquery", rules=["LT02", "BQ01"])
-    assert [rule.code for rule in linter.get_rulepack().rules] == ["BQ01", "LT02"]
+    """A default-configured native BQ02 must infer style separately per file."""
+    linter = Linter(dialect="bigquery", rules=["LT02", "BQ02"])
+    assert [rule.code for rule in linter.get_rulepack().rules] == ["BQ02", "LT02"]
     indented = "SELECT\n    (foo)\n        .LOWER()\n        .TRIM()\nFROM t;\n"
     aligned = "SELECT\n    (bar)\n    .LOWER()\n    .TRIM()\nFROM t;\n"
     for filename, sql in [("indented.sql", indented), ("aligned.sql", aligned)]:
@@ -225,9 +248,9 @@ def test_default_consistent_resets_between_files() -> None:
 def test_config_section_uses_name_not_code(caplog: pytest.LogCaptureFixture) -> None:
     """A code may select a rule, but its configuration section uses the name."""
     config = FluffConfig.from_string(
-        "[sqlfluff]\ndialect = bigquery\nrules = BQ01\n\n[sqlfluff:rules:BQ01]\nwriting_style = aligned\n"
+        "[sqlfluff]\ndialect = bigquery\nrules = BQ02\n\n[sqlfluff:rules:BQ02]\nwriting_style = aligned\n"
     )
     rule = Linter(config=config).get_rulepack().rules[0]
     assert rule.writing_style == "consistent"
-    assert "unexpected rule 'BQ01'" in caplog.text
+    assert "unexpected rule 'BQ02'" in caplog.text
     assert f"sqlfluff:rules:{PUBLIC_RULE_NAME}" in caplog.text

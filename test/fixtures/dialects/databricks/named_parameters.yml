@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8d6d48f50e284143595bbd599763eb7c5ed1547c841bf70a7a5d6bac12db9a8
+_hash: 87068de1fcb2c9fab3af5b6500d0820b4f1ecf18c4545cd98b4b629d0c53cb43
 file:
 - statement:
     select_statement:
@@ -28,7 +28,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: param_id
 - statement_terminator: ;
 - statement:
@@ -54,7 +54,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: user_name
         - binary_operator: AND
         - column_reference:
@@ -62,7 +62,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: min_age
 - statement_terminator: ;
 - statement:
@@ -71,7 +71,7 @@ file:
         keyword: SELECT
         select_clause_element:
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: column_name
       from_clause:
         keyword: FROM
@@ -97,7 +97,7 @@ file:
               - comma: ','
               - expression:
                   parameterized_expression:
-                    colon: ':'
+                    colon_prefix: ':'
                     naked_identifier: name
               - end_bracket: )
       from_clause:
@@ -163,7 +163,7 @@ file:
               - comparison_operator:
                   raw_comparison_operator: '='
               - parameterized_expression:
-                  colon: ':'
+                  colon_prefix: ':'
                   naked_identifier: status
 - statement_terminator: ;
 - statement:
@@ -202,7 +202,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '>'
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: min_price
       groupby_clause:
       - keyword: GROUP
@@ -223,7 +223,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '>'
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: min_count
 - statement_terminator: ;
 - statement:
@@ -246,7 +246,7 @@ file:
       - keyword: BY
       - column_reference:
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: sort_column
 - statement_terminator: ;
 - statement:
@@ -267,7 +267,7 @@ file:
       limit_clause:
         keyword: LIMIT
         parameterized_expression:
-          colon: ':'
+          colon_prefix: ':'
           naked_identifier: max_rows
 - statement_terminator: ;
 - statement:
@@ -293,7 +293,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: param_id_123
 - statement_terminator: ;
 - statement:
@@ -316,12 +316,12 @@ file:
         - start_bracket: (
         - expression:
             parameterized_expression:
-              colon: ':'
+              colon_prefix: ':'
               naked_identifier: name
         - comma: ','
         - expression:
             parameterized_expression:
-              colon: ':'
+              colon_prefix: ':'
               naked_identifier: age
         - end_bracket: )
 - statement_terminator: ;
@@ -338,7 +338,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: new_status
       where_clause:
         keyword: WHERE
@@ -348,7 +348,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: target_id
 - statement_terminator: ;
 - statement:
@@ -369,7 +369,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: delete_id
 - statement_terminator: ;
 - statement:
@@ -378,7 +378,7 @@ file:
     - keyword: CATALOG
     - catalog_reference:
         parameterized_expression:
-          colon: ':'
+          colon_prefix: ':'
           naked_identifier: catalog_name
 - statement_terminator: ;
 - statement:
@@ -392,7 +392,7 @@ file:
             start_bracket: (
             expression:
               parameterized_expression:
-                colon: ':'
+                colon_prefix: ':'
                 naked_identifier: schema_name
             end_bracket: )
 - statement_terminator: ;
@@ -440,7 +440,7 @@ file:
             start_bracket: (
             expression:
               parameterized_expression:
-                colon: ':'
+                colon_prefix: ':'
                 naked_identifier: target_catalog
             end_bracket: )
 - statement_terminator: ;
@@ -468,7 +468,7 @@ file:
       - comma: ','
       - select_clause_element:
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: param_value
       from_clause:
         keyword: FROM
@@ -488,7 +488,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '>'
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             naked_identifier: min_id
 - statement_terminator: ;
 - statement:
@@ -497,7 +497,7 @@ file:
         keyword: SELECT
         select_clause_element:
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             quoted_identifier: '`my param`'
       from_clause:
         keyword: FROM
@@ -514,6 +514,6 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon: ':'
+            colon_prefix: ':'
             quoted_identifier: '`other param`'
 - statement_terminator: ;

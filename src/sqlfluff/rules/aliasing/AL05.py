@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.common import (
     AliasInfo,
     ObjectReferenceLevel,
     extract_possible_references,
+    iter_raw_references,
 )
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import (
@@ -92,6 +93,15 @@ class Rule_AL05(BaseRule):
         "postgres",
         "redshift",
     ]
+    # Dialects where a column reference of three or more parts can start with a
+    # table alias and go on into the fields of a struct column, e.g. `t.col.field`.
+    # Without a schema, `a.b.c` could be `schema.table.column` or
+    # `alias.column.field`, so the first part is also counted as a possible use
+    # of an alias. Otherwise the fix would delete an alias that the query needs.
+    # https://duckdb.org/docs/stable/sql/data_types/struct#dot-notation-order-of-operations
+    _dialects_with_struct_field_access = [
+        "duckdb",
+    ]
     is_fix_compatible = True
 
     # config
@@ -117,6 +127,8 @@ class Rule_AL05(BaseRule):
             query,
             allow_row_references=context.dialect.name
             in self._dialects_with_row_references,
+            allow_struct_field_access=context.dialect.name
+            in self._dialects_with_struct_field_access,
         )
 
         if context.dialect.name in ("redshift", "bigquery"):
@@ -334,7 +346,10 @@ class Rule_AL05(BaseRule):
         return False  # pragma: no cover
 
     def _analyze_table_aliases(
-        self, query: AL05Query, allow_row_references: bool = False
+        self,
+        query: AL05Query,
+        allow_row_references: bool = False,
+        allow_struct_field_access: bool = False,
     ) -> None:
         # Get table aliases defined in query.
         for selectable in query.selectables:
@@ -418,11 +433,21 @@ class Rule_AL05(BaseRule):
                         ]
                         if len(ref_segments) == 1:
                             self._resolve_and_mark_reference(query, ref_segments[0])
+                    # In `alias.column.field`, the alias is the first part, which
+                    # the TABLE-level parts above don't include.
+                    if allow_struct_field_access and r.is_type("column_reference"):
+                        parts = list(iter_raw_references(r, query.dialect.name))
+                        if len(parts) >= 3:
+                            self._resolve_and_mark_reference(
+                                query, parts[0].segments[0]
+                            )
 
         # Visit children.
         for child in query.children:
             self._analyze_table_aliases(
-                cast(AL05Query, child), allow_row_references=allow_row_references
+                cast(AL05Query, child),
+                allow_row_references=allow_row_references,
+                allow_struct_field_access=allow_struct_field_access,
             )
 
     def _alias_ids(self, query: AL05Query) -> set[str]:

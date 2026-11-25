@@ -383,4 +383,4 @@ def test_the_shipped_map_loads_cleanly(assemble_site):
     """The validation above must not reject the map actually published."""
     redirects = assemble_site.load_redirect_map(assemble_site.DEFAULT_REDIRECTS)
     assert len(redirects) == 137
-    assert redirects["perma/rule/BQ01"] == "reference/rules/bigquery#bq01"
+    assert redirects["perma/rule/BQ02"] == "reference/rules/bigquery#bq02"

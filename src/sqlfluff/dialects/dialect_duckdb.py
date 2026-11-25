@@ -137,6 +137,10 @@ duckdb_dialect.sets("unreserved_keywords").difference_update(["DESCRIBE", "SHOW"
 # MICROSECONDS (both plural). We add the missing MICROSECOND (singular) and
 # all other plural forms (DAYS, HOURS, MINUTES, MONTHS, QUARTERS, SECONDS,
 # WEEKS, YEARS).
+# `OFFSET` is reserved in DuckDB, so it can't name a type. Without this, in
+# `LIMIT 10% OFFSET 2` the `%` reads as a modulo of the typed literal `OFFSET 2`.
+duckdb_dialect.sets("cannot_be_type_keywords").update(["OFFSET"])
+
 duckdb_dialect.sets("datetime_units").update(
     [
         "DAYS",
@@ -234,17 +238,28 @@ duckdb_dialect.add(
         "DATABASES",
         "SCHEMAS",
         "VARIABLES",
-        Ref("SelectableGrammar"),
+        # Before SelectableGrammar, which would also match TABLE tbl.
         Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+        Ref("SelectableGrammar"),
     ),
 )
 
 duckdb_dialect.replace(
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*",
-        CodeSegment,
-        type="function_name_identifier",
-        anti_template=r"^(STRUCT|UNION|ENUM)$",
+    FunctionNameIdentifierSegment=OneOf(
+        RegexParser(
+            r"[A-Za-z_][A-Za-z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            anti_template=r"(?i)^(STRUCT|UNION|ENUM)$",
+            casefold=str.lower,
+            ignore_case=False,
+        ),
+        RegexParser(
+            r"[A-Z_][A-Z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            anti_template=r"^(STRUCT|UNION|ENUM)$",
+        ),
     ),
     DivideSegment=OneOf(
         StringParser("//", BinaryOperatorSegment),
@@ -360,6 +375,9 @@ duckdb_dialect.replace(
         insert=[
             Ref("EqualsSegment_a"),
             Ref("GlobOperatorSegment"),
+            # `^@` is an alias of starts_with:
+            # https://duckdb.org/docs/stable/sql/functions/text#starts_withstring-search_string
+            Ref("StartsWithOperatorSegment"),
         ]
     ),
     LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
@@ -411,6 +429,9 @@ duckdb_dialect.insert_lexer_matchers(
 
 duckdb_dialect.patch_lexer_matchers(
     [
+        # So `#` is an operator only when no column index follows it. `##` always
+        # is.
+        RegexLexer("hash", r"##|#(?![0-9])", CodeSegment),
         # In DuckDB, a double single/double quote resolves as a single/double quote in
         # the string.
         RegexLexer(
@@ -467,6 +488,51 @@ class UsingSampleClauseSegment(BaseSegment):
         "USING",
         "SAMPLE",
         Ref("SampleExpressionGrammar"),
+    )
+
+
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Overrides the ANSI one because the limit can be a percentage of the rows,
+    as in `LIMIT 10%` or `LIMIT 10 PERCENT`.
+
+    https://duckdb.org/docs/stable/sql/query_syntax/limit
+    """
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        OptionallyBracketed(
+            OneOf(
+                # Allow a number by itself OR
+                Ref("NumericLiteralSegment"),
+                # An arbitrary expression
+                Ref("ExpressionSegment"),
+                "ALL",
+            )
+        ),
+        # A `%` after the value makes it a percentage, as DuckDB reads it: `LIMIT
+        # 2 * 5%` is 10% of the rows, while `LIMIT 10 % 3` is 1 row. `PERCENT`
+        # isn't in the docs, but DuckDB takes it as well, as in `USING SAMPLE`.
+        OneOf(Ref("ModuloSegment"), "PERCENT", optional=True),
+        OneOf(
+            Sequence(
+                "OFFSET",
+                OneOf(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # An arbitrary expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Dedent,
     )
 
 
@@ -1208,6 +1274,11 @@ class InstallStatementSegment(BaseSegment):
             OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
             optional=True,
         ),
+        Sequence(
+            "VERSION",
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+            optional=True,
+        ),
     )
 
 
@@ -1221,6 +1292,53 @@ class LoadStatementSegment(postgres.LoadStatementSegment):
     match_grammar = Sequence(
         "LOAD",
         OneOf(Ref("SingleIdentifierGrammar"), Ref("QuotedLiteralSegment")),
+    )
+
+
+class AttachStatementSegment(BaseSegment):
+    """An `ATTACH` statement.
+
+    `OR REPLACE` and `IF NOT EXISTS` are each optional and can be combined, in
+    that order. Option values can be arbitrary expressions.
+
+    https://duckdb.org/docs/stable/sql/statements/attach.html
+    """
+
+    type = "attach_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref.keyword("DATABASE", optional=True),
+        # The path can be any expression that evaluates to a string, e.g.
+        # getenv('DATABASE_PATH') or a concatenation.
+        Ref("ExpressionSegment"),
+        Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    # A bare option name (e.g. READ_ONLY) means true.
+                    Ref("ExpressionSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DetachStatementSegment(BaseSegment):
+    """A `DETACH` statement.
+
+    https://duckdb.org/docs/stable/sql/statements/attach.html
+    """
+
+    type = "detach_statement"
+    match_grammar = Sequence(
+        "DETACH",
+        Ref.keyword("DATABASE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -1313,8 +1431,9 @@ class SummarizeStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "SUMMARIZE",
         OneOf(
-            Ref("SelectableGrammar"),
+            # Before SelectableGrammar, which would also match TABLE tbl.
             Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")),
+            Ref("SelectableGrammar"),
         ),
     )
 
@@ -1333,6 +1452,8 @@ class StatementSegment(postgres.StatementSegment):
             Ref("ImportStatementSegment"),
             Ref("CreateSecretStatementSegment"),
             Ref("DropSecretStatementSegment"),
+            Ref("AttachStatementSegment"),
+            Ref("DetachStatementSegment"),
         ]
     )
 

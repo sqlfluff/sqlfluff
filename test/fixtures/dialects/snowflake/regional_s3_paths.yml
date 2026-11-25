@@ -1,0 +1,215 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3b3a9ea928f7855c0f901a49124a3bf4957483edd8eb999be6a1f14ec2791882
+file:
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: china_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3china://example-bucket/path/'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: gov_stage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3gov://example-bucket/path/'"
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: china_stage
+    - keyword: SET
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3china://example-bucket/other/'"
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: gov_stage
+    - keyword: SET
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3gov://example-bucket/other/'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: china_int
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: EXTERNAL_STAGE
+    - keyword: STORAGE_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'S3CHINA'"
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: STORAGE_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws-cn:iam::123456789012:role/example'"
+    - keyword: STORAGE_ALLOWED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3china://example-bucket/path/'"
+        end_bracket: )
+    - keyword: STORAGE_BLOCKED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3china://example-bucket/path/private/'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: gov_int
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: EXTERNAL_STAGE
+    - keyword: STORAGE_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'S3GOV'"
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: STORAGE_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws-us-gov:iam::123456789012:role/example'"
+    - keyword: STORAGE_ALLOWED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3gov://example-bucket/path/'"
+        end_bracket: )
+    - keyword: STORAGE_BLOCKED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3gov://example-bucket/path/private/'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: china_int
+    - keyword: SET
+    - keyword: STORAGE_ALLOWED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3china://example-bucket/path/'"
+        end_bracket: )
+    - keyword: STORAGE_BLOCKED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3china://example-bucket/path/private/'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: ALTER
+    - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: gov_int
+    - keyword: SET
+    - keyword: STORAGE_ALLOWED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3gov://example-bucket/path/'"
+        end_bracket: )
+    - keyword: STORAGE_BLOCKED_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bucket_path: "'s3gov://example-bucket/path/private/'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: example
+    - keyword: FROM
+    - storage_location:
+        bucket_path: "'s3china://example-bucket/path/'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: example
+    - keyword: FROM
+    - storage_location:
+        bucket_path: "'s3gov://example-bucket/path/'"
+- statement_terminator: ;
+- statement:
+    copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+        bucket_path: "'s3china://example-bucket/path/'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: example
+- statement_terminator: ;
+- statement:
+    copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+        bucket_path: "'s3gov://example-bucket/path/'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: example
+- statement_terminator: ;

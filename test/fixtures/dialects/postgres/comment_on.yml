@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00b5ada20d2830d952d308896106cf7e630812ea7427d6222fe1339d23f7b411
+_hash: 67197423e476aadda55cd7be9144412fbe20df9f0ea9d834b02e1dc8562f562a
 file:
 - statement:
     comment_clause:
@@ -255,12 +255,107 @@ file:
     comment_clause:
     - keyword: COMMENT
     - keyword: 'ON'
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '346344'
+    - keyword: IS
+    - quoted_literal: "'Planning document'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
     - keyword: MATERIALIZED
     - keyword: VIEW
     - object_reference:
         naked_identifier: my_matview
     - keyword: IS
     - quoted_literal: "'Summary of order history'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: OPERATOR
+    - operator_name:
+        operator: ^
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: text
+      - comma: ','
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Performs intersection of two texts'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: OPERATOR
+    - operator_name:
+        operator: '-'
+    - bracketed:
+        start_bracket: (
+        keyword: NONE
+        comma: ','
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Unary minus'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: OPERATOR
+    - operator_name:
+      - naked_identifier: public
+      - dot: .
+      - operator: '='
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Equal area'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - object_reference:
+        naked_identifier: int4ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: IS
+    - quoted_literal: "'4 byte integer operators for btrees'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: OPERATOR
+    - keyword: FAMILY
+    - object_reference:
+        naked_identifier: integer_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: IS
+    - quoted_literal: "'all integer operators for btrees'"
 - statement_terminator: ;
 - statement:
     comment_clause:

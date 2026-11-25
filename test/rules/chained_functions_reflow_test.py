@@ -9,13 +9,13 @@ from sqlfluff.core.types import ConfigMappingType
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 PUBLIC_RULE_NAME = "bigquery.chained_functions"
-NATIVE_RULES = ("LT02", "BQ01")
+NATIVE_RULES = ("LT02", "BQ02")
 
 
 def layout_linter(
     style: str | None = None,
     configs: ConfigMappingType | None = None,
-    rules: tuple[str, ...] = ("LT02", "BQ01"),
+    rules: tuple[str, ...] = ("LT02", "BQ02"),
 ) -> Linter:
     """Build an ordinary Linter using the registered native rule settings."""
     config = FluffConfig(
@@ -72,7 +72,7 @@ def test_native_focused_fixes_with_chains(
     style: str, rule: str, sql: str, expected: str, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Real partial reflow must fix SQL without conflicting with chain layout."""
-    linter = layout_linter(style, rules=("LT02", rule, "BQ01"))
+    linter = layout_linter(style, rules=("LT02", rule, "BQ02"))
     assert not linter.parse_string(sql).violations
     original = ReflowSequence.from_around_target
     native_rule = next(
@@ -90,7 +90,7 @@ def test_native_focused_fixes_with_chains(
         result = linter.lint_string(sql, fix=True)
         assert evaluation.called
     if rule == "LT03" and style == "indented":
-        # BQ01 now runs before LT02. LT02 can put this operator on its own
+        # BQ02 now runs before LT02. LT02 can put this operator on its own
         # line before LT03 evaluates its already-correct boundary shortcut.
         expected = expected.replace("    || (bar)", "    ||\n    (bar)")
     else:
@@ -160,7 +160,7 @@ def test_focused_operator_fix_preserves_consistent_style(
     expected = (
         f"SELECT\n    {first_chain}\n{operator_lines}(bar){boundary}.UPPER()\nFROM t;\n"
     )
-    linter = layout_linter("consistent", rules=("LT02", "LT03", "BQ01"))
+    linter = layout_linter("consistent", rules=("LT02", "LT03", "BQ02"))
     result = linter.lint_string(sql, fix=True)
     assert result.violations
     assert result.fix_string()[0] == expected
@@ -204,7 +204,7 @@ def test_jinja_variable_source_is_preserved() -> None:
 
 def test_distinct_removal_preserves_line_comment_boundary() -> None:
     """Removing brackets must leave the alias and FROM outside a line comment."""
-    linter = layout_linter("indented", rules=("BQ01", "LT02", "ST08"))
+    linter = layout_linter("indented", rules=("BQ02", "LT02", "ST08"))
     sql = "SELECT DISTINCT (\n    (foo).LOWER() -- keep\n) AS cleaned FROM t;\n"
     fixed = linter.lint_string(sql, fix=True).fix_string()[0]
     parsed = linter.parse_string(fixed)

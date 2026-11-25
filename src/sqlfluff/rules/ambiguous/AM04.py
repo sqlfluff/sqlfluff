@@ -129,7 +129,7 @@ class Rule_AM04(BaseRule):
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
                             f"Wildcard: {wildcard.segment.raw} has target "
-                            "{wildcard_table}"
+                            f"{wildcard_table}"
                         )
                         # Is it an alias?
                         alias_info = selectable.find_alias(wildcard_table)

@@ -14,6 +14,14 @@ INSTALL custom_ext FROM 'http://my-extension-repository';
 
 INSTALL '/path/to/httpfs.duckdb_extension';
 
+INSTALL spatial VERSION 'v1.1.8';
+
+INSTALL spatial FROM core VERSION 'v1.1.8';
+
+FORCE INSTALL 'spatial' FROM 'https://extensions.duckdb.org' VERSION 'v1.1.8';
+
+INSTALL spatial VERSION latest;
+
 LOAD httpfs;
 
 LOAD 'httpfs';
