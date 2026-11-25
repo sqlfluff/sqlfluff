@@ -119,37 +119,6 @@ By default, `dbt_skip_compilation_error` parameter is set to `True`, that's why 
 However if you want to see them, you can set it to `False` and SQLFluff will raise a fatal error.
 :::
 
-### Relations Cache Population
-
-By default, SQLFluff eagerly populates dbt's relations cache when initializing
-the adapter connection (`populate_relations_cache = True`). Opt out in
-`.sqlfluff` or via dbt environment variables:
-
-```ini
-[sqlfluff:templater:dbt]
-populate_relations_cache = False
-```
-
-```bash
-DBT_POPULATE_CACHE=false sqlfluff lint
-```
-
-Precedence: explicit `[sqlfluff:templater:dbt] populate_relations_cache` >
-non-empty `DBT_ENGINE_POPULATE_CACHE` > non-empty `DBT_POPULATE_CACHE` >
-`True` (empty env values fall through). Use `True` or `False` in `.sqlfluff`
-(INI coerces bare `0`/`1` to integers, which are rejected). Environment
-variables accept case-insensitive, trimmed `1/true/t/yes/y/on` and
-`0/false/f/no/n/off`. Invalid selected values raise a configuration error
-without falling back; explicit config does not prevent dbt from rejecting
-malformed `DBT_POPULATE_CACHE` or `DBT_ENGINE_POPULATE_CACHE` during dbt
-initialization.
-
-::: warning
-Disabling `populate_relations_cache` only skips eager cache warm-up; dbt
-compilation is not offline, and macros inspecting database relations (such as
-`is_incremental()` or `adapter.get_relation()`) may still issue lazy queries.
-:::
-
 To use builtin dbt Jinja functions SQLFluff provides a configuration option
 that enables usage within templates.
 
@@ -184,6 +153,37 @@ my_variable = 1
 ```bash
 dbt run --vars '{"my_variable": 1}'
 ```
+
+### Relations Cache Population
+
+By default, SQLFluff eagerly populates dbt's relations cache when initializing
+the adapter connection (`populate_relations_cache = True`). Opt out in
+`.sqlfluff` or via dbt environment variables:
+
+```ini
+[sqlfluff:templater:dbt]
+populate_relations_cache = False
+```
+
+```bash
+DBT_POPULATE_CACHE=false sqlfluff lint
+```
+
+Precedence: explicit `[sqlfluff:templater:dbt] populate_relations_cache` >
+non-empty `DBT_ENGINE_POPULATE_CACHE` > non-empty `DBT_POPULATE_CACHE` >
+`True` (empty env values fall through). Use `True` or `False` in `.sqlfluff`
+(INI coerces bare `0`/`1` to integers, which are rejected). Environment
+variables accept case-insensitive, trimmed `1/true/t/yes/y/on` and
+`0/false/f/no/n/off`. Invalid selected values raise a configuration error
+without falling back; explicit config does not prevent dbt from rejecting
+malformed `DBT_POPULATE_CACHE` or `DBT_ENGINE_POPULATE_CACHE` during dbt
+initialization.
+
+::: warning
+Disabling `populate_relations_cache` only skips eager cache warm-up; dbt
+compilation is not offline, and macros inspecting database relations (such as
+`is_incremental()` or `adapter.get_relation()`) may still issue lazy queries.
+:::
 
 ## Known Caveats
 

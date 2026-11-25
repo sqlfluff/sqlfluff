@@ -1305,6 +1305,38 @@ def test__templater_dbt_populate_relations_cache_invalid_values(
         dbt_templater._get_populate_relations_cache()
 
 
+@pytest.mark.parametrize(
+    ("ini_line", "expected_value"),
+    [
+        ("populate_relations_cache = 0", 0),
+        ("populate_relations_cache = 1", 1),
+    ],
+)
+def test__templater_dbt_populate_relations_cache_ini_numeric_guidance(
+    dbt_templater, monkeypatch, ini_line, expected_value
+):
+    """Numeric INI 0/1 error with source, string-token clarity, and INI advice."""
+    _clear_populate_cache_env(monkeypatch)
+    monkeypatch.setenv("DBT_POPULATE_CACHE", "false")
+    dbt_templater.sqlfluff_config = FluffConfig.from_string(
+        f"[sqlfluff]\ndialect = ansi\n[sqlfluff:templater:dbt]\n{ini_line}\n"
+    )
+    raw = dbt_templater.sqlfluff_config.get_section(
+        ("templater", "dbt", "populate_relations_cache")
+    )
+    assert type(raw) is int and raw == expected_value
+
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        dbt_templater._get_populate_relations_cache()
+
+    message = str(excinfo.value)
+    assert "[sqlfluff:templater:dbt] populate_relations_cache" in message
+    assert f"Invalid boolean value {expected_value!r} for " in message
+    assert "INI" in message and "True/False" in message
+    assert "string" in message
+    assert "'0'" in message and "'1'" in message
+
+
 @pytest.mark.parametrize("dbt_version_tuple", [(1, 7), (1, 8)])
 @pytest.mark.parametrize(
     ("config_value", "expected_warm"),

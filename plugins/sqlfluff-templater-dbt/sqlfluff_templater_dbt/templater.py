@@ -499,8 +499,9 @@ class DbtTemplater(JinjaTemplater):
 
         raise SQLFluffUserError(
             f"Invalid boolean value {raw_value!r} for {source}. "
-            "Expected True/False or one of: 1, true, t, yes, y, on, "
-            "0, false, f, no, n, off."
+            "Expected a boolean (use True/False in INI config) or one of the "
+            "string tokens: '1', 'true', 't', 'yes', 'y', 'on', "
+            "'0', 'false', 'f', 'no', 'n', 'off'."
         )
 
     def sequence_files(
