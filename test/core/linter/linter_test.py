@@ -218,6 +218,23 @@ def test__linter__get_violations_filter_rules(rules, num_violations):
     assert len(lint_result.get_violations(rules=rules)) == num_violations
 
 
+@pytest.mark.parametrize(
+    "configs",
+    [
+        {"core": {"rules": "LT01"}},
+        {"core": {"exclude_rules": "LT01"}},
+        {"rules": {"capitalisation.keywords": {"capitalisation_policy": "upper"}}},
+    ],
+)
+def test__linter__get_rulepack_reuse(configs):
+    """A rule pack is reused until the config it is built from changes."""
+    lntr = Linter(dialect="ansi")
+    pack = lntr.get_rulepack()
+    assert lntr.get_rulepack(config=FluffConfig(overrides={"dialect": "ansi"})) is pack
+    changed = FluffConfig(configs=configs, overrides={"dialect": "ansi"})
+    assert lntr.get_rulepack(config=changed) is not pack
+
+
 def test__linter__linting_result__sum_dicts():
     """Test the summing of dictionaries in the linter."""
     i = {}

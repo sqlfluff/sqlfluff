@@ -17,6 +17,7 @@ missing.
 import bdb
 import copy
 import fnmatch
+import functools
 import logging
 import pathlib
 import re
@@ -64,6 +65,12 @@ RuleGhost = namedtuple("RuleGhost", ["code", "name", "description"])
 rules_logger = logging.getLogger("sqlfluff.rules")
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+
+@functools.lru_cache(maxsize=4)
+def _path(fname: str) -> pathlib.Path:
+    """The path for a file name: every rule asks for the same one per file."""
+    return pathlib.Path(fname)
 
 
 class RuleLoggingAdapter(_LoggerAdapter):
@@ -532,7 +539,7 @@ class BaseRule(metaclass=RuleMetaclass):
             dialect=dialect,
             fix=fix,
             templated_file=templated_file,
-            path=pathlib.Path(fname) if fname else None,
+            path=_path(fname) if fname else None,
             segment=tree,
             config=config,
         )
