@@ -2207,6 +2207,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("FlushStatementSegment"),
             Ref("InstallPluginStatementSegment"),
             Ref("UninstallPluginStatementSegment"),
+            Ref("InstallComponentStatementSegment"),
+            Ref("UninstallComponentStatementSegment"),
             Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
@@ -2940,6 +2942,12 @@ class SetAssignmentStatementSegment(BaseSegment):
                     "PERSIST_ONLY",
                     "SESSION",
                     "LOCAL",
+                    optional=True,
+                ),
+                # A component system variable, as in `validate_password.length`.
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DotSegment"),
                     optional=True,
                 ),
                 OneOf(
@@ -4163,6 +4171,33 @@ class UninstallPluginStatementSegment(BaseSegment):
     type = "uninstall_plugin_statement"
     match_grammar: Matchable = Sequence(
         "UNINSTALL", "PLUGIN", Ref("SingleIdentifierGrammar")
+    )
+
+
+class InstallComponentStatementSegment(BaseSegment):
+    """An `INSTALL COMPONENT` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/install-component.html
+    """
+
+    type = "install_component_statement"
+    match_grammar: Matchable = Sequence(
+        "INSTALL",
+        "COMPONENT",
+        Delimited(Ref("QuotedLiteralSegment")),
+        Ref("SetAssignmentStatementSegment", optional=True),
+    )
+
+
+class UninstallComponentStatementSegment(BaseSegment):
+    """An `UNINSTALL COMPONENT` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/uninstall-component.html
+    """
+
+    type = "uninstall_component_statement"
+    match_grammar: Matchable = Sequence(
+        "UNINSTALL", "COMPONENT", Delimited(Ref("QuotedLiteralSegment"))
     )
 
 

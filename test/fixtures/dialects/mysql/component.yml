@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4928c93c0f5116b1fa1ccef608a7f9857a06de8cac6557b9a634d1ade6f90c6f
+file:
+- statement:
+    install_component_statement:
+    - keyword: INSTALL
+    - keyword: COMPONENT
+    - quoted_literal: "'file://component_validate_password'"
+- statement_terminator: ;
+- statement:
+    install_component_statement:
+    - keyword: INSTALL
+    - keyword: COMPONENT
+    - quoted_literal: "'file://component1'"
+    - comma: ','
+    - quoted_literal: "'file://component2'"
+- statement_terminator: ;
+- statement:
+    install_component_statement:
+    - keyword: INSTALL
+    - keyword: COMPONENT
+    - quoted_literal: "'file://component1'"
+    - comma: ','
+    - quoted_literal: "'file://component2'"
+    - set_statement:
+      - keyword: SET
+      - keyword: GLOBAL
+      - naked_identifier: component1
+      - dot: .
+      - variable: var1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+        - numeric_literal: '12'
+        - binary_operator: +
+        - numeric_literal: '3'
+      - comma: ','
+      - keyword: PERSIST
+      - naked_identifier: component2
+      - dot: .
+      - variable: var2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'strings'"
+- statement_terminator: ;
+- statement:
+    uninstall_component_statement:
+    - keyword: UNINSTALL
+    - keyword: COMPONENT
+    - quoted_literal: "'file://component_validate_password'"
+- statement_terminator: ;
+- statement:
+    uninstall_component_statement:
+    - keyword: UNINSTALL
+    - keyword: COMPONENT
+    - quoted_literal: "'file://component1'"
+    - comma: ','
+    - quoted_literal: "'file://component2'"
+- statement_terminator: ;
