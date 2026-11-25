@@ -92,6 +92,28 @@ test_fail_snowflake_semantic_view_spaced_bracket:
     core:
       dialect: snowflake
 
+test_pass_databricks_identifier_clause_touching_bracket:
+  pass_str: |
+    USE SCHEMA IDENTIFIER('my_schema');
+    SELECT IDENTIFIER('col') FROM IDENTIFIER('main' || '.sales.orders');
+    SELECT * FROM IDENTIFIER(:schema_name || '.orders');
+  configs:
+    core:
+      dialect: databricks
+
+test_fail_databricks_identifier_clause_spaced_bracket:
+  fail_str: |
+    USE SCHEMA IDENTIFIER ('my_schema');
+    SELECT IDENTIFIER   ('col') FROM IDENTIFIER ('main' || '.sales.orders');
+    SELECT * FROM IDENTIFIER (:schema_name || '.orders');
+  fix_str: |
+    USE SCHEMA IDENTIFIER('my_schema');
+    SELECT IDENTIFIER('col') FROM IDENTIFIER('main' || '.sales.orders');
+    SELECT * FROM IDENTIFIER(:schema_name || '.orders');
+  configs:
+    core:
+      dialect: databricks
+
 test_pass_ansi_bracketed_data_types:
   pass_str: |
     CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
@@ -148,3 +170,33 @@ test_pass_duckdb_array_literal_not_touched:
   configs:
     core:
       dialect: duckdb
+
+# Snowflake VECTOR is a parameterised datatype, so its parameters touch the
+# keyword like other parameterised types such as NUMBER(10, 2).
+test_pass_snowflake_vector_type_touching_bracket:
+  pass_str: |
+    select
+        x::vector(float, 768) as v,
+        cast(y as vector(int, 3)) as w;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_vector_type_spaced_bracket:
+  fail_str: |
+    select x::vector (float,  768) as v;
+  fix_str: |
+    select x::vector(float, 768) as v;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_vector_type_newline_before_bracket:
+  fail_str: |
+    create table t (v vector
+    (float, 3));
+  fix_str: |
+    create table t (v vector(float, 3));
+  configs:
+    core:
+      dialect: snowflake

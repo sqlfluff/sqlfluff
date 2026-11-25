@@ -1,0 +1,119 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7720e5af9a49fd5de47070829262d222cf621725f8ecb64ee96aa158c544eeb0
+file:
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: PIPE
+    - object_reference:
+        naked_identifier: p
+    - keyword: AS
+    - copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - keyword: FROM
+      - function:
+          function_name:
+            function_name_identifier: TABLE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DATA_SOURCE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      snowflake_keyword_expression:
+                        parameter: TYPE
+                        parameter_assigner: =>
+                        quoted_literal: "'STREAMING'"
+                      end_bracket: )
+              end_bracket: )
+      - keyword: MATCH_BY_COLUMN_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CASE_INSENSITIVE
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: PIPE
+    - object_reference:
+        naked_identifier: p_transformed
+    - keyword: AS
+    - copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  column_index_identifier_segment: $1
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    function:
+                      function_name:
+                        function_name_identifier: TABLE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: DATA_SOURCE
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  snowflake_keyword_expression:
+                                    parameter: TYPE
+                                    parameter_assigner: =>
+                                    quoted_literal: "'STREAMING'"
+                                  end_bracket: )
+                          end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: PIPE
+    - object_reference:
+        naked_identifier: p_stage
+    - keyword: AS
+    - copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - keyword: FROM
+      - storage_location:
+          stage_path: '@stage'
+      - keyword: FILE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_format_segment:
+          bracketed:
+            start_bracket: (
+            json_file_format_type_parameters:
+              keyword: TYPE
+              comparison_operator:
+                raw_comparison_operator: '='
+              file_type: JSON
+            end_bracket: )
+- statement_terminator: ;

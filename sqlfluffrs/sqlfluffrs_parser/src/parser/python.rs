@@ -479,19 +479,7 @@ impl PyParser {
             .and_then(|d| Dialect::from_str(d).ok())
             .unwrap_or(Dialect::Ansi);
 
-        // Convert Python HashMap<String, bool> to Rust HashMap<&'static str, bool>
-        // by leaking the strings to get 'static references
-        let indent_config = if let Some(config) = indent_config {
-            config
-                .into_iter()
-                .map(|(k, v)| {
-                    let static_key: &'static str = Box::leak(k.into_boxed_str());
-                    (static_key, v)
-                })
-                .collect()
-        } else {
-            hashbrown::HashMap::new()
-        };
+        let indent_config = crate::parser::intern_indent_config(indent_config.unwrap_or_default());
 
         Ok(PyParser {
             dialect,

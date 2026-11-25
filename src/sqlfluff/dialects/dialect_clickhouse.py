@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
@@ -208,6 +209,9 @@ clickhouse_dialect.add(
 )
 
 clickhouse_dialect.replace(
+    FunctionNameIdentifierSegment=TypedParser(
+        "word", WordSegment, type="function_name_identifier"
+    ),
     LateralColumnAliasExpressionGrammar=Sequence(
         Ref("ExpressionSegment"),
         Ref("AliasExpressionSegment"),
@@ -726,6 +730,61 @@ class FormatClauseSegment(BaseSegment):
         "FORMAT",
         OneOf(*[Ref.keyword(allowed_format) for allowed_format in FORMAT_KEYWORDS]),
         Ref("SettingsClauseSegment", optional=True),
+    )
+
+
+class InsertFormatClauseSegment(BaseSegment):
+    """The `FORMAT` clause that names the format of an `INSERT`'s row data.
+
+    Unlike the `SELECT` `FORMAT` clause, nothing can follow the format name:
+    ClickHouse reads everything after `FORMAT format_name` as data, so query
+    `SETTINGS` have to come before it.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/insert-into
+    """
+
+    type = "format_clause"
+    match_grammar: Matchable = Sequence(
+        "FORMAT",
+        OneOf(*[Ref.keyword(allowed_format) for allowed_format in FORMAT_KEYWORDS]),
+    )
+
+
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` statement, with ClickHouse's `SETTINGS` and `FORMAT` forms.
+
+    `FORMAT format_name` stands in for the `VALUES`/`SELECT` source, with the
+    row data supplied after it (out of band, e.g. over client stdin). It does
+    not combine with `VALUES`, which is itself the `Values` format. Query
+    `SETTINGS` go after the column list and before the source.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/insert-into
+    """
+
+    type = "insert_statement"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Ref.keyword("OVERWRITE", optional=True),
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("SettingsClauseSegment", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("InsertFormatClauseSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SettingsClauseSegment", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("InsertFormatClauseSegment"),
+                ),
+            ),
+            Ref("DefaultValuesGrammar"),
+        ),
     )
 
 

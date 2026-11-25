@@ -1,0 +1,312 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ebfd7a00f388a6e7c318a300bd6d68f20c3b2363216eda564a36709a204e6b8f
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_always
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_by_default
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_options
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: BIGINT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '10'
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '2'
+            - keyword: MINVALUE
+            - numeric_literal: '1'
+            - keyword: MAXVALUE
+            - numeric_literal: '1000'
+            - keyword: 'NO'
+            - keyword: CYCLE
+            - keyword: CACHE
+            - numeric_literal: '20'
+            - keyword: ORDER
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_no_options
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: 'NO'
+            - keyword: MINVALUE
+            - keyword: 'NO'
+            - keyword: MAXVALUE
+            - keyword: 'NO'
+            - keyword: CACHE
+            - keyword: 'NO'
+            - keyword: ORDER
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_cycle
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '1'
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '1'
+            - keyword: CYCLE
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_compound_no_options
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: NOMINVALUE
+            - keyword: NOMAXVALUE
+            - keyword: NOCYCLE
+            - keyword: NOCACHE
+            - keyword: NOORDER
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_signed_range
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: MINVALUE
+            - numeric_literal:
+                sign_indicator: '-'
+                numeric_literal: '2147483648'
+            - keyword: MAXVALUE
+            - numeric_literal: '2147483647'
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_generated_column
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a
+                binary_operator: +
+                numeric_literal: '1'
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_generated_column_expression
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '21'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                quoted_literal: "'x'"
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_identity_and_generated
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+      - comma: ','
+      - column_definition:
+        - naked_identifier: doubled
+        - data_type:
+            data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: id
+                binary_operator: '*'
+                numeric_literal: '2'
+              end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;

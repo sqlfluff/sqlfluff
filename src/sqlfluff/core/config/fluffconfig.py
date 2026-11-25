@@ -664,7 +664,9 @@ class FluffConfig:
             config_path: An iterable of strings. Each should be
                 a one of the elements which is colon delimited in
                 a standard config file.
-            val: The value to set at the given path.
+            val: The value to set at the given path. Strings are coerced as in
+                an INI file. Built-in ``bool`` and ``float`` values and ``None``
+                are stored directly.
 
         >>> cfg = FluffConfig(overrides={"dialect": "ansi"})
         >>> cfg.set_value(["dialect"], "postgres")
@@ -678,8 +680,12 @@ class FluffConfig:
         """
         # Make the path a list so we can index on it
         config_path = list(config_path)
-        # Coerce the value into something more useful.
-        config_val = coerce_value(val)
+        value_type = type(val)
+        config_val = (
+            val
+            if val is None or value_type is bool or value_type is float
+            else coerce_value(val)
+        )
         # Sort out core if not there
         if len(config_path) == 1:  # pragma: no cover TODO?
             config_path = ["core"] + config_path

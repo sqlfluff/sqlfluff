@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c174edad00205a8149520f9c9a071978bf4f60018ea6037638202e6abee9fbec
+_hash: 70c72b1f239b9ee4d6d601ffacec72aefae38c5500c1374dccd58803b8c48035
 file:
 - statement:
     create_domain_statement:
@@ -94,4 +94,82 @@ file:
             - raw_comparison_operator: '='
             numeric_literal: '50000'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: posint
+    - keyword: AS
+    - data_type:
+        keyword: integer
+    - keyword: NOT
+    - keyword: 'NULL'
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '1'
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: positive
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: value
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '0'
+              end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: rating
+    - keyword: AS
+    - data_type:
+        keyword: integer
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: value
+          - keyword: BETWEEN
+          - numeric_literal: '1'
+          - keyword: AND
+          - numeric_literal: '5'
+          end_bracket: )
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: code
+    - keyword: AS
+    - data_type:
+        keyword: text
+    - keyword: NOT
+    - keyword: 'NULL'
+    - keyword: COLLATE
+    - collation_reference:
+        quoted_identifier: '"C"'
+    - keyword: DEFAULT
+    - expression:
+        quoted_literal: "'none'"
 - statement_terminator: ;

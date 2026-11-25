@@ -1,0 +1,232 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5dea666f7c1bb41be33f20ebba94ba60f27769f0d1f5028d786aa081b47067f7
+file:
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - keyword: DEFAULT
+          - keyword: VALUES
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: val
+            - end_bracket: )
+          - keyword: OVERRIDING
+          - keyword: SYSTEM
+          - keyword: VALUE
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: val
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: val
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: val
+            - end_bracket: )
+          - keyword: OVERRIDING
+          - keyword: USER
+          - keyword: VALUE
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: val
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - keyword: USING
+    - table_reference:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  naked_identifier: val
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: val
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - keyword: OVERRIDING
+          - keyword: SYSTEM
+          - keyword: VALUE
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: val
+              - end_bracket: )
+- statement_terminator: ;

@@ -142,6 +142,19 @@ bigquery_dialect.patch_lexer_matchers(
 )
 
 bigquery_dialect.add(
+    # resource_type resource_name in GRANT/REVOKE, e.g. `SCHEMA myProject.myDataset`.
+    # TableReferenceSegment (not ObjectReferenceSegment) so that dashed project IDs
+    # like my-project.mydataset.mytable are accepted, as they are elsewhere.
+    AccessResourceGrammar=Sequence(
+        OneOf(
+            "SCHEMA",
+            "TABLE",
+            "VIEW",
+            "PROJECT",
+            Sequence("EXTERNAL", "TABLE"),
+        ),
+        Ref("TableReferenceSegment"),
+    ),
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         LiteralSegment,
@@ -789,6 +802,16 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropAssignmentStatementSegment"),
             Ref("DropTableFunctionStatementSegment"),
             Ref("CreateTableFunctionStatementSegment"),
+        ],
+        remove=[
+            # BigQuery has no CREATE/DROP CAST or triggers. The inherited
+            # grammars also reference keywords (CONSTRUCTOR, REFERENCING, ...)
+            # that this dialect never registers, so reaching them raised an
+            # internal RuntimeError instead of parsing.
+            Ref("CreateCastStatementSegment"),
+            Ref("DropCastStatementSegment"),
+            Ref("CreateTriggerStatementSegment"),
+            Ref("DropTriggerStatementSegment"),
         ],
     )
 
@@ -2244,6 +2267,41 @@ class GrantToSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
             ),
         ),
+    )
+
+
+class GrantStatementSegment(ansi.GrantStatementSegment):
+    """A `GRANT` statement.
+
+    BigQuery's DCL grants IAM roles on a resource to a list of principals,
+    which is much narrower than the generic ANSI grammar.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+    """
+
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        Delimited(Ref("RoleReferenceSegment"), terminators=["ON"]),
+        "ON",
+        Ref("AccessResourceGrammar"),
+        "TO",
+        Delimited(Ref("QuotedLiteralSegment")),
+    )
+
+
+class RevokeStatementSegment(ansi.RevokeStatementSegment):
+    """A `REVOKE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+    """
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
+        Delimited(Ref("RoleReferenceSegment"), terminators=["ON"]),
+        "ON",
+        Ref("AccessResourceGrammar"),
+        "FROM",
+        Delimited(Ref("QuotedLiteralSegment")),
     )
 
 

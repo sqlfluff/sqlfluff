@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c6b6005d6dae375c2dcdbd2b28a83cf4a8d4ac8b32a2742e28ab33a45aa95b8
+_hash: caee2e82b27973686332d19aaa1a9deacb641e2b214432d4dda4ab68b4afd988
 file:
 - statement:
     create_foreign_data_wrapper:
@@ -76,4 +76,18 @@ file:
       - naked_identifier_all: retries
       - quoted_literal: "'3'"
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_data_wrapper:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - naked_identifier: quoted_options
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        quoted_identifier: '"debug"'
+        quoted_literal: "'true'"
+        end_bracket: )
 - statement_terminator: ;

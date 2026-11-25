@@ -137,3 +137,156 @@ test_fail_tsql_derived_table_no_alias:
   configs:
     core:
       dialect: tsql
+
+# BigQuery, DuckDB, Snowflake and SQLite accept a derived table without an alias.
+test_pass_bigquery_derived_table_no_alias:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS a
+    )
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_duckdb_derived_table_no_alias:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS a
+    )
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_joined_derived_table_no_alias:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS a
+    )
+    JOIN (
+        SELECT 1 AS b
+    ) ON a = b
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_snowflake_derived_table_no_alias:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS a
+    )
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_sqlite_derived_table_no_alias:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS a
+    )
+  configs:
+    core:
+      dialect: sqlite
+
+# ClickHouse accepts a derived table without an alias when it is the only
+# source of the FROM clause.
+test_pass_clickhouse_single_derived_table_no_alias:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS a
+    )
+  configs:
+    core:
+      dialect: clickhouse
+
+# ARRAY JOIN does not add a table source.
+test_pass_clickhouse_derived_table_no_alias_array_join:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT [1, 2] AS arr
+    )
+    ARRAY JOIN arr
+  configs:
+    core:
+      dialect: clickhouse
+
+# ClickHouse requires an alias on a joined subquery (on either side of the
+# join, or in a comma list) while `joined_subquery_requires_alias` is on.
+test_fail_clickhouse_joined_derived_table_no_alias:
+  fail_str: |
+    SELECT *
+    FROM my_table AS t
+    JOIN (
+        SELECT 1 AS id
+    ) USING id
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_left_of_join_derived_table_no_alias:
+  fail_str: |
+    SELECT *
+    FROM (
+        SELECT 1 AS id
+    )
+    JOIN my_table AS t USING id
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_comma_list_derived_table_no_alias:
+  fail_str: |
+    SELECT *
+    FROM my_table AS t, (
+        SELECT 1 AS id
+    )
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_joined_derived_table_with_alias:
+  pass_str: |
+    SELECT *
+    FROM my_table AS t
+    JOIN (
+        SELECT 1 AS id
+    ) AS s USING id
+  configs:
+    core:
+      dialect: clickhouse
+
+# The single outer source needs no alias, the joined inner one does.
+test_fail_clickhouse_nested_joined_derived_table_no_alias:
+  fail_str: |
+    SELECT *
+    FROM (
+        SELECT *
+        FROM my_table AS t
+        JOIN (
+            SELECT 1 AS id
+        ) USING id
+    )
+  configs:
+    core:
+      dialect: clickhouse
+
+# Sources of an inner FROM clause do not count towards the outer one.
+test_pass_clickhouse_single_derived_table_with_inner_join:
+  pass_str: |
+    SELECT *
+    FROM (
+        SELECT *
+        FROM my_table AS t
+        JOIN (
+            SELECT 1 AS id
+        ) AS s USING id
+    )
+  configs:
+    core:
+      dialect: clickhouse

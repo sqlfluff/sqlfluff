@@ -132,6 +132,35 @@ impl ParserMetrics {
     }
 }
 
+/// Every indent-config key handed out so far. The parser keys `indent_config`
+/// by `&'static str`, so each distinct key is leaked once per process, not once
+/// per parse.
+static INDENT_KEYS: std::sync::LazyLock<std::sync::Mutex<hashbrown::HashSet<&'static str>>> =
+    std::sync::LazyLock::new(Default::default);
+
+/// Build a parser `indent_config` from owned keys, interning each key.
+pub fn intern_indent_config(
+    config: impl IntoIterator<Item = (String, bool)>,
+) -> hashbrown::HashMap<&'static str, bool> {
+    config
+        .into_iter()
+        .map(|(k, v)| {
+            // Lock per key: holding it across `config`'s iterator would
+            // deadlock an iterator that itself interns.
+            let mut keys = INDENT_KEYS.lock().unwrap_or_else(|e| e.into_inner());
+            let key = match keys.get(k.as_str()) {
+                Some(&key) => key,
+                None => {
+                    let key: &'static str = Box::leak(k.into_boxed_str());
+                    keys.insert(key);
+                    key
+                }
+            };
+            (key, v)
+        })
+        .collect()
+}
+
 /// The main parser struct that holds parsing state and provides parsing methods.
 ///
 /// Fields are `pub(crate)`: the parser's public API is the methods re-exported from
@@ -567,6 +596,7 @@ impl<'a> Parser<'a> {
                     matched_class: Some(MatchedClass {
                         class_name: Cow::Borrowed(raw_class),
                         segment_type: Some(Cow::Borrowed(token_type)),
+                        class_type: self.dialect.get_segment_type(raw_class).map(Cow::Borrowed),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -804,6 +834,7 @@ impl<'a> Parser<'a> {
                     matched_class: Some(MatchedClass {
                         class_name: Cow::Borrowed(raw_class),
                         segment_type: Some(Cow::Owned(effective_segment_type.clone())),
+                        class_type: class_type.map(Cow::Borrowed),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -963,6 +994,7 @@ impl<'a> Parser<'a> {
                     matched_class: Some(MatchedClass {
                         class_name: Cow::Borrowed(raw_class),
                         segment_type: Some(Cow::Borrowed(token_type)),
+                        class_type: self.dialect.get_segment_type(raw_class).map(Cow::Borrowed),
                         segment_kwargs,
                     }),
                     ..Default::default()
@@ -1263,6 +1295,10 @@ impl<'a> Parser<'a> {
                         matched_class: Some(MatchedClass {
                             class_name: Cow::Owned(raw_class.clone()),
                             segment_type: Some(Cow::Owned(token_type.clone())),
+                            class_type: self
+                                .dialect
+                                .get_segment_type(&raw_class)
+                                .map(Cow::Borrowed),
                             segment_kwargs,
                         }),
                         ..Default::default()
@@ -1586,6 +1622,14 @@ impl<'a> Parser<'a> {
         if !self.grammar_ctx.inst(grammar_id).flags.reset_terminators() {
             terminators_vec.extend(parent_terminators.iter().cloned());
         }
+        // PYTHON PARITY: like greedy_match, keyword terminators need whitespace.
+        let glued_terminators: Vec<GrammarId> = terminators_vec
+            .iter()
+            .copied()
+            .filter(|t| !self.terminator_requires_whitespace(*t))
+            .collect();
+        // Next code position, reused across a run of non-code tokens.
+        let mut next_code: Option<usize> = None;
 
         loop {
             // Check if we've reached our parent_max_idx boundary
@@ -1600,7 +1644,20 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            if self.is_terminated(&terminators_vec) || self.is_at_end() {
+            let code_pos = match next_code {
+                Some(c) if c >= self.pos => c,
+                _ => {
+                    let c = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+                    next_code = Some(c);
+                    c
+                }
+            };
+            let terminators = if self.is_preceded_by_whitespace(self.tokens, code_pos, start_pos) {
+                &terminators_vec
+            } else {
+                &glued_terminators
+            };
+            if self.is_terminated(terminators) || self.is_at_end() {
                 break;
             }
 
@@ -1699,8 +1756,11 @@ impl<'a> Parser<'a> {
             matched_class: Some(MatchedClass {
                 class_name: Cow::Borrowed("SymbolSegment"),
                 segment_type: Some(Cow::Borrowed(start_bracket_type)),
+                class_type: Some(Cow::Borrowed("symbol")),
                 segment_kwargs: SegmentKwargs {
                     instance_types: Some(vec![start_bracket_type.to_string()]),
+                    // SymbolSegment._class_types, as native's bracket segments.
+                    class_types: Some(vec!["base".into(), "raw".into(), "symbol".into()]),
                     ..Default::default()
                 },
             }),
@@ -1770,8 +1830,11 @@ impl<'a> Parser<'a> {
             matched_class: Some(MatchedClass {
                 class_name: Cow::Borrowed("SymbolSegment"),
                 segment_type: Some(Cow::Borrowed(end_bracket_type)),
+                class_type: Some(Cow::Borrowed("symbol")),
                 segment_kwargs: SegmentKwargs {
                     instance_types: Some(vec![end_bracket_type.to_string()]),
+                    // SymbolSegment._class_types, as native's bracket segments.
+                    class_types: Some(vec!["base".into(), "raw".into(), "symbol".into()]),
                     ..Default::default()
                 },
             }),
@@ -1785,5 +1848,92 @@ impl<'a> Parser<'a> {
             inner_child_matches,
             persists,
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn intern_indent_config_leaks_each_key_once() {
+        let config = || {
+            [
+                ("intern_test_a".to_string(), true),
+                ("intern_test_b".to_string(), false),
+            ]
+        };
+        let first = intern_indent_config(config());
+        for _ in 0..100 {
+            let again = intern_indent_config(config());
+            assert_eq!(again, first);
+            for (k, _) in &again {
+                let (orig, _) = first.get_key_value(k).unwrap();
+                assert!(std::ptr::eq(*k, *orig), "{k} was re-leaked");
+            }
+        }
+    }
+
+    #[test]
+    fn intern_indent_config_allows_reentrant_iterator() {
+        // An iterator that interns while being consumed must not deadlock.
+        let config = (0..2).map(|i| {
+            intern_indent_config([(format!("intern_inner_{i}"), true)]);
+            (format!("intern_outer_{i}"), false)
+        });
+        assert_eq!(intern_indent_config(config).len(), 2);
+    }
+
+    /// Expected ends are Python's `Anything().match` with FROM and `;`.
+    #[test]
+    fn anything_skips_keyword_terminator_without_whitespace() {
+        use std::str::FromStr;
+
+        use sqlfluffrs_dialects::Dialect;
+        use sqlfluffrs_lexer::{LexInput, Lexer};
+        use sqlfluffrs_types::GrammarVariant;
+
+        let dialect = Dialect::from_str("ansi").expect("dialect");
+        let from_kw = dialect
+            .get_segment_grammar("FromKeywordSegment")
+            .expect("FROM keyword");
+        let anything_id = from_kw
+            .tables
+            .instructions
+            .iter()
+            .position(|i| {
+                i.variant == GrammarVariant::Anything
+                    && i.terminator_count == 0
+                    && !i.flags.reset_terminators()
+            })
+            .map(|i| GrammarId(i as u32))
+            .expect("an Anything grammar");
+        let semicolon = dialect
+            .get_segment_grammar("SemicolonSegment")
+            .expect("semicolon")
+            .grammar_id;
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        for (sql, expected_end) in [
+            ("a:from:b FROM t", 5),
+            ("FROM t", 0),
+            ("a FROM t", 1),
+            ("a\nFROM t", 1),
+            ("(a)FROM t", 3),
+            ("a/*c*/FROM t;x", 5),
+            ("a /*c*/FROM t;x", 6),
+            ("a:from;x", 3),
+            ("a.from FROM t", 3),
+            ("(a FROM b) FROM t", 7),
+            ("a:from:from FROM t", 5),
+            ("a;b", 1),
+            ("a:from;b", 3),
+        ] {
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let mr = parser
+                .handle_anything(anything_id, &[from_kw.grammar_id, semicolon], None)
+                .expect("parse");
+            assert_eq!(mr.end(), expected_end, "{sql:?}");
+        }
     }
 }

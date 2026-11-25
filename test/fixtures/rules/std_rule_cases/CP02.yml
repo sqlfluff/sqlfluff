@@ -671,3 +671,39 @@ test_fail_jinja_mixed_identifier_ignore_regex_template_only:
       jinja:
         context:
           env: DEV
+
+test_pass_clickhouse_case_sensitive_identifiers:
+  pass_str: |
+    SELECT
+        accountContacts AS accountContacts,
+        id
+    FROM crm.activeCampaignContacts AS c
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_case_sensitive_identifiers_lower_policy:
+  pass_str: SELECT accountContacts, id FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_fail_ansi_mixed_case_identifiers:
+  # The same query is still fixed in dialects without case-sensitive names.
+  fail_str: |
+    SELECT
+        accountContacts AS accountContacts,
+        id
+    FROM crm.activeCampaignContacts AS c
+  fix_str: |
+    SELECT
+        accountcontacts AS accountcontacts,
+        id
+    FROM crm.activecampaigncontacts AS c
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower

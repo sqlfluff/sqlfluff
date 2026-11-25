@@ -1,0 +1,7 @@
+DROP TEXT SEARCH DICTIONARY utils.my_stem;
+
+DROP TEXT SEARCH DICTIONARY IF EXISTS simple_dict, no_such_dict CASCADE;
+
+DROP TEXT SEARCH PARSER IF EXISTS utils.my_prs RESTRICT;
+
+DROP TEXT SEARCH TEMPLATE utils.my_tmpl, lexize_only;

@@ -426,6 +426,100 @@ def test_rule_exception_is_caught_to_validation():
     assert linter.lint_string("select 1").check_tuples() == [("T000", 1, 1)]
 
 
+@pytest.mark.parametrize("ignore_templated_areas", [True, False])
+@pytest.mark.parametrize("sql", ["SELECT 2, {{ 1 }}\n", "SELECT {{ 1 }}, 2\n"])
+@pytest.mark.parametrize("crash", [True, False])
+def test_rule_exception_in_templated_area(ignore_templated_areas, sql, crash):
+    """Template filtering suppresses ordinary findings, but not rule failures."""
+
+    class Rule_T000(BaseRule):
+        """Report numbers, optionally failing on a templated one."""
+
+        groups = ("all",)
+        crawl_behaviour = SegmentSeekerCrawler({"numeric_literal"})
+
+        def _eval(self, context):
+            if crash and not context.segment.pos_marker.is_literal():
+                raise RuntimeError("rule failed")
+            return LintResult(anchor=context.segment, description="Found a number.")
+
+    linter = Linter(
+        config=FluffConfig(
+            overrides={
+                "dialect": "ansi",
+                "rules": "T000",
+                "ignore_templated_areas": ignore_templated_areas,
+            }
+        ),
+        user_rules=[Rule_T000],
+    )
+    violations = linter.lint_string(sql).get_violations()
+    descriptions = [v.desc().splitlines()[0] for v in violations]
+    expected = []
+    if not crash or sql.startswith("SELECT 2"):
+        expected.append("Found a number.")
+    if crash:
+        expected.append("Unexpected exception: rule failed;")
+    elif not ignore_templated_areas:
+        expected.append("Found a number.")
+    assert descriptions == expected
+    assert all(v.rule_code() == "T000" and not v.fixable for v in violations)
+
+
+@pytest.mark.parametrize("ignore", [False, True])
+def test_rule_exception_in_templated_area_noqa(ignore):
+    """Explicit noqa still controls a rule failure in a templated area."""
+
+    class Rule_T000(BaseRule):
+        """Fail on a numeric literal."""
+
+        groups = ("all",)
+        crawl_behaviour = SegmentSeekerCrawler({"numeric_literal"})
+
+        def _eval(self, context):
+            raise RuntimeError("rule failed")
+
+    linter = Linter(dialect="ansi", rules=["T000"], user_rules=[Rule_T000])
+    sql = "SELECT {{ 1 }}" + (" -- noqa: T000" if ignore else "") + "\n"
+    linted = linter.lint_string(sql)
+    assert len(linted.get_violations()) == (0 if ignore else 1)
+    assert len(linted.get_violations(filter_ignore=False)) == 1
+
+
+def test_rust_rule_exception_in_templated_area(monkeypatch):
+    """Rust dispatch failures survive the same template filter as Python failures."""
+
+    class Rule_T000(BaseRule):
+        """Fail while dispatching a rule to Rust."""
+
+        groups = ("all",)
+        crawl_behaviour = RootOnlyCrawler()
+
+        def _eval_rust(self, context):
+            raise RuntimeError("rust rule failed")
+
+    linter = Linter(dialect="ansi", rules=["T000"], user_rules=[Rule_T000])
+    parsed = linter.parse_string("SELECT {{ 1 }}\n")
+    assert parsed.tree
+    monkeypatch.setattr(parsed.tree, "_rs_tree", object(), raising=False)
+    monkeypatch.setattr(
+        BaseRule, "_rust_rules_enabled", staticmethod(lambda config: True)
+    )
+    rule = linter.get_rulepack().rules[0]
+    errors, _, _, _ = rule.crawl(
+        parsed.tree,
+        dialect=linter.dialect,
+        fix=False,
+        templated_file=parsed.parsed_variants[0].templated_file,
+        ignore_mask=None,
+        fname=None,
+        config=linter.config,
+    )
+    assert len(errors) == 1
+    assert errors[0].desc().startswith("Unexpected exception: rust rule failed;")
+    assert Linter.remove_templated_errors(errors) == errors
+
+
 def test_rule_must_belong_to_all_group():
     """Assert correct 'groups' config for rule."""
     std_rule_set = get_ruleset()
@@ -508,3 +602,28 @@ seg = WhitespaceSegment(
 def test_rules__lint_result_repr(lint_result, expected):
     """Test that repr(LintResult) works as expected."""
     assert repr(lint_result) == expected
+
+
+def test_ruleset_get_rulepack_case_insensitive(monkeypatch):
+    """Test get_rulepack with mixed-case allowlist and denylist references (#9005)."""
+    ruleset = get_ruleset()
+    reference_map = ruleset.rule_reference_map()
+    layout_codes = reference_map["layout"]
+    assert "LT01" in layout_codes
+    assert "LT02" in layout_codes
+
+    config = FluffConfig(
+        overrides={"dialect": "ansi", "rules": "LAYOUT,cp01", "exclude_rules": "lt02"},
+    )
+    for normcase_fn in (lambda x: x, lambda x: x.lower()):
+        monkeypatch.setattr("os.path.normcase", normcase_fn)
+        with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
+            rule_pack = ruleset.get_rulepack(config)
+            codes = {r.code for r in rule_pack.rules}
+            warnings = [record.message for record in caplog.records]
+            assert not any("unknown rule references" in w for w in warnings), warnings
+            assert not any("unknown rules references" in w for w in warnings), warnings
+
+        assert "CP01" in codes
+        assert "LT02" not in codes
+        assert (layout_codes - {"LT02"}).issubset(codes)

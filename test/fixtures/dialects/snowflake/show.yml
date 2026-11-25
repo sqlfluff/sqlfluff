@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8816175f06a923e11be16329cd2600215edb58b604a8083fe57fea0bbf2ec36c
+_hash: 8082d71277df6bcd722277539c66c325f0af77c23e5a96162a922129cbd31dc5
 file:
 - statement:
     show_statement:
@@ -114,4 +114,38 @@ file:
     - keyword: APPLICATION
     - object_reference:
         naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DYNAMIC
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DYNAMIC
+    - keyword: TABLES
+    - keyword: LIKE
+    - quoted_literal: "'product_%'"
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DYNAMIC
+    - keyword: TABLES
+    - keyword: IN
+    - keyword: ACCOUNT
+    - keyword: STARTS
+    - keyword: WITH
+    - quoted_literal: "'p'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
 - statement_terminator: ;
