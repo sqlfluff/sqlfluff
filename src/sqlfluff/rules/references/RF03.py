@@ -113,8 +113,8 @@ class Rule_RF03(BaseRule):
         ):
             return LintResult()
 
-        if context.dialect.name in self._dialects_with_structs:
-            self._is_struct_dialect = True
+        # Per file: a rule instance is shared by files of different dialects.
+        self._is_struct_dialect = context.dialect.name in self._dialects_with_structs
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: set = set()

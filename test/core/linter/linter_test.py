@@ -235,6 +235,34 @@ def test__linter__get_rulepack_reuse(configs):
     assert lntr.get_rulepack(config=changed) is not pack
 
 
+@pytest.mark.parametrize(
+    "rules,sql,overrides",
+    [
+        (
+            "CP01",
+            "SELECT a {{ 'from' }} t\n",
+            [{"ignore_templated_areas": v} for v in (True, False, True)],
+        ),
+        (
+            "RF03",
+            "SELECT s.a, b FROM t\n",
+            [{"dialect": d} for d in ("bigquery", "ansi", "bigquery")],
+        ),
+    ],
+)
+def test__linter__reused_rulepack_matches_fresh(rules, sql, overrides):
+    """A reused pack lints like a fresh one when config outside the key differs."""
+    rule_config = {"rules": {"references.consistent": {"force_enable": True}}}
+    lntr = Linter(dialect="ansi")
+    for override in overrides:
+        cfg = FluffConfig(
+            configs=rule_config,
+            overrides={"dialect": "ansi", "rules": rules, **override},
+        )
+        shared = lntr.lint_string(sql, config=cfg).check_tuples()
+        assert shared == Linter(config=cfg).lint_string(sql).check_tuples()
+
+
 def test__linter__linting_result__sum_dicts():
     """Test the summing of dictionaries in the linter."""
     i = {}
