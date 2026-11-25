@@ -83,7 +83,8 @@ def test__config__load_file_missing_extra():
         )
 
 
-def test__config__load_ini_utf8(tmp_path):
+@pytest.mark.parametrize("encoding", ["utf-8", "utf-8-sig"])
+def test__config__load_ini_utf8(tmp_path, cp949_locale, encoding):
     """Test that ini config files are read as UTF-8, whatever the locale.
 
     They used to be read in the locale encoding, which on Windows either
@@ -92,7 +93,7 @@ def test__config__load_ini_utf8(tmp_path):
     (tmp_path / ".sqlfluff").write_text(
         "[sqlfluff]\ndialect = ansi\n"
         "[sqlfluff:templater:jinja:context]\n# 주문 테이블\ntable_name = 주문\n",
-        encoding="utf-8",
+        encoding=encoding,
     )
 
     try:
@@ -119,7 +120,7 @@ def test__config__load_ini_not_utf8(tmp_path):
         clear_config_caches()
 
 
-def test__config__load_resource_utf8(tmp_path, monkeypatch):
+def test__config__load_resource_utf8(tmp_path, monkeypatch, cp949_locale):
     """Test that config bundled with a package is read as UTF-8 too."""
     package = tmp_path / "utf8_config_package"
     package.mkdir()

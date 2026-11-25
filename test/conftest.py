@@ -266,6 +266,21 @@ def generate_test_segments():
 
 
 @pytest.fixture
+def cp949_locale(monkeypatch):
+    """Read and write text files as cp949 by default, like in a Korean locale."""
+    real_open = open
+
+    def cp949_open(file, mode="r", buffering=-1, encoding=None, *args, **kwargs):
+        if "b" not in mode and encoding in (None, "locale"):
+            encoding = "cp949"
+        return real_open(file, mode, buffering, encoding, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.open", cp949_open)
+    # NOTE: This is what `pathlib` uses.
+    monkeypatch.setattr("io.open", cp949_open)
+
+
+@pytest.fixture
 def raise_critical_errors_after_fix(monkeypatch):
     """Raises errors that break the Fix process.
 

@@ -43,9 +43,10 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
         return load_toml_file_config(filepath)
     # If it's not a pyproject file, assume that it's an ini file.
     # NOTE: Like toml files, always read them as UTF-8 rather than in the
-    # locale encoding, which on Windows is usually something else.
+    # locale encoding, which on Windows is usually something else. Using
+    # `utf-8-sig` also skips the BOM which some editors on Windows add.
     try:
-        with open(filepath, mode="r", encoding="utf-8") as file:
+        with open(filepath, mode="r", encoding="utf-8-sig") as file:
             cfg_content = file.read()
     except UnicodeDecodeError as err:
         raise SQLFluffUserError(
