@@ -9,6 +9,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.rules import LintResult
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.respace import (
@@ -324,3 +325,99 @@ def test_reflow__inline_without_space_requires_a_block():
             segment_buffer=[],
             existing_results=[],
         )
+
+
+def test_reflow_respace_point_preserves_caller_results_and_identity(default_config):
+    """respace_point() leaves caller lint_results untouched and reuses clean points."""
+    root = parse_ansi_string("SELECT a+b, c +  d  \nFROM t\n", default_config)
+    seq = ReflowSequence.from_root(root, config=default_config)
+    sentinel = LintResult(anchor=root.raw_segments[0], description="sentinel")
+    saw_clean = False
+    saw_dirty_with_space = False
+    saw_dirty_without_space = False
+    for idx, elem in enumerate(seq.elements):
+        if not isinstance(elem, ReflowPoint):
+            continue
+        prev_block = seq.elements[idx - 1] if idx > 0 else None
+        next_block = seq.elements[idx + 1] if idx + 1 < len(seq.elements) else None
+        caller_results = [sentinel]
+        out_results, new_point = elem.respace_point(
+            prev_block,
+            next_block,
+            root_segment=root,
+            lint_results=caller_results,
+            strip_newlines=False,
+        )
+        assert caller_results == [sentinel]
+        assert out_results is not caller_results
+        assert out_results[0] is sentinel
+        if len(out_results) == 1:
+            assert new_point is elem
+            saw_clean = True
+        else:
+            assert new_point is not elem
+            if elem.segments:
+                saw_dirty_with_space = True
+            else:
+                saw_dirty_without_space = True
+                mutable_results = [sentinel]
+                mut_out, _ = elem._respace_point(
+                    prev_block,
+                    next_block,
+                    root_segment=root,
+                    lint_results=mutable_results,
+                    strip_newlines=False,
+                    mutate_results=True,
+                )
+                assert mut_out is mutable_results
+                assert len(mutable_results) > 1
+    assert saw_clean and saw_dirty_with_space and saw_dirty_without_space
+
+    def _sig(results):
+        return [
+            (
+                r.description,
+                str(r.anchor.pos_marker) if r.anchor else None,
+                tuple(
+                    (
+                        f.edit_type,
+                        str(f.anchor.pos_marker) if f.anchor else None,
+                        tuple((seg.get_type(), seg.raw) for seg in f.edit)
+                        if f.edit
+                        else (),
+                    )
+                    for f in r.fixes
+                ),
+            )
+            for r in results
+        ]
+
+    # Filtered and unfiltered respace must preserve pre-existing sequence
+    # results without mutating the source sequence's list.
+    seeded_seq = ReflowSequence(
+        elements=seq.elements,
+        root_segment=seq.root_segment,
+        reflow_config=seq.reflow_config,
+        depth_map=seq.depth_map,
+        lint_results=[sentinel],
+    )
+    assert seeded_seq.get_results() == [sentinel]
+    res_inline = seeded_seq.respace(filter="inline")
+    assert seeded_seq.get_results() == [sentinel]
+    res_newline = seeded_seq.respace(filter="newline")
+    assert seeded_seq.get_results() == [sentinel]
+    res_all_first = seeded_seq.respace(filter="all")
+    assert seeded_seq.get_results() == [sentinel]
+    res_all_second = seeded_seq.respace(filter="all")
+    assert seeded_seq.get_results() == [sentinel]
+
+    for res in (res_inline, res_newline, res_all_first, res_all_second):
+        assert res.get_results()[0] is sentinel
+
+    assert _sig(res_inline.get_results()[1:])
+    assert _sig(res_newline.get_results()[1:])
+    assert sorted(
+        _sig(res_inline.get_results()[1:]) + _sig(res_newline.get_results()[1:])
+    ) == sorted(_sig(res_all_first.get_results()[1:]))
+    assert _sig(res_all_first.get_results()) == _sig(res_all_second.get_results())
+    assert res_all_first.get_raw() == res_all_second.get_raw()

@@ -200,6 +200,9 @@ def _unpack_constraint(constraint: str, strip_newlines: bool) -> tuple[str, bool
 
     Used as a helper function in `determine_constraints`.
     """
+    if ":" not in constraint and constraint != "inline":
+        return constraint, strip_newlines
+
     # Check for deprecated options.
     if constraint == "inline":  # pragma: no cover
         reflow_logger.warning(
@@ -248,7 +251,7 @@ def determine_constraints(
         # TODO: Review whether just checking the parent is enough.
         # NOTE: spacing configs will be available on both sides if they're common
         # so it doesn't matter whether we get it from prev_block or next_block.
-        idx = prev_block.depth_info.stack_hashes.index(common[-1])
+        idx = len(common) - 1
 
         within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
         # The exception is `any`, which leaves the spacing within a segment as
@@ -256,7 +259,10 @@ def determine_constraints(
         # groups of a `MATCH_RECOGNIZE` pattern. The other constraints only
         # space a segment's own children. The configs run from the outermost
         # parent inwards, so search them in reverse for the nearest `any`.
-        if (within_constraint or "").partition(":")[0] != "any":
+        if (
+            prev_block.stack_spacing_configs
+            and (within_constraint or "").partition(":")[0] != "any"
+        ):
             for stack_hash, constraint in reversed(
                 prev_block.stack_spacing_configs.items()
             ):
@@ -270,8 +276,9 @@ def determine_constraints(
         # Prohibit stripping newlines adjacent to comment segments (either
         # immediately before or immediately after this point), since doing
         # so could glue code to a comment marker and change meaning.
-        if any(seg.is_type("comment") for seg in prev_block.segments) or any(
-            seg.is_type("comment") for seg in next_block.segments
+        if strip_newlines and (
+            any(seg.is_type("comment") for seg in prev_block.segments)
+            or any(seg.is_type("comment") for seg in next_block.segments)
         ):
             strip_newlines = False
 
@@ -312,7 +319,7 @@ def determine_constraints(
     # outcome here which preserves the meaning of the file.
     if (
         strip_newlines
-        and {"touch", "any"}.intersection((pre_constraint, post_constraint))
+        and (pre_constraint in ("touch", "any") or post_constraint in ("touch", "any"))
         and _would_fuse_tokens(prev_block, next_block)
     ):
         strip_newlines = False
@@ -393,6 +400,12 @@ def process_spacing(
     # whitespace (if any) and the associated fixes. Removed segments are
     # matched by identity, because a literal space and an adjacent templated
     # space can compare equal, and only the duplicate should be removed.
+    if not removal_buffer:
+        return (
+            segment_buffer,
+            last_whitespace[0] if last_whitespace else None,
+            result_buffer,
+        )
     removal_ids = {id(s) for s in removal_buffer}
     return (
         [s for s in segment_buffer if id(s) not in removal_ids],
@@ -784,17 +797,14 @@ def handle_respace__inline_with_space(
     Given this we apply constraints to ensure the whitespace
     is of an appropriate size.
     """
-    # Get some indices so that we can reference around them
-    ws_idx = segment_buffer.index(last_whitespace)
-
     # Do we have either side set to "any"
-    if "any" in [pre_constraint, post_constraint]:
+    if pre_constraint == "any" or post_constraint == "any":
         # In this instance - don't change anything.
         # e.g. this could mean there is a comment on one side.
         return segment_buffer, []
 
     # Do we have either side set to "touch"?
-    if "touch" in [pre_constraint, post_constraint]:
+    if pre_constraint == "touch" or post_constraint == "touch":
         if _would_fuse_tokens(prev_block, next_block):
             # Removing the whitespace would comment out the rest of the line,
             # or build a different operator. Leave it alone and don't raise a
@@ -803,6 +813,7 @@ def handle_respace__inline_with_space(
             return segment_buffer, []
         # In this instance - no whitespace is correct, This
         # means we should delete it.
+        ws_idx = segment_buffer.index(last_whitespace)
         segment_buffer.pop(ws_idx)
         if next_block:
             description = (
@@ -828,6 +839,8 @@ def handle_respace__inline_with_space(
         post_constraint.startswith("align") and next_block
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
+        desc: Optional[str] = None
+        align_seg_type: Optional[str] = None
         if post_constraint.startswith("align") and next_block:
             seg_type, align_within, align_scope, align_space = (
                 _extract_alignment_config(post_constraint)
@@ -863,31 +876,33 @@ def handle_respace__inline_with_space(
                     indent_unit,
                     tab_space_size,
                 )
+                align_seg_type = seg_type
+        else:
+            desired_space = " "
 
+        if last_whitespace.raw != desired_space:
+            if align_seg_type is not None and next_block:
                 desc = (
-                    f"{seg_type!r} elements are expected to be aligned. Found "
+                    f"{align_seg_type!r} elements are expected to be aligned. Found "
                     "incorrect whitespace before "
                     f"{pretty_segment_name(next_block.segments[0])}: "
                     f"{last_whitespace.raw!r}."
                 )
-        else:
-            if next_block:
-                desc = (
-                    "Expected only single space before "
-                    f"{pretty_segment_name(next_block.segments[0])}. Found "
-                    f"{last_whitespace.raw!r}."
-                )
-            else:  # pragma: no cover
-                # This clause isn't has no test coverage because next_block is
-                # normally provided.
-                desc = f"Expected only single space. Found {last_whitespace.raw!r}."
-            desired_space = " "
-
-        new_results: list[LintResult] = []
-
-        if last_whitespace.raw != desired_space:
+            elif desc is None:
+                if next_block:
+                    desc = (
+                        "Expected only single space before "
+                        f"{pretty_segment_name(next_block.segments[0])}. Found "
+                        f"{last_whitespace.raw!r}."
+                    )
+                else:  # pragma: no cover
+                    # This clause isn't has no test coverage because next_block is
+                    # normally provided.
+                    desc = f"Expected only single space. Found {last_whitespace.raw!r}."
+            ws_idx = segment_buffer.index(last_whitespace)
             new_seg = last_whitespace.edit(desired_space)
-            new_results.append(
+            segment_buffer[ws_idx] = new_seg
+            return segment_buffer, [
                 LintResult(
                     last_whitespace,
                     [
@@ -899,10 +914,9 @@ def handle_respace__inline_with_space(
                     ],
                     description=desc,
                 )
-            )
-            segment_buffer[ws_idx] = new_seg
+            ]
 
-        return segment_buffer, new_results
+        return segment_buffer, []
 
     raise NotImplementedError(  # pragma: no cover
         f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
@@ -917,6 +931,7 @@ def handle_respace__inline_without_space(
     segment_buffer: list[RawSegment],
     existing_results: list[LintResult],
     anchor_on: str = "before",
+    mutate_results: bool = False,
 ) -> tuple[list[RawSegment], list[LintResult], bool]:
     """Ensure spacing is the right size.
 
@@ -930,7 +945,7 @@ def handle_respace__inline_without_space(
     spacing is required or create some of the right size.
     """
     # Do we have either side set to "touch" or "any"
-    if {"touch", "any"}.intersection([pre_constraint, post_constraint]):
+    if pre_constraint in ("touch", "any") or post_constraint in ("touch", "any"):
         # In this instance - no whitespace is correct.
         # Either because there shouldn't be, or because "any"
         # means we shouldn't check.
@@ -1059,4 +1074,7 @@ def handle_respace__inline_without_space(
             "Not set up to handle a missing _after_ and _before_."
         )
 
+    if mutate_results:
+        existing_results.append(new_result)
+        return segment_buffer, existing_results, True
     return segment_buffer, existing_results + [new_result], True

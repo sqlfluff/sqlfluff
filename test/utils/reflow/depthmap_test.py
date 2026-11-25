@@ -3,7 +3,7 @@
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.utils.reflow.depthmap import DepthMap, StackPosition
+from sqlfluff.utils.reflow.depthmap import DepthInfo, DepthMap, StackPosition
 
 
 def parse_ansi_string(sql, config):
@@ -49,6 +49,19 @@ def test_reflow_depthmap_from_parent(default_config):
     select_keyword_di = dm.depth_info[root.raw_segments[0].uuid]
     numeric_one_di = dm.depth_info[root.raw_segments[3].uuid]
     assert len(select_keyword_di.common_with(numeric_one_di)) == 4
+
+
+def test_reflow_depthinfo_common_with_empty_stacks_asserts():
+    """Empty stack_hashes must not bypass the no-common-ancestor assertion."""
+    empty = DepthInfo(
+        stack_depth=0,
+        stack_hashes=(),
+        stack_hash_set=frozenset(),
+        stack_class_types=(),
+        stack_positions={},
+    )
+    with pytest.raises(AssertionError, match="no common ancestor"):
+        empty.common_with(empty)
 
 
 @pytest.mark.parametrize(
