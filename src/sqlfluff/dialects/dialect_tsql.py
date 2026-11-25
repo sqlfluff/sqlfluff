@@ -4795,7 +4795,7 @@ class SetStatementSegment(BaseSegment):
                         "SHOWPLAN_XML",
                         Sequence(
                             "STATISTICS",
-                            OneOf(
+                            Delimited(
                                 "IO",
                                 "PROFILE",
                                 "TIME",
