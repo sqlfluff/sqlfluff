@@ -19,6 +19,7 @@ from typing import Optional
 from sqlfluff.core.config.ini import load_ini_string
 from sqlfluff.core.config.toml import PYPROJECT_FILENAME, load_toml_file_config
 from sqlfluff.core.config.validate import validate_config_dict
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
@@ -41,8 +42,16 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
     if filename == PYPROJECT_FILENAME:
         return load_toml_file_config(filepath)
     # If it's not a pyproject file, assume that it's an ini file.
-    with open(filepath, mode="r") as file:
-        return load_ini_string(file.read(), filepath)
+    # NOTE: Like toml files, always read them as UTF-8 rather than in the
+    # locale encoding, which on Windows is usually something else.
+    try:
+        with open(filepath, mode="r", encoding="utf-8") as file:
+            cfg_content = file.read()
+    except UnicodeDecodeError as err:
+        raise SQLFluffUserError(
+            f"Config file {filepath} is not valid UTF-8: {err}. Save it as UTF-8."
+        ) from None
+    return load_ini_string(cfg_content, filepath)
 
 
 def _resolve_path(filepath: str, val: str) -> list[str]:

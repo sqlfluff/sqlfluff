@@ -68,7 +68,7 @@ def _load_specs_from_lines(lines: Iterable[str], logging_reference: str) -> Igno
 def _load_ignorefile(dirpath: str, filename: str) -> IgnoreSpecRecord:
     """Load a sqlfluffignore file, returning the parsed spec."""
     filepath = os.path.join(dirpath, filename)
-    with open(filepath, mode="r") as f:
+    with open(filepath, mode="r", encoding="utf-8") as f:
         spec = _load_specs_from_lines(f, filepath)
     return dirpath, filename, spec
 

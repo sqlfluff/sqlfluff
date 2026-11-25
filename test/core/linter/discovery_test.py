@@ -117,6 +117,20 @@ def test__linter__path_from_paths__ignore(path):
     }
 
 
+def test__linter__path_from_paths__ignore_utf8(tmp_path):
+    """Test that ignore files are read as UTF-8, whatever the locale."""
+    (tmp_path / "모델").mkdir()
+    (tmp_path / "모델" / "ignored.sql").write_text("SELECT 1\n", encoding="utf-8")
+    (tmp_path / "found.sql").write_text("SELECT 1\n", encoding="utf-8")
+    (tmp_path / ".sqlfluffignore").write_text(
+        "# 모델 폴더는 제외\n모델/\n", encoding="utf-8"
+    )
+
+    paths = paths_from_path(str(tmp_path))
+
+    assert [os.path.basename(path) for path in paths] == ["found.sql"]
+
+
 def test__linter__path_from_paths__specific_bad_ext():
     """Test we get no match if a path with the wrong extension is passed."""
     assert paths_from_path("README.md") == []

@@ -160,7 +160,7 @@ def load_config_resource(package: str, file_name: str) -> ConfigMappingType:
     For more information about resource loading, see the docs for importlib:
     https://docs.python.org/3/library/importlib.resources.html
     """
-    config_string = files(package).joinpath(file_name).read_text()
+    config_string = files(package).joinpath(file_name).read_text(encoding="utf-8")
     # NOTE: load_config_string_as_dict is cached.
     return load_config_string_as_dict(
         config_string,
