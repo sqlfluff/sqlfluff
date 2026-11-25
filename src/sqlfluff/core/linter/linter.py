@@ -43,6 +43,7 @@ from sqlfluff.core.linter.patch import generate_source_patches, merge_source_pat
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.rules.crawlers import forget_walk_index
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
 
@@ -759,6 +760,7 @@ class Linter:
             linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
             linter_logger.info("\n" + tree.stringify())
 
+        forget_walk_index()
         return tree, initial_linting_errors, ignore_mask, rule_timings
 
     @classmethod

@@ -6,6 +6,7 @@ import pytest
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter.linter import Linter
+from sqlfluff.core.rules import crawlers
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import (
     ParentOfSegmentCrawler,
@@ -118,10 +119,14 @@ def crawl_trace(crawl, context):
         ("SELECT 1 + 2 FROM t", {"case_expression"}, True),
         # Targets inside a section that doesn't parse. The crawler skips these.
         ("SELECT 1 + 2 FROM t; asd 3 qwe 4", {"numeric_literal"}, True),
+        # More than one target type, nested in each other.
+        ("SELECT (a + 1) * b FROM t", {"expression", "column_reference"}, True),
+        ("SELECT (a + 1) * b FROM t", {"expression", "column_reference"}, False),
     ],
 )
+@pytest.mark.parametrize("works_on_unparsable", [True, False])
 def test_rules_crawlers_seeker_matches_reference(
-    raw_sql_in, types, allow_recurse, provide_raw_stack
+    raw_sql_in, types, allow_recurse, provide_raw_stack, works_on_unparsable
 ):
     """Test the seeker crawler against a plain recursive crawl.
 
@@ -131,7 +136,10 @@ def test_rules_crawlers_seeker_matches_reference(
     linter = Linter(config=cfg)
     root = linter.parse_string(raw_sql_in).tree
     crawler = SegmentSeekerCrawler(
-        types, provide_raw_stack=provide_raw_stack, allow_recurse=allow_recurse
+        types,
+        provide_raw_stack=provide_raw_stack,
+        allow_recurse=allow_recurse,
+        works_on_unparsable=works_on_unparsable,
     )
 
     def new_root_context():
@@ -152,3 +160,9 @@ def test_rules_crawlers_seeker_matches_reference(
     assert yielded == ref_yielded
     assert raw_stacks == ref_raw_stacks
     assert end_stack == ref_end_stack
+
+
+def test_rules_crawlers_walk_index_dropped_after_lint():
+    """Linting a file doesn't leave its tree held by the shared walk index."""
+    Linter(dialect="ansi").lint_string("SELECT a + 1 FROM t\n")
+    assert getattr(crawlers._last_index, "index", None) is None
