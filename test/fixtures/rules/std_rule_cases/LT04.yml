@@ -634,3 +634,27 @@ redshift_procedure_comma_reused_in_string:
     core:
       dialect: redshift
       templater: jinja
+
+redshift_procedure_comma_in_alternate_string_variant:
+  pass_str: |
+    {% set q = '' %}
+    {% if quote_values %}
+    -- quoted alternate rendering
+    {% set q = "'" %}
+    {% endif %}
+    CREATE PROCEDURE p(a varchar, b varchar) AS $body$
+    DECLARE v varchar;
+    BEGIN
+        v := COALESCE({{ q }}a
+            , b{{ q }}, 'fallback');
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+      render_variant_limit: 2
+    templater:
+      jinja:
+        context:
+          quote_values: false

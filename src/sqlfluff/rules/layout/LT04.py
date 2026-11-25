@@ -46,6 +46,8 @@ class Rule_LT04(Rule_LT03):
 
     In Redshift this rule also checks separator commas inside dollar-quoted
     stored procedure bodies. The body remains a quoted literal for other rules.
+    Procedure bodies are skipped in files with template control blocks, where
+    the same source comma can render as SQL or as part of a string.
 
     **Anti-pattern**
 
@@ -111,6 +113,13 @@ class Rule_LT04(Rule_LT03):
         if body is None or body.source_fixes or "," not in body.raw:
             return []
 
+        assert body.pos_marker
+        template = body.pos_marker.templated_file
+        # Rules see one rendered variant at a time. Even a literal span that
+        # occurs just once here may be inside a string in another branch.
+        if any(part.slice_type.startswith("block_") for part in template.raw_sliced):
+            return []
+
         # The outer lexer has already matched the closing delimiter, including
         # its optional tag. Lex the contents so comments and nested strings
         # retain their boundaries without parsing PL/pgSQL statements.
@@ -134,10 +143,7 @@ class Rule_LT04(Rule_LT03):
             self.logger.debug("Skipping procedure body with lexer errors: %s", errors)
             return []
         body_tokens = context.dialect.get_segment("FileSegment")(segments)
-        assert body.pos_marker
-        if _unique_literal(
-            body.pos_marker.templated_file, body.pos_marker.source_slice
-        ):
+        if _unique_literal(template, body.pos_marker.source_slice):
             fixed = ReflowSequence.from_root(body_tokens, context.config).rebreak(
                 target_type="comma"
             )
