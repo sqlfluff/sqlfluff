@@ -424,3 +424,96 @@ leading_comma_align_following_fail:
       type:
         comma:
           line_position: "leading:align-following"
+
+redshift_procedure_trailing_commas:
+  fail_str: |
+    CREATE PROCEDURE p(a int, b int) AS $body$
+    BEGIN
+        RAISE NOTICE 'first %, second %' -- message
+            , a
+            , b;
+        /* A comment containing
+            , literal punctuation. */
+        SELECT $text$first
+            , second$text$
+            , 'first
+            , second';
+    END;
+    $body$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p(a int, b int) AS $body$
+    BEGIN
+        RAISE NOTICE 'first %, second %', -- message
+            a,
+            b;
+        /* A comment containing
+            , literal punctuation. */
+        SELECT $text$first
+            , second$text$,
+            'first
+            , second';
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_leading_commas:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (1,
+            2);
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (1
+            , 2);
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+    layout:
+      type:
+        comma:
+          line_position: leading
+        # This applies to the lexer token. Only comma positions are in scope.
+        word:
+          line_position: leading:strict
+
+redshift_non_procedure_dollar_literal:
+  pass_str: |
+    SELECT $$one
+        , two$$;
+    CREATE FUNCTION f() RETURNS int AS $$
+        SELECT 1
+            , 2;
+    $$ LANGUAGE sql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_do_not_reflow_option_value:
+  pass_str: |
+    CREATE PROCEDURE p() AS $$BEGIN NULL; END;$$ LANGUAGE plpgsql
+    SET query_group TO $value$first
+        , second$value$;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_unlexable_body:
+  # A body the lexer cannot tokenize reliably must still be treated as opaque.
+  pass_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        SELECT café
+            , b FROM t;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift

@@ -378,6 +378,8 @@ def rebreak_sequence(
     root_segment: BaseSegment,
     indent_unit: str = "space",
     tab_space_size: int = 4,
+    *,
+    target_type: str | None = None,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Reflow line breaks within a sequence.
 
@@ -409,6 +411,8 @@ def rebreak_sequence(
     # 2. The point before the next _code_ segment (ditto comments).
     locations: list[_RebreakLocation] = []
     for span in spans:
+        if target_type and not span.target.is_type(target_type):
+            continue
         try:
             locations.append(_RebreakLocation.from_span(span, elem_buff))
         # If we try and create a location from an incomplete span (i.e. one
