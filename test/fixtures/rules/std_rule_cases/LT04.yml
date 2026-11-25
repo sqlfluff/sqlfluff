@@ -599,3 +599,38 @@ redshift_procedure_incomplete_quote:
   configs:
     core:
       dialect: redshift
+
+redshift_procedure_comma_after_multiline_comment:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (a /* comment
+            still comment */, b);
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (a, /* comment
+            still comment */b);
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_comma_reused_in_string:
+  pass_str: |
+    CREATE PROCEDURE p(a varchar, b varchar) AS $body$
+    DECLARE v varchar;
+    BEGIN
+    {% for quoted in [false, true] %}
+        v := COALESCE({% if quoted %}'{% endif %}a
+            , b{% if quoted %}'{% endif %}, 'fallback');
+    {% endfor %}
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja

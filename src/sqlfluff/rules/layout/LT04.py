@@ -2,8 +2,6 @@
 
 from sqlfluff.core.parser import (
     BaseSegment,
-    CodeSegment,
-    CommentSegment,
     PositionMarker,
     PyLexer,
     RegexLexer,
@@ -12,19 +10,27 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.rules import LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.rules.layout.LT03 import Rule_LT03
 from sqlfluff.utils.reflow import ReflowSequence
 
 # PL/pgSQL comments in Redshift end at the first */. Standard identifiers
 # may contain multibyte UTF-8 characters, including in unquoted names.
-_PROCEDURE_LEXERS = {
-    "block_comment": RegexLexer("block_comment", r"/\*.*?\*/", CommentSegment),
-    "word": RegexLexer(
-        "word",
-        r"#?(?:[0-9a-zA-Z_]|[^\x00-\x7f])(?:[0-9a-zA-Z_$]|[^\x00-\x7f])*",
-        CodeSegment,
-    ),
+_PROCEDURE_PATTERNS = {
+    "block_comment": r"/\*.*?\*/",
+    "word": r"#?(?:[0-9a-zA-Z_]|[^\x00-\x7f])(?:[0-9a-zA-Z_$]|[^\x00-\x7f])*",
 }
+
+
+def _unique_literal(template: TemplatedFile, source: slice) -> bool:
+    """A source edit is safe only if the edited SQL has a single rendering."""
+    overlapping = [
+        part
+        for part in template.sliced_file
+        if part.source_slice.start < source.stop
+        and source.start < part.source_slice.stop
+    ]
+    return len(overlapping) == 1 and overlapping[0].slice_type == "literal"
 
 
 class Rule_LT04(Rule_LT03):
@@ -111,7 +117,16 @@ class Rule_LT04(Rule_LT03):
         delimiter = body.raw[: body.raw.index("$", 1) + 1]
         lexer = PyLexer(config=context.config)
         lexer.lexer_matchers = [
-            _PROCEDURE_LEXERS.get(matcher.name, matcher)
+            RegexLexer(
+                matcher.name,
+                _PROCEDURE_PATTERNS[matcher.name],
+                matcher.segment_class,
+                subdivider=matcher.subdivider,
+                trim_post_subdivide=matcher.trim_post_subdivide,
+                segment_kwargs=matcher.segment_kwargs,
+            )
+            if matcher.name in _PROCEDURE_PATTERNS
+            else matcher
             for matcher in lexer.lexer_matchers
         ]
         segments, errors = lexer.lex(body.raw[len(delimiter) : -len(delimiter)])
@@ -120,7 +135,9 @@ class Rule_LT04(Rule_LT03):
             return []
         body_tokens = context.dialect.get_segment("FileSegment")(segments)
         assert body.pos_marker
-        if body.pos_marker.is_literal():
+        if _unique_literal(
+            body.pos_marker.templated_file, body.pos_marker.source_slice
+        ):
             fixed = ReflowSequence.from_root(body_tokens, context.config).rebreak(
                 target_type="comma"
             )
@@ -181,7 +198,7 @@ class Rule_LT04(Rule_LT03):
         source = template.templated_slice_to_source_slice(window)
         # A separator can move within literal SQL, even when an adjacent
         # argument is templated. Never move it across a template boundary.
-        if not template.is_source_slice_literal(source) or (
+        if not _unique_literal(template, source) or (
             template.source_str[source] != template.templated_str[window]
         ):
             return None
