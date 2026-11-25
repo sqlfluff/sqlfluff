@@ -13,6 +13,7 @@ from sqlfluff.core.config import (
     clear_config_caches,
     load_config_at_path,
     load_config_file,
+    load_config_resource,
     load_config_string,
     load_config_up_to_path,
 )
@@ -80,6 +81,61 @@ def test__config__load_file_missing_extra():
             os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql"),
             extra_config_path="non/existent/path",
         )
+
+
+@pytest.mark.parametrize("encoding", ["utf-8", "utf-8-sig"])
+def test__config__load_ini_utf8(tmp_path, cp949_locale, encoding):
+    """Test that ini config files are read as UTF-8, whatever the locale.
+
+    They used to be read in the locale encoding, which on Windows either
+    raised a ``UnicodeDecodeError`` or silently mangled the values.
+    """
+    (tmp_path / ".sqlfluff").write_text(
+        "[sqlfluff]\ndialect = ansi\n"
+        "[sqlfluff:templater:jinja:context]\n# 주문 테이블\ntable_name = 주문\n",
+        encoding=encoding,
+    )
+
+    try:
+        cfg = load_config_at_path(str(tmp_path))
+    finally:
+        clear_config_caches()
+
+    assert cfg == {
+        "core": {"dialect": "ansi"},
+        "templater": {"jinja": {"context": {"table_name": "주문"}}},
+    }
+
+
+def test__config__load_ini_not_utf8(tmp_path):
+    """Test that an ini config file in another encoding is a user error."""
+    (tmp_path / ".sqlfluff").write_bytes(
+        "[sqlfluff]\n# 사내 표준\ndialect = ansi\n".encode("cp949")
+    )
+
+    try:
+        with pytest.raises(SQLFluffUserError, match="not valid UTF-8"):
+            load_config_at_path(str(tmp_path))
+    finally:
+        clear_config_caches()
+
+
+def test__config__load_resource_utf8(tmp_path, monkeypatch, cp949_locale):
+    """Test that config bundled with a package is read as UTF-8 too."""
+    package = tmp_path / "utf8_config_package"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "default_config.cfg").write_text(
+        "[sqlfluff:templater:jinja:context]\ntable_name = 주문\n", encoding="utf-8"
+    )
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    try:
+        cfg = load_config_resource("utf8_config_package", "default_config.cfg")
+    finally:
+        clear_config_caches()
+
+    assert cfg == {"templater": {"jinja": {"context": {"table_name": "주문"}}}}
 
 
 def test__config__load_with_config_dir(tmp_path):
