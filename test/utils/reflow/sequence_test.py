@@ -368,6 +368,8 @@ def test_reflow_elements_parent_config_cache_matches_uncached(default_config):
     root = parse_ansi_string(sql, default_config)
     seq = ReflowSequence.from_root(root, config=default_config)
     blocks_by_raw: dict[str, ReflowBlock] = {}
+    blocks_by_stack: dict[tuple[int, ...], ReflowBlock] = {}
+    saw_shared_stack = False
     for elem in seq.elements:
         if isinstance(elem, ReflowBlock):
             uncached = ReflowBlock.from_config(
@@ -377,6 +379,22 @@ def test_reflow_elements_parent_config_cache_matches_uncached(default_config):
             )
             assert elem == uncached
             blocks_by_raw.setdefault(elem.raw, elem)
+            prior = blocks_by_stack.get(elem.depth_info.stack_hashes)
+            if prior is None:
+                blocks_by_stack[elem.depth_info.stack_hashes] = elem
+            else:
+                saw_shared_stack = True
+                assert elem.stack_spacing_configs is prior.stack_spacing_configs
+                assert elem.line_position_configs is prior.line_position_configs
+                assert (
+                    elem.keyword_line_position_configs
+                    is prior.keyword_line_position_configs
+                )
+                assert (
+                    elem.keyword_line_position_exclusions_configs
+                    is prior.keyword_line_position_exclusions_configs
+                )
+    assert saw_shared_stack
 
     # Literal expected values under default config (including exclusions parity
     # and parent-inherited spacing on function brackets).
