@@ -254,6 +254,7 @@ def test__linter__reused_rulepack_matches_fresh(rules, sql, overrides):
     """A reused pack lints like a fresh one when config outside the key differs."""
     rule_config = {"rules": {"references.consistent": {"force_enable": True}}}
     lntr = Linter(dialect="ansi")
+    packs = []
     for override in overrides:
         cfg = FluffConfig(
             configs=rule_config,
@@ -261,6 +262,9 @@ def test__linter__reused_rulepack_matches_fresh(rules, sql, overrides):
         )
         shared = lntr.lint_string(sql, config=cfg).check_tuples()
         assert shared == Linter(config=cfg).lint_string(sql).check_tuples()
+        packs.append(lntr.get_rulepack(config=cfg))
+    # One pack served every config, so the comparison above tested reuse.
+    assert all(pack is packs[0] for pack in packs)
 
 
 def test__linter__linting_result__sum_dicts():

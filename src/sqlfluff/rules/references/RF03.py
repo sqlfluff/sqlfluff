@@ -90,7 +90,6 @@ class Rule_RF03(BaseRule):
     # If any of the parents would have also triggered the rule, don't fire
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
-    _is_struct_dialect = False
     # Dialects with STRUCT-like data types accessed via dot syntax (e.g.
     # `col.field.subfield`), which can be misread as table-qualified column
     # references (`table.column`) in single table SELECTs.
@@ -112,9 +111,6 @@ class Rule_RF03(BaseRule):
             and not self.force_enable
         ):
             return LintResult()
-
-        # Per file: a rule instance is shared by files of different dialects.
-        self._is_struct_dialect = context.dialect.name in self._dialects_with_structs
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: set = set()
@@ -269,7 +265,7 @@ class Rule_RF03(BaseRule):
                     select_info.reference_buffer,
                     select_info.col_aliases,
                     self.single_table_references,
-                    self._is_struct_dialect,
+                    query.dialect.name in self._dialects_with_structs,
                     self._fix_inconsistent_to,
                     fixable,
                     query.dialect.name,
