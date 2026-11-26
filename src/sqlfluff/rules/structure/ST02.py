@@ -213,14 +213,25 @@ class Rule_ST02(BaseRule):
             if len(when_clauses) > 1:
                 return None
 
-            # Find condition and then expressions.
-            condition_expression = when_clauses.children(sp.is_type("expression"))[0]
-            then_expression = when_clauses.children(sp.is_type("expression"))[1]
+            # Find condition and then expressions. A WHEN or ELSE clause can
+            # hold a statement instead of an expression when the CASE is part
+            # of a procedural block (for example in a PL/SQL function), in
+            # which case there is nothing for this rule to simplify.
+            when_clause_expressions = when_clauses.children(sp.is_type("expression"))
+            if len(when_clause_expressions) < 2:
+                return None
+
+            else_clause_expressions = else_clauses.children(sp.is_type("expression"))
+            if else_clauses and not else_clause_expressions:
+                return None
+
+            condition_expression = when_clause_expressions[0]
+            then_expression = when_clause_expressions[1]
 
             # Method 1: Check if THEN/ELSE expressions are both Boolean and can
             # therefore be reduced.
             if else_clauses:
-                else_expression = else_clauses.children(sp.is_type("expression"))[0]
+                else_expression = else_clause_expressions[0]
                 upper_bools = ["TRUE", "FALSE"]
                 if (
                     (then_expression.raw_upper in upper_bools)
@@ -321,7 +332,7 @@ class Rule_ST02(BaseRule):
                 )
 
                 if else_clauses:
-                    else_expression = else_clauses.children(sp.is_type("expression"))[0]
+                    else_expression = else_clause_expressions[0]
                     # Check if we can reduce the CASE expression to a single coalesce
                     # function.
                     if (
