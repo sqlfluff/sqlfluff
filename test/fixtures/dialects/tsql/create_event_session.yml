@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 845ba4a9dfd62c02d4d237493e8fa7f7cff422c46dcaebb04250d9ea99829223
+_hash: c3f153eec3f165f9f934741ca4b20b197d7323e2325c70394cd57a4345375c8d
 file:
   batch:
   - statement:
@@ -486,6 +486,55 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: PER_CPU
+          - comma: ','
+          - keyword: STARTUP_STATE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'OFF'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: short_trace
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: sql_batch_completed
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: event_file
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+              keyword: SET
+              naked_identifier: filename
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                quoted_literal: "N'short_trace.xel'"
+            end_bracket: )
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '30'
+          - keyword: MINUTES
           - comma: ','
           - keyword: STARTUP_STATE
           - comparison_operator:

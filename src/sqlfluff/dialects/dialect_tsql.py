@@ -10408,6 +10408,17 @@ class EventSessionOptionsSegment(BaseSegment):
                     Ref("EqualsSegment"),
                     OneOf("ON", "OFF"),
                 ),
+                Sequence(
+                    "MAX_DURATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("NumericLiteralSegment"),
+                            OneOf("SECONDS", "MINUTES", "HOURS", "DAYS"),
+                        ),
+                        "UNLIMITED",
+                    ),
+                ),
             ),
         ),
     )

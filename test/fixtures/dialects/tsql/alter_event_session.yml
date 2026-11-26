@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9aa4756c2c84d0d19fc219d407d7c2cd8ae2307ba7e06120fd323a26b3ee79d1
+_hash: f02df7c2248a20706dc1cccfb175517ed3b8dd2ec8b98f444fe28c3e9dba5b25
 file:
   batch:
   - statement:
@@ -184,6 +184,45 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: 'OFF'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '2'
+          - keyword: HOURS
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: DATABASE
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: UNLIMITED
           - end_bracket: )
   - statement_terminator: ;
   - statement:
