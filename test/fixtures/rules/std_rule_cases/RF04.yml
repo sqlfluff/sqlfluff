@@ -279,3 +279,27 @@ test_pass_postgres_collation_words_as_column_definitions:
   configs:
     core:
       dialect: postgres
+
+# --- Oracle uses its own keyword lists, not ANSI's ---
+# Words like LOCATION, OWNER and VERSION were inherited from the ANSI keyword
+# list but aren't Oracle keywords, so they're fine as aliases in Oracle.
+
+test_pass_oracle_non_keyword_aliases:
+  pass_str: SELECT a AS location, b AS owner, c AS version FROM t
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_keyword_as_alias:
+  # PARAMETER is an Oracle (PL/SQL) keyword, so it is still flagged.
+  fail_str: SELECT 1 AS parameter FROM dual
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_own_keyword_as_column_name:
+  # AUTHID comes from Oracle's own keyword list.
+  fail_str: CREATE TABLE t (authid NUMBER)
+  configs:
+    core:
+      dialect: oracle
