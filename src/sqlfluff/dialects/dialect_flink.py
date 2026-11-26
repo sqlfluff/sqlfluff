@@ -903,6 +903,59 @@ class DropModelStatementSegment(ansi.DropModelStatementSegment):
     )
 
 
+class CreateConnectionStatementSegment(BaseSegment):
+    """A `CREATE CONNECTION` statement for FlinkSQL (Flink 2.2+ FLIP-529)."""
+
+    type = "create_connection_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "CONNECTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        Ref("CreateTableConnectorOptionsSegment"),
+    )
+
+
+class AlterConnectionStatementSegment(BaseSegment):
+    """An `ALTER CONNECTION` statement for FlinkSQL (Flink 2.2+ FLIP-529)."""
+
+    type = "alter_connection_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("SET", Ref("FlinkOptionsListGrammar")),
+            Sequence("RESET", Ref("FlinkOptionKeyListGrammar")),
+        ),
+    )
+
+
+class DropConnectionStatementSegment(BaseSegment):
+    """A `DROP CONNECTION` statement for FlinkSQL (Flink 2.2+ FLIP-529)."""
+
+    type = "drop_connection_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class CreateMaterializedTableStatementSegment(BaseSegment):
     """A `CREATE [OR ALTER] MATERIALIZED TABLE` statement for FlinkSQL (Flink 2.0+).
 
@@ -1110,13 +1163,16 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             # FlinkSQL-specific statements
+            Ref("AlterConnectionStatementSegment"),
             Ref("AlterMaterializedTableStatementSegment"),
             Ref("AlterModelStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
+            Ref("CreateConnectionStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
             Ref("CreateMaterializedTableStatementSegment"),
             Ref("DescribeStatementSegment"),
+            Ref("DropConnectionStatementSegment"),
             Ref("DropMaterializedTableStatementSegment"),
             Ref("ExecuteStatementSetSegment"),
             Ref("ShowStatementsSegment"),
