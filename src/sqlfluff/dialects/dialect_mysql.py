@@ -1750,6 +1750,11 @@ class IntervalExpressionSegment(BaseSegment):
 
 mysql_dialect.add(
     AddDropSystemVersioningGrammar=Nothing(),
+    ReplicaChannelOptionGrammar=Sequence(
+        "FOR",
+        "CHANNEL",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("ObjectReferenceSegment")),
+    ),
     TriggerOrReplaceGrammar=Nothing(),
     # A trailing LIMIT on GROUP_CONCAT; MariaDB only.
     AggregateLimitClauseGrammar=Nothing(),
@@ -2195,6 +2200,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RenameUserStatementSegment"),
             Ref("ResetMasterStatementSegment"),
             Ref("ResetPersistStatementSegment"),
+            Ref("StartReplicaStatementSegment"),
+            Ref("StopReplicaStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
             Ref("HelpStatementSegment"),
             Ref("CheckTableStatementSegment"),
@@ -3945,6 +3952,67 @@ class ResetPersistStatementSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
             optional=True,
         ),
+    )
+
+
+class StartReplicaStatementSegment(BaseSegment):
+    """A `START REPLICA` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/start-replica.html
+    """
+
+    type = "start_replica_statement"
+    match_grammar = Sequence(
+        "START",
+        "REPLICA",
+        Delimited(OneOf("IO_THREAD", "SQL_THREAD"), optional=True),
+        Sequence(
+            "UNTIL",
+            OneOf(
+                "SQL_AFTER_MTS_GAPS",
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            "SQL_BEFORE_GTIDS",
+                            "SQL_AFTER_GTIDS",
+                            "SOURCE_LOG_FILE",
+                            "SOURCE_LOG_POS",
+                            "RELAY_LOG_FILE",
+                            "RELAY_LOG_POS",
+                        ),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf("USER", "PASSWORD", "DEFAULT_AUTH", "PLUGIN_DIR"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Ref("ReplicaChannelOptionGrammar", optional=True),
+    )
+
+
+class StopReplicaStatementSegment(BaseSegment):
+    """A `STOP REPLICA` statement.
+
+    https://dev.mysql.com/doc/refman/8.4/en/stop-replica.html
+    """
+
+    type = "stop_replica_statement"
+    match_grammar = Sequence(
+        "STOP",
+        "REPLICA",
+        Delimited(OneOf("IO_THREAD", "SQL_THREAD"), optional=True),
+        Ref("ReplicaChannelOptionGrammar", optional=True),
     )
 
 

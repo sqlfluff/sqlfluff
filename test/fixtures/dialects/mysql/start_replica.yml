@@ -1,0 +1,160 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0bf673ea8e7fbad07a156328a8ad762719c600d5f38466a28e21bcdd038e5a95
+file:
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: IO_THREAD
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: SQL_THREAD
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: IO_THREAD
+    - comma: ','
+    - keyword: SQL_THREAD
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: FOR
+    - keyword: CHANNEL
+    - quoted_literal: "'channel_1'"
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: SQL_THREAD
+    - keyword: FOR
+    - keyword: CHANNEL
+    - quoted_literal: '"channel_1"'
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: UNTIL
+    - keyword: SQL_BEFORE_GTIDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3E11FA47-71CA-11E1-9E33-C80AA9429562:11-56'"
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: SQL_THREAD
+    - keyword: UNTIL
+    - keyword: SQL_AFTER_GTIDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3E11FA47-71CA-11E1-9E33-C80AA9429562:11-56'"
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: UNTIL
+    - keyword: SOURCE_LOG_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'binlog.000002'"
+    - comma: ','
+    - keyword: SOURCE_LOG_POS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1234'
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: UNTIL
+    - keyword: RELAY_LOG_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'relay-bin.000003'"
+    - comma: ','
+    - keyword: RELAY_LOG_POS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: UNTIL
+    - keyword: SQL_AFTER_MTS_GAPS
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: USER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'repl'"
+    - keyword: PASSWORD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'secret'"
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: USER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'repl'"
+    - keyword: PASSWORD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'secret'"
+    - keyword: DEFAULT_AUTH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'caching_sha2_password'"
+    - keyword: PLUGIN_DIR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'/usr/lib/plugin'"
+- statement_terminator: ;
+- statement:
+    start_replica_statement:
+    - keyword: START
+    - keyword: REPLICA
+    - keyword: IO_THREAD
+    - keyword: UNTIL
+    - keyword: SQL_AFTER_MTS_GAPS
+    - keyword: USER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'repl'"
+    - keyword: PASSWORD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'secret'"
+    - keyword: FOR
+    - keyword: CHANNEL
+    - quoted_literal: "'channel_1'"
+- statement_terminator: ;
