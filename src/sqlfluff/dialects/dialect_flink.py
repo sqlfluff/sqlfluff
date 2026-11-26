@@ -211,27 +211,96 @@ flink_dialect.add(
             allow_gaps=False,
         ),
     ),
-    # Connector options for CREATE TABLE
-    CreateTableConnectorOptionsSegment=Sequence(
-        "WITH",
-        Bracketed(
-            Delimited(
-                Sequence(
-                    OneOf(
-                        Ref("QuotedLiteralSegment"),  # 'key' format
-                        Ref("NakedIdentifierSegment"),  # key format
-                    ),
-                    OneOf(
-                        Ref("EqualsSegment"),  # single =
-                        Ref("DoubleEqualsSegment"),  # double == format
-                    ),
-                    OneOf(
-                        Ref("QuotedLiteralSegment"),  # 'value' format
-                        Ref("NakedIdentifierSegment"),  # value format
-                    ),
+    # Connector option list: ('key' = 'value', ...)
+    FlinkOptionsListGrammar=Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),  # 'key' format
+                    Ref("NakedIdentifierSegment"),  # key format
+                ),
+                OneOf(
+                    Ref("EqualsSegment"),  # single =
+                    Ref("DoubleEqualsSegment"),  # double == format
+                ),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),  # 'value' format
+                    Ref("NakedIdentifierSegment"),  # value format
                 ),
             ),
         ),
+    ),
+    # Option key list for RESET ('key1', 'key2', ...)
+    FlinkOptionKeyListGrammar=Bracketed(
+        Delimited(
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
+    # Partition spec: PARTITION (col1 = val1, col2 = val2)
+    FlinkPartitionSpecGrammar=Sequence(
+        "PARTITION",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("EqualsSegment"),
+                    Ref("LiteralGrammar"),
+                ),
+            ),
+        ),
+    ),
+    # Column position modifier in ALTER TABLE ADD/MODIFY
+    FlinkAlterColumnPositionGrammar=OneOf(
+        "FIRST",
+        Sequence("AFTER", Ref("ColumnReferenceSegment")),
+    ),
+    # Schema component in ALTER TABLE ADD/MODIFY
+    FlinkAlterSchemaComponentGrammar=OneOf(
+        Sequence(
+            Ref("MetadataColumnDefinitionSegment"),
+            Ref("FlinkAlterColumnPositionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ComputedColumnDefinitionSegment"),
+            Ref("FlinkAlterColumnPositionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ColumnDefinitionSegment"),
+            Ref("FlinkAlterColumnPositionGrammar", optional=True),
+        ),
+        Ref("WatermarkDefinitionSegment"),
+        Ref("FlinkTableConstraintSegment"),
+    ),
+    # Distribution clause for ALTER TABLE ADD/MODIFY DISTRIBUTION
+    FlinkAlterDistributionGrammar=Sequence(
+        "DISTRIBUTION",
+        OneOf(
+            Sequence(
+                "BY",
+                OneOf("HASH", "RANGE", optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    "INTO",
+                    Ref("NumericLiteralSegment"),
+                    OneOf("BUCKETS", "BUCKET"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "INTO",
+                Ref("NumericLiteralSegment"),
+                OneOf("BUCKETS", "BUCKET"),
+            ),
+        ),
+    ),
+    # Connector options for CREATE TABLE
+    CreateTableConnectorOptionsSegment=Sequence(
+        "WITH",
+        Ref("FlinkOptionsListGrammar"),
     ),
     # Watermark definition
     WatermarkDefinitionSegment=Sequence(
@@ -669,12 +738,200 @@ class SetStatementSegment(BaseSegment):
     )
 
 
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/alter/#alter-table
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # RENAME TO new_table_name (before RENAME col TO new_col)
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            # RENAME old_column_name TO new_column_name
+            Sequence(
+                "RENAME",
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            # SET ('k' = 'v', ...)
+            Sequence(
+                "SET",
+                Ref("FlinkOptionsListGrammar"),
+            ),
+            # RESET ('k1', 'k2', ...)
+            Sequence(
+                "RESET",
+                Ref("FlinkOptionKeyListGrammar"),
+            ),
+            # ADD partition / distribution / schema component(s)
+            Sequence(
+                "ADD",
+                OneOf(
+                    Sequence(
+                        Ref("IfNotExistsGrammar", optional=True),
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("FlinkPartitionSpecGrammar"),
+                                Ref(
+                                    "CreateTableConnectorOptionsSegment", optional=True
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                    Ref("FlinkAlterDistributionGrammar"),
+                    Bracketed(
+                        Delimited(
+                            Ref("FlinkAlterSchemaComponentGrammar"),
+                        ),
+                    ),
+                    Ref("FlinkAlterSchemaComponentGrammar"),
+                ),
+            ),
+            # MODIFY distribution / schema component(s)
+            Sequence(
+                "MODIFY",
+                OneOf(
+                    Ref("FlinkAlterDistributionGrammar"),
+                    Bracketed(
+                        Delimited(
+                            Ref("FlinkAlterSchemaComponentGrammar"),
+                        ),
+                    ),
+                    Ref("FlinkAlterSchemaComponentGrammar"),
+                ),
+            ),
+            # DROP partition(s) / primary key / constraint / distribution /
+            # watermark / column(s)
+            Sequence(
+                "DROP",
+                OneOf(
+                    Sequence(
+                        Ref("IfExistsGrammar", optional=True),
+                        Delimited(
+                            Ref("FlinkPartitionSpecGrammar"),
+                        ),
+                    ),
+                    Sequence("PRIMARY", "KEY"),
+                    Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
+                    "DISTRIBUTION",
+                    "WATERMARK",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        Ref.keyword("COLUMN", optional=True),
+                        Ref("IfExistsGrammar", optional=True),
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class AlterCatalogStatementSegment(BaseSegment):
+    """An `ALTER CATALOG` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/alter/#alter-catalog
+    """
+
+    type = "alter_catalog_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "CATALOG",
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Sequence("SET", Ref("FlinkOptionsListGrammar")),
+            Sequence("RESET", Ref("FlinkOptionKeyListGrammar")),
+            Sequence("COMMENT", Ref("QuotedLiteralSegment")),
+        ),
+    )
+
+
+class AlterDatabaseStatementSegment(BaseSegment):
+    """An `ALTER DATABASE` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/alter/#alter-database
+    """
+
+    type = "alter_database_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        Ref("ObjectReferenceSegment"),
+        "SET",
+        Ref("FlinkOptionsListGrammar"),
+    )
+
+
+class AlterFunctionStatementSegment(BaseSegment):
+    """An `ALTER FUNCTION` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/alter/#alter-function
+    """
+
+    type = "alter_function_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        "AS",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "LANGUAGE",
+            OneOf("JAVA", "SCALA", "PYTHON", "SQL"),
+            optional=True,
+        ),
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """An `ALTER VIEW` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/alter/#alter-view
+    """
+
+    type = "alter_view_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("AS", Ref("SelectableGrammar")),
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             # FlinkSQL-specific statements
+            Ref("AlterCatalogStatementSegment"),
+            Ref("AlterDatabaseStatementSegment"),
+            Ref("AlterFunctionStatementSegment"),
+            Ref("AlterViewStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
             Ref("CreateFunctionStatementSegment"),

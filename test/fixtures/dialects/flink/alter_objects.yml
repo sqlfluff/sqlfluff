@@ -1,0 +1,138 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 96175cbd1a4ae7ed42b03ad59aaff6dc590111318c5512e5583469abe1236216
+file:
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - naked_identifier: cat2
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'default-database'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'db'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - naked_identifier: cat2
+    - keyword: RESET
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'default-database'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - naked_identifier: cat2
+    - keyword: COMMENT
+    - quoted_literal: "'comment for catalog ''cat2'''"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+      - naked_identifier: my_cat
+      - dot: .
+      - naked_identifier: my_db
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'key1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val1'"
+      - comma: ','
+      - quoted_literal: "'key2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val2'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_func
+    - keyword: AS
+    - quoted_literal: "'com.example.NewUdf'"
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        naked_identifier: my_db
+        dot: .
+        quoted_identifier: '`my-func`'
+    - keyword: AS
+    - quoted_literal: "'com.example.NewUdf'"
+    - keyword: LANGUAGE
+    - keyword: JAVA
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: TEMPORARY
+    - keyword: SYSTEM
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: my_func
+    - keyword: AS
+    - quoted_literal: "'pyflink.udf.fn'"
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: new_view
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
