@@ -46,6 +46,8 @@ from sqlfluff.core.parser.grammar.lookbehind import (
 from sqlfluff.core.parser.grammar.standalone import StandaloneLineMatcher
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_oracle_keywords import (
+    oracle_inherited_unreserved_keywords,
+    oracle_parser_reserved_keywords,
     oracle_reserved_keywords,
     oracle_unreserved_keywords,
 )
@@ -59,13 +61,17 @@ oracle_dialect = ansi_dialect.copy_as(
 .. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html""",
 )
 
-oracle_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", oracle_reserved_keywords
-)
-
-oracle_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", oracle_unreserved_keywords
-)
+# Use Oracle's own keyword lists rather than ANSI's.
+oracle_dialect.sets("reserved_keywords").clear()
+oracle_dialect.sets("unreserved_keywords").clear()
+for keywords in (oracle_reserved_keywords, oracle_parser_reserved_keywords):
+    oracle_dialect.update_keywords_set_from_multiline_string(
+        "reserved_keywords", keywords
+    )
+for keywords in (oracle_unreserved_keywords, oracle_inherited_unreserved_keywords):
+    oracle_dialect.update_keywords_set_from_multiline_string(
+        "unreserved_keywords", keywords
+    )
 
 oracle_dialect.sets("bare_functions").clear()
 oracle_dialect.sets("bare_functions").update(
