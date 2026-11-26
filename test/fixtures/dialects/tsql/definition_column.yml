@@ -1,0 +1,170 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5c2119416f5f8f07a543e1278ca10d84efd395264ccf901e73826a02234b046c
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: definition
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sys
+                - dot: .
+                - naked_identifier: sql_modules
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: object_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: OBJECT_ID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'dbo.usp_orders'"
+                  end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: OBJECT_NAME
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: m
+                    - dot: .
+                    - naked_identifier: object_id
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: object_name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: m
+            - dot: .
+            - naked_identifier: definition
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sys
+                - dot: .
+                - naked_identifier: sql_modules
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: m
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: m
+            - dot: .
+            - naked_identifier: definition
+            keyword: LIKE
+            quoted_literal: "'%orders%'"
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: definition
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: object_definition
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: sys
+                - dot: .
+                - naked_identifier: server_sql_modules
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: rule_definitions
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: definition
+            data_type:
+              keyword: NVARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  keyword: MAX
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: DEFINITION
+      - keyword: 'ON'
+      - securable_segment:
+          keyword: SCHEMA
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: dbo
+      - keyword: TO
+      - role_reference:
+          naked_identifier: reporting
+  - statement_terminator: ;
+  - statement:
+      grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: VIEW
+        - keyword: ANY
+        - keyword: DEFINITION
+      - keyword: TO
+      - role_reference:
+          naked_identifier: reporting
+  - statement_terminator: ;
