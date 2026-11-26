@@ -672,6 +672,16 @@ test_fail_jinja_mixed_identifier_ignore_regex_template_only:
         context:
           env: DEV
 
+test_pass_tsql_xml_namespace_prefix:
+  # XML namespace prefixes are case-sensitive, so they aren't recased.
+  pass_str: |
+    WITH XMLNAMESPACES ('https://example.com/orders' AS o)
+    SELECT ORDER_XML.value('(/o:Order/@Id)[1]', 'INT') AS ORDER_ID
+    FROM DBO.ORDERS
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_clickhouse_case_sensitive_identifiers:
   pass_str: |
     SELECT
