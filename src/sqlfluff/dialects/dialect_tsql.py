@@ -939,6 +939,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSecurityPolicySegment"),
             Ref("AddSensitivityClassificationStatementSegment"),
             Ref("DropSensitivityClassificationStatementSegment"),
+            Ref("CreateEventSessionStatementSegment"),
+            Ref("AlterEventSessionStatementSegment"),
+            Ref("DropEventSessionStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
@@ -10217,6 +10220,196 @@ class DropSensitivityClassificationStatementSegment(BaseSegment):
         "CLASSIFICATION",
         "FROM",
         Delimited(Ref("ColumnReferenceSegment")),
+    )
+
+
+class CreateEventSessionStatementSegment(BaseSegment):
+    """A `CREATE EVENT SESSION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-event-session-transact-sql
+
+    type = "create_event_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "EVENT",
+        "SESSION",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf("SERVER", "DATABASE"),
+        Delimited(Ref("EventSessionEventSegment")),
+        Delimited(Ref("EventSessionTargetSegment"), optional=True),
+        Ref("EventSessionOptionsSegment", optional=True),
+    )
+
+
+class AlterEventSessionStatementSegment(BaseSegment):
+    """An `ALTER EVENT SESSION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-event-session-transact-sql
+
+    type = "alter_event_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "EVENT",
+        "SESSION",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf("SERVER", "DATABASE"),
+        OneOf(
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("EventSessionEventSegment"),
+                        Sequence("DROP", "EVENT", Ref("ObjectReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+                Delimited(
+                    OneOf(
+                        Ref("EventSessionTargetSegment"),
+                        Sequence("DROP", "TARGET", Ref("ObjectReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+                Ref("EventSessionOptionsSegment", optional=True),
+            ),
+            Sequence("STATE", Ref("EqualsSegment"), OneOf("START", "STOP")),
+        ),
+    )
+
+
+class DropEventSessionStatementSegment(BaseSegment):
+    """A `DROP EVENT SESSION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-event-session-transact-sql
+
+    type = "drop_event_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "EVENT",
+        "SESSION",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf("SERVER", "DATABASE"),
+    )
+
+
+class EventSessionEventSegment(BaseSegment):
+    """An `ADD EVENT` clause of a `CREATE` or `ALTER EVENT SESSION` statement.
+
+    Event and action names take the form `[module_guid.]package.name`.
+    """
+
+    type = "event_session_event"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "EVENT",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Ref("EventSessionSetClauseSegment", optional=True),
+            Sequence(
+                "ACTION",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            # The predicate compares event fields or package-qualified sources,
+            # or calls comparators such as package0.greater_than_uint64(...).
+            Ref("WhereClauseSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class EventSessionTargetSegment(BaseSegment):
+    """An `ADD TARGET` clause of a `CREATE` or `ALTER EVENT SESSION` statement."""
+
+    type = "event_session_target"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "TARGET",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Ref("EventSessionSetClauseSegment"), optional=True),
+    )
+
+
+class EventSessionSetClauseSegment(BaseSegment):
+    """The `SET name = value, ...` list of an event session event or target."""
+
+    type = "event_session_set_clause"
+
+    match_grammar: Matchable = Sequence(
+        "SET",
+        Indent,
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class EventSessionOptionsSegment(BaseSegment):
+    """The `WITH` options of a `CREATE` or `ALTER EVENT SESSION` statement."""
+
+    type = "event_session_options"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("MAX_MEMORY", "MAX_EVENT_SIZE"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        # e.g. 4096KB, which is lexed as a single word
+                        Ref("SizeLiteralSegment"),
+                        Sequence(
+                            Ref("NumericLiteralSegment"),
+                            OneOf("KB", "MB", optional=True),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "EVENT_RETENTION_MODE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        "ALLOW_SINGLE_EVENT_LOSS",
+                        "ALLOW_MULTIPLE_EVENT_LOSS",
+                        "NO_EVENT_LOSS",
+                    ),
+                ),
+                Sequence(
+                    "MAX_DISPATCH_LATENCY",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(Ref("NumericLiteralSegment"), "SECONDS"),
+                        # e.g. 5SECONDS, which is lexed as a single word
+                        RegexParser(
+                            r"\d+SECONDS", LiteralSegment, type="numeric_literal"
+                        ),
+                        "INFINITE",
+                    ),
+                ),
+                Sequence(
+                    "MEMORY_PARTITION_MODE",
+                    Ref("EqualsSegment"),
+                    OneOf("NONE", "PER_NODE", "PER_CPU"),
+                ),
+                Sequence(
+                    OneOf("TRACK_CAUSALITY", "STARTUP_STATE"),
+                    Ref("EqualsSegment"),
+                    OneOf("ON", "OFF"),
+                ),
+            ),
+        ),
     )
 
 

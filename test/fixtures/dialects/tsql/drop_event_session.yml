@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7450dd77322d03f7ad0ac70ecece56be077f8ce90032e286ce05d9b4b640cf32
+file:
+  batch:
+  - statement:
+      drop_event_session_statement:
+      - keyword: DROP
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+  - statement_terminator: ;
+  - statement:
+      drop_event_session_statement:
+      - keyword: DROP
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          quoted_identifier: '[test_session]'
+      - keyword: 'ON'
+      - keyword: DATABASE
+  - statement_terminator: ;
+  - statement:
+      if_then_statement:
+        if_clause:
+          keyword: IF
+          expression:
+            keyword: EXISTS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    integer_literal: '1'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: sys
+                        - dot: .
+                        - naked_identifier: server_event_sessions
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: "'test_session'"
+              end_bracket: )
+        statement:
+          drop_event_session_statement:
+          - keyword: DROP
+          - keyword: EVENT
+          - keyword: SESSION
+          - object_reference:
+              naked_identifier: test_session
+          - keyword: 'ON'
+          - keyword: SERVER
+        statement_terminator: ;
