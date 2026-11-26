@@ -86,6 +86,19 @@ CREATE VOLATILE TABLE g AS (SELECT 'A' AS B) WITH NO DATA AND STATISTICS;
 
 CREATE VOLATILE TABLE h AS (SELECT 'A' AS B) WITH NO DATA AND NO STATISTICS ON COMMIT PRESERVE ROWS;
 
+-- Table-copy AS syntax (without subquery)
+CREATE TABLE schema.backup_test AS schema.test WITH NO DATA;
+
+CREATE TABLE schema.backup_test AS schema.test WITH DATA;
+
+CREATE TABLE schema.backup_test AS schema.test WITH DATA AND STATISTICS;
+
+CREATE TABLE schema.backup_test AS schema.test WITH NO DATA AND NO STATISTICS;
+
+CREATE MULTISET TABLE schema.backup_test, NO FALLBACK AS schema.test WITH DATA PRIMARY INDEX (id);
+
+CREATE VOLATILE TABLE v_copy AS schema.test WITH NO DATA ON COMMIT PRESERVE ROWS;
+
 -- Testing of the set tables with options
 CREATE SET TABLE TABLE_2, FALLBACK ,
     NO BEFORE JOURNAL,

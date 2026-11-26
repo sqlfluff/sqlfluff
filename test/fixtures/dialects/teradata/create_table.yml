@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 135aa15aee3aaa164354414c14c781d2be79758ef50a82691d3c31d809a06d78
+_hash: eb163db505586c19cb43b5c436d83760b4e13005f57e496aeb139da89775234c
 file:
 - statement:
     create_table_statement:
@@ -927,6 +927,130 @@ file:
       - keyword: AND
       - keyword: 'NO'
       - keyword: STATISTICS
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: PRESERVE
+      - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: AND
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: 'NO'
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: MULTISET
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - create_table_options_statement:
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: FALLBACK
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+          start_bracket: (
+          naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: v_copy
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
       - keyword: 'ON'
       - keyword: COMMIT
       - keyword: PRESERVE
