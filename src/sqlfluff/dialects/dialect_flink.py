@@ -271,31 +271,35 @@ flink_dialect.add(
         Ref("WatermarkDefinitionSegment"),
         Ref("FlinkTableConstraintSegment"),
     ),
-    # Distribution clause for ALTER TABLE ADD/MODIFY DISTRIBUTION
-    FlinkAlterDistributionGrammar=Sequence(
-        "DISTRIBUTION",
-        OneOf(
-            Sequence(
-                "BY",
-                OneOf("HASH", "RANGE", optional=True),
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                ),
-                Sequence(
-                    "INTO",
-                    Ref("NumericLiteralSegment"),
-                    OneOf("BUCKETS", "BUCKET"),
-                    optional=True,
+    # Shared distribution strategy for CREATE TABLE and ALTER TABLE DISTRIBUTION
+    FlinkDistributionStrategyGrammar=OneOf(
+        # BY [HASH|RANGE] (columns) [INTO n BUCKET[S]]
+        Sequence(
+            "BY",
+            OneOf("HASH", "RANGE", optional=True),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
                 ),
             ),
             Sequence(
                 "INTO",
                 Ref("NumericLiteralSegment"),
                 OneOf("BUCKETS", "BUCKET"),
+                optional=True,
             ),
         ),
+        # INTO n BUCKET[S]
+        Sequence(
+            "INTO",
+            Ref("NumericLiteralSegment"),
+            OneOf("BUCKETS", "BUCKET"),
+        ),
+    ),
+    # Distribution clause for ALTER TABLE ADD/MODIFY DISTRIBUTION
+    FlinkAlterDistributionGrammar=Sequence(
+        "DISTRIBUTION",
+        Ref("FlinkDistributionStrategyGrammar"),
     ),
     # Connector options for CREATE TABLE
     CreateTableConnectorOptionsSegment=Sequence(
@@ -350,26 +354,9 @@ flink_dialect.add(
         ),
     ),
     # Distribution definition
-    DistributionDefinitionSegment=OneOf(
-        # DISTRIBUTED BY [HASH|RANGE] (columns) [INTO n BUCKETS]
-        Sequence(
-            "DISTRIBUTED",
-            "BY",
-            OneOf("HASH", "RANGE", optional=True),
-            Bracketed(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-            ),
-            Sequence("INTO", Ref("NumericLiteralSegment"), "BUCKETS", optional=True),
-        ),
-        # DISTRIBUTED INTO n BUCKETS
-        Sequence(
-            "DISTRIBUTED",
-            "INTO",
-            Ref("NumericLiteralSegment"),
-            "BUCKETS",
-        ),
+    DistributionDefinitionSegment=Sequence(
+        "DISTRIBUTED",
+        Ref("FlinkDistributionStrategyGrammar"),
     ),
     # LIKE options
     LikeOptionsSegment=Delimited(
@@ -895,7 +882,10 @@ class AlterFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         "AS",
-        Ref("QuotedLiteralSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
         Sequence(
             "LANGUAGE",
             OneOf("JAVA", "SCALA", "PYTHON", "SQL"),

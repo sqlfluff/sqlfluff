@@ -10,7 +10,9 @@ ALTER FUNCTION my_func AS 'com.example.NewUdf';
 
 ALTER TEMPORARY FUNCTION IF EXISTS my_db.`my-func` AS 'com.example.NewUdf' LANGUAGE JAVA;
 
-ALTER TEMPORARY SYSTEM FUNCTION IF EXISTS my_func AS 'pyflink.udf.fn' LANGUAGE PYTHON;
+ALTER TEMPORARY SYSTEM FUNCTION IF EXISTS my_func AS 'pyflink.table.tests.test_udf.add' LANGUAGE PYTHON;
+
+ALTER FUNCTION my_java_func AS com.example.NewUdf LANGUAGE JAVA;
 
 ALTER VIEW my_view RENAME TO new_view;
 

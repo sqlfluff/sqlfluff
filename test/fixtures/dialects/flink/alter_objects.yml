@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96175cbd1a4ae7ed42b03ad59aaff6dc590111318c5512e5583469abe1236216
+_hash: 8337f8a10452d5bb1d92f99d913f4bb4bf7ce6965a0d7f315532d8b09d5ff96b
 file:
 - statement:
     alter_catalog_statement:
@@ -96,9 +96,25 @@ file:
     - function_name:
         function_name_identifier: my_func
     - keyword: AS
-    - quoted_literal: "'pyflink.udf.fn'"
+    - quoted_literal: "'pyflink.table.tests.test_udf.add'"
     - keyword: LANGUAGE
     - keyword: PYTHON
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_java_func
+    - keyword: AS
+    - object_reference:
+      - naked_identifier: com
+      - dot: .
+      - naked_identifier: example
+      - dot: .
+      - naked_identifier: NewUdf
+    - keyword: LANGUAGE
+    - keyword: JAVA
 - statement_terminator: ;
 - statement:
     alter_view_statement:
