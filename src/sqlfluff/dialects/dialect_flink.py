@@ -132,6 +132,15 @@ flink_dialect.sets("datetime_units").update(
         "ISODOW",
         "DOY",
         "ISOYEAR",
+        "SQL_TSI_FRAC_SECOND",
+        "SQL_TSI_SECOND",
+        "SQL_TSI_MINUTE",
+        "SQL_TSI_HOUR",
+        "SQL_TSI_DAY",
+        "SQL_TSI_WEEK",
+        "SQL_TSI_MONTH",
+        "SQL_TSI_QUARTER",
+        "SQL_TSI_YEAR",
     ]
 )
 
@@ -152,7 +161,12 @@ flink_dialect.sets("bare_functions").update(
 )
 
 # Add FlinkSQL-specific date part functions
-flink_dialect.sets("date_part_function_name").update(["TIMESTAMPDIFF"])
+flink_dialect.sets("date_part_function_name").update(
+    [
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
 
 # Add angle brackets for generic types
 flink_dialect.bracket_sets("angle_bracket_pairs").update(
@@ -430,6 +444,16 @@ flink_dialect.replace(
         Ref("TableArgSegment"),
         Ref("DescriptorSegment"),
         Ref("ExpressionSegment"),
+    ),
+    # Support temporal FLOOR(ts TO unit) and CEIL(ts TO unit)
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Sequence(
+                Ref("ExpressionSegment"),
+                "TO",
+                Ref("DatetimeUnitSegment"),
+            ),
+        ],
     ),
     # Flink supports ARRAY[...] and MAP[...] constructors.
     ArrayExpressionSegment=FlinkArrayExpressionSegment,
