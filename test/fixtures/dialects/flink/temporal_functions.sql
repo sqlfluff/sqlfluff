@@ -1,6 +1,9 @@
 SELECT
     FLOOR(event_time TO SECOND) AS bucket_sec,
-    FLOOR(event_time + INTERVAL '1' MINUTE TO SECOND) AS shifted_sec,
+    FLOOR((event_time + INTERVAL '1' MINUTE) TO SECOND) AS shifted_sec,
+    INTERVAL '1 02:03:04' DAY TO SECOND AS day_to_sec,
+    INTERVAL '1 02:03:04.123' DAY(2) TO SECOND(3) AS day_to_sec_prec,
+    INTERVAL '1-2' YEAR TO MONTH AS year_to_month,
     FLOOR(PROCTIME() TO MINUTE) AS proc_min,
     CEIL(event_time TO HOUR) AS ceil_hour,
     CEILING(event_time TO DAY) AS ceil_day,

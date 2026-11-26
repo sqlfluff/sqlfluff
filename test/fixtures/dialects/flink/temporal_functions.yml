@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74c05a05f8e60e97ae2081d8a73442c3fb120ed2d39d5d17b4c7df8f7ed2de50
+_hash: f1003167fe9ed31701ef3fc57cbbfb87114f2c2218539d44283ffc921caad561
 file:
   statement:
     select_statement:
@@ -35,13 +35,17 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  column_reference:
-                    naked_identifier: event_time
-                  binary_operator: +
-                  interval_expression:
-                    keyword: INTERVAL
-                    quoted_literal: "'1'"
-                    date_part: MINUTE
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: event_time
+                      binary_operator: +
+                      interval_expression:
+                        keyword: INTERVAL
+                        quoted_literal: "'1'"
+                        date_part: MINUTE
+                    end_bracket: )
                 keyword: TO
                 date_part: SECOND
                 end_bracket: )
@@ -49,6 +53,50 @@ file:
             alias_operator:
               keyword: AS
             naked_identifier: shifted_sec
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1 02:03:04'"
+          - date_part: DAY
+          - keyword: TO
+          - date_part: SECOND
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: day_to_sec
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1 02:03:04.123'"
+          - date_part: DAY
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '2'
+              end_bracket: )
+          - keyword: TO
+          - date_part: SECOND
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: day_to_sec_prec
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1-2'"
+          - date_part: YEAR
+          - keyword: TO
+          - date_part: MONTH
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: year_to_month
       - comma: ','
       - select_clause_element:
           function:
