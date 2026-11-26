@@ -11,7 +11,6 @@ https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    AnySetOf,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -277,30 +276,32 @@ flink_dialect.add(
         Ref("WatermarkDefinitionSegment"),
         Ref("FlinkTableConstraintSegment"),
     ),
-    FlinkMaterializedAlterDistributionGrammar=Sequence(
-        "DISTRIBUTION",
-        OneOf(
-            Sequence(
-                "BY",
-                OneOf("HASH", "RANGE", optional=True),
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                ),
-                Sequence(
-                    "INTO",
-                    Ref("NumericLiteralSegment"),
-                    OneOf("BUCKETS", "BUCKET"),
-                    optional=True,
+    # Shared distribution strategy for CREATE TABLE and ALTER MATERIALIZED TABLE
+    FlinkDistributionStrategyGrammar=OneOf(
+        Sequence(
+            "BY",
+            OneOf("HASH", "RANGE", optional=True),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
                 ),
             ),
             Sequence(
                 "INTO",
                 Ref("NumericLiteralSegment"),
                 OneOf("BUCKETS", "BUCKET"),
+                optional=True,
             ),
         ),
+        Sequence(
+            "INTO",
+            Ref("NumericLiteralSegment"),
+            OneOf("BUCKETS", "BUCKET"),
+        ),
+    ),
+    FlinkMaterializedAlterDistributionGrammar=Sequence(
+        "DISTRIBUTION",
+        Ref("FlinkDistributionStrategyGrammar"),
     ),
     FlinkPropertyNamePartSegment=Sequence(
         Ref("SingleIdentifierGrammar"),
@@ -398,26 +399,9 @@ flink_dialect.add(
         ),
     ),
     # Distribution definition
-    DistributionDefinitionSegment=OneOf(
-        # DISTRIBUTED BY [HASH|RANGE] (columns) [INTO n BUCKETS]
-        Sequence(
-            "DISTRIBUTED",
-            "BY",
-            OneOf("HASH", "RANGE", optional=True),
-            Bracketed(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-            ),
-            Sequence("INTO", Ref("NumericLiteralSegment"), "BUCKETS", optional=True),
-        ),
-        # DISTRIBUTED INTO n BUCKETS
-        Sequence(
-            "DISTRIBUTED",
-            "INTO",
-            Ref("NumericLiteralSegment"),
-            "BUCKETS",
-        ),
+    DistributionDefinitionSegment=Sequence(
+        "DISTRIBUTED",
+        Ref("FlinkDistributionStrategyGrammar"),
     ),
     # LIKE options
     LikeOptionsSegment=Delimited(
@@ -990,18 +974,12 @@ class CreateMaterializedTableStatementSegment(BaseSegment):
             optional=True,
         ),
         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
-        AnySetOf(
-            Ref("DistributionDefinitionSegment"),
-            Ref("PartitionDefinitionSegment"),
-            optional=True,
-        ),
+        Ref("DistributionDefinitionSegment", optional=True),
+        Ref("PartitionDefinitionSegment", optional=True),
         Ref("CreateTableConnectorOptionsSegment", optional=True),
-        AnySetOf(
-            Ref("FlinkStartModeClauseGrammar"),
-            Ref("FlinkFreshnessClauseGrammar"),
-            Ref("FlinkRefreshModeClauseGrammar"),
-            optional=True,
-        ),
+        Ref("FlinkStartModeClauseGrammar", optional=True),
+        Ref("FlinkFreshnessClauseGrammar", optional=True),
+        Ref("FlinkRefreshModeClauseGrammar", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
     )
