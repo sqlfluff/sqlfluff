@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 103582d8bdee9badb9b1bfa13382c6ce107cc74b79c1b3ad31a7515f58d1b869
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: country_page_view
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: user_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: cnt
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: page_view_source
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: country_page_view
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: '`date`'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2019-08-30'"
+      - comma: ','
+      - naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'China'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: user_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: cnt
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: page_view_source
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        naked_identifier: country_page_view
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        quoted_identifier: '`date`'
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2019-08-30'"
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: user_id
+      - comma: ','
+      - column_reference:
+          naked_identifier: cnt
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: user_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: cnt
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: page_view_source
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: EXECUTE
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: country_page_view
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: '`date`'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2019-08-30'"
+      - comma: ','
+      - naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'China'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: user_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: cnt
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: page_view_source
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target_table
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: a
+            - dot: .
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: val
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_a
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: a
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: source_b
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: b
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: id
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - keyword: DO
+    - keyword: DEDUPLICATE
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target_table
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '2'
+          comma: ','
+          quoted_literal: "'b'"
+          end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - keyword: DO
+    - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target_table
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - keyword: DO
+    - keyword: ERROR
+- statement_terminator: ;

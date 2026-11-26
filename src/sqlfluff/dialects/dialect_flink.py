@@ -11,6 +11,7 @@ https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -530,53 +531,139 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     )
 
 
-class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
-    """A `CREATE TABLE` statement for FlinkSQL."""
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Override from ANSI to allow optional `WITH ORDINALITY` on table functions
+    such as `UNNEST(...) WITH ORDINALITY`.
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/queries/joins/#array-expansion
+    """
+
+    match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Sequence(
+            Ref("FunctionSegment"),
+            Sequence("WITH", "ORDINALITY", optional=True),
+        ),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+    )
+
+
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/insert/
+    """
 
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref.keyword("EXECUTE", optional=True),
+        "INSERT",
+        OneOf("INTO", "OVERWRITE"),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "PARTITION",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        Ref("LiteralGrammar"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Ref(
+                "SelectableGrammar",
+                terminators=[Sequence("ON", "CONFLICT")],
+            ),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "SelectableGrammar",
+                    terminators=[Sequence("ON", "CONFLICT")],
+                ),
+            ),
+            Ref("DefaultValuesGrammar"),
+        ),
+        Sequence(
+            "ON",
+            "CONFLICT",
+            "DO",
+            OneOf("ERROR", "NOTHING", "DEDUPLICATE"),
+            optional=True,
+        ),
+    )
+
+
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
+    """A `CREATE TABLE` or `[CREATE OR] REPLACE TABLE` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/create/#create-table
+    """
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                Sequence("OR", "REPLACE", optional=True),
+            ),
+            "REPLACE",
+        ),
         Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns definition with FlinkSQL-specific elements
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            # Physical column definition
-                            Ref("ColumnDefinitionSegment"),
-                            # Metadata column definition
-                            Ref("MetadataColumnDefinitionSegment"),
-                            # Computed column definition
-                            Ref("ComputedColumnDefinitionSegment"),
-                            # Watermark definition
-                            Ref("WatermarkDefinitionSegment"),
-                            # Table constraint
-                            Ref("FlinkTableConstraintSegment"),
-                        ),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        # Physical column definition
+                        Ref("ColumnDefinitionSegment"),
+                        # Metadata column definition
+                        Ref("MetadataColumnDefinitionSegment"),
+                        # Computed column definition
+                        Ref("ComputedColumnDefinitionSegment"),
+                        # Watermark definition
+                        Ref("WatermarkDefinitionSegment"),
+                        # Table constraint
+                        Ref("FlinkTableConstraintSegment"),
                     ),
                 ),
-                # Table comment
-                Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
-                # Partition definition
-                Ref("PartitionDefinitionSegment", optional=True),
-                # Distribution definition
-                Ref("DistributionDefinitionSegment", optional=True),
-                # Connector options
-                Ref("CreateTableConnectorOptionsSegment", optional=True),
-                # LIKE clause
-                Ref("LikeClauseSegment", optional=True),
             ),
-            # Create AS syntax:
+            # Bare column identifier list for CTAS/RTAS column reordering
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        # Table comment
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        # Partition and distribution definitions (either order)
+        AnySetOf(
+            Ref("PartitionDefinitionSegment"),
+            Ref("DistributionDefinitionSegment"),
+            optional=True,
+        ),
+        # Connector options
+        Ref("CreateTableConnectorOptionsSegment", optional=True),
+        OneOf(
+            # LIKE clause
+            Ref("LikeClauseSegment"),
+            # Create/Replace Table AS SELECT syntax
             Sequence(
                 "AS",
                 OptionallyBracketed(Ref("SelectableGrammar")),
             ),
-            # Create like syntax
-            Ref("LikeClauseSegment"),
+            optional=True,
         ),
     )
 
@@ -917,6 +1004,41 @@ class RowDataTypeSegment(BaseSegment):
     )
 
 
+class StructuredDataTypeSegment(BaseSegment):
+    """A `STRUCTURED<...>` data type for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/types/#structured
+    """
+
+    type = "structured_data_type"
+    match_grammar = Sequence(
+        "STRUCTURED",
+        Bracketed(
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    Ref("CommaSegment"),
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("DatatypeSegment"),
+                            Sequence("NOT", "NULL", optional=True),
+                            Sequence(
+                                Ref.keyword("COMMENT", optional=True),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    )
+
+
 class DatatypeSegment(ansi.DatatypeSegment):
     """Enhanced data type segment for FlinkSQL."""
 
@@ -924,6 +1046,8 @@ class DatatypeSegment(ansi.DatatypeSegment):
     match_grammar = OneOf(
         # FlinkSQL ROW data type
         Ref("RowDataTypeSegment"),
+        # FlinkSQL STRUCTURED data type
+        Ref("StructuredDataTypeSegment"),
         # Array data types
         Sequence(
             "ARRAY",
@@ -942,6 +1066,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             Bracketed(
                 Sequence(
                     Ref("DatatypeSegment"),  # key type
+                    Sequence("NOT", "NULL", optional=True),
                     Ref("CommaSegment"),
                     Ref("DatatypeSegment"),  # value type
                     Sequence("NOT", "NULL", optional=True),
