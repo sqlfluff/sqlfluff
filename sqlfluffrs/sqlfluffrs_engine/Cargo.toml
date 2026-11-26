@@ -15,7 +15,6 @@ anyhow = "1"
 regex = { version = "1.12.3", features = ["perf"] }
 walkdir = "2"
 toml = "1.1.2"
-hashbrown = "0.16.1"
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
 sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }

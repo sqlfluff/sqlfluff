@@ -1,0 +1,48 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: db0690863ef4ed28ff711e9f2b951aed27dffdc38d590da914d4f1ed7c5ddf0b
+file:
+  batch:
+  - statement:
+      drop_sensitivity_classification_statement:
+      - keyword: DROP
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: FROM
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: sales
+        - dot: .
+        - naked_identifier: price
+  - statement_terminator: ;
+  - statement:
+      drop_sensitivity_classification_statement:
+      - keyword: DROP
+      - keyword: SENSITIVITY
+      - keyword: CLASSIFICATION
+      - keyword: FROM
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: sales
+        - dot: .
+        - naked_identifier: price
+      - comma: ','
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: sales
+        - dot: .
+        - naked_identifier: discount
+      - comma: ','
+      - column_reference:
+        - quoted_identifier: '[SalesLT]'
+        - dot: .
+        - quoted_identifier: '[Customer]'
+        - dot: .
+        - quoted_identifier: '[Phone]'
+  - statement_terminator: ;

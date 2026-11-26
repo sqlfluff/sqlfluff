@@ -123,15 +123,6 @@ impl Parser<'_> {
             }
         };
 
-        // If the explicit child grammar allows gaps, collect leading transparent
-        // tokens so child parsing starts at the next non-transparent token.
-        let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
-        let child_start_pos = if child_allows_gaps {
-            self.skip_start_index_forward_to_code(start_pos, self.tokens.len())
-        } else {
-            start_pos
-        };
-
         // name/segment_class/segment_type are pure functions of grammar_id,
         // so build_ref_wrap looks them up itself rather than RefState
         // storing a redundant copy here.
@@ -141,10 +132,8 @@ impl Parser<'_> {
             self.grammar_ctx.segment_class(grammar_id)
         );
 
-        // Store context with collected leading transparent tokens
         frame.context = FrameContext::Ref(RefState {
             grammar_id,
-            saved_pos: child_start_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             child_grammar_id,
             match_result: None,
@@ -163,10 +152,11 @@ impl Parser<'_> {
             reset_terminators,
         );
 
+        // PYTHON PARITY: no leading-gap skip; only Sequence skips.
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar_id,
-            child_start_pos,
+            start_pos,
             &child_terminators,
             frame.parent_max_idx,
         );
@@ -176,7 +166,7 @@ impl Parser<'_> {
             child_grammar_id.0,
             frame.frame_id,
             stack.frame_id_counter,
-            child_start_pos
+            start_pos
         );
 
         Ok(stack.push_child_and_wait(frame, child_frame, 0))
@@ -189,10 +179,10 @@ impl Parser<'_> {
         child_match: &Arc<MatchResult>,
         child_end_pos: &usize,
     ) -> Result<TableFrameResult, ParseError> {
+        let original_pos = frame.pos;
         let FrameContext::Ref(state) = &mut frame.context else {
             unreachable!("Expected Ref context");
         };
-        let original_pos = state.saved_pos;
 
         vdebug!(
             "Ref[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}",
@@ -219,13 +209,7 @@ impl Parser<'_> {
                 original_pos,
                 original_pos
             );
-            // CRITICAL: Revert parser position when child returns Empty.
-            // The Ref may have collected leading transparent tokens via collect_transparent
-            // which advanced self.pos, but if the child fails, we must restore the original
-            // position (saved_pos from before transparent collection) so the parent can try
-            // alternative grammars from the correct location.
-            // ALSO CRITICAL: Set frame.end_pos to original_pos, not frame.pos, because
-            // frame.pos might still be at the advanced position after transparent collection.
+            // Restore the start so the parent can try alternatives.
             self.pos = original_pos;
             frame.end_pos = Some(original_pos);
         }
@@ -253,8 +237,7 @@ impl Parser<'_> {
             let child = Arc::clone(ref_match_result);
             let grammar_id = state.grammar_id;
             let child_grammar_id = state.child_grammar_id;
-            let saved_pos = state.saved_pos;
-            self.build_ref_wrap(grammar_id, child_grammar_id, saved_pos, final_pos, &child)
+            self.build_ref_wrap(grammar_id, child_grammar_id, frame.pos, final_pos, &child)
         } else {
             MatchResult::empty_at(frame.pos)
         };
@@ -280,7 +263,7 @@ impl Parser<'_> {
         &mut self,
         grammar_id: GrammarId,
         child_grammar_id: GrammarId,
-        saved_pos: usize,
+        start_pos: usize,
         final_pos: usize,
         ref_match_result: &Arc<MatchResult>,
     ) -> MatchResult {
@@ -334,7 +317,7 @@ impl Parser<'_> {
             MatchResult::ref_match(
                 name,
                 matched_class,
-                saved_pos,
+                start_pos,
                 final_pos,
                 vec![Arc::clone(ref_match_result)],
             )
@@ -345,10 +328,8 @@ impl Parser<'_> {
     /// terminal parser.
     ///
     /// Mirrors the frame-based Ref handlers step for step: the
-    /// parent-max-idx guard, the leading-gap skip when the target allows
-    /// gaps, the failed-child position semantics of
-    /// `handle_ref_waiting_for_child` (position and reported extent at the
-    /// post-skip position), and the result wrapping of
+    /// parent-max-idx guard, the failed-child position semantics of
+    /// `handle_ref_waiting_for_child`, and the result wrapping of
     /// `handle_ref_combining` (via `build_ref_wrap`). Refs with an exclude
     /// grammar, an unresolvable target, or a non-terminal target return
     /// `Ok(None)` and take the frame path - for an unresolvable target that
@@ -383,37 +364,52 @@ impl Parser<'_> {
                 return Ok(Some(MatchResult::empty_at(start_pos)));
             }
         }
-        // Skip leading non-code when the target allows gaps (mirrors
-        // handle_ref_initial's child_start_pos). Bounded by the parent's
-        // ceiling so a gap that runs up to (or past) the terminator can't
-        // push the child start beyond what the enclosing Sequence allows.
-        let child_allows_gaps = self.grammar_ctx.inst(child_id).flags.allow_gaps();
-        let skip_bound = parent_max_idx.unwrap_or(self.tokens.len());
-        let child_start_pos = if child_allows_gaps {
-            self.skip_start_index_forward_to_code(start_pos, skip_bound)
-        } else {
-            start_pos
-        };
-        if let Some(parent_max) = parent_max_idx {
-            if child_start_pos >= parent_max {
-                self.pos = child_start_pos;
-                return Ok(Some(MatchResult::empty_at(start_pos)));
-            }
-        }
-        self.pos = child_start_pos;
+        // No leading-gap skip (mirrors handle_ref_initial).
         let mr = self.dispatch_terminal_match(child_variant, child_id)?;
         if mr.is_empty() {
-            // Failed child: extent and position are the post-skip position
-            // (handle_ref_waiting_for_child's original_pos semantics), while
-            // the empty result itself sits at the Ref's own position
-            // (handle_ref_combining's `empty_at(frame.pos)`).
-            self.pos = child_start_pos;
+            self.pos = start_pos;
             return Ok(Some(MatchResult::empty_at(start_pos)));
         }
         let final_pos = self.pos;
         let child = Arc::new(mr);
-        let wrapped = self.build_ref_wrap(grammar_id, child_id, child_start_pos, final_pos, &child);
+        let wrapped = self.build_ref_wrap(grammar_id, child_id, start_pos, final_pos, &child);
         self.pos = final_pos;
         Ok(Some(wrapped))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
+    use sqlfluffrs_types::{GrammarId, GrammarVariant};
+
+    use crate::parser::Parser;
+
+    /// Inline terminal Ref path; ends are Python's `Ref("FromKeywordSegment").match`.
+    #[test]
+    fn test_inline_terminal_ref_does_not_skip_leading_whitespace() {
+        let dialect = Dialect::from_str("ansi").expect("dialect");
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        for (sql, expected_end) in [("FROM", Some(1)), (" FROM", None)] {
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let ctx = &parser.grammar_ctx;
+            let ref_id = (0..ctx.len() as u32)
+                .map(GrammarId)
+                .find(|&g| {
+                    ctx.variant(g) == GrammarVariant::Ref && ctx.ref_name(g) == "FromKeywordSegment"
+                })
+                .expect("Ref(FromKeywordSegment)");
+            let mr = parser
+                .try_ref_terminal_inline(ref_id, None)
+                .expect("parse")
+                .expect("terminal target takes the inline path");
+            let got = (!mr.is_empty()).then(|| mr.end());
+            assert_eq!(got, expected_end, "{sql:?}");
+            assert_eq!(parser.pos, expected_end.unwrap_or(0), "{sql:?} pos");
+        }
     }
 }

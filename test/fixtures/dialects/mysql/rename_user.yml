@@ -1,0 +1,55 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 12d4351e72e0ff29fe7afe8f45b8990d8cc1a082475e772b205c56b0bc085a4b
+file:
+- statement:
+    rename_user_statement:
+    - keyword: RENAME
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'jeff'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'127.0.0.1'"
+- statement_terminator: ;
+- statement:
+    rename_user_statement:
+    - keyword: RENAME
+    - keyword: USER
+    - role_reference:
+        naked_identifier: jeffrey
+    - keyword: TO
+    - role_reference:
+        naked_identifier: jeff
+- statement_terminator: ;
+- statement:
+    rename_user_statement:
+    - keyword: RENAME
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'u2'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+    - comma: ','
+    - role_reference:
+      - quoted_identifier: '`u3`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`localhost`'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '`u4`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`localhost`'
+- statement_terminator: ;

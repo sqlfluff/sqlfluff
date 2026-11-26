@@ -2192,6 +2192,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterViewStatementSegment"),
             Ref("CreateViewStatementSegment"),
             Ref("RenameTableStatementSegment"),
+            Ref("RenameUserStatementSegment"),
             Ref("ResetMasterStatementSegment"),
             Ref("ResetPersistStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
@@ -2204,6 +2205,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("InstallPluginStatementSegment"),
+            Ref("UninstallPluginStatementSegment"),
             Ref("KillStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
@@ -3877,6 +3880,26 @@ class RenameTableStatementSegment(BaseSegment):
     )
 
 
+class RenameUserStatementSegment(BaseSegment):
+    """A `RENAME USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/rename-user.html
+    """
+
+    type = "rename_user_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "USER",
+        Delimited(
+            Sequence(
+                Ref("RoleReferenceSegment"),
+                "TO",
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class ResetMasterStatementSegment(BaseSegment):
     """A `RESET MASTER` statement.
 
@@ -4118,6 +4141,28 @@ class UpdateStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class InstallPluginStatementSegment(BaseSegment):
+    """An `INSTALL PLUGIN` statement."""
+
+    type = "install_plugin_statement"
+    match_grammar: Matchable = Sequence(
+        "INSTALL",
+        "PLUGIN",
+        Ref("SingleIdentifierGrammar"),
+        "SONAME",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class UninstallPluginStatementSegment(BaseSegment):
+    """An `UNINSTALL PLUGIN` statement."""
+
+    type = "uninstall_plugin_statement"
+    match_grammar: Matchable = Sequence(
+        "UNINSTALL", "PLUGIN", Ref("SingleIdentifierGrammar")
     )
 
 

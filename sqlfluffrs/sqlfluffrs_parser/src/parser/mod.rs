@@ -28,7 +28,7 @@ pub(crate) mod arena_py;
 pub mod python;
 
 // Re-export public types
-pub use core::Parser;
+pub use core::{intern_indent_config, Parser};
 pub use match_result::{MatchResult, MatchedClass, MetaSegment};
 pub use sqlfluffrs_types::ParseMode;
 pub use table_driven::ref_grammar::MISSING_REF_PREFIX;
