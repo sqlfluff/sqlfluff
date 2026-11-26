@@ -1,6 +1,5 @@
 """Dataclasses for reflow work."""
 
-import copy
 import logging
 import weakref
 from collections.abc import Iterator, Sequence
@@ -10,7 +9,7 @@ from typing import Literal, Optional, cast
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
-from sqlfluff.utils.reflow.config import ConfigDictType, ReflowConfig
+from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 from sqlfluff.utils.reflow.elements import (
     ReflowBlock,
@@ -47,7 +46,6 @@ _from_root_cache: Optional[
         list[RawSegment],
         type["ReflowSequence"],
         ReflowConfig,
-        ConfigDictType,
         ReflowSequenceType,
         DepthMap,
     ]
@@ -251,9 +249,6 @@ class ReflowSequence:
         global _from_root_cache
         raw_segments = root_segment.raw_segments
         reflow_config = ReflowConfig.from_fluff_config(config)
-        # The reflow config holds the config's own layout settings, not a copy,
-        # so edits to those are found by comparing them with a copy.
-        layout = config.get_section(["layout", "type"])
         cached = _from_root_cache
         if (
             cached
@@ -261,15 +256,14 @@ class ReflowSequence:
             and cached[1] is raw_segments
             and cached[2] is cls
             and cached[3] == reflow_config
-            and cached[4] == layout
         ):
             return cls(
                 # Each caller gets its own list and depth map, so that editing
                 # one sequence can't change another.
-                elements=list(cached[5]),
+                elements=list(cached[4]),
                 root_segment=root_segment,
                 reflow_config=reflow_config,
-                depth_map=cached[6].copy(),
+                depth_map=cached[5].copy(),
             )
         sequence = cls.from_raw_segments(
             raw_segments,
@@ -283,7 +277,6 @@ class ReflowSequence:
             raw_segments,
             cls,
             sequence.reflow_config,
-            copy.deepcopy(layout),
             list(sequence.elements),
             sequence.depth_map.copy(),
         )
@@ -570,13 +563,16 @@ class ReflowSequence:
             "newline",
             "inline",
         ), f"Unexpected value for filter: {filter}"
-        # Use the embodied fixes as a starting point.
-        lint_results = self.get_results()
+        # Use the embodied fixes as a starting point. When filter != "all",
+        # respace_point must not mutate lint_results in place because a
+        # filtered-out point discards its changes.
+        lint_results = list(self.get_results())
+        mutate_in_place = filter == "all"
         new_elements: ReflowSequenceType = []
         for point, pre, post in self._iter_points_with_constraints():
             # We filter on the elements POST RESPACE. This is to allow
             # strict respacing to reclaim newlines.
-            new_lint_results, new_point = point.respace_point(
+            new_lint_results, new_point = point._respace_point(
                 prev_block=pre,
                 next_block=post,
                 root_segment=self.root_segment,
@@ -584,15 +580,19 @@ class ReflowSequence:
                 strip_newlines=strip_newlines,
                 indent_unit=self.reflow_config.indent_unit,
                 tab_space_size=self.reflow_config.tab_space_size,
+                mutate_results=mutate_in_place,
             )
             # If filter has been set, optionally unset the returned values.
-            if (
+            if filter != "all" and (
                 filter == "inline"
                 # NOTE: We test on the NEW point.
                 if (
                     any(seg.is_type("newline") for seg in new_point.segments)
                     # Or if it's followed by the end of file
-                    or (post and "end_of_file" in post.class_types)
+                    or (
+                        post
+                        and any(seg.is_type("end_of_file") for seg in post.segments)
+                    )
                 )
                 else filter == "newline"
             ):
@@ -605,7 +605,10 @@ class ReflowSequence:
             else:
                 lint_results = new_lint_results
 
-            if pre and (not new_elements or new_elements[-1] != pre):
+            if pre and (
+                not new_elements
+                or (new_elements[-1] is not pre and new_elements[-1] != pre)
+            ):
                 new_elements.append(pre)
             new_elements.append(new_point)
             if post:

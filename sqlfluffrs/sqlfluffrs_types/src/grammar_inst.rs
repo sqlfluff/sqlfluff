@@ -53,6 +53,7 @@ pub enum GrammarVariant {
     Missing = 16,
     Token = 17,
     PrecededBy = 18,
+    StandaloneLine = 19,
 }
 
 // /// Parse mode for grammar matching (1 byte)

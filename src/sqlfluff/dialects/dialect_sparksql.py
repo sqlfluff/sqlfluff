@@ -1785,7 +1785,7 @@ class ParameterizedSegment(BaseSegment):
 
     type = "parameterized_expression"
     match_grammar = Sequence(
-        Ref("ColonSegment"),
+        Ref("ColonPrefixSegment"),
         OneOf(
             Ref("NakedIdentifierSegment"),
             Ref("BackQuotedIdentifierSegment"),

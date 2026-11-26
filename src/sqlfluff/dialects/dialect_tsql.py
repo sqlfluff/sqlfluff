@@ -940,6 +940,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSecurityPolicySegment"),
             Ref("AlterSecurityPolicySegment"),
             Ref("DropSecurityPolicySegment"),
+            Ref("AddSensitivityClassificationStatementSegment"),
+            Ref("DropSensitivityClassificationStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
@@ -4796,7 +4798,7 @@ class SetStatementSegment(BaseSegment):
                         "SHOWPLAN_XML",
                         Sequence(
                             "STATISTICS",
-                            OneOf(
+                            Delimited(
                                 "IO",
                                 "PROFILE",
                                 "TIME",
@@ -5170,6 +5172,8 @@ class WithinGroupFunctionNameSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-disc-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/approx-percentile-cont-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/approx-percentile-disc-transact-sql
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
@@ -5180,6 +5184,8 @@ class WithinGroupFunctionNameSegment(BaseSegment):
         "STRING_AGG",
         "PERCENTILE_CONT",
         "PERCENTILE_DISC",
+        "APPROX_PERCENTILE_CONT",
+        "APPROX_PERCENTILE_DISC",
     )
 
 
@@ -5734,6 +5740,38 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
                 Ref("EqualsSegment", optional=True),
                 OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+            ),
+            # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql
+            # ALTER COLUMN column { ADD | DROP } { ROWGUIDCOL | PERSISTED | ... }
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        OneOf(
+                            "ROWGUIDCOL",
+                            "PERSISTED",
+                            Sequence("NOT", "FOR", "REPLICATION"),
+                            "SPARSE",
+                            "HIDDEN",
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        "MASKED",
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                "FUNCTION",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
             ),
             Sequence(
                 "ALTER",
@@ -10130,6 +10168,58 @@ class DropSecurityPolicySegment(BaseSegment):
         "POLICY",
         Sequence("IF", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class AddSensitivityClassificationStatementSegment(BaseSegment):
+    """An `ADD SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/add-sensitivity-classification-transact-sql
+
+    type = "add_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "TO",
+        Delimited(Ref("ColumnReferenceSegment")),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        "LABEL",
+                        "LABEL_ID",
+                        "INFORMATION_TYPE",
+                        "INFORMATION_TYPE_ID",
+                    ),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                Sequence(
+                    "RANK",
+                    Ref("EqualsSegment"),
+                    OneOf("NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropSensitivityClassificationStatementSegment(BaseSegment):
+    """A `DROP SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-sensitivity-classification-transact-sql
+
+    type = "drop_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "FROM",
+        Delimited(Ref("ColumnReferenceSegment")),
     )
 
 

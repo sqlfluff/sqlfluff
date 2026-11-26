@@ -1,0 +1,195 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 327888441511611b15428935cc40cddbc561f568a645f23751270ad80662482e
+file:
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_alias
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_alias
+    - keyword: FOR
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: PUBLIC
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_public_alias
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PUBLIC
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_public_alias
+    - keyword: FOR
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_table_alias
+    - keyword: FOR
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_module_alias
+    - keyword: FOR
+    - keyword: MODULE
+    - object_reference:
+        naked_identifier: my_module
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_sequence_alias
+    - keyword: FOR
+    - keyword: SEQUENCE
+    - object_reference:
+        naked_identifier: my_sequence
+- statement_terminator: ;
+- statement:
+    drop_alias_statement:
+    - keyword: DROP
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_alias
+- statement_terminator: ;
+- statement:
+    drop_alias_statement:
+    - keyword: DROP
+    - keyword: PUBLIC
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_public_alias
+- statement_terminator: ;
+- statement:
+    drop_alias_statement:
+    - keyword: DROP
+    - keyword: ALIAS
+    - object_reference:
+        naked_identifier: my_module_alias
+    - keyword: FOR
+    - keyword: MODULE
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_synonym
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_synonym
+    - keyword: FOR
+    - object_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: PUBLIC
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_public_synonym
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_table_synonym
+    - keyword: FOR
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_alias_statement:
+    - keyword: CREATE
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_sequence_synonym
+    - keyword: FOR
+    - keyword: SEQUENCE
+    - object_reference:
+        naked_identifier: my_sequence
+- statement_terminator: ;
+- statement:
+    drop_alias_statement:
+    - keyword: DROP
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_synonym
+- statement_terminator: ;
+- statement:
+    drop_alias_statement:
+    - keyword: DROP
+    - keyword: PUBLIC
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_public_synonym
+- statement_terminator: ;
+- statement:
+    drop_alias_statement:
+    - keyword: DROP
+    - keyword: SYNONYM
+    - object_reference:
+        naked_identifier: my_table_synonym
+    - keyword: FOR
+    - keyword: TABLE
+- statement_terminator: ;

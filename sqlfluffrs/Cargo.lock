@@ -1076,7 +1076,6 @@ name = "sqlfluffrs_engine"
 version = "4.5.0"
 dependencies = [
  "anyhow",
- "hashbrown 0.16.1",
  "regex",
  "sqlfluffrs_dialects",
  "sqlfluffrs_lexer",

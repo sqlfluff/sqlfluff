@@ -1,0 +1,242 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ad0468cd807673725e0407d1e213117b7ab1dce73dfcc3b7df5365b00ba6b1f4
+file:
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - operator: ^
+      - operator: ^
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: text
+      - comma: ','
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - naked_identifier: public
+      - dot: .
+      - operator: '='
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+        operator: ~~~
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: character
+        - keyword: varying
+      - comma: ','
+      - data_type:
+          keyword: text
+          array_type_suffix:
+            start_square_bracket: '['
+            end_square_bracket: ']'
+      - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+        operator: '!!'
+    - bracketed:
+        start_bracket: (
+        keyword: NONE
+        comma: ','
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - operator: '!'
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: bob
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - naked_identifier: bob
+      - dot: .
+      - operator: '!'
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - keyword: RESTRICT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: neqsel
+      - comma: ','
+      - keyword: JOIN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: neqjoinsel
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - naked_identifier: bob
+      - dot: .
+      - operator: '!'
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - keyword: RESTRICT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - comma: ','
+      - keyword: JOIN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - operator: '='
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - keyword: COMMUTATOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - operator_name:
+        - operator: '='
+        - operator: '='
+        - operator: '='
+      - comma: ','
+      - keyword: NEGATOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - qualified_operator:
+          keyword: OPERATOR
+          bracketed:
+            start_bracket: (
+            operator_name:
+            - naked_identifier: bob
+            - dot: .
+            - operator: '!'
+            - operator: '='
+            - operator: '='
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_operator_statement:
+    - keyword: ALTER
+    - keyword: OPERATOR
+    - operator_name:
+      - operator: '='
+      - operator: '='
+      - operator: '='
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: box
+      - comma: ','
+      - data_type:
+          keyword: box
+      - end_bracket: )
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - keyword: HASHES
+      - comma: ','
+      - keyword: MERGES
+      - end_bracket: )
+- statement_terminator: ;

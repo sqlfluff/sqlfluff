@@ -35,7 +35,7 @@ from typing import (
 
 import regex
 
-from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
+from sqlfluff.core.errors import SQLFluffUserError, SQLLintError, _SQLRuleError
 from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
@@ -568,7 +568,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 exception_line, _ = root_context.segment.pos_marker.source_position()
                 self._log_critical_errors(e)
                 vs.append(
-                    SQLLintError(
+                    _SQLRuleError(
                         rule=self,
                         segment=root_context.segment,
                         fixes=[],
@@ -628,7 +628,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 exception_line, _ = context.segment.pos_marker.source_position()
                 self._log_critical_errors(e)
                 vs.append(
-                    SQLLintError(
+                    _SQLRuleError(
                         rule=self,
                         segment=context.segment,
                         fixes=[],
@@ -1107,7 +1107,12 @@ class RuleSet:
             # AND codes) so that we preserve the most backward compatibility
             # with existing references to legacy codes in config files.
             else:
-                matched_refs = fnmatch.filter(reference_map.keys(), r)
+                r_lower = r.lower()
+                matched_refs = [
+                    k
+                    for k in reference_map.keys()
+                    if fnmatch.fnmatchcase(k.lower(), r_lower)
+                ]
                 for matched in matched_refs:
                     expanded_rule_set.update(reference_map[matched])
         return expanded_rule_set
@@ -1253,7 +1258,9 @@ class RuleSet:
             r
             for r in allowlist
             # Add valid groups to the register when searching for invalid rules _only_
-            if not fnmatch.filter(reference_map.keys(), r)
+            if not any(
+                fnmatch.fnmatchcase(k.lower(), r.lower()) for k in reference_map.keys()
+            )
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
@@ -1263,7 +1270,11 @@ class RuleSet:
             )
 
         denylisted_unknown_rule_codes = [
-            r for r in denylist if not fnmatch.filter(reference_map.keys(), r)
+            r
+            for r in denylist
+            if not any(
+                fnmatch.fnmatchcase(k.lower(), r.lower()) for k in reference_map.keys()
+            )
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(

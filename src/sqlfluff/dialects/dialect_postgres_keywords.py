@@ -959,7 +959,10 @@ postgres_nondocs_keywords = [
     ("BREADTH", "non-reserved"),
     ("BUFFERS", "non-reserved"),
     ("BUFFER_USAGE_LIMIT", "non-reserved"),
+    ("BUILTIN", "non-reserved"),
+    ("BUILTIN_LOCALE", "non-reserved"),
     ("BYPASSRLS", "non-reserved"),
+    ("COLLATION_VERSION", "non-reserved"),
     ("CONNECT", "reserved"),
     ("COSTS", "non-reserved"),
     ("CURRENT_USER", "non-reserved"),
@@ -973,12 +976,15 @@ postgres_nondocs_keywords = [
     ("EXECUTION", "not-keyword"),
     ("EXTENDED", "non-reserved"),
     ("FILE", "non-reserved"),
+    ("FILE_COPY", "non-reserved"),
     ("FORCE_NOT_NULL", "non-reserved"),
     ("FORCE_NULL", "non-reserved"),
     ("FORCE_QUOTE", "non-reserved"),
     ("FORMAT", "non-reserved"),
     ("GENERIC_PLAN", "non-reserved"),
     ("HASH", "non-reserved"),
+    ("ICU_LOCALE", "non-reserved"),
+    ("ICU_RULES", "non-reserved"),
     ("IGNORE", "non-reserved"),
     ("INDEX_CLEANUP", "non-reserved"),
     ("IS_TEMPLATE", "non-reserved"),
@@ -989,6 +995,7 @@ postgres_nondocs_keywords = [
     ("LIST", "non-reserved"),
     ("LOGIN", "non-reserved"),
     ("LOCALE", "non-reserved"),
+    ("LOCALE_PROVIDER", "non-reserved"),
     ("LOG_VERBOSITY", "non-reserved"),
     ("MAIN", "non-reserved"),
     # A privilege name since PG17 (GRANT MAINTAIN), not a PostgreSQL keyword.
@@ -1004,6 +1011,7 @@ postgres_nondocs_keywords = [
     ("NOLOGIN", "non-reserved"),
     ("NOREPLICATION", "non-reserved"),
     ("NOSUPERUSER", "non-reserved"),
+    ("OID", "non-reserved"),
     ("ONLY_DATABASE_STATS", "non-reserved"),
     ("ON_ERROR", "non-reserved"),
     ("PLAIN", "non-reserved"),
@@ -1023,6 +1031,7 @@ postgres_nondocs_keywords = [
     ("SKIP_DATABASE_STATS", "non-reserved"),
     ("SKIP_LOCKED", "non-reserved"),
     ("STOP", "non-reserved"),
+    ("STRATEGY", "non-reserved"),
     ("SUMMARY", "non-reserved"),
     ("SUPERUSER", "non-reserved"),
     # Non-reserved since PG17 (MERGE ... BY TARGET); not in PG13's table.
@@ -1033,6 +1042,7 @@ postgres_nondocs_keywords = [
     ("UNSAFE", "non-reserved"),
     ("USAGE", "non-reserved"),
     ("WAL", "non-reserved"),
+    ("WAL_LOG", "non-reserved"),
 ]
 
 postgres_postgis_datatype_keywords = [

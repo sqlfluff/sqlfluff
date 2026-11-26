@@ -81,6 +81,8 @@ class DepthInfo:
 
     def common_with(self, other: "DepthInfo") -> tuple[int, ...]:
         """Get the common depth and hashes with the other."""
+        if self.stack_hashes is other.stack_hashes and self.stack_hashes:
+            return self.stack_hashes
         # We use set intersection because it's faster and hashes should be unique.
         common_hashes = self.stack_hash_set.intersection(other.stack_hashes)
         # We should expect there to be _at least_ one common ancestor, because

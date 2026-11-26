@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 59f73671e0cd617d018bc0abb2188ed21a3faf1824c9789d793d9c6fb0873dd8
+file:
+- statement:
+    execute_notebook_statement:
+    - keyword: EXECUTE
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_notebook_statement:
+    - keyword: EXECUTE
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: my_notebook
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_notebook_statement:
+    - keyword: EXECUTE
+    - keyword: NOTEBOOK
+    - object_reference:
+        naked_identifier: my_notebook
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'parameter_string a,b,c,d'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_notebook_statement:
+    - keyword: EXECUTE
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: my_notebook
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'parameter_string a,b,c,d'"
+      - comma: ','
+      - quoted_literal: "'target_database=PROD_DB'"
+      - end_bracket: )
+- statement_terminator: ;

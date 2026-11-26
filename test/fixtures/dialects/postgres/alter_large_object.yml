@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b1f56370b210831fec8c833f1b6be682f13eaa23603cce6052edeaaa17abb0ee
+file:
+- statement:
+    alter_large_object_statement:
+    - keyword: ALTER
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '424242'
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_large_object_statement:
+    - keyword: ALTER
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '424242'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_large_object_statement:
+    - keyword: ALTER
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '424242'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_large_object_statement:
+    - keyword: ALTER
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '424242'
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_large_object_statement:
+    - keyword: ALTER
+    - keyword: LARGE
+    - keyword: OBJECT
+    - numeric_literal: '424242'
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '"Joe"'
+- statement_terminator: ;

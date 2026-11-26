@@ -198,6 +198,27 @@ impl Parser<'_> {
         true
     }
 
+    /// True when the simple hint has raws, no token types, and all its raws are
+    /// alphabetic (a keyword). A terminator with no simple hint doesn't count.
+    pub(crate) fn terminator_requires_whitespace(&self, term_id: GrammarId) -> bool {
+        if term_id == GrammarId::NONCODE {
+            return false;
+        }
+        let tables = self.grammar_ctx.tables();
+        tables
+            .get_simple_hint_for_grammar(term_id)
+            .is_some_and(|hint| {
+                let start = hint.raw_values_start as usize;
+                let end = start + hint.raw_values_count as usize;
+                hint.raw_values_count > 0
+                    && hint.token_types_count == 0
+                    && tables.hint_string_indices[start..end].iter().all(|&idx| {
+                        let raw = tables.strings[idx as usize];
+                        !raw.is_empty() && raw.chars().all(char::is_alphabetic)
+                    })
+            })
+    }
+
     pub(crate) fn greedy_match(
         &mut self,
         start_idx: usize,
@@ -255,20 +276,8 @@ impl Parser<'_> {
                     result
                 };
                 if matched {
-                    // Python checks the whole terminator hint, including symbolic
-                    // alternatives, rather than just the token that matched.
-                    let requires_whitespace = tables
-                        .get_simple_hint_for_grammar(term_id)
-                        .is_some_and(|hint| {
-                            let start = hint.raw_values_start as usize;
-                            let end = start + hint.raw_values_count as usize;
-                            hint.token_types_count == 0
-                                && tables.hint_string_indices[start..end].iter().all(|&idx| {
-                                    let raw = tables.strings[idx as usize];
-                                    !raw.is_empty() && raw.chars().all(char::is_alphabetic)
-                                })
-                        });
-                    if requires_whitespace && !self.is_preceded_by_whitespace(tokens, i, start_idx)
+                    if self.terminator_requires_whitespace(term_id)
+                        && !self.is_preceded_by_whitespace(tokens, i, start_idx)
                     {
                         vdebug!(
                                 "[GREEDY_MATCH_TABLE] greedy_match: skipping {:?} at {} — all-alpha token not preceded by whitespace",
@@ -399,6 +408,41 @@ mod tests {
                 .expect("greedy_match");
 
             assert_eq!(tokens[term_idx].raw(), expected, "{grammar_name}");
+        }
+    }
+
+    /// Only keyword hints need whitespace: hints whose strings are all words,
+    /// with no token types. "No hint" (try a full match) and "empty hint"
+    /// (Nothing(), never matches) are different here, so each has a case;
+    /// neither is a keyword.
+    #[test]
+    fn test_terminator_requires_whitespace() {
+        let dialect = Dialect::Ansi;
+        let tokens = Vec::new();
+        let parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+        // Each row uses a real grammar as an example, so we make sure that the
+        // grammar we are using as a test case is doing what we are using it as an
+        // example of - a break here might mean we need to find a different example.
+        for (name, expected_hint, needs_whitespace) in [
+            ("FromKeywordSegment", "strings only", true),
+            ("SemicolonSegment", "strings only", false),
+            ("ObjectReferenceTerminatorGrammar", "has token types", false),
+            ("AliasExpressionSegment", "no hint", false),
+            ("IsNullGrammar", "empty", false),
+        ] {
+            let root = dialect.get_segment_grammar(name).expect(name);
+            let hint = match root.tables.get_simple_hint_for_grammar(root.grammar_id) {
+                None => "no hint",
+                Some(h) if h.raw_values_count == 0 && h.token_types_count == 0 => "empty",
+                Some(h) if h.token_types_count > 0 => "has token types",
+                Some(_) => "strings only",
+            };
+            assert_eq!(hint, expected_hint, "{name}'s hint");
+            assert_eq!(
+                parser.terminator_requires_whitespace(root.grammar_id),
+                needs_whitespace,
+                "{name}"
+            );
         }
     }
 

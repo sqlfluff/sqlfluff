@@ -132,6 +132,35 @@ impl ParserMetrics {
     }
 }
 
+/// Every indent-config key handed out so far. The parser keys `indent_config`
+/// by `&'static str`, so each distinct key is leaked once per process, not once
+/// per parse.
+static INDENT_KEYS: std::sync::LazyLock<std::sync::Mutex<hashbrown::HashSet<&'static str>>> =
+    std::sync::LazyLock::new(Default::default);
+
+/// Build a parser `indent_config` from owned keys, interning each key.
+pub fn intern_indent_config(
+    config: impl IntoIterator<Item = (String, bool)>,
+) -> hashbrown::HashMap<&'static str, bool> {
+    config
+        .into_iter()
+        .map(|(k, v)| {
+            // Lock per key: holding it across `config`'s iterator would
+            // deadlock an iterator that itself interns.
+            let mut keys = INDENT_KEYS.lock().unwrap_or_else(|e| e.into_inner());
+            let key = match keys.get(k.as_str()) {
+                Some(&key) => key,
+                None => {
+                    let key: &'static str = Box::leak(k.into_boxed_str());
+                    keys.insert(key);
+                    key
+                }
+            };
+            (key, v)
+        })
+        .collect()
+}
+
 /// The main parser struct that holds parsing state and provides parsing methods.
 ///
 /// Fields are `pub(crate)`: the parser's public API is the methods re-exported from
@@ -1379,6 +1408,127 @@ impl<'a> Parser<'a> {
         true
     }
 
+    /// Skip whitespace and meta tokens forwards from `idx`.
+    fn skip_gaps_forward(&self, mut idx: usize) -> usize {
+        while idx < self.tokens.len() {
+            let tok = &self.tokens[idx];
+            if tok.is_meta || tok.token_type.as_ref() == "whitespace" {
+                idx += 1;
+            } else {
+                break;
+            }
+        }
+        idx
+    }
+
+    /// Skip whitespace and meta tokens backwards from `idx`.
+    fn skip_gaps_backward(&self, mut idx: isize) -> isize {
+        while idx >= 0 {
+            let tok = &self.tokens[idx as usize];
+            if tok.is_meta || tok.token_type.as_ref() == "whitespace" {
+                idx -= 1;
+            } else {
+                break;
+            }
+        }
+        idx
+    }
+
+    /// Check whether `idx` (which may be out of bounds) sits on a line boundary.
+    ///
+    /// Out of bounds means the start or end of the stream, which counts as a
+    /// boundary.
+    fn is_line_boundary(&self, idx: isize) -> bool {
+        if idx < 0 || idx as usize >= self.tokens.len() {
+            return true;
+        }
+        self.tokens[idx as usize].token_type.as_ref() == "newline"
+    }
+
+    /// Handle StandaloneLine using table-driven approach.
+    ///
+    /// Matches the inner raw string on its own line, ignoring whitespace and meta.
+    /// By default, comments prevent a match. A configured resume-keyword list
+    /// allows a trailing comment when the next non-gap token is a keyword or EOF.
+    pub(crate) fn handle_standalone_line(
+        &mut self,
+        grammar_id: GrammarId,
+    ) -> Result<MatchResult, ParseError> {
+        if self.pos >= self.tokens.len() {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+        if !self.tokens[self.pos].is_code() {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let prev = self.skip_gaps_backward(self.pos as isize - 1);
+        if !self.is_line_boundary(prev) {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let tables = self.grammar_ctx.tables();
+        let (aux_offset, aux_end) = aux_block_bounds(tables, grammar_id);
+        // aux block: [template_id, keyword_count, keyword_ids...]. The count
+        // keeps the keyword list self-delimiting: aux_data blocks are not
+        // stored in grammar-id order, so `aux_end` can only be an upper bound.
+        let keyword_start = aux_offset + 2;
+        let keyword_count = if aux_offset + 1 < aux_end {
+            tables.aux_data[aux_offset + 1] as usize
+        } else {
+            0
+        };
+        let keyword_ids: &[u32] = if keyword_start < aux_end {
+            &tables.aux_data[keyword_start..(keyword_start + keyword_count).min(aux_end)]
+        } else {
+            &[]
+        };
+        let next = self.skip_gaps_forward(self.pos + 1);
+        if !self.is_line_boundary(next as isize) {
+            if keyword_ids.is_empty() || !self.tokens[next].is_comment() {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+            let mut i = next;
+            while i < self.tokens.len()
+                && (self.tokens[i].is_comment()
+                    || self.tokens[i].is_meta
+                    || self.tokens[i].token_type.as_ref() == "whitespace")
+            {
+                i += 1;
+            }
+            if i < self.tokens.len() && self.tokens[i].token_type.as_ref() != "newline" {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+            while i < self.tokens.len()
+                && (self.tokens[i].is_comment()
+                    || self.tokens[i].is_meta
+                    || self.tokens[i].token_type.as_ref() == "whitespace"
+                    || self.tokens[i].token_type.as_ref() == "newline")
+            {
+                i += 1;
+            }
+            if i < self.tokens.len()
+                && !keyword_ids
+                    .iter()
+                    .any(|id| self.tokens[i].raw_upper() == tables.get_string(*id))
+            {
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+        }
+        let expected = tables.get_string(tables.aux_data[aux_offset]);
+
+        if self.tokens[self.pos].raw_upper() != expected {
+            return Ok(MatchResult::empty_at(self.pos));
+        }
+
+        let token_pos = self.pos;
+        self.bump();
+
+        Ok(MatchResult {
+            matched_slice: token_pos..token_pos + 1,
+            ..Default::default()
+        })
+    }
+
     /// Handle Token using table-driven approach
     pub(crate) fn handle_token(
         &mut self,
@@ -1593,6 +1743,14 @@ impl<'a> Parser<'a> {
         if !self.grammar_ctx.inst(grammar_id).flags.reset_terminators() {
             terminators_vec.extend(parent_terminators.iter().cloned());
         }
+        // PYTHON PARITY: like greedy_match, keyword terminators need whitespace.
+        let glued_terminators: Vec<GrammarId> = terminators_vec
+            .iter()
+            .copied()
+            .filter(|t| !self.terminator_requires_whitespace(*t))
+            .collect();
+        // Next code position, reused across a run of non-code tokens.
+        let mut next_code: Option<usize> = None;
 
         loop {
             // Check if we've reached our parent_max_idx boundary
@@ -1607,7 +1765,20 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            if self.is_terminated(&terminators_vec) || self.is_at_end() {
+            let code_pos = match next_code {
+                Some(c) if c >= self.pos => c,
+                _ => {
+                    let c = self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+                    next_code = Some(c);
+                    c
+                }
+            };
+            let terminators = if self.is_preceded_by_whitespace(self.tokens, code_pos, start_pos) {
+                &terminators_vec
+            } else {
+                &glued_terminators
+            };
+            if self.is_terminated(terminators) || self.is_at_end() {
                 break;
             }
 
@@ -1798,5 +1969,92 @@ impl<'a> Parser<'a> {
             inner_child_matches,
             persists,
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn intern_indent_config_leaks_each_key_once() {
+        let config = || {
+            [
+                ("intern_test_a".to_string(), true),
+                ("intern_test_b".to_string(), false),
+            ]
+        };
+        let first = intern_indent_config(config());
+        for _ in 0..100 {
+            let again = intern_indent_config(config());
+            assert_eq!(again, first);
+            for (k, _) in &again {
+                let (orig, _) = first.get_key_value(k).unwrap();
+                assert!(std::ptr::eq(*k, *orig), "{k} was re-leaked");
+            }
+        }
+    }
+
+    #[test]
+    fn intern_indent_config_allows_reentrant_iterator() {
+        // An iterator that interns while being consumed must not deadlock.
+        let config = (0..2).map(|i| {
+            intern_indent_config([(format!("intern_inner_{i}"), true)]);
+            (format!("intern_outer_{i}"), false)
+        });
+        assert_eq!(intern_indent_config(config).len(), 2);
+    }
+
+    /// Expected ends are Python's `Anything().match` with FROM and `;`.
+    #[test]
+    fn anything_skips_keyword_terminator_without_whitespace() {
+        use std::str::FromStr;
+
+        use sqlfluffrs_dialects::Dialect;
+        use sqlfluffrs_lexer::{LexInput, Lexer};
+        use sqlfluffrs_types::GrammarVariant;
+
+        let dialect = Dialect::from_str("ansi").expect("dialect");
+        let from_kw = dialect
+            .get_segment_grammar("FromKeywordSegment")
+            .expect("FROM keyword");
+        let anything_id = from_kw
+            .tables
+            .instructions
+            .iter()
+            .position(|i| {
+                i.variant == GrammarVariant::Anything
+                    && i.terminator_count == 0
+                    && !i.flags.reset_terminators()
+            })
+            .map(|i| GrammarId(i as u32))
+            .expect("an Anything grammar");
+        let semicolon = dialect
+            .get_segment_grammar("SemicolonSegment")
+            .expect("semicolon")
+            .grammar_id;
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        for (sql, expected_end) in [
+            ("a:from:b FROM t", 5),
+            ("FROM t", 0),
+            ("a FROM t", 1),
+            ("a\nFROM t", 1),
+            ("(a)FROM t", 3),
+            ("a/*c*/FROM t;x", 5),
+            ("a /*c*/FROM t;x", 6),
+            ("a:from;x", 3),
+            ("a.from FROM t", 3),
+            ("(a FROM b) FROM t", 7),
+            ("a:from:from FROM t", 5),
+            ("a;b", 1),
+            ("a:from;b", 3),
+        ] {
+            let (tokens, _) = lexer.lex(LexInput::String(sql.to_string()), false);
+            let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
+            let mr = parser
+                .handle_anything(anything_id, &[from_kw.grammar_id, semicolon], None)
+                .expect("parse");
+            assert_eq!(mr.end(), expected_end, "{sql:?}");
+        }
     }
 }

@@ -93,3 +93,17 @@ CREATE DYNAMIC TABLE initialized_product
   INITIALIZATION_WAREHOUSE = init_wh
   AS
     SELECT product_id FROM staging_table;
+
+CREATE OR REPLACE DYNAMIC TABLE product_with_data_metric_schedule
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = mywh
+  DATA_METRIC_SCHEDULE = TRIGGER_ON_CHANGES
+  AS
+    SELECT product_id, product_name FROM staging_table;
+
+CREATE OR REPLACE DYNAMIC TABLE product_with_quoted_data_metric_schedule
+  TARGET_LAG = '20 minutes'
+  WAREHOUSE = mywh
+  DATA_METRIC_SCHEDULE = '60 MINUTE'
+  AS
+    SELECT product_id, product_name FROM staging_table;

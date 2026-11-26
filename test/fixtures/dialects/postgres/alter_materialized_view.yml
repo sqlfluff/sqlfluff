@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9428d483d86b5236294c9dc852712e1e87baa60f128006e903be5a0c98e261d
+_hash: 45f8c683b48fe1a496c4f48c878c3d316c6395c32777dee925658586bed3ef1d
 file:
 - statement:
     alter_materialized_view_statement:
@@ -195,6 +195,22 @@ file:
     - table_reference:
         naked_identifier: bar
     - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_name
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: bar
+    - alter_materialized_view_action_segment:
       - keyword: CLUSTER
       - keyword: 'ON'
       - parameter: index_name
@@ -335,7 +351,7 @@ file:
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - object_reference:
+      - role_reference:
           naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
@@ -348,7 +364,7 @@ file:
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - object_reference:
+      - role_reference:
           quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
