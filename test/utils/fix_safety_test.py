@@ -166,8 +166,11 @@ def test_unjudged_known_failure_isnt_stale(tmp_path, monkeypatch):
         "  starts_with: CREATE TYPE mood\n"
     )
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
+    report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--filter", "create_type.sql", "--processes", "1"]
-    assert fix_safety.main(args) == 0
+    # Nothing in the file is judged, so the run is 2, not 1 for a stale entry.
+    assert fix_safety.main([*args, "--report", str(report)]) == 2
+    assert "Known failures that now pass: 0." in report.read_text()
 
 
 def test_each_rule_is_tried_alone(monkeypatch):
@@ -447,3 +450,23 @@ def test_config_file_changes_the_verdict(tmp_path, monkeypatch):
     assert fix_safety.main(args) == 0
     assert fix_safety.main([*args, "--config", str(config)]) == 1
     assert "can't parse the fixed statement. Rules: CV11." in report.read_text()
+
+
+def test_nothing_judged(tmp_path, monkeypatch, capsys):
+    """A run where the oracle can judge no statement isn't a pass.
+
+    DuckDB's oracle only judges SELECTs, and `checkpoint.sql` has none.
+    """
+    pytest.importorskip("duckdb")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    args = ["--dialect", "duckdb", "--filter", "checkpoint.sql", "--processes", "1"]
+    assert fix_safety.main(args) == 2
+    assert "No statement was judged for the duckdb dialect" in capsys.readouterr().err
+
+
+def test_rules_in_any_case(tmp_path, monkeypatch):
+    """Rule references match without regard to case, as in sqlfluff."""
+    pytest.importorskip("duckdb")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
+    assert fix_safety.main([*args, "--rules", "st07"]) == 1

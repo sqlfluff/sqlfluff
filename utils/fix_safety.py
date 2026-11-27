@@ -27,7 +27,8 @@ Exit codes:
        doesn't parse, or fixing a statement timed out (after 30 seconds, where
        there's SIGALRM, i.e. not on Windows) or raised.
     2: nothing was checked, because a dialect has no oracle, the oracle isn't
-       installed, or no fixture file matches. Usage errors exit with 2 too.
+       installed, no fixture file matches, or the oracle could judge none of
+       the statements. Usage errors exit with 2 too.
 
 Usage:
     python utils/fix_safety.py --dialect duckdb --dialect postgres
@@ -650,8 +651,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     rules = [r.strip() for r in args.rules.split(",")] if args.rules else None
     if rules:
         # sqlfluff only warns about an unknown rule, so a typo would pass.
-        known_rules = get_ruleset().rule_reference_map()
-        unknown = [rule for rule in rules if rule not in known_rules]
+        # It matches rule references without regard to case, e.g. `lt01`.
+        known_rules = {ref.lower() for ref in get_ruleset().rule_reference_map()}
+        unknown = [rule for rule in rules if rule.lower() not in known_rules]
         if unknown:
             parser.error(f"--rules has unknown rules: {', '.join(unknown)}")
 
@@ -696,6 +698,14 @@ def main(argv: Optional[list[str]] = None) -> int:
         r.stats.timeouts or r.stats.errors or r.stats.unparsable_files for r in results
     ):
         return 3
+    unjudged = [r.dialect for r in results if not r.stats.judged]
+    if unjudged:
+        # e.g. DuckDB fixtures without a SELECT, which mustn't read as a pass.
+        print(
+            f"No statement was judged for the {', '.join(unjudged)} dialect.",
+            file=sys.stderr,
+        )
+        return 2
     return 0
 
 

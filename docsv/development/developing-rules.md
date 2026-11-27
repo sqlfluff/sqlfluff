@@ -89,7 +89,8 @@ or `--config`, a listed statement that passes isn't reported. The check exits wi
   The 30-second timeout for a statement uses `SIGALRM`, so it only applies on Linux
   and macOS, not Windows.
 - 2 without checking anything, if a dialect has no oracle, the oracle isn't installed,
-  or no fixture file matches, and for a usage error, like an unknown rule in `--rules`.
+  no fixture file matches, or the oracle can't judge any of the statements, and for a
+  usage error, like an unknown rule in `--rules`.
 
 ## Traversal Options
 
