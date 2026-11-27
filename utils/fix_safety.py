@@ -416,7 +416,7 @@ def _check_fixture(
     judged: list[str] = []
     stats = Stats()
     try:
-        statements = _statements(Path(path).read_text(), dialect)
+        statements = _statements(Path(path).read_text(encoding="utf-8"), dialect)
     except Exception:
         # e.g. the file can't be read or lexed; it isn't judged either.
         statements = None
@@ -468,7 +468,7 @@ def _load_known_failures() -> list[dict[str, Any]]:
     """Read the known failures."""
     if not KNOWN_FAILURES.exists():
         return []  # pragma: no cover
-    return yaml.safe_load(KNOWN_FAILURES.read_text()) or []
+    return yaml.safe_load(KNOWN_FAILURES.read_text(encoding="utf-8")) or []
 
 
 @dataclass
@@ -691,7 +691,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     report = _markdown(results)
     print(report)
     if args.report:
-        Path(args.report).write_text(report)
+        Path(args.report).write_text(report, encoding="utf-8")
     if any(r.new or r.now_pass for r in results):
         return 1
     if any(

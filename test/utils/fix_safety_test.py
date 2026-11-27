@@ -113,7 +113,7 @@ def test_check_finds_and_names_the_rule(tmp_path, monkeypatch):
         ]
     )
     assert code == 1
-    text = report.read_text()
+    text = report.read_text(encoding="utf-8")
     assert "New failures: 2." in text
     assert "Rules: ST07." in text
     assert "ON cars.region_id = region.region_id" in text
@@ -129,7 +129,8 @@ def test_known_failures(tmp_path, monkeypatch):
         '  starts_with: "SELECT cars.name, cars.manufacturer\\nFROM cars SEMI"\n'
         "- dialect: duckdb\n"
         "  fixture: duckdb/anti_semi_join.sql\n"
-        '  starts_with: "SELECT cars.name, cars.manufacturer\\nFROM cars ANTI"\n'
+        '  starts_with: "SELECT cars.name, cars.manufacturer\\nFROM cars ANTI"\n',
+        encoding="utf-8",
     )
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql"]
@@ -149,7 +150,7 @@ def test_known_failures_file():
     """Each known failure names exactly one statement of its fixture."""
     for entry in fix_safety._load_known_failures():
         fixture = fix_safety.FIXTURES / entry["fixture"]
-        statements = fix_safety._statements(fixture.read_text(), entry["dialect"])
+        statements = fix_safety._statements(fixture.read_text(encoding="utf-8"), entry["dialect"])
         assert statements is not None, entry
         matches = [s for s in statements if s.startswith(entry["starts_with"])]
         assert len(matches) == 1, entry
@@ -163,14 +164,15 @@ def test_unjudged_known_failure_isnt_stale(tmp_path, monkeypatch):
     known.write_text(
         "- dialect: duckdb\n"
         "  fixture: duckdb/create_type.sql\n"
-        "  starts_with: CREATE TYPE mood\n"
+        "  starts_with: CREATE TYPE mood\n",
+        encoding="utf-8",
     )
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
     report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--filter", "create_type.sql", "--processes", "1"]
     # Nothing in the file is judged, so the run is 2, not 1 for a stale entry.
     assert fix_safety.main([*args, "--report", str(report)]) == 2
-    assert "Known failures that now pass: 0." in report.read_text()
+    assert "Known failures that now pass: 0." in report.read_text(encoding="utf-8")
 
 
 def test_each_rule_is_tried_alone(monkeypatch):
@@ -204,7 +206,7 @@ def test_several_dialects(tmp_path, monkeypatch):
     report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--dialect", "postgres", "--filter", "select.sql"]
     assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 0
-    text = report.read_text()
+    text = report.read_text(encoding="utf-8")
     assert "## duckdb, judged by the duckdb parser" in text
     assert "## postgres, judged by the postgres parser" in text
 
@@ -220,7 +222,7 @@ def test_default_run_names_the_rule(tmp_path, monkeypatch):
     report = tmp_path / "report.md"
     args = ["--dialect", "postgres", "--filter", "create_function.sql"]
     assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 1
-    text = report.read_text()
+    text = report.read_text(encoding="utf-8")
     assert "New failures: 1." in text
     assert "The postgres parser can't parse the fixed statement. Rules: RF06." in text
 
@@ -273,12 +275,12 @@ def test_incomplete_run_exit_code(tmp_path, monkeypatch):
     report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql"]
     assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 3
-    assert "The run is incomplete" in report.read_text()
+    assert "The run is incomplete" in report.read_text(encoding="utf-8")
 
 
 def _historical_corruptions():
     path = fix_safety.ROOT / "test/fixtures/fix_safety/historical_corruptions.yml"
-    return yaml.safe_load(path.read_text())
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
 @pytest.mark.parametrize(
@@ -314,7 +316,7 @@ def test_timed_out_run_exit_code(tmp_path, monkeypatch):
     report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql"]
     assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 3
-    text = report.read_text()
+    text = report.read_text(encoding="utf-8")
     assert "were judged. The fix changed 0 of those. 4 timed out" in text
     assert "The run is incomplete" in text
 
@@ -353,7 +355,7 @@ def test_report_without_sigalrm(tmp_path, monkeypatch):
     report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
     assert fix_safety.main([*args, "--report", str(report)]) == 0
-    assert "There's no SIGALRM on this platform" in report.read_text()
+    assert "There's no SIGALRM on this platform" in report.read_text(encoding="utf-8")
 
 
 def test_unparsable_fixture_makes_run_incomplete(tmp_path, monkeypatch):
@@ -364,7 +366,7 @@ def test_unparsable_fixture_makes_run_incomplete(tmp_path, monkeypatch):
     report = tmp_path / "report.md"
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
     assert fix_safety.main([*args, "--report", str(report)]) == 3
-    text = report.read_text()
+    text = report.read_text(encoding="utf-8")
     assert "Checked 1 fixture files, 1 of which don't parse" in text
     assert "The run is incomplete" in text
 
@@ -426,7 +428,7 @@ def test_parallel_run_matches_sequential_run(tmp_path, monkeypatch):
         codes.append(
             fix_safety.main([*args, "--processes", processes, "--report", str(report)])
         )
-        reports.append(report.read_text())
+        reports.append(report.read_text(encoding="utf-8"))
     assert codes == [1, 1]
     assert reports[0] == reports[1]
 
@@ -442,14 +444,15 @@ def test_config_file_changes_the_verdict(tmp_path, monkeypatch):
     config = tmp_path / ".sqlfluff"
     config.write_text(
         "[sqlfluff:rules:convention.casting_style]\n"
-        "preferred_type_casting_style = cast\n"
+        "preferred_type_casting_style = cast\n",
+        encoding="utf-8",
     )
     report = tmp_path / "report.md"
     args = ["--dialect", "postgres", "--oracle", "postgres", "--filter", "select.sql"]
     args += ["--rules", "CV11", "--processes", "1", "--report", str(report)]
     assert fix_safety.main(args) == 0
     assert fix_safety.main([*args, "--config", str(config)]) == 1
-    assert "can't parse the fixed statement. Rules: CV11." in report.read_text()
+    assert "can't parse the fixed statement. Rules: CV11." in report.read_text(encoding="utf-8")
 
 
 def test_nothing_judged(tmp_path, monkeypatch, capsys):
