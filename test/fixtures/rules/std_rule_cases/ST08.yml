@@ -94,3 +94,20 @@ test_pass_distinct_subquery_inside_count:
         )
     FROM
         dataset_name.table_name;
+
+test_fail_distinct_chained_calls_preserve_outer_line_breaks:
+  fail_str: |
+    SELECT DISTINCT
+        (
+            (foo)
+            .LOWER()
+        )
+    FROM t;
+  fix_str: |
+    SELECT DISTINCT
+        (foo)
+            .LOWER ()
+    FROM t;
+  configs:
+    core:
+      dialect: bigquery

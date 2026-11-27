@@ -3,13 +3,14 @@
 This should be the default response from any `match` method.
 """
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Union
 
 from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.metadata import MetaSegmentExclusions, match_bounds
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
@@ -303,3 +304,61 @@ class MatchResult:
         if parse_context:
             parse_context.increment_parse_nodes()
         return (new_seg,)
+
+    def matches_with_child_class(self, name: str) -> list["MatchResult"]:
+        """Find accepted parent matches without recursing or building an AST."""
+        found = []
+        pending = [self]
+        while pending:
+            match = pending.pop()
+            if any(
+                child.matched_class is not None and child.matched_class.__name__ == name
+                for child in match.child_matches
+            ):
+                found.append(match)
+            pending.extend(reversed(match.child_matches))
+        return found
+
+    def without_meta_inserts(self, exclusions: MetaSegmentExclusions) -> "MatchResult":
+        """Filter selected grammar inserts while sharing unchanged match data.
+
+        Both traversal and reconstruction are iterative so this operation does
+        not impose a new Python recursion limit on parser nesting.
+        """
+        if not exclusions:
+            return self
+        pending = [(self, False)]
+        rebuilt: list[MatchResult] = []
+        while pending:
+            match, visited = pending.pop()
+            if not visited:
+                pending.append((match, True))
+                pending.extend(
+                    (child, False) for child in reversed(match.child_matches)
+                )
+                continue
+            count = len(match.child_matches)
+            children = tuple(rebuilt[-count:]) if count else ()
+            if count:
+                del rebuilt[-count:]
+            name = match.matched_class.__name__ if match.matched_class else ""
+            start, stop = match_bounds(match)
+            remaining = Counter(exclusions.get((name, start, stop), ()))
+            inserts = []
+            for index, cls in match.insert_segments:
+                key = (index, cls.__name__)
+                if remaining[key]:
+                    remaining[key] -= 1
+                else:
+                    inserts.append((index, cls))
+            if tuple(inserts) == match.insert_segments and all(
+                a is b for a, b in zip(children, match.child_matches)
+            ):
+                rebuilt.append(match)
+            else:
+                rebuilt.append(
+                    replace(
+                        match, child_matches=children, insert_segments=tuple(inserts)
+                    )
+                )
+        return rebuilt[0]

@@ -736,6 +736,14 @@ class ReflowPoint(ReflowElement):
         mutate_results: bool = False,
     ) -> tuple[list[LintResult], "ReflowPoint"]:
         """Internal respace implementation with optional in-place result updates."""
+        # A focused sequence may end at an indent marker rather than code.
+        # There is no following code boundary to insert whitespace against.
+        if (
+            next_block is None
+            and self.segments
+            and all(seg.is_type("indent", "dedent") for seg in self.segments)
+        ):
+            return lint_results if mutate_results else lint_results[:], self
         pre_constraint, post_constraint, strip_newlines = determine_constraints(
             prev_block, next_block, strip_newlines
         )
