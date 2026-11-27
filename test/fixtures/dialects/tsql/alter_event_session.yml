@@ -1,0 +1,268 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f02df7c2248a20706dc1cccfb175517ed3b8dd2ec8b98f444fe28c3e9dba5b25
+file:
+  batch:
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - keyword: STATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: START
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          quoted_identifier: '[test_session]'
+      - keyword: 'ON'
+      - keyword: DATABASE
+      - keyword: STATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: STOP
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: lock_escalation
+      - comma: ','
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: lock_timeout
+        - bracketed:
+            start_bracket: (
+            keyword: ACTION
+            bracketed:
+              start_bracket: (
+              object_reference:
+              - naked_identifier: sqlserver
+              - dot: .
+              - naked_identifier: session_id
+              end_bracket: )
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                - naked_identifier: sqlserver
+                - dot: .
+                - naked_identifier: is_system
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '0'
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - keyword: DROP
+      - keyword: EVENT
+      - object_reference:
+        - naked_identifier: sqlserver
+        - dot: .
+        - naked_identifier: rpc_starting
+      - comma: ','
+      - keyword: DROP
+      - keyword: EVENT
+      - object_reference:
+        - naked_identifier: sqlserver
+        - dot: .
+        - naked_identifier: sql_batch_starting
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DISPATCH_LATENCY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '10'
+          - keyword: SECONDS
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: ring_buffer
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+            - keyword: SET
+            - naked_identifier: max_events_limit
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                integer_literal: '1000'
+            - comma: ','
+            - naked_identifier: max_memory
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                integer_literal: '4096'
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - keyword: DROP
+      - keyword: TARGET
+      - object_reference:
+        - naked_identifier: package0
+        - dot: .
+        - naked_identifier: ring_buffer
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: STARTUP_STATE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - comma: ','
+          - keyword: TRACK_CAUSALITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'OFF'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '2'
+          - keyword: HOURS
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: DATABASE
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: UNLIMITED
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - keyword: DROP
+      - keyword: TARGET
+      - object_reference:
+        - naked_identifier: package0
+        - dot: .
+        - naked_identifier: event_file
+  - statement:
+      alter_event_session_statement:
+      - keyword: ALTER
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: event_file
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+              keyword: SET
+              naked_identifier: filename
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                quoted_literal: "N'test_session.xel'"
+            end_bracket: )
