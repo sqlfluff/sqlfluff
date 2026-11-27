@@ -1,0 +1,489 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ecc0d2a5a98d808bf2e6f364088712afc42a7a0783b1dc75671b0b4ae0d19694
+file:
+- batch:
+    statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: data1
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'D:\\data\\data1.ndf'"
+            file_spec_size:
+              comma: ','
+              keyword: SIZE
+              comparison_operator:
+                raw_comparison_operator: '='
+              size_literal: 5MB
+            file_spec_max_size:
+              comma: ','
+              keyword: MAXSIZE
+              comparison_operator:
+                raw_comparison_operator: '='
+              size_literal: 100MB
+            file_spec_file_growth:
+              comma: ','
+              keyword: FILEGROWTH
+              comparison_operator:
+                raw_comparison_operator: '='
+              size_literal: 5MB
+            end_bracket: )
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: data2
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'D:\\data\\data2.ndf'"
+            end_bracket: )
+      - comma: ','
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_identifier: '[data 3]'
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "N'D:\\data\\data3.ndf'"
+            end_bracket: )
+      - keyword: TO
+      - keyword: FILEGROUP
+      - naked_identifier: fg1
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: LOG
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: log2
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'D:\\log\\log2.ldf'"
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: CURRENT
+      - keyword: ADD
+      - keyword: LOG
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: log3
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'D:\\log\\log3.ldf'"
+            end_bracket: )
+      - comma: ','
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: log4
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'D:\\log\\log4.ldf'"
+            end_bracket: )
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: REMOVE
+      - keyword: FILE
+      - naked_identifier: data1
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: REMOVE
+      - keyword: FILE
+      - quoted_identifier: '[data 3]'
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: data2
+            file_spec_size:
+              comma: ','
+              keyword: SIZE
+              comparison_operator:
+                raw_comparison_operator: '='
+              size_literal: 200MB
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: data2
+            file_spec_new_name:
+              comma: ','
+              keyword: NEWNAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: data2b
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "N'data2b'"
+            file_spec_new_name:
+              comma: ','
+              keyword: NEWNAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "N'data2'"
+            file_spec_file_name:
+              comma: ','
+              keyword: FILENAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'E:\\data\\data2.ndf'"
+            file_spec_size:
+              comma: ','
+              keyword: SIZE
+              comparison_operator:
+                raw_comparison_operator: '='
+              size_literal: 20MB
+            file_spec_max_size:
+            - comma: ','
+            - keyword: MAXSIZE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: UNLIMITED
+            file_spec_file_growth:
+              comma: ','
+              keyword: FILEGROWTH
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '10'
+              percent: '%'
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: data2
+            comma: ','
+            keyword: OFFLINE
+            end_bracket: )
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: FILEGROUP
+      - naked_identifier: fg1
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: CURRENT
+      - keyword: ADD
+      - keyword: FILEGROUP
+      - quoted_identifier: '[fg 2]'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: FILEGROUP
+      - naked_identifier: fg_filestream
+      - keyword: CONTAINS
+      - keyword: FILESTREAM
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: FILEGROUP
+      - naked_identifier: fg_memory_optimized
+      - keyword: CONTAINS
+      - keyword: MEMORY_OPTIMIZED_DATA
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: REMOVE
+      - keyword: FILEGROUP
+      - naked_identifier: fg1
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - quoted_identifier: '[PRIMARY]'
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg1
+      - keyword: NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: fg2
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg2
+      - keyword: READONLY
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg2
+      - keyword: READWRITE
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg2
+      - keyword: READ_ONLY
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg2
+      - keyword: READ_WRITE
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg2
+      - keyword: AUTOGROW_SINGLE_FILE
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: MODIFY
+      - keyword: FILEGROUP
+      - naked_identifier: fg2
+      - keyword: AUTOGROW_ALL_FILES
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: offline
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: readwrite
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: autogrow_all_files
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: autogrow_single_file
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: settings
+    statement_terminator: ;

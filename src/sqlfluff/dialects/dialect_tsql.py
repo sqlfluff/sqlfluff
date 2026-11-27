@@ -1614,7 +1614,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
         Sequence(
             "ADD",
             "FILE",
-            Ref("FileSpecSegmentInAlterDatabase"),
+            Delimited(Ref("FileSpecSegmentInAlterDatabase")),
             Sequence(
                 "TO",
                 "FILEGROUP",
@@ -1626,12 +1626,12 @@ class AlterDatabaseStatementSegment(BaseSegment):
             "ADD",
             "LOG",
             "FILE",
-            Delimited(Ref("FileSpecSegmentInAlterDatabase"), min_delimiters=1),
+            Delimited(Ref("FileSpecSegmentInAlterDatabase")),
         ),
         Sequence(
             "REMOVE",
             "FILE",
-            Ref("LiteralSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
         ),
         Sequence(
             "MODIFY",
@@ -1640,12 +1640,41 @@ class AlterDatabaseStatementSegment(BaseSegment):
         ),
     )
 
-    _add_or_modify_filegroups = Sequence(
-        OneOf(
+    _add_or_modify_filegroups = OneOf(
+        Sequence(
             "ADD",
-            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            Sequence(
+                "CONTAINS",
+                OneOf("FILESTREAM", "MEMORY_OPTIMIZED_DATA"),
+                optional=True,
+            ),
         ),
-        "FILEGROUP",
+        Sequence(
+            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+        ),
+        Sequence(
+            "MODIFY",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            OneOf(
+                "READONLY",
+                "READWRITE",
+                "READ_ONLY",
+                "READ_WRITE",
+                "DEFAULT",
+                Sequence(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("NakedOrQuotedIdentifierGrammar"),
+                ),
+                "AUTOGROW_SINGLE_FILE",
+                "AUTOGROW_ALL_FILES",
+            ),
+        ),
     )
 
     _accelerated_database_recovery = Sequence(
@@ -1938,7 +1967,7 @@ class LogicalFileNameSegment(BaseSegment):
         "NAME",
         Ref("EqualsSegment"),
         OneOf(
-            Ref("NakedIdentifierSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
             Ref("QuotedLiteralSegmentOptWithN"),
         ),
     )
@@ -1964,7 +1993,10 @@ class FileSpecNewNameSegment(BaseSegment):
         Ref("CommaSegment"),
         "NEWNAME",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegmentOptWithN"),
+        OneOf(
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+        ),
     )
 
 
@@ -2052,7 +2084,7 @@ class FileSpecSegment(BaseSegment):
 class FileSpecSegmentInAlterDatabase(BaseSegment):
     """A file specification for ALTER DATABASE statements."""
 
-    # make FILENAME optional and add NEWNAME segment
+    # make FILENAME optional and add NEWNAME segment and OFFLINE
     _inner = UnbracketedFileSpecSegment.match_grammar.copy(
         remove=[Ref("FileSpecFileNameSegment")],
         insert=[
@@ -2060,6 +2092,8 @@ class FileSpecSegmentInAlterDatabase(BaseSegment):
             Ref("FileSpecFileNameSegment", optional=True),
         ],
         before=Ref("FileSpecSizeSegment", optional=True),
+    ).copy(
+        insert=[Sequence(Ref("CommaSegment"), "OFFLINE", optional=True)],
     )
 
     type = "file_spec"
