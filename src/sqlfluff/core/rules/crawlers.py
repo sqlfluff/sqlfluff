@@ -1,5 +1,6 @@
 """Definitions of crawlers."""
 
+import threading
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any, cast
@@ -7,6 +8,76 @@ from typing import Any, cast
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.context import RuleContext
+
+
+class _WalkIndex:
+    """One pre-order walk of a tree, shared by every seeker crawler.
+
+    Records, per segment, what a crawler needs to yield a RuleContext, plus
+    the positions of each segment type, so each rule looks up its matches
+    instead of walking the tree again.
+    """
+
+    __slots__ = ("root", "segs", "stacks", "idxs", "ends", "unparsable", "by_type")
+
+    def __init__(self, root: BaseSegment) -> None:
+        self.root = root
+        self.segs: list[BaseSegment] = []
+        self.stacks: list[tuple[BaseSegment, ...]] = []
+        self.idxs: list[int] = []
+        # ends[i] is the position just past segment i's last descendant.
+        self.ends: list[int] = []
+        # True if the segment is, or is inside, an unparsable section.
+        self.unparsable: list[bool] = []
+        self.by_type: dict[str, list[int]] = {}
+        self._visit(root, (), 0, False)
+
+    def _visit(
+        self, seg: BaseSegment, stack: tuple[BaseSegment, ...], idx: int, unp: bool
+    ) -> None:
+        i = len(self.segs)
+        types = seg.class_types
+        unp = unp or "unparsable" in types
+        self.segs.append(seg)
+        self.stacks.append(stack)
+        self.idxs.append(idx)
+        self.unparsable.append(unp)
+        self.ends.append(0)
+        for t in types:
+            self.by_type.setdefault(t, []).append(i)
+        if seg.segments:
+            child_stack = stack + (seg,)
+            for j, child in enumerate(seg.segments):
+                self._visit(child, child_stack, j, unp)
+        self.ends[i] = len(self.segs)
+
+    def positions(self, types: set[str]) -> list[int]:
+        """Positions of every segment of any of the given types, in order."""
+        lists = [self.by_type[t] for t in types if t in self.by_type]
+        if len(lists) == 1:
+            return lists[0]
+        return sorted(set().union(*lists))
+
+
+# The index of the tree each thread is crawling. Segments are immutable, so
+# it stays valid for as long as that root is the one being crawled.
+_last_index = threading.local()
+
+
+def _walk_index(root: BaseSegment) -> _WalkIndex:
+    index: _WalkIndex | None = getattr(_last_index, "index", None)
+    if index is None or index.root is not root:
+        index = _last_index.index = _WalkIndex(root)
+    return index
+
+
+def forget_walk_index() -> None:
+    """Drop this thread's walk index, once a file's crawls are done.
+
+    The index holds every segment of its tree, so keeping it after linting
+    keeps the tree alive and slows garbage collection for the next file.
+    """
+    _last_index.index = None
 
 
 class BaseCrawler(ABC):
@@ -74,11 +145,36 @@ class SegmentSeekerCrawler(BaseCrawler):
         """Does this segment match the relevant criteria."""
         return segment.is_type(*self.types)
 
+    def _crawl_indexed(self, context: RuleContext) -> Iterator[RuleContext]:
+        """As crawl(), from the shared walk index instead of a fresh walk."""
+        index = _walk_index(context.segment)
+        skip_unparsable = not self.works_on_unparsable
+        skip_until = 0
+        for i in index.positions(self.types):
+            if i < skip_until or (skip_unparsable and index.unparsable[i]):
+                continue
+            if not self.allow_recurse:
+                skip_until = index.ends[i]
+            context.segment = index.segs[i]
+            context.parent_stack = index.stacks[i]
+            context.segment_idx = index.idxs[i]
+            yield context
+
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process.
 
         We assume that segments are yielded by their parent.
         """
+        # A plain seeker starting at the root reads the shared walk index.
+        # Subclasses and raw-stack tracking keep the recursive walk below.
+        if (
+            type(self) is SegmentSeekerCrawler
+            and not self.provide_raw_stack
+            and not context.parent_stack
+        ):
+            yield from self._crawl_indexed(context)
+            return
+
         # Check whether we should consider this segment _or it's children_
         # at all.
         self_match = False
