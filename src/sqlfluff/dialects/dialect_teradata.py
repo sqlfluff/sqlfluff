@@ -772,7 +772,13 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
-            Sequence("AS", Ref("SelectableGrammar")),
+            Sequence(
+                "AS",
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
