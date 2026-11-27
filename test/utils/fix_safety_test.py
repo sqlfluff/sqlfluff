@@ -292,7 +292,7 @@ def test_historical_corruptions(case, oracle_name):
     oracle = fix_safety.ORACLES[oracle_name]()
     before = oracle.tree(case["input"])
     if before is None:
-        verdict = "input_unparsable"
+        verdict = "not_judged"
     else:
         after = oracle.tree(case["bad_output"])
         verdict = "detected" if after is None or after != before else "missed"

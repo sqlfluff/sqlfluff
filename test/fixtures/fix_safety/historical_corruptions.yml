@@ -2,7 +2,9 @@
 # corrupted output from each issue (some shortened to the part the fix broke).
 # `postgres` and `duckdb` are what each oracle of `utils/fix_safety.py` makes of
 # the pair: `detected` (the trees differ, or the output doesn't parse), `missed`
-# (the same tree) or `input_unparsable`. `rule` is the rule's current code,
+# (the same tree) or `not_judged`, when the oracle can't judge the input: it
+# doesn't parse, or for DuckDB, whose `json_serialize_sql` only handles SELECTs,
+# it isn't a SELECT. `rule` is the rule's current code,
 # `unknown` where the issue doesn't say.
 # Of the 66 issues, the rest use Jinja or dbt, are in SQL that neither database
 # parses, or don't give the corrupted output.
@@ -14,8 +16,8 @@
     select *
     from table
     e
-  postgres: input_unparsable
-  duckdb: input_unparsable
+  postgres: not_judged
+  duckdb: not_judged
 - issue: 1268
   dialect: ansi
   rule: ST06
@@ -28,7 +30,7 @@
     SELECT id, rank_asc, rank_desc, CASE WHEN col_a IN ('a', 'b', 'c') THEN col_a END AS example_column
     FROM s2.t2
   postgres: detected
-  duckdb: input_unparsable
+  duckdb: not_judged
 - issue: 1374
   dialect: ansi
   rule: unknown
@@ -46,7 +48,7 @@
     insert into a1_b2_c3
     select a from b
   postgres: detected
-  duckdb: input_unparsable
+  duckdb: not_judged
 - issue: 1462
   dialect: exasol
   rule: AL05
@@ -56,7 +58,7 @@
   bad_output: |-
     SELECT col1, (SELECT count(*) FROM base b WHERE a.col2 = b.col2) AS x_cnt,
     FROM without_dup
-  postgres: input_unparsable
+  postgres: not_judged
   duckdb: detected
   note: input as reported has a trailing comma before FROM
 - issue: 2014
@@ -158,14 +160,14 @@
   input: COMMENT ON FUNCTION x IS 'y'
   bad_output: COMMENT ON FUNCTION xIS 'y'
   postgres: detected
-  duckdb: input_unparsable
+  duckdb: not_judged
 - issue: 6946
   dialect: ansi
   rule: CV12
   input: select a.a from table_a as a left join table_b as b where a.id = b.id
   bad_output: select a.a from table_a as a left join table_b on a.id = b.id
-  postgres: input_unparsable
-  duckdb: input_unparsable
+  postgres: not_judged
+  duckdb: not_judged
   note: 'input isn''t valid SQL: LEFT JOIN without ON'
 - issue: 7397
   dialect: redshift

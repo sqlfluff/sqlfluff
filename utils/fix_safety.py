@@ -18,10 +18,9 @@ Failures listed in ``utils/fix_safety_known_failures.yml`` are reported but
 don't fail the run. Entries that no longer fail are reported too, so the list
 can be kept up to date.
 
-Exit codes: 0 when every statement that could be judged was, with no new
-failures; 1 when there are new failures, or listed ones that pass; 2 when a
-dialect has no oracle or it's missing; and 3 when there are no new failures but
-the run is incomplete, because fixing a statement timed out or raised.
+Exit codes: 1 when there are new failures, or listed ones that pass; otherwise
+3 when the run is incomplete, because fixing a statement timed out or raised,
+and 0 when it isn't. 2 when a dialect has no oracle or it's missing.
 
 Usage:
     python utils/fix_safety.py --dialect duckdb --dialect postgres
@@ -40,7 +39,7 @@ import json
 import os
 import signal
 import sys
-from collections.abc import Callable, Iterator
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -544,20 +543,18 @@ def _check_dialect(
     failures: list[Failure] = []
     judged: set[tuple[str, str]] = set()
     stats = Stats()
-    results: Iterator[tuple[list[Failure], Stats, list[str]]]
+    results: list[tuple[list[Failure], Stats, list[str]]]
     if args.processes == 1:
         # In this process, which is easier to debug.
-        results = map(_check_fixture, jobs)
+        results = [_check_fixture(job) for job in jobs]
     else:
-        pool = ProcessPoolExecutor(max_workers=args.processes)
-        results = pool.map(_check_fixture, jobs)
+        with ProcessPoolExecutor(max_workers=args.processes) as pool:
+            results = list(pool.map(_check_fixture, jobs))
     for path, (fixture_failures, fixture_stats, fixture_judged) in zip(paths, results):
         failures += fixture_failures
         stats.add(fixture_stats)
         fixture = str(path.relative_to(FIXTURES))
         judged |= {(fixture, statement) for statement in fixture_judged}
-    if args.processes != 1:
-        pool.shutdown()
 
     entries = [e for e in _load_known_failures() if e["dialect"] == dialect]
     new = [f for f in failures if not any(f.matches(e) for e in entries)]

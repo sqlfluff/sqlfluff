@@ -77,9 +77,9 @@ python utils/fix_safety.py --dialect postgres --fixtures ansi
 
 Flagged fixes that are known are listed in `utils/fix_safety_known_failures.yml`, so
 they don't fail the check. When you fix one, remove it from the list: the check also
-fails if a listed statement passes. The check exits with 1 for a new flagged fix, and
-with 3 if no fix is flagged but some statements timed out or couldn't be fixed, so they
-weren't judged.
+fails if a listed statement passes. The check exits with 1 for a new flagged fix or a
+listed one that passes. Otherwise, it exits with 3 if some statements timed out or
+couldn't be fixed, so they weren't judged.
 
 ## Traversal Options
 
