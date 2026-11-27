@@ -279,3 +279,10 @@ test_pass_postgres_collation_words_as_column_definitions:
   configs:
     core:
       dialect: postgres
+
+test_pass_postgres_database_option_values_as_column_definitions:
+  # These CREATE DATABASE option values are not PostgreSQL keywords.
+  pass_str: CREATE TABLE t (builtin integer, file_copy text, wal_log integer)
+  configs:
+    core:
+      dialect: postgres
