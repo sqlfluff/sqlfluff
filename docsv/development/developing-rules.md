@@ -45,8 +45,9 @@ A flagged fix needs a person to look at it, because two different trees can stil
 the same thing: `schema.table.column` and `table.column` differ, but can name the same
 column in PostgreSQL. And a fix that isn't flagged isn't proven safe:
 
-- Only the statements in the dialect fixtures are checked, with the default rule
-  settings (unless you pass `--config`) and without templating.
+- Only the statements in the dialect fixtures are checked, with all the rules but those
+  below (unless you pass `--rules`), the default rule settings (unless you pass
+  `--config`), and without templating.
 - Rules whose fixes change the tree on purpose, like ST06 reordering the columns of a
   `SELECT` or AL05 removing an alias, aren't checked; they're listed with the reason
   in the script. Past corruption bugs came from some of these too.
@@ -79,8 +80,8 @@ python utils/fix_safety.py --dialect postgres --fixtures ansi
 Flagged fixes that are known are listed in `utils/fix_safety_known_failures.yml`, so
 they don't fail the check. When you fix one, remove it from the list: the check also
 fails if a listed statement passes. The check exits with 1 for a new flagged fix or a
-listed one that passes. Otherwise, it exits with 3 if some statements timed out or
-couldn't be fixed, so they weren't judged. The 30-second timeout for a statement uses
+listed one that passes. Otherwise, it exits with 3 if some fixture files don't parse,
+or some statements timed out or couldn't be fixed, so they weren't judged. The 30-second timeout for a statement uses
 `SIGALRM`, so it only applies on Linux and macOS, not Windows. It exits with 2 without checking anything if
 a dialect has no oracle, the oracle isn't installed, or no fixture file matches.
 

@@ -351,3 +351,22 @@ def test_report_without_sigalrm(tmp_path, monkeypatch):
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
     assert fix_safety.main([*args, "--report", str(report)]) == 0
     assert "There's no SIGALRM on this platform" in report.read_text()
+
+
+def test_unparsable_fixture_makes_run_incomplete(tmp_path, monkeypatch):
+    """A fixture file that doesn't parse isn't judged, so the run is incomplete."""
+    pytest.importorskip("duckdb")
+    monkeypatch.setattr(fix_safety, "_statements", lambda sql, dialect: None)
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    report = tmp_path / "report.md"
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
+    assert fix_safety.main([*args, "--report", str(report)]) == 3
+    text = report.read_text()
+    assert "Checked 1 fixture files, 1 of which don't parse" in text
+    assert "The run is incomplete" in text
+
+
+def test_missing_config_file(tmp_path):
+    """A `--config` that isn't a file is a usage error."""
+    with pytest.raises(SystemExit):
+        fix_safety.main(["--dialect", "duckdb", "--config", str(tmp_path / "nope")])

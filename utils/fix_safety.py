@@ -19,9 +19,9 @@ don't fail the run. Entries that no longer fail are reported too, so the list
 can be kept up to date.
 
 Exit codes: 1 when there are new failures, or listed ones that pass; otherwise
-3 when the run is incomplete, because fixing a statement timed out (after 30
-seconds, where there's SIGALRM, i.e. not on Windows) or raised, and 0 when it
-isn't. 2 when a dialect has no oracle, the oracle is missing, or
+3 when the run is incomplete, because a fixture file doesn't parse, or fixing a
+statement timed out (after 30 seconds, where there's SIGALRM, i.e. not on
+Windows) or raised, and 0 when it isn't. 2 when a dialect has no oracle, the oracle is missing, or
 no fixture file matches.
 
 Usage:
@@ -503,11 +503,12 @@ def _markdown(results: list[DialectResult]) -> str:
                 "There's no SIGALRM on this platform, so statements weren't "
                 f"given a {STATEMENT_TIMEOUT}-second timeout.",
             ]
-        if stats.timeouts or stats.errors:
+        if stats.timeouts or stats.errors or stats.unparsable_files:
             lines += [
                 "",
-                "The run is incomplete: the statements that timed out or couldn't "
-                "be fixed on their own weren't judged.",
+                "The run is incomplete: the fixture files that don't parse, and the "
+                "statements that timed out or couldn't be fixed on their own, "
+                "weren't judged.",
             ]
         for title, items in (("New failures", r.new), ("Known failures", r.known)):
             if not items:
@@ -627,6 +628,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
     if args.processes < 1:
         parser.error("--processes must be at least 1")
+    if args.config and not Path(args.config).is_file():
+        parser.error(f"--config {args.config} isn't a file")
 
     oracles = {}
     for dialect in args.dialect:
@@ -666,7 +669,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         Path(args.report).write_text(report)
     if any(r.new or r.now_pass for r in results):
         return 1
-    if any(r.stats.timeouts or r.stats.errors for r in results):
+    if any(
+        r.stats.timeouts or r.stats.errors or r.stats.unparsable_files for r in results
+    ):
         return 3
     return 0
 
