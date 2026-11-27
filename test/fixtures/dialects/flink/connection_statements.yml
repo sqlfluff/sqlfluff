@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e58c591dbdffd8363194a8644bc20a444de577abb22251c977557ca778183dcf
+file:
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_conn
+    - keyword: COMMENT
+    - quoted_literal: "'external http endpoint'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'type'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'http'"
+      - comma: ','
+      - quoted_literal: "'endpoint'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://api.example.com'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SYSTEM
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: sys_conn
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'type'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'openai'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_conn
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'timeout'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'30s'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_conn
+    - keyword: RESET
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'timeout'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_connection_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: my_conn
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: my_conn_v2
+- statement_terminator: ;
+- statement:
+    drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_conn_v2
+- statement_terminator: ;
+- statement:
+    drop_connection_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: SYSTEM
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: sys_conn
+- statement_terminator: ;

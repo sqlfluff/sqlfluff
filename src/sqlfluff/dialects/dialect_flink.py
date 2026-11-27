@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     Sequence,
+    StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
@@ -108,6 +109,14 @@ flink_dialect.patch_lexer_matchers(
     ]
 )
 
+flink_dialect.insert_lexer_matchers(
+    [
+        # Named argument arrow for Process Table Functions (param => value)
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 # Add FlinkSQL-specific datetime units
 flink_dialect.sets("datetime_units").clear()
 flink_dialect.sets("datetime_units").update(
@@ -183,8 +192,117 @@ flink_dialect.add(
     ),
     # Double equals operator for connector options
     DoubleEqualsSegment=StringParser("==", SymbolSegment, type="double_equals"),
+    # Named argument arrow for Process Table Functions
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     # Row pattern quantifier used by MATCH_RECOGNIZE
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    # Connector option list: ('key' = 'value', ...)
+    FlinkOptionsListGrammar=Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                ),
+                OneOf(
+                    Ref("EqualsSegment"),
+                    Ref("DoubleEqualsSegment"),
+                ),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+        ),
+    ),
+    # Option key list for RESET ('key1', 'key2', ...)
+    FlinkOptionKeyListGrammar=Bracketed(
+        Delimited(
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
+    # Start mode clause for MATERIALIZED TABLE (Flink 2.3 FLIP-557)
+    FlinkStartModeClauseGrammar=Sequence(
+        "START_MODE",
+        Ref("EqualsSegment"),
+        OneOf(
+            "FROM_BEGINNING",
+            Sequence(
+                "FROM_NOW",
+                Bracketed(Ref("IntervalExpressionSegment"), optional=True),
+            ),
+            Sequence(
+                "FROM_TIMESTAMP",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
+            "RESUME_OR_FROM_BEGINNING",
+            Sequence(
+                "RESUME_OR_FROM_NOW",
+                Bracketed(Ref("IntervalExpressionSegment"), optional=True),
+            ),
+            Sequence(
+                "RESUME_OR_FROM_TIMESTAMP",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
+        ),
+    ),
+    FlinkFreshnessClauseGrammar=Sequence(
+        "FRESHNESS",
+        Ref("EqualsSegment"),
+        Ref("IntervalExpressionSegment"),
+    ),
+    FlinkRefreshModeClauseGrammar=Sequence(
+        "REFRESH_MODE",
+        Ref("EqualsSegment"),
+        OneOf("FULL", "CONTINUOUS"),
+    ),
+    FlinkMaterializedAlterColumnPositionGrammar=OneOf(
+        "FIRST",
+        Sequence("AFTER", Ref("ColumnReferenceSegment")),
+    ),
+    FlinkMaterializedAlterSchemaComponentGrammar=OneOf(
+        Sequence(
+            Ref("MetadataColumnDefinitionSegment"),
+            Ref("FlinkMaterializedAlterColumnPositionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ComputedColumnDefinitionSegment"),
+            Ref("FlinkMaterializedAlterColumnPositionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ColumnDefinitionSegment"),
+            Ref("FlinkMaterializedAlterColumnPositionGrammar", optional=True),
+        ),
+        Ref("WatermarkDefinitionSegment"),
+        Ref("FlinkTableConstraintSegment"),
+    ),
+    # Shared distribution strategy for CREATE TABLE and ALTER MATERIALIZED TABLE
+    FlinkDistributionStrategyGrammar=OneOf(
+        Sequence(
+            "BY",
+            OneOf("HASH", "RANGE", optional=True),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "INTO",
+                Ref("NumericLiteralSegment"),
+                OneOf("BUCKETS", "BUCKET"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "INTO",
+            Ref("NumericLiteralSegment"),
+            OneOf("BUCKETS", "BUCKET"),
+        ),
+    ),
+    FlinkMaterializedAlterDistributionGrammar=Sequence(
+        "DISTRIBUTION",
+        Ref("FlinkDistributionStrategyGrammar"),
+    ),
     FlinkPropertyNamePartSegment=Sequence(
         Ref("SingleIdentifierGrammar"),
         AnyNumberOf(
@@ -281,26 +399,9 @@ flink_dialect.add(
         ),
     ),
     # Distribution definition
-    DistributionDefinitionSegment=OneOf(
-        # DISTRIBUTED BY [HASH|RANGE] (columns) [INTO n BUCKETS]
-        Sequence(
-            "DISTRIBUTED",
-            "BY",
-            OneOf("HASH", "RANGE", optional=True),
-            Bracketed(
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-            ),
-            Sequence("INTO", Ref("NumericLiteralSegment"), "BUCKETS", optional=True),
-        ),
-        # DISTRIBUTED INTO n BUCKETS
-        Sequence(
-            "DISTRIBUTED",
-            "INTO",
-            Ref("NumericLiteralSegment"),
-            "BUCKETS",
-        ),
+    DistributionDefinitionSegment=Sequence(
+        "DISTRIBUTED",
+        Ref("FlinkDistributionStrategyGrammar"),
     ),
     # LIKE options
     LikeOptionsSegment=Delimited(
@@ -326,17 +427,80 @@ flink_dialect.add(
             optional=True,
         ),
     ),
-    # DESCRIPTOR(col) - used in windowing TVFs
+    # DESCRIPTOR(col1, col2, ...) - used in windowing TVFs and PTFs
     DescriptorSegment=Sequence(
         "DESCRIPTOR",
         Bracketed(
-            Ref("ColumnReferenceSegment"),
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
         ),
     ),
-    # TABLE t - table argument for TVFs like TUMBLE, HOP
+    # TABLE t [PARTITION BY ...] [ORDER BY ...] - table argument for TVFs/PTFs
     TableArgSegment=Sequence(
         "TABLE",
-        Ref("TableReferenceSegment"),
+        OneOf(
+            Bracketed(Ref("SelectableGrammar")),
+            Ref("TableReferenceSegment"),
+        ),
+        Sequence(
+            "PARTITION",
+            "BY",
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ORDER",
+            "BY",
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            OneOf("ASC", "DESC", optional=True),
+                            Sequence(
+                                "NULLS",
+                                OneOf("FIRST", "LAST"),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    OneOf("ASC", "DESC", optional=True),
+                    Sequence(
+                        "NULLS",
+                        OneOf("FIRST", "LAST"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    ),
+    # MODEL m - model argument for ML_PREDICT
+    ModelArgSegment=Sequence(
+        "MODEL",
+        Ref("ObjectReferenceSegment"),
+    ),
+    # Named argument for Process Table Functions: param => value
+    FlinkNamedArgumentSegment=Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("RightArrowSegment"),
+        OneOf(
+            Ref("TableArgSegment"),
+            Ref("ModelArgSegment"),
+            Ref("DescriptorSegment"),
+            Ref("ExpressionSegment"),
+        ),
     ),
     # Row pattern quantifiers for MATCH_RECOGNIZE.
     FlinkPatternQuantifierGrammar=Sequence(
@@ -424,9 +588,11 @@ flink_dialect.replace(
         Ref("BackQuotedIdentifierSegment"),
     ),
     FunctionNameSegment=FunctionNameSegment,
-    # Extended to support TABLE and DESCRIPTOR arguments in TVFs
+    # Extended to support named, TABLE, MODEL, and DESCRIPTOR arguments in TVFs/PTFs
     FunctionContentsExpressionGrammar=OneOf(
+        Ref("FlinkNamedArgumentSegment"),
         Ref("TableArgSegment"),
+        Ref("ModelArgSegment"),
         Ref("DescriptorSegment"),
         Ref("ExpressionSegment"),
     ),
@@ -618,13 +784,313 @@ class DescribeStatementSegment(BaseSegment):
 
 
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
-    """An `EXPLAIN` statement for FlinkSQL."""
+    """An `EXPLAIN` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/explain/
+    """
 
     type = "explain_statement"
     match_grammar = Sequence(
         "EXPLAIN",
+        Delimited(
+            OneOf(
+                "ESTIMATED_COST",
+                "CHANGELOG_MODE",
+                "JSON_EXECUTION_PLAN",
+                "PLAN_ADVICE",
+            ),
+            optional=True,
+        ),
         Sequence("PLAN", "FOR", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("InsertStatementSegment"),
+            Ref("ExecuteStatementSetSegment"),
+        ),
+    )
+
+
+class CreateModelStatementSegment(ansi.CreateModelStatementSegment):
+    """A `CREATE MODEL` statement for FlinkSQL (Flink 2.0+).
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/create/#create-model
+    """
+
+    type = "create_model_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "MODEL",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "INPUT",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnDefinitionSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "OUTPUT",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnDefinitionSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        Ref("CreateTableConnectorOptionsSegment", optional=True),
+        Sequence(
+            "AS",
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            optional=True,
+        ),
+    )
+
+
+class AlterModelStatementSegment(BaseSegment):
+    """An `ALTER MODEL` statement for FlinkSQL (Flink 2.0+).
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/alter/#alter-model
+    """
+
+    type = "alter_model_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "MODEL",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("SET", Ref("FlinkOptionsListGrammar")),
+            Sequence("RESET", Ref("FlinkOptionKeyListGrammar")),
+        ),
+    )
+
+
+class DropModelStatementSegment(ansi.DropModelStatementSegment):
+    """A `DROP MODEL` statement for FlinkSQL (Flink 2.0+).
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/drop/#drop-model
+    """
+
+    type = "drop_model_statement"
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        "MODEL",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class CreateConnectionStatementSegment(BaseSegment):
+    """A `CREATE CONNECTION` statement for FlinkSQL (Flink 2.2+ FLIP-529)."""
+
+    type = "create_connection_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "CONNECTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        Ref("CreateTableConnectorOptionsSegment"),
+    )
+
+
+class AlterConnectionStatementSegment(BaseSegment):
+    """An `ALTER CONNECTION` statement for FlinkSQL (Flink 2.2+ FLIP-529)."""
+
+    type = "alter_connection_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("SET", Ref("FlinkOptionsListGrammar")),
+            Sequence("RESET", Ref("FlinkOptionKeyListGrammar")),
+        ),
+    )
+
+
+class DropConnectionStatementSegment(BaseSegment):
+    """A `DROP CONNECTION` statement for FlinkSQL (Flink 2.2+ FLIP-529)."""
+
+    type = "drop_connection_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            Sequence("TEMPORARY", "SYSTEM"),
+            "TEMPORARY",
+            optional=True,
+        ),
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class CreateMaterializedTableStatementSegment(BaseSegment):
+    """A `CREATE [OR ALTER] MATERIALIZED TABLE` statement for FlinkSQL (Flink 2.0+).
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/materialized-table/statements/
+    """
+
+    type = "create_materialized_table_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        "MATERIALIZED",
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnDefinitionSegment"),
+                        Ref("MetadataColumnDefinitionSegment"),
+                        Ref("ComputedColumnDefinitionSegment"),
+                        Ref("WatermarkDefinitionSegment"),
+                        Ref("FlinkTableConstraintSegment"),
+                    ),
+                ),
+            ),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        Ref("DistributionDefinitionSegment", optional=True),
+        Ref("PartitionDefinitionSegment", optional=True),
+        Ref("CreateTableConnectorOptionsSegment", optional=True),
+        Ref("FlinkStartModeClauseGrammar", optional=True),
+        Ref("FlinkFreshnessClauseGrammar", optional=True),
+        Ref("FlinkRefreshModeClauseGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class AlterMaterializedTableStatementSegment(BaseSegment):
+    """An `ALTER MATERIALIZED TABLE` statement for FlinkSQL (Flink 2.0–2.3).
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/materialized-table/statements/#alter-materialized-table
+    """
+
+    type = "alter_materialized_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            "SUSPEND",
+            Sequence(
+                "RESUME",
+                Ref("CreateTableConnectorOptionsSegment", optional=True),
+            ),
+            Sequence(
+                "REFRESH",
+                Sequence(
+                    "PARTITION",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("FlinkFreshnessClauseGrammar"),
+                    Ref("FlinkRefreshModeClauseGrammar"),
+                    Ref("FlinkStartModeClauseGrammar"),
+                    Ref("FlinkOptionsListGrammar"),
+                ),
+            ),
+            Sequence("RESET", Ref("FlinkOptionKeyListGrammar")),
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence(
+                Ref("FlinkStartModeClauseGrammar", optional=True),
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            Sequence(
+                "ADD",
+                OneOf(
+                    Ref("FlinkMaterializedAlterDistributionGrammar"),
+                    Bracketed(
+                        Delimited(
+                            Ref("FlinkMaterializedAlterSchemaComponentGrammar"),
+                        ),
+                    ),
+                    Ref("FlinkMaterializedAlterSchemaComponentGrammar"),
+                ),
+            ),
+            Sequence(
+                "MODIFY",
+                OneOf(
+                    Ref("FlinkMaterializedAlterDistributionGrammar"),
+                    Bracketed(
+                        Delimited(
+                            Ref("FlinkMaterializedAlterSchemaComponentGrammar"),
+                        ),
+                    ),
+                    Ref("FlinkMaterializedAlterSchemaComponentGrammar"),
+                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf(
+                    Sequence("PRIMARY", "KEY"),
+                    Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
+                    "DISTRIBUTION",
+                    "WATERMARK",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropMaterializedTableStatementSegment(BaseSegment):
+    """A `DROP MATERIALIZED TABLE` statement for FlinkSQL (Flink 2.0+).
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/materialized-table/statements/#drop-materialized-table
+    """
+
+    type = "drop_materialized_table_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
     )
 
 
@@ -675,10 +1141,17 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             # FlinkSQL-specific statements
+            Ref("AlterConnectionStatementSegment"),
+            Ref("AlterMaterializedTableStatementSegment"),
+            Ref("AlterModelStatementSegment"),
             Ref("CreateCatalogStatementSegment"),
+            Ref("CreateConnectionStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
+            Ref("CreateMaterializedTableStatementSegment"),
             Ref("DescribeStatementSegment"),
+            Ref("DropConnectionStatementSegment"),
+            Ref("DropMaterializedTableStatementSegment"),
             Ref("ExecuteStatementSetSegment"),
             Ref("ShowStatementsSegment"),
             Ref("SetStatementSegment"),

@@ -1,0 +1,155 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4add1c1a3640e90fb29c7e75ae86f15a9256feb3f5c1a56509bfc9ebb6e5f806
+file:
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: PLAN_ADVICE
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: AVG
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: avg_a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ESTIMATED_COST
+    - comma: ','
+    - keyword: CHANGELOG_MODE
+    - comma: ','
+    - keyword: PLAN_ADVICE
+    - comma: ','
+    - keyword: JSON_EXECUTION_PLAN
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              quoted_identifier: '`count`'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: COUNT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: word
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            quoted_identifier: '`count`'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: PLAN_ADVICE
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: my_sink
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_source
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: ESTIMATED_COST
+    - comma: ','
+    - keyword: PLAN_ADVICE
+    - execute_statement_set:
+      - keyword: EXECUTE
+      - keyword: STATEMENT
+      - keyword: SET
+      - keyword: BEGIN
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: sink_a
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: source_a
+      - statement_terminator: ;
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: sink_b
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: source_b
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;

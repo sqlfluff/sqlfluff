@@ -1,0 +1,502 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 25a4b50d2ff0ecc93bbc99e32663df88937219df0d81d76ab7e5e7972ece0dd9
+file:
+- statement:
+    create_materialized_table_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - bracketed:
+      - start_bracket: (
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'paimon'"
+      - end_bracket: )
+    - keyword: FRESHNESS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - interval_expression:
+        keyword: INTERVAL
+        quoted_literal: "'3'"
+        date_part: HOUR
+    - keyword: REFRESH_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FULL
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: dt
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: amount
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_orders
+- statement_terminator: ;
+- statement:
+    create_materialized_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_streaming_mt
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - keyword: WATERMARK
+      - keyword: FOR
+      - column_reference:
+          naked_identifier: ts
+      - keyword: AS
+      - expression:
+          column_reference:
+            naked_identifier: ts
+          binary_operator: '-'
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'5'"
+            date_part: SECOND
+      - comma: ','
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'paimon'"
+      - end_bracket: )
+    - keyword: START_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FROM_BEGINNING
+    - keyword: FRESHNESS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - interval_expression:
+        keyword: INTERVAL
+        quoted_literal: "'1'"
+        date_part: MINUTE
+    - keyword: REFRESH_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CONTINUOUS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: ts
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_events
+- statement_terminator: ;
+- statement:
+    create_materialized_table_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mt_from_now
+    - keyword: START_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FROM_NOW
+    - bracketed:
+        start_bracket: (
+        interval_expression:
+          keyword: INTERVAL
+          quoted_literal: "'1'"
+          date_part: HOUR
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_events
+- statement_terminator: ;
+- statement:
+    create_materialized_table_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mt_from_ts
+    - keyword: START_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FROM_TIMESTAMP
+    - bracketed:
+        start_bracket: (
+        expression:
+          keyword: TIMESTAMP
+          date_constructor_literal: "'2026-01-01 00:00:00'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_events
+- statement_terminator: ;
+- statement:
+    create_materialized_table_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mt_minimal
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_events
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: RESUME
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'sink.parallelism'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'4'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: REFRESH
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2026-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: SET
+    - keyword: FRESHNESS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - interval_expression:
+        keyword: INTERVAL
+        quoted_literal: "'5'"
+        date_part: MINUTE
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: SET
+    - keyword: REFRESH_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CONTINUOUS
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'sink.parallelism'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'8'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: RESET
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'sink.parallelism'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: my_materialized_table_v2
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table_v2
+    - keyword: START_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: RESUME_OR_FROM_NOW
+    - bracketed:
+        start_bracket: (
+        interval_expression:
+          keyword: INTERVAL
+          quoted_literal: "'10'"
+          date_part: MINUTE
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: dt
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_orders
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table_v2
+    - keyword: ADD
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: extra
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'extra field'"
+      - keyword: AFTER
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - keyword: WATERMARK
+      - keyword: FOR
+      - column_reference:
+          naked_identifier: ts
+      - keyword: AS
+      - expression:
+          column_reference:
+            naked_identifier: ts
+          binary_operator: '-'
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'5'"
+            date_part: SECOND
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table_v2
+    - keyword: MODIFY
+    - keyword: DISTRIBUTION
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '8'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    alter_materialized_table_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_materialized_table_v2
+    - keyword: DROP
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: extra
+      - comma: ','
+      - column_reference:
+          naked_identifier: legacy_col
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_materialized_table_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_materialized_table_v2
+- statement_terminator: ;

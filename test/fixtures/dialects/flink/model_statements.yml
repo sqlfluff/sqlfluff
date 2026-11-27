@@ -1,0 +1,181 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f0dd866f6681c179a8c365eb85a71e039d9c71e8a46967a89bc441eec1ea1a32
+file:
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: sentiment_model
+    - keyword: INPUT
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: text
+          data_type:
+            data_type_identifier: STRING
+        end_bracket: )
+    - keyword: OUTPUT
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: label
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: score
+          data_type:
+            data_type_identifier: DOUBLE
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'sentiment classification model'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'provider'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'openai'"
+      - comma: ','
+      - quoted_literal: "'endpoint'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://api.openai.com/v1/chat/completions'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: MODEL
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: local_model
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'provider'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'local'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: trained_model
+    - keyword: INPUT
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: DOUBLE
+        end_bracket: )
+    - keyword: OUTPUT
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: DOUBLE
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'provider'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'local'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: x
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: y
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: training_data
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: sentiment_model
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'model-version'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'v2'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: sentiment_model
+    - keyword: RESET
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'model-version'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_model_statement:
+    - keyword: ALTER
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: sentiment_model
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: sentiment_model_v2
+- statement_terminator: ;
+- statement:
+    drop_model_statement:
+    - keyword: DROP
+    - keyword: MODEL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: sentiment_model_v2
+- statement_terminator: ;
+- statement:
+    drop_model_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: MODEL
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: local_model
+- statement_terminator: ;
