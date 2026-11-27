@@ -1,0 +1,79 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8f432100ac6db23e23d345542372482bcf5ed499ce39638c9e67224164bb65d5
+file:
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: my_schema
+        dot: .
+        naked_identifier_all: case
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: char
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '18'
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - naked_identifier: my_schema
+          - dot: .
+          - naked_identifier_all: case
+          - dot: .
+          - naked_identifier: id
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_schema
+                dot: .
+                naked_identifier_all: case
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: into
+    - table_reference:
+        naked_identifier: my_schema
+        dot: .
+        naked_identifier_all: case
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: drop
+    - keyword: table
+    - table_reference:
+        naked_identifier: my_schema
+        dot: .
+        naked_identifier_all: case
+- statement_terminator: ;
