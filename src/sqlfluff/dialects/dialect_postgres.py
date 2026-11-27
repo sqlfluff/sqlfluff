@@ -634,12 +634,10 @@ postgres_dialect.add(
         ),
         "DEFAULT",
     ),
-    # An integer literal, as ICONST in scan.l: decimal digits with optional `_`
-    # separators, or a hexadecimal, octal or binary integer. Fractions and
-    # exponents (`0.5`, `1e2`) are not integers.
+    # A decimal integer literal, as ICONST in scan.l: digits with optional `_`
+    # separators. Fractions and exponents (`0.5`, `1e2`) are not integers.
     IntegerLiteralSegment=RegexParser(
-        r"[0-9]+(?:_[0-9]+)*"
-        r"|0[xX](?:_?[0-9a-fA-F])+|0[oO](?:_?[0-7])+|0[bB](?:_?[01])+",
+        r"[0-9]+(?:_[0-9]+)*",
         LiteralSegment,
         type="numeric_literal",
     ),
