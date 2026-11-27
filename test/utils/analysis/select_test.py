@@ -13,11 +13,19 @@ def _select(sql: str):
     return tree, next(tree.recursive_crawl("select_statement")), cfg.get("dialect_obj")
 
 
-def test_select_info_cached_per_segment():
+def test_select_info_cached_per_segment(monkeypatch):
     """A second call reuses the analysis but hands back fresh lists."""
     tree, seg, dialect = _select("SELECT a.x FROM t AS a")
+    calls = []
+    analyze = select._get_select_statement_info
+    monkeypatch.setattr(
+        select,
+        "_get_select_statement_info",
+        lambda *args: calls.append(args) or analyze(*args),
+    )
     first = get_select_statement_info(seg, dialect)
     second = get_select_statement_info(seg, dialect)
+    assert len(calls) == 1
     assert first == second
     assert first.select_statement is seg
     assert first.reference_buffer is not second.reference_buffer
