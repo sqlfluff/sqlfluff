@@ -410,3 +410,40 @@ def test_fixture_that_raises_isnt_judged(tmp_path, monkeypatch):
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
     assert fix_safety.main(args) == 3
+
+
+def test_parallel_run_matches_sequential_run(tmp_path, monkeypatch):
+    """Worker processes give the same report and exit code as one process."""
+    pytest.importorskip("duckdb")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    args = ["--dialect", "duckdb", "--filter", "[a-c]*.sql", "--rules", "ST07"]
+    codes, reports = [], []
+    for processes in ("1", "2"):
+        report = tmp_path / f"report{processes}.md"
+        codes.append(
+            fix_safety.main([*args, "--processes", processes, "--report", str(report)])
+        )
+        reports.append(report.read_text())
+    assert codes == [1, 1]
+    assert reports[0] == reports[1]
+
+
+def test_config_file_changes_the_verdict(tmp_path, monkeypatch):
+    """The rule settings of `--config` are used to fix, and to name the rule.
+
+    CV11 is fine with its default style, but with the `cast` style it turns
+    `'...'::TIMESTAMP AT TIME ZONE 'UTC'` into SQL PostgreSQL can't parse.
+    """
+    pytest.importorskip("pglast")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    config = tmp_path / ".sqlfluff"
+    config.write_text(
+        "[sqlfluff:rules:convention.casting_style]\n"
+        "preferred_type_casting_style = cast\n"
+    )
+    report = tmp_path / "report.md"
+    args = ["--dialect", "postgres", "--oracle", "postgres", "--filter", "select.sql"]
+    args += ["--rules", "CV11", "--processes", "1", "--report", str(report)]
+    assert fix_safety.main(args) == 0
+    assert fix_safety.main([*args, "--config", str(config)]) == 1
+    assert "can't parse the fixed statement. Rules: CV11." in report.read_text()

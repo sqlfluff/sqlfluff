@@ -79,10 +79,11 @@ python utils/fix_safety.py --dialect postgres --fixtures ansi
 
 Flagged fixes that are known are listed in `utils/fix_safety_known_failures.yml`, so
 they don't fail the check. When you fix one, remove it from the list: the check also
-fails if a listed statement passes. The check exits with:
+fails if a listed statement passes. The list is for the default run, so with `--rules`
+or `--config`, a listed statement that passes isn't reported. The check exits with:
 
 - 0 when nothing new is flagged, and every statement the oracle can judge was judged.
-- 1 for a new flagged fix, or a listed one that passes.
+- 1 for a new flagged fix, or a listed one that passes (in a default run).
 - 3 when nothing new is flagged, but the run is incomplete: some fixture files don't
   parse, or some statements timed out or couldn't be fixed, so they weren't judged.
   The 30-second timeout for a statement uses `SIGALRM`, so it only applies on Linux

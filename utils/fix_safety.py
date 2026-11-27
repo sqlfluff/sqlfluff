@@ -17,11 +17,12 @@ sees the statements in the fixtures, with the default rule settings (or those of
 
 Failures listed in ``utils/fix_safety_known_failures.yml`` are reported but
 don't fail the run. Entries that no longer fail are reported too, so the list
-can be kept up to date.
+can be kept up to date. They're listed for the default run, so that's only done
+without ``--rules`` and ``--config``.
 
 Exit codes:
     0: nothing new was flagged, and every statement the oracle can judge was.
-    1: a new fix was flagged, or a listed one passes.
+    1: a new fix was flagged, or a listed one passes (in a default run).
     3: nothing new was flagged, but the run is incomplete: a fixture file
        doesn't parse, or fixing a statement timed out (after 30 seconds, where
        there's SIGALRM, i.e. not on Windows) or raised.
