@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: faf9f7f287077b93d61e85981785bb5d3fc92e7fe3c45397e2a019078175767e
+_hash: d76c506b9c0b9b1c29273004645dbf81ece81b06e10d6bcb3f0250cae333eb97
 file:
 - statement:
     select_statement:
@@ -714,4 +714,138 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: li
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'[1, 2, 3]'"
+                  - keyword: FORMAT
+                  - keyword: JSON
+                  - comma: ','
+                  - quoted_literal: "'$[*] ? (@ > $min)'"
+                  - keyword: PASSING
+                  - expression:
+                      numeric_literal: '1'
+                  - keyword: AS
+                  - naked_identifier: min
+                  - json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                        start_bracket: (
+                        json_table_column_definition:
+                          naked_identifier: v
+                          data_type:
+                            keyword: int
+                          keyword: PATH
+                          quoted_literal: "'$'"
+                        end_bracket: )
+                  - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: jt
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: JSON_TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      cast_expression:
+                        quoted_literal: "'{\"a\": [1, 2], \"b\": \"x\"}'"
+                        casting_operator: '::'
+                        data_type:
+                          keyword: jsonb
+                    comma: ','
+                    quoted_literal: "'$'"
+                    json_table_columns_clause:
+                      keyword: COLUMNS
+                      bracketed:
+                      - start_bracket: (
+                      - json_table_column_definition:
+                        - naked_identifier: a
+                        - data_type:
+                            keyword: jsonb
+                        - keyword: FORMAT
+                        - keyword: JSON
+                        - keyword: PATH
+                        - quoted_literal: "'$.a'"
+                        - keyword: WITH
+                        - keyword: CONDITIONAL
+                        - keyword: ARRAY
+                        - keyword: WRAPPER
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: b
+                        - data_type:
+                            keyword: text
+                        - keyword: FORMAT
+                        - keyword: JSON
+                        - keyword: ENCODING
+                        - naked_identifier: UTF8
+                        - keyword: PATH
+                        - quoted_literal: "'$.b'"
+                        - keyword: WITHOUT
+                        - keyword: WRAPPER
+                        - keyword: OMIT
+                        - keyword: QUOTES
+                      - comma: ','
+                      - json_table_column_definition:
+                        - naked_identifier: c
+                        - data_type:
+                            keyword: text
+                        - keyword: PATH
+                        - quoted_literal: "'$.b'"
+                        - keyword: KEEP
+                        - keyword: QUOTES
+                        - keyword: 'ON'
+                        - keyword: SCALAR
+                        - keyword: STRING
+                        - keyword: 'NULL'
+                        - keyword: 'ON'
+                        - keyword: EMPTY
+                        - keyword: ERROR
+                        - keyword: 'ON'
+                        - keyword: ERROR
+                      - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: jt
 - statement_terminator: ;

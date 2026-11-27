@@ -1,0 +1,467 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 44dbb07dc768e64a7a5966df3036a9db87ed358735941e787a923bfb97895ae6
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_EXISTS
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'{\"key1\": [1,2,3]}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'strict $.key1[*] ? (@ > $x)'"
+              - keyword: PASSING
+              - expression:
+                  numeric_literal: '2'
+              - keyword: AS
+              - naked_identifier: x
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_EXISTS
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'{\"a\": [1,2,3]}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $.a[5]'"
+              - keyword: ERROR
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_exists
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: 'TRUE'
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'[1,[2,3],null]'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $[*][$off]'"
+              - keyword: PASSING
+              - expression:
+                  numeric_literal: '1'
+              - keyword: AS
+              - naked_identifier: 'off'
+              - keyword: WITH
+              - keyword: CONDITIONAL
+              - keyword: WRAPPER
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'{\"a\": \"[1, 2]\"}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: OMIT
+              - keyword: QUOTES
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'{\"a\": \"[1, 2]\"}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: int
+                  array_type_suffix:
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              - keyword: OMIT
+              - keyword: QUOTES
+              - keyword: ERROR
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: WITH
+              - keyword: UNCONDITIONAL
+              - keyword: ARRAY
+              - keyword: WRAPPER
+              - keyword: KEEP
+              - keyword: QUOTES
+              - keyword: 'ON'
+              - keyword: SCALAR
+              - keyword: STRING
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: WITHOUT
+              - keyword: ARRAY
+              - keyword: WRAPPER
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: jsonb
+              - keyword: EMPTY
+              - keyword: ARRAY
+              - keyword: 'ON'
+              - keyword: EMPTY
+              - keyword: EMPTY
+              - keyword: OBJECT
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - keyword: FORMAT
+              - keyword: JSON
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: text
+              - keyword: FORMAT
+              - keyword: JSON
+              - keyword: ENCODING
+              - naked_identifier: UTF8
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'\"123.45\"'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: float
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'[1,2]'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'strict $[$off]'"
+              - keyword: PASSING
+              - expression:
+                  numeric_literal: '1'
+              - keyword: AS
+              - naked_identifier: 'off'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  data_type:
+                    keyword: jsonb
+                  quoted_literal: "'[1,2]'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'strict $[*]'"
+              - keyword: DEFAULT
+              - expression:
+                  numeric_literal: '9'
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: int
+              - keyword: DEFAULT
+              - expression:
+                  numeric_literal: '0'
+              - keyword: 'ON'
+              - keyword: EMPTY
+              - keyword: 'NULL'
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.ts'"
+              - keyword: RETURNING
+              - data_type:
+                  datetime_type_identifier:
+                  - keyword: timestamp
+                  - keyword: with
+                  - keyword: time
+                  - keyword: zone
+              - keyword: ERROR
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: ts
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          function:
+            function_name:
+              function_name_identifier: JSON_EXISTS
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: js
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.ts'"
+              - end_bracket: )
+- statement_terminator: ;
