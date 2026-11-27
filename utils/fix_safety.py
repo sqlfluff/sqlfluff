@@ -20,7 +20,8 @@ can be kept up to date.
 
 Exit codes: 1 when there are new failures, or listed ones that pass; otherwise
 3 when the run is incomplete, because fixing a statement timed out or raised,
-and 0 when it isn't. 2 when a dialect has no oracle or it's missing.
+and 0 when it isn't. 2 when a dialect has no oracle, the oracle is missing, or
+no fixture file matches.
 
 Usage:
     python utils/fix_safety.py --dialect duckdb --dialect postgres
@@ -527,6 +528,15 @@ def _markdown(results: list[DialectResult]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _fixture_paths(dialect: str, args: argparse.Namespace) -> list[Path]:
+    """The fixture files to check for a dialect."""
+    return sorted(
+        p
+        for p in (FIXTURES / (args.fixtures or dialect)).glob("*.sql")
+        if fnmatch.fnmatch(p.name, args.filter)
+    )
+
+
 def _check_dialect(
     dialect: str,
     oracle_name: str,
@@ -534,11 +544,7 @@ def _check_dialect(
     rules: Optional[list[str]],
 ) -> DialectResult:
     """Check one dialect's fixtures and compare with the known failures."""
-    paths = sorted(
-        p
-        for p in (FIXTURES / (args.fixtures or dialect)).glob("*.sql")
-        if fnmatch.fnmatch(p.name, args.filter)
-    )
+    paths = _fixture_paths(dialect, args)
     jobs = [(str(p), dialect, oracle_name, rules, args.config) for p in paths]
     failures: list[Failure] = []
     judged: set[tuple[str, str]] = set()
@@ -607,6 +613,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         "--processes", type=int, default=os.cpu_count(), help="Worker processes."
     )
     args = parser.parse_args(argv)
+    if args.processes < 1:
+        parser.error("--processes must be at least 1")
 
     oracles = {}
     for dialect in args.dialect:
@@ -625,6 +633,15 @@ def main(argv: Optional[list[str]] = None) -> int:
             )
             return 2
         oracles[dialect] = oracle_name
+
+    for dialect in oracles:
+        if not _fixture_paths(dialect, args):
+            # e.g. a typo in `--filter` or `--fixtures`, which mustn't pass.
+            print(
+                f"No fixture files to check for the {dialect} dialect.",
+                file=sys.stderr,
+            )
+            return 2
 
     rules = args.rules.split(",") if args.rules else None
     results = [

@@ -297,3 +297,38 @@ def test_historical_corruptions(case, oracle_name):
         after = oracle.tree(case["bad_output"])
         verdict = "detected" if after is None or after != before else "missed"
     assert verdict == case[oracle_name]
+
+
+def test_timed_out_run_exit_code(tmp_path, monkeypatch):
+    """A statement that times out makes the run incomplete."""
+    pytest.importorskip("duckdb")
+
+    def slow_fix(sql, dialect, rules, config_path):
+        raise fix_safety._Timeout()
+
+    monkeypatch.setattr(fix_safety, "_fix", slow_fix)
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    report = tmp_path / "report.md"
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql"]
+    assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 3
+    text = report.read_text()
+    assert "were judged. The fix changed 0 of those. 4 timed out" in text
+    assert "The run is incomplete" in text
+
+
+@pytest.mark.parametrize(
+    "selection",
+    [["--filter", "no_such_fixture*.sql"], ["--fixtures", "no_such_dialect"]],
+)
+def test_no_fixtures_selected(selection, capsys):
+    """Selecting no fixture files is an error, not a pass."""
+    pytest.importorskip("duckdb")
+    args = ["--dialect", "duckdb", *selection, "--processes", "1"]
+    assert fix_safety.main(args) == 2
+    assert "No fixture files to check" in capsys.readouterr().err
+
+
+def test_processes_must_be_positive():
+    """`--processes 0` is a usage error."""
+    with pytest.raises(SystemExit):
+        fix_safety.main(["--dialect", "duckdb", "--processes", "0"])
