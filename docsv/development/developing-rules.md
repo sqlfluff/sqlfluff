@@ -47,7 +47,8 @@ column in PostgreSQL. And a fix that isn't flagged isn't proven safe:
 
 - Only the statements in the dialect fixtures are checked, with all the rules but those
   below (unless you pass `--rules`), the default rule settings (unless you pass
-  `--config`), and without templating.
+  `--config`), and without templating. A `--config` file can select rules too: its
+  `rules` and `exclude_rules` are kept, and the rules below are added to the latter.
 - Rules whose fixes change the tree on purpose, like ST06 reordering the columns of a
   `SELECT` or AL05 removing an alias, aren't checked; they're listed with the reason
   in the script. Past corruption bugs came from some of these too.

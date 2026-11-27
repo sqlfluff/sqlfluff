@@ -11,7 +11,8 @@ unsafe change, and it's run again with one rule at a time to name the rules.
 A flagged fix needs a person to look at it: two different trees can still mean
 the same thing. And a fix that isn't flagged isn't proven safe: the check only
 sees the statements in the fixtures, with the default rule settings (or those of
-``--config``), without templating, and can't judge the excluded rules unless
+``--config``, whose ``rules`` and ``exclude_rules`` are kept, with the excluded
+rules added to the latter), without templating, and can't judge the excluded rules unless
 ``--rules`` names them, or what a dialect does beyond what its parser shows
 (DuckDB's ``json_serialize_sql`` only handles SELECTs).
 
@@ -319,33 +320,53 @@ def _config(overrides: dict[str, Any], config_path: Optional[str]) -> FluffConfi
     return FluffConfig(overrides=overrides)
 
 
+@lru_cache(maxsize=None)
+def _file_selection(config_path: Optional[str]) -> tuple[str, Optional[str]]:
+    """The `rules` and `exclude_rules` of a config file, or the defaults."""
+    if not config_path:
+        return "all", None
+    config = _config({"dialect": "ansi"}, config_path)
+    return config.get("rules") or "all", config.get("exclude_rules") or None
+
+
+def _selection(
+    rules: Optional[list[str]], config_path: Optional[str]
+) -> dict[str, str]:
+    """The overrides that select the rules to fix with.
+
+    `--rules` replaces the selection. Otherwise the config file's `rules` and
+    `exclude_rules` are kept, and the excluded rules are added to the latter.
+    """
+    if rules:
+        return {"rules": ",".join(rules)}
+    selected, excluded = _file_selection(config_path)
+    return {
+        "rules": selected,
+        "exclude_rules": ",".join(filter(None, [excluded, *EXCLUDED_RULES])),
+    }
+
+
 def _fix(
     sql: str, dialect: str, rules: Optional[list[str]], config_path: Optional[str]
 ) -> str:
-    """Fix one statement with the given rules, or all of them but the excluded."""
-    overrides: dict[str, Any] = {"dialect": dialect, "templater": "raw"}
-    if rules:
-        overrides["rules"] = ",".join(rules)
-    else:
-        overrides["rules"] = "all"
-        overrides["exclude_rules"] = ",".join(EXCLUDED_RULES)
+    """Fix one statement with the given rules, or with the selected ones."""
+    overrides = {
+        "dialect": dialect,
+        "templater": "raw",
+        **_selection(rules, config_path),
+    }
     linter = Linter(config=_config(overrides, config_path))
     return linter.lint_string(sql, fix=True).fix_string()[0]
 
 
 def _fixable_rules(sql: str, dialect: str, config_path: Optional[str]) -> list[str]:
-    """The rules with a fix for this statement."""
-    linter = Linter(
-        config=_config(
-            {
-                "dialect": dialect,
-                "templater": "raw",
-                "rules": "all",
-                "exclude_rules": ",".join(EXCLUDED_RULES),
-            },
-            config_path,
-        )
-    )
+    """The selected rules with a fix for this statement."""
+    overrides = {
+        "dialect": dialect,
+        "templater": "raw",
+        **_selection(None, config_path),
+    }
+    linter = Linter(config=_config(overrides, config_path))
     violations = linter.lint_string(sql).violations
     return sorted({v.rule_code() for v in violations if getattr(v, "fixes", None)})
 
@@ -627,7 +648,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     parser.add_argument(
         "--config",
-        help="A .sqlfluff file with rule settings to fix with, e.g. other policies.",
+        help=(
+            "A .sqlfluff file with rule settings to fix with, e.g. other policies. "
+            "Its `rules` and `exclude_rules` are kept, and the excluded rules are "
+            "added to the latter."
+        ),
     )
     parser.add_argument("--report", help="Also write the report to this file.")
     parser.add_argument(

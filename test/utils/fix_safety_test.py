@@ -477,3 +477,39 @@ def test_rules_in_any_case(tmp_path, monkeypatch):
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
     assert fix_safety.main([*args, "--rules", "st07"]) == 1
+
+
+def test_config_file_selects_rules(tmp_path, monkeypatch):
+    """A `--config` file's `rules` and `exclude_rules` are kept.
+
+    The excluded rules are added on top, so they still aren't run.
+    """
+    pytest.importorskip("pglast")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    cast_style = (
+        "[sqlfluff:rules:convention.casting_style]\n"
+        "preferred_type_casting_style = cast\n"
+    )
+    args = ["--dialect", "postgres", "--filter", "select.sql", "--processes", "1"]
+
+    only_cv11 = tmp_path / "only_cv11.sqlfluff"
+    only_cv11.write_text("[sqlfluff]\nrules = CV11\n" + cast_style, encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert (
+        fix_safety.main([*args, "--config", str(only_cv11), "--report", str(report)])
+        == 1
+    )
+    text = report.read_text(encoding="utf-8")
+    assert "Rules: CV11." in text
+    assert "Rules: CV11, " not in text and ", CV11." not in text
+
+    no_cv11 = tmp_path / "no_cv11.sqlfluff"
+    no_cv11.write_text(
+        "[sqlfluff]\nrules = CV11,ST06\nexclude_rules = CV11\n" + cast_style,
+        encoding="utf-8",
+    )
+    assert fix_safety._selection(None, str(no_cv11))["rules"] == "CV11,ST06"
+    assert fix_safety._selection(None, str(no_cv11))["exclude_rules"].startswith(
+        "CV11,AL05"
+    )
+    assert fix_safety.main([*args, "--config", str(no_cv11)]) == 0
