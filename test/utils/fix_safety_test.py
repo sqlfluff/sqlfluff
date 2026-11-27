@@ -150,7 +150,9 @@ def test_known_failures_file():
     """Each known failure names exactly one statement of its fixture."""
     for entry in fix_safety._load_known_failures():
         fixture = fix_safety.FIXTURES / entry["fixture"]
-        statements = fix_safety._statements(fixture.read_text(encoding="utf-8"), entry["dialect"])
+        statements = fix_safety._statements(
+            fixture.read_text(encoding="utf-8"), entry["dialect"]
+        )
         assert statements is not None, entry
         matches = [s for s in statements if s.startswith(entry["starts_with"])]
         assert len(matches) == 1, entry
@@ -452,7 +454,9 @@ def test_config_file_changes_the_verdict(tmp_path, monkeypatch):
     args += ["--rules", "CV11", "--processes", "1", "--report", str(report)]
     assert fix_safety.main(args) == 0
     assert fix_safety.main([*args, "--config", str(config)]) == 1
-    assert "can't parse the fixed statement. Rules: CV11." in report.read_text(encoding="utf-8")
+    assert "can't parse the fixed statement. Rules: CV11." in report.read_text(
+        encoding="utf-8"
+    )
 
 
 def test_nothing_judged(tmp_path, monkeypatch, capsys):
