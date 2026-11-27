@@ -170,8 +170,21 @@ def test_rules_crawlers_seeker_matches_reference(
         (True, 1),
     ],
 )
-def test_rules_crawlers_walk_index_dropped_after_lint(fix, runaway_limit):
+def test_rules_crawlers_walk_index_dropped_after_lint(fix, runaway_limit, monkeypatch):
     """Linting a file doesn't leave its tree held by the shared walk index."""
+    # Record the index as the lint loop exits, before it is dropped, so the
+    # test fails if no index was built at all.
+    held = []
+    inner = Linter._lint_fix_parsed.__func__
+
+    def spy(cls, *args, **kwargs):
+        try:
+            return inner(cls, *args, **kwargs)
+        finally:
+            held.append(getattr(crawlers._last_index, "index", None))
+
+    monkeypatch.setattr(Linter, "_lint_fix_parsed", classmethod(spy))
     cfg = FluffConfig(overrides={"dialect": "ansi", "runaway_limit": runaway_limit})
     Linter(config=cfg).lint_string("SELECT   a,b   FROM t  WHERE   x=1\n", fix=fix)
+    assert held and all(held)
     assert getattr(crawlers._last_index, "index", None) is None
