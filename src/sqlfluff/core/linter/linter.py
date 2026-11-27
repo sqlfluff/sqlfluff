@@ -496,6 +496,26 @@ class Linter:
         formatter: Optional[FormatterInterface] = None,
     ) -> tuple[BaseSegment, list[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
+        try:
+            return cls._lint_fix_parsed(
+                tree, config, rule_pack, fix, fname, templated_file, formatter
+            )
+        finally:
+            # Drop the crawlers' walk index on every exit (loop limit, errors
+            # too), so it doesn't hold this tree alive into the next file.
+            forget_walk_index()
+
+    @classmethod
+    def _lint_fix_parsed(
+        cls,
+        tree: BaseSegment,
+        config: FluffConfig,
+        rule_pack: RulePack,
+        fix: bool = False,
+        fname: Optional[str] = None,
+        templated_file: Optional["TemplatedFile"] = None,
+        formatter: Optional[FormatterInterface] = None,
+    ) -> tuple[BaseSegment, list[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
         # in the initial SQL code, EXCLUDING any issues that may be created by
@@ -760,7 +780,6 @@ class Linter:
             linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
             linter_logger.info("\n" + tree.stringify())
 
-        forget_walk_index()
         return tree, initial_linting_errors, ignore_mask, rule_timings
 
     @classmethod

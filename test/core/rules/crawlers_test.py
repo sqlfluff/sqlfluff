@@ -162,7 +162,16 @@ def test_rules_crawlers_seeker_matches_reference(
     assert end_stack == ref_end_stack
 
 
-def test_rules_crawlers_walk_index_dropped_after_lint():
+@pytest.mark.parametrize(
+    "fix,runaway_limit",
+    [
+        (False, 10),
+        # Hitting the loop limit takes an early return.
+        (True, 1),
+    ],
+)
+def test_rules_crawlers_walk_index_dropped_after_lint(fix, runaway_limit):
     """Linting a file doesn't leave its tree held by the shared walk index."""
-    Linter(dialect="ansi").lint_string("SELECT a + 1 FROM t\n")
+    cfg = FluffConfig(overrides={"dialect": "ansi", "runaway_limit": runaway_limit})
+    Linter(config=cfg).lint_string("SELECT   a,b   FROM t  WHERE   x=1\n", fix=fix)
     assert getattr(crawlers._last_index, "index", None) is None
