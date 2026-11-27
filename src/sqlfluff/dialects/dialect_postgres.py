@@ -170,6 +170,17 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
         ),
+        # Hexadecimal, octal and binary integers (Postgres 16), e.g. 0x1F, 0o17,
+        # 0b101. An underscore may come before any digit, including the first one
+        # after the prefix (e.g. 0x_FF, 0o_1_755), as in scan.l.
+        # The negative lookahead stops a match that runs into a word, e.g. 0x1Fz.
+        # https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-NUMERIC
+        RegexLexer(
+            "non_decimal_integer_literal",
+            r"0(?:[xX](?:_?[0-9a-fA-F])+|[oO](?:_?[0-7])+|[bB](?:_?[01])+)(?![\w$])",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
         StringLexer("full_text_search_operator", "!!", SymbolSegment),
         # `#` and `##` are operators in PostgreSQL, not comments as in ANSI. After
         # the JSON operators, so that `#>`, `#>>` and `#-` lex as one.
