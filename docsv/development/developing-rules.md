@@ -31,16 +31,32 @@ The `-k` option simply searches for the content of the argument being in the nam
 of the test, which will match any single or combo tests for that rule. By convention,
 any test cases for a rule should include the code for that rule.
 
-## Checking That Fixes Keep the Meaning
+## Flagging Fixes That May Change the Meaning
 
 A fix should change how a query is written, not what it does. `utils/fix_safety.py`
-checks this for the dialect fixtures: it fixes each statement with every rule (but
-those below), then asks the database's own parser (an *oracle*) for the statement's
-syntax tree before and after the fix. If the trees differ, or the database can't parse the fixed
-statement, the fix changed the query, and the check names the rules that did it.
+looks for fixes that may break this in the dialect fixtures: it fixes each statement
+with every rule (but those below), then asks the database's own parser (an *oracle*)
+for the statement's syntax tree before and after the fix. If the trees differ, or the
+database can't parse the fixed statement, the fix is flagged, and the check names the
+rules that did it.
 
-There are oracles for DuckDB (DuckDB's `json_serialize_sql`, which handles
-`SELECT` statements) and PostgreSQL ([pglast](https://pglast.readthedocs.io/),
+A flagged fix needs a person to look at it, because two different trees can still mean
+the same thing: `schema.table.column` and `table.column` differ, but can name the same
+column in PostgreSQL. And a fix that isn't flagged isn't proven safe:
+
+- Only the statements in the dialect fixtures are checked, with the default rule
+  settings (unless you pass `--config`) and without templating.
+- Rules whose fixes change the tree on purpose, like ST06 reordering the columns of a
+  `SELECT` or AL05 removing an alias, aren't checked; they're listed with the reason
+  in the script. Past corruption bugs came from some of these too.
+- An oracle only sees what its database's parser keeps. DuckDB's `json_serialize_sql`
+  only handles `SELECT` statements, comments aren't in either tree, and each statement
+  is judged on its own.
+
+`test/fixtures/fix_safety/historical_corruptions.yml` holds the corrupted fixes from
+closed `fix corrupts sql` issues, and what each oracle makes of them, misses included.
+
+There are oracles for DuckDB and PostgreSQL ([pglast](https://pglast.readthedocs.io/),
 PostgreSQL's own parser). The `fix-safety` tox environment installs them and checks
 both dialects:
 
@@ -59,11 +75,11 @@ python utils/fix_safety.py --dialect postgres --rules CV11 --config my.sqlfluff
 python utils/fix_safety.py --dialect postgres --fixtures ansi
 ```
 
-Rules whose fixes change the tree on purpose, like ST06 reordering the columns of a
-`SELECT`, aren't checked; they're listed with the reason in the script. Failures
-that are known are listed in `utils/fix_safety_known_failures.yml`, so they don't
-fail the check. When you fix one, remove it from the list: the check also fails if
-a listed statement passes.
+Flagged fixes that are known are listed in `utils/fix_safety_known_failures.yml`, so
+they don't fail the check. When you fix one, remove it from the list: the check also
+fails if a listed statement passes. The check exits with 1 for a new flagged fix, and
+with 3 if no fix is flagged but some statements timed out or couldn't be fixed, so they
+weren't judged.
 
 ## Traversal Options
 

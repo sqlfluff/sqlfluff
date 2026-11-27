@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
-"""Check that `sqlfluff fix` doesn't change what a query means.
+"""Flag fixes that may change what a query means, for review.
 
 For each statement in a dialect's parse fixtures, this runs ``sqlfluff fix``
 with every rule except those in ``EXCLUDED_RULES``, whose fixes change the tree
 on purpose. It then asks the real database's own parser, an *oracle*, for the
 syntax tree of the statement before and after the fix. If the trees differ, or
-the fixed statement no longer parses, the fix changed the query.
+the database can't parse the fixed statement, the fix is flagged as a possible
+unsafe change, and it's run again with one rule at a time to name the rules.
 
-Each failure is then run again with one rule at a time, to name the rules
-whose fix changes the query on its own.
+A flagged fix needs a person to look at it: two different trees can still mean
+the same thing. And a fix that isn't flagged isn't proven safe: the check only
+sees the statements in the fixtures, with the default rule settings, without
+templating, and can't judge the excluded rules or what a dialect does beyond
+what its parser shows (DuckDB's ``json_serialize_sql`` only handles SELECTs).
 
 Failures listed in ``utils/fix_safety_known_failures.yml`` are reported but
 don't fail the run. Entries that no longer fail are reported too, so the list
 can be kept up to date.
 
-Exit codes: 0 when there are no new failures, 1 when there are new failures or
-listed ones that pass, and 2 when a dialect has no oracle or it's missing.
+Exit codes: 0 when every statement that could be judged was, with no new
+failures; 1 when there are new failures, or listed ones that pass; 2 when a
+dialect has no oracle or it's missing; and 3 when there are no new failures but
+the run is incomplete, because fixing a statement timed out or raised.
 
 Usage:
     python utils/fix_safety.py --dialect duckdb --dialect postgres
@@ -34,7 +40,7 @@ import json
 import os
 import signal
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -106,13 +112,18 @@ def _drop_keys(obj: Any, is_position: Callable[[str, Any], bool]) -> Any:
     return obj
 
 
-def _fold_identifiers(obj: Any) -> Any:
-    """Lower-case every string in a DuckDB tree except constant values.
+_ASCII_LOWER = str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")
 
-    DuckDB resolves identifiers case-insensitively, quoted or not, but its
-    serialised tree keeps the case they were written in. The text of a constant
-    (`literal`, or `value` before DuckDB 2.0) keeps its case; other keys of a
-    constant, like its `alias`, don't.
+
+def _fold_identifiers(obj: Any) -> Any:
+    """Lower-case the ASCII letters of every string in a DuckDB tree.
+
+    DuckDB resolves identifiers without regard to the case of ASCII letters,
+    quoted or not, but its serialised tree keeps the case they were written in.
+    Other letters keep their case, because DuckDB tells them apart: `"ä"` and
+    `"Ä"` are different columns. The text of a constant (`literal`, or `value`
+    before DuckDB 2.0) keeps its case; other keys of a constant, like its
+    `alias`, don't.
     """
     if isinstance(obj, dict):
         is_constant = obj.get("class") == "CONSTANT"
@@ -123,7 +134,7 @@ def _fold_identifiers(obj: Any) -> Any:
     if isinstance(obj, list):
         return [_fold_identifiers(v) for v in obj]
     if isinstance(obj, str):
-        return obj.lower()
+        return obj.translate(_ASCII_LOWER)
     return obj
 
 
@@ -330,8 +341,12 @@ def _fixable_rules(sql: str, dialect: str, config_path: Optional[str]) -> list[s
     return sorted({v.rule_code() for v in violations if getattr(v, "fixes", None)})
 
 
-class _Timeout(Exception):
-    pass
+class _Timeout(BaseException):
+    """The statement's time ran out.
+
+    A BaseException, so that the `except Exception` blocks that skip one rule
+    while naming the rules don't swallow it.
+    """
 
 
 def _raise_timeout(*_: Any) -> None:
@@ -458,7 +473,13 @@ class DialectResult:
 
 def _markdown(results: list[DialectResult]) -> str:
     """A report for a terminal or a CI step summary."""
-    lines = ["# Fix safety"]
+    lines = [
+        "# Fix safety",
+        "",
+        "A failure is a fix whose syntax tree differs from the original's, or that "
+        "the database can't parse. It may change what the query means, and needs "
+        "a look: two different trees can still mean the same thing.",
+    ]
     for r in results:
         stats = r.stats
         lines += [
@@ -474,6 +495,12 @@ def _markdown(results: list[DialectResult]) -> str:
             f"New failures: {len(r.new)}. Known failures: {len(r.known)}. "
             f"Known failures that now pass: {len(r.now_pass)}.",
         ]
+        if stats.timeouts or stats.errors:
+            lines += [
+                "",
+                "The run is incomplete: the statements that timed out or couldn't "
+                "be fixed on their own weren't judged.",
+            ]
         for title, items in (("New failures", r.new), ("Known failures", r.known)):
             if not items:
                 continue
@@ -517,14 +544,20 @@ def _check_dialect(
     failures: list[Failure] = []
     judged: set[tuple[str, str]] = set()
     stats = Stats()
-    with ProcessPoolExecutor(max_workers=args.processes) as pool:
-        for path, (fixture_failures, fixture_stats, fixture_judged) in zip(
-            paths, pool.map(_check_fixture, jobs)
-        ):
-            failures += fixture_failures
-            stats.add(fixture_stats)
-            fixture = str(path.relative_to(FIXTURES))
-            judged |= {(fixture, statement) for statement in fixture_judged}
+    results: Iterator[tuple[list[Failure], Stats, list[str]]]
+    if args.processes == 1:
+        # In this process, which is easier to debug.
+        results = map(_check_fixture, jobs)
+    else:
+        pool = ProcessPoolExecutor(max_workers=args.processes)
+        results = pool.map(_check_fixture, jobs)
+    for path, (fixture_failures, fixture_stats, fixture_judged) in zip(paths, results):
+        failures += fixture_failures
+        stats.add(fixture_stats)
+        fixture = str(path.relative_to(FIXTURES))
+        judged |= {(fixture, statement) for statement in fixture_judged}
+    if args.processes != 1:
+        pool.shutdown()
 
     entries = [e for e in _load_known_failures() if e["dialect"] == dialect]
     new = [f for f in failures if not any(f.matches(e) for e in entries)]
@@ -605,7 +638,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     print(report)
     if args.report:
         Path(args.report).write_text(report)
-    return 1 if any(r.new or r.now_pass for r in results) else 0
+    if any(r.new or r.now_pass for r in results):
+        return 1
+    if any(r.stats.timeouts or r.stats.errors for r in results):
+        return 3
+    return 0
 
 
 if __name__ == "__main__":

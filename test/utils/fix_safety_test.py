@@ -1,6 +1,7 @@
 """Tests for the fix safety check, `utils/fix_safety.py`."""
 
 import pytest
+import yaml
 
 from utils import fix_safety
 
@@ -219,3 +220,80 @@ def test_default_run_names_the_rule(tmp_path, monkeypatch):
     text = report.read_text()
     assert "New failures: 1." in text
     assert "The postgres parser can't parse the fixed statement. Rules: RF06." in text
+
+
+def test_duckdb_oracle_non_ascii_case():
+    """DuckDB tells `ä` and `Ä` apart, so the oracle must too.
+
+    The fixed query returns 2 instead of 1.
+    """
+    pytest.importorskip("duckdb")
+    oracle = fix_safety.DuckDBOracle()
+    before = 'SELECT ä FROM (SELECT 1 AS "ä", 2 AS "Ä") t'
+    after = 'SELECT Ä FROM (SELECT 1 AS "ä", 2 AS "Ä") T'
+    assert oracle.tree(before) != oracle.tree(after)
+
+
+def test_timeout_isnt_swallowed_while_naming_rules(monkeypatch):
+    """A timeout while naming the rules stops the statement, not just one rule."""
+    pytest.importorskip("duckdb")
+    calls = []
+
+    def fake_fix(sql, dialect, rules, config_path):
+        calls.append(rules)
+        if rules == ["AA01"]:
+            raise fix_safety._Timeout()
+        return "SELECT 'b'\n"
+
+    monkeypatch.setattr(fix_safety, "_fix", fake_fix)
+    with pytest.raises(fix_safety._Timeout):
+        fix_safety._check_statement(
+            "SELECT 'a'",
+            "duckdb",
+            fix_safety.DuckDBOracle(),
+            "duckdb",
+            ["AA01", "BB02"],
+            None,
+        )
+    assert ["BB02"] not in calls
+
+
+def test_incomplete_run_exit_code(tmp_path, monkeypatch):
+    """A run where statements couldn't be fixed isn't reported as a pass."""
+    pytest.importorskip("duckdb")
+
+    def failing_fix(sql, dialect, rules, config_path):
+        raise ValueError("can't fix")
+
+    monkeypatch.setattr(fix_safety, "_fix", failing_fix)
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    report = tmp_path / "report.md"
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql"]
+    assert fix_safety.main([*args, "--processes", "1", "--report", str(report)]) == 3
+    assert "The run is incomplete" in report.read_text()
+
+
+def _historical_corruptions():
+    path = fix_safety.ROOT / "test/fixtures/fix_safety/historical_corruptions.yml"
+    return yaml.safe_load(path.read_text())
+
+
+@pytest.mark.parametrize(
+    "case", _historical_corruptions(), ids=lambda case: f"issue{case['issue']}"
+)
+@pytest.mark.parametrize("oracle_name", ["postgres", "duckdb"])
+def test_historical_corruptions(case, oracle_name):
+    """Each oracle's verdict on the corrupted fixes of past issues.
+
+    This records what the check can and can't see, misses included, so a change
+    to an oracle that changes a verdict shows up here.
+    """
+    pytest.importorskip({"postgres": "pglast", "duckdb": "duckdb"}[oracle_name])
+    oracle = fix_safety.ORACLES[oracle_name]()
+    before = oracle.tree(case["input"])
+    if before is None:
+        verdict = "input_unparsable"
+    else:
+        after = oracle.tree(case["bad_output"])
+        verdict = "detected" if after is None or after != before else "missed"
+    assert verdict == case[oracle_name]
