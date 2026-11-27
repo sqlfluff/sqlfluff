@@ -424,3 +424,237 @@ leading_comma_align_following_fail:
       type:
         comma:
           line_position: "leading:align-following"
+
+redshift_procedure_trailing_commas:
+  fail_str: |
+    CREATE PROCEDURE p(a int
+        , b int) AS $body$
+    BEGIN
+        RAISE NOTICE 'first %, second %' -- message
+            , a
+            , b;
+        /* A comment containing
+            , literal punctuation. */
+        SELECT $text$first
+            , second$text$
+            , 'first
+            , second';
+    END;
+    $body$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p(a int,
+        b int) AS $body$
+    BEGIN
+        RAISE NOTICE 'first %, second %', -- message
+            a,
+            b;
+        /* A comment containing
+            , literal punctuation. */
+        SELECT $text$first
+            , second$text$,
+            'first
+            , second';
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_leading_commas:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (1,
+            2);
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (1
+            , 2);
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+    layout:
+      type:
+        comma:
+          line_position: leading
+        # This applies to the lexer token. Only comma positions are in scope.
+        word:
+          line_position: leading:strict
+
+redshift_non_procedure_dollar_literal:
+  pass_str: |
+    SELECT $$one
+        , two$$;
+    CREATE FUNCTION f() RETURNS int AS $$
+        SELECT 1
+            , 2;
+    $$ LANGUAGE sql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_do_not_reflow_option_value:
+  pass_str: |
+    CREATE PROCEDURE p() AS $$BEGIN NULL; END;$$ LANGUAGE plpgsql
+    SET query_group TO $value$first
+        , second$value$;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_unicode_identifiers:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        SELECT café
+            , b FROM t;
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        SELECT café,
+            b FROM t;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_non_nested_block_comment:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        RAISE NOTICE 'another %' /* a literal /* marker
+            , still in the comment */
+            , 1;
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        RAISE NOTICE 'another %', /* a literal /* marker
+            , still in the comment */
+            1;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_jinja_comment_and_expression:
+  fail_str: |
+    CREATE PROCEDURE p() AS $body$
+    BEGIN
+        NULL;{#- source comment -#}
+        RAISE NOTICE 'another %'
+            , 1;
+        SELECT {{ 2 }}
+            , 3;
+    END;
+    $body$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $body$
+    BEGIN
+        NULL;{#- source comment -#}
+        RAISE NOTICE 'another %',
+            1;
+        SELECT {{ 2 }},
+            3;
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+
+redshift_procedure_generated_comma:
+  pass_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        SELECT a
+            {{ "," }} b;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+
+redshift_procedure_incomplete_quote:
+  # The outer statement accepts the body as data. Avoid changes when the inner
+  # lexer cannot determine which commas are SQL separators.
+  pass_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        RAISE NOTICE 'unfinished
+            , x;
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_comma_after_multiline_comment:
+  fail_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (a /* comment
+            still comment */, b);
+    END;
+    $$ LANGUAGE plpgsql;
+  fix_str: |
+    CREATE PROCEDURE p() AS $$
+    BEGIN
+        INSERT INTO t VALUES (a, /* comment
+            still comment */b);
+    END;
+    $$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+
+redshift_procedure_comma_reused_in_string:
+  pass_str: |
+    CREATE PROCEDURE p(a varchar, b varchar) AS $body$
+    DECLARE v varchar;
+    BEGIN
+    {% for quoted in [false, true] %}
+        v := COALESCE({% if quoted %}'{% endif %}a
+            , b{% if quoted %}'{% endif %}, 'fallback');
+    {% endfor %}
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+
+redshift_procedure_comma_in_alternate_string_variant:
+  pass_str: |
+    {% set q = '' %}
+    {% if quote_values %}
+    -- quoted alternate rendering
+    {% set q = "'" %}
+    {% endif %}
+    CREATE PROCEDURE p(a varchar, b varchar) AS $body$
+    DECLARE v varchar;
+    BEGIN
+        v := COALESCE({{ q }}a
+            , b{{ q }}, 'fallback');
+    END;
+    $body$ LANGUAGE plpgsql;
+  configs:
+    core:
+      dialect: redshift
+      templater: jinja
+      render_variant_limit: 2
+    templater:
+      jinja:
+        context:
+          quote_values: false

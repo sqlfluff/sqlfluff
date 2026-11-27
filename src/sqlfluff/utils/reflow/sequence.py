@@ -622,12 +622,16 @@ class ReflowSequence:
         )
 
     def rebreak(
-        self, rebreak_type: Literal["lines", "keywords"] = "lines"
+        self,
+        rebreak_type: Literal["lines", "keywords"] = "lines",
+        *,
+        target_type: Optional[str] = None,
     ) -> "ReflowSequence":
         """Returns a new :obj:`ReflowSequence` corrected line breaks.
 
         This intentionally **does not handle indentation**,
         as the existing indents are assumed to be correct.
+        For line rebreaks, pass ``target_type`` to move only that segment type.
 
         .. note::
 
@@ -648,6 +652,7 @@ class ReflowSequence:
                 self.root_segment,
                 self.reflow_config.indent_unit,
                 self.reflow_config.tab_space_size,
+                target_type=target_type,
             )
         elif rebreak_type == "keywords":
             elem_buff, lint_results = rebreak_keywords_sequence(
