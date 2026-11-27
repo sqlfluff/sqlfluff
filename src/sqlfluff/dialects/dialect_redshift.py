@@ -3402,6 +3402,22 @@ class DeallocateStatementSegment(postgres.DeallocateStatementSegment):
     )
 
 
+class RedshiftRoleAccessTargetSegment(BaseSegment):
+    """A role access target for Redshift."""
+
+    type = "access_target"
+
+    match_grammar = Sequence("ROLE", Ref("RoleReferenceSegment"))
+
+
+class RedshiftBareRoleAccessTargetSegment(BaseSegment):
+    """A bare role name target following an initial `ROLE` keyword in Redshift."""
+
+    type = "access_target"
+
+    match_grammar = Ref("RoleReferenceSegment")
+
+
 class RedshiftGrantTargetSegment(BaseSegment):
     """A non-group grant target for Redshift.
 
@@ -3439,6 +3455,130 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
     )
 
 
+class SystemAccessPermissionSegment(BaseSegment):
+    """A system access permission segment for Redshift.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_REVOKE.html
+    """
+
+    type = "access_permission"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "USER",
+                "SCHEMA",
+                "TABLE",
+                "MODEL",
+                "DATASHARE",
+                "LIBRARY",
+                "ROLE",
+            ),
+        ),
+        Sequence(
+            "CREATE",
+            "OR",
+            "REPLACE",
+            OneOf(
+                "FUNCTION",
+                Sequence("EXTERNAL", "FUNCTION"),
+                "PROCEDURE",
+                "VIEW",
+            ),
+        ),
+        Sequence(
+            "DROP",
+            OneOf(
+                "USER",
+                "SCHEMA",
+                "TABLE",
+                "FUNCTION",
+                "PROCEDURE",
+                "VIEW",
+                "MODEL",
+                "DATASHARE",
+                "LIBRARY",
+                "ROLE",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            OneOf(
+                "USER",
+                "TABLE",
+                "DATASHARE",
+                Sequence("DEFAULT", "PRIVILEGES"),
+            ),
+        ),
+        Sequence(
+            "ACCESS",
+            OneOf(
+                "CATALOG",
+                Sequence("SYSTEM", "TABLE"),
+            ),
+        ),
+        Sequence("TRUNCATE", "TABLE"),
+        "VACUUM",
+        "ANALYZE",
+        "CANCEL",
+        Sequence("IGNORE", "RLS"),
+        Sequence("EXPLAIN", OneOf("RLS", "MASKING")),
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+    )
+
+
+class SystemAccessPermissionsSegment(BaseSegment):
+    """A set of system access permissions for Redshift."""
+
+    type = "access_permissions"
+
+    match_grammar: Matchable = Delimited(
+        Ref("SystemAccessPermissionSegment"),
+        terminators=["TO", "FROM"],
+    )
+
+
+def _redshift_role_targets(clause_keyword: str) -> Sequence:
+    """Build role targets for Redshift system-permission GRANT/REVOKE."""
+    return Sequence(
+        clause_keyword,
+        Ref("RedshiftRoleAccessTargetSegment"),
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment"),
+                Ref.keyword(clause_keyword, optional=True),
+                OneOf(
+                    Ref("RedshiftRoleAccessTargetSegment"),
+                    Ref("RedshiftBareRoleAccessTargetSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+def _redshift_access_targets(clause_keyword: str) -> OneOf:
+    """Build GROUP or non-GROUP targets for Redshift GRANT/REVOKE."""
+    return OneOf(
+        Sequence(
+            clause_keyword,
+            Delimited(Ref("RedshiftGroupGrantTargetSegment")),
+        ),
+        Sequence(
+            clause_keyword,
+            Ref("RedshiftGrantTargetSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("CommaSegment"),
+                    Ref.keyword(clause_keyword, optional=True),
+                    Ref("RedshiftGrantTargetSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 class ScopedAccessObjectSegment(BaseSegment):
     """A scoped access object segment for Redshift."""
 
@@ -3458,67 +3598,96 @@ class ScopedAccessObjectSegment(BaseSegment):
 class GrantStatementSegment(ansi.GrantStatementSegment):
     """A `GRANT` statement.
 
-    Redshift allows multiple GROUP targets after a single `TO GROUP`, but
-    requires repeated `TO` clauses for other grant target types.
+    Redshift allows multiple GROUP targets after a single `TO GROUP`,
+    repeated `TO` clauses for other grant target types, and role-only
+    targets for system permissions.
     https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
     """
-
-    _group_targets = Delimited(Ref("RedshiftGroupGrantTargetSegment"))
-
-    _non_group_targets = Sequence(
-        "TO",
-        Ref("RedshiftGrantTargetSegment"),
-        AnyNumberOf(
-            Sequence(
-                Ref("CommaSegment"),
-                "TO",
-                Ref("RedshiftGrantTargetSegment"),
-            ),
-        ),
-    )
 
     match_grammar: Matchable = Sequence(
         "GRANT",
         OneOf(
             Sequence(
-                Ref("AccessPermissionsSegment"),
-                "ON",
-                Ref("AccessObjectSegment"),
+                Ref("SystemAccessPermissionsSegment"),
+                _redshift_role_targets("TO"),
             ),
-            Sequence("ROLE", Ref("RoleReferenceSegment")),
-            Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
-            Ref("ObjectReferenceSegment"),
             Sequence(
                 OneOf(
-                    Ref("AccessPermissionsSegment"),
-                    "ALL",
-                    Sequence("ALL", "PRIVILEGES"),
+                    Sequence(
+                        Ref("AccessPermissionsSegment"),
+                        "ON",
+                        Ref("AccessObjectSegment"),
+                    ),
+                    Sequence("ROLE", Ref("RoleReferenceSegment")),
+                    Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+                    Sequence(
+                        OneOf(
+                            Ref("AccessPermissionsSegment"),
+                            "ALL",
+                            Sequence("ALL", "PRIVILEGES"),
+                        ),
+                        "FOR",
+                        Ref("ScopedAccessObjectSegment"),
+                        "IN",
+                        OneOf("DATABASE", "SCHEMA"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Ref("ObjectReferenceSegment"),
                 ),
-                "FOR",
-                Ref("ScopedAccessObjectSegment"),
-                "IN",
-                OneOf("DATABASE", "SCHEMA"),
-                Ref("ObjectReferenceSegment"),
+                _redshift_access_targets("TO"),
+                OneOf(
+                    Sequence("WITH", "GRANT", "OPTION"),
+                    Sequence("WITH", "ADMIN", "OPTION"),
+                    Sequence("COPY", "CURRENT", "GRANTS"),
+                    optional=True,
+                ),
+                Sequence(
+                    "GRANTED",
+                    "BY",
+                    OneOf(
+                        "CURRENT_USER",
+                        "SESSION_USER",
+                        Ref("UserReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
+    )
+
+
+class RevokeStatementSegment(ansi.RevokeStatementSegment):
+    """A `REVOKE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_REVOKE.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "REVOKE",
         OneOf(
-            Sequence("TO", _group_targets),
-            _non_group_targets,
-        ),
-        OneOf(
-            Sequence("WITH", "GRANT", "OPTION"),
-            Sequence("WITH", "ADMIN", "OPTION"),
-            Sequence("COPY", "CURRENT", "GRANTS"),
-            optional=True,
-        ),
-        Sequence(
-            "GRANTED",
-            "BY",
-            OneOf(
-                "CURRENT_USER",
-                "SESSION_USER",
-                Ref("UserReferenceSegment"),
+            Sequence(
+                Ref("SystemAccessPermissionsSegment"),
+                _redshift_role_targets("FROM"),
             ),
-            optional=True,
+            Sequence(
+                Sequence(
+                    OneOf("GRANT", "ADMIN"),
+                    "OPTION",
+                    "FOR",
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(
+                        Ref("AccessPermissionsSegment"),
+                        "ON",
+                        Ref("AccessObjectSegment"),
+                    ),
+                    Sequence("ROLE", Ref("RoleReferenceSegment")),
+                    Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
+                    Ref("UserReferenceSegment"),
+                ),
+                _redshift_access_targets("FROM"),
+                Ref("DropBehaviorGrammar", optional=True),
+            ),
         ),
     )
