@@ -1,0 +1,277 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f1003167fe9ed31701ef3fc57cbbfb87114f2c2218539d44283ffc921caad561
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FLOOR
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: event_time
+                keyword: TO
+                date_part: SECOND
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: bucket_sec
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FLOOR
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: event_time
+                      binary_operator: +
+                      interval_expression:
+                        keyword: INTERVAL
+                        quoted_literal: "'1'"
+                        date_part: MINUTE
+                    end_bracket: )
+                keyword: TO
+                date_part: SECOND
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: shifted_sec
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1 02:03:04'"
+          - date_part: DAY
+          - keyword: TO
+          - date_part: SECOND
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: day_to_sec
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1 02:03:04.123'"
+          - date_part: DAY
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '2'
+              end_bracket: )
+          - keyword: TO
+          - date_part: SECOND
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: day_to_sec_prec
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1-2'"
+          - date_part: YEAR
+          - keyword: TO
+          - date_part: MONTH
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: year_to_month
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FLOOR
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: PROCTIME
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                keyword: TO
+                date_part: MINUTE
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: proc_min
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CEIL
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: event_time
+                keyword: TO
+                date_part: HOUR
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: ceil_hour
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CEILING
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: event_time
+                keyword: TO
+                date_part: DAY
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: ceil_day
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FLOOR
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '3.14'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_floor
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CEIL
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '3.14'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_ceil
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_time
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: next_day
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: SECOND
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '30'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_time
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: prev_30s
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: SQL_TSI_HOUR
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_time
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: plus_2h
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: events
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: FLOOR
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: event_time
+                keyword: TO
+                date_part: SECOND
+                end_bracket: )
+  statement_terminator: ;
