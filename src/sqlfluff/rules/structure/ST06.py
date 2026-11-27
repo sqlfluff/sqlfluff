@@ -204,16 +204,16 @@ class Rule_ST06(BaseRule):
             child = parent
         return False
 
-    def _validate(self, i: int, segment: BaseSegment) -> None:
-        # Check if we've seen a more complex select target element already
-        if self.seen_band_elements[i + 1 : :] != [[]] * len(
-            self.seen_band_elements[i + 1 : :]
-        ):
-            # Found a violation (i.e. a simpler element that *follows* a more
-            # complex element.
-            self.violation_exists = True
-        self.current_element_band: Optional[int] = i
-        self.seen_band_elements[i].append(segment)
+    @staticmethod
+    def _validate(
+        seen_band_elements: list[list[BaseSegment]], i: int, segment: BaseSegment
+    ) -> bool:
+        """Record `segment` in band `i`; True if a more complex one came first."""
+        # Check if we've seen a more complex select target element already, i.e.
+        # a simpler element *follows* a more complex element.
+        violation = any(seen_band_elements[i + 1 :])
+        seen_band_elements[i].append(segment)
+        return violation
 
     @classmethod
     def _is_simple_function(cls, segment: BaseSegment) -> bool:
@@ -249,7 +249,9 @@ class Rule_ST06(BaseRule):
         return cls._is_simple_expression_segment(segment.segments[0])
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        self.violation_exists = False
+        # Locals, not attributes: a rule instance is shared by files linted at
+        # the same time.
+        violation_exists = False
         # Bands of select targets in order to be enforced
         select_element_order_preference: tuple[
             tuple[Union[str, tuple[str, ...]], ...], ...
@@ -267,7 +269,7 @@ class Rule_ST06(BaseRule):
         # Track which bands have been seen, with additional empty list for the
         # non-matching elements. If we find a matching target element, we append the
         # element to the corresponding index.
-        self.seen_band_elements: list[list[BaseSegment]] = [
+        seen_band_elements: list[list[BaseSegment]] = [
             [] for _ in select_element_order_preference
         ] + [[]]  # type: ignore
 
@@ -332,7 +334,7 @@ class Rule_ST06(BaseRule):
         for segment in select_target_elements:
             # The band index of the current segment in
             # select_element_order_preference
-            self.current_element_band = None
+            current_element_band: Optional[int] = None
 
             # Compare the segment to the bands in select_element_order_preference
             for i, band in enumerate(select_element_order_preference):
@@ -344,7 +346,9 @@ class Rule_ST06(BaseRule):
                         if e != "cast_expression" or self._is_simple_cast_expression(
                             child
                         ):
-                            self._validate(i, segment)
+                            if self._validate(seen_band_elements, i, segment):
+                                violation_exists = True
+                            current_element_band = i
 
                     # Identify function
                     elif isinstance(e, tuple) and e[0] == "function":
@@ -352,7 +356,9 @@ class Rule_ST06(BaseRule):
                             _function = segment.get_child("function")
                             assert _function
                             if self._is_simple_function(_function):
-                                self._validate(i, segment)
+                                if self._validate(seen_band_elements, i, segment):
+                                    violation_exists = True
+                                current_element_band = i
                         except (AttributeError, AssertionError):
                             # If the segment doesn't match
                             pass
@@ -364,17 +370,19 @@ class Rule_ST06(BaseRule):
                             assert _expression
 
                             if self._is_simple_expression(_expression, e[1]):
-                                self._validate(i, segment)
+                                if self._validate(seen_band_elements, i, segment):
+                                    violation_exists = True
+                                current_element_band = i
                         except (AttributeError, AssertionError):
                             # If the segment doesn't match
                             pass
 
             # If the target doesn't exist in select_element_order_preference then it
             # is 'complex' and must go last
-            if self.current_element_band is None:
-                self.seen_band_elements[-1].append(segment)
+            if current_element_band is None:
+                seen_band_elements[-1].append(segment)
 
-        if self.violation_exists:
+        if violation_exists:
             if len(context.parent_stack) and any(
                 self._implicit_column_references(context.parent_stack[-1])
             ):
@@ -387,7 +395,7 @@ class Rule_ST06(BaseRule):
             # select_target_elements to get the order correct. This means we can't
             # add a lint fix to each individual LintResult as we go
             ordered_select_target_elements = [
-                segment for band in self.seen_band_elements for segment in band
+                segment for band in seen_band_elements for segment in band
             ]
             moved_targets = {
                 original
