@@ -7,3 +7,5 @@ select my_schema.case.id from my_schema.case;
 insert into my_schema.case (id) values ('a');
 
 drop table my_schema.case;
+
+select * from my_db..case;

@@ -8246,7 +8246,7 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
         Ref("SingleIdentifierGrammar"),
         AnyNumberOf(
             Sequence(
-                Ref("DotSegment"),
+                Ref("ObjectReferenceDelimiterGrammar"),
                 Ref("SingleIdentifierFullGrammar"),
                 allow_gaps=False,
             ),
