@@ -188,3 +188,19 @@ def test_rules_crawlers_walk_index_dropped_after_lint(fix, runaway_limit, monkey
     Linter(config=cfg).lint_string("SELECT   a,b   FROM t  WHERE   x=1\n", fix=fix)
     assert held and all(held)
     assert getattr(crawlers._last_index, "index", None) is None
+
+
+def test_rules_crawlers_walk_index_dropped_on_error(monkeypatch):
+    """An error escaping the lint loop still drops the walk index."""
+    held = []
+
+    def boom(cls, errors):
+        # Runs after the rules, while the index is still held.
+        held.append(getattr(crawlers._last_index, "index", None))
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(Linter, "remove_templated_errors", classmethod(boom))
+    with pytest.raises(RuntimeError, match="boom"):
+        Linter(dialect="ansi").lint_string("SELECT a + 1 FROM t\n")
+    assert held and all(held)
+    assert getattr(crawlers._last_index, "index", None) is None
