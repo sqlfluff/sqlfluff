@@ -43,5 +43,13 @@ GRANT READ, WRITE ON IMAGE REPOSITORY tutorial_repository TO ROLE my_role;
 
 GRANT CREATE IMAGE REPOSITORY ON SCHEMA my_schema TO ROLE my_role;
 
+GRANT SERVICE READ ON IMAGE REPOSITORY tutorial_repository TO ROLE my_role;
+
+GRANT SERVICE READ, SERVICE WRITE ON IMAGE REPOSITORY tutorial_repository TO ROLE my_role;
+
+REVOKE READ ON IMAGE REPOSITORY tutorial_repository FROM ROLE my_role;
+
+REVOKE SERVICE WRITE ON IMAGE REPOSITORY tutorial_repository FROM ROLE my_role;
+
 -- The new keywords are not reserved.
 SELECT image, images FROM my_table;

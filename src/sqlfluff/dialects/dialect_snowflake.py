@@ -4578,6 +4578,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         ),
         Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
         Sequence("OVERRIDE", "SHARE", "RESTRICTIONS"),
+        Sequence("SERVICE", OneOf("READ", "WRITE")),
         Sequence(
             OneOf(
                 Sequence(
