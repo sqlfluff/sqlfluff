@@ -842,7 +842,10 @@ fn token_to_node(tok: &Token) -> Node {
             "dedent" => MetaType::Dedent { is_implicit: false },
             "template_loop" => MetaType::TemplateLoop,
             _ => MetaType::Template {
-                source_str: tok.raw().to_owned(),
+                source_str: tok
+                    .source_str
+                    .clone()
+                    .unwrap_or_else(|| tok.raw().to_owned()),
                 block_type: tok.block_type().expect("block_type for template"),
             },
         };
@@ -1010,6 +1013,26 @@ mod tests {
             unreachable!()
         };
         assert_eq!(block_uuid, Some(uuid.as_u128()));
+    }
+
+    #[test]
+    fn token_to_node_keeps_placeholder_source_str() {
+        let (_, tokens) = lex("ansi", "SELECT 1");
+        let tag = Token::template_placeholder_token(
+            tokens[0].pos_marker.clone().unwrap(),
+            "{% if x %}".to_string(),
+            "block_start".to_string(),
+            None,
+            Default::default(),
+        );
+        let Node::Meta {
+            meta_type: MetaType::Template { source_str, .. },
+            ..
+        } = token_to_node(&tag)
+        else {
+            unreachable!()
+        };
+        assert_eq!(source_str, "{% if x %}");
     }
 
     #[test]
