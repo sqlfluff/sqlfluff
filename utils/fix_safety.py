@@ -3,26 +3,30 @@
 
 For each statement in a dialect's parse fixtures, this runs ``sqlfluff fix``
 with every rule except those in ``EXCLUDED_RULES``, whose fixes change the tree
-on purpose. It then asks the real database's own parser, an *oracle*, for the
+on purpose, or with the rules given by ``--rules``. It then asks the real database's own parser, an *oracle*, for the
 syntax tree of the statement before and after the fix. If the trees differ, or
 the database can't parse the fixed statement, the fix is flagged as a possible
 unsafe change, and it's run again with one rule at a time to name the rules.
 
 A flagged fix needs a person to look at it: two different trees can still mean
 the same thing. And a fix that isn't flagged isn't proven safe: the check only
-sees the statements in the fixtures, with the default rule settings, without
-templating, and can't judge the excluded rules or what a dialect does beyond
-what its parser shows (DuckDB's ``json_serialize_sql`` only handles SELECTs).
+sees the statements in the fixtures, with the default rule settings (or those of
+``--config``), without templating, and can't judge the excluded rules unless
+``--rules`` names them, or what a dialect does beyond what its parser shows
+(DuckDB's ``json_serialize_sql`` only handles SELECTs).
 
 Failures listed in ``utils/fix_safety_known_failures.yml`` are reported but
 don't fail the run. Entries that no longer fail are reported too, so the list
 can be kept up to date.
 
-Exit codes: 1 when there are new failures, or listed ones that pass; otherwise
-3 when the run is incomplete, because a fixture file doesn't parse, or fixing a
-statement timed out (after 30 seconds, where there's SIGALRM, i.e. not on
-Windows) or raised, and 0 when it isn't. 2 when a dialect has no oracle, the oracle is missing, or
-no fixture file matches.
+Exit codes:
+    0: nothing new was flagged, and every statement the oracle can judge was.
+    1: a new fix was flagged, or a listed one passes.
+    3: nothing new was flagged, but the run is incomplete: a fixture file
+       doesn't parse, or fixing a statement timed out (after 30 seconds, where
+       there's SIGALRM, i.e. not on Windows) or raised.
+    2: nothing was checked, because a dialect has no oracle, the oracle isn't
+       installed, or no fixture file matches. Usage errors exit with 2 too.
 
 Usage:
     python utils/fix_safety.py --dialect duckdb --dialect postgres
@@ -51,6 +55,7 @@ from typing import Any, Optional
 import yaml
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.rules import get_ruleset
 
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "test" / "fixtures" / "dialects"
@@ -408,7 +413,11 @@ def _check_fixture(
     failures: list[Failure] = []
     judged: list[str] = []
     stats = Stats()
-    statements = _statements(Path(path).read_text(), dialect)
+    try:
+        statements = _statements(Path(path).read_text(), dialect)
+    except Exception:
+        # e.g. the file can't be read or lexed; it isn't judged either.
+        statements = None
     if statements is None:
         stats.unparsable_files += 1
         return failures, stats, judged
@@ -601,6 +610,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     parser.add_argument(
         "--oracle",
+        choices=sorted(ORACLES),
         help="Oracle to judge with. Defaults to the one for each dialect.",
     )
     parser.add_argument(
@@ -630,6 +640,19 @@ def main(argv: Optional[list[str]] = None) -> int:
         parser.error("--processes must be at least 1")
     if args.config and not Path(args.config).is_file():
         parser.error(f"--config {args.config} isn't a file")
+    if args.fixtures and not (FIXTURES / args.fixtures).resolve().is_relative_to(
+        FIXTURES
+    ):
+        parser.error(f"--fixtures must be a folder of {FIXTURES.relative_to(ROOT)}")
+    if args.report and not Path(args.report).resolve().parent.is_dir():
+        parser.error(f"--report {args.report} is in a folder that doesn't exist")
+    rules = [r.strip() for r in args.rules.split(",")] if args.rules else None
+    if rules:
+        # sqlfluff only warns about an unknown rule, so a typo would pass.
+        known_rules = get_ruleset().rule_reference_map()
+        unknown = [rule for rule in rules if rule not in known_rules]
+        if unknown:
+            parser.error(f"--rules has unknown rules: {', '.join(unknown)}")
 
     oracles = {}
     for dialect in args.dialect:
@@ -637,7 +660,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             (name for name, cls in ORACLES.items() if dialect in cls.dialects),
             None,
         )
-        if oracle_name is None or oracle_name not in ORACLES:
+        if oracle_name is None:
             print(f"No oracle for the {dialect} dialect.", file=sys.stderr)
             return 2
         if not ORACLES[oracle_name].available():
@@ -658,7 +681,6 @@ def main(argv: Optional[list[str]] = None) -> int:
             )
             return 2
 
-    rules = args.rules.split(",") if args.rules else None
     results = [
         _check_dialect(dialect, oracle_name, args, rules)
         for dialect, oracle_name in oracles.items()

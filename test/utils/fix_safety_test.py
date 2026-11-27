@@ -370,3 +370,43 @@ def test_missing_config_file(tmp_path):
     """A `--config` that isn't a file is a usage error."""
     with pytest.raises(SystemExit):
         fix_safety.main(["--dialect", "duckdb", "--config", str(tmp_path / "nope")])
+
+
+@pytest.mark.parametrize(
+    "option",
+    [
+        ["--rules", "CV11,XX99"],
+        ["--fixtures", "../../rules"],
+        ["--oracle", "sqlite"],
+        ["--report", "no_such_folder/report.md"],
+    ],
+)
+def test_usage_errors(option):
+    """Options that can't be right are usage errors, before anything is checked.
+
+    An unknown rule would otherwise pass, as sqlfluff only warns about it.
+    """
+    with pytest.raises(SystemExit) as excinfo:
+        fix_safety.main(["--dialect", "duckdb", *option])
+    assert excinfo.value.code == 2
+
+
+def test_rules_may_have_spaces(tmp_path, monkeypatch):
+    """`--rules "LT01, ST07"` names both rules."""
+    pytest.importorskip("duckdb")
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
+    assert fix_safety.main([*args, "--rules", "LT01, ST07"]) == 1
+
+
+def test_fixture_that_raises_isnt_judged(tmp_path, monkeypatch):
+    """A fixture file that raises while being split counts as one that doesn't parse."""
+    pytest.importorskip("duckdb")
+
+    def broken(sql, dialect):
+        raise ValueError("can't lex")
+
+    monkeypatch.setattr(fix_safety, "_statements", broken)
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
+    assert fix_safety.main(args) == 3
