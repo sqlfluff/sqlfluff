@@ -381,10 +381,11 @@ class RuleMetaclass(type):
 class BaseRule(metaclass=RuleMetaclass):
     """The base class for a rule.
 
-    One instance lints every file with the same ``rules`` config, possibly on
-    several threads at once. Only values from ``config_keywords`` are safe to
-    cache on ``self``: read other config and the dialect from the
-    ``RuleContext`` on each ``_eval`` call, and keep per-call state in locals.
+    One instance lints every file with the same ``rules``, ``rule_allowlist``
+    and ``rule_denylist`` config, possibly on several threads at once. Only
+    values from ``config_keywords`` are safe to cache on ``self``: read other
+    config and the dialect from the ``RuleContext`` on each ``_eval`` or
+    ``_eval_rust`` call, and keep per-call state in locals.
 
     Args:
         code (:obj:`str`): The identifier for this rule, used in inclusion

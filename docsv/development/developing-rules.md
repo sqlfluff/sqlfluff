@@ -34,12 +34,13 @@ any test cases for a rule should include the code for that rule.
 ## Rule State
 
 One rule instance lints many files: the linter reuses it for every file whose
-`rules` config is the same, and files may be linted at the same time on
-different threads. So don't keep per-file state on `self`. Values that come
-from the rule's own `config_keywords` are fixed for the instance and safe to
-cache. Anything else, such as core config (`context.config`) or the dialect
-(`context.dialect`), must be read from the `RuleContext` on each `_eval()`
-call. Keep working state for one `_eval()` call in local variables.
+`rules` config, `rule_allowlist` and `rule_denylist` are the same, and files may
+be linted at the same time on different threads. So don't keep per-file state
+on `self`. Values that come from the rule's own `config_keywords` are fixed for
+the instance and safe to cache. Anything else, such as core config
+(`context.config`) or the dialect (`context.dialect`), must be read from the
+`RuleContext` on each `_eval()` or `_eval_rust()` call. Keep working state for
+that call in local variables.
 
 ## Traversal Options
 
