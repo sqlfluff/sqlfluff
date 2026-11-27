@@ -3442,7 +3442,7 @@ class AlterTableActionSegment(BaseSegment):
                 "ENABLE",
                 "DISABLE",
                 Sequence("ENABLE", "REPLICA"),
-                Sequence("ENABLE", "RULE"),
+                Sequence("ENABLE", "ALWAYS"),
             ),
             "RULE",
             Ref("ParameterNameSegment"),
