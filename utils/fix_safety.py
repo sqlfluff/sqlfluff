@@ -610,7 +610,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     parser.add_argument("--report", help="Also write the report to this file.")
     parser.add_argument(
-        "--processes", type=int, default=os.cpu_count(), help="Worker processes."
+        "--processes",
+        type=int,
+        # cpu_count() is None when the number of CPUs can't be told.
+        default=os.cpu_count() or 1,
+        help="Worker processes.",
     )
     args = parser.parse_args(argv)
     if args.processes < 1:

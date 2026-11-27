@@ -37,8 +37,9 @@ A fix should change how a query is written, not what it does. `utils/fix_safety.
 looks for fixes that may break this in the dialect fixtures: it fixes each statement
 with every rule (but those below), then asks the database's own parser (an *oracle*)
 for the statement's syntax tree before and after the fix. If the trees differ, or the
-database can't parse the fixed statement, the fix is flagged, and the check names the
-rules that did it.
+database can't parse the fixed statement, the fix is flagged. The check then fixes it
+with one rule at a time to name the rules that did it; when the change only happens
+with several rules together, it says so.
 
 A flagged fix needs a person to look at it, because two different trees can still mean
 the same thing: `schema.table.column` and `table.column` differ, but can name the same

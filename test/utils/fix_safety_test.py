@@ -332,3 +332,11 @@ def test_processes_must_be_positive():
     """`--processes 0` is a usage error."""
     with pytest.raises(SystemExit):
         fix_safety.main(["--dialect", "duckdb", "--processes", "0"])
+
+
+def test_unknown_cpu_count(monkeypatch):
+    """Without a CPU count, the check runs in one process."""
+    pytest.importorskip("duckdb")
+    monkeypatch.setattr(fix_safety.os, "cpu_count", lambda: None)
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--rules", "ST07"]
+    assert fix_safety.main(args) == 1
