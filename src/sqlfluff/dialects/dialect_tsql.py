@@ -521,6 +521,11 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
+    # XML namespace prefixes are case-sensitive, even in a case-insensitive
+    # database, so they aren't identifiers which CP02 could recase.
+    XmlNamespacePrefixSegment=RegexParser(
+        r"[A-Z_\p{L}][A-Z0-9_\p{L}]*", CodeSegment, type="xml_namespace_prefix"
+    ),
     # $PARTITION.<partition_function>(), parsed as a function name prefix.
     PartitionFunctionPrefixSegment=RegexParser(
         r"\$PARTITION", CodeSegment, type="partition_function_prefix"
@@ -2557,12 +2562,44 @@ class BulkInsertStatementWithSegment(BaseSegment):
     )
 
 
+class XmlNamespacesClauseSegment(BaseSegment):
+    """An `XMLNAMESPACES` clause, which comes first in a `WITH` clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/xml/with-xmlnamespaces
+    """
+
+    type = "xml_namespaces_clause"
+    match_grammar = Sequence(
+        "XMLNAMESPACES",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                        "AS",
+                        OneOf(
+                            Ref("XmlNamespacePrefixSegment"),
+                            Ref("QuotedIdentifierSegment"),
+                            Ref("BracketedIdentifierSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "DEFAULT",
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
 
-    Overriding ANSI to remove the greedy use of terminators.
+    Overriding ANSI to remove the greedy use of terminators and to allow
+    `XMLNAMESPACES`.
     """
 
     type = "with_compound_statement"
@@ -2572,7 +2609,10 @@ class WithCompoundStatementSegment(BaseSegment):
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
         Delimited(
-            Ref("CTEDefinitionSegment"),
+            OneOf(
+                Ref("XmlNamespacesClauseSegment"),
+                Ref("CTEDefinitionSegment"),
+            ),
             terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),
@@ -2597,7 +2637,10 @@ class CursorWithCompoundStatementSegment(BaseSegment):
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
         Delimited(
-            Ref("CTEDefinitionSegment"),
+            OneOf(
+                Ref("XmlNamespacesClauseSegment"),
+                Ref("CTEDefinitionSegment"),
+            ),
             terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),

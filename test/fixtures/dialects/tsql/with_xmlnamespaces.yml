@@ -1,0 +1,401 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 05f88c908ad68e7f63ff54624112cbece8b7b2491b76965f40a3cf944bb6013c
+file:
+- batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        xml_namespaces_clause:
+          keyword: XMLNAMESPACES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'https://example.com/orders'"
+            keyword: AS
+            xml_namespace_prefix: o
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: OrderXml
+                datatype_method:
+                  dot: .
+                  datatype_method_name_identifier: value
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'(/o:Order/@Id)[1]'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'INT'"
+                    - end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: OrderId
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Orders
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        xml_namespaces_clause:
+          keyword: XMLNAMESPACES
+          bracketed:
+            start_bracket: (
+            keyword: DEFAULT
+            quoted_literal: "'https://example.com/orders'"
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: OrderId
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Orders
+          for_clause:
+          - keyword: FOR
+          - keyword: XML
+          - keyword: AUTO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        xml_namespaces_clause:
+          keyword: XMLNAMESPACES
+          bracketed:
+          - start_bracket: (
+          - keyword: DEFAULT
+          - quoted_literal: "N'https://example.com/orders'"
+          - comma: ','
+          - quoted_literal: "N'https://example.com/customers'"
+          - keyword: AS
+          - xml_namespace_prefix: Cust
+          - comma: ','
+          - quoted_literal: "'https://example.com/items'"
+          - keyword: AS
+          - quoted_identifier: '[item]'
+          - comma: ','
+          - quoted_literal: "'https://example.com/products'"
+          - keyword: AS
+          - quoted_identifier: '"product"'
+          - end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: OrderXml
+                datatype_method:
+                  dot: .
+                  datatype_method_name_identifier: query
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'/Order/Cust:Customer'"
+                      end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: Customer
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Orders
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        xml_namespaces_clause:
+          keyword: XMLNAMESPACES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'https://example.com/orders'"
+            keyword: AS
+            xml_namespace_prefix: o
+            end_bracket: )
+        comma: ','
+        common_table_expression:
+          naked_identifier: OrderIds
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: OrderXml
+                    datatype_method:
+                      dot: .
+                      datatype_method_name_identifier: value
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'(/o:Order/@Id)[1]'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'INT'"
+                        - end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: OrderId
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Orders
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: OrderId
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: OrderIds
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        xml_namespaces_clause:
+          keyword: XMLNAMESPACES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'https://example.com/orders'"
+            keyword: AS
+            xml_namespace_prefix: o
+            end_bracket: )
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: OrderIds
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: OrderId
+            end_bracket: )
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: OrderXml
+                  datatype_method:
+                    dot: .
+                    datatype_method_name_identifier: value
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'(/o:Order/@Id)[1]'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'INT'"
+                      - end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Orders
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        xml_namespaces_clause:
+          keyword: XMLNAMESPACES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "'https://example.com/orders'"
+            keyword: AS
+            xml_namespace_prefix: o
+            end_bracket: )
+        delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: Orders
+        - where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: OrderXml
+                datatype_method:
+                  dot: .
+                  datatype_method_name_identifier: exist
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'/o:Order/o:Cancelled'"
+                      end_bracket: )
+              comparison_operator:
+                raw_comparison_operator: '='
+              integer_literal: '1'
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: OrderIdsView
+      - keyword: AS
+      - with_compound_statement:
+          keyword: WITH
+          xml_namespaces_clause:
+            keyword: XMLNAMESPACES
+            bracketed:
+              start_bracket: (
+              quoted_literal: "'https://example.com/orders'"
+              keyword: AS
+              xml_namespace_prefix: o
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: OrderXml
+                  datatype_method:
+                    dot: .
+                    datatype_method_name_identifier: value
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'(/o:Order/@Id)[1]'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'INT'"
+                      - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: OrderId
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Orders
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: OrderCursor
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - with_compound_statement:
+            keyword: WITH
+            xml_namespaces_clause:
+              keyword: XMLNAMESPACES
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'https://example.com/orders'"
+                keyword: AS
+                xml_namespace_prefix: o
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: OrderXml
+                    datatype_method:
+                      dot: .
+                      datatype_method_name_identifier: value
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'(/o:Order/@Id)[1]'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'INT'"
+                        - end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Orders
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
