@@ -80,7 +80,8 @@ Flagged fixes that are known are listed in `utils/fix_safety_known_failures.yml`
 they don't fail the check. When you fix one, remove it from the list: the check also
 fails if a listed statement passes. The check exits with 1 for a new flagged fix or a
 listed one that passes. Otherwise, it exits with 3 if some statements timed out or
-couldn't be fixed, so they weren't judged. It exits with 2 without checking anything if
+couldn't be fixed, so they weren't judged. The 30-second timeout for a statement uses
+`SIGALRM`, so it only applies on Linux and macOS, not Windows. It exits with 2 without checking anything if
 a dialect has no oracle, the oracle isn't installed, or no fixture file matches.
 
 ## Traversal Options

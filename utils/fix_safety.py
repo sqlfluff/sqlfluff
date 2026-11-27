@@ -19,8 +19,9 @@ don't fail the run. Entries that no longer fail are reported too, so the list
 can be kept up to date.
 
 Exit codes: 1 when there are new failures, or listed ones that pass; otherwise
-3 when the run is incomplete, because fixing a statement timed out or raised,
-and 0 when it isn't. 2 when a dialect has no oracle, the oracle is missing, or
+3 when the run is incomplete, because fixing a statement timed out (after 30
+seconds, where there's SIGALRM, i.e. not on Windows) or raised, and 0 when it
+isn't. 2 when a dialect has no oracle, the oracle is missing, or
 no fixture file matches.
 
 Usage:
@@ -75,7 +76,8 @@ EXCLUDED_RULES: dict[str, str] = {
     "ST09": "swaps the sides of a join condition",
 }
 
-# Seconds allowed for linting and fixing one statement.
+# Seconds allowed for linting and fixing one statement. The timeout uses
+# SIGALRM, so it only applies where there is one, i.e. not on Windows.
 STATEMENT_TIMEOUT = 30
 
 
@@ -495,6 +497,12 @@ def _markdown(results: list[DialectResult]) -> str:
             f"New failures: {len(r.new)}. Known failures: {len(r.known)}. "
             f"Known failures that now pass: {len(r.now_pass)}.",
         ]
+        if not hasattr(signal, "SIGALRM"):
+            lines += [
+                "",
+                "There's no SIGALRM on this platform, so statements weren't "
+                f"given a {STATEMENT_TIMEOUT}-second timeout.",
+            ]
         if stats.timeouts or stats.errors:
             lines += [
                 "",

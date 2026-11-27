@@ -340,3 +340,14 @@ def test_unknown_cpu_count(monkeypatch):
     monkeypatch.setattr(fix_safety.os, "cpu_count", lambda: None)
     args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--rules", "ST07"]
     assert fix_safety.main(args) == 1
+
+
+def test_report_without_sigalrm(tmp_path, monkeypatch):
+    """Where there's no SIGALRM, the report says there was no timeout."""
+    pytest.importorskip("duckdb")
+    monkeypatch.delattr(fix_safety.signal, "SIGALRM", raising=False)
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    report = tmp_path / "report.md"
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
+    assert fix_safety.main([*args, "--report", str(report)]) == 0
+    assert "There's no SIGALRM on this platform" in report.read_text()
