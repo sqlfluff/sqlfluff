@@ -802,6 +802,37 @@ to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
 
+#### Preserving indentation in selected clauses
+
+Use `skip_indentation_in` to keep the existing indentation on lines that
+contain part of a particular segment. It takes a comma-separated list of
+segment types from the [parse tree](#configuring-layout-and-spacing).
+The default is `script_content`, which preserves indentation inside Exasol
+scripts. To also preserve indentation in a select list, keep that default
+in your list:
+
+```ini
+[sqlfluff:indentation]
+skip_indentation_in = script_content, select_clause
+```
+
+With this configuration, save the following query as `query.sql` and run
+`sqlfluff lint --dialect ansi --rules LT02 query.sql`:
+
+```sql
+SELECT
+  customer_id,
+  amount
+FROM payments
+WHERE
+  amount > 0;
+```
+
+By default, LT02 reports all three lines with two-space indents. With the
+exclusion, it reports only the `WHERE` condition. Running `sqlfluff fix`
+with the same options indents that condition by four spaces and keeps the
+two-space indents in the select list.
+
 ### Configuring layout and spacing
 
 The `[sqlfluff:layout]` section of the config controls the treatment of
