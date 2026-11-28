@@ -1,7 +1,7 @@
 """Implementation of Rule RF03."""
 
 from collections.abc import Iterator
-from typing import Optional
+from typing import Optional, cast
 
 from sqlfluff.core.dialects.common import (
     AliasInfo,
@@ -13,7 +13,7 @@ from sqlfluff.core.dialects.common import (
     iter_raw_references,
     qualification,
 )
-from sqlfluff.core.parser import IdentifierSegment
+from sqlfluff.core.parser import IdentifierSegment, RawSegment
 from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import (
     BaseRule,
@@ -598,6 +598,33 @@ def _check_references(
         yield lint_res
 
 
+def _qualifier_raw(source: RawSegment, table_ref_str: str) -> str:
+    """Return raw text for a qualifier, matching the table's quoting.
+
+    For a multipart identifier (e.g. BigQuery ``project.dataset.table``), the
+    qualifier is only the table component, not the whole path. Rebuild it with
+    the source's quote characters so it still parses as an identifier.
+    """
+    raw = source.raw
+    if (
+        raw == table_ref_str
+        or source.raw_trimmed() == table_ref_str
+        or source.raw_normalized(casefold=False) == table_ref_str
+    ):
+        # The source already is the table component. Keep its spelling so
+        # escaped quote characters survive the fix.
+        return raw
+    quote = next(
+        (
+            pair
+            for pair in (("`", "`"), ('"', '"'), ("[", "]"), ("'", "'"))
+            if raw.startswith(pair[0]) and raw.endswith(pair[1])
+        ),
+        ("", ""),
+    )
+    return f"{quote[0]}{table_ref_str}{quote[1]}"
+
+
 def _validate_one_reference(
     single_table_references: str,
     ref: ObjectReferenceSegment,
@@ -641,7 +668,7 @@ def _validate_one_reference(
 
     # Oddball case: tsql table variables can't be used to qualify references.
     # This appears here as an empty string for table_ref_str.
-    if not table_ref_str:
+    if not table_ref_str or table_ref_str_source is None:
         return None
 
     # Certain dialects allow use of SELECT alias in WHERE clauses
@@ -696,15 +723,31 @@ def _validate_one_reference(
 
     fixes = None
     if fixable and not ref_is_templated:
+        # Reuse the table's own identifier segment so that the inserted
+        # qualifier keeps the same quoting and segment type as the table
+        # name in the FROM clause. A synthesized naked identifier fails
+        # the reparse validation for quoted table names (silently
+        # dropping the fix) and, in dialects like MySQL, strips the
+        # quotes entirely, which breaks keyword table names like
+        # `order`.
+        # AliasInfo.segment is always a RawSegment (an identifier) in
+        # practice; mypy only sees the wider Optional[BaseSegment] type.
+        table_source = cast(RawSegment, table_ref_str_source)
+        table_identifier = IdentifierSegment(
+            raw=_qualifier_raw(table_source, table_ref_str),
+            instance_types=table_source.instance_types,
+            trim_start=table_source.trim_start,
+            trim_chars=table_source.trim_chars,
+            quoted_value=table_source.quoted_value,
+            escape_replacements=table_source.escape_replacements,
+            casefold=table_source.casefold,
+        )
         fixes = [
             LintFix.create_before(
                 ref.segments[0] if len(ref.segments) else ref,
                 source=[table_ref_str_source] if table_ref_str_source else None,
                 edit_segments=[
-                    IdentifierSegment(
-                        raw=table_ref_str,
-                        type="naked_identifier",
-                    ),
+                    table_identifier,
                     SymbolSegment(raw=".", type="symbol"),
                 ],
             )
