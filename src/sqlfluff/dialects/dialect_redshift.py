@@ -831,6 +831,9 @@ class AlterTableActionSegment(BaseSegment):
 
     type = "alter_table_action_segment"
 
+    # Constraints can precede the first column attribute or follow any of them.
+    _column_constraints = AnyNumberOf(Ref("ColumnConstraintSegment"))
+
     match_grammar = OneOf(
         Sequence(
             "ADD",
@@ -926,10 +929,14 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
-            Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
-            Sequence("ENCODE", Ref("ColumnEncodingGrammar"), optional=True),
-            Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
-            AnyNumberOf(Ref("ColumnConstraintSegment")),
+            _column_constraints,
+            AnySetOf(
+                Sequence("DEFAULT", Ref("ExpressionSegment"), _column_constraints),
+                Sequence("ENCODE", Ref("ColumnEncodingGrammar"), _column_constraints),
+                Sequence(
+                    "COLLATE", Ref("CollationReferenceSegment"), _column_constraints
+                ),
+            ),
         ),
         Sequence(
             "DROP",
