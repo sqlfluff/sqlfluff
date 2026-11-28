@@ -516,6 +516,8 @@ def test_config_with_tilde(capsys, tmp_path, monkeypatch, no_known_failures):
     """`--config "~/..."` is expanded, as the shell would."""
     pytest.importorskip("duckdb")
     monkeypatch.setenv("HOME", str(tmp_path))
+    # Windows expands `~` from USERPROFILE.
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     (tmp_path / "my.sqlfluff").write_text("[sqlfluff]\n", encoding="utf-8")
     code, out, _ = _run(capsys, *ASOF_JOIN, "--config", "~/my.sqlfluff")
     assert code == 0
