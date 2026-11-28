@@ -392,6 +392,7 @@ def test_unexpected_error(capsys, monkeypatch, no_known_failures):
     [
         ["--processes", "0"],
         ["--rules", "CV11,XX99"],
+        ["--rules", "XX*"],
         ["--rules", " , "],
         ["--config", "no_such_file.sqlfluff"],
         ["--config", "BAD"],
@@ -420,13 +421,23 @@ def test_usage_errors(tmp_path, options):
     assert excinfo.value.code == 2
 
 
-@pytest.mark.parametrize("rules", ["LT01, ST07", "st07"])
-def test_rules_spaces_and_case(capsys, no_known_failures, rules):
-    """`--rules` takes spaces around the rules, and any case, as sqlfluff does."""
+@pytest.mark.parametrize("rules", ["LT01, ST07", "st07", "ST0*", "structure.*"])
+def test_rules_spaces_case_and_globs(capsys, no_known_failures, rules):
+    """`--rules` takes spaces, any case and globs, as sqlfluff does."""
     pytest.importorskip("duckdb")
     code, out, _ = _run(capsys, *ANTI_SEMI_JOIN, "--rules", rules)
     assert code == 1
-    assert "Rules: ST07." in out.replace("st07", "ST07")
+    assert "Flagged fixes that aren't listed: 2." in out
+
+
+def test_config_with_glob(capsys, tmp_path, no_known_failures):
+    """A `--config` file's `exclude_rules` takes globs, as in sqlfluff."""
+    pytest.importorskip("duckdb")
+    config = tmp_path / "glob.sqlfluff"
+    config.write_text("[sqlfluff]\nexclude_rules = ST*\n", encoding="utf-8")
+    code, out, _ = _run(capsys, *ANTI_SEMI_JOIN, "--config", str(config))
+    assert code == 0
+    assert "Flagged fixes that aren't listed: 0." in out
 
 
 def test_parallel_run_matches_sequential_run(capsys, no_known_failures):

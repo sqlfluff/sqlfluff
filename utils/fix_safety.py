@@ -648,13 +648,18 @@ def _check_dialect(
 
 
 def _unknown_rules(rules: list[str]) -> list[str]:
-    """The rules that sqlfluff doesn't know.
+    """The rules that match no rule sqlfluff knows.
 
-    sqlfluff only warns about an unknown rule, so a typo would pass. It matches
-    rule references without regard to case, e.g. `lt01`.
+    sqlfluff only warns about an unknown rule, so a typo would pass. Like
+    sqlfluff, this matches each rule as a glob of rule references, without
+    regard to case, e.g. `lt01` or `LT*`.
     """
-    references = {ref.lower() for ref in get_ruleset().rule_reference_map()}
-    return [rule for rule in rules if rule.lower() not in references]
+    references = [ref.lower() for ref in get_ruleset().rule_reference_map()]
+    return [
+        rule
+        for rule in rules
+        if not any(fnmatch.fnmatchcase(ref, rule.lower()) for ref in references)
+    ]
 
 
 def _split_rules(rules: Optional[str]) -> list[str]:
