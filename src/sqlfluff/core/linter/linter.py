@@ -43,6 +43,7 @@ from sqlfluff.core.linter.patch import generate_source_patches, merge_source_pat
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.rules.crawlers import forget_walk_index
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
 
@@ -102,15 +103,28 @@ class Linter:
         self.user_rules = user_rules or []
         # directory -> (root config, file config shared by its files)
         self._dir_configs: dict[str, tuple[FluffConfig, FluffConfig]] = {}
+        # The last rule pack built, and the config it was built from.
+        self._rulepack_cache: Optional[tuple[tuple[str, str, str], RulePack]] = None
 
     def get_rulepack(self, config: Optional[FluffConfig] = None) -> RulePack:
         """Get hold of a set of rules."""
+        cfg = config or self.config
+        # A pack depends only on these parts of the config, so the one built
+        # for the last file serves the next unless they differ.
+        key = (
+            repr(cfg.get_section("rules")),
+            repr(cfg.get("rule_allowlist")),
+            repr(cfg.get("rule_denylist")),
+        )
+        if self._rulepack_cache and self._rulepack_cache[0] == key:
+            return self._rulepack_cache[1]
         rs = get_ruleset()
         # Register any user rules
         for rule in self.user_rules:
             rs.register(rule)
-        cfg = config or self.config
-        return rs.get_rulepack(config=cfg)
+        pack = rs.get_rulepack(config=cfg)
+        self._rulepack_cache = (key, pack)
+        return pack
 
     def _dir_config(self, fname: str, root_config: FluffConfig) -> FluffConfig:
         """Get the file config shared by the directory of `fname`.
@@ -495,6 +509,26 @@ class Linter:
         formatter: Optional[FormatterInterface] = None,
     ) -> tuple[BaseSegment, list[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
+        try:
+            return cls._lint_fix_parsed(
+                tree, config, rule_pack, fix, fname, templated_file, formatter
+            )
+        finally:
+            # Drop the crawlers' walk index on every exit (loop limit, errors
+            # too), so it doesn't hold this tree alive into the next file.
+            forget_walk_index()
+
+    @classmethod
+    def _lint_fix_parsed(
+        cls,
+        tree: BaseSegment,
+        config: FluffConfig,
+        rule_pack: RulePack,
+        fix: bool = False,
+        fname: Optional[str] = None,
+        templated_file: Optional["TemplatedFile"] = None,
+        formatter: Optional[FormatterInterface] = None,
+    ) -> tuple[BaseSegment, list[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
         # in the initial SQL code, EXCLUDING any issues that may be created by

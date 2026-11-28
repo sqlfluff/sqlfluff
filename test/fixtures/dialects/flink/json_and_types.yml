@@ -1,0 +1,346 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cff0e1ba26290f7b2f8077e7efe43424e70ac8979e67071ff082af0178252d89
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: inline_pk_and_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: BIGINT
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: NOT
+          - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+          naked_identifier: alt_id
+          data_type:
+            data_type_identifier: BIGINT
+          column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: pk_alt
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: NOT
+          - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+          naked_identifier: event_ltz
+          data_type:
+          - keyword: TIMESTAMP
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+          - keyword: WITH
+          - keyword: LOCAL
+          - keyword: TIME
+          - keyword: ZONE
+      - comma: ','
+      - column_definition:
+          naked_identifier: event_ntz
+          data_type:
+          - keyword: TIMESTAMP
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+          - keyword: WITHOUT
+          - keyword: TIME
+          - keyword: ZONE
+      - comma: ','
+      - column_definition:
+          naked_identifier: clock_time
+          data_type:
+          - keyword: TIME
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+          - keyword: WITHOUT
+          - keyword: TIME
+          - keyword: ZONE
+      - comma: ','
+      - column_definition:
+          naked_identifier: details
+          data_type:
+            row_data_type:
+            - keyword: ROW
+            - start_angle_bracket: <
+            - naked_identifier: a
+            - data_type:
+                data_type_identifier: INT
+            - quoted_literal: "'field a'"
+            - comma: ','
+            - naked_identifier: b
+            - data_type:
+                data_type_identifier: STRING
+            - keyword: COMMENT
+            - quoted_literal: "'field b'"
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: tags
+          data_type:
+            data_type_identifier: STRING
+            keyword: ARRAY
+      - comma: ','
+      - column_definition:
+          naked_identifier: required_ids
+          data_type:
+          - data_type_identifier: INT
+          - keyword: NOT
+          - keyword: 'NULL'
+          - keyword: ARRAY
+      - comma: ','
+      - column_definition:
+          naked_identifier: bag
+          data_type:
+            data_type_identifier: STRING
+            keyword: MULTISET
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'print'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: derived_table
+    - keyword: LIKE
+    - table_reference:
+        naked_identifier: inline_pk_and_types
+    - bracketed:
+      - start_bracket: (
+      - keyword: INCLUDING
+      - keyword: ALL
+      - keyword: EXCLUDING
+      - keyword: DISTRIBUTION
+      - keyword: INCLUDING
+      - keyword: METADATA
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            multiset_expression:
+            - keyword: MULTISET
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: nums
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'{\"a\": 1}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: RETURNING
+              - data_type:
+                  data_type_identifier: INT
+              - keyword: DEFAULT
+              - expression:
+                  numeric_literal: '0'
+              - keyword: 'ON'
+              - keyword: EMPTY
+              - keyword: ERROR
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: val
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'{\"a\": [1, 2]}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: ARRAY
+                  start_angle_bracket: <
+                  data_type:
+                    data_type_identifier: INT
+                  end_angle_bracket: '>'
+              - keyword: WITH
+              - keyword: CONDITIONAL
+              - keyword: ARRAY
+              - keyword: WRAPPER
+              - keyword: EMPTY
+              - keyword: ARRAY
+              - keyword: 'ON'
+              - keyword: EMPTY
+              - keyword: 'NULL'
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: arr
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_QUERY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: doc
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.items'"
+              - keyword: WITHOUT
+              - keyword: ARRAY
+              - keyword: WRAPPER
+              - keyword: EMPTY
+              - keyword: OBJECT
+              - keyword: 'ON'
+              - keyword: EMPTY
+              - keyword: ERROR
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: obj
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_EXISTS
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'{\"a\": 1}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.a'"
+              - keyword: 'FALSE'
+              - keyword: 'ON'
+              - keyword: ERROR
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: has_a
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: doc
+          - keyword: IS
+          - keyword: JSON
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_any_json
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: doc
+          - keyword: IS
+          - keyword: JSON
+          - keyword: OBJECT
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_obj
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: doc
+          - keyword: IS
+          - keyword: NOT
+          - keyword: JSON
+          - keyword: ARRAY
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: not_arr
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: doc
+          - keyword: IS
+          - keyword: JSON
+          - keyword: SCALAR
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_scalar
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: doc
+          - keyword: IS
+          - keyword: JSON
+          - keyword: VALUE
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_val
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: docs
+- statement_terminator: ;

@@ -170,6 +170,17 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
         ),
+        # Hexadecimal, octal and binary integers (Postgres 16), e.g. 0x1F, 0o17,
+        # 0b101. An underscore may come before any digit, including the first one
+        # after the prefix (e.g. 0x_FF, 0o_1_755), as in scan.l.
+        # The negative lookahead stops a match that runs into a word, e.g. 0x1Fz.
+        # https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-NUMERIC
+        RegexLexer(
+            "non_decimal_integer_literal",
+            r"0(?:[xX](?:_?[0-9a-fA-F])+|[oO](?:_?[0-7])+|[bB](?:_?[01])+)(?![\w$])",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
         StringLexer("full_text_search_operator", "!!", SymbolSegment),
         # `#` and `##` are operators in PostgreSQL, not comments as in ANSI. After
         # the JSON operators, so that `#>`, `#>>` and `#-` lex as one.
@@ -547,6 +558,45 @@ postgres_dialect.add(
         "UNKNOWN",
         Sequence("EMPTY", OneOf("ARRAY", "OBJECT", optional=True)),
         Sequence("DEFAULT", Ref("ExpressionSegment")),
+    ),
+    # Shared clauses of the SQL/JSON query functions and JSON_TABLE.
+    # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-QUERYING
+    JsonFormatClauseGrammar=Sequence(
+        "FORMAT",
+        "JSON",
+        Sequence("ENCODING", Ref("SingleIdentifierGrammar"), optional=True),
+    ),
+    JsonValueExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("JsonFormatClauseGrammar", optional=True),
+    ),
+    JsonPassingClauseGrammar=Sequence(
+        "PASSING",
+        Delimited(
+            Sequence(
+                Ref("JsonValueExpressionGrammar"),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+    ),
+    JsonReturningClauseGrammar=Sequence(
+        "RETURNING",
+        Ref("DatatypeSegment"),
+        Ref("JsonFormatClauseGrammar", optional=True),
+    ),
+    JsonWrapperClauseGrammar=Sequence(
+        OneOf(
+            "WITHOUT",
+            Sequence("WITH", OneOf("CONDITIONAL", "UNCONDITIONAL", optional=True)),
+        ),
+        Ref.keyword("ARRAY", optional=True),
+        "WRAPPER",
+    ),
+    JsonQuotesClauseGrammar=Sequence(
+        OneOf("KEEP", "OMIT"),
+        "QUOTES",
+        Sequence("ON", "SCALAR", "STRING", optional=True),
     ),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -2225,11 +2275,15 @@ class JsonTableColumnDefinitionSegment(BaseSegment):
             "FOR",
             "ORDINALITY",
         ),
-        # name type [PATH path] [behaviour ON EMPTY] [behaviour ON ERROR]
+        # name type [FORMAT JSON] [PATH path] [wrapper] [quotes]
+        #     [behaviour ON EMPTY] [behaviour ON ERROR]
         Sequence(
             Ref("SingleIdentifierGrammar"),
             Ref("DatatypeSegment"),
+            Ref("JsonFormatClauseGrammar", optional=True),
             _path_clause,
+            Ref("JsonWrapperClauseGrammar", optional=True),
+            Ref("JsonQuotesClauseGrammar", optional=True),
             Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
             Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
         ),
@@ -2277,10 +2331,11 @@ class JsonTableFunctionContentsSegment(BaseSegment):
 
     type = "function_contents"
     match_grammar: Matchable = Bracketed(
-        Ref("ExpressionSegment"),
+        Ref("JsonValueExpressionGrammar"),
         Ref("CommaSegment"),
         Ref("QuotedLiteralSegment"),
         Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Ref("JsonPassingClauseGrammar", optional=True),
         Ref("JsonTableColumnsClauseSegment"),
         Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
     )
@@ -2298,14 +2353,55 @@ class JsonTableFunctionNameSegment(BaseSegment):
     )
 
 
+class JsonQueryFunctionContentsSegment(BaseSegment):
+    """JSON_EXISTS, JSON_QUERY and JSON_VALUE function contents.
+
+    The three functions share one permissive grammar; PostgreSQL rejects
+    clauses that don't apply to a given function at analysis time.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-QUERYING
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("JsonValueExpressionGrammar"),
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),
+        Ref("JsonPassingClauseGrammar", optional=True),
+        Ref("JsonReturningClauseGrammar", optional=True),
+        Ref("JsonWrapperClauseGrammar", optional=True),
+        Ref("JsonQuotesClauseGrammar", optional=True),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+    )
+
+
+class JsonQueryFunctionNameSegment(BaseSegment):
+    """JSON_EXISTS, JSON_QUERY and JSON_VALUE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = OneOf(
+        StringParser("JSON_EXISTS", WordSegment, type="function_name_identifier"),
+        StringParser("JSON_QUERY", WordSegment, type="function_name_identifier"),
+        StringParser("JSON_VALUE", WordSegment, type="function_name_identifier"),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
-    """A scalar or aggregate function, with JSON_TABLE support."""
+    """A scalar or aggregate function, with SQL/JSON query function support."""
 
     match_grammar = ansi.FunctionSegment.match_grammar.copy(
         insert=[
             Sequence(
                 Ref("JsonTableFunctionNameSegment"),
                 Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("JsonQueryFunctionNameSegment"),
+                Ref("JsonQueryFunctionContentsSegment"),
             ),
         ],
         at=0,
@@ -3442,7 +3538,7 @@ class AlterTableActionSegment(BaseSegment):
                 "ENABLE",
                 "DISABLE",
                 Sequence("ENABLE", "REPLICA"),
-                Sequence("ENABLE", "RULE"),
+                Sequence("ENABLE", "ALWAYS"),
             ),
             "RULE",
             Ref("ParameterNameSegment"),

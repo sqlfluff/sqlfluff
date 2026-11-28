@@ -1,0 +1,444 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4118d5b970f48a3f672147956ac23a770b7a7ff60446ce3a1e1e05f23d0146af
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - column_definition:
+        naked_identifier: category_id
+        data_type:
+          data_type_identifier: STRING
+        column_constraint_segment:
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'identifier of the category'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: log_ts
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'log timestamp string'"
+      - keyword: FIRST
+      - comma: ','
+      - naked_identifier: ts
+      - keyword: AS
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: TO_TIMESTAMP
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: log_ts
+                end_bracket: )
+      - keyword: AFTER
+      - column_reference:
+          naked_identifier: log_ts
+      - comma: ','
+      - naked_identifier: meta_ts
+      - data_type:
+          data_type_identifier: TIMESTAMP_LTZ
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - keyword: METADATA
+      - keyword: FROM
+      - quoted_literal: "'timestamp'"
+      - keyword: VIRTUAL
+      - keyword: AFTER
+      - column_reference:
+          naked_identifier: ts
+      - comma: ','
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - comma: ','
+      - keyword: WATERMARK
+      - keyword: FOR
+      - column_reference:
+          naked_identifier: ts
+      - keyword: AS
+      - expression:
+          column_reference:
+            naked_identifier: ts
+          binary_operator: '-'
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'3'"
+            date_part: SECOND
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: p1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - naked_identifier: p2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'a'"
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'k1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'v1'"
+      - end_bracket: )
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: p1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - naked_identifier: p2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'b'"
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'k2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'v2'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - keyword: DISTRIBUTION
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: uid
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - keyword: DISTRIBUTION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: uid
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ADD
+    - keyword: DISTRIBUTION
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: measurement
+        data_type:
+          data_type_identifier: DOUBLE
+        column_constraint_segment:
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'bytes per second'"
+    - keyword: AFTER
+    - column_reference:
+        quoted_identifier: '`id`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: log_ts
+          data_type:
+            data_type_identifier: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'log timestamp string'"
+      - keyword: AFTER
+      - column_reference:
+          quoted_identifier: '`id`'
+      - comma: ','
+      - naked_identifier: ts
+      - keyword: AS
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: TO_TIMESTAMP
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: log_ts
+                end_bracket: )
+      - keyword: AFTER
+      - column_reference:
+          naked_identifier: log_ts
+      - comma: ','
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - comma: ','
+      - keyword: WATERMARK
+      - keyword: FOR
+      - column_reference:
+          naked_identifier: ts
+      - keyword: AS
+      - expression:
+          column_reference:
+            naked_identifier: ts
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - keyword: DISTRIBUTION
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: uid
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '8'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - column_reference:
+        naked_identifier: measurement
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: PRIMARY
+    - keyword: KEY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - naked_identifier: pk_constraint
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        quoted_identifier: '`id`'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+        end_bracket: )
+    - comma: ','
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        quoted_identifier: '`id`'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '2'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: WATERMARK
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: DISTRIBUTION
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: RENAME
+    - column_reference:
+        naked_identifier: request_body
+    - keyword: TO
+    - column_reference:
+        naked_identifier: payload
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: my_table_v2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: datagen_source
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'rows-per-second'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'10'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: datagen_source
+    - keyword: RESET
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'rows-per-second'"
+      - comma: ','
+      - quoted_literal: "'number-of-rows'"
+      - end_bracket: )
+- statement_terminator: ;

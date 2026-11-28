@@ -205,7 +205,8 @@ class Rule_CP01(BaseRule):
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
             ignore_words_list = self.ignore_words_list
-            ignore_templated_areas = self.ignore_templated_areas
+            # Not cached: it's core config, and a rule pack is shared by files.
+            ignore_templated_areas = context.config.get("ignore_templated_areas")
         except AttributeError:
             # First-time only, read the settings from configuration. This is
             # very slow.
@@ -393,7 +394,6 @@ class Rule_CP01(BaseRule):
             )
         else:
             self.ignore_words_list = []
-        self.ignore_templated_areas = context.config.get("ignore_templated_areas")
         self.logger.debug(
             f"Selected '{cap_policy_name}': '{self.cap_policy}' from options "
             f"{self.cap_policy_opts}"
@@ -401,5 +401,5 @@ class Rule_CP01(BaseRule):
         cap_policy = self.cap_policy
         cap_policy_opts = self.cap_policy_opts
         ignore_words_list = self.ignore_words_list
-        ignore_templated_areas = self.ignore_templated_areas
+        ignore_templated_areas = context.config.get("ignore_templated_areas")
         return cap_policy, cap_policy_opts, ignore_words_list, ignore_templated_areas

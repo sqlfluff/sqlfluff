@@ -1,6 +1,7 @@
 """Test routines for fixing errors."""
 
 import logging
+from collections import Counter
 
 import pytest
 
@@ -9,6 +10,7 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter.fix import compute_anchor_edit_info
 from sqlfluff.core.linter.patch import (
     FixPatch,
+    _count_renderings,
     generate_source_patches,
     merge_source_patches,
 )
@@ -583,3 +585,29 @@ def test__fix__post_phase_skipped_when_main_phase_settles_after_a_fix():
     (_, post_rule), _, fixed_tree, _ = _lint_fix_with_rules(Rule_T903, Rule_T901)
     assert post_rule.evaluations == 2
     assert fixed_tree.raw == "SELECT b FROM b\n"
+
+
+@pytest.mark.parametrize(
+    "source_slice,expected",
+    [
+        # Inside the literal before the loop, rendered once.
+        (slice(1, 3), 1),
+        # Inside the loop body, rendered twice.
+        (slice(12, 14), 2),
+        # Across the end of the literal before the loop and into the loop
+        # body: the loop body's renderings count.
+        (slice(8, 12), 2),
+        # Across both literals of the loop body.
+        (slice(13, 17), 2),
+        # Zero-length, at the start of the loop body.
+        (slice(10, 10), 2),
+        # Zero-length, inside the literal before the loop.
+        (slice(4, 4), 1),
+        # Outside any literal.
+        (slice(30, 31), 1),
+    ],
+)
+def test__fix__count_renderings(source_slice, expected):
+    """A patch counts the most renderings of any literal it touches."""
+    literal_renderings = Counter({(0, 10): 1, (10, 15): 2, (15, 20): 2})
+    assert _count_renderings(source_slice, literal_renderings) == expected

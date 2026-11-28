@@ -6,6 +6,7 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.parser import Lexer
 from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
     priority_keyword_merge,
@@ -173,6 +174,39 @@ def test_greenplum_valid_column_types_parse(raw: str) -> None:
     lnt = Linter(dialect="greenplum")
     parsed = lnt.parse_string(raw)
     assert not any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+
+
+@pytest.mark.parametrize(
+    "raw,is_literal",
+    [
+        ("0x1F", True),
+        ("0o17", True),
+        ("0b101", True),
+        ("0x_FF", True),
+        ("0xFFFF_FFFF", True),
+        # A literal must not run into a word or a trailing underscore.
+        ("0x1Fz", False),
+        ("0b12", False),
+        ("0o9", False),
+        ("0x1F_", False),
+        ("0x1F$", False),
+        # Hexadecimal digits are ASCII only (U+0661 is an Arabic-Indic one).
+        ("0x١", False),
+    ],
+)
+def test_non_decimal_integer_literal_lexing(raw: str, is_literal: bool) -> None:
+    """Hex, octal and binary integers lex as one numeric literal, or not at all."""
+    lexer = Lexer(config=FluffConfig(overrides={"dialect": "postgres"}))
+    segments, errors = lexer.lex(raw)
+    tokens = [seg for seg in segments if seg.raw]
+    if is_literal:
+        assert not errors
+        assert [(seg.raw, seg.get_type()) for seg in tokens] == [
+            (raw, "numeric_literal")
+        ]
+    else:
+        assert errors
+        assert not any(seg.is_type("numeric_literal") for seg in tokens)
 
 
 def test_priority_keyword_merge() -> None:

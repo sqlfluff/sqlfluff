@@ -117,3 +117,13 @@ CREATE SET TABLE TABLE_2, FALLBACK ,
     ),
     TIMESTAMP_FIELD TIMESTAMP(6) NOT NULL
 ) PRIMARY INDEX (CHAR_FIELD, DATE_FIELD, BYTE_FIELD);
+
+-- Copy a table, with or without data and statistics.
+CREATE TABLE schema.backup_test AS schema.test WITH NO DATA;
+CREATE TABLE schema.backup_test AS schema.test WITH DATA;
+CREATE TABLE schema.backup_test AS schema.test WITH DATA AND STATISTICS;
+CREATE TABLE schema.backup_test AS schema.test WITH DATA AND NO STATISTICS;
+CREATE TABLE schema.backup_test AS schema.test WITH NO DATA AND STATISTICS;
+CREATE TABLE schema.backup_test AS schema.test WITH NO DATA AND NO STATISTICS;
+CREATE TABLE backup_test AS source_table WITH NO DATA;
+CREATE TABLE "target schema"."target table" AS "source schema"."source table" WITH DATA;

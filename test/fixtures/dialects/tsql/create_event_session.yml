@@ -1,0 +1,544 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c3f153eec3f165f9f934741ca4b20b197d7323e2325c70394cd57a4345375c8d
+file:
+  batch:
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: test_session
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: rpc_starting
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: batch_trace
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: rpc_completed
+      - comma: ','
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: sql_batch_completed
+      - comma: ','
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: attention
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: event_file
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+            - keyword: SET
+            - naked_identifier: filename
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                quoted_literal: "N'D:\\traces\\batch_trace.xel'"
+            - comma: ','
+            - naked_identifier: max_file_size
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                integer_literal: '100'
+            - comma: ','
+            - naked_identifier: max_rollover_files
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                integer_literal: '5'
+            end_bracket: )
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_MEMORY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '8'
+          - keyword: MB
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          quoted_identifier: '[long_queries]'
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - quoted_identifier: '[sqlserver]'
+          - dot: .
+          - quoted_identifier: '[sql_statement_completed]'
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+              keyword: SET
+              naked_identifier: collect_statement
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '1'
+                  end_bracket: )
+            keyword: ACTION
+            bracketed:
+            - start_bracket: (
+            - object_reference:
+              - quoted_identifier: '[sqlserver]'
+              - dot: .
+              - quoted_identifier: '[sql_text]'
+            - comma: ','
+            - object_reference:
+              - quoted_identifier: '[sqlserver]'
+              - dot: .
+              - quoted_identifier: '[session_id]'
+            - end_bracket: )
+            where_clause:
+              keyword: WHERE
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - quoted_identifier: '[sqlserver]'
+                  - dot: .
+                  - quoted_identifier: '[database_id]'
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      integer_literal: '5'
+                    end_bracket: )
+                  binary_operator: AND
+                  function:
+                    function_name:
+                      quoted_identifier: '[package0]'
+                      dot: .
+                      function_name_identifier: '[greater_than_uint64]'
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            quoted_identifier: '[duration]'
+                      - comma: ','
+                      - expression:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              integer_literal: '1000000'
+                            end_bracket: )
+                      - end_bracket: )
+                end_bracket: )
+            end_bracket: )
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - quoted_identifier: '[package0]'
+          - dot: .
+          - quoted_identifier: '[ring_buffer]'
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+              keyword: SET
+              naked_identifier: max_memory
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '1024'
+                  end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: app_errors
+      - keyword: 'ON'
+      - keyword: DATABASE
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: error_reported
+        - bracketed:
+            start_bracket: (
+            keyword: ACTION
+            bracketed:
+            - start_bracket: (
+            - object_reference:
+              - naked_identifier: sqlserver
+              - dot: .
+              - naked_identifier: client_app_name
+            - comma: ','
+            - object_reference:
+              - naked_identifier: sqlserver
+              - dot: .
+              - naked_identifier: username
+            - end_bracket: )
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: severity
+                comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+                integer_literal: '16'
+                binary_operator: AND
+                keyword: NOT
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                    - naked_identifier: sqlserver
+                    - dot: .
+                    - naked_identifier: client_app_name
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "N'Monitor'"
+                  - binary_operator: OR
+                  - column_reference:
+                    - naked_identifier: sqlserver
+                    - dot: .
+                    - naked_identifier: username
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'svc'"
+                  end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: sql_batch_completed
+        - bracketed:
+            start_bracket: (
+            where_clause:
+              keyword: WHERE
+              expression:
+              - function:
+                  function_name:
+                    naked_identifier: sqlserver
+                    dot: .
+                    function_name_identifier: like_i_sql_unicode_string
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: batch_text
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "N'%DELETE%'"
+                    - end_bracket: )
+              - binary_operator: OR
+              - column_reference:
+                  naked_identifier: batch_text
+              - keyword: NOT
+              - keyword: LIKE
+              - quoted_literal: "N'%SELECT%'"
+            end_bracket: )
+      - comma: ','
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - quoted_identifier: '[CE79811F-1A80-40E1-8F5D-7445A3F375E7]'
+          - dot: .
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: rpc_completed
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: deadlocks
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: lock_deadlock
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: event_counter
+      - comma: ','
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: histogram
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+            - keyword: SET
+            - naked_identifier: filtering_event_name
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                quoted_literal: "N'sqlserver.lock_deadlock'"
+            - comma: ','
+            - naked_identifier: source
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                quoted_literal: "N'database_id'"
+            - comma: ','
+            - naked_identifier: source_type
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - expression:
+                integer_literal: '0'
+            end_bracket: )
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_MEMORY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '4096'
+          - keyword: KB
+          - comma: ','
+          - keyword: EVENT_RETENTION_MODE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: ALLOW_SINGLE_EVENT_LOSS
+          - comma: ','
+          - keyword: MAX_DISPATCH_LATENCY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '30'
+          - keyword: SECONDS
+          - comma: ','
+          - keyword: MAX_EVENT_SIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '0'
+          - keyword: KB
+          - comma: ','
+          - keyword: MEMORY_PARTITION_MODE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: NONE
+          - comma: ','
+          - keyword: TRACK_CAUSALITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'OFF'
+          - comma: ','
+          - keyword: STARTUP_STATE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: waits
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlos
+          - dot: .
+          - naked_identifier: wait_info
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: EVENT_RETENTION_MODE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: ALLOW_MULTIPLE_EVENT_LOSS
+          - comma: ','
+          - keyword: MAX_DISPATCH_LATENCY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: INFINITE
+          - comma: ','
+          - keyword: MEMORY_PARTITION_MODE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: PER_NODE
+          - comma: ','
+          - keyword: TRACK_CAUSALITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: waits
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlos
+          - dot: .
+          - naked_identifier: wait_info
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_MEMORY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - size_literal: 4096KB
+          - comma: ','
+          - keyword: MAX_EVENT_SIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - size_literal: 4MB
+          - comma: ','
+          - keyword: EVENT_RETENTION_MODE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: NO_EVENT_LOSS
+          - comma: ','
+          - keyword: MAX_DISPATCH_LATENCY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: 5SECONDS
+          - comma: ','
+          - keyword: MEMORY_PARTITION_MODE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: PER_CPU
+          - comma: ','
+          - keyword: STARTUP_STATE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'OFF'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_event_session_statement:
+      - keyword: CREATE
+      - keyword: EVENT
+      - keyword: SESSION
+      - object_reference:
+          naked_identifier: short_trace
+      - keyword: 'ON'
+      - keyword: SERVER
+      - event_session_event:
+        - keyword: ADD
+        - keyword: EVENT
+        - object_reference:
+          - naked_identifier: sqlserver
+          - dot: .
+          - naked_identifier: sql_batch_completed
+      - event_session_target:
+        - keyword: ADD
+        - keyword: TARGET
+        - object_reference:
+          - naked_identifier: package0
+          - dot: .
+          - naked_identifier: event_file
+        - bracketed:
+            start_bracket: (
+            event_session_set_clause:
+              keyword: SET
+              naked_identifier: filename
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                quoted_literal: "N'short_trace.xel'"
+            end_bracket: )
+      - event_session_options:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '30'
+          - keyword: MINUTES
+          - comma: ','
+          - keyword: STARTUP_STATE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'OFF'
+          - end_bracket: )
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 135aa15aee3aaa164354414c14c781d2be79758ef50a82691d3c31d809a06d78
+_hash: 1e91e7f791ecc53d2168b17a3160ff54a110e9c557547eb04a27c57bafce9182
 file:
 - statement:
     create_table_statement:
@@ -1077,4 +1077,150 @@ file:
         - comma: ','
         - naked_identifier: BYTE_FIELD
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: AND
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: AND
+      - keyword: 'NO'
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: test
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: 'NO'
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: backup_test
+    - keyword: AS
+    - table_reference:
+        naked_identifier: source_table
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"target schema"'
+      - dot: .
+      - quoted_identifier: '"target table"'
+    - keyword: AS
+    - table_reference:
+      - quoted_identifier: '"source schema"'
+      - dot: .
+      - quoted_identifier: '"source table"'
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
 - statement_terminator: ;

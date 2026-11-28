@@ -2247,6 +2247,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterComputePoolStatementSegment"),
             Ref("CreateExternalAccessIntegrationStatementSegment"),
             Ref("AlterExternalAccessIntegrationStatementSegment"),
+            Ref("CreateImageRepositoryStatementSegment"),
+            Ref("AlterImageRepositoryStatementSegment"),
             Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
@@ -3751,6 +3753,60 @@ class CreateGitRepositoryStatementSegment(BaseSegment):
     )
 
 
+class CreateImageRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `CREATE IMAGE REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-image-repository
+    """
+
+    type = "create_image_repository_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "IMAGE",
+        "REPOSITORY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "ENCRYPTION",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence("TYPE", Ref("EqualsSegment"), Ref("QuotedLiteralSegment"))
+                ),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            Ref("TagBracketedEqualsSegment"),
+        ),
+    )
+
+
+class AlterImageRepositoryStatementSegment(BaseSegment):
+    """A Snowflake `ALTER IMAGE REPOSITORY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-image-repository
+    """
+
+    type = "alter_image_repository_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "IMAGE",
+        "REPOSITORY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(Ref("CommentEqualsClauseSegment"), Ref("TagEqualsSegment")),
+            ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
 class AlterGitRepositoryStatementSegment(BaseSegment):
     """A Snowflake `ALTER GIT REPOSITORY` statement.
 
@@ -4375,6 +4431,7 @@ class AccessSchemaObjectSegment(ansi.AccessSchemaObjectSegment):
         Sequence("PROJECTION", "POLICY"),
         Sequence("CORTEX", "SEARCH", "SERVICE"),
         Sequence("GIT", "REPOSITORY"),
+        Sequence("IMAGE", "REPOSITORY"),
     )
 
 
@@ -4521,6 +4578,7 @@ class AccessPermissionSegment(ansi.AccessPermissionSegment):
         ),
         Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
         Sequence("OVERRIDE", "SHARE", "RESTRICTIONS"),
+        Sequence("SERVICE", OneOf("READ", "WRITE")),
         Sequence(
             OneOf(
                 Sequence(
@@ -10256,6 +10314,8 @@ class ShowStatementSegment(BaseSegment):
         Sequence("PASSWORD", "POLICIES"),
         Sequence("CORTEX", "SEARCH", "SERVICES"),
         Sequence("GIT", OneOf("BRANCHES", "TAGS", "REPOSITORIES")),
+        Sequence("IMAGE", "REPOSITORIES"),
+        "IMAGES",
         Sequence("RESOURCE", "MONITORS"),
         Sequence("COMPUTE", "POOLS"),
         Sequence("STORAGE", "LIFECYCLE", "POLICIES"),
@@ -10294,6 +10354,7 @@ class ShowStatementSegment(BaseSegment):
                 Sequence("DBT", "PROJECT"),
                 Sequence("DCM", "PROJECT"),
                 Sequence("GIT", "REPOSITORY"),
+                Sequence("IMAGE", "REPOSITORY"),
             ),
             Ref("ObjectReferenceSegment", optional=True),
         ),
@@ -11862,6 +11923,7 @@ class DropObjectStatementSegment(BaseSegment):
                     Sequence("CORTEX", "SEARCH", "SERVICE"),
                     Sequence("FILE", "FORMAT"),
                     Sequence("GIT", "REPOSITORY"),
+                    Sequence("IMAGE", "REPOSITORY"),
                     Sequence("MCP", "SERVER"),
                     Sequence(
                         OneOf(
