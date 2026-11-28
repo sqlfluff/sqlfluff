@@ -771,22 +771,34 @@ class DbtTemplater(JinjaTemplater):
 
             raw_sql = getattr(node, raw_sql_attribute)
 
-            if not compiled_sql:  # pragma: no cover
+            # Empty models and templates can successfully compile to an empty
+            # string. Only a missing compilation result indicates a failure.
+            if compiled_sql is None:
                 raise SQLTemplaterError(
                     "dbt templater compilation failed silently, check your "
                     "configuration by running `dbt compile` directly."
                 )
             source_dbt_sql = in_str
-            if not source_dbt_sql.rstrip().endswith("-%}"):
-                n_trailing_newlines = len(source_dbt_sql) - len(
-                    source_dbt_sql.rstrip("\n")
-                )
-            else:
-                # Source file ends with right whitespace stripping, so there's
-                # no need to preserve/restore trailing newlines, as they would
-                # have been removed regardless of dbt's
-                # keep_trailing_newlines=False behavior.
-                n_trailing_newlines = 0
+            n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+            if n_trailing_newlines and source_dbt_sql.rstrip().endswith(
+                ("-%}", "-}}", "-#}")
+            ):
+                # Only actual Jinja tags strip whitespace. Literal SQL may
+                # also end in text such as "-}}", which must keep its newline.
+                strips_trailing_whitespace = False
+                for _, token_type, token in self._get_jinja_env(config).lex(
+                    source_dbt_sql
+                ):
+                    strips_trailing_whitespace = token_type in (
+                        "block_end",
+                        "variable_end",
+                        "comment_end",
+                        "raw_end",
+                    ) and token.rstrip().endswith(("-%}", "-}}", "-#}"))
+                if strips_trailing_whitespace:
+                    # Jinja's explicit right strip also removes the newline
+                    # independently of dbt's keep_trailing_newline=False.
+                    n_trailing_newlines = 0
 
             templater_logger.debug(
                 "    Trailing newline count in source dbt model: %r",
