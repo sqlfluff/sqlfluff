@@ -673,6 +673,24 @@ postgres_dialect.add(
     DollarNumericLiteralSegment=TypedParser(
         "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
     ),
+    # The target in SET STATISTICS: a signed integer, or DEFAULT (Postgres 17).
+    # gram.y set_statistics_value, used by ALTER TABLE, ALTER INDEX,
+    # ALTER MATERIALIZED VIEW, ALTER FOREIGN TABLE and ALTER STATISTICS.
+    # https://www.postgresql.org/docs/17/sql-altertable.html
+    StatisticsTargetGrammar=OneOf(
+        Sequence(
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("IntegerLiteralSegment"),
+        ),
+        "DEFAULT",
+    ),
+    # A decimal integer literal, as ICONST in scan.l: digits with optional `_`
+    # separators. Fractions and exponents (`0.5`, `1e2`) are not integers.
+    IntegerLiteralSegment=RegexParser(
+        r"[0-9]+(?:_[0-9]+)*",
+        LiteralSegment,
+        type="numeric_literal",
+    ),
     ForeignDataWrapperGrammar=Sequence("FOREIGN", "DATA", "WRAPPER"),
     # The options of the OPTIONS clause: `name 'value' [, ...]`. The name can be
     # any word, even a reserved keyword like `null`, or a quoted identifier, which
@@ -3493,7 +3511,7 @@ class AlterTableActionSegment(BaseSegment):
                     "IDENTITY",
                     Ref("IfExistsGrammar", optional=True),
                 ),
-                Sequence("SET", "STATISTICS", Ref("NumericLiteralSegment")),
+                Sequence("SET", "STATISTICS", Ref("StatisticsTargetGrammar")),
                 Sequence("SET", Ref("RelationOptionsSegment")),
                 # Documentation says you can only provide keys in RESET options, but the
                 # actual grammar lets you pass in values too.
@@ -4048,7 +4066,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             OneOf(
-                Sequence("SET", "STATISTICS", Ref("NumericLiteralSegment")),
+                Sequence("SET", "STATISTICS", Ref("StatisticsTargetGrammar")),
                 Sequence(
                     "SET",
                     Bracketed(
@@ -5550,7 +5568,7 @@ class AlterIndexStatementSegment(BaseSegment):
                         Ref("NumericLiteralSegment"),
                         "SET",
                         "STATISTICS",
-                        Ref("NumericLiteralSegment"),
+                        Ref("StatisticsTargetGrammar"),
                     ),
                 ),
             ),
@@ -5880,7 +5898,7 @@ class AlterStatisticsStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "STATISTICS",
-                        Ref("NumericLiteralSegment"),
+                        Ref("StatisticsTargetGrammar"),
                     ),
                 ),
             ),

@@ -277,3 +277,27 @@ def test_get_keywords() -> None:
     expected_result_3 = ["B"]
 
     assert sorted(get_keywords(kw_list, "reserved")) == sorted(expected_result_3)
+
+
+@pytest.mark.parametrize(
+    "target,parses",
+    [
+        ("100", True),
+        ("-1", True),
+        ("+10", True),
+        ("1_000", True),
+        ("DEFAULT", True),
+        # Postgres rejects anything that isn't an integer (SQLSTATE 42601).
+        ("0.5", False),
+        ("-0.1", False),
+        ("+1e2", False),
+    ],
+)
+def test_set_statistics_target_is_an_integer(target: str, parses: bool) -> None:
+    """SET STATISTICS takes a signed integer or DEFAULT, not a fraction."""
+    lnt = Linter(dialect="postgres")
+    parsed = lnt.parse_string(
+        f"ALTER TABLE t ALTER COLUMN c SET STATISTICS {target};\n"
+    )
+    has_unparsable = any(True for _ in parsed.tree.recursive_crawl("unparsable"))
+    assert has_unparsable is not parses
