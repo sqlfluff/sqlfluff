@@ -428,6 +428,8 @@ def test_rules_spaces_case_and_globs(capsys, no_known_failures, rules):
     code, out, _ = _run(capsys, *ANTI_SEMI_JOIN, "--rules", rules)
     assert code == 1
     assert "Flagged fixes that aren't listed: 2." in out
+    # A glob or a group is tried one rule at a time, to name the rule.
+    assert "Rules: ST07." in out
 
 
 def test_config_with_glob(capsys, tmp_path, no_known_failures):
@@ -543,6 +545,9 @@ def test_each_rule_is_tried_alone(monkeypatch):
         return "SELECT 'b'\n"
 
     monkeypatch.setattr(fix_safety, "_fix", fake_fix)
+    monkeypatch.setattr(
+        fix_safety, "_fixable_rules", lambda sql, dialect, rules, path: rules
+    )
     _, reason, rules = fix_safety._check_statement(
         statement,
         "duckdb",
@@ -581,6 +586,9 @@ def test_timeout_isnt_swallowed_while_naming_rules(monkeypatch):
         return "SELECT 'b'\n"
 
     monkeypatch.setattr(fix_safety, "_fix", fake_fix)
+    monkeypatch.setattr(
+        fix_safety, "_fixable_rules", lambda sql, dialect, rules, path: rules
+    )
     with pytest.raises(fix_safety._Timeout):
         fix_safety._check_statement(
             "SELECT 'a'",
@@ -638,3 +646,17 @@ def test_statements_of_sql_that_doesnt_parse():
         "SELECT 1",
         "SELECT 2",
     ]
+
+
+def test_fixture_that_times_out(capsys, monkeypatch, no_known_failures):
+    """A fixture file that times out while being split is reported as such."""
+    pytest.importorskip("duckdb")
+
+    def slow(sql, dialect):
+        raise fix_safety._Timeout()
+
+    monkeypatch.setattr(fix_safety, "_statements", slow)
+    code, out, _ = _run(capsys, *ANTI_SEMI_JOIN)
+    assert code == 2
+    assert "1 fixture files timed out while being split into statements" in out
+    assert "couldn't be parsed" not in out

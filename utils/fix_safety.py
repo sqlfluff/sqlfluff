@@ -254,6 +254,7 @@ class Stats:
     statements: int = 0
     judged: int = 0
     changed: int = 0
+    file_timeouts: int = 0
     timeouts: int = 0
     errors: int = 0
 
@@ -267,6 +268,11 @@ class Stats:
         reasons = []
         if self.unparsable_files:
             reasons.append(f"{self.unparsable_files} fixture files couldn't be parsed")
+        if self.file_timeouts:
+            reasons.append(
+                f"{self.file_timeouts} fixture files timed out while being split "
+                "into statements"
+            )
         if self.timeouts:
             reasons.append(f"{self.timeouts} statements timed out")
         if self.errors:
@@ -366,9 +372,17 @@ def _fix(
     return linter.lint_string(sql, fix=True).fix_string()[0]
 
 
-def _fixable_rules(sql: str, dialect: str, config_path: Optional[str]) -> list[str]:
-    """The selected rules with a fix for this statement."""
-    linter = Linter(config=_config(_overrides(dialect, None, config_path), config_path))
+def _fixable_rules(
+    sql: str, dialect: str, rules: Optional[list[str]], config_path: Optional[str]
+) -> list[str]:
+    """The codes of the selected rules with a fix for this statement.
+
+    Codes, not the references of `--rules`, so that a glob like `ST0*` or a
+    group is tried one rule at a time too.
+    """
+    linter = Linter(
+        config=_config(_overrides(dialect, rules, config_path), config_path)
+    )
     violations = linter.lint_string(sql).violations
     return sorted({v.rule_code() for v in violations if getattr(v, "fixes", None)})
 
@@ -428,7 +442,7 @@ def _check_statement(
     # Which rules do it on their own? Each is tried separately, so that one
     # which can't fix the statement alone doesn't hide the others.
     culprits = []
-    for rule in rules or _fixable_rules(statement + "\n", dialect, config_path):
+    for rule in _fixable_rules(statement + "\n", dialect, rules, config_path):
         try:
             single = _fix(statement + "\n", dialect, [rule], config_path)
         except Exception:  # pragma: no cover - the full fix already worked
@@ -456,7 +470,10 @@ def _check_fixture(
     try:
         with _time_limit(STATEMENT_TIMEOUT):
             statements = _statements(Path(path).read_text(encoding="utf-8"), dialect)
-    except (Exception, _Timeout):
+    except _Timeout:
+        stats.file_timeouts += 1
+        return failures, stats, judged
+    except Exception:
         statements = None
     if statements is None:
         stats.unparsable_files += 1
