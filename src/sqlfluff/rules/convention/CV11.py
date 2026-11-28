@@ -6,6 +6,7 @@ from typing import Optional
 from sqlfluff.core.parser import (
     BaseSegment,
     KeywordSegment,
+    NewlineSegment,
     SymbolSegment,
     WhitespaceSegment,
     WordSegment,
@@ -114,7 +115,8 @@ class Rule_CV11(BaseRule):
         more ``array_accessor`` children. Locate the target type by finding the
         first ``data_type`` child rather than assuming it sits at a fixed index,
         so the whole left-hand operand is kept intact. Anything after that first
-        ``data_type`` is a chained cast (e.g. the ``text`` in ``1::int::text``).
+        ``data_type`` is a chained cast (e.g. the ``text`` in ``1::int::text``),
+        or something applied to the cast before it (see ``_after_cast()``).
         """
         for data_type_idx, seg in enumerate(expression_datatype_segment):
             if seg.is_type("data_type"):
@@ -124,6 +126,24 @@ class Rule_CV11(BaseRule):
             expression_datatype_segment[data_type_idx],
             expression_datatype_segment[data_type_idx + 1 :],
         )
+
+    @staticmethod
+    def _after_cast(
+        expression: list[BaseSegment], segment: BaseSegment
+    ) -> list[BaseSegment]:
+        """Apply what follows a cast's type to the rewritten cast.
+
+        In ``a::timestamp AT TIME ZONE 'UTC'``, the time zone applies to the
+        result of the cast, as do Snowflake's ``[0]`` and ``:field`` accessors
+        after a type, so they follow the rewritten cast instead of becoming a
+        type of their own. A comment is kept there too, and an inline comment
+        keeps the newline that ends it, so it doesn't swallow what follows.
+        """
+        if segment.is_type("array_accessor", "semi_structured_expression"):
+            return [*expression, segment]
+        if segment.is_type("inline_comment"):
+            return [*expression, WhitespaceSegment(), segment, NewlineSegment()]
+        return [*expression, WhitespaceSegment(), segment]
 
     @staticmethod
     def _build_function(name: str, contents: list[BaseSegment]) -> FunctionSegment:
@@ -177,23 +197,28 @@ class Rule_CV11(BaseRule):
             ],
         )
 
-        if later_types:
-            for _type in later_types:
-                cast_function = cls._build_function(
+        expression: list[BaseSegment] = [cast_function]
+        for _type in later_types or ():
+            if not _type.is_type("data_type"):
+                expression = cls._after_cast(expression, _type)
+                continue
+            expression = [
+                cls._build_function(
                     "cast",
                     [
-                        cast_function,
+                        *expression,
                         WhitespaceSegment(),
                         KeywordSegment("as"),
                         WhitespaceSegment(),
                         _type,
                     ],
                 )
+            ]
 
         fixes = [
             LintFix.replace(
                 context.segment,
-                [cast_function],
+                expression,
             )
         ]
         return fixes
@@ -220,17 +245,6 @@ class Rule_CV11(BaseRule):
                     convert_arg_1,
                 ],
             )
-            if later_types:
-                for _type in later_types:
-                    convert_function = cls._build_function(
-                        "convert",
-                        [
-                            convert_function,
-                            SymbolSegment(",", type="comma"),
-                            WhitespaceSegment(),
-                            _type,
-                        ],
-                    )
         else:
             convert_function = cls._build_function(
                 "convert",
@@ -241,22 +255,32 @@ class Rule_CV11(BaseRule):
                     *convert_arg_2,
                 ],
             )
-            if later_types:
-                for _type in later_types:
-                    convert_function = cls._build_function(
-                        "convert",
-                        [
-                            _type,
-                            SymbolSegment(",", type="comma"),
-                            WhitespaceSegment(),
-                            convert_function,
-                        ],
-                    )
+
+        expression: list[BaseSegment] = [convert_function]
+        for _type in later_types or ():
+            if not _type.is_type("data_type"):
+                expression = cls._after_cast(expression, _type)
+                continue
+            if context.dialect.name in _REVERSED_CONVERT_DIALECTS:
+                contents = [
+                    *expression,
+                    SymbolSegment(",", type="comma"),
+                    WhitespaceSegment(),
+                    _type,
+                ]
+            else:
+                contents = [
+                    _type,
+                    SymbolSegment(",", type="comma"),
+                    WhitespaceSegment(),
+                    *expression,
+                ]
+            expression = [cls._build_function("convert", contents)]
 
         fixes = [
             LintFix.replace(
                 context.segment,
-                [convert_function],
+                expression,
             )
         ]
         return fixes
