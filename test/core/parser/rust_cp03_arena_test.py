@@ -3,8 +3,8 @@
 `sqlfluffrs.cp03_violations(tree, ...)` runs CP03's (function-name
 capitalisation) detection loop entirely in Rust, over the shared
 `sqlfluffrs_rules::capitalisation` state machine, and returns
-`(leaf_index, fixed_raw)` pairs. These tests exercise the function directly and
-assert it produces the same fixes as the stock Python `Rule_CP03`, across the
+`(leaf_index, fixed_raw, concrete_policy)` triples. These tests exercise the
+function directly and assert it produces the same fixes as the stock Python `Rule_CP03`, across the
 extended policy set (`pascal`/`camel`/`snake` in addition to CP01's four).
 Anchoring is by leaf index (1:1 with `raw_segments`); arena and Python uuids
 are not shared.

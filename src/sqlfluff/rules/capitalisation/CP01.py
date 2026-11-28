@@ -77,8 +77,9 @@ class Rule_CP01(BaseRule):
         """Rust-native CP01 detection over the arena.
 
         Runs the whole detection in Rust (`sqlfluffrs.cp01_violations` over
-        `root._rs_tree`) and maps each `(leaf_index, fixed_raw)` back to its
-        Python segment to emit a standard `LintFix`. Returns ``None`` (Python
+        `root._rs_tree`) and maps each `(leaf_index, fixed_raw,
+        concrete_policy)` back to its Python segment to emit a standard
+        `LintFix`, described with the concrete policy. Returns ``None`` (Python
         fallback) when the Rust extension/arena is unavailable, or for any
         config the native path doesn't implement (a non-keyword policy or a
         regex word-ignore). See ``BaseRule._eval_rust``.

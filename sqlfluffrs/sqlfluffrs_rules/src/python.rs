@@ -12,10 +12,12 @@ use sqlfluffrs_parser::PyTree;
 /// Experimental: detect CP01 (keyword capitalisation) violations natively.
 ///
 /// Runs CP01's detection loop entirely in Rust over the arena read API and
-/// returns `(leaf_index, fixed_raw, concrete_policy)` for each keyword/operator node needing a
-/// fix — `leaf_index` is the position in the depth-first leaf order, 1:1 with
-/// Python's `raw_segments`. One FFI crossing for the whole result; the caller
-/// anchors via `raw_segments[leaf_index]`. Read-only (no arena mutation).
+/// returns `(leaf_index, fixed_raw, concrete_policy)` for each keyword/operator
+/// node needing a fix — `leaf_index` is the position in the depth-first leaf
+/// order, 1:1 with Python's `raw_segments`; `concrete_policy` is the policy
+/// `consistent` resolved to, or the configured policy otherwise. One FFI
+/// crossing for the whole result; the caller anchors via
+/// `raw_segments[leaf_index]`. Read-only (no arena mutation).
 #[pyfunction]
 #[pyo3(signature = (tree, policy, ignore_words=vec![], ignore_templated=false))]
 fn cp01_violations(
