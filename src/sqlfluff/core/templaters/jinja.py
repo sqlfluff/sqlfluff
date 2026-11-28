@@ -50,6 +50,7 @@ from sqlfluff.core.templaters.builtins.dbt import (
     DBT_BUILTINS,
     DbtMacroWrapper,
     DbtSandboxedEnvironment,
+    get_dbt_modules,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
@@ -726,40 +727,50 @@ class JinjaTemplater(PythonTemplater):
                     # Only apply if it hasn't already been set at this stage.
                     if name not in live_context:
                         live_context[name] = DBT_BUILTINS[name]
+                if "modules" not in live_context:
+                    live_context["modules"] = get_dbt_modules()
 
-        # Load macros from path (if applicable)
         if config:
-            # References to variables are fixed when macros are compiled. In
-            # order to handle macros that refer to other macros from another
-            # file, we have to make two passes:
-
-            # Pass 1: get all macro names and insert late-bound functions into
-            # the context for every known macro.
-            macro_names = self._extract_macros(
-                config=config, env=env, ctx=live_context
-            ).keys()
-            late_binding_macros = {}
-            for k in macro_names:
-
-                def late_binding_macro(macro_name: str) -> Callable[..., Any]:
-                    return lambda *args, **kwargs: live_context[macro_name](
-                        *args, **kwargs
-                    )
-
-                late_binding_macros[k] = late_binding_macro(k)
-            # Pass 2: load the macros, with the late bindings in the context
-            live_context.update(
-                self._extract_macros(
-                    config=config, env=env, ctx=live_context | late_binding_macros
-                )
-            )
+            self._load_macros(config, env, live_context)
 
         return live_context
+
+    def _load_macros(
+        self, config: FluffConfig, env: Environment, live_context: dict[str, Any]
+    ) -> None:
+        """Initialize configured macros for one renderer construction."""
+        # References to variables are fixed when macros are compiled. In
+        # order to handle macros that refer to other macros from another
+        # file, we have to make two passes:
+
+        # Pass 1: get all macro names and insert late-bound functions into
+        # the context for every known macro.
+        macro_names = self._extract_macros(
+            config=config, env=env, ctx=live_context
+        ).keys()
+        late_binding_macros = {}
+        for k in macro_names:
+
+            def late_binding_macro(macro_name: str) -> Callable[..., Any]:
+                return lambda *args, **kwargs: live_context[macro_name](*args, **kwargs)
+
+            late_binding_macros[k] = late_binding_macro(k)
+        # Pass 2: load the macros, with the late bindings in the context
+        live_context.update(
+            self._extract_macros(
+                config=config, env=env, ctx=live_context | late_binding_macros
+            )
+        )
 
     def construct_render_func(
         self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
     ) -> tuple[Environment, dict[str, Any], Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
+
+        Configured macros and builtin module data belong to this construction.
+        Tracing and final rendering reuse initialized values and module aliases.
+        Mutable macro state is shared between those internal renders; it is not
+        reset on each call to the returned render function.
 
         Args:
             fname (Optional[str]): The name of the file.
