@@ -45,6 +45,9 @@ if TYPE_CHECKING:  # pragma: no cover
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
+_TRUE_STRINGS = frozenset({"1", "true", "t", "yes", "y", "on"})
+_FALSE_STRINGS = frozenset({"0", "false", "f", "no", "n", "off"})
+
 
 @dataclass
 class DbtConfigArgs:
@@ -185,6 +188,7 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = None
         self.working_dir = os.getcwd()
         self.dbt_skip_compilation_error = True
+        self.populate_relations_cache: bool = True
         super().__init__(override_context=override_context)
 
     def config_pairs(self):
@@ -459,6 +463,47 @@ class DbtTemplater(JinjaTemplater):
             default=True,
         )
 
+    def _get_populate_relations_cache(self) -> bool:
+        """Get whether to eagerly populate dbt's relations cache.
+
+        Precedence matches other dbt templater settings: explicit SQLFluff
+        config, then non-empty ``DBT_ENGINE_POPULATE_CACHE``, then non-empty
+        ``DBT_POPULATE_CACHE``, defaulting to ``True``.
+        """
+        raw_value: Any = (
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, "populate_relations_cache")
+            )
+            if self.sqlfluff_config is not None
+            else None
+        )
+        source = "[sqlfluff:templater:dbt] populate_relations_cache"
+        if raw_value is None:
+            for env_var in ("DBT_ENGINE_POPULATE_CACHE", "DBT_POPULATE_CACHE"):
+                env_value = os.getenv(env_var)
+                if env_value is not None and env_value != "":
+                    raw_value = env_value
+                    source = env_var
+                    break
+            else:
+                return True
+
+        if isinstance(raw_value, bool):
+            return raw_value
+        if isinstance(raw_value, str):
+            normalized = raw_value.strip().lower()
+            if normalized in _TRUE_STRINGS:
+                return True
+            if normalized in _FALSE_STRINGS:
+                return False
+
+        raise SQLFluffUserError(
+            f"Invalid boolean value {raw_value!r} for {source}. "
+            "Expected a boolean (use True/False in INI config) or one of the "
+            "string tokens: '1', 'true', 't', 'yes', 'y', 'on', "
+            "'0', 'false', 'f', 'no', 'n', 'off'."
+        )
+
     def sequence_files(
         self, fnames: list[str], config=None, formatter=None
     ) -> Iterator[str]:
@@ -559,6 +604,7 @@ class DbtTemplater(JinjaTemplater):
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
         self.sqlfluff_config = config
+        self.populate_relations_cache = self._get_populate_relations_cache()
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
         self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
@@ -889,8 +935,9 @@ class DbtTemplater(JinjaTemplater):
 
                 adapter.set_macro_resolver(self.dbt_manifest)
                 adapter.set_macro_context_generator(generate_runtime_macro_context)
-                adapter.set_relations_cache(self.dbt_manifest.nodes.values())
-            else:
+                if self.populate_relations_cache:
+                    adapter.set_relations_cache(self.dbt_manifest.nodes.values())
+            elif self.populate_relations_cache:
                 adapter.set_relations_cache(self.dbt_manifest)
 
         yield
