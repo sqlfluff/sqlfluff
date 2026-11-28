@@ -440,6 +440,17 @@ def test__process_inline_config():
     assert cfg.get("my_dict", section="jinja") == '[{"k":"v"}]'
 
 
+def test__process_inline_config__ignores_templater():
+    """Inline configuration cannot change templater lifecycle requirements."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.config") as caplog:
+        config.process_inline_config("-- sqlfluff:templater:dbt", "test.sql")
+
+    assert config.get("templater") == "jinja"
+    assert "Ignoring inline templater configuration" in caplog.text
+
+
 def test__process_inline_config__malformed_equals_syntax():
     """Malformed inline config using `=` syntax should warn, not crash."""
     cfg = FluffConfig(overrides={"dialect": "ansi"})
