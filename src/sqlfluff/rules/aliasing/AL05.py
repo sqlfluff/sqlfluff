@@ -63,6 +63,9 @@ class Rule_AL05(BaseRule):
             a
         FROM foo
 
+    An alias with a column list, like ``t(a, b)``, isn't flagged: it names
+    the columns, so removing it would rename them.
+
     """
 
     name = "aliasing.unused"
@@ -231,6 +234,15 @@ class Rule_AL05(BaseRule):
                         "column reference in select. Skipping"
                     )
                     continue
+
+            # Skip an alias with a column list, like `t(a, b)` or PostgreSQL's
+            # `t(a int, b text)`: it names the columns, so removing it renames
+            # them, or breaks the references to them, even if the table alias
+            # itself isn't used.
+            if alias.alias_expression and next(
+                alias.alias_expression.recursive_crawl("bracketed"), None
+            ):
+                continue
 
             if (
                 alias.aliased

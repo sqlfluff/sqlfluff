@@ -61,6 +61,12 @@ class BlockConfig:
         )
 
 
+# Shared read-only defaults returned by `get_parent_block_config()` and
+# `_get_block_config(..., allow_default=True)`. Callers must never mutate them.
+_DEFAULT_BLOCK_CONFIG = BlockConfig()
+_EMPTY_LIST_BLOCK_CONFIG = BlockConfig(keyword_line_position_exclusions=[])
+
+
 @dataclass(frozen=True)
 class ReflowConfig:
     """An interface onto the configuration of how segments should reflow.
@@ -140,6 +146,94 @@ class ReflowConfig:
             ignore_comment_lines=config.get("ignore_comment_lines", ["indentation"]),
         )
 
+    def _get_block_config(
+        self,
+        block_class_types: AbstractSet[str],
+        depth_info: Optional[DepthInfo] = None,
+        allow_default: bool = False,
+    ) -> BlockConfig:
+        config_types = self.config_types
+        config_dict = self._config_dict
+        block_config: Optional[BlockConfig] = None
+        had_configured_parent = False
+
+        # Update with the config from any specific classes.
+
+        # First: With the types of any parent segments where
+        # we're at one end (if depth info provided).
+        if depth_info:
+            parent_start, parent_end = True, True
+            stack_hashes = depth_info.stack_hashes
+            stack_positions = depth_info.stack_positions
+            stack_class_types = depth_info.stack_class_types
+            for idx in range(len(stack_hashes) - 1, -1, -1):
+                # Work out if we're allowed to claim the parent.
+                pos_type = stack_positions[stack_hashes[idx]].type
+                if pos_type == "solo":
+                    pass
+                elif pos_type == "start":
+                    parent_end = False
+                elif pos_type == "end":
+                    parent_start = False
+                else:
+                    break
+                if not (parent_start or parent_end):
+                    break
+                # Get corresponding classes.
+                parent_classes = stack_class_types[idx]
+                if not config_types.isdisjoint(parent_classes):
+                    had_configured_parent = True
+                    configured_parent_types = config_types.intersection(parent_classes)
+                    # Claim the _before_ config if at the start.
+                    if parent_start:
+                        for seg_type in configured_parent_types:
+                            before = config_dict[seg_type].get("spacing_before")
+                            if before:
+                                if block_config is None:
+                                    block_config = BlockConfig(
+                                        keyword_line_position_exclusions=[]
+                                    )
+                                block_config.spacing_before = before
+                    # Claim the _after_ config if at the end.
+                    if parent_end:
+                        for seg_type in configured_parent_types:
+                            after = config_dict[seg_type].get("spacing_after")
+                            if after:
+                                if block_config is None:
+                                    block_config = BlockConfig(
+                                        keyword_line_position_exclusions=[]
+                                    )
+                                block_config.spacing_after = after
+
+        # Second: With the types of the raw segment itself.
+        # Unless someone is doing something complicated with their configuration
+        # there should only be one.
+        # TODO: Extend (or at least harden) this code to handle multiple
+        # configured (and matched) types much better.
+        if block_config is None and allow_default:
+            if not config_types.isdisjoint(block_class_types):
+                key = (
+                    block_class_types
+                    if isinstance(block_class_types, frozenset)
+                    else frozenset(block_class_types)
+                )
+                return self.get_parent_block_config(key)
+            return (
+                _EMPTY_LIST_BLOCK_CONFIG
+                if had_configured_parent
+                else _DEFAULT_BLOCK_CONFIG
+            )
+        if not config_types.isdisjoint(block_class_types):
+            if block_config is None:
+                block_config = BlockConfig()
+            for seg_type in config_types.intersection(block_class_types):
+                block_config.incorporate(config=config_dict[seg_type])
+        if block_config is None:
+            return BlockConfig(
+                keyword_line_position_exclusions=[] if had_configured_parent else None
+            )
+        return block_config
+
     def get_block_config(
         self,
         block_class_types: AbstractSet[str],
@@ -153,49 +247,7 @@ class ReflowConfig:
         >>> cfg.get_block_config({"comma"})  # doctest: +ELLIPSIS
         BlockConfig(spacing_before='touch', spacing_after='single', ...)
         """
-        # set intersection to get the class types which matter
-        configured_types = self.config_types.intersection(block_class_types)
-        # Start with a default config.
-        block_config = BlockConfig()
-
-        # Update with the config from any specific classes.
-
-        # First: With the types of any parent segments where
-        # we're at one end (if depth info provided).
-        if depth_info:
-            parent_start, parent_end = True, True
-            for idx, key in enumerate(depth_info.stack_hashes[::-1]):
-                # Work out if we're allowed to claim the parent.
-                if depth_info.stack_positions[key].type not in ("solo", "start"):
-                    parent_start = False
-                if depth_info.stack_positions[key].type not in ("solo", "end"):
-                    parent_end = False
-                if not (parent_start or parent_end):
-                    break
-                # Get corresponding classes.
-                parent_classes = depth_info.stack_class_types[-1 - idx]
-                configured_parent_types = self.config_types.intersection(parent_classes)
-                # Claim the _before_ config if at the start.
-                if parent_start:
-                    for seg_type in configured_parent_types:
-                        block_config.incorporate(
-                            before=self._config_dict[seg_type].get("spacing_before")
-                        )
-                # Claim the _after_ config if at the end.
-                if parent_end:
-                    for seg_type in configured_parent_types:
-                        block_config.incorporate(
-                            after=self._config_dict[seg_type].get("spacing_after")
-                        )
-
-        # Second: With the types of the raw segment itself.
-        # Unless someone is doing something complicated with their configuration
-        # there should only be one.
-        # TODO: Extend (or at least harden) this code to handle multiple
-        # configured (and matched) types much better.
-        for seg_type in configured_types:
-            block_config.incorporate(config=self._config_dict[seg_type])
-        return block_config
+        return self._get_block_config(block_class_types, depth_info)
 
     def get_parent_block_config(self, class_types: frozenset[str]) -> BlockConfig:
         """Get the block config for a parent segment's class types.
@@ -205,6 +257,8 @@ class ReflowConfig:
         only depends on the class types, so it's cached. Callers share the
         result, so they must not modify it.
         """
+        if self.config_types.isdisjoint(class_types):
+            return _DEFAULT_BLOCK_CONFIG
         # NOTE: The key is a tuple rather than the set itself. If more than one
         # of the types is configured, the result can depend on the set's
         # iteration order (see `get_block_config()`), and equal sets can

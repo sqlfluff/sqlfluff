@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3eaa427959d0ae294e105eeba7541e5d162e63f3818e27917f999aa2ffd134c1
+file:
+- statement:
+    drop_database_role_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+        naked_identifier: db_role
+- statement_terminator: ;
+- statement:
+    drop_database_role_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        naked_identifier: db_role
+- statement_terminator: ;
+- statement:
+    drop_database_role_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+        quoted_identifier: '"test_role"'
+- statement_terminator: ;
+- statement:
+    drop_database_role_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_role"'
+- statement_terminator: ;
+- statement:
+    drop_database_role_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+- statement_terminator: ;
+- statement:
+    drop_database_role_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+- statement_terminator: ;

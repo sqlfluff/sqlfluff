@@ -136,3 +136,14 @@ def test_reflow_depthmap_order_by(default_config):
     # NOTE: Even though idx 7 is not the end, the _type_ of this location
     # is still an "end" because the following elements are non-code.
     assert desc_stack_pos == StackPosition(idx=7, len=9, type="end")
+
+
+def test_reflow_depthmap_from_parent_distinct_position_dicts(default_config):
+    """Each raw segment gets its own stack_positions dict despite last-child reuse."""
+    sql = "SELECT (a + b) AS c, COALESCE(d, e) FROM t WHERE x = 1\n"
+    root = parse_ansi_string(sql, default_config)
+    dm_parent = DepthMap.from_parent(root)
+    dm_raws = DepthMap.from_raws_and_root(root.raw_segments, root)
+    assert dm_parent.depth_info == dm_raws.depth_info
+    pos_dict_ids = [id(di.stack_positions) for di in dm_parent.depth_info.values()]
+    assert len(pos_dict_ids) == len(set(pos_dict_ids))

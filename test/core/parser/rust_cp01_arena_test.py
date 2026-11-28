@@ -2,9 +2,9 @@
 
 PROTOTYPE: `sqlfluffrs.cp01_violations(tree, ...)` runs CP01's detection loop
 entirely in Rust (in the `sqlfluffrs_rules` crate, over the arena read API) and
-returns `(leaf_index, fixed_raw)` pairs. It is NOT wired into rule dispatch —
-these tests exercise the function directly and assert it produces the same fixes
-as the stock Python `Rule_CP01`. Anchoring is by leaf index (1:1 with
+returns `(leaf_index, fixed_raw, concrete_policy)` triples. It is NOT wired into
+rule dispatch — these tests exercise the function directly and assert it
+produces the same fixes as the stock Python `Rule_CP01`. Anchoring is by leaf index (1:1 with
 `raw_segments`); arena and Python uuids are not shared.
 """
 
@@ -58,7 +58,10 @@ def _arena_fixed(linter, cfg, sql):
         return None
     rule = next(r for r in linter.get_rulepack(cfg).rules if r.code == "CP01")
     policy = str(getattr(rule, "capitalisation_policy", "consistent"))
-    by_idx = dict(sqlfluffrs.cp01_violations(tree._rs_tree, policy, [], False))
+    by_idx = {
+        i: fixed
+        for i, fixed, _ in sqlfluffrs.cp01_violations(tree._rs_tree, policy, [], False)
+    }
     return "".join(by_idx.get(i, seg.raw) for i, seg in enumerate(tree.raw_segments))
 
 
@@ -91,7 +94,7 @@ def test__cp01_arena__honours_ignore_words():
     # Ignore "from": only "select" should be flagged for upper-casing.
     fixed_raws = {
         fixed
-        for _, fixed in sqlfluffrs.cp01_violations(
+        for _, fixed, _ in sqlfluffrs.cp01_violations(
             tree._rs_tree, "upper", ["from"], False
         )
     }
