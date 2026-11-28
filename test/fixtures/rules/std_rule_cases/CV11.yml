@@ -756,7 +756,8 @@ test_fail_chained_shorthand_at_time_zone_to_cast:
         preferred_type_casting_style: cast
 
 test_fail_shorthand_at_time_zone_then_cast_to_cast:
-  # The time zone applies to the first cast, and the second cast to both.
+  # `::` binds tighter than AT TIME ZONE, so the `::date` cast applies to the
+  # time zone 'UTC', not to the result of the first cast.
   fail_str: SELECT a::timestamp AT TIME ZONE 'UTC'::date AS y FROM t
   fix_str: SELECT cast(a as timestamp) AT TIME ZONE cast('UTC' as date) AS y FROM t
   configs:
@@ -778,8 +779,6 @@ test_fail_shorthand_at_time_zone_to_convert:
   fail_str: SELECT a::timestamp AT TIME ZONE 'UTC' AS y FROM t
   fix_str: SELECT convert(timestamp, a) AT TIME ZONE 'UTC' AS y FROM t
   configs:
-    core:
-      dialect: postgres
     rules:
       convention.casting_style:
         preferred_type_casting_style: convert
