@@ -663,6 +663,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         help="Worker processes.",
     )
     args = parser.parse_args(argv)
+    # A quoted `~` isn't expanded by the shell.
+    for option in ("config", "report"):
+        if getattr(args, option):
+            setattr(args, option, str(Path(getattr(args, option)).expanduser()))
     if args.processes < 1:
         parser.error("--processes must be at least 1")
     if args.config and not Path(args.config).is_file():

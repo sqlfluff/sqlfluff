@@ -513,3 +513,15 @@ def test_config_file_selects_rules(tmp_path, monkeypatch):
         "CV11,AL05"
     )
     assert fix_safety.main([*args, "--config", str(no_cv11)]) == 0
+
+
+def test_paths_with_tilde(tmp_path, monkeypatch):
+    """`--config "~/..."` and `--report "~/..."` are expanded, as the shell would."""
+    pytest.importorskip("duckdb")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", tmp_path / "none.yml")
+    (tmp_path / "my.sqlfluff").write_text("[sqlfluff]\n", encoding="utf-8")
+    args = ["--dialect", "duckdb", "--filter", "anti_semi_join.sql", "--processes", "1"]
+    args += ["--config", "~/my.sqlfluff", "--report", "~/report.md"]
+    assert fix_safety.main(args) == 0
+    assert (tmp_path / "report.md").is_file()
