@@ -704,3 +704,59 @@ def test__templater_python_ignore_templating(
         assert templated_file is not None
         assert str(templated_file) == expected_templated_str
         assert len(violations) == 0
+
+
+@pytest.mark.parametrize("ignore", ["", "templating"])
+@pytest.mark.parametrize(
+    "raw_str,expected,context",
+    [
+        ("SELECT '{{foo.bar}}';", "SELECT '{foo.bar}';", {}),
+        ("SELECT '{{foo.bar!r}}';", "SELECT '{foo.bar!r}';", {}),
+        ("SELECT '{{foo.bar:>10}}';", "SELECT '{foo.bar:>10}';", {}),
+        ("SELECT '{{{{foo.bar}}}}';", "SELECT '{{foo.bar}}';", {}),
+        (
+            "SELECT '{{foo.bar}}', {foo.bar!r};",
+            "SELECT '{foo.bar}', 'baz';",
+            {"sqlfluff": {"foo.bar": "baz"}},
+        ),
+        (
+            "SELECT '{{{foo.bar}}}';",
+            "SELECT '{baz}';",
+            {"sqlfluff": {"foo.bar": "baz"}},
+        ),
+        (
+            "SELECT '{{{foo.bar!s:0>5}}}';",
+            "SELECT '{00baz}';",
+            {"sqlfluff": {"foo.bar": "baz"}},
+        ),
+        (
+            "SELECT '{foo.bar:{width}}';",
+            "SELECT 'baz   ';",
+            {"sqlfluff": {"foo.bar": "baz"}, "width": 6},
+        ),
+        (
+            "SELECT '{foo.bar!s:0>{width}}';",
+            "SELECT '000baz';",
+            {"sqlfluff": {"foo.bar": "baz"}, "width": 6},
+        ),
+        (
+            "SELECT '{{{foo.bar!s:0>{width}}}}';",
+            "SELECT '{000baz}';",
+            {"sqlfluff": {"foo.bar": "baz"}, "width": 6},
+        ),
+        (
+            "SELECT '{{foo.bar:{{width}}}}';",
+            "SELECT '{foo.bar:{width}}';",
+            {},
+        ),
+        ("SELECT '{{foo}}';", "SELECT '{foo}';", {}),
+    ],
+)
+def test__templater_python_escaped_dotted_variables(ignore, raw_str, expected, context):
+    """Escaped dotted fields stay literal, including next to real fields."""
+    config = FluffConfig(overrides={"dialect": "ansi", "ignore": ignore})
+    templated, violations = PythonTemplater(override_context=context).process(
+        in_str=raw_str, fname="test.sql", config=config
+    )
+    assert str(templated) == expected
+    assert violations == []
