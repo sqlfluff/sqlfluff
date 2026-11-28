@@ -19,6 +19,7 @@ from typing import Optional
 from sqlfluff.core.config.ini import load_ini_string
 from sqlfluff.core.config.toml import PYPROJECT_FILENAME, load_toml_file_config
 from sqlfluff.core.config.validate import validate_config_dict
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
@@ -41,8 +42,17 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
     if filename == PYPROJECT_FILENAME:
         return load_toml_file_config(filepath)
     # If it's not a pyproject file, assume that it's an ini file.
-    with open(filepath, mode="r") as file:
-        return load_ini_string(file.read(), filepath)
+    # NOTE: Like toml files, always read them as UTF-8 rather than in the
+    # locale encoding, which on Windows is usually something else. Using
+    # `utf-8-sig` also skips the BOM which some editors on Windows add.
+    try:
+        with open(filepath, mode="r", encoding="utf-8-sig") as file:
+            cfg_content = file.read()
+    except UnicodeDecodeError as err:
+        raise SQLFluffUserError(
+            f"Config file {filepath} is not valid UTF-8: {err}. Save it as UTF-8."
+        ) from None
+    return load_ini_string(cfg_content, filepath)
 
 
 def _resolve_path(filepath: str, val: str) -> list[str]:
@@ -95,7 +105,7 @@ def _resolve_paths_in_config(
             ]
             # If no paths resolved, keep the original patterns
             config[key] = ",".join(resolved_paths) if resolved_paths else val
-        # It it's a single path key, resolve it.
+        # If it's a single path key, resolve it.
         elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
             assert isinstance(val, str), (
                 f"Value for {key} in {log_filename} must be a string not {type(val)}."

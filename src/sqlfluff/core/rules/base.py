@@ -17,6 +17,7 @@ missing.
 import bdb
 import copy
 import fnmatch
+import functools
 import logging
 import pathlib
 import re
@@ -35,7 +36,7 @@ from typing import (
 
 import regex
 
-from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
+from sqlfluff.core.errors import SQLFluffUserError, SQLLintError, _SQLRuleError
 from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
@@ -64,6 +65,12 @@ RuleGhost = namedtuple("RuleGhost", ["code", "name", "description"])
 rules_logger = logging.getLogger("sqlfluff.rules")
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+
+@functools.lru_cache(maxsize=4)
+def _path(fname: str) -> pathlib.Path:
+    """The path for a file name: every rule asks for the same one per file."""
+    return pathlib.Path(fname)
 
 
 class RuleLoggingAdapter(_LoggerAdapter):
@@ -374,6 +381,12 @@ class RuleMetaclass(type):
 class BaseRule(metaclass=RuleMetaclass):
     """The base class for a rule.
 
+    One instance lints every file with the same ``rules``, ``rule_allowlist``
+    and ``rule_denylist`` config, possibly on several threads at once. Only
+    values from ``config_keywords`` are safe to cache on ``self``: read other
+    config and the dialect from the ``RuleContext`` on each ``_eval`` or
+    ``_eval_rust`` call, and keep per-call state in locals.
+
     Args:
         code (:obj:`str`): The identifier for this rule, used in inclusion
             or exclusion.
@@ -532,7 +545,7 @@ class BaseRule(metaclass=RuleMetaclass):
             dialect=dialect,
             fix=fix,
             templated_file=templated_file,
-            path=pathlib.Path(fname) if fname else None,
+            path=_path(fname) if fname else None,
             segment=tree,
             config=config,
         )
@@ -568,7 +581,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 exception_line, _ = root_context.segment.pos_marker.source_position()
                 self._log_critical_errors(e)
                 vs.append(
-                    SQLLintError(
+                    _SQLRuleError(
                         rule=self,
                         segment=root_context.segment,
                         fixes=[],
@@ -628,7 +641,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 exception_line, _ = context.segment.pos_marker.source_position()
                 self._log_critical_errors(e)
                 vs.append(
-                    SQLLintError(
+                    _SQLRuleError(
                         rule=self,
                         segment=context.segment,
                         fixes=[],

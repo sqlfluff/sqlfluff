@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ab8aa3f74060b267ac6c1db9286778837a9fc4e42d418ab109b7220c055f2cd1
+file:
+- statement:
+    drop_operator_class_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: widget_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+- statement_terminator: ;
+- statement:
+    drop_operator_class_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - keyword: IF
+    - keyword: EXISTS
+    - operator_class_reference:
+        naked_identifier: widget_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+- statement_terminator: ;
+- statement:
+    drop_operator_class_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: widget_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_operator_class_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - operator_class_reference:
+        naked_identifier: widget_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_operator_class_statement:
+    - keyword: DROP
+    - keyword: OPERATOR
+    - keyword: CLASS
+    - keyword: IF
+    - keyword: EXISTS
+    - operator_class_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: widget_ops
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: gist
+    - keyword: CASCADE
+- statement_terminator: ;

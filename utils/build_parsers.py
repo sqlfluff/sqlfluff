@@ -19,6 +19,7 @@ from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
 from sqlfluff.core.parser.grammar.lookbehind import PrecededByMatcher
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
+from sqlfluff.core.parser.grammar.standalone import StandaloneLineMatcher
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
     RegexParser,
@@ -440,6 +441,10 @@ class TableBuilder:
         # PrecededByMatcher
         elif isinstance(grammar, PrecededByMatcher):
             return self._handle_preceded_by(grammar, parse_context)
+
+        # StandaloneLineMatcher
+        elif isinstance(grammar, StandaloneLineMatcher):
+            return self._handle_standalone_line(grammar, parse_context)
 
         # MetaSegment
         elif isinstance(grammar, type) and issubclass(grammar, MetaSegment):
@@ -1302,6 +1307,49 @@ class TableBuilder:
             aux_data_offset=aux_offset,
             simple_hint_idx=0,
             comment=(f"PrecededBy(preceding_sequences={grammar.preceding_sequences})"),
+        )
+
+    def _handle_standalone_line(
+        self, grammar: StandaloneLineMatcher, parse_context
+    ) -> GrammarInstData:
+        """Convert StandaloneLineMatcher to a StandaloneLine instruction.
+
+        The inner matcher is reduced to its raw string, so the Rust side only
+        needs to compare the token raw value and check its neighbours.
+        """
+        inner = grammar.matcher
+        if not isinstance(inner, StringParser):  # pragma: no cover
+            raise NotImplementedError(
+                "Rust parser generation only supports StringParser inner "
+                f"matchers for StandaloneLineMatcher, got {inner!r}."
+            )
+
+        template_id = self._add_string(inner.template)
+        aux_offset = len(self.aux_data)
+        # The aux block is [template_id, keyword_count, keyword_ids...]. The
+        # count keeps the block self-delimiting: neighbouring grammars can
+        # have smaller or absent aux offsets, so the next offset is not a
+        # reliable end bound (see aux_block_bounds in parser/core.rs).
+        self.aux_data.append(template_id)
+        self.aux_data.append(len(grammar.resume_keywords))
+        self.aux_data.extend(
+            self._add_string(word) for word in sorted(grammar.resume_keywords)
+        )
+
+        hint_id = self._add_simple_hint(grammar, parse_context)
+
+        return GrammarInstData(
+            variant="StandaloneLine",
+            flags=0,
+            parse_mode="Strict",
+            first_child_idx=len(self.child_ids),
+            child_count=0,
+            min_times=0,
+            first_terminator_idx=len(self.terminators),
+            terminator_count=0,
+            aux_data_offset=aux_offset,
+            simple_hint_idx=hint_id,
+            comment=f'StandaloneLine("{inner.template}")',
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:

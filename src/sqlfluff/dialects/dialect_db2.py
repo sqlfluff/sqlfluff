@@ -586,6 +586,113 @@ class TableEndClauseSegment(ansi.TableEndClauseSegment):
     )
 
 
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for ``CREATE TABLE``.
+
+    Db2 also allows ``CHECK`` constraints in the table element list.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table
+    """
+
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(  # UNIQUE ( column_name [, ... ] )
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] )
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("ReferenceDefinitionGrammar"),
+            ),
+            Sequence(  # CHECK ( check-condition )
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
+        ),
+    )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An ``ALTER TABLE`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-alter-table
+    """
+
+    type = "alter_table_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            AnyNumberOf(
+                # ADD [COLUMN] column-definition or ADD table-constraint
+                Sequence(
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                ),
+                # DROP CONSTRAINT constraint-name
+                Sequence("DROP", "CONSTRAINT", Ref("ObjectReferenceSegment")),
+                # DROP [COLUMN] column-name [CASCADE | RESTRICT]
+                Ref("AlterTableDropColumnGrammar"),
+                # ALTER [COLUMN] column-name action
+                Sequence(
+                    "ALTER",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("SingleIdentifierGrammar"),
+                    OneOf(
+                        Sequence("SET", "DATA", "TYPE", Ref("DatatypeSegment")),
+                        Sequence("SET", "DEFAULT", Ref("ExpressionSegment")),
+                        Sequence("SET", "NOT", "NULL"),
+                        Sequence("SET", "GENERATED", "ALWAYS"),
+                        Sequence("SET", "GENERATED", "BY", "DEFAULT"),
+                        Sequence(
+                            "SET",
+                            "INCREMENT",
+                            "BY",
+                            Ref("SignedSegmentGrammar", optional=True),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence("DROP", "DEFAULT"),
+                        Sequence("DROP", "NOT", "NULL"),
+                        Sequence(
+                            "RESTART",
+                            Ref.keyword("WITH", optional=True),
+                            Ref("SignedSegmentGrammar", optional=True),
+                            Ref("NumericLiteralSegment", optional=True),
+                        ),
+                    ),
+                ),
+                # RENAME COLUMN source-column-name TO target-column-name
+                Sequence(
+                    "RENAME",
+                    "COLUMN",
+                    Ref("SingleIdentifierGrammar"),
+                    "TO",
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                min_times=1,
+            ),
+            # Db2 table options that aren't modelled yet (e.g. `PCTFREE 10`)
+            # fall back to ANSI
+            Ref("AlterTableOptionsGrammar"),
+        ),
+    )
+
+
 class IndexColumnDefinitionSegment(ansi.IndexColumnDefinitionSegment):
     """A column definition for CREATE INDEX."""
 
@@ -1097,6 +1204,52 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
+class CreateAliasStatementSegment(BaseSegment):
+    """A Db2 ``CREATE ALIAS`` or ``CREATE SYNONYM`` statement.
+
+    Db2 treats ``ALIAS`` and ``SYNONYM`` as the same object with identical
+    syntax.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-alias
+    """
+
+    type = "create_alias_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        OneOf("ALIAS", "SYNONYM"),
+        Ref("ObjectReferenceSegment"),
+        "FOR",
+        Sequence(
+            OneOf("TABLE", "MODULE", "SEQUENCE", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+
+class DropAliasStatementSegment(BaseSegment):
+    """A Db2 ``DROP ALIAS`` or ``DROP SYNONYM`` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-drop
+    """
+
+    type = "drop_alias_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        OneOf("ALIAS", "SYNONYM"),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FOR",
+            OneOf("TABLE", "MODULE", "SEQUENCE"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """An element in the targets of a select statement."""
 
@@ -1105,6 +1258,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CallStoredProcedureSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("DeclareGlobalTempTableSegment"),
+            Ref("CreateAliasStatementSegment"),
+            Ref("DropAliasStatementSegment"),
         ]
     )
 

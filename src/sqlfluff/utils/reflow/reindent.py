@@ -586,7 +586,7 @@ def _revise_templated_lines(
                     overlap,
                 )
                 # We've got more than one option. To help narrow down, see whether
-                # we we can net outside the lines immediately inside.
+                # we can net outside the lines immediately inside.
                 check_lines = [group_lines[0] + 1, group_lines[-1] - 1]
                 fallback = max(lines[idx].initial_indent_balance for idx in check_lines)
                 for idx in check_lines:
@@ -701,7 +701,7 @@ def _revise_skipped_source_lines(
             if not seg.is_type("placeholder"):
                 break
             template_seg = cast(TemplateSegment, seg)
-            # For now only deal with lines that that start with a block_start.
+            # For now only deal with lines that start with a block_start.
             if idx == 0:
                 # If we start with anything else, ignore this line for now.
                 if template_seg.block_type != "block_start":
@@ -2421,7 +2421,7 @@ def _fix_long_line_with_comment(
         reflow_logger.debug("    Unfixable because comment contains template tags.")
         return elements, []
 
-    # The simpler case if if we're moving the comment to the line
+    # The simpler case is if we're moving the comment to the line
     # _after_. In that case we just coerce the point before it to
     # be an indent.
     if trailing_comments == "after":

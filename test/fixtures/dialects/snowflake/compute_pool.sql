@@ -1,0 +1,69 @@
+CREATE COMPUTE POOL tutorial_compute_pool
+  MIN_NODES = 1
+  MAX_NODES = 1
+  INSTANCE_FAMILY = CPU_X64_XS;
+
+CREATE COMPUTE POOL my_compute_pool
+  MIN_NODES = 1
+  MAX_NODES = 10
+  INSTANCE_FAMILY = GEN_X64_G2_4
+  BACKUP_INSTANCE_FAMILIES = ('GEN_X64_G2_8', 'GEN_X64_G2_16');
+
+CREATE COMPUTE POOL IF NOT EXISTS my_compute_pool
+  FOR APPLICATION my_app
+  MIN_NODES = 1
+  MAX_NODES = 2
+  INSTANCE_FAMILY = CPU_X64_XS
+  AUTO_RESUME = FALSE
+  INITIALLY_SUSPENDED = TRUE
+  AUTO_SUSPEND_SECS = 600
+  WITH TAG (cost_center = 'finance', env = 'dev')
+  COMMENT = 'my pool'
+  PLACEMENT_GROUP = 'A';
+
+ALTER COMPUTE POOL tutorial_compute_pool SET
+  MAX_NODES = 5
+  AUTO_RESUME = FALSE;
+
+ALTER COMPUTE POOL tutorial_compute_pool SUSPEND;
+
+ALTER COMPUTE POOL tutorial_compute_pool SET
+  INSTANCE_FAMILY = CPU_X64_S;
+
+ALTER COMPUTE POOL IF EXISTS tutorial_compute_pool RESUME;
+
+ALTER COMPUTE POOL my_compute_pool
+  SET BACKUP_INSTANCE_FAMILIES = ('GEN_X64_G2_8');
+
+ALTER COMPUTE POOL my_compute_pool
+  SET TAG cost_center = 'finance', env = 'dev' COMMENT = 'my pool';
+
+ALTER COMPUTE POOL my_compute_pool
+  UNSET BACKUP_INSTANCE_FAMILIES;
+
+ALTER COMPUTE POOL my_compute_pool UNSET AUTO_SUSPEND_SECS, AUTO_RESUME, PLACEMENT_GROUP, COMMENT;
+
+ALTER COMPUTE POOL my_compute_pool STOP ALL;
+
+ALTER COMPUTE POOL my_compute_pool STOP ALL OF TYPE NOTEBOOK, MODEL_SERVING;
+
+DROP COMPUTE POOL tutorial_compute_pool;
+
+DROP COMPUTE POOL IF EXISTS tutorial_compute_pool;
+
+DESCRIBE COMPUTE POOL tutorial_compute_pool;
+
+DESC COMPUTE POOL tutorial_compute_pool;
+
+SHOW COMPUTE POOLS;
+
+SHOW COMPUTE POOLS LIMIT 1;
+
+SHOW COMPUTE POOLS LIKE '%my_pool%' LIMIT 2;
+
+SHOW COMPUTE POOLS STARTS WITH 'my' LIMIT 2 FROM 'my_p';
+
+GRANT USAGE ON COMPUTE POOL my_compute_pool TO ROLE my_role;
+
+-- The new keywords are not reserved.
+SELECT compute, pool, pools, stop, min_nodes, max_nodes FROM pool;

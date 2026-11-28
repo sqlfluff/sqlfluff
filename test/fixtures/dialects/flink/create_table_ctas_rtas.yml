@@ -1,0 +1,367 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ab28e0f31eebf9e24b7e8094860679929d4a014e7e16d50427defe1e415899d6
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_ctas_table
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-topic'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_ctas_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: extra_desc
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: quantity
+          data_type:
+            data_type_identifier: DOUBLE
+      - comma: ','
+      - naked_identifier: cost
+      - keyword: AS
+      - expression:
+        - column_reference:
+            naked_identifier: price
+        - binary_operator: '*'
+        - column_reference:
+            naked_identifier: quantity
+      - comma: ','
+      - keyword: WATERMARK
+      - keyword: FOR
+      - column_reference:
+          naked_identifier: order_time
+      - keyword: AS
+      - expression:
+          column_reference:
+            naked_identifier: order_time
+          binary_operator: '-'
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'5'"
+            date_part: SECOND
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-topic'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: price
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: quantity
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: order_time
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_ctas_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: order_time
+      - comma: ','
+      - column_reference:
+          naked_identifier: price
+      - comma: ','
+      - column_reference:
+          naked_identifier: quantity
+      - comma: ','
+      - column_reference:
+          naked_identifier: id
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-topic'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: price
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: quantity
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: order_time
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_ctas_table
+    - bracketed:
+      - start_bracket: (
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_dist_part_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: dt
+          data_type:
+            data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'filesystem'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_rtas_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: extra_desc
+          data_type:
+            data_type_identifier: STRING
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-topic'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_rtas_table
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'kafka'"
+      - comma: ','
+      - quoted_literal: "'topic'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-topic'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;

@@ -521,6 +521,11 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
+    # XML namespace prefixes are case-sensitive, even in a case-insensitive
+    # database, so they aren't identifiers which CP02 could recase.
+    XmlNamespacePrefixSegment=RegexParser(
+        r"[A-Z_\p{L}][A-Z0-9_\p{L}]*", CodeSegment, type="xml_namespace_prefix"
+    ),
     # $PARTITION.<partition_function>(), parsed as a function name prefix.
     PartitionFunctionPrefixSegment=RegexParser(
         r"\$PARTITION", CodeSegment, type="partition_function_prefix"
@@ -937,6 +942,11 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSecurityPolicySegment"),
             Ref("AlterSecurityPolicySegment"),
             Ref("DropSecurityPolicySegment"),
+            Ref("AddSensitivityClassificationStatementSegment"),
+            Ref("DropSensitivityClassificationStatementSegment"),
+            Ref("CreateEventSessionStatementSegment"),
+            Ref("AlterEventSessionStatementSegment"),
+            Ref("DropEventSessionStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("CreateServerRoleStatementSegment"),
@@ -1609,7 +1619,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
         Sequence(
             "ADD",
             "FILE",
-            Ref("FileSpecSegmentInAlterDatabase"),
+            Delimited(Ref("FileSpecSegmentInAlterDatabase")),
             Sequence(
                 "TO",
                 "FILEGROUP",
@@ -1621,12 +1631,12 @@ class AlterDatabaseStatementSegment(BaseSegment):
             "ADD",
             "LOG",
             "FILE",
-            Delimited(Ref("FileSpecSegmentInAlterDatabase"), min_delimiters=1),
+            Delimited(Ref("FileSpecSegmentInAlterDatabase")),
         ),
         Sequence(
             "REMOVE",
             "FILE",
-            Ref("LiteralSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
         ),
         Sequence(
             "MODIFY",
@@ -1635,12 +1645,41 @@ class AlterDatabaseStatementSegment(BaseSegment):
         ),
     )
 
-    _add_or_modify_filegroups = Sequence(
-        OneOf(
+    _add_or_modify_filegroups = OneOf(
+        Sequence(
             "ADD",
-            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            Sequence(
+                "CONTAINS",
+                OneOf("FILESTREAM", "MEMORY_OPTIMIZED_DATA"),
+                optional=True,
+            ),
         ),
-        "FILEGROUP",
+        Sequence(
+            "REMOVE",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+        ),
+        Sequence(
+            "MODIFY",
+            "FILEGROUP",
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            OneOf(
+                "READONLY",
+                "READWRITE",
+                "READ_ONLY",
+                "READ_WRITE",
+                "DEFAULT",
+                Sequence(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("NakedOrQuotedIdentifierGrammar"),
+                ),
+                "AUTOGROW_SINGLE_FILE",
+                "AUTOGROW_ALL_FILES",
+            ),
+        ),
     )
 
     _accelerated_database_recovery = Sequence(
@@ -1933,7 +1972,7 @@ class LogicalFileNameSegment(BaseSegment):
         "NAME",
         Ref("EqualsSegment"),
         OneOf(
-            Ref("NakedIdentifierSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
             Ref("QuotedLiteralSegmentOptWithN"),
         ),
     )
@@ -1959,7 +1998,10 @@ class FileSpecNewNameSegment(BaseSegment):
         Ref("CommaSegment"),
         "NEWNAME",
         Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegmentOptWithN"),
+        OneOf(
+            Ref("NakedOrQuotedIdentifierGrammar"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+        ),
     )
 
 
@@ -2047,7 +2089,7 @@ class FileSpecSegment(BaseSegment):
 class FileSpecSegmentInAlterDatabase(BaseSegment):
     """A file specification for ALTER DATABASE statements."""
 
-    # make FILENAME optional and add NEWNAME segment
+    # make FILENAME optional and add NEWNAME segment and OFFLINE
     _inner = UnbracketedFileSpecSegment.match_grammar.copy(
         remove=[Ref("FileSpecFileNameSegment")],
         insert=[
@@ -2055,6 +2097,8 @@ class FileSpecSegmentInAlterDatabase(BaseSegment):
             Ref("FileSpecFileNameSegment", optional=True),
         ],
         before=Ref("FileSpecSizeSegment", optional=True),
+    ).copy(
+        insert=[Sequence(Ref("CommaSegment"), "OFFLINE", optional=True)],
     )
 
     type = "file_spec"
@@ -2518,12 +2562,44 @@ class BulkInsertStatementWithSegment(BaseSegment):
     )
 
 
+class XmlNamespacesClauseSegment(BaseSegment):
+    """An `XMLNAMESPACES` clause, which comes first in a `WITH` clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/xml/with-xmlnamespaces
+    """
+
+    type = "xml_namespaces_clause"
+    match_grammar = Sequence(
+        "XMLNAMESPACES",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                        "AS",
+                        OneOf(
+                            Ref("XmlNamespacePrefixSegment"),
+                            Ref("QuotedIdentifierSegment"),
+                            Ref("BracketedIdentifierSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "DEFAULT",
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
 
-    Overriding ANSI to remove the greedy use of terminators.
+    Overriding ANSI to remove the greedy use of terminators and to allow
+    `XMLNAMESPACES`.
     """
 
     type = "with_compound_statement"
@@ -2533,7 +2609,10 @@ class WithCompoundStatementSegment(BaseSegment):
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
         Delimited(
-            Ref("CTEDefinitionSegment"),
+            OneOf(
+                Ref("XmlNamespacesClauseSegment"),
+                Ref("CTEDefinitionSegment"),
+            ),
             terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),
@@ -2558,7 +2637,10 @@ class CursorWithCompoundStatementSegment(BaseSegment):
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
         Delimited(
-            Ref("CTEDefinitionSegment"),
+            OneOf(
+                Ref("XmlNamespacesClauseSegment"),
+                Ref("CTEDefinitionSegment"),
+            ),
             terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),
@@ -4793,7 +4875,7 @@ class SetStatementSegment(BaseSegment):
                         "SHOWPLAN_XML",
                         Sequence(
                             "STATISTICS",
-                            OneOf(
+                            Delimited(
                                 "IO",
                                 "PROFILE",
                                 "TIME",
@@ -5735,6 +5817,38 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
                 Ref("EqualsSegment", optional=True),
                 OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+            ),
+            # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql
+            # ALTER COLUMN column { ADD | DROP } { ROWGUIDCOL | PERSISTED | ... }
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        OneOf(
+                            "ROWGUIDCOL",
+                            "PERSISTED",
+                            Sequence("NOT", "FOR", "REPLICATION"),
+                            "SPARSE",
+                            "HIDDEN",
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("ADD", "DROP"),
+                        "MASKED",
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                "FUNCTION",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
             ),
             Sequence(
                 "ALTER",
@@ -10131,6 +10245,259 @@ class DropSecurityPolicySegment(BaseSegment):
         "POLICY",
         Sequence("IF", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class AddSensitivityClassificationStatementSegment(BaseSegment):
+    """An `ADD SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/add-sensitivity-classification-transact-sql
+
+    type = "add_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "TO",
+        Delimited(Ref("ColumnReferenceSegment")),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        "LABEL",
+                        "LABEL_ID",
+                        "INFORMATION_TYPE",
+                        "INFORMATION_TYPE_ID",
+                    ),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                Sequence(
+                    "RANK",
+                    Ref("EqualsSegment"),
+                    OneOf("NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropSensitivityClassificationStatementSegment(BaseSegment):
+    """A `DROP SENSITIVITY CLASSIFICATION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-sensitivity-classification-transact-sql
+
+    type = "drop_sensitivity_classification_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SENSITIVITY",
+        "CLASSIFICATION",
+        "FROM",
+        Delimited(Ref("ColumnReferenceSegment")),
+    )
+
+
+class CreateEventSessionStatementSegment(BaseSegment):
+    """A `CREATE EVENT SESSION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-event-session-transact-sql
+
+    type = "create_event_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "EVENT",
+        "SESSION",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf("SERVER", "DATABASE"),
+        Delimited(Ref("EventSessionEventSegment")),
+        Delimited(Ref("EventSessionTargetSegment"), optional=True),
+        Ref("EventSessionOptionsSegment", optional=True),
+    )
+
+
+class AlterEventSessionStatementSegment(BaseSegment):
+    """An `ALTER EVENT SESSION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-event-session-transact-sql
+
+    type = "alter_event_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "EVENT",
+        "SESSION",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf("SERVER", "DATABASE"),
+        OneOf(
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("EventSessionEventSegment"),
+                        Sequence("DROP", "EVENT", Ref("ObjectReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+                Delimited(
+                    OneOf(
+                        Ref("EventSessionTargetSegment"),
+                        Sequence("DROP", "TARGET", Ref("ObjectReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+                Ref("EventSessionOptionsSegment", optional=True),
+            ),
+            Sequence("STATE", Ref("EqualsSegment"), OneOf("START", "STOP")),
+        ),
+    )
+
+
+class DropEventSessionStatementSegment(BaseSegment):
+    """A `DROP EVENT SESSION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-event-session-transact-sql
+
+    type = "drop_event_session_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "EVENT",
+        "SESSION",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        OneOf("SERVER", "DATABASE"),
+    )
+
+
+class EventSessionEventSegment(BaseSegment):
+    """An `ADD EVENT` clause of a `CREATE` or `ALTER EVENT SESSION` statement.
+
+    Event and action names take the form `[module_guid.]package.name`.
+    """
+
+    type = "event_session_event"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "EVENT",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Ref("EventSessionSetClauseSegment", optional=True),
+            Sequence(
+                "ACTION",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            # The predicate compares event fields or package-qualified sources,
+            # or calls comparators such as package0.greater_than_uint64(...).
+            Ref("WhereClauseSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class EventSessionTargetSegment(BaseSegment):
+    """An `ADD TARGET` clause of a `CREATE` or `ALTER EVENT SESSION` statement."""
+
+    type = "event_session_target"
+
+    match_grammar: Matchable = Sequence(
+        "ADD",
+        "TARGET",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Ref("EventSessionSetClauseSegment"), optional=True),
+    )
+
+
+class EventSessionSetClauseSegment(BaseSegment):
+    """The `SET name = value, ...` list of an event session event or target."""
+
+    type = "event_session_set_clause"
+
+    match_grammar: Matchable = Sequence(
+        "SET",
+        Indent,
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class EventSessionOptionsSegment(BaseSegment):
+    """The `WITH` options of a `CREATE` or `ALTER EVENT SESSION` statement."""
+
+    type = "event_session_options"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("MAX_MEMORY", "MAX_EVENT_SIZE"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        # e.g. 4096KB, which is lexed as a single word
+                        Ref("SizeLiteralSegment"),
+                        Sequence(
+                            Ref("NumericLiteralSegment"),
+                            OneOf("KB", "MB", optional=True),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "EVENT_RETENTION_MODE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        "ALLOW_SINGLE_EVENT_LOSS",
+                        "ALLOW_MULTIPLE_EVENT_LOSS",
+                        "NO_EVENT_LOSS",
+                    ),
+                ),
+                Sequence(
+                    "MAX_DISPATCH_LATENCY",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(Ref("NumericLiteralSegment"), "SECONDS"),
+                        # e.g. 5SECONDS, which is lexed as a single word
+                        RegexParser(
+                            r"\d+SECONDS", LiteralSegment, type="numeric_literal"
+                        ),
+                        "INFINITE",
+                    ),
+                ),
+                Sequence(
+                    "MEMORY_PARTITION_MODE",
+                    Ref("EqualsSegment"),
+                    OneOf("NONE", "PER_NODE", "PER_CPU"),
+                ),
+                Sequence(
+                    OneOf("TRACK_CAUSALITY", "STARTUP_STATE"),
+                    Ref("EqualsSegment"),
+                    OneOf("ON", "OFF"),
+                ),
+                Sequence(
+                    "MAX_DURATION",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("NumericLiteralSegment"),
+                            OneOf("SECONDS", "MINUTES", "HOURS", "DAYS"),
+                        ),
+                        "UNLIMITED",
+                    ),
+                ),
+            ),
+        ),
     )
 
 

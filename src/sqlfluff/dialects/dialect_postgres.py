@@ -170,6 +170,17 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
         ),
+        # Hexadecimal, octal and binary integers (Postgres 16), e.g. 0x1F, 0o17,
+        # 0b101. An underscore may come before any digit, including the first one
+        # after the prefix (e.g. 0x_FF, 0o_1_755), as in scan.l.
+        # The negative lookahead stops a match that runs into a word, e.g. 0x1Fz.
+        # https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-NUMERIC
+        RegexLexer(
+            "non_decimal_integer_literal",
+            r"0(?:[xX](?:_?[0-9a-fA-F])+|[oO](?:_?[0-7])+|[bB](?:_?[01])+)(?![\w$])",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
         StringLexer("full_text_search_operator", "!!", SymbolSegment),
         # `#` and `##` are operators in PostgreSQL, not comments as in ANSI. After
         # the JSON operators, so that `#>`, `#>>` and `#-` lex as one.
@@ -548,6 +559,45 @@ postgres_dialect.add(
         Sequence("EMPTY", OneOf("ARRAY", "OBJECT", optional=True)),
         Sequence("DEFAULT", Ref("ExpressionSegment")),
     ),
+    # Shared clauses of the SQL/JSON query functions and JSON_TABLE.
+    # https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-QUERYING
+    JsonFormatClauseGrammar=Sequence(
+        "FORMAT",
+        "JSON",
+        Sequence("ENCODING", Ref("SingleIdentifierGrammar"), optional=True),
+    ),
+    JsonValueExpressionGrammar=Sequence(
+        Ref("ExpressionSegment"),
+        Ref("JsonFormatClauseGrammar", optional=True),
+    ),
+    JsonPassingClauseGrammar=Sequence(
+        "PASSING",
+        Delimited(
+            Sequence(
+                Ref("JsonValueExpressionGrammar"),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+    ),
+    JsonReturningClauseGrammar=Sequence(
+        "RETURNING",
+        Ref("DatatypeSegment"),
+        Ref("JsonFormatClauseGrammar", optional=True),
+    ),
+    JsonWrapperClauseGrammar=Sequence(
+        OneOf(
+            "WITHOUT",
+            Sequence("WITH", OneOf("CONDITIONAL", "UNCONDITIONAL", optional=True)),
+        ),
+        Ref.keyword("ARRAY", optional=True),
+        "WRAPPER",
+    ),
+    JsonQuotesClauseGrammar=Sequence(
+        OneOf("KEEP", "OMIT"),
+        "QUOTES",
+        Sequence("ON", "SCALAR", "STRING", optional=True),
+    ),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
@@ -766,6 +816,36 @@ postgres_dialect.add(
             Ref("DatatypeSegment"),
         ),
     ),
+    # An `OPERATOR` or `FUNCTION` member of an operator class or family, as
+    # used by `CREATE OPERATOR CLASS` and `ALTER OPERATOR FAMILY ... ADD`.
+    OperatorClassMemberGrammar=OneOf(
+        Sequence(
+            "OPERATOR",
+            Ref("NumericLiteralSegment"),
+            OneOf(
+                Ref("OperatorNameSegment"),
+                Ref("QualifiedOperatorSegment"),
+            ),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+            OneOf(
+                Sequence("FOR", "SEARCH"),
+                Sequence(
+                    "FOR",
+                    "ORDER",
+                    "BY",
+                    Ref("OperatorFamilyReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "FUNCTION",
+            Ref("NumericLiteralSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+            Ref("FunctionNameSegment"),
+            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -858,10 +938,20 @@ postgres_dialect.replace(
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*",
-        CodeSegment,
-        type="function_name_identifier",
+    FunctionNameIdentifierSegment=OneOf(
+        RegexParser(
+            r"[A-Za-z_][A-Za-z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+            casefold=str.lower,
+            ignore_case=False,
+        ),
+        # Keep the original match for non-ASCII spellings without case folding.
+        RegexParser(
+            r"[A-Z_][A-Z0-9_$]*",
+            CodeSegment,
+            type="function_name_identifier",
+        ),
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
@@ -1128,6 +1218,7 @@ postgres_dialect.replace(
     NonWithSelectableGrammar=OneOf(
         Ref("SetExpressionSegment"),
         OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("ExplicitTableSegment"),
         Ref("NonSetSelectableGrammar"),
         # moved from NonWithNonSelectableGrammar:
         Ref("UpdateStatementSegment"),
@@ -1136,6 +1227,10 @@ postgres_dialect.replace(
         Ref("MergeStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
+    # The TABLE command can be used wherever a SELECT can.
+    NonSetSelectableGrammar=ansi_dialect.get_grammar("NonSetSelectableGrammar").copy(
+        insert=[Ref("UnorderedExplicitTableSegment")],
+    ),
     # https://www.postgresql.org/docs/current/functions-datetime.html
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
@@ -2180,11 +2275,15 @@ class JsonTableColumnDefinitionSegment(BaseSegment):
             "FOR",
             "ORDINALITY",
         ),
-        # name type [PATH path] [behaviour ON EMPTY] [behaviour ON ERROR]
+        # name type [FORMAT JSON] [PATH path] [wrapper] [quotes]
+        #     [behaviour ON EMPTY] [behaviour ON ERROR]
         Sequence(
             Ref("SingleIdentifierGrammar"),
             Ref("DatatypeSegment"),
+            Ref("JsonFormatClauseGrammar", optional=True),
             _path_clause,
+            Ref("JsonWrapperClauseGrammar", optional=True),
+            Ref("JsonQuotesClauseGrammar", optional=True),
             Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
             Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
         ),
@@ -2232,10 +2331,11 @@ class JsonTableFunctionContentsSegment(BaseSegment):
 
     type = "function_contents"
     match_grammar: Matchable = Bracketed(
-        Ref("ExpressionSegment"),
+        Ref("JsonValueExpressionGrammar"),
         Ref("CommaSegment"),
         Ref("QuotedLiteralSegment"),
         Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Ref("JsonPassingClauseGrammar", optional=True),
         Ref("JsonTableColumnsClauseSegment"),
         Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
     )
@@ -2253,14 +2353,55 @@ class JsonTableFunctionNameSegment(BaseSegment):
     )
 
 
+class JsonQueryFunctionContentsSegment(BaseSegment):
+    """JSON_EXISTS, JSON_QUERY and JSON_VALUE function contents.
+
+    The three functions share one permissive grammar; PostgreSQL rejects
+    clauses that don't apply to a given function at analysis time.
+
+    https://www.postgresql.org/docs/17/functions-json.html#FUNCTIONS-SQLJSON-QUERYING
+    """
+
+    type = "function_contents"
+    match_grammar: Matchable = Bracketed(
+        Ref("JsonValueExpressionGrammar"),
+        Ref("CommaSegment"),
+        Ref("ExpressionSegment"),
+        Ref("JsonPassingClauseGrammar", optional=True),
+        Ref("JsonReturningClauseGrammar", optional=True),
+        Ref("JsonWrapperClauseGrammar", optional=True),
+        Ref("JsonQuotesClauseGrammar", optional=True),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "EMPTY", optional=True),
+        Sequence(Ref("JsonBehaviourGrammar"), "ON", "ERROR", optional=True),
+    )
+
+
+class JsonQueryFunctionNameSegment(BaseSegment):
+    """JSON_EXISTS, JSON_QUERY and JSON_VALUE function name segment.
+
+    Need to specify as type function_name so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = OneOf(
+        StringParser("JSON_EXISTS", WordSegment, type="function_name_identifier"),
+        StringParser("JSON_QUERY", WordSegment, type="function_name_identifier"),
+        StringParser("JSON_VALUE", WordSegment, type="function_name_identifier"),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
-    """A scalar or aggregate function, with JSON_TABLE support."""
+    """A scalar or aggregate function, with SQL/JSON query function support."""
 
     match_grammar = ansi.FunctionSegment.match_grammar.copy(
         insert=[
             Sequence(
                 Ref("JsonTableFunctionNameSegment"),
                 Ref("JsonTableFunctionContentsSegment"),
+            ),
+            Sequence(
+                Ref("JsonQueryFunctionNameSegment"),
+                Ref("JsonQueryFunctionContentsSegment"),
             ),
         ],
         at=0,
@@ -3179,7 +3320,6 @@ class CreateTableAsStatementSegment(BaseSegment):
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
-            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
@@ -3398,7 +3538,7 @@ class AlterTableActionSegment(BaseSegment):
                 "ENABLE",
                 "DISABLE",
                 Sequence("ENABLE", "REPLICA"),
-                Sequence("ENABLE", "RULE"),
+                Sequence("ENABLE", "ALWAYS"),
             ),
             "RULE",
             Ref("ParameterNameSegment"),
@@ -3830,7 +3970,6 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
-            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
@@ -5932,6 +6071,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateOperatorFamilyStatementSegment"),
             Ref("AlterOperatorFamilyStatementSegment"),
             Ref("DropOperatorFamilyStatementSegment"),
+            Ref("CreateOperatorClassStatementSegment"),
+            Ref("AlterOperatorClassStatementSegment"),
+            Ref("DropOperatorClassStatementSegment"),
             Ref("CreateAccessMethodStatementSegment"),
             Ref("DropAccessMethodStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
@@ -6486,6 +6628,27 @@ class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
             Sequence("DO", "NOTHING"),
         ),
         Dedent,
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Overriding ANSI to allow `OVERRIDING { SYSTEM | USER } VALUE` and
+    `DEFAULT VALUES`, as in the `INSERT` statement.
+    https://www.postgresql.org/docs/current/sql-merge.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
+        OneOf(
+            Ref("ValuesClauseSegment"),
+            Sequence("DEFAULT", "VALUES"),
+        ),
     )
 
 
@@ -7372,6 +7535,41 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
         Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class UnorderedExplicitTableSegment(BaseSegment):
+    """A `TABLE` command, short for `SELECT * FROM table_name`.
+
+    This version has no ORDER BY, LIMIT etc., so that in a set expression
+    those clauses belong to the set expression.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-TABLE
+    """
+
+    type = "explicit_table"
+    match_grammar: Matchable = Sequence(
+        "TABLE",
+        Ref.keyword("ONLY", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("StarSegment", optional=True),
+    )
+
+
+class ExplicitTableSegment(UnorderedExplicitTableSegment):
+    """A `TABLE` command, which can be followed by ORDER BY, LIMIT etc.
+
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-TABLE
+    """
+
+    match_grammar: Matchable = UnorderedExplicitTableSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("ForClauseSegment", optional=True),
+        ],
     )
 
 
@@ -8737,34 +8935,7 @@ class OperatorFamilyAddMemberSegment(BaseSegment):
     """
 
     type = "operator_family_add_member"
-    match_grammar: Matchable = OneOf(
-        Sequence(
-            "OPERATOR",
-            Ref("NumericLiteralSegment"),
-            OneOf(
-                Ref("OperatorNameSegment"),
-                Ref("QualifiedOperatorSegment"),
-            ),
-            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
-            OneOf(
-                Sequence("FOR", "SEARCH"),
-                Sequence(
-                    "FOR",
-                    "ORDER",
-                    "BY",
-                    Ref("OperatorFamilyReferenceSegment"),
-                ),
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "FUNCTION",
-            Ref("NumericLiteralSegment"),
-            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
-            Ref("FunctionNameSegment"),
-            Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
-        ),
-    )
+    match_grammar: Matchable = Ref("OperatorClassMemberGrammar")
 
 
 class OperatorFamilyDropMemberSegment(BaseSegment):
@@ -8828,6 +8999,88 @@ class DropOperatorFamilyStatementSegment(BaseSegment):
         "FAMILY",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("OperatorFamilyReferenceSegment")),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class OperatorClassItemSegment(BaseSegment):
+    """An `OPERATOR`, `FUNCTION` or `STORAGE` item of `CREATE OPERATOR CLASS`.
+
+    https://www.postgresql.org/docs/current/sql-createopclass.html
+    """
+
+    type = "operator_class_item"
+    match_grammar: Matchable = OneOf(
+        Ref("OperatorClassMemberGrammar"),
+        Sequence("STORAGE", Ref("DatatypeSegment")),
+    )
+
+
+class CreateOperatorClassStatementSegment(BaseSegment):
+    """A `CREATE OPERATOR CLASS` statement.
+
+    https://www.postgresql.org/docs/current/sql-createopclass.html
+    """
+
+    type = "create_operator_class_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "OPERATOR",
+        "CLASS",
+        Ref("OperatorClassReferenceSegment"),
+        Ref.keyword("DEFAULT", optional=True),
+        "FOR",
+        "TYPE",
+        Ref("DatatypeSegment"),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        Sequence("FAMILY", Ref("OperatorFamilyReferenceSegment"), optional=True),
+        "AS",
+        Delimited(Ref("OperatorClassItemSegment")),
+    )
+
+
+class AlterOperatorClassStatementSegment(BaseSegment):
+    """An `ALTER OPERATOR CLASS` statement.
+
+    https://www.postgresql.org/docs/current/sql-alteropclass.html
+    """
+
+    type = "alter_operator_class_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "OPERATOR",
+        "CLASS",
+        Ref("OperatorClassReferenceSegment"),
+        "USING",
+        Ref("IndexAccessMethodSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("OperatorClassReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleSpecificationGrammar"),
+            ),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+        ),
+    )
+
+
+class DropOperatorClassStatementSegment(BaseSegment):
+    """A `DROP OPERATOR CLASS` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropopclass.html
+    """
+
+    type = "drop_operator_class_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "OPERATOR",
+        "CLASS",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("OperatorClassReferenceSegment")),
         "USING",
         Ref("IndexAccessMethodSegment"),
         Ref("DropBehaviorGrammar", optional=True),
