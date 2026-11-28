@@ -60,6 +60,22 @@ def test__cp03_dispatch__fix_parity(policy, sql):
 
 
 @pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
+@pytest.mark.parametrize(
+    "policy", ["consistent", "upper", "lower", "capitalise", "pascal", "camel", "snake"]
+)
+def test__cp03_dispatch__violation_parity(policy):
+    """Violations, descriptions included, match with use_rust_rules on vs off."""
+
+    def violations(use_rust_rules):
+        res = _linter(policy, use_rust_rules).lint_string(
+            "select SuM(a), min(b) from t"
+        )
+        return [v.to_dict() for v in res.get_violations()]
+
+    assert violations("True") == violations("False")
+
+
+@pytest.mark.skipif(not _HAS_RUST_PARSER, reason="Rust parser not available")
 def test__cp03_dispatch__ignore_words_parity():
     """ignore_words is honoured identically on the Rust path."""
     sql = "select sum(a), count(b) from t"
