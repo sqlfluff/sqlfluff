@@ -1709,6 +1709,15 @@ test_pass_table_alias_with_column_list:
     core:
       dialect: postgres
 
+test_pass_alias_with_typed_column_list:
+  # PostgreSQL's column definition list for a function returning a record.
+  pass_str: |
+    SELECT a
+    FROM json_to_record('{"a": 1}') AS t(a int, b text)
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_alias_without_column_list_next_to_one:
   # Only the alias with a column list is kept.
   fail_str: |

@@ -182,13 +182,6 @@ class Rule_AL05(BaseRule):
             if len(sources) > 1:
                 multi_source_elements = set(sources)
         for alias in query.aliases:
-            # Skip an alias with a column list, like `t(a, b)`: it names the
-            # columns, so removing it renames them, or breaks the references
-            # to them, even if the table alias itself isn't used.
-            if alias.alias_expression and next(
-                alias.alias_expression.recursive_crawl("identifier_list"), None
-            ):
-                continue
             # Skip alias if it's required (some dialects require aliases for
             # VALUES clauses).
             if alias.from_expression_element and self._is_alias_required(
@@ -238,6 +231,15 @@ class Rule_AL05(BaseRule):
                         "column reference in select. Skipping"
                     )
                     continue
+
+            # Skip an alias with a column list, like `t(a, b)` or PostgreSQL's
+            # `t(a int, b text)`: it names the columns, so removing it renames
+            # them, or breaks the references to them, even if the table alias
+            # itself isn't used.
+            if alias.alias_expression and next(
+                alias.alias_expression.recursive_crawl("bracketed"), None
+            ):
+                continue
 
             if (
                 alias.aliased
