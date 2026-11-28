@@ -28,7 +28,7 @@ const EXCLUDE_PARENT_TYPES: [&str; 3] = ["data_type", "datetime_type_identifier"
 
 /// Detect CP01 violations on a parsed arena.
 ///
-/// Returns `(leaf_index, fixed_raw)` for every keyword/operator leaf that needs
+/// Returns `(leaf_index, fixed_raw, concrete_policy)` for every keyword/operator leaf that needs
 /// a capitalisation fix. `leaf_index` is the position in the arena's depth-first
 /// leaf order, which matches Python's `raw_segments`, so the caller anchors via
 /// `raw_segments[leaf_index]`.
@@ -37,7 +37,7 @@ pub fn cp01_violations(
     policy: &str,
     ignore_words: &HashSet<String>,
     ignore_templated: bool,
-) -> Vec<(usize, String)> {
+) -> Vec<(usize, String, String)> {
     detect(
         arena,
         &TARGET_TYPES,

@@ -103,7 +103,9 @@ class Rule_CP01(BaseRule):
     def _eval_rust_capitalisation(
         self,
         context: RuleContext,
-        violations_fn: Callable[[Any, str, list[str], bool], list[tuple[int, str]]],
+        violations_fn: Callable[
+            [Any, str, list[str], bool], list[tuple[int, str, str]]
+        ],
         policy: str,
     ) -> Optional[list[LintResult]]:
         """Shared Rust-dispatch plumbing for the capitalisation bundle.
@@ -136,27 +138,23 @@ class Rule_CP01(BaseRule):
             return []
 
         raw_segments = root.raw_segments
-        policy_text = self._policy_description(policy)
+        consistency = "consistently " if policy == "consistent" else ""
         results: list[LintResult] = []
-        for leaf_idx, fixed_raw in violations:
+        for leaf_idx, fixed_raw, concrete in violations:
             segment = raw_segments[leaf_idx]
+            policy_text = (
+                "capitalised." if concrete == "capitalise" else f"{concrete} case."
+            )
             results.append(
                 LintResult(
                     anchor=segment,
                     fixes=[self._get_fix(segment, fixed_raw)],
-                    description=f"{self._description_elem} must be {policy_text}",
+                    description=(
+                        f"{self._description_elem} must be {consistency}{policy_text}"
+                    ),
                 )
             )
         return results
-
-    @staticmethod
-    def _policy_description(policy: str) -> str:
-        """Human-readable policy text for a Rust-path violation description."""
-        if policy == "capitalise":
-            return "capitalised."
-        if policy == "consistent":
-            return "consistent."
-        return f"{policy} case."
 
     def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Inconsistent capitalisation of keywords.

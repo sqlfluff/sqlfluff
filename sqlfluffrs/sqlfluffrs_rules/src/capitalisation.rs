@@ -124,8 +124,10 @@ fn apply_policy(raw: &str, policy: &str) -> String {
 }
 
 /// Refute cases inconsistent with `raw`, resolve a concrete policy, and apply
-/// it. Returns `Some(fixed_raw)` when a fix is needed, `None` otherwise (mirrors
-/// `Rule_CP01._handle_segment`'s per-segment control flow).
+/// it. Returns `Some((fixed_raw, concrete_policy))` when a fix is needed,
+/// `None` otherwise (mirrors `Rule_CP01._handle_segment`'s per-segment control
+/// flow). The concrete policy is what `consistent` resolved to, for the
+/// violation description.
 ///
 /// `camel`/`pascal`/`snake` bypass the refutation check entirely — in Python
 /// they're always present in `refuted_cases` (added unconditionally), so
@@ -137,7 +139,7 @@ fn evaluate(
     policy: &str,
     refuted: &mut HashSet<&'static str>,
     latest_possible: &mut Option<&'static str>,
-) -> Option<String> {
+) -> Option<(String, String)> {
     let first_lower = raw
         .chars()
         .find(|c| is_capitalizable(*c))
@@ -182,7 +184,7 @@ fn evaluate(
 
     let fixed = apply_policy(raw, concrete);
     if fixed != raw {
-        Some(fixed)
+        Some((fixed, concrete.to_string()))
     } else {
         None
     }
@@ -223,7 +225,7 @@ fn walk(
     leaf_idx: &mut usize,
     refuted: &mut HashSet<&'static str>,
     latest_possible: &mut Option<&'static str>,
-    out: &mut Vec<(usize, String)>,
+    out: &mut Vec<(usize, String, String)>,
 ) {
     // Containers (and unparsables): recurse into children. Targets are leaves.
     let children = arena.children(id);
@@ -272,8 +274,8 @@ fn walk(
         return;
     }
 
-    if let Some(fixed) = evaluate(&raw, policy, refuted, latest_possible) {
-        out.push((this_leaf, fixed));
+    if let Some((fixed, concrete)) = evaluate(&raw, policy, refuted, latest_possible) {
+        out.push((this_leaf, fixed, concrete));
     }
 }
 
@@ -289,7 +291,7 @@ pub fn detect(
     policy: &str,
     ignore_words: &HashSet<String>,
     ignore_templated: bool,
-) -> Vec<(usize, String)> {
+) -> Vec<(usize, String, String)> {
     let mut out = Vec::new();
     let mut leaf_idx = 0usize;
     let mut refuted: HashSet<&'static str> = HashSet::new();

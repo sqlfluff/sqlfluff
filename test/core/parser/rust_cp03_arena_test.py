@@ -57,7 +57,10 @@ def _arena_fixed(linter, cfg, sql):
         return None
     rule = next(r for r in linter.get_rulepack(cfg).rules if r.code == "CP03")
     policy = str(getattr(rule, "extended_capitalisation_policy", "consistent"))
-    by_idx = dict(sqlfluffrs.cp03_violations(tree._rs_tree, policy, [], False))
+    by_idx = {
+        i: fixed
+        for i, fixed, _ in sqlfluffrs.cp03_violations(tree._rs_tree, policy, [], False)
+    }
     return "".join(by_idx.get(i, seg.raw) for i, seg in enumerate(tree.raw_segments))
 
 
@@ -78,7 +81,10 @@ def test__cp03_arena__excludes_qualified_function_name():
     """A multi-part (UDF-like) function name is left untouched."""
     cfg = _cfg("upper", use_rust_rules=True)
     tree = Linter(config=cfg).parse_string("select my_schema.my_udf(a) from t").tree
-    by_idx = dict(sqlfluffrs.cp03_violations(tree._rs_tree, "upper", [], False))
+    by_idx = {
+        i: fixed
+        for i, fixed, _ in sqlfluffrs.cp03_violations(tree._rs_tree, "upper", [], False)
+    }
     assert not by_idx
 
 
@@ -89,7 +95,7 @@ def test__cp03_arena__honours_ignore_words():
     tree = Linter(config=cfg).parse_string("select sum(a), count(b) from t").tree
     fixed_raws = {
         fixed
-        for _, fixed in sqlfluffrs.cp03_violations(
+        for _, fixed, _ in sqlfluffrs.cp03_violations(
             tree._rs_tree, "upper", ["sum"], False
         )
     }

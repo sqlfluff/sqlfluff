@@ -19,7 +19,7 @@ const EXCLUDE_PARENT_TYPES: [&str; 0] = [];
 
 /// Detect CP04 violations on a parsed arena.
 ///
-/// Returns `(leaf_index, fixed_raw)` for every null/boolean literal leaf that
+/// Returns `(leaf_index, fixed_raw, concrete_policy)` for every null/boolean literal leaf that
 /// needs a capitalisation fix. `leaf_index` is the position in the arena's
 /// depth-first leaf order, which matches Python's `raw_segments`, so the
 /// caller anchors via `raw_segments[leaf_index]`.
@@ -28,7 +28,7 @@ pub fn cp04_violations(
     policy: &str,
     ignore_words: &HashSet<String>,
     ignore_templated: bool,
-) -> Vec<(usize, String)> {
+) -> Vec<(usize, String, String)> {
     detect(
         arena,
         &TARGET_TYPES,
