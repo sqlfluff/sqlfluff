@@ -94,9 +94,11 @@ def _resolve_paths_in_config(
                 )
         # If it's a potential multi-path, split, resolve and join
         if key.lower() in COMMA_SEPARATED_PATH_KEYS:
-            assert isinstance(val, str), (
-                f"Value for {key} in {log_filename} must be a string not {type(val)}."
-            )
+            if not isinstance(val, str):
+                raise SQLFluffUserError(
+                    f"Value for {key} in {log_filename} must be a string not "
+                    f"{type(val).__name__}."
+                )
             paths = split_comma_separated_string(val)
             resolved_paths = [
                 resolved_path
@@ -107,9 +109,11 @@ def _resolve_paths_in_config(
             config[key] = ",".join(resolved_paths) if resolved_paths else val
         # If it's a single path key, resolve it.
         elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
-            assert isinstance(val, str), (
-                f"Value for {key} in {log_filename} must be a string not {type(val)}."
-            )
+            if not isinstance(val, str):
+                raise SQLFluffUserError(
+                    f"Value for {key} in {log_filename} must be a string not "
+                    f"{type(val).__name__}."
+                )
             resolved_paths = _resolve_path(filepath, val)
             config[key] = resolved_paths[0] if resolved_paths else val
 
