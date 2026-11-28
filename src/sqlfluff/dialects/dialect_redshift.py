@@ -190,6 +190,9 @@ redshift_dialect.sets("datetime_units").update(
 )
 
 redshift_dialect.replace(
+    # Redshift uses COLLATE() in expressions. In a column definition, COLLATE
+    # starts a column attribute, even when it follows a DEFAULT expression.
+    StringBinaryOperatorGrammar=ansi_dialect.get_grammar("StringBinaryOperatorGrammar"),
     LateralColumnAliasExpressionGrammar=Sequence(
         Ref("ExpressionSegment"),
         Ref("AliasExpressionSegment"),

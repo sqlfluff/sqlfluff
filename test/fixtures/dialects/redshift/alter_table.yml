@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 561893547869e63abfa62ba030610ca8ce86c37c7a0472656a79008ee0b2cad3
+_hash: 88ed148fe0efa7a964efd2014cd8cd500d004b9da6d401e61822a3bd49d00807
 file:
 - statement:
     alter_table_statement:
@@ -515,9 +515,9 @@ file:
       - keyword: DEFAULT
       - expression:
           quoted_literal: "'b'"
-          keyword: COLLATE
-          column_reference:
-            naked_identifier: CI
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: CI
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -577,4 +577,40 @@ file:
       - keyword: AZ64
       - column_constraint_segment:
           keyword: UNIQUE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: col5
+      - data_type:
+          keyword: VARCHAR
+      - keyword: DEFAULT
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: COLLATE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: "'a'"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "'b'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'cs'"
+              - end_bracket: )
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: CI
 - statement_terminator: ;
