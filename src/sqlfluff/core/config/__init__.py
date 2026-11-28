@@ -35,7 +35,7 @@ __all__ = (
 def clear_config_caches() -> None:
     """Clear any of the cached config methods.
 
-    This is primarily used during testing where the cache may be be rendered unreliable
+    This is primarily used during testing where the cache may be rendered unreliable
     by using moving around files while setting up tests. Some of the cached methods
     rely on *filename* caching, and so we may break one of the assumptions of the
     caching routines (that files aren't modified while SQLFluff is running) during
