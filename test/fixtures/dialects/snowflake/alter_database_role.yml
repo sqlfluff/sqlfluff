@@ -1,0 +1,234 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3a106979ef32e068ccf7cb45e131817d14e4ce51332a199b6cab517e8d3bdff0
+file:
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: RENAME
+    - keyword: TO
+    - database_role_reference:
+        quoted_identifier: '"prod_db_role"'
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: RENAME
+    - keyword: TO
+    - database_role_reference:
+        quoted_identifier: '"prod_db_role"'
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: dr1
+    - keyword: RENAME
+    - keyword: TO
+    - database_role_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: dr2
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: TAG1
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value1'"
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: TAG1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: role_name
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: cost_center
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'finance'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: env
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'prod'"
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: TAG1
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_role_reference:
+        quoted_identifier: '"test_db_role"'
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: TAG1
+    - comma: ','
+    - tag_reference:
+        naked_identifier: TAG2
+    - comma: ','
+    - tag_reference:
+        naked_identifier: TAG3
+- statement_terminator: ;
+- statement:
+    alter_database_role_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: role_name
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: cost_center
+    - comma: ','
+    - tag_reference:
+        naked_identifier: env
+- statement_terminator: ;
