@@ -8330,6 +8330,27 @@ class ClusterStatementSegment(BaseSegment):
     )
 
 
+class TableReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a table, CTE, subquery or alias.
+
+    We override this for Postgres to allow keywords after the first part of a
+    qualified name (e.g. ``my_schema.case``), as ColumnReferenceSegment does.
+    """
+
+    type = "table_reference"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("SingleIdentifierFullGrammar"),
+                allow_gaps=False,
+            ),
+        ),
+        allow_gaps=False,
+    )
+
+
 class ColumnReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to column, field or alias.
 
