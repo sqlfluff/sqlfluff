@@ -850,6 +850,18 @@ postgres_dialect.add(
 
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
+    # PostgreSQL 16 role membership options, e.g.
+    # `WITH ADMIN OPTION, INHERIT FALSE, SET TRUE`. OPTION is a synonym for TRUE.
+    # https://www.postgresql.org/docs/16/sql-grant.html
+    GrantRoleOptionsGrammar=Sequence(
+        "WITH",
+        Delimited(
+            Sequence(
+                OneOf("ADMIN", "INHERIT", "SET"),
+                OneOf("OPTION", Ref("BooleanLiteralGrammar")),
+            )
+        ),
+    ),
     ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
         "ArithmeticBinaryOperatorGrammar"
     ).copy(insert=[Ref("HashOperatorSegment")]),

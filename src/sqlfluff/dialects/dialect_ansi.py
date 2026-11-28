@@ -726,6 +726,9 @@ ansi_dialect.add(
         Sequence("SET", "DEFAULT"),
     ),
     DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
+    # The options after `GRANT <role> TO <grantee>`. Dialects with more role
+    # options (e.g. PostgreSQL 16) override this.
+    GrantRoleOptionsGrammar=Sequence("WITH", "ADMIN", "OPTION"),
     ColumnConstraintDefaultGrammar=OneOf(
         Ref("ShorthandCastSegment"),
         Ref("LiteralGrammar"),
@@ -3785,14 +3788,15 @@ class GrantStatementSegment(BaseSegment):
             Sequence("OWNERSHIP", "ON", "USER", Ref("UserReferenceSegment")),
             # In the case where a role is granted non-explicitly,
             # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+            # The SQL standard allows a comma-separated list of roles.
             # See https://www.postgresql.org/docs/current/sql-grant.html
-            Ref("ObjectReferenceSegment"),
+            Delimited(Ref("ObjectReferenceSegment")),
         ),
         "TO",
         Ref("AccessTargetSegment"),
         OneOf(
             Sequence("WITH", "GRANT", "OPTION"),
-            Sequence("WITH", "ADMIN", "OPTION"),
+            Ref("GrantRoleOptionsGrammar"),
             Sequence("COPY", "CURRENT", "GRANTS"),
             optional=True,
         ),
@@ -3801,6 +3805,7 @@ class GrantStatementSegment(BaseSegment):
             "BY",
             OneOf(
                 "CURRENT_USER",
+                "CURRENT_ROLE",
                 "SESSION_USER",
                 Ref("UserReferenceSegment"),
             ),
