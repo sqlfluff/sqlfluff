@@ -52,7 +52,9 @@ def test_duckdb_oracle(first, second, same):
     """The DuckDB oracle tells meaning apart from layout and identifier case."""
     pytest.importorskip("duckdb")
     oracle = fix_safety.DuckDBOracle()
-    assert (oracle.tree(first) == oracle.tree(second)) is same
+    trees = oracle.tree(first), oracle.tree(second)
+    assert None not in trees
+    assert (trees[0] == trees[1]) is same
 
 
 def test_duckdb_oracle_cant_judge():
@@ -84,7 +86,9 @@ def test_postgres_oracle(first, second, same):
     """The Postgres oracle ignores positions and keeps what PostgreSQL keeps."""
     pytest.importorskip("pglast")
     oracle = fix_safety.PostgresOracle()
-    assert (oracle.tree(first) == oracle.tree(second)) is same
+    trees = oracle.tree(first), oracle.tree(second)
+    assert None not in trees
+    assert (trees[0] == trees[1]) is same
 
 
 def test_postgres_oracle_cant_parse():
@@ -112,13 +116,15 @@ def _run(capsys, *args):
 
 
 ANTI_SEMI_JOIN = ("--dialect", "duckdb", "--filter", "anti_semi_join.sql")
+# A fixture where no fix is flagged.
+ASOF_JOIN = ("--dialect", "duckdb", "--filter", "asof_join.sql")
 
 
 def test_check_finds_and_names_the_rule(capsys, no_known_failures):
     """A rule whose fix changes the tree is found and named.
 
-    ST07 is excluded from the default run because it replaces USING with ON on
-    purpose, so asking for it on its own shows how a flagged fix is reported.
+    ST07 replaces USING with ON, which changes the tree, so asking for it on its
+    own shows how a flagged fix is reported.
     """
     pytest.importorskip("duckdb")
     code, out, _ = _run(capsys, *ANTI_SEMI_JOIN, "--rules", "ST07")
@@ -129,40 +135,60 @@ def test_check_finds_and_names_the_rule(capsys, no_known_failures):
     assert "ON cars.region_id = region.region_id" in out
 
 
+def _listed(statement_start):
+    return (
+        "- dialect: duckdb\n"
+        "  fixture: duckdb/anti_semi_join.sql\n"
+        f'  starts_with: "SELECT cars.name, cars.manufacturer\\nFROM {statement_start}"\n'
+        "  reason: A reason.\n"
+    )
+
+
 def test_known_failures(capsys, tmp_path, monkeypatch):
-    """In a default run, listed fixes don't fail the check, and stale ones do."""
+    """In a default run, listed fixes don't fail the check, and stale ones do.
+
+    ST07 replaces USING with ON in the last two statements of the fixture.
+    """
     pytest.importorskip("duckdb")
     known = tmp_path / "known.yml"
+    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
+    # Both flagged fixes listed: a pass, which shows the reason.
     known.write_text(
-        "- dialect: duckdb\n"
-        "  fixture: duckdb/anti_semi_join.sql\n"
-        '  starts_with: "SELECT cars.name, cars.manufacturer\\nFROM cars SEMI"\n'
-        "- dialect: duckdb\n"
-        "  fixture: duckdb/anti_semi_join.sql\n"
-        '  starts_with: "SELECT cars.name, cars.manufacturer\\nFROM cars ANTI"\n',
+        _listed("cars SEMI JOIN region\\nUSING") + _listed("cars ANTI JOIN region"),
         encoding="utf-8",
     )
-    monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
-    # By default, ST07 is excluded, so neither statement is flagged, and both
-    # entries are stale.
+    code, out, _ = _run(capsys, *ANTI_SEMI_JOIN)
+    assert code == 0
+    assert "Flagged fixes that aren't listed: 0. Listed: 2." in out
+    assert "- `duckdb/anti_semi_join.sql`, statement 3 (ST07): A reason." in out
+    # One not listed: it fails.
+    known.write_text(_listed("cars ANTI JOIN region"), encoding="utf-8")
     code, out, _ = _run(capsys, *ANTI_SEMI_JOIN)
     assert code == 1
-    assert "Listed statements that pass: 2." in out
-    # With `--rules`, the list isn't used, so both flagged fixes fail.
+    assert "Flagged fixes that aren't listed: 1. Listed: 1." in out
+    # A listed statement that passes is stale, and fails.
+    known.write_text(
+        _listed("cars SEMI JOIN region\\nUSING")
+        + _listed("cars ANTI JOIN region")
+        + _listed("cars SEMI JOIN region\\nON"),
+        encoding="utf-8",
+    )
+    code, out, _ = _run(capsys, *ANTI_SEMI_JOIN)
+    assert code == 1
+    assert "Listed statements that pass: 1." in out
+    # With `--rules`, the list isn't used.
     code, out, _ = _run(capsys, *ANTI_SEMI_JOIN, "--rules", "ST07")
     assert code == 1
     assert "Flagged fixes that aren't listed: 2. Listed: 0." in out
     assert "The known failures aren't used" in out
-    # A default run that flags both, as listed, passes.
-    excluded = {k: v for k, v in fix_safety.EXCLUDED_RULES.items() if k != "ST07"}
-    monkeypatch.setattr(fix_safety, "EXCLUDED_RULES", excluded)
-    code, out, _ = _run(capsys, *ANTI_SEMI_JOIN)
-    assert code == 0
-    assert "Flagged fixes that aren't listed: 0. Listed: 2." in out
 
 
 @pytest.mark.parametrize(
-    "content", ["- dialect: duckdb\n  fixture: duckdb/x.sql\n", "dialect: duckdb\n"]
+    "content",
+    [
+        "- dialect: duckdb\n  fixture: duckdb/x.sql\n  starts_with: SELECT\n",
+        "dialect: duckdb\n",
+    ],
 )
 def test_bad_known_failures_file(capsys, tmp_path, monkeypatch, content):
     """A malformed list of known failures is an error, not a pass or a flag."""
@@ -172,7 +198,7 @@ def test_bad_known_failures_file(capsys, tmp_path, monkeypatch, content):
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
     code, _, err = _run(capsys, *ANTI_SEMI_JOIN)
     assert code == 2
-    assert "needs a dialect, a fixture and a starts_with" in err
+    assert "needs a dialect, a fixture, a starts_with and a reason" in err
 
 
 def test_no_oracle_for_dialect(capsys):
@@ -190,7 +216,8 @@ def test_unjudged_known_failure_isnt_stale(capsys, tmp_path, monkeypatch):
     known.write_text(
         "- dialect: duckdb\n"
         "  fixture: duckdb/create_type.sql\n"
-        "  starts_with: CREATE TYPE mood\n",
+        "  starts_with: CREATE TYPE mood\n"
+        "  reason: A reason.\n",
         encoding="utf-8",
     )
     monkeypatch.setattr(fix_safety, "KNOWN_FAILURES", known)
@@ -200,8 +227,11 @@ def test_unjudged_known_failure_isnt_stale(capsys, tmp_path, monkeypatch):
     assert "Listed statements that pass: 0." in out
 
 
-def test_several_dialects(capsys, no_known_failures):
-    """Each dialect gets its own section of one report."""
+def test_several_dialects(capsys):
+    """Each dialect gets its own section of one report.
+
+    `duckdb/select.sql` has a listed fix, so this also checks the real list.
+    """
     pytest.importorskip("duckdb")
     pytest.importorskip("pglast")
     code, out, _ = _run(
@@ -287,7 +317,7 @@ def test_unknown_cpu_count(capsys, monkeypatch, no_known_failures):
     assert fix_safety.main([*ANTI_SEMI_JOIN, "--rules", "ST07"]) == 1
 
 
-def test_report_without_sigalrm(capsys, monkeypatch, no_known_failures):
+def test_report_without_sigalrm(capsys, monkeypatch):
     """Where there's no SIGALRM, the report says there was no time limit."""
     pytest.importorskip("duckdb")
     monkeypatch.delattr(fix_safety.signal, "SIGALRM", raising=False)
@@ -439,7 +469,7 @@ def test_config_file_changes_the_verdict(capsys, tmp_path, no_known_failures):
 def test_config_file_selects_rules(capsys, tmp_path, no_known_failures):
     """A `--config` file's `rules` and `exclude_rules` select the rules.
 
-    The excluded rules are added on top, unless `--rules` is given.
+    Unless `--rules` is given, which selects exactly its rules.
     """
     pytest.importorskip("pglast")
     only_cv11 = _cast_style(tmp_path / "only.sqlfluff", "rules = CV11\n")
@@ -453,7 +483,7 @@ def test_config_file_selects_rules(capsys, tmp_path, no_known_failures):
     )
     selection = fix_safety._selection(None, no_cv11)
     assert selection["rules"] == "CV11,ST06"
-    assert selection["exclude_rules"].startswith("CV11,AL05")
+    assert selection["exclude_rules"] == "CV11"
     assert _run(capsys, *SELECT_SQL, "--config", no_cv11)[0] == 0
     # `--rules` gives exactly the rules to fix with.
     assert _run(capsys, *SELECT_SQL, "--config", no_cv11, "--rules", "CV11")[0] == 1
@@ -474,7 +504,7 @@ def test_config_with_tilde(capsys, tmp_path, monkeypatch, no_known_failures):
     pytest.importorskip("duckdb")
     monkeypatch.setenv("HOME", str(tmp_path))
     (tmp_path / "my.sqlfluff").write_text("[sqlfluff]\n", encoding="utf-8")
-    code, out, _ = _run(capsys, *ANTI_SEMI_JOIN, "--config", "~/my.sqlfluff")
+    code, out, _ = _run(capsys, *ASOF_JOIN, "--config", "~/my.sqlfluff")
     assert code == 0
     assert "The known failures aren't used" in out
 
@@ -523,7 +553,9 @@ def test_duckdb_oracle_non_ascii_case():
     oracle = fix_safety.DuckDBOracle()
     before = 'SELECT ä FROM (SELECT 1 AS "ä", 2 AS "Ä") t'
     after = 'SELECT Ä FROM (SELECT 1 AS "ä", 2 AS "Ä") T'
-    assert oracle.tree(before) != oracle.tree(after)
+    trees = oracle.tree(before), oracle.tree(after)
+    assert None not in trees
+    assert trees[0] != trees[1]
 
 
 def test_timeout_isnt_swallowed_while_naming_rules(monkeypatch):

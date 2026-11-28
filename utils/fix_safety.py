@@ -17,14 +17,15 @@ sees:
   ``json_serialize_sql`` only handles SELECTs.
 
 Rules: with ``--rules``, the check fixes with exactly those rules. Otherwise it
-fixes with the ``rules`` of the ``--config`` file (all of them by default), but
-not its ``exclude_rules`` nor those in ``EXCLUDED_RULES``, whose fixes change
-the tree on purpose. The rule settings are the defaults, or those of
+fixes with every rule, or with the ``rules`` and ``exclude_rules`` of the
+``--config`` file. The rule settings are the defaults, or those of
 ``--config``, which is the only config file read.
 
 Known failures: ``utils/fix_safety_known_failures.yml`` lists the fixes that a
-default run, without ``--rules`` and ``--config``, flags. In a default run,
-they don't fail the check, and a listed statement that's judged and passes
+default run, without ``--rules`` and ``--config``, flags, each with the reason
+a person gave after looking at it: a rewrite whose change is meant, like ST06
+reordering the columns of a SELECT, or a bug to fix. In a default run, listed
+fixes don't fail the check, and a listed statement that's judged and passes
 does, so the list stays current. With ``--rules`` or ``--config``, the list
 isn't used, and every flagged fix fails the check.
 
@@ -78,25 +79,6 @@ ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "test" / "fixtures" / "dialects"
 KNOWN_FAILURES = Path(__file__).resolve().parent / "fix_safety_known_failures.yml"
 
-# Rules whose fix is meant to change the syntax tree while keeping the result,
-# so comparing trees can't judge them. Each needs a reason.
-EXCLUDED_RULES: dict[str, str] = {
-    "AL05": "removes an unused table alias",
-    "AL07": "replaces table aliases with table names",
-    "AL09": "removes a column alias that's the same as the column",
-    "AM03": "writes the default sort order (ASC) explicitly",
-    "CV02": "replaces IFNULL and NVL with COALESCE",
-    "CV04": "replaces COUNT(1) with COUNT(*)",
-    "CV05": "replaces `= NULL` with `IS NULL`, which changes the result on purpose",
-    "RF03": "qualifies or unqualifies column references",
-    "ST01": "removes a redundant `ELSE NULL`",
-    "ST02": "rewrites a CASE as COALESCE or a condition",
-    "ST04": "flattens nested CASE expressions",
-    "ST05": "moves subqueries into CTEs",
-    "ST06": "reorders the columns of a SELECT",
-    "ST07": "replaces USING with ON",
-    "ST09": "swaps the sides of a join condition",
-}
 
 # Seconds allowed for splitting a fixture into statements, and for fixing and
 # judging one statement. The time limit uses SIGALRM, so it only applies where
@@ -305,6 +287,8 @@ class Failure:
     fixed: str
     reason: str
     rules: list[str] = field(default_factory=list)
+    # Why it's listed as a known failure, if it is.
+    listed_reason: str = ""
 
     def matches(self, entry: dict[str, str]) -> bool:
         """Whether a known-failures entry lists this failure."""
@@ -362,10 +346,7 @@ def _selection(
         # Exactly these, whatever the `--config` file excludes.
         return {"rules": ",".join(rules), "exclude_rules": ""}
     selected, excluded = _file_selection(config_path)
-    return {
-        "rules": selected,
-        "exclude_rules": ",".join(filter(None, [excluded, *EXCLUDED_RULES])),
-    }
+    return {"rules": selected, "exclude_rules": excluded or ""}
 
 
 def _overrides(
@@ -511,15 +492,15 @@ def _check_fixture(
 def _load_known_failures() -> list[dict[str, str]]:
     """Read the known failures, checking that each names a statement."""
     entries = yaml.safe_load(KNOWN_FAILURES.read_text(encoding="utf-8")) or []
-    keys = ("dialect", "fixture", "starts_with")
+    keys = ("dialect", "fixture", "starts_with", "reason")
     if not isinstance(entries, list) or not all(
         isinstance(entry, dict)
         and all(isinstance(entry.get(key), str) and entry[key] for key in keys)
         for entry in entries
     ):
         raise ValueError(
-            f"Each entry of {KNOWN_FAILURES.name} needs a dialect, a fixture "
-            "and a starts_with."
+            f"Each entry of {KNOWN_FAILURES.name} needs a dialect, a fixture, "
+            "a starts_with and a reason."
         )
     return entries
 
@@ -574,11 +555,16 @@ def _markdown(results: list[DialectResult]) -> str:
                 "There's no SIGALRM on this platform, so statements weren't "
                 f"given a {STATEMENT_TIMEOUT}-second time limit.",
             ]
-        for title, items in (("Flagged fixes", r.new), ("Listed fixes", r.known)):
-            if not items:
-                continue
-            lines += ["", f"### {title}"]
-            for f in items:
+        if r.known:
+            lines += ["", "### Listed fixes", ""]
+            lines += [
+                f"- `{f.fixture}`, statement {f.number} "
+                f"({', '.join(f.rules) or 'rules combined'}): {f.listed_reason}"
+                for f in r.known
+            ]
+        if r.new:
+            lines += ["", "### Flagged fixes"]
+            for f in r.new:
                 rules = ", ".join(f.rules) or "only when rules combine"
                 lines += [
                     "",
@@ -638,8 +624,14 @@ def _check_dialect(
         judged |= {(fixture, statement) for statement in fixture_judged}
 
     entries = [e for e in known_failures or [] if e["dialect"] == dialect]
-    new = [f for f in failures if not any(f.matches(e) for e in entries)]
-    known = [f for f in failures if any(f.matches(e) for e in entries)]
+    new, known = [], []
+    for f in failures:
+        entry = next((e for e in entries if f.matches(e)), None)
+        if entry is None:
+            new.append(f)
+        else:
+            f.listed_reason = entry["reason"]
+            known.append(f)
     # A listed statement only passes if it was judged.
     now_pass = [
         e

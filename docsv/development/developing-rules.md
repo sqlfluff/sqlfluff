@@ -50,12 +50,9 @@ sees:
 - what the oracle's parser keeps: comments aren't in either tree, and DuckDB's
   `json_serialize_sql` only handles `SELECT` statements.
 
-With `--rules`, the check fixes with exactly those rules. Otherwise it fixes with the
-`rules` of the `--config` file (all of them by default), but not its `exclude_rules`
-nor the rules whose fixes change the tree on purpose, like ST06 reordering the columns
-of a `SELECT` or AL05 removing an alias, which are listed with the reason in the
-script. The rule settings are the defaults, or those of `--config`, which is the only
-config file read. Past corruption bugs came from some of the excluded rules too.
+With `--rules`, the check fixes with exactly those rules. Otherwise it fixes with
+every rule, or with the `rules` and `exclude_rules` of the `--config` file. The rule
+settings are the defaults, or those of `--config`, which is the only config file read.
 
 `test/fixtures/fix_safety/historical_corruptions.yml` holds the corrupted fixes from
 closed `fix corrupts sql` issues, and what each oracle makes of them, misses included.
@@ -78,10 +75,12 @@ python utils/fix_safety.py --dialect postgres --rules CV11 --config my.sqlfluff
 ```
 
 `utils/fix_safety_known_failures.yml` lists the fixes that a default run, without
-`--rules` and `--config`, flags. In a default run, they don't fail the check, and a
-listed statement that's judged and passes does, so the list stays current: when you
-fix one, remove it from the list. With `--rules` or `--config`, the list isn't used,
-and every flagged fix fails the check.
+`--rules` and `--config`, flags, each with the reason a person gave after looking at
+it: a rewrite whose change is meant, like ST06 reordering the columns of a `SELECT`,
+or a bug to fix. In a default run, listed fixes don't fail the check, and a listed
+statement that's judged and passes does, so the list stays current: when you fix a
+bug, remove its entry. With `--rules` or `--config`, the list isn't used, and every
+flagged fix fails the check.
 
 The check exits with:
 
