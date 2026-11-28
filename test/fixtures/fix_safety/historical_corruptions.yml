@@ -1,0 +1,180 @@
+# Fixes reported in closed `fix corrupts sql` issues, with the input and the
+# corrupted output from each issue (some shortened to the part the fix broke).
+# `postgres` and `duckdb` are what each oracle of `utils/fix_safety.py` makes of
+# the pair: `detected` (the trees differ, or the output doesn't parse), `missed`
+# (the same tree) or `not_judged`, when the oracle can't judge the input: it
+# doesn't parse, or for DuckDB, whose `json_serialize_sql` only handles SELECTs,
+# it isn't a SELECT. `rule` is the rule's current code,
+# `unknown` where the issue doesn't say.
+# Of the 66 issues, the rest use Jinja or dbt, are in SQL that neither database
+# parses, or don't give the corrupted output.
+# `table` is a reserved word, so neither database parses the input as reported.
+- issue: 906
+  dialect: ansi
+  rule: LT12
+  input: "select *\r\nfrom table"
+  bad_output: |-
+    select *
+    from table
+    e
+  postgres: not_judged
+  duckdb: not_judged
+- issue: 1268
+  dialect: ansi
+  rule: ST06
+  input: |-
+    INSERT INTO s.t (id, example_column, rank_asc, rank_desc)
+    SELECT id, CASE WHEN col_a IN ('a', 'b', 'c') THEN col_a END AS example_column, rank_asc, rank_desc
+    FROM s2.t2
+  bad_output: |-
+    INSERT INTO s.t (id, example_column, rank_asc, rank_desc)
+    SELECT id, rank_asc, rank_desc, CASE WHEN col_a IN ('a', 'b', 'c') THEN col_a END AS example_column
+    FROM s2.t2
+  postgres: detected
+  duckdb: not_judged
+- issue: 1374
+  dialect: ansi
+  rule: unknown
+  input: SELECT project1.FOO(value) AS value
+  bad_output: SELECT project1.PROJECT1.PROJECT1.PROJECT1.FOO(value) AS value
+  postgres: detected
+  duckdb: detected
+- issue: 1394
+  dialect: ansi
+  rule: CP02
+  input: |-
+    insert into A1B2C3
+    select A from B
+  bad_output: |-
+    insert into a1_b2_c3
+    select a from b
+  postgres: detected
+  duckdb: not_judged
+- issue: 1462
+  dialect: exasol
+  rule: AL05
+  input: |-
+    SELECT col1, (SELECT count(*) FROM base b WHERE a.col2 = b.col2) AS x_cnt,
+    FROM without_dup a
+  bad_output: |-
+    SELECT col1, (SELECT count(*) FROM base b WHERE a.col2 = b.col2) AS x_cnt,
+    FROM without_dup
+  postgres: not_judged
+  duckdb: detected
+  note: input as reported has a trailing comma before FROM
+- issue: 2014
+  dialect: ansi
+  rule: CV06
+  input: |-
+    SELECT a
+    FROM b --comment
+    ;
+  bad_output: |-
+    SELECT a
+    FROM b --comment;
+  postgres: missed
+  duckdb: missed
+  note: the semicolon moves into the comment
+- issue: 2251
+  dialect: sparksql
+  rule: AL05
+  input: select col_1, col_2 from t1 as t(col_1, col_2)
+  bad_output: select col_1, col_2 from t1
+  postgres: detected
+  duckdb: detected
+- issue: 2810
+  dialect: bigquery
+  rule: AL07
+  input: SELECT table1.col1 FROM shema1.table1
+  bad_output: SELECT shema1.table1.col1 FROM shema1.table1
+  postgres: detected
+  duckdb: detected
+- issue: 2903
+  dialect: postgres
+  rule: ST02
+  input: SELECT COUNT(DISTINCT CASE WHEN item.submitted_timestamp IS NOT NULL THEN item.sitting_id END) AS num_submitted FROM t
+  bad_output: SELECT COUNT(DISTINCT item.submitted_timestamp) AS num_submitted FROM t
+  postgres: detected
+  duckdb: detected
+- issue: 3084
+  dialect: redshift
+  rule: LT01
+  input: select date_w_tz at TIME ZONE 'Etc/UTC' AS bar from foo
+  bad_output: select date_w_tzattimezone'Etc/UTC' as bar from foo
+  postgres: detected
+  duckdb: detected
+- issue: 3123
+  dialect: postgres
+  rule: RF03
+  input: SELECT my_alias.field_1, (SELECT other_table.f FROM other_table WHERE other_table.id = field_3) FROM (SELECT some_table.field_1, some_table.field_3 FROM some_table) AS my_alias
+  bad_output: SELECT my_alias.field_1, (SELECT other_table.f FROM other_table WHERE other_table.id = other_table.field_3) FROM (SELECT some_table.field_1, some_table.field_3 FROM some_table) AS my_alias
+  postgres: detected
+  duckdb: detected
+- issue: 3124
+  dialect: postgres
+  rule: AL05
+  input: SELECT field_1 FROM (SELECT some_table.field_1 FROM some_table) AS my_alias
+  bad_output: SELECT field_1 FROM (SELECT some_table.field_1 FROM some_table)
+  postgres: detected
+  duckdb: detected
+- issue: 3173
+  dialect: snowflake
+  rule: RF06
+  input: SELECT d."date" AS date_key FROM foo.dates d
+  bad_output: SELECT d.date AS date_key FROM foo.dates d
+  postgres: missed
+  duckdb: missed
+- issue: 3252
+  dialect: ansi
+  rule: LT09
+  input: |-
+    SELECT --some comment
+    CASE WHEN a THEN 1 END
+  bad_output: SELECT --some comment CASE WHEN a THEN 1 END
+  postgres: detected
+  duckdb: detected
+- issue: 3418
+  dialect: snowflake
+  rule: ST06
+  input: SELECT DATE_TRUNC('DAY', end_time) AS time_day, b_field, c_field, COUNT(*) AS e_field FROM t GROUP BY 1, 2, 3
+  bad_output: SELECT b_field, c_field, DATE_TRUNC('DAY', end_time) AS time_day, COUNT(*) AS e_field FROM t GROUP BY 1, 2, 3
+  postgres: detected
+  duckdb: detected
+- issue: 4137
+  dialect: redshift
+  rule: ST05
+  input: with cte1 as (select t1.x, t2.y from tbl1 t1 join (select x, y from tbl2) t2 on t1.x = t2.x), cte2 as (select x, y from tbl2 t2) select x, y from cte1 union all select x, y from cte2
+  bad_output: with cte1 as (select tbl1.x, t2.y from tbl1 inner join t2 on tbl1.x = t2.x), cte2 as (select x, y from tbl2), t2 as (select x, y from tbl2) select x, y from cte1 union all select x, y from
+    cte2
+  postgres: detected
+  duckdb: detected
+- issue: 4801
+  dialect: snowflake
+  rule: AL05
+  input: SELECT a.foo, b.bar FROM foo.baz a INNER JOIN foo.baz B ON a.thing = b.thing
+  bad_output: SELECT a.foo, b.bar FROM foo.baz a INNER JOIN foo.baz ON a.thing = b.thing
+  postgres: detected
+  duckdb: detected
+- issue: 5808
+  dialect: postgres
+  rule: LT01
+  input: COMMENT ON FUNCTION x IS 'y'
+  bad_output: COMMENT ON FUNCTION xIS 'y'
+  postgres: detected
+  duckdb: not_judged
+# A LEFT JOIN needs ON or USING, so neither database parses the input.
+- issue: 6946
+  dialect: ansi
+  rule: CV12
+  input: select a.a from table_a as a left join table_b as b where a.id = b.id
+  bad_output: select a.a from table_a as a left join table_b on a.id = b.id
+  postgres: not_judged
+  duckdb: not_judged
+  note: 'input isn''t valid SQL: LEFT JOIN without ON'
+- issue: 7397
+  dialect: redshift
+  rule: ST02
+  input: SELECT CASE status_code WHEN 100 THEN true ELSE false END AS is_success FROM a
+  bad_output: SELECT COALESCE(100, false) AS is_success FROM a
+  postgres: detected
+  duckdb: detected

@@ -1,0 +1,82 @@
+# The fixes that `utils/fix_safety.py` flags in a default run, with all rules
+# and the default settings, each looked at by a person. `reason` says why it's
+# listed: a rewrite whose change is meant, which the oracle can't tell from a
+# change of meaning, or a bug to fix. Listed fixes don't fail the check, and
+# the check fails if a listed statement is judged and passes, so remove an
+# entry once its bug is fixed.
+#
+# Each entry is the dialect the fixture is fixed as, the fixture, and the start
+# of the statement's SQL, which only needs to be long enough to tell it apart
+# from the fixture's other statements.
+
+# Bugs.
+- dialect: postgres
+  fixture: postgres/create_function.sql
+  starts_with: "CREATE OR REPLACE FUNCTION time_series(\n    _from timestamp without time zone,"
+  reason: "Bug: RF06 removes the quotes from `\"time\"`, a keyword that can't name a RETURNS TABLE column, so PostgreSQL can't parse the result."
+
+# Rewrites whose change is meant.
+- dialect: duckdb
+  fixture: duckdb/anti_semi_join.sql
+  starts_with: "SELECT cars.name, cars.manufacturer\nFROM cars ANTI JOIN region"
+  reason: "Meant: ST07 replaces USING with ON, which selects the same rows here, as only named columns are selected."
+- dialect: duckdb
+  fixture: duckdb/anti_semi_join.sql
+  starts_with: "SELECT cars.name, cars.manufacturer\nFROM cars SEMI JOIN region\nUSING (region_id)"
+  reason: "Meant: ST07 replaces USING with ON, which selects the same rows here, as only named columns are selected."
+- dialect: duckdb
+  fixture: duckdb/describe.sql
+  starts_with: "SELECT * FROM (DESCRIBE SELECT * FROM tbl) AS d"
+  reason: "Meant: AL05 removes an unused subquery alias."
+- dialect: duckdb
+  fixture: duckdb/describe.sql
+  starts_with: "SELECT * FROM (SHOW ALL TABLES) AS t"
+  reason: "Meant: AL05 removes an unused subquery alias."
+- dialect: duckdb
+  fixture: duckdb/summarize.sql
+  starts_with: "SELECT column_name, null_percentage"
+  reason: "Meant: AL05 removes an unused subquery alias."
+- dialect: postgres
+  fixture: postgres/create_rule.sql
+  starts_with: "CREATE RULE log_order_delete AS ON DELETE TO order_totals"
+  reason: "Meant: RF03 qualifies `txt` as `note.txt`, the only table it can come from."
+- dialect: postgres
+  fixture: postgres/is_distinct_from.sql
+  starts_with: "SELECT a, b IS DISTINCT FROM c, d FROM t"
+  reason: "Meant: ST06 moves simple columns before expressions, which changes the order of the columns."
+- dialect: postgres
+  fixture: postgres/non_decimal_integer_literals.sql
+  starts_with: "SELECT -0x42, 0b101::int, 0xFF + 0o7 AS total"
+  reason: "Meant: ST06 moves simple columns before expressions, which changes the order of the columns."
+- dialect: postgres
+  fixture: postgres/pattern_match_expressions.sql
+  starts_with: "WITH cleaned_bear_financial_branch AS ("
+  reason: "Meant: ST01 removes `ELSE NULL`, which a CASE returns anyway."
+- dialect: postgres
+  fixture: postgres/postgres_postgis_operators.sql
+  starts_with: "SELECT st_distance(geom, 'SRID=3005;POINT(1011102 450541)'::geometry) as d,edabbr, vaabbr"
+  reason: "Meant: ST06 moves simple columns before expressions, which changes the order of the columns."
+- dialect: postgres
+  fixture: postgres/postgres_postgis_operators.sql
+  starts_with: "WITH index_query AS (\n  SELECT ST_Distance(geom, 'SRID=3005;POINT(1011102 450541)'::geometry) as d,edabbr, vaabbr\n\tFROM va2005\n  ORDER BY geom <<#>> 'SRID=3005;POINT(1011102 450541)'::geometry LIMIT 100)"
+  reason: "Meant: ST06 moves simple columns before expressions, which changes the order of the columns."
+- dialect: postgres
+  fixture: postgres/postgres_postgis_operators.sql
+  starts_with: "WITH index_query AS (\n  SELECT ST_Distance(geom, 'SRID=3005;POINT(1011102 450541)'::geometry) as d,edabbr, vaabbr\n\tFROM va2005\n  ORDER BY geom <<->> 'SRID=3005;POINT(1011102 450541)'::geometry LIMIT 100)"
+  reason: "Meant: ST06 moves simple columns before expressions, which changes the order of the columns."
+- dialect: postgres
+  fixture: postgres/range_operators.sql
+  starts_with: "SELECT"
+  reason: "Meant: ST09 swaps the sides of a join condition."
+- dialect: postgres
+  fixture: postgres/select.sql
+  starts_with: "select id, start, periods.end from periods"
+  reason: "Meant: RF03 qualifies the columns with `periods`, the only table."
+- dialect: postgres
+  fixture: postgres/subquery.sql
+  starts_with: "INSERT INTO target_table (target_column)"
+  reason: "Meant: ST05 moves a subquery into a CTE."
+- dialect: postgres
+  fixture: postgres/table_command.sql
+  starts_with: "SELECT * FROM (TABLE t) AS sub"
+  reason: "Meant: AL05 removes an unused subquery alias, which PostgreSQL 16 and later don't need."

@@ -31,6 +31,70 @@ The `-k` option simply searches for the content of the argument being in the nam
 of the test, which will match any single or combo tests for that rule. By convention,
 any test cases for a rule should include the code for that rule.
 
+## Flagging Fixes That May Change the Meaning
+
+A fix should change how a query is written, not what it does. `utils/fix_safety.py`
+looks for fixes that may break this in the dialect fixtures. For each statement, it
+runs `sqlfluff fix` and asks the database's own parser (an *oracle*) for the
+statement's syntax tree before and after the fix. If the trees differ, or the database
+can't parse the fixed statement, the fix is flagged, and the statement is fixed again
+with one rule at a time to try to name the rules that did it.
+
+A flagged fix needs a person to look at it, because two different trees can still mean
+the same thing: `schema.table.column` and `table.column` differ, but can name the same
+column in PostgreSQL. And a fix that isn't flagged isn't proven safe. The check only
+sees:
+
+- the statements in the fixtures, each on its own and without templating;
+- the rules it fixes with, and their settings (see below);
+- what the oracle's parser keeps: comments aren't in either tree, and DuckDB's
+  `json_serialize_sql` only handles `SELECT` statements.
+
+With `--rules`, the check fixes with exactly those rules. Otherwise it fixes with
+every rule, or with the `rules` and `exclude_rules` of the `--config` file. The rule
+settings are the defaults, or those of `--config`, which is the only config file read.
+
+`test/fixtures/fix_safety/historical_corruptions.yml` holds the corrupted fixes from
+closed `fix corrupts sql` issues, and what each oracle makes of them, misses included.
+
+There are oracles for DuckDB and PostgreSQL ([pglast](https://pglast.readthedocs.io/),
+PostgreSQL's own parser). The `fix-safety` tox environment installs them and checks
+both dialects:
+
+```sh
+tox -e fix-safety
+```
+
+Arguments after `--` replace the default `--dialect duckdb --dialect postgres`.
+Or run it directly, for some dialects, fixtures or rules, or with a config file:
+
+```sh
+python utils/fix_safety.py --dialect duckdb --dialect postgres
+python utils/fix_safety.py --dialect postgres --filter "create_function*"
+python utils/fix_safety.py --dialect postgres --rules CV11 --config my.sqlfluff
+```
+
+`utils/fix_safety_known_failures.yml` lists the fixes that a default run, without
+`--rules` and `--config`, flags, each with the reason a person gave after looking at
+it: a rewrite whose change is meant, like ST06 reordering the columns of a `SELECT`,
+or a bug to fix. In a default run, listed fixes don't fail the check, and a listed
+statement that's judged and passes does, so the list stays current: when you fix a
+bug, remove its entry. With `--rules` or `--config`, the list isn't used, and every
+flagged fix fails the check.
+
+The check exits with:
+
+- 1 when a fix was flagged that isn't listed, or, in a default run, a listed statement
+  passes.
+- 2 when the check couldn't judge all it should: a dialect has no oracle or its oracle
+  isn't installed, no fixture file matches, a fixture file couldn't be parsed, fixing
+  a statement raised or timed out (after 30 seconds, where there's `SIGALRM`, i.e. not
+  on Windows), or the oracle could judge none of a dialect's statements. Usage errors
+  and unexpected errors exit with 2 too.
+- 0 when neither applies.
+
+When both 1 and 2 apply, the exit code is 1.
+
 ## Rule State
 
 One rule instance lints many files: the linter reuses it for every file whose
