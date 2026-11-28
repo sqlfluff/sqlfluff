@@ -63,6 +63,9 @@ class Rule_AL05(BaseRule):
             a
         FROM foo
 
+    An alias with a column list, like ``t(a, b)``, isn't flagged: it names
+    the columns, so removing it would rename them.
+
     """
 
     name = "aliasing.unused"
