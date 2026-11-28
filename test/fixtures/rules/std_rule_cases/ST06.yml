@@ -843,3 +843,31 @@ test_pass_derived_table_column_list_set_expression_postgres:
         UNION ALL
         SELECT a + 2, b FROM t
     ) AS s (x, y)
+
+test_pass_row_value_in_subquery_postgres:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) IN (SELECT max(w), x FROM b GROUP BY x)
+
+test_pass_row_value_in_subquery_duckdb:
+  configs:
+    core:
+      dialect: duckdb
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) IN (SELECT max(w), x FROM b GROUP BY x)
+
+test_pass_row_value_comparison_operator:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a WHERE (id, x) = (SELECT max(w), x FROM b GROUP BY x)
+
+test_pass_row_constructor_function_subquery:
+  configs:
+    core:
+      dialect: postgres
+  pass_str: |
+    SELECT id FROM a WHERE ROW(id, x) = (SELECT max(w), x FROM b GROUP BY x)
