@@ -7,10 +7,20 @@ from unittest.mock import patch
 
 import pytest
 
-from sqlfluff.core import Linter
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.parser import Indent, WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix
-from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
+from sqlfluff.utils.reflow.config import (
+    _DEFAULT_BLOCK_CONFIG,
+    _EMPTY_LIST_BLOCK_CONFIG,
+    BlockConfig,
+)
+from sqlfluff.utils.reflow.elements import (
+    _EMPTY_INDENT_STATS,
+    IndentStats,
+    ReflowBlock,
+    ReflowPoint,
+)
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
@@ -343,3 +353,158 @@ def test_reflow_sequence_from_root_forgets_freed_tree(
     del root
     gc.collect()
     assert raw_segment() is None
+
+
+def test_reflow_elements_parent_config_cache_matches_uncached(default_config):
+    """Cached parent stack configs match uncached ReflowBlock.from_config()."""
+    sql = (
+        "WITH cte AS (\n"
+        "    SELECT a + b AS x, COALESCE(c, d) AS y\n"
+        "    FROM tbl\n"
+        "    WHERE e = 1 AND f IN (1, 2, 3)\n"
+        ")\n"
+        "SELECT * FROM cte ORDER BY x DESC\n"
+    )
+    root = parse_ansi_string(sql, default_config)
+    seq = ReflowSequence.from_root(root, config=default_config)
+    blocks_by_raw: dict[str, ReflowBlock] = {}
+    blocks_by_stack: dict[tuple[int, ...], ReflowBlock] = {}
+    saw_shared_stack = False
+    for elem in seq.elements:
+        if isinstance(elem, ReflowBlock):
+            uncached = ReflowBlock.from_config(
+                segments=elem.segments,
+                config=seq.reflow_config,
+                depth_info=elem.depth_info,
+            )
+            assert elem == uncached
+            blocks_by_raw.setdefault(elem.raw, elem)
+            prior = blocks_by_stack.get(elem.depth_info.stack_hashes)
+            if prior is None:
+                blocks_by_stack[elem.depth_info.stack_hashes] = elem
+            else:
+                saw_shared_stack = True
+                assert elem.stack_spacing_configs is prior.stack_spacing_configs
+                assert elem.line_position_configs is prior.line_position_configs
+                assert (
+                    elem.keyword_line_position_configs
+                    is prior.keyword_line_position_configs
+                )
+                assert (
+                    elem.keyword_line_position_exclusions_configs
+                    is prior.keyword_line_position_exclusions_configs
+                )
+    assert saw_shared_stack
+
+    # Literal expected values under default config (including exclusions parity
+    # and parent-inherited spacing on function brackets).
+    assert blocks_by_raw["SELECT"].spacing_before == "single"
+    assert blocks_by_raw["SELECT"].spacing_after == "single"
+    assert blocks_by_raw["SELECT"].keyword_line_position_exclusions == []
+    assert blocks_by_raw[","].spacing_before == "touch"
+    assert blocks_by_raw[","].spacing_after == "single"
+    assert blocks_by_raw[","].line_position == "trailing"
+    assert blocks_by_raw[","].keyword_line_position_exclusions == []
+    assert blocks_by_raw["+"].line_position == "leading"
+    assert blocks_by_raw["a"].keyword_line_position_exclusions == []
+    lparen_blocks = [
+        elem
+        for elem in seq.elements
+        if isinstance(elem, ReflowBlock) and elem.raw == "("
+    ]
+    assert lparen_blocks[0].spacing_before == "single"
+    assert lparen_blocks[0].spacing_after == "touch"
+    assert lparen_blocks[1].spacing_before == "touch:inline"
+    assert lparen_blocks[1].spacing_after == "touch"
+    assert lparen_blocks[1].keyword_line_position_exclusions == []
+
+    # Non-default layout config exercising keyword_line_position and exclusions.
+    custom_cfg = FluffConfig(
+        overrides={"dialect": "ansi"},
+        configs={
+            "layout": {
+                "type": {
+                    "from_clause": {
+                        "keyword_line_position": "alone",
+                        "keyword_line_position_exclusions": "where_clause,join_clause",
+                    },
+                    "where_clause": {"keyword_line_position": "leading"},
+                }
+            }
+        },
+    )
+    custom_root = parse_ansi_string("SELECT a FROM t WHERE b = 1\n", custom_cfg)
+    custom_seq = ReflowSequence.from_root(custom_root, config=custom_cfg)
+    custom_blocks = {
+        elem.raw: elem for elem in custom_seq.elements if isinstance(elem, ReflowBlock)
+    }
+    assert list(custom_blocks["FROM"].keyword_line_position_configs.values()) == [
+        "alone"
+    ]
+    assert list(
+        custom_blocks["FROM"].keyword_line_position_exclusions_configs.values()
+    ) == [["where_clause", "join_clause"]]
+    assert list(custom_blocks["WHERE"].keyword_line_position_configs.values()) == [
+        "leading"
+    ]
+    for elem in custom_blocks.values():
+        assert elem == ReflowBlock.from_config(
+            segments=elem.segments,
+            config=custom_seq.reflow_config,
+            depth_info=elem.depth_info,
+        )
+
+    # Public get_block_config() and ReflowBlock.from_config() must return fresh
+    # configs that callers can mutate without affecting shared read-only defaults.
+    fresh_default = seq.reflow_config.get_block_config(set())
+    assert fresh_default is not _DEFAULT_BLOCK_CONFIG
+    fresh_default.incorporate(before="touch")
+    assert _DEFAULT_BLOCK_CONFIG == BlockConfig()
+    assert seq.reflow_config.get_block_config(set()) == BlockConfig()
+
+    fresh_parent_default = seq.reflow_config.get_block_config(
+        set(), depth_info=blocks_by_raw["a"].depth_info
+    )
+    assert fresh_parent_default is not _EMPTY_LIST_BLOCK_CONFIG
+    assert isinstance(fresh_parent_default.keyword_line_position_exclusions, list)
+    assert (
+        fresh_parent_default.keyword_line_position_exclusions
+        is not _EMPTY_LIST_BLOCK_CONFIG.keyword_line_position_exclusions
+    )
+    fresh_parent_default.keyword_line_position_exclusions.append("mutated")
+    assert _EMPTY_LIST_BLOCK_CONFIG == BlockConfig(keyword_line_position_exclusions=[])
+
+    fresh_block = ReflowBlock.from_config(
+        segments=blocks_by_raw["a"].segments,
+        config=seq.reflow_config,
+        depth_info=blocks_by_raw["a"].depth_info,
+    )
+    assert (
+        fresh_block.keyword_line_position_exclusions
+        is not _EMPTY_LIST_BLOCK_CONFIG.keyword_line_position_exclusions
+    )
+
+
+def test_reflow_point_lazy_indent_stats():
+    """ReflowPoint computes _stats lazily without affecting repr, ==, or hash."""
+    ws_segs = (WhitespaceSegment(" "),)
+    pt_a = ReflowPoint(ws_segs)
+    pt_b = ReflowPoint(ws_segs)
+    assert pt_a._stats is None
+    assert "_stats" not in repr(pt_a)
+
+    stats = pt_a.get_indent_impulse()
+    assert stats is _EMPTY_INDENT_STATS
+    assert pt_a._stats is _EMPTY_INDENT_STATS
+    assert pt_b._stats is None
+    assert pt_a == pt_b
+    assert hash(pt_a) == hash(pt_b)
+
+    indent_segs = (Indent(), WhitespaceSegment("    "))
+    indent_a = ReflowPoint(indent_segs)
+    indent_b = ReflowPoint(indent_segs)
+    assert indent_a._stats is None
+    assert indent_a.get_indent_impulse() == IndentStats(1, 0)
+    assert indent_b._stats is None
+    assert indent_a == indent_b
+    assert hash(indent_a) == hash(indent_b)

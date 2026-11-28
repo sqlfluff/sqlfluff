@@ -64,6 +64,8 @@ class ReflowElement:
 
     @staticmethod
     def _class_types(segments: Sequence[RawSegment]) -> set[str]:
+        if len(segments) == 1:
+            return set(segments[0].class_types)
         return set(chain.from_iterable(seg.class_types for seg in segments))
 
     @property
@@ -118,6 +120,14 @@ class ReflowElement:
         return True
 
 
+ParentStackConfigs = tuple[
+    dict[int, str],
+    dict[int, str],
+    dict[int, str],
+    dict[int, Union[str, list[str]]],
+]
+
+
 @dataclass(frozen=True)
 class ReflowBlock(ReflowElement):
     """Class for keeping track of elements to reflow.
@@ -135,6 +145,12 @@ class ReflowBlock(ReflowElement):
 
     The attributes exposed are designed to be "post configuration"
     i.e. they should reflect configuration appropriately.
+
+    The parent-stack configuration dicts (`stack_spacing_configs`,
+    `line_position_configs`, `keyword_line_position_configs`, and
+    `keyword_line_position_exclusions_configs`) and
+    `keyword_line_position_exclusions` may be shared across blocks
+    and must be treated as read-only.
     """
 
     #: Desired spacing before this block.
@@ -175,38 +191,29 @@ class ReflowBlock(ReflowElement):
     keyword_line_position_exclusions_configs: dict[int, Union[str, list[str]]]
 
     @classmethod
-    def from_config(
+    def _build_from_config(
         cls: type["ReflowBlock"],
         segments: tuple[RawSegment, ...],
         config: ReflowConfig,
         depth_info: DepthInfo,
+        parent_configs: ParentStackConfigs,
+        allow_default: bool = False,
     ) -> "ReflowBlock":
-        """Construct a ReflowBlock while extracting relevant configuration.
-
-        This is the primary route to construct a ReflowBlock, as
-        is allows all of the inference of the spacing and position
-        configuration from the segments it contains and the
-        appropriate config objects.
-        """
-        block_config = config.get_block_config(cls._class_types(segments), depth_info)
-        stack_spacing_configs = {}
-        line_position_configs = {}
-        keyword_line_position_configs = {}
-        keyword_line_position_exclusions_configs = {}
-        for hash, class_types in zip(
-            depth_info.stack_hashes, depth_info.stack_class_types
-        ):
-            cfg = config.get_parent_block_config(class_types)
-            if cfg.spacing_within:
-                stack_spacing_configs[hash] = cfg.spacing_within
-            if cfg.line_position:
-                line_position_configs[hash] = cfg.line_position
-            if cfg.keyword_line_position:
-                keyword_line_position_configs[hash] = cfg.keyword_line_position
-            if cfg.keyword_line_position_exclusions:
-                keyword_line_position_exclusions_configs[hash] = (
-                    cfg.keyword_line_position_exclusions
-                )
+        """Build a ReflowBlock from resolved block config and parent-stack dicts."""
+        block_class_types = (
+            segments[0].class_types
+            if len(segments) == 1
+            else cls._class_types(segments)
+        )
+        block_config = config._get_block_config(
+            block_class_types, depth_info, allow_default=allow_default
+        )
+        (
+            stack_spacing_configs,
+            line_position_configs,
+            keyword_line_position_configs,
+            keyword_line_position_exclusions_configs,
+        ) = parent_configs
         return cls(
             segments=segments,
             spacing_before=block_config.spacing_before,
@@ -222,6 +229,87 @@ class ReflowBlock(ReflowElement):
             ),
             keyword_line_position_exclusions_configs=(
                 keyword_line_position_exclusions_configs
+            ),
+        )
+
+    @classmethod
+    def _from_config_cached(
+        cls: type["ReflowBlock"],
+        segments: tuple[RawSegment, ...],
+        config: ReflowConfig,
+        depth_info: DepthInfo,
+        parent_config_cache: dict[tuple[int, ...], ParentStackConfigs],
+    ) -> "ReflowBlock":
+        """Construct a ReflowBlock reusing cached parent-stack config dicts."""
+        stack_hashes = depth_info.stack_hashes
+        cached = parent_config_cache.get(stack_hashes)
+        if cached is None:
+            n = len(stack_hashes)
+            i = n - 1
+            while i > 0 and stack_hashes[:i] not in parent_config_cache:
+                i -= 1
+            configs = parent_config_cache[stack_hashes[:i]]
+            sc, lpc, klpc, klpec = configs
+            stack_class_types = depth_info.stack_class_types
+            for j in range(i, n):
+                h = stack_hashes[j]
+                cfg = config.get_parent_block_config(stack_class_types[j])
+                if cfg.spacing_within:
+                    sc = {**sc, h: cfg.spacing_within}
+                if cfg.line_position:
+                    lpc = {**lpc, h: cfg.line_position}
+                if cfg.keyword_line_position:
+                    klpc = {**klpc, h: cfg.keyword_line_position}
+                if cfg.keyword_line_position_exclusions:
+                    klpec = {**klpec, h: cfg.keyword_line_position_exclusions}
+                configs = (sc, lpc, klpc, klpec)
+                parent_config_cache[stack_hashes[: j + 1]] = configs
+            cached = configs
+        return cls._build_from_config(
+            segments, config, depth_info, cached, allow_default=True
+        )
+
+    @classmethod
+    def from_config(
+        cls: type["ReflowBlock"],
+        segments: tuple[RawSegment, ...],
+        config: ReflowConfig,
+        depth_info: DepthInfo,
+    ) -> "ReflowBlock":
+        """Construct a ReflowBlock while extracting relevant configuration.
+
+        This is the primary route to construct a ReflowBlock, as
+        is allows all of the inference of the spacing and position
+        configuration from the segments it contains and the
+        appropriate config objects.
+        """
+        stack_spacing_configs: dict[int, str] = {}
+        line_position_configs: dict[int, str] = {}
+        keyword_line_position_configs: dict[int, str] = {}
+        keyword_line_position_exclusions_configs: dict[int, Union[str, list[str]]] = {}
+        for hash, class_types in zip(
+            depth_info.stack_hashes, depth_info.stack_class_types
+        ):
+            cfg = config.get_parent_block_config(class_types)
+            if cfg.spacing_within:
+                stack_spacing_configs[hash] = cfg.spacing_within
+            if cfg.line_position:
+                line_position_configs[hash] = cfg.line_position
+            if cfg.keyword_line_position:
+                keyword_line_position_configs[hash] = cfg.keyword_line_position
+            if cfg.keyword_line_position_exclusions:
+                keyword_line_position_exclusions_configs[hash] = (
+                    cfg.keyword_line_position_exclusions
+                )
+        return cls._build_from_config(
+            segments,
+            config,
+            depth_info,
+            (
+                stack_spacing_configs,
+                line_position_configs,
+                keyword_line_position_configs,
+                keyword_line_position_exclusions_configs,
             ),
         )
 
@@ -301,7 +389,10 @@ class IndentStats:
         )
 
 
-@dataclass(frozen=True, init=False)
+_EMPTY_INDENT_STATS = IndentStats(0, 0)
+
+
+@dataclass(frozen=True)
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
@@ -318,12 +409,9 @@ class ReflowPoint(ReflowElement):
     passed in as required.
     """
 
-    _stats: IndentStats = field(init=False)
-
-    def __init__(self, segments: tuple[RawSegment, ...]):
-        """Override the init method to calculate indent stats."""
-        object.__setattr__(self, "segments", segments)
-        object.__setattr__(self, "_stats", self._generate_indent_stats(segments))
+    _stats: Optional[IndentStats] = field(
+        default=None, init=False, repr=False, compare=False
+    )
 
     def _get_indent_segment(self) -> Optional[RawSegment]:
         """Get the current indent segment (if there).
@@ -390,7 +478,7 @@ class ReflowPoint(ReflowElement):
         """
         trough = 0
         running_sum = 0
-        implicit_indents = []
+        implicit_indents: list[int] = []
         for seg in segments:
             if seg.is_type("indent"):
                 indent_seg = cast(Indent, seg)
@@ -402,13 +490,19 @@ class ReflowPoint(ReflowElement):
                 # because it's unlikely that one would be opened, and then
                 # closed within the same point. That would probably be the
                 # sign of a bug in the dialect.
-            if running_sum < trough:
-                trough = running_sum
+                if running_sum < trough:
+                    trough = running_sum
+        if running_sum == 0 and trough == 0 and not implicit_indents:
+            return _EMPTY_INDENT_STATS
         return IndentStats(running_sum, trough, tuple(implicit_indents))
 
     def get_indent_impulse(self) -> IndentStats:
         """Get the change in intended indent balance from this point."""
-        return self._stats
+        stats = self._stats
+        if stats is None:
+            stats = self._generate_indent_stats(self.segments)
+            object.__setattr__(self, "_stats", stats)
+        return stats
 
     def indent_to(
         self,

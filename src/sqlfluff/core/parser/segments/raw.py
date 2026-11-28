@@ -18,6 +18,14 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluffrs import RsToken
 
 
+@functools.lru_cache(maxsize=2048)
+def _merge_class_types(
+    base_types: frozenset[str], instance_types: tuple[str, ...]
+) -> frozenset[str]:
+    """Merge class and instance types; bounded cache is safe for immutable inputs."""
+    return base_types.union(instance_types)
+
+
 class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""
 
@@ -165,7 +173,9 @@ class RawSegment(BaseSegment):
 
         Add the surrogate type for raw segments.
         """
-        return frozenset(self.instance_types) | super().class_types
+        if not self.instance_types:
+            return self._class_types
+        return _merge_class_types(self._class_types, self.instance_types)
 
     @property
     def source_fixes(self) -> list[SourceFix]:
