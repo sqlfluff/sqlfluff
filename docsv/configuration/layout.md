@@ -316,6 +316,24 @@ applies. To also fill the select targets, add `LT09` to `exclude_rules`.
 :::
 
 
+### URL-only comments
+
+To ignore long inline comments that contain only an HTTP or HTTPS URL, set:
+
+```ini
+[sqlfluff:rules:layout.long_lines]
+ignore_url_comment_lines = True
+```
+
+This option defaults to `False`. It ignores standalone comments such as
+`-- https://example.com/a/long/path`, including indented comments and dialect
+comment prefixes such as MySQL's `#`. Lines with SQL before the comment,
+comment text before or after the URL, or multiple URLs still receive line
+length warnings. Block comments are not exempt.
+
+`ignore_comment_lines = True` continues to ignore all comment lines.
+Use `ignore_url_comment_lines` when ordinary comments should still be checked.
+
 ## Indentation
 
 Lastly, given we have multiple lines of SQL, to what extent should we indent
