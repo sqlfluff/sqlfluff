@@ -190,6 +190,9 @@ redshift_dialect.sets("datetime_units").update(
 )
 
 redshift_dialect.replace(
+    # Redshift uses COLLATE() in expressions. In a column definition, COLLATE
+    # starts a column attribute, even when it follows a DEFAULT expression.
+    StringBinaryOperatorGrammar=ansi_dialect.get_grammar("StringBinaryOperatorGrammar"),
     LateralColumnAliasExpressionGrammar=Sequence(
         Ref("ExpressionSegment"),
         Ref("AliasExpressionSegment"),
@@ -831,6 +834,9 @@ class AlterTableActionSegment(BaseSegment):
 
     type = "alter_table_action_segment"
 
+    # Constraints can precede the first column attribute or follow any of them.
+    _column_constraints = AnyNumberOf(Ref("ColumnConstraintSegment"))
+
     match_grammar = OneOf(
         Sequence(
             "ADD",
@@ -926,10 +932,14 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
-            Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
-            Sequence("ENCODE", Ref("ColumnEncodingGrammar"), optional=True),
-            Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
-            AnyNumberOf(Ref("ColumnConstraintSegment")),
+            _column_constraints,
+            AnySetOf(
+                Sequence("DEFAULT", Ref("ExpressionSegment"), _column_constraints),
+                Sequence("ENCODE", Ref("ColumnEncodingGrammar"), _column_constraints),
+                Sequence(
+                    "COLLATE", Ref("CollationReferenceSegment"), _column_constraints
+                ),
+            ),
         ),
         Sequence(
             "DROP",

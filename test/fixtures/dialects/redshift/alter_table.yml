@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff46dbbfa00e6b1b6358493fcd387bade51d7cf0cb7fe826125f44d984f3cb32
+_hash: 88ed148fe0efa7a964efd2014cd8cd500d004b9da6d401e61822a3bd49d00807
 file:
 - statement:
     alter_table_statement:
@@ -461,4 +461,156 @@ file:
           keyword: BIGINT
       - keyword: ENCODE
       - keyword: ZSTD
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: col1
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              max_literal: MAX
+              end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "'a'"
+      - keyword: ENCODE
+      - keyword: RAW
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: CI
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: col2
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              max_literal: MAX
+              end_bracket: )
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "'b'"
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: CI
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - keyword: ENCODE
+      - keyword: RAW
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: col3
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              max_literal: MAX
+              end_bracket: )
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: CI
+      - keyword: ENCODE
+      - keyword: RAW
+      - keyword: DEFAULT
+      - expression:
+          quoted_literal: "'c'"
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: col4
+      - data_type:
+          keyword: INT
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - keyword: ENCODE
+      - keyword: AZ64
+      - column_constraint_segment:
+          keyword: UNIQUE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: col5
+      - data_type:
+          keyword: VARCHAR
+      - keyword: DEFAULT
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: COLLATE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: "'a'"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "'b'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'cs'"
+              - end_bracket: )
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: CI
 - statement_terminator: ;
