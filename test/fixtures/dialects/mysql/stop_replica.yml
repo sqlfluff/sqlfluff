@@ -1,0 +1,49 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0bd0014996f0e3f2464e7bf4f065c96643a6958f7dccc3296bbc90726529a0e2
+file:
+- statement:
+    stop_replica_statement:
+    - keyword: STOP
+    - keyword: REPLICA
+- statement_terminator: ;
+- statement:
+    stop_replica_statement:
+    - keyword: STOP
+    - keyword: REPLICA
+    - keyword: IO_THREAD
+- statement_terminator: ;
+- statement:
+    stop_replica_statement:
+    - keyword: STOP
+    - keyword: REPLICA
+    - keyword: SQL_THREAD
+- statement_terminator: ;
+- statement:
+    stop_replica_statement:
+    - keyword: STOP
+    - keyword: REPLICA
+    - keyword: IO_THREAD
+    - comma: ','
+    - keyword: SQL_THREAD
+- statement_terminator: ;
+- statement:
+    stop_replica_statement:
+    - keyword: STOP
+    - keyword: REPLICA
+    - keyword: FOR
+    - keyword: CHANNEL
+    - quoted_literal: "'channel_1'"
+- statement_terminator: ;
+- statement:
+    stop_replica_statement:
+    - keyword: STOP
+    - keyword: REPLICA
+    - keyword: SQL_THREAD
+    - keyword: FOR
+    - keyword: CHANNEL
+    - quoted_literal: "'channel_1'"
+- statement_terminator: ;
