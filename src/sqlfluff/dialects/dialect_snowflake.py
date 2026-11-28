@@ -2113,14 +2113,22 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar.copy(
-        # NOTE: The Scripting Block segment must be tried before
-        # we get to the transaction statement (from the ansi dialect)
-        # because they both start with BEGIN.
-        insert=[
-            Ref("ScriptingBlockStatementSegment"),
-        ],
-        before=Ref("TransactionStatementSegment"),
+    match_grammar = (
+        ansi.StatementSegment.match_grammar.copy(
+            # NOTE: The Scripting Block segment must be tried before
+            # we get to the transaction statement (from the ansi dialect)
+            # because they both start with BEGIN.
+            insert=[
+                Ref("ScriptingBlockStatementSegment"),
+            ],
+            before=Ref("TransactionStatementSegment"),
+        ).copy(
+            insert=[
+                Ref("DropDatabaseRoleStatementSegment"),
+                Ref("DropApplicationRoleStatementSegment"),
+            ],
+            before=Ref("DropDatabaseStatementSegment"),
+        )
     ).copy(
         insert=[
             Ref("AccessStatementSegment"),
@@ -2195,7 +2203,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RemoveStatementSegment"),
             Ref("CreateDatabaseStatementSegment"),
             Ref("CreateDatabaseRoleStatementSegment"),
+            Ref("CreateApplicationRoleStatementSegment"),
             Ref("AlterRoleStatementSegment"),
+            Ref("AlterDatabaseRoleStatementSegment"),
+            Ref("AlterApplicationRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
             Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
@@ -6214,6 +6225,110 @@ class AlterRoleStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class AlterDatabaseRoleStatementSegment(BaseSegment):
+    """An `ALTER DATABASE ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-database-role
+    """
+
+    type = "alter_database_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseRoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("TagEqualsSegment"),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Sequence("COMMENT"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("DatabaseRoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class AlterApplicationRoleStatementSegment(BaseSegment):
+    """An `ALTER APPLICATION ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-application-role
+    """
+
+    type = "alter_application_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "APPLICATION",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ApplicationRoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("CommentEqualsClauseSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                Sequence("COMMENT"),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ApplicationRoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class DropDatabaseRoleStatementSegment(BaseSegment):
+    """A `DROP DATABASE ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-database-role
+    """
+
+    type = "drop_database_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DATABASE",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseRoleReferenceSegment"),
+    )
+
+
+class DropApplicationRoleStatementSegment(BaseSegment):
+    """A `DROP APPLICATION ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-application-role
+    """
+
+    type = "drop_application_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "APPLICATION",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ApplicationRoleReferenceSegment"),
     )
 
 
@@ -10609,6 +10724,32 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
             Sequence("DEFINE", "DATABASE", "ROLE"),
         ),
         Ref("DatabaseRoleReferenceSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
+            optional=True,
+        ),
+    )
+
+
+class CreateApplicationRoleStatementSegment(BaseSegment):
+    """A `CREATE APPLICATION ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-application-role
+    """
+
+    type = "create_application_role_statement"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                Ref("AlterOrReplaceGrammar", optional=True),
+                "APPLICATION",
+                "ROLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+            Sequence("DEFINE", "APPLICATION", "ROLE"),
+        ),
+        Ref("ApplicationRoleReferenceSegment"),
         Ref(
             "CommentEqualsClauseSegment",
             optional=True,
