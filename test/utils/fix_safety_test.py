@@ -287,6 +287,9 @@ def test_timed_out(capsys, monkeypatch, no_known_failures):
 def test_time_limit(monkeypatch):
     """The time limit stops a slow statement, and puts the old handler back."""
     pytest.importorskip("duckdb")
+    path = fix_safety.FIXTURES / "duckdb" / "anti_semi_join.sql"
+    # Load the dialect first, so only the slow fix runs into the 1-second limit.
+    fix_safety._statements(path.read_text(encoding="utf-8"), "duckdb")
     monkeypatch.setattr(fix_safety, "STATEMENT_TIMEOUT", 1)
 
     def slow_fix(sql, dialect, rules, config_path):
@@ -294,7 +297,6 @@ def test_time_limit(monkeypatch):
 
     monkeypatch.setattr(fix_safety, "_fix", slow_fix)
     before = signal.getsignal(signal.SIGALRM)
-    path = fix_safety.FIXTURES / "duckdb" / "anti_semi_join.sql"
     started = time.monotonic()
     _, stats, _ = fix_safety._check_fixture((str(path), "duckdb", "duckdb", None, None))
     assert stats.timeouts == 4
