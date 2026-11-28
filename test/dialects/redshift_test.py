@@ -61,3 +61,29 @@ def test_hash_lexing(raw: str, res: list[tuple[str, str]]) -> None:
     ).lex(raw)
     assert not violations
     assert [(token.raw, token.get_type()) for token in tokens if token.is_code] == res
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        pytest.param(
+            "GRANT CREATE USER TO USER bob;",
+            id="grant_system_permission_to_user",
+        ),
+        pytest.param(
+            "GRANT CREATE USER TO PUBLIC;",
+            id="grant_system_permission_to_public",
+        ),
+        pytest.param(
+            "REVOKE CREATE USER FROM USER bob;",
+            id="revoke_system_permission_from_user",
+        ),
+        pytest.param(
+            "REVOKE CREATE USER FROM PUBLIC;",
+            id="revoke_system_permission_from_public",
+        ),
+    ],
+)
+def test_system_permissions_require_role_target(sql: str) -> None:
+    """System permissions can only be granted to or revoked from roles."""
+    assert _violations(sql), f"Expected violations but got none for:\n{sql}"
