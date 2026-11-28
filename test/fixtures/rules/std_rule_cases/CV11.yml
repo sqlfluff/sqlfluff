@@ -731,3 +731,90 @@ test_fail_shorthand_multi_cast_operand_unaffected:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+test_fail_shorthand_at_time_zone_to_cast:
+  # The time zone applies to the result of the cast, so it follows the
+  # rewritten cast instead of becoming a type of its own.
+  fail_str: SELECT '2015-10-24 16:38:46'::TIMESTAMP AT TIME ZONE 'UTC' AS y
+  fix_str: SELECT cast('2015-10-24 16:38:46' as TIMESTAMP) AT TIME ZONE 'UTC' AS y
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_chained_shorthand_at_time_zone_to_cast:
+  fail_str: SELECT a::timestamp::timestamptz AT TIME ZONE 'UTC' AS y FROM t
+  fix_str: >-
+    SELECT cast(cast(a as timestamp) as timestamptz) AT TIME ZONE 'UTC' AS y FROM t
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_shorthand_at_time_zone_then_cast_to_cast:
+  # `::` binds tighter than AT TIME ZONE, so the `::date` cast applies to the
+  # time zone 'UTC', not to the result of the first cast.
+  fail_str: SELECT a::timestamp AT TIME ZONE 'UTC'::date AS y FROM t
+  fix_str: SELECT cast(a as timestamp) AT TIME ZONE cast('UTC' as date) AS y FROM t
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_shorthand_at_time_zone_consistent:
+  fail_str: SELECT cast(a as int) AS x, b::timestamp AT TIME ZONE 'UTC' AS y FROM t
+  fix_str: >-
+    SELECT cast(a as int) AS x, cast(b as timestamp) AT TIME ZONE 'UTC' AS y FROM t
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_shorthand_at_time_zone_to_convert:
+  fail_str: SELECT a::timestamp AT TIME ZONE 'UTC' AS y FROM t
+  fix_str: SELECT convert(timestamp, a) AT TIME ZONE 'UTC' AS y FROM t
+  configs:
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: convert
+
+test_fail_snowflake_shorthand_array_accessor_to_cast:
+  fail_str: SELECT a::variant[0] AS y FROM t
+  fix_str: SELECT cast(a as variant)[0] AS y FROM t
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_snowflake_shorthand_semi_structured_to_cast:
+  fail_str: SELECT a::variant:b AS y FROM t
+  fix_str: SELECT cast(a as variant):b AS y FROM t
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_chained_shorthand_with_inline_comment_to_cast:
+  # The comment is kept, with the newline that ends it, so it doesn't
+  # swallow the rest of the cast.
+  fail_str: |
+    SELECT a::int -- c
+        ::text AS y FROM t
+  fix_str: |
+    SELECT cast(cast(a as int) -- c
+     as text) AS y FROM t
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
