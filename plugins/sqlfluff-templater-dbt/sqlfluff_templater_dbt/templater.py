@@ -16,6 +16,7 @@ from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
+from importlib import metadata
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -31,6 +32,7 @@ from typing import (
 
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
+from packaging.version import Version
 
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
@@ -179,6 +181,20 @@ class DbtTemplater(JinjaTemplater):
     templates_in_worker = False
 
     def __init__(self, override_context: Optional[dict[str, Any]] = None):
+        # Check distribution metadata before importing any legacy dbt internals:
+        # dbt v2 occupies the same namespace but does not provide those modules.
+        try:
+            dbt_version = metadata.version("dbt-core")
+        except metadata.PackageNotFoundError:
+            pass  # Preserve the existing missing-dbt error path.
+        else:
+            if Version(dbt_version).major >= 2:
+                raise SQLFluffUserError(
+                    "The dbt templater supports legacy Python dbt Core 1.x. "
+                    "For Rust dbt v2, install sqlfluff-templater-dbt2 and set "
+                    "templater = dbt2. That experimental plugin requires the "
+                    "render-trace API from https://github.com/dbt-labs/dbt/pull/16870."
+                )
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None

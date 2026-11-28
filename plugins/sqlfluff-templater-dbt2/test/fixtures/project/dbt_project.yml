@@ -1,0 +1,6 @@
+name: sqlfluff_dbt2_probe
+version: '1.0'
+config-version: 2
+profile: sqlfluff_dbt2_probe
+model-paths: [models]
+macro-paths: [macros]

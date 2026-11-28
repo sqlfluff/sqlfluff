@@ -1,0 +1,7 @@
+sqlfluff_dbt2_probe:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ':memory:'
+      threads: 1

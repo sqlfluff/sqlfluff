@@ -1,0 +1,69 @@
+{
+  "protocol_version": 1,
+  "dbt_version": "2.0.8",
+  "invocation_id": "00000000-0000-4000-8000-000000000001",
+  "unique_id": "model.sqlfluff_dbt2_probe.probe",
+  "filename": "models/probe.sql",
+  "source_path": "models/probe.sql",
+  "render_stage": "jinja_before_ephemeral_injection",
+  "source": "{% if false %}select 1{% elif true %}select 2{% else %}select 3{% endif %}\n",
+  "rendered": "select 2",
+  "events": [
+    {
+      "kind": "block_start",
+      "source_start": 0,
+      "source_end": 14,
+      "rendered_start": 0,
+      "rendered_end": 0
+    },
+    {
+      "kind": "block_mid",
+      "source_start": 22,
+      "source_end": 37,
+      "rendered_start": 0,
+      "rendered_end": 0
+    },
+    {
+      "kind": "literal",
+      "source_start": 37,
+      "source_end": 45,
+      "rendered_start": 0,
+      "rendered_end": 8
+    },
+    {
+      "kind": "block_mid",
+      "source_start": 45,
+      "source_end": 55,
+      "rendered_start": 8,
+      "rendered_end": 8
+    },
+    {
+      "kind": "block_end",
+      "source_start": 63,
+      "source_end": 74,
+      "rendered_start": 8,
+      "rendered_end": 8
+    },
+    {
+      "kind": "macro",
+      "source_start": 25,
+      "source_end": 74,
+      "rendered_start": 0,
+      "rendered_end": 8
+    },
+    {
+      "kind": "block_end",
+      "source_start": 63,
+      "source_end": 74,
+      "rendered_start": 8,
+      "rendered_end": 8
+    },
+    {
+      "kind": "macro",
+      "source_start": 0,
+      "source_end": 74,
+      "rendered_start": 0,
+      "rendered_end": 8
+    }
+  ]
+}
