@@ -1,6 +1,6 @@
 """Implementation of Rule LT07."""
 
-from typing import Optional, cast
+from typing import cast
 
 from sqlfluff.core.parser import NewlineSegment, RawSegment
 from sqlfluff.core.parser.segments import TemplateSegment
@@ -44,7 +44,7 @@ class Rule_LT07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """WITH clause closing bracket should be aligned with WITH keyword.
 
         Look for a with clause and evaluate the position of closing brackets.
@@ -86,7 +86,8 @@ class Rule_LT07(BaseRule):
                     elem.is_type("newline")
                     or (
                         elem.is_type("placeholder")
-                        and cast(TemplateSegment, elem).source_str == "\n"
+                        and cast(TemplateSegment, elem).block_type == "literal"
+                        and "\n" in cast(TemplateSegment, elem).source_str
                     )
                     for elem in cte_bracketed[0].raw_segments
                 )
@@ -97,9 +98,11 @@ class Rule_LT07(BaseRule):
                 # Otherwise add to the ones to check.
                 cte_end_brackets.add(cast(RawSegment, cte_end_bracket[0]))
 
+        results = []
         raw_segments = context.segment.raw_segments
         for seg in cte_end_brackets:
             contains_non_whitespace = False
+            seen_template = False
             idx = context.segment.raw_segment_index(seg)
             self.logger.debug("End bracket %s has idx %s", seg, idx)
             # Search backward through the raw segments from just before
@@ -113,8 +116,18 @@ class Rule_LT07(BaseRule):
                 # ...or a consumed newline in a placeholder.
                 elif elem.is_type("placeholder"):
                     placeholder = cast(TemplateSegment, elem)
-                    if placeholder.source_str == "\n":
+                    if not seen_template and (
+                        placeholder.source_str == "\n"
+                        or (
+                            placeholder.block_type == "literal"
+                            and "\n" in placeholder.source_str
+                        )
+                    ):
                         break
+                    # A newline before a template tag does not separate the
+                    # bracket from that tag on its source line.
+                    if placeholder.block_type != "literal":
+                        seen_template = True
                 elif not elem.is_type("indent", "whitespace"):
                     self.logger.debug("Found non-whitespace: %s", elem)
                     contains_non_whitespace = True
@@ -122,16 +135,18 @@ class Rule_LT07(BaseRule):
 
             if contains_non_whitespace:
                 # We have to move it to a newline
-                return LintResult(
-                    anchor=seg,
-                    fixes=[
-                        LintFix.create_before(
-                            seg,
-                            [
-                                NewlineSegment(),
-                            ],
-                        )
-                    ],
+                results.append(
+                    LintResult(
+                        anchor=seg,
+                        fixes=[
+                            LintFix.create_before(
+                                seg,
+                                [
+                                    NewlineSegment(),
+                                ],
+                            )
+                        ],
+                    )
                 )
 
-        return None
+        return results

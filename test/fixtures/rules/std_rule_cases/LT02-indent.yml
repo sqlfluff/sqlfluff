@@ -922,6 +922,66 @@ test_pass_cte:
     core:
       dialect: bigquery
 
+# LT07 owns line breaks before CTE query closing brackets (#5893).
+test_pass_cte_inline_closing_brackets:
+  pass_str: |
+    WITH zoo AS (
+        SELECT a FROM foo),
+
+    bar AS (
+        SELECT a FROM zoo )
+
+    SELECT * FROM bar
+
+test_fail_cte_inline_closing_bracket_body_indent:
+  fail_str: |
+    WITH zoo AS (
+      SELECT a FROM foo)
+
+    SELECT * FROM zoo
+  fix_str: |
+    WITH zoo AS (
+        SELECT a FROM foo)
+
+    SELECT * FROM zoo
+
+test_fail_cte_own_line_closing_bracket_indent:
+  fail_str: |
+    WITH zoo AS (
+        SELECT a FROM foo
+        )
+
+    SELECT * FROM zoo
+  fix_str: |
+    WITH zoo AS (
+        SELECT a FROM foo
+    )
+
+    SELECT * FROM zoo
+
+# DuckDB's USING KEY list is not the CTE query bracket owned by LT07.
+test_fail_duckdb_using_key_closing_bracket:
+  fail_str: |
+    WITH RECURSIVE tbl(a, b) USING KEY (
+        a)
+    AS (
+        SELECT 1, 3
+        UNION
+        SELECT a + 1, b FROM tbl WHERE a < 3)
+    SELECT * FROM tbl;
+  fix_str: |
+    WITH RECURSIVE tbl(a, b) USING KEY (
+        a
+    )
+    AS (
+        SELECT 1, 3
+        UNION
+        SELECT a + 1, b FROM tbl WHERE a < 3)
+    SELECT * FROM tbl;
+  configs:
+    core:
+      dialect: duckdb
+
 # CTEs can be configured to be indented
 test_fail_indented_cte:
   fail_str: |
@@ -1845,6 +1905,7 @@ test_fail_fix_consistency_around_comments:
 
 test_fail_coverage_indent_trough:
   # This test primarily tests the handling of closing trough indents
+  # LT07, rather than LT02, handles moving the CTE closing bracket.
   fail_str: |
     WITH bar as (SELECT 1
         FROM foo)
@@ -1852,8 +1913,7 @@ test_fail_coverage_indent_trough:
   fix_str: |
     WITH bar as (
         SELECT 1
-        FROM foo
-    )
+        FROM foo)
     SELECT a FROM bar
 
 test_pass_combined_comment_impulses:

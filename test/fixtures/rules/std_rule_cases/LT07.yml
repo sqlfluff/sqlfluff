@@ -1,5 +1,37 @@
 rule: LT07
 
+test_fix_cte_tag_after_exact_consumed_newline:
+  fail_str: |
+    WITH c AS (
+        SELECT 1
+    {#- note #})
+
+    SELECT * FROM c
+  fix_str: |
+    WITH c AS (
+        SELECT 1
+    {#- note #}
+    )
+
+    SELECT * FROM c
+
+test_pass_consumed_closing_newline_with_indentation:
+  pass_str: |
+    WITH c AS (
+        SELECT 1{# note -#}
+        )
+
+    SELECT * FROM c
+
+test_pass_consumed_closing_newline_with_blank_line:
+  pass_str: |
+    WITH c AS (
+        SELECT 1{% if true %}{% endif -%}
+
+        )
+
+    SELECT * FROM c
+
 test_pass_with_clause_closing_aligned:
   # with statement indentation
   pass_str: |
@@ -38,6 +70,49 @@ test_fix_with_clause_closing_aligned_whitespace_consumption_d:
         select 1
         {%- if False -%}{%- endif -%}
     ) select * from cte
+
+test_move_parenthesis_after_consumed_indented_newline:
+  fail_str: |-
+    WITH c AS (
+        {#- note #}SELECT 1)
+
+    SELECT * FROM c
+  fix_str: |-
+    WITH c AS (
+        {#- note #}SELECT 1
+    )
+
+    SELECT * FROM c
+
+test_move_parenthesis_after_consumed_indented_newline_at_closing_bracket:
+  fail_str: |
+    WITH c AS (
+        SELECT 1
+        {#- note #})
+
+    SELECT * FROM c
+  fix_str: |
+    WITH c AS (
+        SELECT 1
+        {#- note #}
+    )
+
+    SELECT * FROM c
+
+test_pass_with_clause_consumed_spaces_only:
+  pass_str: |
+    WITH c AS (    {#- note #}SELECT 1)
+
+    SELECT * FROM c
+
+test_pass_with_clause_multiline_comment_only:
+  # Newlines inside a template tag do not introduce a SQL line break.
+  pass_str: |
+    WITH c AS ({#
+        note
+    #}SELECT 1)
+
+    SELECT * FROM c
 
 test_pass_with_clause_closing_oneline:
   # with statement oneline
