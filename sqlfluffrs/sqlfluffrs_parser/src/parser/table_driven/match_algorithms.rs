@@ -198,8 +198,8 @@ impl Parser<'_> {
         true
     }
 
-    /// True when the simple hint has raws and all are alphabetic (a keyword).
-    /// Hint-less (complex) terminators share the empty hint 0 and don't count.
+    /// True when the simple hint has raws, no token types, and all its raws are
+    /// alphabetic (a keyword). A terminator with no simple hint doesn't count.
     pub(crate) fn terminator_requires_whitespace(&self, term_id: GrammarId) -> bool {
         if term_id == GrammarId::NONCODE {
             return false;
@@ -411,26 +411,36 @@ mod tests {
         }
     }
 
-    /// Only keyword hints need whitespace; hint-less grammars (empty hint 0)
-    /// aren't keywords.
+    /// Only keyword hints need whitespace: hints whose strings are all words,
+    /// with no token types. "No hint" (try a full match) and "empty hint"
+    /// (Nothing(), never matches) are different here, so each has a case;
+    /// neither is a keyword.
     #[test]
     fn test_terminator_requires_whitespace() {
         let dialect = Dialect::Ansi;
         let tokens = Vec::new();
         let parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-        for (name, expected) in [
-            ("FromKeywordSegment", true),
-            ("SemicolonSegment", false),
-            ("ObjectReferenceTerminatorGrammar", false),
+        // Each row uses a real grammar as an example, so we make sure that the
+        // grammar we are using as a test case is doing what we are using it as an
+        // example of - a break here might mean we need to find a different example.
+        for (name, expected_hint, needs_whitespace) in [
+            ("FromKeywordSegment", "strings only", true),
+            ("SemicolonSegment", "strings only", false),
+            ("ObjectReferenceTerminatorGrammar", "has token types", false),
+            ("AliasExpressionSegment", "no hint", false),
+            ("IsNullGrammar", "empty", false),
         ] {
             let root = dialect.get_segment_grammar(name).expect(name);
-            if name == "ObjectReferenceTerminatorGrammar" {
-                let hint = root.tables.get_simple_hint_for_grammar(root.grammar_id);
-                assert_eq!(hint.map(|h| h.raw_values_count), Some(0), "hint-less");
-            }
+            let hint = match root.tables.get_simple_hint_for_grammar(root.grammar_id) {
+                None => "no hint",
+                Some(h) if h.raw_values_count == 0 && h.token_types_count == 0 => "empty",
+                Some(h) if h.token_types_count > 0 => "has token types",
+                Some(_) => "strings only",
+            };
+            assert_eq!(hint, expected_hint, "{name}'s hint");
             assert_eq!(
                 parser.terminator_requires_whitespace(root.grammar_id),
-                expected,
+                needs_whitespace,
                 "{name}"
             );
         }

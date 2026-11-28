@@ -493,6 +493,17 @@ class Nothing(BaseGrammar):
     dialects.
     """
 
+    @cached_method_for_parse_context
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
+    ) -> SimpleHintType:
+        """Nothing starts with no word and no type.
+
+        An empty hint, rather than none, lets option pruning drop it and
+        lets it sit among terminators, where every matcher needs a hint.
+        """
+        return (frozenset(), frozenset())
+
     def match(
         self,
         segments: Sequence["BaseSegment"],
