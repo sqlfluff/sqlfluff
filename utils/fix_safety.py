@@ -2,54 +2,66 @@
 """Flag fixes that may change what a query means, for review.
 
 For each statement in a dialect's parse fixtures, this runs ``sqlfluff fix``
-with every rule except those in ``EXCLUDED_RULES``, whose fixes change the tree
-on purpose, or with the rules given by ``--rules``. It then asks the real database's own parser, an *oracle*, for the
-syntax tree of the statement before and after the fix. If the trees differ, or
-the database can't parse the fixed statement, the fix is flagged as a possible
-unsafe change, and it's run again with one rule at a time to name the rules.
+and asks the database's own parser, an *oracle*, for the statement's syntax
+tree before and after the fix. If the trees differ, or the database can't parse
+the fixed statement, the fix is flagged, and the statement is fixed again with
+one rule at a time to try to name the rules that did it.
 
 A flagged fix needs a person to look at it: two different trees can still mean
-the same thing. And a fix that isn't flagged isn't proven safe: the check only
-sees the statements in the fixtures, with the default rule settings (or those of
-``--config``, whose ``rules`` and ``exclude_rules`` are kept, with the excluded
-rules added to the latter), without templating, and can't judge the excluded rules unless
-``--rules`` names them, or what a dialect does beyond what its parser shows
-(DuckDB's ``json_serialize_sql`` only handles SELECTs).
+the same thing. And a fix that isn't flagged isn't proven safe. The check only
+sees:
 
-Failures listed in ``utils/fix_safety_known_failures.yml`` are reported but
-don't fail the run. Entries that no longer fail are reported too, so the list
-can be kept up to date. They're listed for the default run, so that's only done
-without ``--rules`` and ``--config``.
+- the statements in the fixtures, each on its own and without templating;
+- the rules it fixes with, and their settings (see below);
+- what the oracle's parser keeps: comments aren't in either tree, and DuckDB's
+  ``json_serialize_sql`` only handles SELECTs.
+
+Rules: with ``--rules``, the check fixes with exactly those rules. Otherwise it
+fixes with the ``rules`` of the ``--config`` file (all of them by default), but
+not its ``exclude_rules`` nor those in ``EXCLUDED_RULES``, whose fixes change
+the tree on purpose. The rule settings are the defaults, or those of
+``--config``, which is the only config file read.
+
+Known failures: ``utils/fix_safety_known_failures.yml`` lists the fixes that a
+default run, without ``--rules`` and ``--config``, flags. In a default run,
+they don't fail the check, and a listed statement that's judged and passes
+does, so the list stays current. With ``--rules`` or ``--config``, the list
+isn't used, and every flagged fix fails the check.
 
 Exit codes:
-    0: nothing new was flagged, and every statement the oracle can judge was.
-    1: a new fix was flagged, or a listed one passes (in a default run).
-    3: nothing new was flagged, but the run is incomplete: a fixture file
-       doesn't parse, or fixing a statement timed out (after 30 seconds, where
-       there's SIGALRM, i.e. not on Windows) or raised.
-    2: nothing was checked, because a dialect has no oracle, the oracle isn't
-       installed, no fixture file matches, or the oracle could judge none of
-       the statements. Usage errors exit with 2 too.
+    1: a fix was flagged that isn't listed, or, in a default run, a listed
+       statement passes.
+    2: the check couldn't judge all it should: a dialect has no oracle or its
+       oracle isn't installed, no fixture file matches, a fixture file
+       couldn't be parsed, fixing a statement raised or timed out (after 30
+       seconds, where there's SIGALRM, i.e. not on Windows), or the oracle
+       could judge none of a dialect's statements. Usage errors and unexpected
+       errors exit with 2 too.
+    0: neither.
+When both 1 and 2 apply, the exit code is 1.
 
 Usage:
     python utils/fix_safety.py --dialect duckdb --dialect postgres
-    python utils/fix_safety.py --dialect duckdb --rules LT01,CV11
-    python utils/fix_safety.py --dialect duckdb --filter "select*" --report out.md
+    python utils/fix_safety.py --dialect postgres --filter "create_function*"
+    python utils/fix_safety.py --dialect postgres --rules CV11 --config my.sqlfluff
 
-Oracles need their database parser installed (``pip install duckdb``); the
-``fix-safety`` tox environment installs them.
+The oracles need their database's parser installed (``duckdb``, ``pglast``);
+the ``fix-safety`` tox environment installs them.
 """
 
 from __future__ import annotations
 
 import argparse
+import copy
 import fnmatch
 import json
 import os
 import signal
 import sys
-from collections.abc import Callable
+import traceback
+from collections.abc import Callable, Iterator
 from concurrent.futures import ProcessPoolExecutor
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -58,6 +70,8 @@ from typing import Any, Optional
 import yaml
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config.loader import load_config_file
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.rules import get_ruleset
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -84,8 +98,9 @@ EXCLUDED_RULES: dict[str, str] = {
     "ST09": "swaps the sides of a join condition",
 }
 
-# Seconds allowed for linting and fixing one statement. The timeout uses
-# SIGALRM, so it only applies where there is one, i.e. not on Windows.
+# Seconds allowed for splitting a fixture into statements, and for fixing and
+# judging one statement. The time limit uses SIGALRM, so it only applies where
+# there is one, i.e. not on Windows.
 STATEMENT_TIMEOUT = 30
 
 
@@ -252,6 +267,7 @@ ORACLES: dict[str, type[Oracle]] = {
 class Stats:
     """How many statements a run saw, judged and fixed."""
 
+    files: int = 0
     unparsable_files: int = 0
     statements: int = 0
     judged: int = 0
@@ -260,28 +276,37 @@ class Stats:
     errors: int = 0
 
     def add(self, other: Stats) -> None:
-        """Add another worker's counts."""
-        self.unparsable_files += other.unparsable_files
-        self.statements += other.statements
-        self.judged += other.judged
-        self.changed += other.changed
-        self.timeouts += other.timeouts
-        self.errors += other.errors
+        """Add another fixture's counts."""
+        for name in vars(self):
+            setattr(self, name, getattr(self, name) + getattr(other, name))
+
+    def incomplete(self) -> list[str]:
+        """Why the run is incomplete, if it is."""
+        reasons = []
+        if self.unparsable_files:
+            reasons.append(f"{self.unparsable_files} fixture files couldn't be parsed")
+        if self.timeouts:
+            reasons.append(f"{self.timeouts} statements timed out")
+        if self.errors:
+            reasons.append(f"fixing {self.errors} statements raised an error")
+        if not self.judged:
+            reasons.append("the oracle could judge none of the statements")
+        return reasons
 
 
 @dataclass
 class Failure:
-    """A statement whose meaning a fix changed."""
+    """A statement whose fix may change what it means."""
 
     dialect: str
     fixture: str
-    index: int
+    number: int
     original: str
     fixed: str
     reason: str
     rules: list[str] = field(default_factory=list)
 
-    def matches(self, entry: dict[str, Any]) -> bool:
+    def matches(self, entry: dict[str, str]) -> bool:
         """Whether a known-failures entry lists this failure."""
         return (
             entry["dialect"] == self.dialect
@@ -296,49 +321,46 @@ def _statements(sql: str, dialect: str) -> Optional[list[str]]:
         config=FluffConfig(overrides={"dialect": dialect, "templater": "raw"})
     )
     parsed = linter.parse_string(sql)
-    if parsed.violations:
-        return None
-    try:
-        tree = parsed.tree
-    except AssertionError:  # pragma: no cover - e.g. the file doesn't lex
-        return None
-    if tree is None:  # pragma: no cover
+    if parsed.violations or parsed.tree is None:
         return None
     return [
-        segment.raw for segment in tree.recursive_crawl("statement", recurse_into=False)
+        segment.raw
+        for segment in parsed.tree.recursive_crawl("statement", recurse_into=False)
     ]
 
 
+@lru_cache(maxsize=None)
+def _file_configs(config_path: Optional[str]) -> dict[str, Any]:
+    """The values of the `--config` file, and only that file."""
+    if not config_path:
+        return {}
+    path = Path(config_path)
+    return load_config_file(str(path.parent), path.name)
+
+
 def _config(overrides: dict[str, Any], config_path: Optional[str]) -> FluffConfig:
-    """A config from the overrides, on top of a config file if one is given."""
-    if config_path:
-        return FluffConfig.from_path(
-            str(Path(config_path).resolve().parent),
-            extra_config_path=config_path,
-            overrides=overrides,
-        )
-    return FluffConfig(overrides=overrides)
+    """A config of the overrides, on top of the `--config` file if there's one."""
+    return FluffConfig(
+        configs=copy.deepcopy(_file_configs(config_path)), overrides=overrides
+    )
 
 
 @lru_cache(maxsize=None)
 def _file_selection(config_path: Optional[str]) -> tuple[str, Optional[str]]:
-    """The `rules` and `exclude_rules` of a config file, or the defaults."""
-    if not config_path:
-        return "all", None
-    config = _config({"dialect": "ansi"}, config_path)
-    return config.get("rules") or "all", config.get("exclude_rules") or None
+    """The `rules` and `exclude_rules` of the `--config` file, or the defaults."""
+    file_config = FluffConfig(
+        configs=copy.deepcopy(_file_configs(config_path)), require_dialect=False
+    )
+    return file_config.get("rules") or "all", file_config.get("exclude_rules")
 
 
 def _selection(
     rules: Optional[list[str]], config_path: Optional[str]
 ) -> dict[str, str]:
-    """The overrides that select the rules to fix with.
-
-    `--rules` replaces the selection. Otherwise the config file's `rules` and
-    `exclude_rules` are kept, and the excluded rules are added to the latter.
-    """
+    """The `rules` and `exclude_rules` to fix with (see the module docstring)."""
     if rules:
-        return {"rules": ",".join(rules)}
+        # Exactly these, whatever the `--config` file excludes.
+        return {"rules": ",".join(rules), "exclude_rules": ""}
     selected, excluded = _file_selection(config_path)
     return {
         "rules": selected,
@@ -346,27 +368,26 @@ def _selection(
     }
 
 
+def _overrides(
+    dialect: str, rules: Optional[list[str]], config_path: Optional[str]
+) -> dict[str, Any]:
+    """The config overrides to fix one statement with."""
+    return {"dialect": dialect, "templater": "raw", **_selection(rules, config_path)}
+
+
 def _fix(
     sql: str, dialect: str, rules: Optional[list[str]], config_path: Optional[str]
 ) -> str:
-    """Fix one statement with the given rules, or with the selected ones."""
-    overrides = {
-        "dialect": dialect,
-        "templater": "raw",
-        **_selection(rules, config_path),
-    }
-    linter = Linter(config=_config(overrides, config_path))
+    """Fix one statement with the selected rules."""
+    linter = Linter(
+        config=_config(_overrides(dialect, rules, config_path), config_path)
+    )
     return linter.lint_string(sql, fix=True).fix_string()[0]
 
 
 def _fixable_rules(sql: str, dialect: str, config_path: Optional[str]) -> list[str]:
     """The selected rules with a fix for this statement."""
-    overrides = {
-        "dialect": dialect,
-        "templater": "raw",
-        **_selection(None, config_path),
-    }
-    linter = Linter(config=_config(overrides, config_path))
+    linter = Linter(config=_config(_overrides(dialect, None, config_path), config_path))
     violations = linter.lint_string(sql).violations
     return sorted({v.rule_code() for v in violations if getattr(v, "fixes", None)})
 
@@ -383,6 +404,21 @@ def _raise_timeout(*_: Any) -> None:
     raise _Timeout()
 
 
+@contextmanager
+def _time_limit(seconds: int) -> Iterator[None]:
+    """Raise `_Timeout` after `seconds`, where there's SIGALRM."""
+    if not hasattr(signal, "SIGALRM"):
+        yield
+        return
+    previous = signal.signal(signal.SIGALRM, _raise_timeout)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
+
+
 def _check_statement(
     statement: str,
     dialect: str,
@@ -393,8 +429,8 @@ def _check_statement(
 ) -> tuple[str, Optional[str], list[str]]:
     """Fix one statement and judge it.
 
-    Returns the fixed statement, the reason if the fix changed what it means,
-    and the rules whose fix changes the meaning on their own.
+    Returns the fixed statement, the reason if the fix may change what it
+    means, and the rules whose fix does on its own.
     """
     before = oracle.tree(statement)
     fixed = _fix(statement + "\n", dialect, rules, config_path).rstrip("\n")
@@ -408,8 +444,8 @@ def _check_statement(
         if after is None
         else "The fix changes the syntax tree"
     )
-    # Which rules change the meaning on their own? Each is tried separately, so
-    # that one which can't fix the statement alone doesn't hide the others.
+    # Which rules do it on their own? Each is tried separately, so that one
+    # which can't fix the statement alone doesn't hide the others.
     culprits = []
     for rule in rules or _fixable_rules(statement + "\n", dialect, config_path):
         try:
@@ -428,35 +464,33 @@ def _check_fixture(
     """Check every statement of one fixture. Runs in a worker process.
 
     Returns the failures, the counts, and the statements that were judged, so
-    that a known failure is only reported as passing if it was judged.
+    that a listed statement is only reported as passing if it was judged.
     """
     path, dialect, oracle_name, rules, config_path = args
     oracle = ORACLES[oracle_name]()
-    fixture = str(Path(path).relative_to(FIXTURES))
+    fixture = Path(path).relative_to(FIXTURES).as_posix()
     failures: list[Failure] = []
     judged: list[str] = []
-    stats = Stats()
+    stats = Stats(files=1)
     try:
-        statements = _statements(Path(path).read_text(encoding="utf-8"), dialect)
-    except Exception:
-        # e.g. the file can't be read or lexed; it isn't judged either.
+        with _time_limit(STATEMENT_TIMEOUT):
+            statements = _statements(Path(path).read_text(encoding="utf-8"), dialect)
+    except (Exception, _Timeout):
         statements = None
     if statements is None:
         stats.unparsable_files += 1
         return failures, stats, judged
-    for index, statement in enumerate(statements):
+    for number, statement in enumerate(statements, start=1):
         stats.statements += 1
-        if oracle.tree(statement) is None:
-            # The oracle can't judge this statement.
-            continue
-        # The timeout covers naming the rules too.
-        if hasattr(signal, "SIGALRM"):
-            signal.signal(signal.SIGALRM, _raise_timeout)
-            signal.alarm(STATEMENT_TIMEOUT)
         try:
-            fixed, reason, culprits = _check_statement(
-                statement, dialect, oracle, oracle_name, rules, config_path
-            )
+            # The time limit covers naming the rules too.
+            with _time_limit(STATEMENT_TIMEOUT):
+                if oracle.tree(statement) is None:
+                    # The oracle can't judge this statement.
+                    continue
+                fixed, reason, culprits = _check_statement(
+                    statement, dialect, oracle, oracle_name, rules, config_path
+                )
         except _Timeout:
             stats.timeouts += 1
             continue
@@ -464,32 +498,30 @@ def _check_fixture(
             # e.g. the statement only parses as part of its file.
             stats.errors += 1
             continue
-        finally:
-            if hasattr(signal, "SIGALRM"):
-                signal.alarm(0)
         stats.judged += 1
         judged.append(statement)
         stats.changed += fixed != statement
         if reason:
             failures.append(
-                Failure(
-                    dialect=dialect,
-                    fixture=fixture,
-                    index=index,
-                    original=statement,
-                    fixed=fixed,
-                    reason=reason,
-                    rules=culprits,
-                )
+                Failure(dialect, fixture, number, statement, fixed, reason, culprits)
             )
     return failures, stats, judged
 
 
-def _load_known_failures() -> list[dict[str, Any]]:
-    """Read the known failures."""
-    if not KNOWN_FAILURES.exists():
-        return []  # pragma: no cover
-    return yaml.safe_load(KNOWN_FAILURES.read_text(encoding="utf-8")) or []
+def _load_known_failures() -> list[dict[str, str]]:
+    """Read the known failures, checking that each names a statement."""
+    entries = yaml.safe_load(KNOWN_FAILURES.read_text(encoding="utf-8")) or []
+    keys = ("dialect", "fixture", "starts_with")
+    if not isinstance(entries, list) or not all(
+        isinstance(entry, dict)
+        and all(isinstance(entry.get(key), str) and entry[key] for key in keys)
+        for entry in entries
+    ):
+        raise ValueError(
+            f"Each entry of {KNOWN_FAILURES.name} needs a dialect, a fixture "
+            "and a starts_with."
+        )
+    return entries
 
 
 @dataclass
@@ -498,11 +530,11 @@ class DialectResult:
 
     dialect: str
     oracle: str
-    checked: int
     stats: Stats
     new: list[Failure]
     known: list[Failure]
-    now_pass: list[dict[str, Any]]
+    now_pass: list[dict[str, str]]
+    uses_known_failures: bool
 
 
 def _markdown(results: list[DialectResult]) -> str:
@@ -510,9 +542,9 @@ def _markdown(results: list[DialectResult]) -> str:
     lines = [
         "# Fix safety",
         "",
-        "A failure is a fix whose syntax tree differs from the original's, or that "
-        "the database can't parse. It may change what the query means, and needs "
-        "a look: two different trees can still mean the same thing.",
+        "A flagged fix is one whose syntax tree differs from the original's, or "
+        "that the database can't parse. It may change what the query means, and "
+        "needs a look: two different trees can still mean the same thing.",
     ]
     for r in results:
         stats = r.stats
@@ -520,29 +552,29 @@ def _markdown(results: list[DialectResult]) -> str:
             "",
             f"## {r.dialect}, judged by the {r.oracle} parser",
             "",
-            f"Checked {r.checked} fixture files, {stats.unparsable_files} of which "
-            f"don't parse as a whole and are skipped: {stats.statements} "
-            f"statements, {stats.judged} of which were judged. The fix changed "
-            f"{stats.changed} of those. {stats.timeouts} timed out and "
-            f"{stats.errors} couldn't be fixed on their own.",
+            f"Checked {stats.files} fixture files: {stats.statements} statements, "
+            f"{stats.judged} of which were judged. The fix changed {stats.changed} "
+            "of those.",
             "",
-            f"New failures: {len(r.new)}. Known failures: {len(r.known)}. "
-            f"Known failures that now pass: {len(r.now_pass)}.",
+            f"Flagged fixes that aren't listed: {len(r.new)}. Listed: "
+            f"{len(r.known)}. Listed statements that pass: {len(r.now_pass)}.",
         ]
+        if not r.uses_known_failures:
+            lines += [
+                "",
+                "The known failures aren't used, because `--rules` or `--config` "
+                "was given.",
+            ]
+        reasons = stats.incomplete()
+        if reasons:
+            lines += ["", f"Not all was judged: {'; '.join(reasons)}."]
         if not hasattr(signal, "SIGALRM"):
             lines += [
                 "",
                 "There's no SIGALRM on this platform, so statements weren't "
-                f"given a {STATEMENT_TIMEOUT}-second timeout.",
+                f"given a {STATEMENT_TIMEOUT}-second time limit.",
             ]
-        if stats.timeouts or stats.errors or stats.unparsable_files:
-            lines += [
-                "",
-                "The run is incomplete: the fixture files that don't parse, and the "
-                "statements that timed out or couldn't be fixed on their own, "
-                "weren't judged.",
-            ]
-        for title, items in (("New failures", r.new), ("Known failures", r.known)):
+        for title, items in (("Flagged fixes", r.new), ("Listed fixes", r.known)):
             if not items:
                 continue
             lines += ["", f"### {title}"]
@@ -550,7 +582,7 @@ def _markdown(results: list[DialectResult]) -> str:
                 rules = ", ".join(f.rules) or "only when rules combine"
                 lines += [
                     "",
-                    f"#### `{f.fixture}`, statement {f.index}",
+                    f"#### `{f.fixture}`, statement {f.number}",
                     f"{f.reason}. Rules: {rules}.",
                     "",
                     "```sql",
@@ -564,17 +596,17 @@ def _markdown(results: list[DialectResult]) -> str:
                     "```",
                 ]
         if r.now_pass:
-            lines += ["", "### Known failures that now pass", ""]
+            lines += ["", "### Listed statements that pass", ""]
             lines += [f"- `{e['fixture']}`: `{e['starts_with']}`" for e in r.now_pass]
     return "\n".join(lines) + "\n"
 
 
-def _fixture_paths(dialect: str, args: argparse.Namespace) -> list[Path]:
+def _fixture_paths(dialect: str, pattern: str) -> list[Path]:
     """The fixture files to check for a dialect."""
     return sorted(
         p
-        for p in (FIXTURES / (args.fixtures or dialect)).glob("*.sql")
-        if fnmatch.fnmatch(p.name, args.filter)
+        for p in (FIXTURES / dialect).glob("*.sql")
+        if fnmatch.fnmatch(p.name, pattern)
     )
 
 
@@ -583,13 +615,11 @@ def _check_dialect(
     oracle_name: str,
     args: argparse.Namespace,
     rules: Optional[list[str]],
+    known_failures: Optional[list[dict[str, str]]],
 ) -> DialectResult:
-    """Check one dialect's fixtures and compare with the known failures."""
-    paths = _fixture_paths(dialect, args)
+    """Check one dialect's fixtures and compare them with the known failures."""
+    paths = _fixture_paths(dialect, args.filter)
     jobs = [(str(p), dialect, oracle_name, rules, args.config) for p in paths]
-    failures: list[Failure] = []
-    judged: set[tuple[str, str]] = set()
-    stats = Stats()
     results: list[tuple[list[Failure], Stats, list[str]]]
     if args.processes == 1:
         # In this process, which is easier to debug.
@@ -597,100 +627,110 @@ def _check_dialect(
     else:
         with ProcessPoolExecutor(max_workers=args.processes) as pool:
             results = list(pool.map(_check_fixture, jobs))
+
+    failures: list[Failure] = []
+    judged: set[tuple[str, str]] = set()
+    stats = Stats()
     for path, (fixture_failures, fixture_stats, fixture_judged) in zip(paths, results):
         failures += fixture_failures
         stats.add(fixture_stats)
-        fixture = str(path.relative_to(FIXTURES))
+        fixture = path.relative_to(FIXTURES).as_posix()
         judged |= {(fixture, statement) for statement in fixture_judged}
 
-    entries = [e for e in _load_known_failures() if e["dialect"] == dialect]
+    entries = [e for e in known_failures or [] if e["dialect"] == dialect]
     new = [f for f in failures if not any(f.matches(e) for e in entries)]
     known = [f for f in failures if any(f.matches(e) for e in entries)]
-    # A known failure only passes if its statement was judged, with all rules
-    # and the default settings, which is how it's listed.
-    now_pass = []
-    if not rules and not args.config:
-        now_pass = [
-            e
-            for e in entries
-            if any(
-                fixture == e["fixture"] and statement.startswith(e["starts_with"])
-                for fixture, statement in judged
-            )
-            and not any(f.matches(e) for f in failures)
-        ]
-    return DialectResult(dialect, oracle_name, len(paths), stats, new, known, now_pass)
+    # A listed statement only passes if it was judged.
+    now_pass = [
+        e
+        for e in entries
+        if any(
+            fixture == e["fixture"] and statement.startswith(e["starts_with"])
+            for fixture, statement in judged
+        )
+        and not any(f.matches(e) for f in failures)
+    ]
+    return DialectResult(
+        dialect, oracle_name, stats, new, known, now_pass, known_failures is not None
+    )
 
 
-def main(argv: Optional[list[str]] = None) -> int:
-    """Run the check and return the exit code."""
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+def _unknown_rules(rules: list[str]) -> list[str]:
+    """The rules that sqlfluff doesn't know.
+
+    sqlfluff only warns about an unknown rule, so a typo would pass. It matches
+    rule references without regard to case, e.g. `lt01`.
+    """
+    references = {ref.lower() for ref in get_ruleset().rule_reference_map()}
+    return [rule for rule in rules if rule.lower() not in references]
+
+
+def _split_rules(rules: Optional[str]) -> list[str]:
+    """The rules of a comma-separated list, without spaces or empty items."""
+    return [rule.strip() for rule in (rules or "").split(",") if rule.strip()]
+
+
+def _parse_args(
+    argv: Optional[list[str]],
+) -> tuple[argparse.Namespace, Optional[list[str]]]:
+    """Parse and check the options, and return them with the rules to fix with."""
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument(
         "--dialect",
         action="append",
         required=True,
         help="Dialect to check. Repeat it to check several.",
     )
-    parser.add_argument(
-        "--oracle",
-        choices=sorted(ORACLES),
-        help="Oracle to judge with. Defaults to the one for each dialect.",
-    )
-    parser.add_argument(
-        "--rules", help="Comma-separated rules to fix with, instead of all."
-    )
+    parser.add_argument("--rules", help="Comma-separated rules to fix with.")
     parser.add_argument(
         "--filter", default="*", help="Glob for the fixture file names to check."
     )
     parser.add_argument(
-        "--fixtures",
-        help="Fixture folder to check, e.g. `ansi`. Defaults to the dialect's own.",
-    )
-    parser.add_argument(
         "--config",
-        help=(
-            "A .sqlfluff file with rule settings to fix with, e.g. other policies. "
-            "Its `rules` and `exclude_rules` are kept, and the excluded rules are "
-            "added to the latter."
-        ),
+        help="A .sqlfluff file of the rule settings and rules to fix with.",
     )
-    parser.add_argument("--report", help="Also write the report to this file.")
     parser.add_argument(
         "--processes",
         type=int,
         # cpu_count() is None when the number of CPUs can't be told.
         default=os.cpu_count() or 1,
-        help="Worker processes.",
+        help="Worker processes. With 1, the check runs in this process.",
     )
     args = parser.parse_args(argv)
-    # A quoted `~` isn't expanded by the shell.
-    for option in ("config", "report"):
-        if getattr(args, option):
-            setattr(args, option, str(Path(getattr(args, option)).expanduser()))
     if args.processes < 1:
         parser.error("--processes must be at least 1")
-    if args.config and not Path(args.config).is_file():
-        parser.error(f"--config {args.config} isn't a file")
-    if args.fixtures and not (FIXTURES / args.fixtures).resolve().is_relative_to(
-        FIXTURES
-    ):
-        parser.error(f"--fixtures must be a folder of {FIXTURES.relative_to(ROOT)}")
-    if args.report and not Path(args.report).resolve().parent.is_dir():
-        parser.error(f"--report {args.report} is in a folder that doesn't exist")
-    rules = [r.strip() for r in args.rules.split(",")] if args.rules else None
-    if rules:
-        # sqlfluff only warns about an unknown rule, so a typo would pass.
-        # It matches rule references without regard to case, e.g. `lt01`.
-        known_rules = {ref.lower() for ref in get_ruleset().rule_reference_map()}
-        unknown = [rule for rule in rules if rule.lower() not in known_rules]
+    if args.config:
+        # A quoted `~` isn't expanded by the shell.
+        args.config = str(Path(args.config).expanduser().resolve())
+        if not Path(args.config).is_file():
+            parser.error(f"--config {args.config} isn't a file")
+        try:
+            selected, excluded = _file_selection(args.config)
+        except SQLFluffUserError as error:
+            parser.error(f"--config: {error}")
+        unknown = _unknown_rules(_split_rules(selected) + _split_rules(excluded))
+        if unknown:
+            parser.error(f"--config has unknown rules: {', '.join(unknown)}")
+    rules = None
+    if args.rules is not None:
+        rules = _split_rules(args.rules)
+        if not rules:
+            parser.error("--rules names no rule")
+        unknown = _unknown_rules(rules)
         if unknown:
             parser.error(f"--rules has unknown rules: {', '.join(unknown)}")
+    return args, rules
 
+
+def _run(argv: Optional[list[str]]) -> int:
+    """Run the check; `main` adds the exit code for unexpected errors."""
+    args, rules = _parse_args(argv)
     oracles = {}
     for dialect in args.dialect:
-        oracle_name = args.oracle or next(
-            (name for name, cls in ORACLES.items() if dialect in cls.dialects),
-            None,
+        oracle_name = next(
+            (name for name, cls in ORACLES.items() if dialect in cls.dialects), None
         )
         if oracle_name is None:
             print(f"No oracle for the {dialect} dialect.", file=sys.stderr)
@@ -702,41 +742,37 @@ def main(argv: Optional[list[str]] = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        oracles[dialect] = oracle_name
-
-    for dialect in oracles:
-        if not _fixture_paths(dialect, args):
-            # e.g. a typo in `--filter` or `--fixtures`, which mustn't pass.
+        if not _fixture_paths(dialect, args.filter):
+            # e.g. a typo in `--filter`, which mustn't pass.
             print(
-                f"No fixture files to check for the {dialect} dialect.",
-                file=sys.stderr,
+                f"No fixture files to check for the {dialect} dialect.", file=sys.stderr
             )
             return 2
+        oracles[dialect] = oracle_name
 
+    # The known failures are those of a default run.
+    known_failures = None if rules or args.config else _load_known_failures()
     results = [
-        _check_dialect(dialect, oracle_name, args, rules)
+        _check_dialect(dialect, oracle_name, args, rules, known_failures)
         for dialect, oracle_name in oracles.items()
     ]
-    report = _markdown(results)
-    print(report)
-    if args.report:
-        Path(args.report).write_text(report, encoding="utf-8")
+    print(_markdown(results), end="")
     if any(r.new or r.now_pass for r in results):
         return 1
-    if any(
-        r.stats.timeouts or r.stats.errors or r.stats.unparsable_files for r in results
-    ):
-        return 3
-    unjudged = [r.dialect for r in results if not r.stats.judged]
-    if unjudged:
-        # e.g. DuckDB fixtures without a SELECT, which mustn't read as a pass.
-        print(
-            f"No statement was judged for the {', '.join(unjudged)} dialect.",
-            file=sys.stderr,
-        )
+    if any(r.stats.incomplete() for r in results):
         return 2
     return 0
 
 
-if __name__ == "__main__":
+def main(argv: Optional[list[str]] = None) -> int:
+    """Run the check and return the exit code (see the module docstring)."""
+    try:
+        return _run(argv)
+    except Exception:
+        # Not 1, which means a fix was flagged.
+        traceback.print_exc()
+        return 2
+
+
+if __name__ == "__main__":  # pragma: no cover
     sys.exit(main())

@@ -8,6 +8,7 @@
 # `unknown` where the issue doesn't say.
 # Of the 66 issues, the rest use Jinja or dbt, are in SQL that neither database
 # parses, or don't give the corrupted output.
+# `table` is a reserved word, so neither database parses the input as reported.
 - issue: 906
   dialect: ansi
   rule: LT12
@@ -161,6 +162,7 @@
   bad_output: COMMENT ON FUNCTION xIS 'y'
   postgres: detected
   duckdb: not_judged
+# A LEFT JOIN needs ON or USING, so neither database parses the input.
 - issue: 6946
   dialect: ansi
   rule: CV12

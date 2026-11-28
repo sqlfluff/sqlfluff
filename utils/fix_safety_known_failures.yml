@@ -12,4 +12,3 @@
 - dialect: postgres
   fixture: postgres/create_function.sql
   starts_with: "CREATE OR REPLACE FUNCTION time_series(\n    _from timestamp"
-  rules: [RF06]

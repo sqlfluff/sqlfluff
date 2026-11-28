@@ -34,27 +34,28 @@ any test cases for a rule should include the code for that rule.
 ## Flagging Fixes That May Change the Meaning
 
 A fix should change how a query is written, not what it does. `utils/fix_safety.py`
-looks for fixes that may break this in the dialect fixtures: it fixes each statement
-with every rule (but those below), then asks the database's own parser (an *oracle*)
-for the statement's syntax tree before and after the fix. If the trees differ, or the
-database can't parse the fixed statement, the fix is flagged. The check then fixes it
-with one rule at a time to name the rules that did it; when the change only happens
-with several rules together, it says so.
+looks for fixes that may break this in the dialect fixtures. For each statement, it
+runs `sqlfluff fix` and asks the database's own parser (an *oracle*) for the
+statement's syntax tree before and after the fix. If the trees differ, or the database
+can't parse the fixed statement, the fix is flagged, and the statement is fixed again
+with one rule at a time to try to name the rules that did it.
 
 A flagged fix needs a person to look at it, because two different trees can still mean
 the same thing: `schema.table.column` and `table.column` differ, but can name the same
-column in PostgreSQL. And a fix that isn't flagged isn't proven safe:
+column in PostgreSQL. And a fix that isn't flagged isn't proven safe. The check only
+sees:
 
-- Only the statements in the dialect fixtures are checked, with all the rules but those
-  below (unless you pass `--rules`), the default rule settings (unless you pass
-  `--config`), and without templating. A `--config` file can select rules too: its
-  `rules` and `exclude_rules` are kept, and the rules below are added to the latter.
-- Rules whose fixes change the tree on purpose, like ST06 reordering the columns of a
-  `SELECT` or AL05 removing an alias, aren't checked; they're listed with the reason
-  in the script. Past corruption bugs came from some of these too.
-- An oracle only sees what its database's parser keeps. DuckDB's `json_serialize_sql`
-  only handles `SELECT` statements, comments aren't in either tree, and each statement
-  is judged on its own.
+- the statements in the fixtures, each on its own and without templating;
+- the rules it fixes with, and their settings (see below);
+- what the oracle's parser keeps: comments aren't in either tree, and DuckDB's
+  `json_serialize_sql` only handles `SELECT` statements.
+
+With `--rules`, the check fixes with exactly those rules. Otherwise it fixes with the
+`rules` of the `--config` file (all of them by default), but not its `exclude_rules`
+nor the rules whose fixes change the tree on purpose, like ST06 reordering the columns
+of a `SELECT` or AL05 removing an alias, which are listed with the reason in the
+script. The rule settings are the defaults, or those of `--config`, which is the only
+config file read. Past corruption bugs came from some of the excluded rules too.
 
 `test/fixtures/fix_safety/historical_corruptions.yml` holds the corrupted fixes from
 closed `fix corrupts sql` issues, and what each oracle makes of them, misses included.
@@ -68,30 +69,32 @@ tox -e fix-safety
 ```
 
 Arguments after `--` replace the default `--dialect duckdb --dialect postgres`.
-Or run it directly, for some dialects, fixtures or rules, or with a config file of
-other rule settings:
+Or run it directly, for some dialects, fixtures or rules, or with a config file:
 
 ```sh
 python utils/fix_safety.py --dialect duckdb --dialect postgres
 python utils/fix_safety.py --dialect postgres --filter "create_function*"
 python utils/fix_safety.py --dialect postgres --rules CV11 --config my.sqlfluff
-python utils/fix_safety.py --dialect postgres --fixtures ansi
 ```
 
-Flagged fixes that are known are listed in `utils/fix_safety_known_failures.yml`, so
-they don't fail the check. When you fix one, remove it from the list: the check also
-fails if a listed statement passes. The list is for the default run, so with `--rules`
-or `--config`, a listed statement that passes isn't reported. The check exits with:
+`utils/fix_safety_known_failures.yml` lists the fixes that a default run, without
+`--rules` and `--config`, flags. In a default run, they don't fail the check, and a
+listed statement that's judged and passes does, so the list stays current: when you
+fix one, remove it from the list. With `--rules` or `--config`, the list isn't used,
+and every flagged fix fails the check.
 
-- 0 when nothing new is flagged, and every statement the oracle can judge was judged.
-- 1 for a new flagged fix, or a listed one that passes (in a default run).
-- 3 when nothing new is flagged, but the run is incomplete: some fixture files don't
-  parse, or some statements timed out or couldn't be fixed, so they weren't judged.
-  The 30-second timeout for a statement uses `SIGALRM`, so it only applies on Linux
-  and macOS, not Windows.
-- 2 without checking anything, if a dialect has no oracle, the oracle isn't installed,
-  no fixture file matches, or the oracle can't judge any of the statements, and for a
-  usage error, like an unknown rule in `--rules`.
+The check exits with:
+
+- 1 when a fix was flagged that isn't listed, or, in a default run, a listed statement
+  passes.
+- 2 when the check couldn't judge all it should: a dialect has no oracle or its oracle
+  isn't installed, no fixture file matches, a fixture file couldn't be parsed, fixing
+  a statement raised or timed out (after 30 seconds, where there's `SIGALRM`, i.e. not
+  on Windows), or the oracle could judge none of a dialect's statements. Usage errors
+  and unexpected errors exit with 2 too.
+- 0 when neither applies.
+
+When both 1 and 2 apply, the exit code is 1.
 
 ## Traversal Options
 
