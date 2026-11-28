@@ -1,0 +1,169 @@
+rule: AM10
+
+test_fail_more_select_columns:
+  fail_str: INSERT INTO foo (a) SELECT a, b FROM bar;
+
+test_fail_fewer_select_columns:
+  fail_str: INSERT INTO foo (a, b) SELECT a FROM bar;
+
+test_pass_matching_columns:
+  pass_str: INSERT INTO foo (a, b) SELECT a, b FROM bar;
+
+test_pass_no_target_list:
+  pass_str: INSERT INTO foo SELECT a, b FROM bar;
+
+test_pass_values:
+  pass_str: INSERT INTO foo (a, b) VALUES (1, 2);
+
+test_pass_default_values:
+  pass_str: INSERT INTO foo DEFAULT VALUES;
+
+test_pass_star:
+  pass_str: INSERT INTO foo (a, b) SELECT * FROM bar;
+
+test_pass_qualified_star:
+  pass_str: INSERT INTO foo (a, b) SELECT bar.* FROM bar;
+
+test_pass_mixed_star:
+  pass_str: INSERT INTO foo (a) SELECT bar.*, 1 FROM bar;
+
+test_pass_count_star:
+  pass_str: INSERT INTO foo (a) SELECT COUNT(*) FROM bar;
+
+test_fail_count_star:
+  fail_str: INSERT INTO foo (a, b) SELECT COUNT(*) FROM bar;
+
+test_pass_subquery_scope:
+  pass_str: INSERT INTO foo (a) SELECT (SELECT COUNT(*) FROM bar) FROM baz;
+
+test_fail_outer_projection:
+  fail_str: INSERT INTO foo (a) SELECT a, b FROM (SELECT a FROM bar) AS baz;
+
+test_pass_cte_before_insert:
+  pass_str: |
+    WITH c AS (SELECT a, b FROM bar)
+    INSERT INTO foo (a) SELECT a FROM c;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_cte_before_insert:
+  fail_str: |
+    WITH c AS (SELECT a FROM bar)
+    INSERT INTO foo (a) SELECT a, 1 FROM c;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_cte_after_insert:
+  pass_str: |
+    INSERT INTO foo (a)
+    WITH c AS (SELECT a, b FROM bar)
+    SELECT a FROM c;
+
+test_fail_cte_after_insert:
+  fail_str: |
+    INSERT INTO foo (a)
+    WITH c AS (SELECT a FROM bar)
+    SELECT a, 1 FROM c;
+
+test_pass_union:
+  pass_str: INSERT INTO foo (a) SELECT a FROM bar UNION ALL SELECT b FROM baz;
+
+test_fail_union:
+  fail_str: INSERT INTO foo (a) SELECT a, b FROM bar UNION ALL SELECT c, d FROM baz;
+
+test_fail_second_union_branch:
+  fail_str: INSERT INTO foo (a) SELECT * FROM bar UNION ALL SELECT c, d FROM baz;
+
+test_fail_parenthesized_select:
+  fail_str: INSERT INTO foo (a) (SELECT a, b FROM bar);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_returning:
+  pass_str: INSERT INTO foo (a) SELECT a FROM bar RETURNING a, b;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_quoted_columns:
+  fail_str: INSERT INTO foo ("a", "b") SELECT 1;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_select_as_struct:
+  pass_str: INSERT INTO foo (a) SELECT AS STRUCT a, b FROM bar;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_select_as_value:
+  pass_str: INSERT INTO foo (a) SELECT AS VALUE STRUCT(1, 2);
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_multi_table_insert:
+  pass_str: |
+    INSERT ALL
+      INTO foo (a) VALUES (a)
+      INTO bar (b, c) VALUES (b, c)
+    SELECT a, b, c FROM baz;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_distinct:
+  pass_str: INSERT INTO foo (a) SELECT DISTINCT a FROM bar;
+
+test_fail_distinct:
+  fail_str: INSERT INTO foo (a) SELECT DISTINCT a, b FROM bar;
+
+test_pass_union_by_name:
+  pass_str: |
+    INSERT INTO foo (a, b, c)
+    SELECT a, b FROM bar
+    UNION ALL BY NAME SELECT b, c FROM baz;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_insert_overwrite:
+  pass_str: INSERT OVERWRITE INTO foo (a) SELECT a FROM bar;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_mysql:
+  fail_str: INSERT INTO foo (a) SELECT a, b FROM bar;
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_insert_select_star_from_cte:
+  pass_str: |
+    INSERT INTO foo (a)
+    WITH c AS (SELECT a, b FROM bar)
+    SELECT * FROM c;
+
+test_pass_union_by_name_multiline:
+  pass_str: |
+    INSERT INTO foo (a, b, c)
+    SELECT a, b FROM bar
+    UNION ALL BY
+      NAME SELECT b, c FROM baz;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_union_by_name_comment:
+  pass_str: |
+    INSERT INTO foo (a, b, c)
+    SELECT a, b FROM bar
+    UNION ALL BY /* Match columns by name. */ NAME SELECT b, c FROM baz;
+  configs:
+    core:
+      dialect: snowflake
