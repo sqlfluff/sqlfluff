@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42c04987e5868917da4918868f7292265f4e705a615649117afe33e16159a425
+_hash: f3f75651539f681a18dd9fdec78d904d632a912731188b024cb7b77169015d99
 file:
 - statement:
     create_view_statement:
@@ -103,27 +103,23 @@ file:
                 naked_identifier: a
               comparison_operator:
                 raw_comparison_operator: '='
-              function:
-                function_name:
-                  function_name_identifier: all
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            column_reference:
-                              naked_identifier: a
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                  naked_identifier: t1
-                    end_bracket: )
+              keyword: all
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: a
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: t1
+                end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:
