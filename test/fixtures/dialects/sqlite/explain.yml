@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 87e6c44cf1a9d2a404e2839982c2c405d42c22978d6e81891ec61b615a7df122
+file:
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: QUERY
+    - keyword: PLAN
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: b
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: EXPLAIN
+    - keyword: QUERY
+    - keyword: PLAN
+    - delete_statement:
+        keyword: DELETE
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: a
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
