@@ -8,4 +8,3 @@ insert into my_schema.case (id) values ('a');
 
 drop table my_schema.case;
 
-select * from my_db..case;
