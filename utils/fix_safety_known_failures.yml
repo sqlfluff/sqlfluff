@@ -10,22 +10,6 @@
 # from the fixture's other statements.
 
 # Bugs.
-- dialect: duckdb
-  fixture: duckdb/list_comprehension.sql
-  starts_with: "SELECT [lower(x) FOR x IN strings]"
-  reason: "Bug: AL05 removes the alias `t(strings)` with its column list, so DuckDB can't find the column `strings`."
-- dialect: duckdb
-  fixture: duckdb/list_comprehension.sql
-  starts_with: "SELECT [upper(x) FOR x IN strings IF len(x) > 0]"
-  reason: "Bug: AL05 removes the alias `t(strings)` with its column list, so DuckDB can't find the column `strings`."
-- dialect: duckdb
-  fixture: duckdb/select.sql
-  starts_with: "SELECT *,"
-  reason: "Bug: AL05 removes the alias `cities(name, id)` with its column list, so the columns are named `col0` and `col1` instead."
-- dialect: duckdb
-  fixture: duckdb/with_recursive_using_key.sql
-  starts_with: "WITH RECURSIVE comp(id, c) USING KEY (id) AS ("
-  reason: "Bug: AL05 removes the alias `r(i)` with its column list, so DuckDB can't find the column `i`."
 - dialect: postgres
   fixture: postgres/create_function.sql
   starts_with: "CREATE OR REPLACE FUNCTION time_series(\n    _from timestamp without time zone,"

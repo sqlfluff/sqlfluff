@@ -454,11 +454,11 @@ def test_parallel_run_matches_sequential_run(capsys, no_known_failures):
     assert first[1] == second[1]
 
 
-def _cast_style(path, extra=""):
+def _trailing_commas(path, extra=""):
     path.write_text(
         f"[sqlfluff]\n{extra}"
-        "[sqlfluff:rules:convention.casting_style]\n"
-        "preferred_type_casting_style = cast\n",
+        "[sqlfluff:rules:convention.select_trailing_comma]\n"
+        "select_clause_trailing_comma = require\n",
         encoding="utf-8",
     )
     return str(path)
@@ -470,15 +470,15 @@ SELECT_SQL = ("--dialect", "postgres", "--filter", "select.sql")
 def test_config_file_changes_the_verdict(capsys, tmp_path, no_known_failures):
     """The rule settings of `--config` are used to fix, and to name the rule.
 
-    CV11 is fine with its default style, but with the `cast` style it turns
-    `'...'::TIMESTAMP AT TIME ZONE 'UTC'` into SQL PostgreSQL can't parse.
+    CV03 is fine by default, but when it's set to require a trailing comma
+    after the last column, it adds one, which PostgreSQL can't parse.
     """
     pytest.importorskip("pglast")
-    config = _cast_style(tmp_path / "cast.sqlfluff")
-    assert _run(capsys, *SELECT_SQL, "--rules", "CV11")[0] == 0
-    code, out, _ = _run(capsys, *SELECT_SQL, "--rules", "CV11", "--config", config)
+    config = _trailing_commas(tmp_path / "commas.sqlfluff")
+    assert _run(capsys, *SELECT_SQL, "--rules", "CV03")[0] == 0
+    code, out, _ = _run(capsys, *SELECT_SQL, "--rules", "CV03", "--config", config)
     assert code == 1
-    assert "can't parse the fixed statement. Rules: CV11." in out
+    assert "can't parse the fixed statement. Rules: CV03." in out
 
 
 def test_config_file_selects_rules(capsys, tmp_path, no_known_failures):
@@ -487,30 +487,30 @@ def test_config_file_selects_rules(capsys, tmp_path, no_known_failures):
     Unless `--rules` is given, which selects exactly its rules.
     """
     pytest.importorskip("pglast")
-    only_cv11 = _cast_style(tmp_path / "only.sqlfluff", "rules = CV11\n")
-    code, out, _ = _run(capsys, *SELECT_SQL, "--config", only_cv11)
+    only_cv03 = _trailing_commas(tmp_path / "only.sqlfluff", "rules = CV03\n")
+    code, out, _ = _run(capsys, *SELECT_SQL, "--config", only_cv03)
     assert code == 1
-    assert "Rules: CV11." in out
-    assert "Rules: CV11, " not in out and ", CV11." not in out
+    assert "Rules: CV03." in out
+    assert "Rules: CV03, " not in out and ", CV03." not in out
 
-    no_cv11 = _cast_style(
-        tmp_path / "no.sqlfluff", "rules = CV11,ST06\nexclude_rules = CV11\n"
+    no_cv03 = _trailing_commas(
+        tmp_path / "no.sqlfluff", "rules = CV03,ST06\nexclude_rules = CV03\n"
     )
-    selection = fix_safety._selection(None, no_cv11)
-    assert selection["rules"] == "CV11,ST06"
-    assert selection["exclude_rules"] == "CV11"
-    assert _run(capsys, *SELECT_SQL, "--config", no_cv11)[0] == 0
+    selection = fix_safety._selection(None, no_cv03)
+    assert selection["rules"] == "CV03,ST06"
+    assert selection["exclude_rules"] == "CV03"
+    assert _run(capsys, *SELECT_SQL, "--config", no_cv03)[0] == 0
     # `--rules` gives exactly the rules to fix with.
-    assert _run(capsys, *SELECT_SQL, "--config", no_cv11, "--rules", "CV11")[0] == 1
+    assert _run(capsys, *SELECT_SQL, "--config", no_cv03, "--rules", "CV03")[0] == 1
 
 
 def test_only_the_config_file_is_read(capsys, tmp_path, no_known_failures):
     """A `.sqlfluff` next to the `--config` file isn't read."""
     pytest.importorskip("pglast")
-    _cast_style(tmp_path / ".sqlfluff")
+    _trailing_commas(tmp_path / ".sqlfluff")
     empty = tmp_path / "empty.sqlfluff"
     empty.write_text("[sqlfluff]\n", encoding="utf-8")
-    args = (*SELECT_SQL, "--rules", "CV11", "--config", str(empty))
+    args = (*SELECT_SQL, "--rules", "CV03", "--config", str(empty))
     assert _run(capsys, *args)[0] == 0
 
 
